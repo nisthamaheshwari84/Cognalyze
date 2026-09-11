@@ -149,11 +149,15 @@ Return STRICT JSON ONLY:
           const clean = stripThinkTags(raw);
           const parsed = extractJSON(clean);
 
+          if (typeof parsed.score !== "number") {
+            throw new Error("Invalid score format from LLM");
+          }
+
           return NextResponse.json({
             success: true,
-            score: typeof parsed.score === "number" ? parsed.score : 70,
+            score: Math.max(0, Math.min(100, Math.round(parsed.score))),
             result: parsed.result || (parsed.score >= 65 ? "pass" : "fail"),
-            feedback: parsed.feedback || "Candidate provided structured behavioral responses.",
+            feedback: parsed.feedback || "Evaluation complete.",
             star_strengths: parsed.star_strengths || [],
             star_gaps: parsed.star_gaps || [],
           });

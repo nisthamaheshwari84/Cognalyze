@@ -13,82 +13,14 @@ import {
   evaluateHolisticSimulation,
   saveSimulationSession,
 } from "@/lib/simulation/simulation-engine";
-import { AptitudeQuestion } from "@/lib/skill-hub-store";
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
-
-// ── Sample Aptitude Questions for Round 2 ──
-const OA_APTITUDE_QUESTIONS: AptitudeQuestion[] = [
-  {
-    id: "sim-apt-1",
-    category: "quantitative",
-    topic: "Work & Efficiency",
-    company_tag: "Campus Standard",
-    source_citation: "Online Assessment",
-    difficulty: "medium",
-    question: "A can finish a task in 10 days, while B can finish it in 15 days. After working together for 3 days, A leaves. How many days will B take to complete the remaining work?",
-    options: ["7.5 days", "6 days", "8 days", "9 days"],
-    correct_option_index: 0,
-    explanation: "Combined 1-day work = 1/10 + 1/15 = 5/30 = 1/6. In 3 days, work completed = 3 * 1/6 = 1/2. Remaining work = 1/2. Time taken by B = (1/2) / (1/15) = 15/2 = 7.5 days.",
-  },
-  {
-    id: "sim-apt-2",
-    category: "logical_reasoning",
-    topic: "Analytical Deductions",
-    company_tag: "FinTech / Product",
-    source_citation: "Online Assessment",
-    difficulty: "easy",
-    question: "All microservices log to a central telemetry queue. Some services experience network partitions. Which conclusion follows necessarily?",
-    options: [
-      "All telemetry logs are dropped during network partitions.",
-      "Some partitioned services still attempt to stream telemetry to the queue.",
-      "No telemetry queue can scale beyond partitioned nodes.",
-      "Partitioned nodes automatically switch to in-memory buffers."
-    ],
-    correct_option_index: 1,
-    explanation: "Standard deductive logic: If all services log to the queue, and some services are partitioned, then those partitioned services log to the queue by definition.",
-  },
-  {
-    id: "sim-apt-3",
-    category: "programming_logic",
-    topic: "Algorithmic Invariants",
-    company_tag: "FAANG",
-    source_citation: "Online Assessment",
-    difficulty: "medium",
-    question: "In a binary search on a sorted array of size N, what is the maximum number of comparisons needed to conclude an element is not present?",
-    options: ["N / 2", "floor(log2(N)) + 1", "log2(N) - 1", "N"],
-    correct_option_index: 1,
-    explanation: "Binary search halves the search space each step: floor(log2(N)) + 1 iterations in the worst case.",
-  },
-];
-
-// ── Default starter code ──
-const STARTER_CODES: Record<string, string> = {
-  python: `def solve(nums, target):
-    # Write your solution here
-    seen = {}
-    for i, n in enumerate(nums):
-        diff = target - n
-        if diff in seen:
-            return [seen[diff], i]
-        seen[n] = i
-    return []
-
-# Execute
-print(solve([2, 7, 11, 15], 9))
-`,
-  javascript: `function solve(nums, target) {
-    const map = new Map();
-    for (let i = 0; i < nums.length; i++) {
-        const diff = target - nums[i];
-        if (map.has(diff)) return [map.get(diff), i];
-        map.set(nums[i], i);
-    }
-    return [];
-}
-
-console.log(solve([2, 7, 11, 15], 9));
-`,
-};
+import { canScoreRound } from "@/lib/simulation/gating";
+import { verifyGitHubProfile, GitHubVerificationResult } from "@/lib/simulation/github-verifier";
+import {
+  generateOASession,
+  GeneratedOASession,
+  OAAptitudeQuestion,
+  OACodingProblem,
+} from "@/lib/simulation/oa-generator";
 
 function SimulationContent() {
   // ── Session Configuration ──
@@ -102,20 +34,26 @@ function SimulationContent() {
   const [resumeText, setResumeText] = useState(
     "Candidate: Alex Rivera\nSkills: TypeScript, React, Python, PostgreSQL, Redis, Distributed Systems, Docker\nProjects: Built high-throughput distributed payment gateway processing 10k req/s with Redis idempotency keys; Created real-time collaborative document editor using WebSockets and operational transforms."
   );
+  const [githubUrl, setGithubUrl] = useState("https://github.com/alexrivera");
   const [studentProfile, setStudentProfile] = useState<any>(null);
 
   // ── Round 1: Resume Screening State ──
   const [screeningLoading, setScreeningLoading] = useState(false);
   const [screeningError, setScreeningError] = useState<string | null>(null);
   const [resumeResult, setResumeResult] = useState<any>(null);
+  const [githubResult, setGithubResult] = useState<GitHubVerificationResult | null>(null);
 
   // ── Round 2: Online Assessment State ──
+  const [oaSession, setOaSession] = useState<GeneratedOASession | null>(null);
   const [oaAnswers, setOaAnswers] = useState<Record<string, number>>({});
+  const [activeCodingProblemIdx, setActiveCodingProblemIdx] = useState(0);
   const [codingLang, setCodingLang] = useState<"python" | "javascript">("python");
-  const [codingCode, setCodingCode] = useState(STARTER_CODES.python);
-  const [codingPassCount, setCodingPassCount] = useState<number | null>(null);
+  const [codingCodes, setCodingCodes] = useState<Record<string, { python: string; javascript: string }>>({});
+  const [codingResults, setCodingResults] = useState<Record<string, { passed: number; total: number; logs: string[] }>>({});
   const [codingRunning, setCodingRunning] = useState(false);
-  const [codingRunLog, setCodingRunLog] = useState<string | null>(null);
+  const [oaStartedAt, setOaStartedAt] = useState<number | null>(null);
+  const [oaElapsedSeconds, setOaElapsedSeconds] = useState(0);
+  const [oaWarning, setOaWarning] = useState<string | null>(null);
 
   // ── Round 3: Group Discussion State ──
   const [gdTopic, setGdTopic] = useState("Should early-stage companies build Monoliths or Microservices for high concurrency?");
@@ -143,18 +81,20 @@ function SimulationContent() {
   ]);
   const [gdInput, setGdInput] = useState("");
   const [gdSending, setGdSending] = useState(false);
-  const [gdArticulationScore, setGdArticulationScore] = useState<number>(75);
-  const [gdFeedback, setGdFeedback] = useState<string>("Good baseline participation. Enter with quantified trade-offs to assert technical authority.");
+  const [gdArticulationScore, setGdArticulationScore] = useState<number | null>(null);
+  const [gdFeedback, setGdFeedback] = useState<string | null>(null);
+  const [gdWarning, setGdWarning] = useState<string | null>(null);
 
   // ── Round 4: Technical Interview State ──
   const [techMessages, setTechMessages] = useState<Array<{ role: "assistant" | "user"; content: string }>>([]);
   const [techInput, setTechInput] = useState("");
   const [techLoading, setTechLoading] = useState(false);
   const [techError, setTechError] = useState<string | null>(null);
-  const [techScore, setTechScore] = useState<number>(70);
+  const [techScore, setTechScore] = useState<number | null>(null);
   const [techWeakAreas, setTechWeakAreas] = useState<string[]>([]);
   const [techStrongAreas, setTechStrongAreas] = useState<string[]>([]);
   const [techAssessment, setTechAssessment] = useState<any>(null);
+  const [techWarning, setTechWarning] = useState<string | null>(null);
 
   // ── Round 5: HR / Behavioral State ──
   const [hrQuestions, setHrQuestions] = useState<Array<{
@@ -166,10 +106,10 @@ function SimulationContent() {
   }>>([]);
   const [hrLoading, setHrLoading] = useState(false);
   const [hrError, setHrError] = useState<string | null>(null);
-  const [hrQuestionIdx, setHrQuestionIdx] = useState(0);
   const [hrAnswers, setHrAnswers] = useState<string[]>(["", ""]);
-  const [hrScore, setHrScore] = useState<number>(75);
-  const [hrFeedback, setHrFeedback] = useState<string>("Answers demonstrated structured STAR framework with sound accountability.");
+  const [hrScore, setHrScore] = useState<number | null>(null);
+  const [hrFeedback, setHrFeedback] = useState<string | null>(null);
+  const [hrWarning, setHrWarning] = useState<string | null>(null);
 
   // ── Round 6: Final Holistic Report State ──
   const [holisticReport, setHolisticReport] = useState<HolisticReport | null>(null);
@@ -194,78 +134,163 @@ function SimulationContent() {
       .catch(() => {});
   }, []);
 
-  // ── Round 1: Run Resume Screening ──
+  // Initialize or regenerate OA Session when entering Round 2 or target changes
+  useEffect(() => {
+    if (currentRound === 2 && !oaSession) {
+      const generated = generateOASession(targetCompany, targetTier);
+      setOaSession(generated);
+      setOaStartedAt(Date.now());
+      // Initialize starter codes for the problems
+      const initialCodes: Record<string, { python: string; javascript: string }> = {};
+      generated.codingProblems.forEach((p) => {
+        initialCodes[p.id] = {
+          python: p.starterCodes.python,
+          javascript: p.starterCodes.javascript,
+        };
+      });
+      setCodingCodes(initialCodes);
+    }
+  }, [currentRound, targetCompany, targetTier, oaSession]);
+
+  // Live Timer for Online Assessment (Enforced Minimum Time)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (currentRound === 2 && oaStartedAt) {
+      interval = setInterval(() => {
+        setOaElapsedSeconds(Math.floor((Date.now() - oaStartedAt) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [currentRound, oaStartedAt]);
+
+  // ── Round 1: Run Resume Screening with Real GitHub Verification ──
   const handleRunScreening = async () => {
     setScreeningLoading(true);
+    setScreeningError(null);
     try {
+      // 1. Live GitHub Profile & Claim Verification
+      const ghCheck = await verifyGitHubProfile(githubUrl, resumeText);
+      setGithubResult(ghCheck);
+
+      // 2. ATS Recruiter Screening
       const res = await fetch("/api/recruiter-analysis", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          jd: `Target Role: ${targetRole} at ${targetTier}. Requirements: Strong systems programming, database performance, API scalability, containerized workflows, and team collaboration.`,
-          resume: resumeText,
+          jd: `Target Role: ${targetRole} at ${targetCompany} (${companyTierType}). Requirements: Strong systems programming, database performance, API scalability, and verified technical execution.`,
+          resume: `${resumeText}\n\n[Verified GitHub Data: ${ghCheck.summary}]`,
         }),
       });
+
       if (res.ok) {
         const data = await res.json();
-        const score = data.overall_fit || data.ats_match_score || 78;
+        const score = typeof data.overall_fit === "number" ? data.overall_fit : (data.ats_match_score || 78);
         const result: "pass" | "borderline" | "fail" = score >= 75 ? "pass" : score >= 55 ? "borderline" : "fail";
-        const evidence = data.recruiter_summary || data.private_note || "Candidate resume displays verified technical skills with solid alignment to core requirements.";
-        setResumeResult({ result, score, evidence });
+        let evidence = data.recruiter_summary || data.private_note || "Candidate resume displays verified technical skills with solid alignment to core requirements.";
+        if (ghCheck.unverifiedClaims.length > 0) {
+          evidence += ` Note: ${ghCheck.unverifiedClaims[0]}`;
+        }
+        setResumeResult({ result, score, evidence, github_verification: ghCheck });
       } else {
         setResumeResult({
           result: "pass",
           score: 80,
-          evidence: "Extracted verified technical match: TypeScript, React, Python, Distributed Systems, PostgreSQL. Strong project alignment.",
+          evidence: `Resume audited. GitHub verification: ${ghCheck.summary}`,
+          github_verification: ghCheck,
         });
       }
     } catch {
       setResumeResult({
-        result: "pass",
-        score: 78,
-        evidence: "Resume screening passed with verified skills in TypeScript, Python, and Distributed Systems.",
+        result: "borderline",
+        score: 65,
+        evidence: "Resume screening completed with baseline matching.",
       });
     } finally {
       setScreeningLoading(false);
     }
   };
 
-  // ── Round 2: Run Coding Tests (100% Isolated from DSA Tracker) ──
-  const handleRunCode = () => {
+  // ── Round 2: Run Coding Tests Deterministically ──
+  const currentCodingProblem: OACodingProblem | undefined = oaSession?.codingProblems[activeCodingProblemIdx];
+
+  const handleRunCodingTests = async () => {
+    if (!currentCodingProblem) return;
     setCodingRunning(true);
-    setCodingRunLog("Compiling and executing against test suite...");
-    setTimeout(() => {
+    const codeToRun = codingCodes[currentCodingProblem.id]?.[codingLang] || "";
+
+    try {
+      const res = await fetch("/api/simulation/execute-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language: codingLang,
+          code: codeToRun,
+          testCases: currentCodingProblem.testCases,
+          functionName: currentCodingProblem.functionName,
+        }),
+      });
+
+      const data = await res.json();
+      setCodingResults((prev) => ({
+        ...prev,
+        [currentCodingProblem.id]: {
+          passed: data.passed,
+          total: data.total,
+          logs: data.logs || [],
+        },
+      }));
+    } catch (err: any) {
+      setCodingResults((prev) => ({
+        ...prev,
+        [currentCodingProblem.id]: {
+          passed: 0,
+          total: currentCodingProblem.testCases.length,
+          logs: [`Execution failed: ${err.message}`],
+        },
+      }));
+    } finally {
       setCodingRunning(false);
-      // If code contains logic checking complement/seen, pass 2/2; otherwise pass 0/2
-      const isPassed = codingCode.includes("seen") || codingCode.includes("map") || codingCode.includes("dict");
-      if (isPassed) {
-        setCodingPassCount(2);
-        setCodingRunLog(
-          "✓ Test 1 Passed: Input: [2,7,11,15], target=9 -> Output: [0,1] (Expected: [0,1])\n" +
-          "✓ Test 2 Passed: Input: [3,2,4], target=6 -> Output: [1,2] (Expected: [1,2])\n" +
-          "All 2 test cases passed within 4ms threshold."
-        );
-      } else {
-        setCodingPassCount(0);
-        setCodingRunLog(
-          "✗ Test 1 Failed: Time Limit Exceeded / Output Mismatch\n" +
-          "✗ Test 2 Failed: Output did not match expected indices\n" +
-          "0 / 2 test cases passed."
-        );
-      }
-    }, 800);
+    }
+  };
+
+  // ── Round 2: Submit OA with Universal Gating & Timer Enforcement ──
+  const handleSubmitOA = () => {
+    if (!oaSession) return;
+    setOaWarning(null);
+
+    const totalApt = oaSession.aptitudeQuestions.length;
+    const answeredApt = Object.keys(oaAnswers).length;
+    const codingTested = Object.keys(codingResults).length > 0;
+    const minSeconds = oaSession.minTimeSeconds;
+
+    const gating = canScoreRound("online_assessment", {
+      oaAnswers,
+      totalAptitudeCount: totalApt,
+      codingPassCount: codingTested ? 1 : null,
+      timeElapsedSeconds: oaElapsedSeconds,
+      minTimeSeconds: minSeconds,
+    });
+
+    if (!gating.canScore) {
+      setOaWarning(`Cannot submit OA: ${gating.missingRequirements.join("; ")}`);
+      return;
+    }
+
+    initGD();
+    setCurrentRound(3);
   };
 
   // ── Round 3: Initialize Context-Conditioned GD Arena ──
   const initGD = async () => {
     setGdTopicLoading(true);
     setGdError(null);
+    setGdWarning(null);
     try {
       const res = await fetch("/api/student/gd-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "generate_topics",
+          action: "generate_topic",
           company_tier: companyTierType,
           drive_type: driveType,
           role_level: roleLevel,
@@ -274,46 +299,25 @@ function SimulationContent() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.topics && data.topics.length > 0) {
-          const selectedTopic = data.topics[0].title;
-          setGdTopic(selectedTopic);
-
-          // Generate dynamic round-table opening sequence
-          const startRes = await fetch("/api/student/gd-turn", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "start_discussion",
-              topic: selectedTopic,
-              company_tier: companyTierType,
-              drive_type: driveType,
-              role_level: roleLevel,
-              target_company: targetCompany,
-            }),
-          });
-          if (startRes.ok) {
-            const startData = await startRes.json();
-            if (startData.moderator_intro && startData.opening_speaker) {
-              setGdMessages([startData.moderator_intro, startData.opening_speaker]);
-            }
-          }
+        if (data.topic) setGdTopic(data.topic);
+        if (Array.isArray(data.opening_messages) && data.opening_messages.length >= 3) {
+          setGdMessages(data.opening_messages);
         }
-      } else {
-        setGdError("Topic generation failed after retry. Please click retry to continue.");
       }
     } catch {
-      setGdError("Topic generation failed after retry. Please click retry to continue.");
+      // Keep curated topic
     } finally {
       setGdTopicLoading(false);
     }
   };
 
-  // ── Round 3: Send GD Turn (Zero Canned Fallback Quotes) ──
+  // ── Round 3: Send GD Turn (Candidate speech required) ──
   const handleSendGDTurn = async () => {
     const text = gdInput.trim();
     if (!text || gdSending) return;
 
     setGdError(null);
+    setGdWarning(null);
     const userMsg = {
       speaker: "You (Candidate)",
       avatar: "🧑",
@@ -368,14 +372,35 @@ function SimulationContent() {
     }
   };
 
-  // ── Round 4: Initialize 50-Year Expert Tech Interview (Conditioned on Real Context + OA) ──
+  // ── Round 3: Advance to Tech Round with Gating ──
+  const handleAdvanceFromGD = (skipRound: boolean = false) => {
+    setGdWarning(null);
+    if (!skipRound) {
+      const gating = canScoreRound("group_discussion", { gdMessages });
+      if (!gating.canScore) {
+        setGdWarning(`Cannot score GD: ${gating.missingRequirements.join("; ")}. Intervene at least twice to earn a participation score, or choose Skip.`);
+        return;
+      }
+    } else {
+      setGdArticulationScore(null);
+      setGdFeedback("Candidate skipped the Group Discussion round without speaking (Not Attempted).");
+    }
+
+    initTechInterview();
+    setCurrentRound(4);
+  };
+
+  // ── Round 4: Initialize Tech Interview (Preserved as per Fix E) ──
   const initTechInterview = async () => {
     setTechLoading(true);
     setTechError(null);
-    const oaFailedCoding = codingPassCount === 0;
-    const round2Summary = oaFailedCoding
-      ? "Candidate struggled with Round 2 Online Assessment algorithmic coding (0/2 test cases passed with time limit or index errors)."
-      : "Candidate passed Round 2 Online Assessment algorithmic coding (2/2 test cases passed with clean O(N) hash map solution).";
+    setTechWarning(null);
+
+    const codingSolves = Object.values(codingResults).filter((r) => r.passed === r.total).length;
+    const round2Summary =
+      codingSolves === 0
+        ? "Candidate struggled with Round 2 OA algorithmic coding test cases."
+        : `Candidate passed Round 2 OA coding test cases (${codingSolves}/${oaSession?.codingProblems.length || 2} problems solved).`;
 
     try {
       const res = await fetch("/api/interview-chat", {
@@ -398,7 +423,7 @@ function SimulationContent() {
       if (res.ok) {
         const data = await res.json();
         setTechMessages([{ role: "assistant", content: data.message }]);
-        if (oaFailedCoding) {
+        if (codingSolves === 0) {
           setTechWeakAreas(["Algorithmic problem solving", "Boundary condition analysis"]);
         } else {
           setTechStrongAreas(["Algorithmic execution", "Hash table application"]);
@@ -413,21 +438,18 @@ function SimulationContent() {
     }
   };
 
-  // ── Round 4: Send Tech Answer (Zero Canned Fallback Questions) ──
+  // ── Round 4: Send Tech Answer (Preserved as per Fix E) ──
   const handleSendTechAnswer = async () => {
     const text = techInput.trim();
     if (!text || techLoading) return;
 
     setTechError(null);
+    setTechWarning(null);
     const userMsg = { role: "user" as const, content: text };
     const updated = [...techMessages, userMsg];
     setTechMessages(updated);
     setTechInput("");
     setTechLoading(true);
-
-    const round2Summary = (codingPassCount || 0) === 0
-      ? "Candidate had difficulty in Round 2 OA coding challenge (0/2 passed)."
-      : "Candidate passed Round 2 OA coding challenge (2/2 passed).";
 
     try {
       const res = await fetch("/api/interview-chat", {
@@ -442,7 +464,7 @@ function SimulationContent() {
           company_tier: companyTierType,
           drive_type: driveType,
           role_level: roleLevel,
-          round_2_summary: round2Summary,
+          round_2_summary: "Candidate technical interview in progress.",
           experienceMode: roleLevel === "Fresher/Entry-level" ? "fresher" : roleLevel === "1-3 years" ? "1-3yr" : "experienced",
         }),
       });
@@ -452,12 +474,16 @@ function SimulationContent() {
         if (data.answer_assessment) {
           setTechAssessment(data.answer_assessment);
           if (data.answer_assessment.answer_quality === "strong") {
-            setTechScore(85);
+            setTechScore((prev) => Math.max(prev || 0, 85));
             setTechStrongAreas((prev) => [...new Set([...prev, "Technical Depth", "Clear Communication"])]);
           } else if (data.answer_assessment.answer_quality === "shallow") {
-            setTechScore(50);
+            setTechScore((prev) => (prev !== null ? Math.min(prev, 50) : 50));
             setTechWeakAreas((prev) => [...new Set([...prev, "Surface-level reasoning", "Trade-off articulation"])]);
+          } else {
+            setTechScore((prev) => prev || 65);
           }
+        } else {
+          setTechScore((prev) => prev || 70);
         }
       } else {
         setTechError("Question generation failed after retry. Please click retry to continue.");
@@ -469,10 +495,28 @@ function SimulationContent() {
     }
   };
 
-  // ── Round 5: Initialize Context-Conditioned HR Questions ──
+  // ── Round 4: Advance to HR Round with Gating ──
+  const handleAdvanceFromTech = (skipRound: boolean = false) => {
+    setTechWarning(null);
+    if (!skipRound) {
+      const gating = canScoreRound("technical_interview", { techMessages });
+      if (!gating.canScore) {
+        setTechWarning(`Cannot score Technical Interview: ${gating.missingRequirements.join("; ")}. Answer at least 2 questions to earn a score.`);
+        return;
+      }
+    } else {
+      setTechScore(null);
+    }
+
+    initHR();
+    setCurrentRound(5);
+  };
+
+  // ── Round 5: Initialize HR Questions (Context-Aware with Tech Gaps) ──
   const initHR = async () => {
     setHrLoading(true);
     setHrError(null);
+    setHrWarning(null);
     try {
       const res = await fetch("/api/simulation/hr-chat", {
         method: "POST",
@@ -483,32 +527,36 @@ function SimulationContent() {
           company_tier: companyTierType,
           drive_type: driveType,
           role_level: roleLevel,
-          resume_text: resumeText,
+          resume_text: `${resumeText}\n[Technical round weak points flagged: ${techWeakAreas.join(", ") || "None"}]`,
         }),
       });
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data.questions) && data.questions.length >= 2) {
           setHrQuestions(data.questions);
+          setHrAnswers(new Array(data.questions.length).fill(""));
         }
       } else {
-        setHrError("HR question generation failed after retry. Please click retry to continue.");
+        setHrError("HR question generation failed. Please click retry.");
       }
     } catch {
-      setHrError("HR question generation failed after retry. Please click retry to continue.");
+      setHrError("HR question generation failed. Please click retry.");
     } finally {
       setHrLoading(false);
     }
   };
 
-  // ── Round 6: Final Holistic Evaluation ──
+  // ── Round 6: Final Holistic Evaluation (Strict Participation Checks) ──
   const handleGenerateFinalReport = async () => {
     setGeneratingReport(true);
+    setHrWarning(null);
 
-    // Evaluate HR answers dynamically if questions were answered
-    let finalHrScore = hrScore;
-    let finalHrFeedback = hrFeedback;
-    if (hrQuestions.length > 0 && hrAnswers.some((a) => a.trim().length > 0)) {
+    // Check HR Round participation
+    let computedHrScore = hrScore;
+    let computedHrFeedback = hrFeedback;
+    const hrGating = canScoreRound("hr_interview", { hrQuestions, hrAnswers });
+
+    if (hrGating.canScore && hrQuestions.length > 0) {
       try {
         const hrEvalRes = await fetch("/api/simulation/hr-chat", {
           method: "POST",
@@ -526,33 +574,99 @@ function SimulationContent() {
         if (hrEvalRes.ok) {
           const evalData = await hrEvalRes.json();
           if (typeof evalData.score === "number") {
-            finalHrScore = evalData.score;
+            computedHrScore = evalData.score;
             setHrScore(evalData.score);
           }
           if (evalData.feedback) {
-            finalHrFeedback = evalData.feedback;
+            computedHrFeedback = evalData.feedback;
             setHrFeedback(evalData.feedback);
           }
         }
       } catch (e) {
-        console.warn("HR answer evaluation error:", e);
+        console.warn("HR evaluation error:", e);
       }
+    } else {
+      computedHrScore = null;
+      computedHrFeedback = "Not Attempted: Candidate did not provide substantive STAR answers to HR questions.";
     }
 
-    // Compute OA Aptitude score
-    let aptCorrect = 0;
-    OA_APTITUDE_QUESTIONS.forEach((q) => {
-      if (oaAnswers[q.id] === q.correct_option_index) aptCorrect++;
+    // Check Online Assessment Participation
+    const totalApt = oaSession?.aptitudeQuestions.length || 0;
+    const answeredApt = Object.keys(oaAnswers).length;
+    const codingTested = Object.keys(codingResults).length > 0;
+    const oaGating = canScoreRound("online_assessment", {
+      oaAnswers,
+      totalAptitudeCount: totalApt,
+      codingPassCount: codingTested ? 1 : null,
+      timeElapsedSeconds: oaElapsedSeconds,
+      minTimeSeconds: oaSession?.minTimeSeconds || 180,
     });
-    const aptScore = Math.round((aptCorrect / OA_APTITUDE_QUESTIONS.length) * 100);
 
-    const codingScore = codingPassCount === 2 ? 90 : codingPassCount === 1 ? 50 : 20;
-    const codingSolved = `${codingPassCount !== null ? codingPassCount : 0}/2`;
-    const oaResult: "pass" | "borderline" | "fail" = (codingPassCount || 0) >= 1 && aptScore >= 50 ? "pass" : "fail";
+    let computedAptScore: number | null = null;
+    let computedCodingScore: number | null = null;
+    let codingSolvedStr = "Not Attempted";
+    let oaResultStr: "pass" | "borderline" | "fail" | "not_attempted" = "not_attempted";
 
-    const gdResult: "pass" | "borderline" | "fail" = gdArticulationScore >= 70 ? "pass" : gdArticulationScore >= 50 ? "borderline" : "fail";
-    const techResult: "pass" | "borderline" | "fail" = techScore >= 70 ? "pass" : techScore >= 50 ? "borderline" : "fail";
-    const hrResult: "pass" | "borderline" | "fail" = finalHrScore >= 65 ? "pass" : "fail";
+    if (oaGating.canScore && oaSession) {
+      let aptCorrect = 0;
+      oaSession.aptitudeQuestions.forEach((q) => {
+        if (oaAnswers[q.id] === q.correct_option_index) aptCorrect++;
+      });
+      computedAptScore = Math.round((aptCorrect / totalApt) * 100);
+
+      // Compute coding score
+      let totalPassed = 0;
+      let totalCases = 0;
+      let fullSolvedCount = 0;
+      oaSession.codingProblems.forEach((p) => {
+        const res = codingResults[p.id];
+        if (res) {
+          totalPassed += res.passed;
+          totalCases += res.total;
+          if (res.passed === res.total && res.total > 0) fullSolvedCount++;
+        } else {
+          totalCases += p.testCases.length;
+        }
+      });
+      computedCodingScore = totalCases > 0 ? Math.round((totalPassed / totalCases) * 100) : 0;
+      codingSolvedStr = `${fullSolvedCount}/${oaSession.codingProblems.length}`;
+      oaResultStr = fullSolvedCount >= 1 && computedAptScore >= 50 ? "pass" : "fail";
+    }
+
+    // Check Group Discussion Participation
+    const gdGating = canScoreRound("group_discussion", { gdMessages });
+    const gdCandidateCount = gdMessages.filter((m) => m.speaker.includes("Candidate") || m.role === "Candidate").length;
+    const finalGdScore = gdGating.canScore ? gdArticulationScore || 65 : null;
+    const finalGdResult: "pass" | "borderline" | "fail" | "not_attempted" = gdGating.canScore
+      ? (finalGdScore || 0) >= 70
+        ? "pass"
+        : (finalGdScore || 0) >= 50
+        ? "borderline"
+        : "fail"
+      : "not_attempted";
+
+    // Check Technical Interview Participation
+    const techGating = canScoreRound("technical_interview", { techMessages });
+    const techCandidateCount = techMessages.filter((m) => m.role === "user").length;
+    const finalTechScore = techGating.canScore ? techScore || 70 : null;
+    const finalTechResult: "pass" | "borderline" | "fail" | "not_attempted" = techGating.canScore
+      ? (finalTechScore || 0) >= 70
+        ? "pass"
+        : (finalTechScore || 0) >= 50
+        ? "borderline"
+        : "fail"
+      : "not_attempted";
+
+    // Check Resume Screening Participation
+    const resumeGating = canScoreRound("resume_screening", {
+      resume_text: resumeText,
+      screening_performed: Boolean(resumeResult),
+      score: resumeResult?.score,
+    });
+    const finalResumeScore = resumeGating.canScore ? resumeResult?.score || 78 : null;
+    const finalResumeResult: "pass" | "borderline" | "fail" | "not_attempted" = resumeGating.canScore
+      ? resumeResult?.result || "pass"
+      : "not_attempted";
 
     const sessionData: SimulationSession = {
       id: `sim_${Date.now()}`,
@@ -567,37 +681,47 @@ function SimulationContent() {
       resume_data: {
         resume_text: resumeText,
         jd_text: `Target: ${targetRole} at ${targetCompany} (${companyTierType})`,
+        github_url: githubUrl,
       },
       round_results: {
         resume_screening: {
-          result: resumeResult?.result || "pass",
-          score: resumeResult?.score || 78,
-          evidence: resumeResult?.evidence || "Resume verified with core technical matches.",
+          result: finalResumeResult,
+          score: finalResumeScore,
+          evidence: resumeGating.canScore
+            ? resumeResult?.evidence || "Resume verified with technical matches."
+            : "Not Attempted: Resume screening audit was not run.",
+          github_verification: githubResult || undefined,
         },
         online_assessment: {
-          aptitude_score: aptScore,
-          coding_score: codingScore,
-          coding_problems_solved: codingSolved,
-          result: oaResult,
-          struggled_topics: codingPassCount === 0 ? ["Two Sum / Hash Map Complement", "Array Indexing"] : [],
+          aptitude_score: computedAptScore,
+          coding_score: computedCodingScore,
+          coding_problems_solved: codingSolvedStr,
+          result: oaResultStr,
+          time_elapsed_seconds: oaElapsedSeconds,
         },
         group_discussion: {
-          articulation_score: gdArticulationScore,
-          result: gdResult,
-          specific_feedback: gdFeedback,
-          key_moment: `Candidate debated trade-offs on ${gdTopic.slice(0, 50)}...`,
+          articulation_score: finalGdScore,
+          result: finalGdResult,
+          specific_feedback: gdGating.canScore
+            ? gdFeedback || "Debate contributions evaluated."
+            : "Not Attempted: Candidate did not contribute to the group debate.",
+          candidate_interventions_count: gdCandidateCount,
         },
         technical_interview: {
-          score: techScore,
-          result: techResult,
-          strong_areas: techStrongAreas.length > 0 ? techStrongAreas : ["General Problem Solving"],
-          weak_areas: techWeakAreas.length > 0 ? techWeakAreas : ["Edge case failure modes"],
-          specific_examples: `Candidate answered technical questions with ${techScore >= 70 ? "solid" : "limited"} depth.`,
+          score: finalTechScore,
+          result: finalTechResult,
+          strong_areas: techGating.canScore && techStrongAreas.length > 0 ? techStrongAreas : ["Not Attempted"],
+          weak_areas: techGating.canScore && techWeakAreas.length > 0 ? techWeakAreas : ["Not Attempted"],
+          specific_examples: techGating.canScore
+            ? `Candidate responded to ${techCandidateCount} technical questions.`
+            : "Not Attempted: Technical questions were not answered.",
+          candidate_responses_count: techCandidateCount,
         },
         hr_interview: {
-          score: finalHrScore,
-          result: hrResult,
-          specific_feedback: finalHrFeedback,
+          score: hrGating.canScore ? computedHrScore : null,
+          result: hrGating.canScore ? (computedHrScore && computedHrScore >= 65 ? "pass" : "fail") : "not_attempted",
+          specific_feedback: computedHrFeedback || "Not Attempted",
+          candidate_responses_count: hrAnswers.filter((a) => a.trim().length >= 20).length,
         },
       },
       created_at: new Date().toISOString(),
@@ -612,18 +736,14 @@ function SimulationContent() {
       if (res.ok) {
         const data = await res.json();
         setHolisticReport(data.report);
-        sessionData.holistic_report = data.report;
       } else {
-        const fallbackReport = evaluateHolisticSimulation(sessionData);
-        setHolisticReport(fallbackReport);
-        sessionData.holistic_report = fallbackReport;
+        const fallback = evaluateHolisticSimulation(sessionData);
+        setHolisticReport(fallback);
       }
     } catch {
-      const fallbackReport = evaluateHolisticSimulation(sessionData);
-      setHolisticReport(fallbackReport);
-      sessionData.holistic_report = fallbackReport;
+      const fallback = evaluateHolisticSimulation(sessionData);
+      setHolisticReport(fallback);
     } finally {
-      await saveSimulationSession(sessionData);
       setGeneratingReport(false);
       setCurrentRound(6);
     }
@@ -633,50 +753,62 @@ function SimulationContent() {
     <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="student" />
 
-      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "28px 24px" }}>
-        {/* PIPELINE PROGRESS STEPPER */}
-        <div style={{ marginBottom: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1.5rem 4rem" }}>
+        
+        {/* HEADER & STAGE STEPPER */}
+        <div style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 8 }}>
             <div>
-              <span style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", letterSpacing: 2, textTransform: "uppercase" }}>
-                END-TO-END RECRUITMENT PIPELINE
+              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#818cf8", fontWeight: 800 }}>
+                HOLISTIC PLACEMENT SIMULATION
               </span>
-              <h1 style={{ fontSize: 22, fontWeight: 900, margin: "2px 0 0" }}>
-                Full Campus & Industry Selection Simulation
+              <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", fontWeight: 900, margin: "6px 0 2px", letterSpacing: "-0.5px" }}>
+                Full-Funnel Recruitment Arena
               </h1>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>
+                Strict participation gating enforced across all 5 rounds. Real code tests, live debate, and verified evidence.
+              </p>
             </div>
-            <span style={{ fontSize: 11, padding: "4px 12px", borderRadius: 999, background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", color: "#c7d2fe", fontWeight: 700 }}>
-              Target: {targetRole} ({targetTier})
-            </span>
+
+            {/* Target Settings Summary */}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, padding: "6px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8 }}>
+                🏢 {targetCompany}
+              </span>
+              <span style={{ fontSize: 11, padding: "6px 12px", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", color: "#818cf8", borderRadius: 8, fontWeight: 700 }}>
+                🎯 {targetTier}
+              </span>
+            </div>
           </div>
 
-          {/* Steps bar */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6, background: "rgba(255,255,255,0.02)", padding: 6, borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
+          {/* Stepper Tabs */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6, marginTop: 20 }}>
             {[
-              { num: 1, title: "1. Resume Check" },
-              { num: 2, title: "2. Online Assessment" },
-              { num: 3, title: "3. Group Discussion" },
-              { num: 4, title: "4. Technical Round" },
-              { num: 5, title: "5. HR Interview" },
-              { num: 6, title: "6. Holistic Report" },
+              { num: 1, label: "Resume Screening", icon: "📄" },
+              { num: 2, label: "Online Assessment", icon: "⚡" },
+              { num: 3, label: "GD Arena", icon: "🗣️" },
+              { num: 4, label: "Tech Interview", icon: "💻" },
+              { num: 5, label: "HR Bar-Raiser", icon: "🤝" },
+              { num: 6, label: "Holistic Verdict", icon: "📊" },
             ].map((s) => {
-              const active = currentRound === s.num;
-              const completed = currentRound > s.num;
+              const isActive = currentRound === s.num;
+              const isPast = currentRound > s.num;
               return (
                 <div
                   key={s.num}
                   style={{
                     padding: "8px 10px",
-                    borderRadius: 8,
-                    background: active ? "#6366f1" : completed ? "rgba(16,185,129,0.15)" : "transparent",
-                    color: active ? "white" : completed ? "#34d399" : "rgba(255,255,255,0.4)",
-                    fontSize: 11,
-                    fontWeight: 700,
+                    borderRadius: 10,
+                    background: isActive ? "rgba(99,102,241,0.2)" : isPast ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.02)",
+                    border: `1px solid ${isActive ? "#6366f1" : isPast ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)"}`,
                     textAlign: "center",
-                    transition: "all 0.2s",
+                    transition: "all 0.15s ease",
                   }}
                 >
-                  {completed ? "✓ " : ""}{s.title}
+                  <div style={{ fontSize: 13, marginBottom: 2 }}>{s.icon}</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: isActive ? "#818cf8" : isPast ? "#34d399" : "#64748b" }}>
+                    R{s.num}: {s.label}
+                  </div>
                 </div>
               );
             })}
@@ -684,171 +816,78 @@ function SimulationContent() {
         </div>
 
         {/* ═══════════════════════════════════════════════ */}
-        {/* ROUND 1: RESUME SCREENING */}
+        {/* ROUND 1: RESUME SCREENING & GITHUB AUDIT */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 1 && (
-          <div style={{ maxWidth: 800, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+          <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <span style={{ fontSize: 26 }}>📄</span>
               <div>
                 <span style={{ fontSize: 10, color: "#818cf8", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 1 OF 5</span>
-                <h2 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>Resume & ATS Screening Gate</h2>
+                <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>ATS Resume Screening & Real GitHub Verification</h2>
               </div>
             </div>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
-              Initial automated screening acts as a high-volume filter. Configure the exact hiring bar and drive context so all subsequent rounds calibrate authentically to what real interviewers ask.
+
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+              Every skill and project claim is cross-referenced against your resume text and live GitHub public repositories. Missing or contradictory repos are flagged.
             </p>
 
-            {/* Context Intake Form: Step 1 */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: "1.25rem" }}>
+            {/* Target Settings Config */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: "1.5rem" }}>
               <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, display: "block", marginBottom: 6 }}>
-                  TARGET COMPANY / OPPORTUNITY
+                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+                  TARGET COMPANY
                 </label>
                 <input
                   type="text"
                   value={targetCompany}
                   onChange={(e) => setTargetCompany(e.target.value)}
-                  placeholder="e.g. Google, Microsoft, TCS, Razorpay..."
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 12,
-                    boxSizing: "border-box",
-                  }}
+                  style={{ width: "100%", padding: "8px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
                 />
               </div>
-
               <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, display: "block", marginBottom: 6 }}>
-                  TARGET ROLE
-                </label>
-                <input
-                  type="text"
-                  value={targetRole}
-                  onChange={(e) => setTargetRole(e.target.value)}
-                  placeholder="e.g. Software Engineer, SDE-1..."
-                  style={{
-                    width: "100%",
-                    padding: "8px 12px",
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 12,
-                    boxSizing: "border-box",
-                  }}
-                />
-              </div>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: "1.25rem" }}>
-              <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, display: "block", marginBottom: 6 }}>
-                  COMPANY TIER / BAR
+                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+                  TARGET HIRING BAR
                 </label>
                 <select
-                  value={companyTierType}
-                  onChange={(e) => {
-                    const val = e.target.value as CompanyTierType;
-                    setCompanyTierType(val);
-                    if (val.includes("FAANG")) setTargetTier("Tier 1 FAANG");
-                    else if (val.includes("Service")) setTargetTier("Enterprise Service");
-                    else setTargetTier("High-Growth Product / FinTech");
-                  }}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    background: "#0e1326",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 11,
-                    boxSizing: "border-box",
-                  }}
+                  value={targetTier}
+                  onChange={(e) => setTargetTier(e.target.value as CompanyTier)}
+                  style={{ width: "100%", padding: "8px 12px", background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
                 >
-                  <option value="FAANG/Product (Tier-1 hiring bar)">FAANG/Product (Tier-1)</option>
-                  <option value="Mid-size Product Company">Mid-size Product Company</option>
-                  <option value="Service-based/IT Services company">Service-based/IT Services</option>
-                  <option value="Startup">Startup</option>
-                  <option value="not sure — use a balanced general bar">General Balanced Bar</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, display: "block", marginBottom: 6 }}>
-                  DRIVE TYPE
-                </label>
-                <select
-                  value={driveType}
-                  onChange={(e) => setDriveType(e.target.value as DriveType)}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    background: "#0e1326",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 11,
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <option value="On-campus placement">On-campus placement</option>
-                  <option value="Off-campus/direct application">Off-campus application</option>
-                  <option value="Referral">Referral</option>
-                  <option value="Experienced hire/lateral">Experienced lateral</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 700, display: "block", marginBottom: 6 }}>
-                  ROLE LEVEL
-                </label>
-                <select
-                  value={roleLevel}
-                  onChange={(e) => setRoleLevel(e.target.value as RoleLevel)}
-                  style={{
-                    width: "100%",
-                    padding: "8px 10px",
-                    background: "#0e1326",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 8,
-                    color: "white",
-                    fontSize: 11,
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <option value="Intern">Intern</option>
-                  <option value="Fresher/Entry-level">Fresher/Entry-level</option>
-                  <option value="1-3 years">1-3 years</option>
-                  <option value="Senior/experienced">Senior/experienced</option>
+                  <option value="Tier 1 FAANG">Tier 1 FAANG / Extreme Bar</option>
+                  <option value="High-Growth Product / FinTech">High-Growth Product / FinTech</option>
+                  <option value="Enterprise Service">Enterprise Service (TCS, Infosys, Wipro)</option>
                 </select>
               </div>
             </div>
 
-            {/* Resume Textbox */}
+            {/* GitHub URL Input */}
             <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700, display: "block", marginBottom: 6 }}>CANDIDATE RESUME PROFILE</label>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", display: "block", marginBottom: 4 }}>
+                GITHUB PROFILE URL / USERNAME (FOR LIVE REPO VERIFICATION)
+              </label>
+              <input
+                type="text"
+                value={githubUrl}
+                onChange={(e) => setGithubUrl(e.target.value)}
+                placeholder="https://github.com/your-username (or leave empty)"
+                style={{ width: "100%", padding: "8px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
+              />
+              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4, display: "block" }}>
+                Optional. If omitted, skills are scored purely on resume text without penalization.
+              </span>
+            </div>
+
+            {/* Resume Text Input */}
+            <div style={{ marginBottom: "1.5rem" }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+                RESUME TEXT CONTENT
+              </label>
               <textarea
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
                 rows={5}
-                style={{
-                  width: "100%",
-                  padding: "0.85rem 1rem",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 12,
-                  color: "white",
-                  fontSize: 12,
-                  lineHeight: 1.6,
-                  resize: "none",
-                  boxSizing: "border-box",
-                }}
+                style={{ width: "100%", padding: "0.85rem 1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "white", fontSize: 12, lineHeight: 1.6, resize: "none", boxSizing: "border-box" }}
               />
             </div>
 
@@ -856,61 +895,36 @@ function SimulationContent() {
               <button
                 onClick={handleRunScreening}
                 disabled={screeningLoading}
-                style={{
-                  width: "100%",
-                  padding: "0.95rem",
-                  borderRadius: 12,
-                  border: "none",
-                  background: "linear-gradient(135deg,#6366f1,#4f46e5)",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: screeningLoading ? "not-allowed" : "pointer",
-                }}
+                style={{ width: "100%", padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "white", fontSize: 13, fontWeight: 800, cursor: screeningLoading ? "not-allowed" : "pointer" }}
               >
-                {screeningLoading ? "Auditing Resume Against ATS Rubrics..." : "Run Resume Screening ➔"}
+                {screeningLoading ? "Auditing Resume & Verifying GitHub..." : "Run Resume Screening & GitHub Audit ➔"}
               </button>
             ) : (
               <div>
-                <div
-                  style={{
-                    padding: "1.25rem",
-                    borderRadius: 14,
-                    background: resumeResult.result === "pass" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)",
-                    border: `1.5px solid ${resumeResult.result === "pass" ? "#10b981" : "#f59e0b"}40`,
-                    marginBottom: "1.5rem",
-                  }}
-                >
+                <div style={{ padding: "1.25rem", borderRadius: 14, background: resumeResult.result === "pass" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)", border: `1.5px solid ${resumeResult.result === "pass" ? "#10b981" : "#f59e0b"}40`, marginBottom: "1.5rem" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 13, fontWeight: 800, color: resumeResult.result === "pass" ? "#34d399" : "#fbbf24", textTransform: "uppercase" }}>
-                      {resumeResult.result === "pass" ? "✓ SCREENING PASSED" : "⚠ BORDERLINE SCREENING"}
+                      {resumeResult.result === "pass" ? "✓ SCREENING AUDITED" : "⚠ BORDERLINE SCREENING"}
                     </span>
                     <span style={{ fontSize: 16, fontWeight: 900, color: "white" }}>
                       {resumeResult.score}/100
                     </span>
                   </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: "0 0 8px" }}>
                     {resumeResult.evidence}
                   </p>
-                </div>
 
-                <div style={{ padding: "0.85rem", background: "rgba(255,255,255,0.03)", borderRadius: 10, fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: "1.5rem" }}>
-                  💡 <strong>Simulation Policy:</strong> Even if this round were borderline or failed, this simulation runs through all 5 rounds so you get feedback on the entire hiring funnel.
+                  {/* GitHub Verification Card */}
+                  {resumeResult.github_verification && (
+                    <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(0,0,0,0.3)", borderRadius: 8, fontSize: 11 }}>
+                      <strong style={{ color: "#38bdf8" }}>GitHub Evidence Check:</strong> {resumeResult.github_verification.summary}
+                    </div>
+                  )}
                 </div>
 
                 <button
                   onClick={() => setCurrentRound(2)}
-                  style={{
-                    width: "100%",
-                    padding: "0.95rem",
-                    borderRadius: 12,
-                    border: "none",
-                    background: "linear-gradient(135deg,#10b981,#059669)",
-                    color: "white",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                  }}
+                  style={{ width: "100%", padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
                 >
                   Advance to Round 2: Online Assessment ➔
                 </button>
@@ -920,38 +934,64 @@ function SimulationContent() {
         )}
 
         {/* ═══════════════════════════════════════════════ */}
-        {/* ROUND 2: ONLINE ASSESSMENT (APTITUDE + CODING) */}
+        {/* ROUND 2: ONLINE ASSESSMENT (TIMED + DYNAMIC)  */}
         {/* ═══════════════════════════════════════════════ */}
-        {currentRound === 2 && (
+        {currentRound === 2 && oaSession && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            {/* OA Header Banner with Live Timer */}
+            <div style={{ background: "rgba(15,23,42,0.8)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 24 }}>⚡</span>
                   <div>
                     <span style={{ fontSize: 10, color: "#f43f5e", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 2 OF 5</span>
-                    <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Online Assessment: Aptitude + Algorithmic Coding</h2>
+                    <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Online Assessment: Timed Aptitude & Coding Suite</h2>
                   </div>
                 </div>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                  Isolated fresh assessment context (zero DSA Tracker pollution)
-                </span>
+
+                {/* Hard Server Timer Badge */}
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.4)", padding: "6px 14px", borderRadius: 10, border: `1px solid ${oaElapsedSeconds >= oaSession.minTimeSeconds ? "#10b981" : "#f59e0b"}` }}>
+                  <span style={{ fontSize: 14 }}>⏱️</span>
+                  <div>
+                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>SESSION TIMER</div>
+                    <div style={{ fontSize: 13, fontWeight: 900, color: oaElapsedSeconds >= oaSession.minTimeSeconds ? "#34d399" : "#fbbf24" }}>
+                      {Math.floor(oaElapsedSeconds / 60)}m {oaElapsedSeconds % 60}s / {Math.floor(oaSession.minTimeSeconds / 60)}m min
+                    </div>
+                  </div>
+                </div>
               </div>
               <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", margin: 0 }}>
-                This is the primary elimination bottleneck. Candidates with weak DSA are eliminated here regardless of communication or resume strengths.
+                Calibrated to {oaSession.companyTier}. All {oaSession.aptitudeQuestions.length} aptitude questions must be answered and coding must be executed against the test suite.
               </p>
             </div>
 
+            {oaWarning && (
+              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12 }}>
+                ⚠️ {oaWarning}
+              </div>
+            )}
+
             {/* Section A: Aptitude Questions */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
-              <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>
-                SECTION A: QUANTITATIVE & LOGICAL REASONING (3 QUESTIONS)
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
+                  SECTION A: APTITUDE & LOGICAL REASONING ({oaSession.aptitudeQuestions.length} QUESTIONS)
+                </span>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+                  {Object.keys(oaAnswers).length}/{oaSession.aptitudeQuestions.length} Attempted
+                </span>
               </div>
+
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {OA_APTITUDE_QUESTIONS.map((q, idx) => (
+                {oaSession.aptitudeQuestions.map((q, idx) => (
                   <div key={q.id} style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "white", marginBottom: 8 }}>
-                      Q{idx + 1}: {q.question}
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>
+                        Q{idx + 1} • {q.topic} ({q.difficulty})
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "white", marginBottom: 10 }}>
+                      {q.question}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
                       {q.options.map((opt, oIdx) => {
@@ -980,113 +1020,186 @@ function SimulationContent() {
               </div>
             </div>
 
-            {/* Section B: Algorithmic Coding Challenge */}
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <div>
+            {/* Section B: Algorithmic Coding Problems (Real blank code, not pre-solved) */}
+            {currentCodingProblem && (
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                   <span style={{ fontSize: 11, color: "#34d399", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
-                    SECTION B: ALGORITHMIC CODING CHALLENGE
+                    SECTION B: ALGORITHMIC CODING ({oaSession.codingProblems.length} PROBLEMS)
                   </span>
-                  <h3 style={{ fontSize: 15, fontWeight: 800, margin: "2px 0 0" }}>Two Sum (Target Pair Lookup)</h3>
+
+                  {/* Problem Tabs */}
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {oaSession.codingProblems.map((p, pIdx) => {
+                      const isActive = activeCodingProblemIdx === pIdx;
+                      const res = codingResults[p.id];
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => setActiveCodingProblemIdx(pIdx)}
+                          style={{
+                            padding: "4px 10px",
+                            borderRadius: 6,
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            background: isActive ? "#6366f1" : "rgba(255,255,255,0.04)",
+                            border: `1px solid ${isActive ? "#818cf8" : "rgba(255,255,255,0.08)"}`,
+                            color: "white",
+                          }}
+                        >
+                          Problem {pIdx + 1} {res ? (res.passed === res.total ? "✓" : "✗") : ""}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {(["python", "javascript"] as const).map((l) => (
-                    <button
-                      key={l}
-                      onClick={() => {
-                        setCodingLang(l);
-                        setCodingCode(STARTER_CODES[l]);
-                      }}
-                      style={{
-                        padding: "4px 10px",
-                        borderRadius: 6,
-                        border: "none",
-                        background: codingLang === l ? "#6366f1" : "rgba(255,255,255,0.05)",
-                        color: codingLang === l ? "white" : "rgba(255,255,255,0.5)",
-                        fontSize: 11,
-                        cursor: "pointer",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {l.toUpperCase()}
-                    </button>
-                  ))}
+
+                {/* Problem Description */}
+                <div style={{ marginBottom: 14, padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                    {currentCodingProblem.title} ({currentCodingProblem.difficulty})
+                  </div>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", margin: "0 0 10px", whiteSpace: "pre-wrap" }}>
+                    {currentCodingProblem.description}
+                  </p>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                    <strong>Example:</strong> {currentCodingProblem.examples[0]?.input} ➔ {currentCodingProblem.examples[0]?.output}
+                  </div>
                 </div>
-              </div>
 
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5, marginBottom: 12 }}>
-                Given an array of integers <code style={{ color: "#a5b4fc" }}>nums</code> and an integer <code style={{ color: "#a5b4fc" }}>target</code>, return indices of the two numbers such that they add up to target. Target complexity: O(N) time, O(N) space.
-              </p>
+                {/* Language Switcher */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Write your solution below:</span>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    {(["python", "javascript"] as const).map((lang) => (
+                      <button
+                        key={lang}
+                        onClick={() => setCodingLang(lang)}
+                        style={{
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          fontSize: 10,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          background: codingLang === lang ? "#818cf8" : "rgba(255,255,255,0.04)",
+                          border: "none",
+                          color: "white",
+                        }}
+                      >
+                        {lang.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <textarea
-                value={codingCode}
-                onChange={(e) => setCodingCode(e.target.value)}
-                rows={9}
-                style={{
-                  width: "100%",
-                  padding: "1rem",
-                  background: "#080a14",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  borderRadius: 10,
-                  color: "#f1f5f9",
-                  fontFamily: "monospace",
-                  fontSize: 12,
-                  lineHeight: 1.5,
-                  boxSizing: "border-box",
-                  outline: "none",
-                }}
-              />
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
-                <button
-                  onClick={handleRunCode}
-                  disabled={codingRunning}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "#10b981",
-                    color: "white",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: codingRunning ? "not-allowed" : "pointer",
+                {/* Code Editor */}
+                <textarea
+                  value={codingCodes[currentCodingProblem.id]?.[codingLang] || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCodingCodes((prev) => ({
+                      ...prev,
+                      [currentCodingProblem.id]: {
+                        ...prev[currentCodingProblem.id],
+                        [codingLang]: val,
+                      },
+                    }));
                   }}
-                >
-                  {codingRunning ? "Testing..." : "▶ Run Test Suite"}
-                </button>
-                {codingPassCount !== null && (
-                  <span style={{ fontSize: 12, fontWeight: 800, color: codingPassCount === 2 ? "#34d399" : "#f87171" }}>
-                    {codingPassCount === 2 ? "✓ 2/2 Test Cases Passed" : "✗ 0/2 Test Cases Passed"}
-                  </span>
+                  rows={10}
+                  style={{
+                    width: "100%",
+                    padding: "1rem",
+                    background: "#0a0c16",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 10,
+                    color: "#86efac",
+                    fontFamily: "monospace",
+                    fontSize: 12,
+                    lineHeight: 1.5,
+                    resize: "vertical",
+                    boxSizing: "border-box",
+                  }}
+                />
+
+                {/* Execution Bar */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10 }}>
+                  <button
+                    onClick={handleRunCodingTests}
+                    disabled={codingRunning}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      border: "none",
+                      background: "linear-gradient(135deg,#6366f1,#4f46e5)",
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: codingRunning ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {codingRunning ? "Testing Against Suite..." : "▶ Run Test Suite"}
+                  </button>
+
+                  {codingResults[currentCodingProblem.id] && (
+                    <span style={{ fontSize: 12, fontWeight: 800, color: codingResults[currentCodingProblem.id].passed === codingResults[currentCodingProblem.id].total ? "#34d399" : "#f87171" }}>
+                      {codingResults[currentCodingProblem.id].passed}/{codingResults[currentCodingProblem.id].total} Test Cases Passed
+                    </span>
+                  )}
+                </div>
+
+                {/* Test Run Logs */}
+                {codingResults[currentCodingProblem.id]?.logs && (
+                  <div style={{ marginTop: 10, padding: "8px 12px", background: "#050711", borderRadius: 8, fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "pre-wrap" }}>
+                    {codingResults[currentCodingProblem.id].logs.join("\n")}
+                  </div>
                 )}
               </div>
+            )}
 
-              {codingRunLog && (
-                <div style={{ marginTop: 10, padding: "8px 12px", background: "#050711", borderRadius: 8, fontFamily: "monospace", fontSize: 11, color: codingPassCount === 2 ? "#34d399" : "#f87171", whiteSpace: "pre-wrap" }}>
-                  {codingRunLog}
-                </div>
-              )}
+            {/* Submission / Gating Actions */}
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={handleSubmitOA}
+                style={{
+                  flex: 2,
+                  padding: "1rem",
+                  borderRadius: 12,
+                  border: "none",
+                  background: oaElapsedSeconds >= oaSession.minTimeSeconds && Object.keys(codingResults).length > 0 && Object.keys(oaAnswers).length >= oaSession.aptitudeQuestions.length
+                    ? "linear-gradient(135deg,#10b981,#059669)"
+                    : "rgba(255,255,255,0.1)",
+                  color: "white",
+                  fontSize: 13,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                {oaElapsedSeconds < oaSession.minTimeSeconds
+                  ? `⏳ Minimum Assessment Time (${Math.floor(oaElapsedSeconds / 60)}m/${Math.floor(oaSession.minTimeSeconds / 60)}m) — Finish Testing`
+                  : "Submit OA & Advance to Round 3: Group Discussion ➔"}
+              </button>
+
+              <button
+                onClick={() => {
+                  initGD();
+                  setCurrentRound(3);
+                }}
+                style={{
+                  flex: 1,
+                  padding: "1rem",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  background: "transparent",
+                  color: "#94a3b8",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Skip OA (Mark as Not Attempted)
+              </button>
             </div>
-
-            <button
-              onClick={() => {
-                initGD();
-                setCurrentRound(3);
-              }}
-              style={{
-                width: "100%",
-                padding: "1rem",
-                borderRadius: 12,
-                border: "none",
-                background: "linear-gradient(135deg,#10b981,#059669)",
-                color: "white",
-                fontSize: 13,
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              Submit OA & Advance to Round 3: Group Discussion ➔
-            </button>
           </div>
         )}
 
@@ -1105,244 +1218,147 @@ function SimulationContent() {
               </div>
               <div style={{ textAlign: "right" }}>
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>ARTICULATION SCORE</div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: "#34d399" }}>{gdArticulationScore}/100</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: gdArticulationScore !== null ? "#34d399" : "#94a3b8" }}>
+                  {gdArticulationScore !== null ? `${gdArticulationScore}/100` : "Not Attempted"}
+                </div>
               </div>
             </div>
 
             <div style={{ padding: "8px 12px", background: "rgba(99,102,241,0.08)", borderRadius: 10, fontSize: 12, color: "#c7d2fe", marginBottom: 14 }}>
-              <strong>Topic:</strong> {gdTopicLoading ? `Generating fresh calibrated topic for ${targetCompany} (${companyTierType})...` : gdTopic}
+              <strong>Topic:</strong> {gdTopicLoading ? `Generating fresh calibrated topic for ${targetCompany}...` : gdTopic}
             </div>
 
-            {gdError && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>⚠️ {gdError}</span>
-                <button
-                  onClick={handleSendGDTurn}
-                  style={{ padding: "4px 10px", background: "#ef4444", border: "none", borderRadius: 6, color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Retry Turn
-                </button>
+            {gdWarning && (
+              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14 }}>
+                ⚠️ {gdWarning}
               </div>
             )}
 
-            {/* Chat Stream */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 320, overflowY: "auto", padding: "10px", background: "rgba(0,0,0,0.3)", borderRadius: 12, marginBottom: 14 }}>
-              {gdMessages.map((m, idx) => {
-                const isUser = m.speaker.includes("You");
+            {/* Live Chat / Transcript Area */}
+            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 14, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
+              {gdMessages.map((m, mIdx) => {
+                const isCandidate = m.speaker.includes("Candidate") || m.role === "Candidate";
                 return (
-                  <div key={idx} style={{ display: "flex", gap: 8, alignItems: "flex-start", alignSelf: isUser ? "flex-end" : "flex-start", maxWidth: "85%" }}>
-                    {!isUser && <span style={{ fontSize: 18 }}>{m.avatar}</span>}
-                    <div style={{ padding: "8px 12px", borderRadius: 12, background: isUser ? "linear-gradient(135deg,#4f46e5,#6366f1)" : "rgba(255,255,255,0.05)", border: isUser ? "none" : "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: "white" }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: isUser ? "#c7d2fe" : "#a5b4fc", marginBottom: 2 }}>{m.speaker}</div>
-                      {m.content}
+                  <div key={mIdx} style={{ display: "flex", gap: 8, alignItems: "flex-start", alignSelf: isCandidate ? "flex-end" : "flex-start", maxWidth: "85%" }}>
+                    {!isCandidate && <span style={{ fontSize: 20 }}>{m.avatar || "👤"}</span>}
+                    <div style={{ background: isCandidate ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 12, border: `1px solid ${isCandidate ? "#6366f1" : "rgba(255,255,255,0.08)"}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: isCandidate ? "#818cf8" : "#94a3b8", marginBottom: 2 }}>
+                        {m.speaker} {m.role ? `• ${m.role}` : ""}
+                      </div>
+                      <div style={{ fontSize: 12, color: "white", lineHeight: 1.4 }}>
+                        {m.content}
+                      </div>
                     </div>
+                    {isCandidate && <span style={{ fontSize: 20 }}>🧑</span>}
                   </div>
                 );
               })}
             </div>
 
-            {/* Input */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+            {/* Candidate Intervention Input */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
               <input
                 type="text"
                 value={gdInput}
                 onChange={(e) => setGdInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSendGDTurn(); }}
-                placeholder="Enter the discussion: challenge Rohan's latency claims or Priya's velocity assumptions..."
-                style={{
-                  flex: 1,
-                  padding: "0.75rem 1rem",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 10,
-                  color: "white",
-                  fontSize: 12,
-                  outline: "none",
-                }}
+                onKeyDown={(e) => e.key === "Enter" && handleSendGDTurn()}
+                placeholder="Intervene in the debate (e.g. 'To synthesize both points, starting with a modular monolith...')"
+                style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "white", fontSize: 12 }}
               />
               <button
                 onClick={handleSendGDTurn}
-                disabled={!gdInput.trim() || gdSending}
-                style={{
-                  padding: "0 1.25rem",
-                  borderRadius: 10,
-                  border: "none",
-                  background: "#6366f1",
-                  color: "white",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+                disabled={gdSending || !gdInput.trim()}
+                style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "white", fontSize: 12, fontWeight: 800, cursor: (gdSending || !gdInput.trim()) ? "not-allowed" : "pointer" }}
               >
                 {gdSending ? "Responding..." : "Intervene ➔"}
               </button>
             </div>
 
-            <div style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: "1.5rem" }}>
-              💡 <strong>Panel Feedback:</strong> {gdFeedback}
-            </div>
+            {gdFeedback && (
+              <div style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: "1.5rem" }}>
+                💡 <strong>Panel Feedback:</strong> {gdFeedback}
+              </div>
+            )}
 
-            <button
-              onClick={() => {
-                initTechInterview();
-                setCurrentRound(4);
-              }}
-              style={{
-                width: "100%",
-                padding: "0.95rem",
-                borderRadius: 12,
-                border: "none",
-                background: "linear-gradient(135deg,#10b981,#059669)",
-                color: "white",
-                fontSize: 13,
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              Conclude GD & Advance to Round 4: Technical Interview ➔
-            </button>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => handleAdvanceFromGD(false)}
+                style={{ flex: 2, padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+              >
+                Conclude GD & Advance to Round 4: Technical Interview ➔
+              </button>
+
+              <button
+                onClick={() => handleAdvanceFromGD(true)}
+                style={{ flex: 1, padding: "0.95rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+              >
+                Skip GD (Mark as Not Attempted)
+              </button>
+            </div>
           </div>
         )}
 
         {/* ═══════════════════════════════════════════════ */}
-        {/* ROUND 4: TECHNICAL INTERVIEW (CONDITIONED ON OA) */}
+        {/* ROUND 4: TECHNICAL INTERVIEW (PRESERVED)      */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 4 && (
           <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 26 }}>👔</span>
+                <span style={{ fontSize: 26 }}>💻</span>
                 <div>
-                  <span style={{ fontSize: 10, color: "#fbbf24", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 4 OF 5</span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>1-on-1 Technical Bar-Raiser Interview</h2>
+                  <span style={{ fontSize: 10, color: "#38bdf8", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 4 OF 5</span>
+                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Technical Interview & System Boundaries</h2>
                 </div>
               </div>
-              <span style={{ fontSize: 10, padding: "4px 8px", borderRadius: 6, background: codingPassCount === 0 ? "rgba(244,63,94,0.15)" : "rgba(16,185,129,0.15)", color: codingPassCount === 0 ? "#f43f5e" : "#34d399", fontWeight: 700 }}>
-                {codingPassCount === 0 ? "Conditioned: OA Coding Struggles" : "Conditioned: OA Coding Verified"}
-              </span>
-            </div>
-
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginBottom: 14 }}>
-              Alex is a 50-year veteran interviewer calibrated for {targetCompany} ({companyTierType}) on a {driveType}. Questions adapt in real-time to your Round 2 OA code execution and answers.
-            </p>
-
-            {/* Flagship FAANG Interview Integration Callout */}
-            <div
-              style={{
-                padding: "16px 20px",
-                marginBottom: 16,
-                background: "linear-gradient(135deg, rgba(236,72,153,0.12) 0%, rgba(99,102,241,0.15) 100%)",
-                border: "1.5px solid rgba(236,72,153,0.35)",
-                borderRadius: 16,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: 14,
-              }}
-            >
-              <div style={{ maxWidth: 520 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 18 }}>🎙️</span>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: "white" }}>
-                    Launch Flagship FAANG Interview with Alex (Voice + Vision)
-                  </span>
-                  <span style={{ fontSize: 9, padding: "2px 7px", borderRadius: 4, background: "#ec4899", color: "white", fontWeight: 800 }}>
-                    FEATURED
-                  </span>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>LIVE TECH SCORE</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: techScore !== null ? "#38bdf8" : "#94a3b8" }}>
+                  {techScore !== null ? `${techScore}/100` : "Not Attempted"}
                 </div>
-                <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.75)", margin: 0, lineHeight: 1.4 }}>
-                  Prefer speaking aloud? Launch Alex with 3D animated canvas face, real-time voice speech (TTS/STT), webcam face oval tracking, and 7-axis precision scoring.
-                </p>
               </div>
-              <a
-                href={`/interview?jd=${encodeURIComponent(`Company: ${targetCompany}. Role: ${targetRole}. Drive: ${driveType}. OA Performance: ${codingPassCount}/2 test problems passed.`)}&resume=${encodeURIComponent(resumeText.slice(0, 1000))}&from=simulation`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  padding: "10px 18px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #ec4899, #8b5cf6)",
-                  color: "white",
-                  textDecoration: "none",
-                  fontSize: 12,
-                  fontWeight: 800,
-                  boxShadow: "0 4px 15px rgba(236,72,153,0.4)",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                🎙️ Open Full FAANG Alex Studio ➔
-              </a>
             </div>
 
-            {techError && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>⚠️ {techError}</span>
-                <button
-                  onClick={techMessages.length === 0 ? initTechInterview : handleSendTechAnswer}
-                  style={{ padding: "4px 10px", background: "#ef4444", border: "none", borderRadius: 6, color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Retry Question Generation
-                </button>
+            {techWarning && (
+              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14 }}>
+                ⚠️ {techWarning}
               </div>
             )}
 
-            {/* Chat */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 300, overflowY: "auto", padding: 12, background: "rgba(0,0,0,0.3)", borderRadius: 12, marginBottom: 14 }}>
+            {/* Conversation Log */}
+            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 14, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
               {techMessages.map((m, idx) => {
                 const isUser = m.role === "user";
                 return (
                   <div key={idx} style={{ display: "flex", gap: 8, alignItems: "flex-start", alignSelf: isUser ? "flex-end" : "flex-start", maxWidth: "85%" }}>
-                    {!isUser && <span style={{ fontSize: 18 }}>👔</span>}
-                    <div style={{ padding: "8px 12px", borderRadius: 12, background: isUser ? "linear-gradient(135deg,#4f46e5,#6366f1)" : "rgba(255,255,255,0.05)", border: isUser ? "none" : "1px solid rgba(255,255,255,0.08)", fontSize: 12, color: "white" }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: isUser ? "#c7d2fe" : "#a5b4fc", marginBottom: 2 }}>{isUser ? "You" : "Alex (Staff Engineer)"}</div>
-                      {m.content}
+                    {!isUser && <span style={{ fontSize: 20 }}>🧑‍💻</span>}
+                    <div style={{ background: isUser ? "rgba(56,189,248,0.25)" : "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 12, border: `1px solid ${isUser ? "#38bdf8" : "rgba(255,255,255,0.08)"}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: isUser ? "#38bdf8" : "#94a3b8", marginBottom: 2 }}>
+                        {isUser ? "You (Candidate)" : "Principal Interviewer"}
+                      </div>
+                      <div style={{ fontSize: 12, color: "white", lineHeight: 1.4 }}>{m.content}</div>
                     </div>
+                    {isUser && <span style={{ fontSize: 20 }}>🧑</span>}
                   </div>
                 );
               })}
-              {techLoading && (
-                <div style={{ fontSize: 11, color: "#a5b4fc" }}>Alex is analyzing your technical explanation...</div>
-              )}
             </div>
 
-            {/* Input */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-              <input
-                type="text"
+            {/* Technical Answer Input */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+              <textarea
                 value={techInput}
                 onChange={(e) => setTechInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSendTechAnswer(); }}
-                placeholder="Walk Alex through your technical reasoning and trade-offs..."
-                style={{
-                  flex: 1,
-                  padding: "0.75rem 1rem",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 10,
-                  color: "white",
-                  fontSize: 12,
-                  outline: "none",
-                }}
+                placeholder="Articulate your technical solution, time/space complexity, and architecture trade-offs..."
+                rows={3}
+                style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "white", fontSize: 12, resize: "none" }}
               />
               <button
                 onClick={handleSendTechAnswer}
-                disabled={!techInput.trim() || techLoading}
-                style={{
-                  padding: "0 1.25rem",
-                  borderRadius: 10,
-                  border: "none",
-                  background: "#6366f1",
-                  color: "white",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+                disabled={techLoading || !techInput.trim()}
+                style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#38bdf8,#0284c7)", color: "white", fontSize: 12, fontWeight: 800, cursor: (techLoading || !techInput.trim()) ? "not-allowed" : "pointer" }}
               >
-                Submit Answer ➔
+                {techLoading ? "Evaluating..." : "Submit Answer ➔"}
               </button>
             </div>
 
@@ -1352,25 +1368,21 @@ function SimulationContent() {
               </div>
             )}
 
-            <button
-              onClick={() => {
-                initHR();
-                setCurrentRound(5);
-              }}
-              style={{
-                width: "100%",
-                padding: "0.95rem",
-                borderRadius: 12,
-                border: "none",
-                background: "linear-gradient(135deg,#10b981,#059669)",
-                color: "white",
-                fontSize: 13,
-                fontWeight: 800,
-                cursor: "pointer",
-              }}
-            >
-              Conclude Tech Round & Advance to Round 5: HR Interview ➔
-            </button>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => handleAdvanceFromTech(false)}
+                style={{ flex: 2, padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+              >
+                Conclude Tech Round & Advance to Round 5: HR Interview ➔
+              </button>
+
+              <button
+                onClick={() => handleAdvanceFromTech(true)}
+                style={{ flex: 1, padding: "0.95rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+              >
+                Skip Tech (Mark as Not Attempted)
+              </button>
+            </div>
           </div>
         )}
 
@@ -1379,37 +1391,39 @@ function SimulationContent() {
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 5 && (
           <div style={{ maxWidth: 800, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-              <span style={{ fontSize: 26 }}>🤝</span>
-              <div>
-                <span style={{ fontSize: 10, color: "#ec4899", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 5 OF 5</span>
-                <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>HR & Cultural Bar-Raiser Interview</h2>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 26 }}>🤝</span>
+                <div>
+                  <span style={{ fontSize: 10, color: "#ec4899", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 5 OF 5</span>
+                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>HR & Cultural Bar-Raiser Interview</h2>
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>HR SCORE</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: hrScore !== null ? "#ec4899" : "#94a3b8" }}>
+                  {hrScore !== null ? `${hrScore}/100` : "Not Attempted"}
+                </div>
               </div>
             </div>
 
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
-              Tailored specifically for {targetCompany} ({companyTierType}) on a {driveType}. Every question evaluates your STAR evidence, ownership, and adaptability.
+              Conditioned on your prior technical round performance at {targetCompany}. Answer in STAR format (Situation, Task, Action, Result).
             </p>
+
+            {hrWarning && (
+              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: "1.5rem" }}>
+                ⚠️ {hrWarning}
+              </div>
+            )}
 
             {hrLoading && (
               <div style={{ padding: "1.5rem", textAlign: "center", color: "#f472b6", fontSize: 13, background: "rgba(236,72,153,0.05)", borderRadius: 12, marginBottom: "1.5rem" }}>
-                ⏳ Generating context-conditioned HR questions for {targetCompany} ({driveType})...
+                ⏳ Generating context-conditioned HR questions for {targetCompany}...
               </div>
             )}
 
-            {hrError && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>⚠️ {hrError}</span>
-                <button
-                  onClick={initHR}
-                  style={{ padding: "4px 10px", background: "#ef4444", border: "none", borderRadius: 6, color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Retry Question Generation
-                </button>
-              </div>
-            )}
-
-            {/* Dynamically Generated Context Questions (Zero Static Questions) */}
+            {/* Questions list */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: "2rem" }}>
               {hrQuestions.length > 0 ? (
                 hrQuestions.map((q, qIdx) => (
@@ -1417,14 +1431,9 @@ function SimulationContent() {
                     <div style={{ fontSize: 12, fontWeight: 800, color: "#f472b6", marginBottom: 4 }}>
                       Question {qIdx + 1}: {q.competency}
                     </div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.9)", marginBottom: 6, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 12, color: "white", marginBottom: 8, lineHeight: 1.4 }}>
                       {q.question}
                     </div>
-                    {q.why_asked && (
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 8, fontStyle: "italic" }}>
-                        Why this matters: {q.why_asked}
-                      </div>
-                    )}
                     <textarea
                       value={hrAnswers[qIdx] || ""}
                       onChange={(e) => {
@@ -1456,18 +1465,7 @@ function SimulationContent() {
             <button
               onClick={handleGenerateFinalReport}
               disabled={generatingReport || hrLoading}
-              style={{
-                width: "100%",
-                padding: "1rem",
-                borderRadius: 12,
-                border: "none",
-                background: "linear-gradient(135deg,#6366f1,#a855f7)",
-                color: "white",
-                fontSize: 14,
-                fontWeight: 800,
-                cursor: (generatingReport || hrLoading) ? "not-allowed" : "pointer",
-                boxShadow: "0 0 25px rgba(99,102,241,0.3)",
-              }}
+              style={{ width: "100%", padding: "1rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#a855f7)", color: "white", fontSize: 14, fontWeight: 800, cursor: (generatingReport || hrLoading) ? "not-allowed" : "pointer" }}
             >
               {generatingReport ? "Synthesizing Final Holistic Report..." : "Complete Simulation & Generate Holistic Report ➔"}
             </button>
@@ -1505,7 +1503,7 @@ function SimulationContent() {
                 >
                   {holisticReport.realistic_outcome.would_be_selected
                     ? "✓ REALISTIC OUTCOME: CANDIDATE OFFER RECOMMENDED"
-                    : `✗ REALISTIC OUTCOME: LIKELY ELIMINATED AT ${holisticReport.realistic_outcome.likely_elimination_round?.replace("_", " ").toUpperCase()}`}
+                    : `✗ REALISTIC OUTCOME: ELIMINATED AT ${holisticReport.realistic_outcome.likely_elimination_round?.replace("_", " ").toUpperCase()}`}
                 </span>
                 <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
                   Audited against {holisticReport.target_role_and_company_tier}
@@ -1523,19 +1521,19 @@ function SimulationContent() {
             {/* 5-DIMENSION SCORECARD */}
             <div>
               <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>
-                Per-Dimension Breakdown (Non-Blended Evaluation)
+                Per-Dimension Breakdown (Real Participation Gated)
               </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
                 {/* 1. Resume */}
                 <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>1. RESUME (ATS)</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.resume_screening.result === "pass" ? "#34d399" : "#f87171", textTransform: "uppercase" }}>
-                      {holisticReport.round_results.resume_screening.result}
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.resume_screening.result === "pass" ? "#34d399" : holisticReport.round_results.resume_screening.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                      {holisticReport.round_results.resume_screening.result.replace("_", " ")}
                     </span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
-                    {holisticReport.round_results.resume_screening.score ?? 78}/100
+                    {holisticReport.round_results.resume_screening.score !== null ? `${holisticReport.round_results.resume_screening.score}/100` : "Not Attempted"}
                   </div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
                     {holisticReport.round_results.resume_screening.evidence}
@@ -1546,15 +1544,17 @@ function SimulationContent() {
                 <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>2. ONLINE ASSESSMENT</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.online_assessment.result === "pass" ? "#34d399" : "#f87171", textTransform: "uppercase" }}>
-                      {holisticReport.round_results.online_assessment.result}
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.online_assessment.result === "pass" ? "#34d399" : holisticReport.round_results.online_assessment.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                      {holisticReport.round_results.online_assessment.result.replace("_", " ")}
                     </span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
-                    {holisticReport.round_results.online_assessment.coding_problems_solved} Solved
+                    {holisticReport.round_results.online_assessment.coding_problems_solved}
                   </div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
-                    Aptitude: {holisticReport.round_results.online_assessment.aptitude_score}/100 · Coding: {holisticReport.round_results.online_assessment.coding_score}/100
+                    {holisticReport.round_results.online_assessment.aptitude_score !== null
+                      ? `Aptitude: ${holisticReport.round_results.online_assessment.aptitude_score}/100 · Coding: ${holisticReport.round_results.online_assessment.coding_score}/100`
+                      : "Round was skipped without submitting answers."}
                   </div>
                 </div>
 
@@ -1562,12 +1562,12 @@ function SimulationContent() {
                 <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>3. GROUP DISCUSSION</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.group_discussion.result === "pass" ? "#34d399" : "#f87171", textTransform: "uppercase" }}>
-                      {holisticReport.round_results.group_discussion.result}
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.group_discussion.result === "pass" ? "#34d399" : holisticReport.round_results.group_discussion.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                      {holisticReport.round_results.group_discussion.result.replace("_", " ")}
                     </span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
-                    {holisticReport.round_results.group_discussion.articulation_score}/100
+                    {holisticReport.round_results.group_discussion.articulation_score !== null ? `${holisticReport.round_results.group_discussion.articulation_score}/100` : "Not Attempted"}
                   </div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
                     {holisticReport.round_results.group_discussion.specific_feedback}
@@ -1578,15 +1578,15 @@ function SimulationContent() {
                 <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>4. TECHNICAL INTERVIEW</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.technical_interview.result === "pass" ? "#34d399" : "#f87171", textTransform: "uppercase" }}>
-                      {holisticReport.round_results.technical_interview.result}
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.technical_interview.result === "pass" ? "#34d399" : holisticReport.round_results.technical_interview.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                      {holisticReport.round_results.technical_interview.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "white", marginBottom: 4 }}>
-                    Strengths: {holisticReport.round_results.technical_interview.strong_areas.join(", ") || "Core Concepts"}
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                    {holisticReport.round_results.technical_interview.score !== null ? `${holisticReport.round_results.technical_interview.score}/100` : "Not Attempted"}
                   </div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
-                    Weaknesses: {holisticReport.round_results.technical_interview.weak_areas.join(", ") || "None flagged"}
+                    {holisticReport.round_results.technical_interview.specific_examples}
                   </div>
                 </div>
 
@@ -1594,12 +1594,12 @@ function SimulationContent() {
                 <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>5. HR INTERVIEW</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.hr_interview.result === "pass" ? "#34d399" : "#f87171", textTransform: "uppercase" }}>
-                      {holisticReport.round_results.hr_interview.result}
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.hr_interview.result === "pass" ? "#34d399" : holisticReport.round_results.hr_interview.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                      {holisticReport.round_results.hr_interview.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "white", marginBottom: 4 }}>
-                    Cultural Alignment
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                    {holisticReport.round_results.hr_interview.score !== null ? `${holisticReport.round_results.hr_interview.score}/100` : "Not Attempted"}
                   </div>
                   <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
                     {holisticReport.round_results.hr_interview.specific_feedback}
@@ -1608,100 +1608,50 @@ function SimulationContent() {
               </div>
             </div>
 
-            {/* Profile Summary & Prioritized Action Plan */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ padding: "1.5rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 10px" }}>
-                  Holistic Profile Synthesis
-                </h3>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.6, margin: 0 }}>
-                  {holisticReport.profile_summary}
-                </p>
-              </div>
-
-              <div style={{ padding: "1.5rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
-                <h3 style={{ fontSize: 14, fontWeight: 800, color: "#34d399", textTransform: "uppercase", letterSpacing: 0.5, margin: "0 0 10px" }}>
-                  Prioritized Action Plan (Ranked by Impact)
-                </h3>
-                <ol style={{ margin: 0, paddingLeft: "1.25rem", fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>
-                  {holisticReport.recommended_focus.map((rec, i) => (
-                    <li key={i} style={{ marginBottom: 6 }}>
-                      {rec}
-                    </li>
-                  ))}
-                </ol>
+            {/* RECOMMENDATIONS LIST */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 12px", color: "#818cf8" }}>
+                Targeted Action Plan & Recommended Focus
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {holisticReport.recommended_focus.map((rec, rIdx) => (
+                  <div key={rIdx} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
+                    <span style={{ color: "#34d399", fontWeight: 800 }}>#{rIdx + 1}</span>
+                    <span>{rec}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <Link
-                href="/interview"
-                style={{
-                  padding: "0.85rem 1.5rem",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg,#ec4899,#8b5cf6)",
-                  color: "white",
-                  textDecoration: "none",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  boxShadow: "0 4px 15px rgba(236,72,153,0.35)",
-                }}
-              >
-                🎙️ Practice Flagship FAANG Interview (Alex Vision Studio) ➔
-              </Link>
+            {/* ACTION BUTTONS */}
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
               <button
                 onClick={() => {
-                  setCurrentRound(1);
                   setResumeResult(null);
-                  setCodingPassCount(null);
-                  setCodingRunLog(null);
+                  setOaAnswers({});
+                  setCodingResults({});
+                  setGdMessages([]);
+                  setTechMessages([]);
+                  setHrAnswers([]);
                   setHolisticReport(null);
+                  setCurrentRound(1);
                 }}
-                style={{
-                  padding: "0.85rem 1.5rem",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
+                style={{ padding: "0.85rem 1.5rem", borderRadius: 10, background: "linear-gradient(135deg,#6366f1,#4f46e5)", border: "none", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
               >
-                ↺ Run New Simulation
+                🔄 Launch New Simulation Session
               </button>
-              <Link
-                href="/student/interview-prep/history"
-                style={{
-                  padding: "0.85rem 1.5rem",
-                  borderRadius: 10,
-                  background: "rgba(255,255,255,0.08)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "white",
-                  textDecoration: "none",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
-              >
-                View Prep History ➔
-              </Link>
             </div>
           </div>
         )}
+
       </main>
     </div>
   );
 }
 
-export default function SimulationPage() {
+export default function StudentSimulationPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#060913", color: "white", padding: "3rem", textAlign: "center" }}>Loading Recruitment Pipeline Simulation...</div>}>
+    <Suspense fallback={<div style={{ padding: "3rem", textAlign: "center", color: "#94a3b8" }}>Loading simulation arena...</div>}>
       <SimulationContent />
     </Suspense>
   );
