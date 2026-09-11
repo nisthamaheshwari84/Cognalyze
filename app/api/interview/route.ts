@@ -32,13 +32,14 @@ Return ONLY this JSON:
   {"question":"Why do you want this role specifically, and what will you contribute in 90 days?","why":"Motivation and planning","lookFor":"Specific, researched answer","difficulty":"Easy"}
 ]}`
         }],
-        max_tokens: 800,
-        temperature: 0.4
+        max_tokens: 1800,
+        temperature: 0.4,
+        response_format: { type: "json_object" }
       })
     });
 
     const data = await res.json();
-    const text = data.choices[0].message.content.trim();
+    const text = (data.choices?.[0]?.message?.content || "").trim();
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No JSON");
     return NextResponse.json(JSON.parse(match[0]));

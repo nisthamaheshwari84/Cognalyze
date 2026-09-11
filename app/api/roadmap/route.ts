@@ -68,16 +68,18 @@ Return ONLY this JSON:
   "apply_now_anyway": "Yes — even imperfect candidates get interviews. Apply while you work on gaps."
 }`
         }],
-        max_tokens: 1200,
-        temperature: 0.3
+        max_tokens: 2500,
+        temperature: 0.3,
+        response_format: { type: "json_object" }
       })
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message);
-    const text = data.choices[0].message.content;
-    const json = text.match(/\{[\s\S]*\}/)?.[0];
-    if (!json) throw new Error("Parse failed");
+    if (!res.ok) throw new Error(data.error?.message || "Groq API returned an error");
+    const rawText = data.choices?.[0]?.message?.content || "";
+    const cleanText = rawText.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
+    const json = cleanText.match(/\{[\s\S]*\}/)?.[0];
+    if (!json) throw new Error("Parse failed - no valid JSON in model response");
     return NextResponse.json(JSON.parse(json));
 
   } catch (error: any) {

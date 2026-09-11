@@ -81,7 +81,14 @@ Give your honest, brutally candid assessment. Focus on direct quotes and real si
           const data = await res.json();
           if (!res.ok) throw new Error(data.error?.message);
           let responseText = data.choices?.[0]?.message?.content || "";
-          responseText = responseText.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+          // Strip closed think blocks
+          responseText = responseText.replace(/<think>[\s\S]*?<\/think>/gi, "");
+          responseText = responseText.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "");
+          // Strip unclosed think blocks
+          responseText = responseText.replace(/<think>[\s\S]*$/gi, "");
+          responseText = responseText.replace(/<thinking>[\s\S]*$/gi, "");
+          // Strip any stray tags
+          responseText = responseText.replace(/<\/?think(?:ing)?>/gi, "").trim();
           return { name: agent.name, color: agent.color, response: responseText };
         } catch {
           return { name: agent.name, color: agent.color, response: `• Analysis timeout or API error\nVerdict: Lean Reject\nScore: 50/100` };

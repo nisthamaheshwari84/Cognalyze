@@ -59,15 +59,22 @@ Return ONLY this JSON:
   "risk_level": "LOW|MEDIUM|HIGH|CRITICAL"
 }`
         }],
-        max_tokens: 250,
-        temperature: 0.1
+        max_tokens: 800,
+        temperature: 0.1,
+        response_format: { type: "json_object" }
       })
     });
 
     const data = await res.json();
     if (!res.ok) throw new Error("API failed");
-    const raw = data.choices[0].message.content.trim();
-    const match = raw.match(/\{[\s\S]*\}/);
+    const raw = (data.choices?.[0]?.message?.content || "").trim();
+    const cleanRaw = raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<think>[\s\S]*$/gi, "")
+      .replace(/```json\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+    const match = cleanRaw.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("Parse failed");
     const parsed = JSON.parse(match[0]);
 

@@ -135,9 +135,21 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
   // --- Groq Cloud with Key & Model Rotation ---
   const callGroqCatalog = async (): Promise<Response | null> => {
     if (groqKeys.length === 0) return null;
-    const primaryModel = bodyObj.model || "llama-3.3-70b-versatile";
-    const groqFallbacks = ["llama-3.1-8b-instant", "qwen/qwen3.6-27b", "meta-llama/llama-4-scout-17b-16e-instruct"];
-    const groqModelsToTry = Array.from(new Set([primaryModel, ...groqFallbacks]));
+
+    // Detect if request contains image/vision content
+    const hasImage = JSON.stringify(bodyObj).includes("image_url");
+
+    let groqModelsToTry: string[];
+    if (hasImage) {
+      groqModelsToTry = ["qwen/qwen3.8-27b", "qwen/qwen3.6-27b"];
+    } else {
+      const requested = (bodyObj.model || "").toLowerCase();
+      if (requested.includes("instant") || requested.includes("8b")) {
+        groqModelsToTry = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"];
+      } else {
+        groqModelsToTry = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b", "openai/gpt-oss-20b"];
+      }
+    }
 
     for (let modelIdx = 0; modelIdx < groqModelsToTry.length; modelIdx++) {
       const model = groqModelsToTry[modelIdx];

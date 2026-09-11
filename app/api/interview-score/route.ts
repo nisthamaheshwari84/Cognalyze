@@ -89,8 +89,9 @@ RETURN ONLY RAW JSON:
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
-        temperature: 0.1
+        max_tokens: 1500,
+        temperature: 0.1,
+        response_format: { type: "json_object" }
       })
     });
 
@@ -98,9 +99,16 @@ RETURN ONLY RAW JSON:
     const data = await res.json();
     const raw = data.choices?.[0]?.message?.content?.trim() || "";
 
+    const cleanRaw = raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<think>[\s\S]*$/gi, "")
+      .replace(/```json\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
     let parsed: any = null;
-    try { parsed = JSON.parse(raw); } catch (_) {
-      const m = raw.match(/\{[\s\S]*\}/);
+    try { parsed = JSON.parse(cleanRaw); } catch (_) {
+      const m = cleanRaw.match(/\{[\s\S]*\}/);
       if (m) try { parsed = JSON.parse(m[0]); } catch (_) {}
     }
 

@@ -67,7 +67,7 @@ export async function parseJobDescription(jdText: string): Promise<ParsedJD> {
     console.error("JD Analysis Error:", error);
     return {
       title: "Senior AI Engineer",
-      company: "Redrob AI",
+      company: "Cognalyze AI",
       minYearsExperience: 5,
       minYearsExperienceTarget: 7,
       maxYearsExperience: 9,

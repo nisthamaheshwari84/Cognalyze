@@ -1,0 +1,770 @@
+"use client";
+import { useState, useEffect, use } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getSafeOpportunityUrl, formatOpportunitySchedule, getOpportunityPortalInfo } from "@/lib/ai/placement-intelligence";
+
+interface ProjectCard {
+  id: string;
+  title: string;
+  tagline: string;
+  problem_statement: string;
+  architecture: string;
+  tech_stack: string[];
+  winning_moat: string;
+  mvp_timeline: Array<{ hours: string; task: string }>;
+  demo_wow_factor: string;
+  potential_judge_question: string;
+}
+
+interface AgentCritique {
+  agent_id: string;
+  agent_name: string;
+  agent_role: string;
+  agent_avatar: string;
+  score: number;
+  verdict: string;
+  critique: string;
+  tactical_advice: string;
+}
+
+interface CouncilEvaluation {
+  overall_verdict: "🔥 100% WORTH IT (BUILD THIS IMMEDIATELY)" | "⚠️ WORTH IT WITH CRITICAL PIVOTS" | "❌ NOT WORTH IT (PIVOT TO ALTERNATIVE)";
+  consensus_score: number;
+  executive_summary: string;
+  unfair_moat: string;
+  fatal_pitfalls: string[];
+  tactical_sprint_plan: Array<{ phase: string; hours: string; deliverable: string }>;
+  agents: AgentCritique[];
+}
+
+function downloadBlueprintPDF(proj: ProjectCard, opportunityTitle: string, council?: CouncilEvaluation | null) {
+  const html = `
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>${proj.title} — Blueprint</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', -apple-system, sans-serif; color: #1e293b; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+  h1 { font-size: 22px; color: #1e1b4b; margin-bottom: 4px; }
+  h2 { font-size: 16px; color: #4338ca; margin: 20px 0 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; }
+  h3 { font-size: 13px; color: #6366f1; margin: 12px 0 4px; }
+  p, li { font-size: 13px; color: #334155; }
+  .tagline { font-size: 14px; color: #6366f1; font-style: italic; margin-bottom: 12px; }
+  .meta { font-size: 11px; color: #94a3b8; margin-bottom: 20px; }
+  .section { margin-bottom: 16px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+  .tech-tag { display: inline-block; font-size: 11px; padding: 2px 8px; background: #eef2ff; color: #4338ca; border-radius: 4px; margin: 2px; font-weight: 600; }
+  .timeline-row { display: flex; gap: 12px; margin: 4px 0; }
+  .timeline-hours { font-weight: 700; color: #d97706; min-width: 60px; font-size: 12px; }
+  .timeline-task { font-size: 12px; }
+  .council-agent { padding: 8px; margin: 6px 0; background: #fafafa; border-radius: 6px; border: 1px solid #e5e7eb; }
+  .agent-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .agent-name { font-weight: 700; font-size: 12px; }
+  .agent-score { font-weight: 800; font-size: 13px; }
+  .footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; text-align: center; }
+  @media print { body { padding: 20px; } }
+</style>
+</head><body>
+<h1>${proj.title}</h1>
+<div class="tagline">${proj.tagline}</div>
+<div class="meta">Generated for: ${opportunityTitle} • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+
+<h2>Problem Statement</h2>
+<div class="section"><p>${proj.problem_statement}</p></div>
+
+<h2>Winning Moat & Differentiation</h2>
+<div class="section"><p>${proj.winning_moat}</p></div>
+
+<h2>System Architecture</h2>
+<div class="section"><p>${proj.architecture}</p></div>
+
+<h2>Tech Stack</h2>
+<div class="section">${(proj.tech_stack || []).map(t => '<span class="tech-tag">' + t + '</span>').join(' ')}</div>
+
+<h2>36-Hour MVP Timeline</h2>
+<div class="section">
+${(proj.mvp_timeline || []).map(s => '<div class="timeline-row"><span class="timeline-hours">' + s.hours + '</span><span class="timeline-task">' + s.task + '</span></div>').join('')}
+</div>
+
+<h2>Live Demo WOW Factor</h2>
+<div class="section"><p>${proj.demo_wow_factor}</p></div>
+
+<h2>Judge Defense Question</h2>
+<div class="section"><p>${proj.potential_judge_question}</p></div>
+
+${council ? '<h2>6-Agent Council Evaluation</h2><div class="section"><p><strong>Verdict:</strong> ' + council.overall_verdict + ' (Score: ' + council.consensus_score + '/100)</p><p><strong>Executive Summary:</strong> ' + council.executive_summary + '</p><h3>Critical Unfair Moat</h3><p>' + council.unfair_moat + '</p><h3>Fatal Pitfalls</h3><ul>' + council.fatal_pitfalls.map(p => '<li>' + p + '</li>').join('') + '</ul><h3>Agent Critiques</h3>' + council.agents.map(a => '<div class="council-agent"><div class="agent-header"><span class="agent-name">' + a.agent_avatar + ' ' + a.agent_name + '</span><span class="agent-score">' + a.score + '/100</span></div><p><strong>' + a.verdict + '</strong> — ' + a.critique + '</p><p><em>Advice: ' + a.tactical_advice + '</em></p></div>').join('') + '</div>' : ''}
+
+<div class="footer">Generated by Cognalyze — AI-Powered Placement Intelligence Platform</div>
+</body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 500);
+  }
+}
+
+
+export default function OpportunityDetailPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const resolvedParams = use(params);
+  const router = useRouter();
+  const opportunityId = resolvedParams.id;
+
+  const [opportunity, setOpportunity] = useState<any>(null);
+  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [projects, setProjects] = useState<ProjectCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [stageProgress, setStageProgress] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+
+  // Council Evaluation State
+  const [councilEvaluating, setCouncilEvaluating] = useState(false);
+  const [councilProgress, setCouncilProgress] = useState("");
+  const [activeCouncilResult, setActiveCouncilResult] = useState<CouncilEvaluation | null>(null);
+  const [evaluatedProjectTitle, setEvaluatedProjectTitle] = useState("");
+  const [showCouncilModal, setShowCouncilModal] = useState(false);
+
+  // Application Pipeline State
+  const [applicationStage, setApplicationStage] = useState<"Bookmarked" | "Applied" | "Interviewing" | "Offer" | "Rejected" | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
+    setCandidateId(stored);
+    loadOpportunity(stored);
+    loadApplicationStatus(stored);
+  }, [opportunityId]);
+
+  const loadApplicationStatus = async (cId: string) => {
+    try {
+      const res = await fetch(`/api/applications?candidateId=${cId}`);
+      const data = await res.json();
+      if (data.applications && Array.isArray(data.applications)) {
+        const found = data.applications.find((a: any) => a.opportunity_id === opportunityId);
+        if (found) {
+          setApplicationStage(found.stage);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleBookmark = async () => {
+    if (applicationStage === "Bookmarked") {
+      setApplicationStage(null);
+      try {
+        await fetch(`/api/applications?candidateId=${candidateId}&opportunityId=${opportunityId}`, {
+          method: "DELETE"
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      setApplicationStage("Bookmarked");
+      try {
+        await fetch("/api/applications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ candidateId, opportunityId, stage: "Bookmarked" })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleMarkApplied = async () => {
+    setApplicationStage("Applied");
+    try {
+      await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId, opportunityId, stage: "Applied" })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const loadOpportunity = async (cId: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/opportunities/ingest");
+      const data = await res.json();
+      const match = (data.opportunities || []).find((o: any) => o.id === opportunityId);
+      if (match) {
+        setOpportunity(match);
+      }
+
+      // Fetch existing suggestions if cached
+      const sugRes = await fetch(`/api/suggest-projects/${opportunityId}?candidateId=${cId}`);
+      const sugData = await sugRes.json();
+      if (sugData.suggestions?.projects) {
+        setProjects(sugData.suggestions.projects);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateProjects = async () => {
+    setGenerating(true);
+    setError(null);
+    setStageProgress("Stage 1: Deep Context & Rubric Extraction...");
+
+    try {
+      setTimeout(() => setStageProgress("Stage 2: Architecting authentic real-world problem blueprints..."), 3500);
+      setTimeout(() => setStageProgress("Stage 3: 50-Yr FAANG Bar-Raiser & 36h feasibility review..."), 7500);
+
+      const res = await fetch(`/api/suggest-projects/${opportunityId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ candidateId })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate project suggestions");
+
+      if (data.projects) {
+        setProjects(data.projects);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setGenerating(false);
+      setStageProgress("");
+    }
+  };
+
+  const runCouncilEvaluation = async (
+    probStatement: string,
+    projTitle: string,
+    techStack: string[] | string
+  ) => {
+    setCouncilEvaluating(true);
+    setEvaluatedProjectTitle(projTitle);
+    setShowCouncilModal(true);
+    setActiveCouncilResult(null);
+
+    const stages = [
+      "👨‍💼 Alex Vance (FAANG Bar Raiser) auditing L5 hire signal...",
+      "🏛️ Elena Rostova (Chief Jury) evaluating 3-min podium pitch...",
+      "🛠️ Marcus Chen (Cloud Architect) stress-testing 36h feasibility...",
+      "💡 Siddharth Mehta (DeepTech VC) validating market friction & TAM...",
+      "⚖️ Dr. Sarah Jenkins (Red Team) scanning vulnerability vectors...",
+      "👑 Synthesis Director finalizing consensus verdict..."
+    ];
+
+    let step = 0;
+    setCouncilProgress(stages[0]);
+    const timer = setInterval(() => {
+      step++;
+      if (step < stages.length) {
+        setCouncilProgress(stages[step]);
+      }
+    }, 1800);
+
+    try {
+      const res = await fetch("/api/opportunities/council-evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problem_statement: probStatement,
+          project_title: projTitle,
+          tech_stack: Array.isArray(techStack) ? techStack : techStack.split(",").map(s => s.trim()),
+          opportunity_title: opportunity?.title || "National Challenge 2026",
+          domain: opportunity?.domain_tags?.[0] || "Enterprise & Applied AI"
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Council evaluation failed");
+
+      setActiveCouncilResult(data.evaluation);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to evaluate council review");
+      setShowCouncilModal(false);
+    } finally {
+      clearInterval(timer);
+      setCouncilEvaluating(false);
+    }
+  };
+
+  const safeUrl = opportunity
+    ? getSafeOpportunityUrl(opportunity.source_url, opportunity.organizer, opportunity.title)
+    : "https://unstop.com/hackathons";
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#06030f", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.4)" }}>
+        Loading opportunity details...
+      </div>
+    );
+  }
+
+  const portal = opportunity
+    ? getOpportunityPortalInfo(opportunity.source_url, opportunity.organizer, opportunity.title)
+    : { name: "Verified Portal", badgeBg: "rgba(99,102,241,0.2)", badgeColor: "#818cf8", isVerified: true };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#06030f", color: "#f3f4f6", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,3,15,0.85)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 30 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link href="/student" style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", textDecoration: "none", padding: "6px 12px", borderRadius: 8, background: "rgba(255,255,255,0.04)" }}>
+            ← Back to Opportunities
+          </Link>
+          <div style={{ width: 1, height: 16, background: "rgba(255,255,255,0.1)" }} />
+          <div style={{ fontSize: 13, color: "#818cf8", fontWeight: 700 }}>OPPORTUNITY INTELLIGENCE & PROJECT BLUEPRINTS</div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {/* Pipeline Action Buttons */}
+          <button
+            onClick={handleToggleBookmark}
+            style={{
+              fontSize: 12,
+              color: applicationStage === "Bookmarked" ? "#e9d5ff" : "#c084fc",
+              background: applicationStage === "Bookmarked" ? "rgba(168,85,247,0.3)" : "rgba(168,85,247,0.1)",
+              border: "1px solid rgba(168,85,247,0.3)",
+              padding: "6px 12px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 4
+            }}
+          >
+            {applicationStage === "Bookmarked" ? "🔖 Saved in Pipeline" : "🔖 Bookmark"}
+          </button>
+
+          <button
+            onClick={handleMarkApplied}
+            style={{
+              fontSize: 12,
+              color: applicationStage === "Applied" ? "#a7f3d0" : "#34d399",
+              background: applicationStage === "Applied" ? "rgba(16,185,129,0.3)" : "rgba(16,185,129,0.1)",
+              border: "1px solid rgba(16,185,129,0.3)",
+              padding: "6px 12px",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 4
+            }}
+          >
+            {applicationStage === "Applied" ? "✅ Applied" : "✅ Mark Applied"}
+          </button>
+
+          <Link
+            href={`/student/practice-interview?opportunityId=${opportunityId}`}
+            style={{ fontSize: 12, color: "#38bdf8", textDecoration: "none", padding: "6px 14px", borderRadius: 8, background: "rgba(56,189,248,0.1)", border: "1px solid rgba(56,189,248,0.25)", fontWeight: 700 }}
+          >
+            🎤 Mock Interview
+          </Link>
+          <a
+            href={safeUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: 12, color: "white", textDecoration: "none", padding: "6px 14px", borderRadius: 8, background: "linear-gradient(135deg,#6366f1,#a855f7)", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}
+          >
+            Apply on {portal.name.replace(" Verified", "").replace(" Official", "")} ↗
+          </a>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 1140, margin: "0 auto", padding: "2.5rem 1.5rem" }}>
+        
+        {/* Opportunity Hero */}
+        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 10, textTransform: "uppercase", padding: "3px 8px", background: "rgba(99,102,241,0.15)", color: "#818cf8", borderRadius: 6, fontWeight: 800 }}>
+              {opportunity?.type || "Hackathon"}
+            </span>
+            <span style={{ fontSize: 10, padding: "3px 8px", background: "rgba(245,158,11,0.15)", color: "#fbbf24", borderRadius: 6, fontWeight: 800 }}>
+              {opportunity?.tier}
+            </span>
+            {/* Verified Portal Badge */}
+            <span style={{ fontSize: 10, padding: "3px 8px", background: portal.badgeBg, color: portal.badgeColor, borderRadius: 6, fontWeight: 800, border: `1px solid ${portal.badgeColor}33` }}>
+              ✓ {portal.name}
+            </span>
+            {/* Application Pipeline Stage Badge */}
+            {applicationStage && (
+              <span style={{ fontSize: 10, padding: "3px 8px", background: applicationStage === "Applied" ? "rgba(16,185,129,0.2)" : "rgba(168,85,247,0.2)", color: applicationStage === "Applied" ? "#34d399" : "#c084fc", borderRadius: 6, fontWeight: 800, border: `1px solid ${applicationStage === "Applied" ? "#10b981" : "#a855f7"}44` }}>
+                {applicationStage === "Applied" ? "✅ Applied in Pipeline" : `📋 Pipeline: ${applicationStage}`}
+              </span>
+            )}
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>• {opportunity?.organizer}</span>
+          </div>
+
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 10px", color: "white" }}>
+            {opportunity?.title}
+          </h1>
+
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: "0 0 1.25rem" }}>
+            {opportunity?.extracted_context?.summary || opportunity?.eligibility}
+          </p>
+
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {(opportunity?.tags || []).map((t: string, i: number) => (
+              <span key={i} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, color: "#94a3b8" }}>
+                #{t}
+              </span>
+            ))}
+            {(opportunity?.domain_tags || []).map((d: string, i: number) => (
+              <span key={i} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 8, color: "#c084fc" }}>
+                {d}
+              </span>
+            ))}
+            {opportunity?.extracted_context?.prize_pool && (
+              <span style={{ fontSize: 11, padding: "3px 10px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 8, color: "#34d399", fontWeight: 700 }}>
+                🏆 {opportunity.extracted_context.prize_pool}
+              </span>
+            )}
+            {opportunity && (
+              <span style={{ fontSize: 11, padding: "3px 10px", background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 8, color: "#fbbf24", fontWeight: 700 }}>
+                📅 {formatOpportunitySchedule(opportunity).label}
+              </span>
+            )}
+            <span style={{ fontSize: 11, padding: "3px 10px", background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)", borderRadius: 8, color: "#60a5fa", fontWeight: 600 }}>
+              🔗 Verified Portal: {new URL(safeUrl).hostname}
+            </span>
+          </div>
+        </div>
+
+
+        {/* Action Callout */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem 1.75rem", marginBottom: "2.5rem" }}>
+          <div>
+            <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 4px" }}>3-Stage Personalized Project Generator</h3>
+            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+              Generates custom production architectures matching this event&apos;s judge scoring criteria and your technical stack.
+            </p>
+          </div>
+
+          <button
+            onClick={handleGenerateProjects}
+            disabled={generating}
+            style={{ padding: "0.85rem 1.8rem", background: generating ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg,#6366f1,#a855f7)", color: "white", border: "none", borderRadius: 12, fontWeight: 800, fontSize: 13, cursor: generating ? "wait" : "pointer", display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}
+          >
+            {generating ? (
+              <>
+                <span style={{ display: "inline-block", width: 10, height: 10, borderRadius: "50%", background: "white", animation: "pulse 1s infinite" }} />
+                {stageProgress}
+              </>
+            ) : projects.length > 0 ? "Regenerate Blueprints ↻" : "Generate Tailored Project Ideas ⚡"}
+          </button>
+        </div>
+
+        {error && (
+          <div style={{ padding: "1rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, color: "#f87171", fontSize: 13, marginBottom: "2rem" }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Project Cards Grid */}
+        {projects.length > 0 && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+              <div>
+                <h2 style={{ fontSize: 19, fontWeight: 900, margin: 0 }}>
+                  Curated Project Blueprints ({projects.length})
+                </h2>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+                  Each project has an authentic real-world problem statement and 36h execution plan.
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+              {projects.map((proj, idx) => (
+                <div
+                  key={proj.id || idx}
+                  style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 14 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>
+                        CONCEPT #{idx + 1}
+                      </div>
+                      <h3 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 4px", color: "white" }}>{proj.title}</h3>
+                      <div style={{ fontSize: 13, color: "#a5b4fc", fontWeight: 600 }}>{proj.tagline}</div>
+                    </div>
+
+                    <button
+                      onClick={() => runCouncilEvaluation(proj.problem_statement, proj.title, proj.tech_stack)}
+                      style={{ padding: "8px 14px", background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.35)", color: "#c7d2fe", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}
+                    >
+                      🤖 6-Agent Council Review (&quot;Worth It?&quot;)
+                    </button>
+                    <button
+                      onClick={() => downloadBlueprintPDF(proj, opportunity?.title || 'Hackathon', activeCouncilResult && evaluatedProjectTitle === proj.title ? activeCouncilResult : null)}
+                      style={{ padding: "8px 14px", background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.35)", color: "#a7f3d0", borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}
+                    >
+                      📄 Download Blueprint PDF
+                    </button>
+                  </div>
+
+                  {/* Problem & Moat */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                    <div style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
+                      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>AUTHENTIC REAL-WORLD PROBLEM</div>
+                      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>{proj.problem_statement}</div>
+                    </div>
+                    <div style={{ padding: "1rem", background: "rgba(16,185,129,0.05)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 12 }}>
+                      <div style={{ fontSize: 10, color: "#34d399", fontWeight: 700, letterSpacing: 1, marginBottom: 4 }}>WINNING MOAT & DIFFERENTIATION</div>
+                      <div style={{ fontSize: 12, color: "#a7f3d0", lineHeight: 1.5 }}>{proj.winning_moat}</div>
+                    </div>
+                  </div>
+
+                  {/* Architecture & Tech Stack */}
+                  <div>
+                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>SYSTEM ARCHITECTURE</div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.5, marginBottom: 8 }}>{proj.architecture}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      {(proj.tech_stack || []).map((t, i) => (
+                        <span key={i} style={{ fontSize: 10, padding: "2px 8px", background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 6, color: "#a5b4fc", fontWeight: 700 }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 36-Hour MVP Timeline */}
+                  {proj.mvp_timeline && proj.mvp_timeline.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>36-HOUR BUILD TIMELINE</div>
+                      <div style={{ display: "grid", gridTemplateColumns: `repeat(${proj.mvp_timeline.length}, 1fr)`, gap: 10 }}>
+                        {proj.mvp_timeline.map((step, i) => (
+                          <div key={i} style={{ padding: "0.75rem 1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10 }}>
+                            <div style={{ fontSize: 10, color: "#fbbf24", fontWeight: 800, marginBottom: 4 }}>⏱ {step.hours}</div>
+                            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>{step.task}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* WOW Factor & Judge Defense */}
+                  <div style={{ padding: "0.85rem 1.15rem", background: "rgba(99,102,241,0.06)", borderRadius: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 12, color: "#c7d2fe" }}>
+                      ✨ <strong style={{ color: "white" }}>Live Demo WOW Factor:</strong> {proj.demo_wow_factor}
+                    </div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
+                      🎤 <strong style={{ color: "#fbbf24" }}>Judge Defense Question:</strong> {proj.potential_judge_question}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {/* ── 6-AGENT COUNCIL EVALUATION MODAL / DRAWER ── */}
+      {showCouncilModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(14px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(0.5rem, 2vw, 1.5rem)" }}>
+          <div style={{ background: "#0c081e", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 24, width: "100%", maxWidth: 960, maxHeight: "90vh", overflowY: "auto", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.8)" }}>
+            
+            {/* Modal Header */}
+            <div style={{ padding: "1.25rem 1.75rem", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#0c081e", zIndex: 5 }}>
+              <div>
+                <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, letterSpacing: 1 }}>
+                  6-AGENT BAR-RAISER COUNCIL DELIBERATION
+                </div>
+                <div style={{ fontSize: 17, fontWeight: 900, color: "white" }}>
+                  {evaluatedProjectTitle || "Problem Statement Review"}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowCouncilModal(false)}
+                style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.6)", width: 32, height: 32, borderRadius: 8, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: "1.75rem", display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+              
+              {councilEvaluating && (
+                <div style={{ padding: "3.5rem 2rem", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+                  <div style={{ width: 48, height: 48, border: "4px solid rgba(99,102,241,0.2)", borderTopColor: "#818cf8", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "white" }}>
+                    {councilProgress}
+                  </div>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", maxWidth: 500 }}>
+                    Our 6 specialized agents are debating your problem statement from recruiter hire-signal, grand jury wow-factor, systems scale, market TAM, and cybersecurity threat angles.
+                  </div>
+                </div>
+              )}
+
+              {!councilEvaluating && activeCouncilResult && (
+                <>
+                  {/* Verdict Banner */}
+                  <div style={{
+                    padding: "1.5rem",
+                    borderRadius: 16,
+                    border: activeCouncilResult.overall_verdict.includes("100% WORTH IT")
+                      ? "1px solid rgba(16,185,129,0.4)"
+                      : activeCouncilResult.overall_verdict.includes("CRITICAL PIVOTS")
+                      ? "1px solid rgba(245,158,11,0.4)"
+                      : "1px solid rgba(239,68,68,0.4)",
+                    background: activeCouncilResult.overall_verdict.includes("100% WORTH IT")
+                      ? "linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,3,15,0.8))"
+                      : activeCouncilResult.overall_verdict.includes("CRITICAL PIVOTS")
+                      ? "linear-gradient(135deg,rgba(245,158,11,0.12),rgba(6,3,15,0.8))"
+                      : "linear-gradient(135deg,rgba(239,68,68,0.12),rgba(6,3,15,0.8))",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 16
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: "rgba(255,255,255,0.6)", marginBottom: 4 }}>
+                        COUNCIL CONSENSUS VERDICT
+                      </div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 6 }}>
+                        {activeCouncilResult.overall_verdict}
+                      </div>
+                      <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: 0, maxWidth: 620, lineHeight: 1.5 }}>
+                        {activeCouncilResult.executive_summary}
+                      </p>
+                    </div>
+
+                    <div style={{ textAlign: "center", padding: "1rem 1.5rem", background: "rgba(0,0,0,0.3)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.08)" }}>
+                      <div style={{ fontSize: 32, fontWeight: 900, color: activeCouncilResult.consensus_score >= 85 ? "#34d399" : activeCouncilResult.consensus_score >= 70 ? "#fbbf24" : "#f87171" }}>
+                        {activeCouncilResult.consensus_score}<span style={{ fontSize: 16, color: "rgba(255,255,255,0.4)" }}>/100</span>
+                      </div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "rgba(255,255,255,0.5)", textTransform: "uppercase" }}>
+                        Consensus Score
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Moat & Fatal Pitfalls */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))", gap: "1rem" }}>
+                    <div style={{ padding: "1.25rem", background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 14 }}>
+                      <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, letterSpacing: 0.5, marginBottom: 6 }}>
+                        🏆 CRITICAL UNFAIR MOAT
+                      </div>
+                      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.9)", lineHeight: 1.5 }}>
+                        {activeCouncilResult.unfair_moat}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "1.25rem", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14 }}>
+                      <div style={{ fontSize: 11, color: "#f87171", fontWeight: 800, letterSpacing: 0.5, marginBottom: 6 }}>
+                        ⚠️ FATAL PITFALLS TO AVOID
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.6 }}>
+                        {activeCouncilResult.fatal_pitfalls.map((pitfall, pIdx) => (
+                          <li key={pIdx}>{pitfall}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* 36-Hour Sprint Execution Plan */}
+                  <div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontWeight: 800, letterSpacing: 1, marginBottom: 10 }}>
+                      ⏱️ 36-HOUR SPRINT BATTLE-PLAN
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 12 }}>
+                      {activeCouncilResult.tactical_sprint_plan.map((phase, sIdx) => (
+                        <div key={sIdx} style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                            <span style={{ fontSize: 10, color: "#fbbf24", fontWeight: 800 }}>{phase.hours}</span>
+                            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>Phase {sIdx + 1}</span>
+                          </div>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: "white", marginBottom: 6 }}>{phase.phase}</div>
+                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>{phase.deliverable}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 5 Specialized Agent Breakdown */}
+                  <div>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontWeight: 800, letterSpacing: 1, marginBottom: 12 }}>
+                      🤖 INDIVIDUAL AGENT BAR-RAISER CRITIQUES ({activeCouncilResult.agents.length})
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {activeCouncilResult.agents.map((ag, aIdx) => (
+                        <div
+                          key={aIdx}
+                          style={{
+                            background: "rgba(255,255,255,0.02)",
+                            border: "1px solid rgba(255,255,255,0.08)",
+                            borderRadius: 14,
+                            padding: "1.25rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 8
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <span style={{ fontSize: 24 }}>{ag.agent_avatar}</span>
+                              <div>
+                                <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
+                                  {ag.agent_name}
+                                </div>
+                                <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 600 }}>
+                                  {ag.agent_role}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ fontSize: 11, padding: "3px 8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "rgba(255,255,255,0.8)", fontWeight: 700 }}>
+                                {ag.verdict}
+                              </span>
+                              <span style={{ fontSize: 13, fontWeight: 900, color: ag.score >= 85 ? "#34d399" : ag.score >= 70 ? "#fbbf24" : "#f87171" }}>
+                                {ag.score}/100
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.5, background: "rgba(0,0,0,0.2)", padding: "10px 12px", borderRadius: 8 }}>
+                            <strong style={{ color: "#e2e8f0" }}>Unfiltered Critique: </strong>
+                            {ag.critique}
+                          </div>
+
+                          <div style={{ fontSize: 12, color: "#a5b4fc", lineHeight: 1.5, background: "rgba(99,102,241,0.06)", padding: "8px 12px", borderRadius: 8 }}>
+                            <strong style={{ color: "#c7d2fe" }}>🎯 Tactical Advice: </strong>
+                            {ag.tactical_advice}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

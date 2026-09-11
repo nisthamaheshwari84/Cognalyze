@@ -46,7 +46,7 @@ async function callGroq(prompt: string): Promise<string> {
     body: JSON.stringify({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
-      max_tokens: 1000,
+      max_tokens: 2000,
       temperature: 0.15,
       response_format: { type: "json_object" }
     })

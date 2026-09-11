@@ -1,0 +1,68 @@
+{
+  "name": "Cognalyze — Placement Intelligence & Assessment Platform",
+  "short_name": "Cognalyze",
+  "description": "AI-Powered Placement Intelligence, Algorithmic Opportunities, FAANG Mock GD Arena, and DSA Tracker",
+  "start_url": "/student",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Live GD Arena",
+      "short_name": "GD Arena",
+      "description": "Launch AI Placement Round-Table GD Simulation",
+      "url": "/student/gd-practice",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Season Calendar",
+      "short_name": "Calendar",
+      "description": "View Deadlines, Assessments, and Prep Windows",
+      "url": "/student/calendar",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "DSA 455 Tracker",
+      "short_name": "DSA Tracker",
+      "description": "Striver SDE Sheet & Daily Revision Streak",
+      "url": "/student/dsa-tracker",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Application Pipeline",
+      "short_name": "Pipeline",
+      "description": "Manage Bookmarked, Applied, and Offer Stages",
+      "url": "/student/applications",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

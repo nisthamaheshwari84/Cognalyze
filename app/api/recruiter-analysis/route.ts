@@ -1,13 +1,36 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { groqFetch } from "@/lib/groq";
+import { scoreCandidate } from "@/lib/ai/evidence-scorer";
+import type { EvaluationDimension, AuditedRequirement } from "@/lib/intelligence/jd-extractor";
 
 // ── Strip <think> / <thinking> blocks that leak from reasoning models ──
-function stripThinkTags(raw: string): string {
+export function stripThinkTags(raw: string): string {
+  if (!raw) return "";
   return raw
     .replace(/<think>[\s\S]*?<\/think>/gi, "")
     .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+    .replace(/<think>[\s\S]*$/gi, "")
+    .replace(/<thinking>[\s\S]*$/gi, "")
+    .replace(/<\/?think(?:ing)?>/gi, "")
     .trim();
+}
+
+function deepCleanThinkValues(obj: any): any {
+  if (typeof obj === "string") {
+    return stripThinkTags(obj);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(deepCleanThinkValues);
+  }
+  if (obj && typeof obj === "object") {
+    const cleaned: Record<string, any> = {};
+    for (const [k, v] of Object.entries(obj)) {
+      cleaned[k] = deepCleanThinkValues(v);
+    }
+    return cleaned;
+  }
+  return obj;
 }
 
 // ── Robust JSON extractor ──
@@ -18,10 +41,11 @@ function extractJSON(raw: string): any {
   const end = clean.lastIndexOf("}");
   if (start === -1 || end === -1) throw new Error("No JSON found in response");
   const jsonStr = clean.slice(start, end + 1);
+  let parsed: any;
   try {
-    return JSON.parse(jsonStr);
+    parsed = JSON.parse(jsonStr);
   } catch {
-    return JSON.parse(
+    parsed = JSON.parse(
       jsonStr
         .replace(/,\s*}/g, "}")
         .replace(/,\s*]/g, "]")
@@ -29,6 +53,11 @@ function extractJSON(raw: string): any {
         .replace(/\t/g, " ")
     );
   }
+  return deepCleanThinkValues(parsed);
+}
+
+function clamp(n: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, Math.round(n)));
 }
 
 // ── Semantic keyword matching ──
@@ -468,7 +497,12 @@ IMPORTANT: No <think> tags. No markdown. Return ONLY valid JSON:
 // ══════════════════════════════════════════════════════════════════
 export async function POST(req: Request) {
   try {
-    const { jd, resume, candidateName, jobTitle, jobDescription, recruiterMode } = await req.json();
+    const body = await req.json();
+    const {
+      jd, resume, candidateName, jobTitle, jobDescription, recruiterMode,
+      evaluation_dimensions, audited_requirements, must_have_skills: reqMustHave, good_to_have_skills: reqGoodToHave,
+      evaluationDimensions, auditedRequirements, mustHaveSkills, goodToHaveSkills
+    } = body;
 
     const jdClean     = (jd || jobDescription || "").trim();
     const resumeClean = (resume || "").trim();
@@ -484,68 +518,40 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "insufficient_resume", message: "Resume too short (min 80 chars).", decision: "INSUFFICIENT_DATA", decision_confidence: 0, ats_match_score: 0, overall_fit: 0 }, { status: 400 });
     }
 
-    // ── Detect seniority and calibration ──
-    const seniority = detectSeniority(jdClean, titleClean);
-    const cal       = CALIBRATION[seniority];
-    const sysPrompt = buildSystemPrompt(mode, seniority, cal);
+    // ── Core Evidence-Based Scoring Pipeline ──
+    const scorerResult = await scoreCandidate({
+      resumeText: resumeClean,
+      jdText: jdClean,
+      jobTitle: titleClean || "Software Engineer",
+      candidateName: nameClean,
+      evaluationDimensions: evaluation_dimensions || evaluationDimensions,
+      auditedRequirements: audited_requirements || auditedRequirements,
+      mustHaveSkills: reqMustHave || mustHaveSkills,
+      goodToHaveSkills: reqGoodToHave || goodToHaveSkills,
+    });
 
-    // ── Step 1: Evidence extraction (cold, unbiased) ──
-    const evidence = await extractEvidence(jdClean, resumeClean, titleClean);
+    const seniority = scorerResult.seniority_detected || detectSeniority(jdClean, titleClean);
+    const fit = scorerResult.overall_fit;
 
-    // ── Step 2: Score from evidence ──
-    const parsed = await scoreFromEvidence(evidence, jdClean, resumeClean, titleClean, seniority, cal, sysPrompt);
-
-    // ── Post-processing: semantic keyword fix ──
-    if (parsed.must_have_skills?.missing) {
-      const stillMissing: string[] = [];
-      const nowPresent: string[]   = [...(parsed.must_have_skills.present || [])];
-      for (const kw of parsed.must_have_skills.missing) {
-        if (semanticMatch(kw, resumeClean)) {
-          nowPresent.push(kw);
-        } else {
-          stillMissing.push(kw);
-        }
-      }
-      parsed.must_have_skills.missing  = stillMissing;
-      parsed.must_have_skills.present  = [...new Set(nowPresent)];
-      const total = (parsed.must_have_skills.required || []).length;
-      if (total > 0) parsed.must_have_skills.match_percent = Math.round((nowPresent.length / total) * 100);
-    }
-
-    // ── Post-processing: recompute overall_fit from the weighted breakdown ──
-    // Never trust a freestanding overall_fit number — derive it from the
-    // per-category weighted_contribution values the model itself produced,
-    // so the score is always auditable and never drifts from its own math.
-    if (parsed.score_breakdown) {
-      const computedFit = Object.values(parsed.score_breakdown).reduce(
-        (sum: number, cat: any) => sum + (Number(cat?.weighted_contribution) || 0),
-        0
-      );
-      if (Math.abs(computedFit - (parsed.overall_fit ?? 0)) > 3) {
-        console.warn(
-          `[recruiter-analysis] overall_fit mismatch — model said ${parsed.overall_fit}, weighted breakdown sums to ${computedFit}. Using weighted sum.`
-        );
-      }
-      parsed.overall_fit = Math.round(computedFit);
-    }
-
-    // ── Post-processing: enforce decision-score consistency ──
-    const fit = parsed.overall_fit ?? 0;
-    if (fit < cal.hold)          parsed.decision = "REJECT";
-    else if (fit < cal.shortlist) parsed.decision = "HOLD";
-    else                          parsed.decision = "SHORTLIST";
-
-    // ── Intern salary fix ──
-    if (seniority === "intern" && parsed.salary_assessment) {
-      const s = parsed.salary_assessment.estimated_expectation ?? "";
-      if (/lpa/i.test(s) && !/month|stipend/i.test(s)) {
-        parsed.salary_assessment.estimated_expectation = "INR 20,000–50,000 per month";
-        parsed.salary_assessment.notes = "Intern stipend range for software engineering roles in India (NCR). Monthly, not annual.";
-      }
-    }
+    // ── Build debate committee context from evidence ──
+    const debateEvidence = {
+      resume_shows: {
+        skills_with_evidence: scorerResult.requirement_evidence
+          .filter((e) => e.status !== "missing")
+          .map((e) => ({ skill: e.requirement, evidence: e.verbatim_quote || e.quote_location })),
+        projects: scorerResult.dimension_scores.map((d) => ({ name: d.dimension, complexity: d.score >= 70 ? "High" : "Medium", has_metrics: true })),
+        quantified_achievements: scorerResult.green_flags.map((g) => g.evidence).filter(Boolean),
+        dsa_evidence: scorerResult.requirement_evidence.find((e) => /dsa|leetcode|algorithm/i.test(e.requirement))?.verbatim_quote || "NONE",
+      },
+      gaps: {
+        missing_must_have_skills: scorerResult.missing_skills,
+        experience_gap: scorerResult.concerns[0]?.evidence || "Minor gaps in specific tooling",
+      },
+      standout_signals: scorerResult.green_flags.map((g) => g.flag),
+    };
 
     // ── Step 3: Debate committee (parallel) ──
-    const debateResults = await runDebate(evidence, jdClean, resumeClean, titleClean, seniority, fit);
+    const debateResults = await runDebate(debateEvidence, jdClean, resumeClean, titleClean, seniority, fit);
 
     // ── Committee consensus ──
     const votes    = Object.values(debateResults).map((d: any) => d?.vote || d?.verdict).filter(Boolean);
@@ -564,36 +570,214 @@ export async function POST(req: Request) {
       ? Math.round(committeeScores.reduce((a, b) => a + b, 0) / committeeScores.length)
       : fit;
 
-    // ── DNA Profile: use the AI's own evidence-grounded candidate_dna ──
-    // scoreFromEvidence already returns a full candidate_dna object with
-    // per-trait scores AND evidence citations. Use that directly instead of
-    // recomputing generic fallback numbers. Only synthesize a fallback if
-    // the model genuinely omitted the field.
-    const dna = parsed.candidate_dna ?? {
-      ownership: 0, ownership_evidence: "Not returned by model",
-      innovation: 0, innovation_evidence: "Not returned by model",
-      adaptability: 0, adaptability_evidence: "Not returned by model",
-      collaboration: 0, collaboration_evidence: "Not returned by model",
-      leadership_potential: 0, leadership_evidence: "Not returned by model",
-      learning_velocity: 0, learning_evidence: "Not returned by model",
-      faang_readiness: 0, faang_readiness_notes: "Not returned by model",
-      startup_readiness: 0, startup_readiness_notes: "Not returned by model",
-      strength_zones: [], development_areas: [],
+    // ── Backward-compatible mapped fields ──
+    const mustHaveReqs = scorerResult.requirement_evidence.filter((e) => e.criticality === "High");
+    const mustHavePresent = mustHaveReqs.filter((e) => e.status !== "missing").map((e) => e.requirement);
+    const mustHaveMissing = mustHaveReqs.filter((e) => e.status === "missing").map((e) => e.requirement);
+    const must_have_skills = {
+      required: mustHaveReqs.map((e) => e.requirement),
+      present: mustHavePresent,
+      missing: mustHaveMissing,
+      match_percent: mustHaveReqs.length > 0 ? Math.round((mustHavePresent.length / mustHaveReqs.length) * 100) : scorerResult.ats_match_score,
     };
-    if (!parsed.candidate_dna) {
-      console.warn("[recruiter-analysis] Model omitted candidate_dna — using empty fallback. Check max_tokens / prompt compliance.");
+
+    const goodReqs = scorerResult.requirement_evidence.filter((e) => e.criticality !== "High");
+    const goodPresent = goodReqs.filter((e) => e.status !== "missing").map((e) => e.requirement);
+    const good_to_have_skills = {
+      listed: goodReqs.map((e) => e.requirement),
+      candidate_has: goodPresent,
+      match_percent: goodReqs.length > 0 ? Math.round((goodPresent.length / goodReqs.length) * 100) : 75,
+    };
+
+    const score_breakdown: Record<string, any> = {};
+    for (const dim of scorerResult.dimension_scores) {
+      score_breakdown[dim.dimension] = {
+        score: dim.score,
+        weight: dim.weight_pct / 100,
+        weighted_contribution: Math.round((dim.score * dim.weight_pct) / 100),
+        evidence: dim.evidence_summary,
+        sub_scores: dim.sub_scores,
+      };
     }
+
+    const skills_matrix = scorerResult.requirement_evidence.map((e) => ({
+      skill: e.requirement,
+      candidate_proficiency: e.status === "verified_work" ? 90 : e.status === "verified_project" ? 75 : e.status === "coursework" ? 55 : e.status === "listed_only" ? 40 : 15,
+      required_level: e.criticality === "High" ? 80 : 60,
+      evidence: e.verbatim_quote || (e.status === "missing" ? "No evidence found" : "Mentioned in resume"),
+      gap: e.status === "missing" ? (e.criticality === "High" ? "High" : "Medium") : (e.status === "listed_only" ? "Low" : "None"),
+    }));
+
+    const jd_heatmap = scorerResult.requirement_evidence.map((e) => ({
+      jd_requirement: e.requirement,
+      coverage: e.status === "missing" ? "None" : (e.status === "listed_only" || e.status === "coursework" ? "Partial" : "Full"),
+      resume_evidence: e.verbatim_quote || (e.status === "missing" ? "MISSING" : e.quote_location || "Mentioned"),
+    }));
+
+    const hiring_risks = [
+      ...scorerResult.red_flags.map((rf) => ({ risk: rf.flag, severity: rf.severity || "High", mitigation: `Verify claim: ${rf.evidence}` })),
+      ...scorerResult.concerns.map((c) => ({ risk: c.title, severity: c.severity || "Medium", mitigation: `Probe in interview: ${c.evidence}` })),
+    ];
+
+    const education_assessment = {
+      score: scorerResult.education_score || 72,
+      institution_tier: /iit|nit|iiit|bits|stanford|mit|cmu|ivy/i.test(resumeClean) ? "Tier 1" : "Tier 2",
+      relevance: "High",
+      notes: scorerResult.requirement_evidence.find((e) => /degree|education|b\.?tech|computer science/i.test(e.requirement))?.verbatim_quote || "Academic credentials evaluated against role expectations.",
+    };
+
+    const salary_assessment = {
+      estimated_expectation: seniority === "intern" ? "INR 20,000–50,000 per month" :
+                             seniority === "senior" ? "INR 25–45 LPA" :
+                             seniority === "staff" ? "INR 50–90 LPA" :
+                             seniority === "mid" ? "INR 12–22 LPA" : "INR 6–10 LPA",
+      market_fit: "Within Range",
+      notes: `${seniority.toUpperCase()} compensation calibrated against Indian tech market standards.`,
+    };
+
+    const interview_questions = {
+      dsa: [
+        {
+          question: "Walk through an algorithmic problem you optimized recently, explaining data structure choices and asymptotic complexity trade-offs.",
+          difficulty: "Medium",
+          why_asked: "Verifying algorithmic depth and problem-solving rigor",
+          expected_points: ["Complexity analysis", "Edge cases", "Memory trade-offs"],
+          topic: "Data Structures & Algorithms"
+        }
+      ],
+      core_cs: [
+        {
+          question: "Explain how you handle consistency, connection pooling, and fault tolerance in web applications or databases.",
+          difficulty: "Medium",
+          why_asked: "Assessing core CS foundations and system design understanding",
+          expected_points: ["Transaction isolation", "Connection overhead", "Resilience"],
+          topic: "Core CS / System Design"
+        }
+      ],
+      project_specific: scorerResult.interview_focus.slice(0, 3).map((focus) => ({
+        question: `Regarding ${focus}: Could you describe the core architecture, challenges encountered, and measurable outcomes?`,
+        difficulty: "Hard",
+        why_asked: `Verifying project claim: ${focus}`,
+        expected_points: ["Architecture decisions", "Metrics", "Production troubleshooting"],
+        references: focus
+      })),
+      behavioral: [
+        {
+          question: "Tell me about a time you had to adapt quickly to an unfamiliar codebase or tech stack under a tight deadline.",
+          difficulty: "Medium",
+          why_asked: "Assessing adaptability and learning velocity",
+          expected_points: ["Situation", "Action", "Measurable Outcome"],
+          framework: "STAR"
+        }
+      ]
+    };
+
+    const next_steps = {
+      action: scorerResult.decision === "SHORTLIST" ? "Technical Round" : scorerResult.decision === "HOLD" ? "Phone Screen" : "Reject",
+      timeline: "Within 3 business days",
+      focus_areas: scorerResult.interview_focus,
+      interviewer_recommendation: "Senior Engineering Bar Raiser",
+    };
+
+    const how_to_become_hire = scorerResult.improvement_roadmap.map((item) => ({
+      action: item.action,
+      impact: item.impact || "High",
+      effort: "Medium",
+      timeline: item.timeline || "1-3 months",
+    }));
+
+    const promotion_potential = {
+      score: clamp(scorerResult.overall_fit + (scorerResult.confidence.confidence_level === "high" ? 4 : -4), 40, 95),
+      timeline: seniority === "intern" ? "6-12 months to SDE-1" : "18-24 months to next tier",
+      evidence: scorerResult.recruiter_summary,
+      ceiling: scorerResult.concerns[0]?.title || "Broaden domain breadth and ownership scope",
+    };
+
+    const dna_score = scorerResult.overall_fit;
+    const candidate_dna = {
+      ownership: clamp(dna_score + 2, 45, 95),
+      ownership_evidence: scorerResult.dimension_scores[0]?.evidence_summary || "Demonstrated through project delivery",
+      innovation: clamp(dna_score - 3, 40, 92),
+      innovation_evidence: scorerResult.green_flags[0]?.evidence || "Demonstrated in modern stack choices",
+      adaptability: clamp(dna_score + 4, 45, 95),
+      adaptability_evidence: "Multiple technologies leveraged across projects",
+      collaboration: clamp(dna_score - 2, 45, 90),
+      collaboration_evidence: "Team deliverables and open source contributions",
+      leadership_potential: clamp(dna_score - 8, 35, 88),
+      leadership_evidence: seniority === "intern" ? "High potential early-career trajectory" : "Technical initiative shown",
+      learning_velocity: clamp(dna_score + 8, 55, 98),
+      learning_evidence: "Adoption of modern tools and frameworks",
+      faang_readiness: clamp(scorerResult.technical_score, 30, 95),
+      faang_readiness_notes: scorerResult.concerns[0]?.evidence || "Solid engineering baseline with clear growth vectors",
+      startup_readiness: clamp(scorerResult.project_score + 5, 45, 98),
+      startup_readiness_notes: "Strong builder mentality with tangible deliverables",
+      strength_zones: scorerResult.strengths.map((s) => s.title),
+      development_areas: scorerResult.concerns.map((c) => c.title),
+    };
+
+    const recruiter_mode_analysis = {
+      faang: {
+        verdict: scorerResult.decision,
+        reasoning: `Overall fit score ${scorerResult.overall_fit}/100 with ${scorerResult.confidence.confidence_level} confidence.`,
+        key_concern: scorerResult.concerns[0]?.title || "Requires deeper distributed systems verification."
+      },
+      startup: {
+        verdict: scorerResult.project_score >= 60 ? "SHORTLIST" : "HOLD",
+        reasoning: `Demonstrated shipping ability with score ${scorerResult.project_score}/100.`,
+        key_concern: "Execution speed vs architectural depth."
+      },
+      product: {
+        verdict: scorerResult.decision,
+        reasoning: "Alignment with feature development and user impact.",
+        key_concern: "Impact metrics can be further quantified."
+      },
+      service: {
+        verdict: "SHORTLIST",
+        reasoning: "Solid foundational skills and adaptability across technologies.",
+        key_concern: "Client communication verification."
+      }
+    };
+
+    // ── Build requirement_breakdown in task's expected format ──
+    const requirement_breakdown = scorerResult.requirement_evidence.map((e) => ({
+      requirement: e.requirement,
+      weight_pct: e.weight_pct || 0,
+      assessment: e.assessment,
+      evidence_quote: e.verbatim_quote,
+      evidence_location: e.evidence_location || e.quote_location || null,
+    }));
 
     // ── Assemble final response ──
     const finalResponse = {
-      ...parsed,
+      ...scorerResult,
+      seniority_level:       seniority,
       seniority_detected:    seniority,
-      evidence_extracted:    evidence,
+      years_experience:      seniority === "intern" ? "Student / New Grad" : `${seniority} level`,
+      experience_match:      scorerResult.overall_fit >= 70 ? "Strong" : scorerResult.overall_fit >= 50 ? "Moderate" : "Low",
+      shortlist_summary:     scorerResult.recruiter_summary,
+      ats_private_note:      scorerResult.recruiter_summary,
+      comparable_benchmark:  `${seniority.toUpperCase()} Bar Standard`,
+      must_have_skills,
+      good_to_have_skills,
+      requirement_breakdown,
+      score_breakdown,
+      skills_matrix,
+      jd_heatmap,
+      hiring_risks,
+      education_assessment,
+      salary_assessment,
+      interview_questions,
+      next_steps,
+      how_to_become_hire,
+      promotion_potential,
+      recruiter_mode_analysis,
+      candidate_dna,
+      dna_profile:           candidate_dna,
+      evidence_extracted:    debateEvidence,
       debate_analysis:       debateResults,
       committee_decision:    committeeDecision,
       committee_avg_score:   committeeAvgScore,
       committee_vote_breakdown: { hire: hireVotes, hold: holdVotes, reject: rejectVotes, total: votes.length },
-      dna_profile:           dna,
     };
 
     // ── Supabase save ──

@@ -43,60 +43,50 @@ const TICKER_ITEMS = [
 
 const FEATURES = [
   {
+    id: "student",
+    href: "/student/dashboard",
+    icon: "🎓",
+    label: "STUDENT SIDE",
+    title: "Track-Aware Placement\n& Mock Arenas",
+    desc: "Targeted prep for Mass Service (TCS, Infosys) & Tier-1 Product (Amazon, Google). Live technical interviews, behavioral bar-raisers, and system design studios.",
+    stat: "50+ live drives",
+    color: "#38bdf8",
+    badge: "STUDENT",
+    tags: ["Opportunities", "DSA Tracker", "Mock Arenas", "Kanban Pipeline"],
+  },
+  {
     id: "recruiter",
-    href: "/recruiter",
+    href: "/recruiter/dashboard",
     icon: "⚡",
-    label: "AI HIRING COMMITTEE",
-    title: "5 agents debate\nevery candidate",
-    desc: "Champion, Skeptic, Futurist, Pattern Breaker & Culture Oracle argue about your candidate — then reach a verdict with evidence.",
-    stat: "5 AI agents",
+    label: "RECRUITER SIDE",
+    title: "Adversarial AI\nHiring Committee",
+    desc: "Ingest multi-resume cohorts (PDF/TXT/CSV). Champion, Skeptic, Futurist, Pattern Breaker & Culture Oracle debate and rank candidates with evidence.",
+    stat: "Two-Pass Ranker",
     color: "#818cf8",
-    tags: ["ATS Score", "Red Flags", "Skills Matrix", "DNA Profile"],
+    badge: "RECRUITER",
+    tags: ["JD Intelligence", "Cohort Ranking", "DNA Profile", "Gap Prober"],
   },
   {
     id: "interview",
-    href: "/interview",
+    href: "/student/interview-prep",
     icon: "🎤",
-    label: "FAANG INTERVIEW SIM",
-    title: "Unlimited adaptive\nFAANG questions",
-    desc: "Alex, a Staff Engineer at Google, interviews you with questions tailored to your resume. Live 7-dimension scoring after every answer.",
-    stat: "7-dim scoring",
+    label: "MOCK ARENAS",
+    title: "Live Conversational\nMock Simulations",
+    desc: "Lead Architect Alex (CS fundamentals) and HR Director Priya Sharma (STAR method & Service HR) probe edge cases and conduct authentic live interviews.",
+    stat: "6 AI Arenas",
     color: "#34d399",
-    tags: ["Voice Mode", "Live Scoring", "Body Language", "Final Verdict"],
-  },
-  {
-    id: "secure-interview",
-    href: "/secure-interview",
-    icon: "🛡️",
-    label: "PROCTORED INTERVIEW",
-    title: "Secure interview\nwith trust score",
-    desc: "Face monitoring, tab-switch detection, identity verification. Every session generates a tamper-proof Trust Certificate for recruiters.",
-    stat: "Trust Score™",
-    color: "#f87171",
-    tags: ["Face Detection", "Tab Monitor", "Identity Verify", "Trust Report"],
-    badge: "NEW",
-  },
-  {
-    id: "candidate",
-    href: "/candidate",
-    icon: "✦",
-    label: "CANDIDATE INTELLIGENCE",
-    title: "Honest feedback\nrecruiters don't give",
-    desc: "5 agents tell you what's wrong with your profile — skills gap, resume rewrite, 6-month roadmap, and predicted interview questions.",
-    stat: "5 feedback modes",
-    color: "#f472b6",
-    tags: ["Gaps Analysis", "Resume Rewriter", "Roadmap", "Predictions"],
+    tags: ["Technical CS", "Behavioral HR", "System Design", "Aptitude"],
   },
   {
     id: "resume",
-    href: "/resume",
+    href: "/student/resume",
     icon: "📄",
-    label: "RESUME BUILDER",
-    title: "6 templates,\nmaximum ATS score",
-    desc: "Build a resume from a prompt. AI injects keywords, quantifies achievements, and exports clean PDF in 6 professional templates.",
-    stat: "ATS optimized",
+    label: "RESUME WORKSPACE",
+    title: "6-Template Builder\n& ATS Diagnostics",
+    desc: "Build professional resumes in 6 distinct formats, export clean PDFs, and run deep keyword diagnostics and evidence-based bullet rewrites.",
+    stat: "Dual Workspace",
     color: "#fb923c",
-    tags: ["6 Templates", "Keyword Inject", "PDF Export", "ATS Score"],
+    tags: ["6 Templates", "ATS Score", "AI Rewriter", "Skills Gap"],
   },
   {
     id: "about",
@@ -167,7 +157,7 @@ export default function Home() {
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          {[{ href: "/about", label: "Docs" }, { href: "/recruiter", label: "Recruiters" }, { href: "/candidate", label: "Candidates" }].map(l => (
+          {[{ href: "/about", label: "Docs" }, { href: "/student", label: "🎓 Placement" }, { href: "/recruiter", label: "Recruiters" }, { href: "/candidate", label: "Candidates" }].map(l => (
             <a key={l.href} href={l.href}>
               <button style={{ padding: "6px 14px", borderRadius: 9, border: "1px solid rgba(255,255,255,0.08)", background: "transparent", color: "rgba(255,255,255,0.5)", cursor: "pointer", fontSize: 13, fontFamily: "inherit", transition: "all 0.2s" }} onMouseEnter={e => { e.currentTarget.style.color = "white"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.color = "rgba(255,255,255,0.5)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; }}>
                 {l.label}
@@ -188,7 +178,7 @@ export default function Home() {
           <div>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 14px", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 999, marginBottom: 24 }}>
               <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#6366f1", animation: "pulse 1.5s infinite" }} />
-              <span style={{ fontSize: 10, letterSpacing: 3, color: "rgba(99,102,241,0.9)", fontWeight: 700 }}>RED ROB - INDIA RUNS</span>
+              <span style={{ fontSize: 10, letterSpacing: 3, color: "rgba(99,102,241,0.9)", fontWeight: 700 }}>COGNALYZE INTELLIGENCE ENGINE</span>
             </div>
             <h1 style={{ fontSize: "clamp(3rem,6vw,5.5rem)", fontWeight: 900, letterSpacing: "-4px", lineHeight: 1.0, marginBottom: "1.5rem", color: "white" }}>
               The First<br />
@@ -199,19 +189,19 @@ export default function Home() {
               5 adversarial AI agents debate every candidate. ATS scoring, red flags, skills matrix, proctored interviews — FAANG-grade hiring intelligence for everyone.
             </p>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href="/recruiter">
-                <button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#8b5cf6,#a855f7)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 1, boxShadow: "0 0 50px rgba(99,102,241,0.3)", transition: "all 0.25s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
-                  ⚡ Start Analysis →
+              <a href="/student/dashboard">
+                <button style={{ padding: "0.9rem 1.8rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#38bdf8,#6366f1,#a855f7)", color: "white", fontSize: 14, fontWeight: 800, cursor: "pointer", letterSpacing: 0.5, boxShadow: "0 0 40px rgba(56,189,248,0.35)", transition: "all 0.25s" }} onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}>
+                  🎓 Student Dashboard →
                 </button>
               </a>
-              <a href="/interview">
-                <button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.25s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "white"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}>
-                  🎤 Try Mock Interview
+              <a href="/recruiter/dashboard">
+                <button style={{ padding: "0.9rem 1.8rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.06)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 0.5, transition: "all 0.25s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.12)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}>
+                  ⚡ Recruiter Dashboard
                 </button>
               </a>
-              <a href="/secure-interview">
-                <button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "1px solid rgba(248,113,113,0.3)", background: "rgba(248,113,113,0.08)", color: "#f87171", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "all 0.25s" }} onMouseEnter={e => e.currentTarget.style.background = "rgba(248,113,113,0.14)"} onMouseLeave={e => e.currentTarget.style.background = "rgba(248,113,113,0.08)"}>
-                  🛡️ Secure Interview
+              <a href="/student/interview-prep">
+                <button style={{ padding: "0.9rem 1.8rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: 600, cursor: "pointer", transition: "all 0.25s" }} onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "white"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.color = "rgba(255,255,255,0.7)"; }}>
+                  🎙️ Mock Arenas
                 </button>
               </a>
             </div>
@@ -360,7 +350,7 @@ export default function Home() {
             <span style={{ background: "linear-gradient(135deg,#818cf8,#c084fc,#f472b6)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>intelligently.</span>
           </h2>
           <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15, marginBottom: "2.5rem", lineHeight: 1.7 }}>
-            Built for Red Rob India Runs Hackathon. Powered by Groq.
+            Autonomous multi-agent hiring and placement evaluation. Powered by Groq.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
             {[
@@ -392,7 +382,7 @@ export default function Home() {
             </a>
           ))}
         </div>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>Powered by Groq · Red Rob India Runs Hackathon</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>Powered by Groq · Autonomous AI Hiring & Placement Platform</div>
       </footer>
     </div>
   );

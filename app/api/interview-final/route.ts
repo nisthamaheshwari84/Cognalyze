@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// ── Final verdict using Gemini ──
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+import { groqFetch } from "@/lib/groq";
 
 function extractJSON(raw: string): any {
   const clean = raw.replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
@@ -69,15 +67,38 @@ Return ONLY this JSON:
   "interviewer_note": "Private note from Alex about this candidate — honest and specific"
 }`;
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
-      generationConfig: { maxOutputTokens: 1000, temperature: 0.2 },
-    });
+    let text = "";
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({
+          model: "gemini-1.5-flash",
+          generationConfig: { maxOutputTokens: 1000, temperature: 0.2 },
+        });
+        const result = await model.generateContent(prompt);
+        text = result.response.text();
+      } catch (geminiErr: any) {
+        console.warn("[interview-final] Gemini failed, falling back to Groq:", geminiErr.message);
+      }
+    }
 
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    if (!text) {
+      const groqRes = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 1200,
+          temperature: 0.2,
+          response_format: { type: "json_object" }
+        })
+      });
+      const groqData = await groqRes.json();
+      text = groqData.choices?.[0]?.message?.content || "";
+    }
+
     const parsed = extractJSON(text);
-
     return NextResponse.json(parsed);
 
   } catch (e: any) {

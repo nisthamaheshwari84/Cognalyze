@@ -80,16 +80,23 @@ Return ONLY this JSON:
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 600,
+        max_tokens: 1200,
         temperature: 0.1,
+        response_format: { type: "json_object" }
       }),
     });
 
     if (!res.ok) throw new Error(res.statusText);
 
     const data = await res.json();
-    const raw = data.choices[0].message.content.trim();
-    const match = raw.match(/\{[\s\S]*\}/);
+    const raw = (data.choices?.[0]?.message?.content || "").trim();
+    const cleanRaw = raw
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<think>[\s\S]*$/gi, "")
+      .replace(/```json\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+    const match = cleanRaw.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("Parse failed");
 
     const result = JSON.parse(match[0]);

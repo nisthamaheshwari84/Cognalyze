@@ -96,17 +96,54 @@ export function splitIntoResumes(pageTexts: string[]): SplitCandidate[] {
  * separate .txt files (one per candidate — no splitting needed there).
  */
 export function splitTxtIntoResumes(rawText: string): SplitCandidate[] {
-  const DELIMITER_REGEX = /\n\s*([-=*_]{3,}|\n{2,})\s*\n/;
+  const trimmed = rawText.trim();
 
-  // First try explicit delimiters
-  let chunks = rawText.split(DELIMITER_REGEX).filter(
-    (chunk) => chunk && chunk.trim().length > 50 && !/^[-=*_]{3,}$/.test(chunk.trim())
-  );
+  // 1. Check if rawText is valid JSON array of resumes
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((item, idx) => {
+          if (typeof item === "string") {
+            return {
+              id: `Candidate_${idx + 1}`,
+              name: extractCandidateName(item),
+              resumeText: item.trim(),
+            };
+          }
+          const text = item.resume || item.resumeText || item.text || JSON.stringify(item);
+          return {
+            id: item.id || `Candidate_${idx + 1}`,
+            name: item.name || extractCandidateName(text),
+            resumeText: text.trim(),
+          };
+        });
+      }
+    } catch {
+      // Fallback to text splitting if JSON parse fails
+    }
+  }
 
-  // If no clear delimiters found, fall back to the same header-detection
-  // heuristic used for PDF pages, but applied to paragraph blocks.
+  // 2. Delimiter patterns (explicit dividers or candidate markers)
+  const DELIMITER_REGEX = /\n\s*(?:[-=*_]{3,}|(?:Candidate|Resume)\s*#?\d+[:\s\n]|---+|===+)\s*\n/i;
+
+  let chunks = trimmed
+    .split(DELIMITER_REGEX)
+    .map(c => c.trim())
+    .filter(c => c.length > 40 && !/^[-=*_]{3,}$/.test(c));
+
+  // 3. If single chunk found, check for repeated candidate header patterns
   if (chunks.length <= 1) {
-    const blocks = rawText.split(/\n{2,}/);
+    const candidateBlockRegex = /(?:^|\n)(?=(?:Candidate\s*#?\d+|Resume\s*#?\d+|[A-Z][a-z]+ [A-Z][a-z]+\s*\|\s*[a-zA-Z0-9._%+-]+@))/i;
+    const splitByHeader = trimmed.split(candidateBlockRegex).map(c => c.trim()).filter(c => c.length > 40);
+    if (splitByHeader.length > 1) {
+      chunks = splitByHeader;
+    }
+  }
+
+  // 4. Fallback to header-detection heuristic applied to paragraph blocks
+  if (chunks.length <= 1) {
+    const blocks = trimmed.split(/\n{2,}/);
     chunks = [];
     let current: string[] = [];
     blocks.forEach((block, idx) => {
@@ -121,9 +158,14 @@ export function splitTxtIntoResumes(rawText: string): SplitCandidate[] {
     });
   }
 
+  // If still only 1 chunk or none, return single candidate if long enough
+  if (chunks.length === 0 && trimmed.length > 30) {
+    chunks = [trimmed];
+  }
+
   return chunks
     .map((text) => text.trim())
-    .filter((text) => text.length > 50)
+    .filter((text) => text.length > 30)
     .map((text, i) => ({
       id: `Candidate_${i + 1}`,
       name: extractCandidateName(text),
