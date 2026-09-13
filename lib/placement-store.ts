@@ -5773,7 +5773,11 @@ export function setLastRadarScanTimestamp(isoDate: string): void {
 }
 
 export async function getStudentProfile(candidateId: string): Promise<StudentProfileData | null> {
-  // 1. Try Supabase
+  // 1. Check in-memory cache first
+  const mem = inMemoryProfiles.get(candidateId);
+  if (mem) return mem;
+
+  // 2. Try Supabase
   try {
     const { data, error } = await supabase
       .from("student_profiles")
@@ -5782,7 +5786,7 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
       .maybeSingle();
 
     if (data && !error) {
-      return {
+      const p: StudentProfileData = {
         candidate_id: data.candidate_id,
         skills: data.skills || [],
         past_projects: data.past_projects || [],
@@ -5792,13 +5796,15 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
         risk_appetite: data.risk_appetite || "Moderate",
         profile_summary: data.profile_summary || ""
       };
+      inMemoryProfiles.set(candidateId, p);
+      return p;
     }
   } catch (err) {
     // Fall back to memory
   }
 
-  // 2. Fallback to memory or default demo profile so opportunities/suggestions never fail
-  return inMemoryProfiles.get(candidateId) || inMemoryProfiles.get("student-demo") || DEMO_STUDENT_PROFILE;
+  // 3. Fallback to default demo profile so opportunities/suggestions never fail
+  return inMemoryProfiles.get("student-demo") || DEMO_STUDENT_PROFILE;
 }
 
 export async function upsertStudentProfile(profile: StudentProfileData): Promise<StudentProfileData> {

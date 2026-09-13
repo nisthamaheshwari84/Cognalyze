@@ -15,6 +15,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const studentLinks = [
     { href: "/student/dashboard", label: "Overview", icon: "🏠" },
+    { href: "/post", label: "Post / Feed", icon: "📢" },
     { href: "/interview", label: "FAANG Interview", icon: "🎙️" },
     { href: "/student/simulation", label: "Recruitment Sim", icon: "🏆" },
     { href: "/student/opportunities", label: "Opportunities", icon: "🎯" },
@@ -27,6 +28,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const recruiterLinks = [
     { href: "/recruiter/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/post", label: "Post / Feed", icon: "📢" },
     { href: "/recruiter/jobs", label: "Jobs (JD)", icon: "💼" },
     { href: "/recruiter/candidates", label: "Candidates & Ranking", icon: "👥" },
     { href: "/recruiter/interviews", label: "Interview Intelligence", icon: "🎤" },
@@ -161,11 +163,34 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
         {/* Right Tools & Role Switcher */}
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* Role Switcher Button */}
+          {/* Switch Section Button (Takes user back to Three-Way Landing Router) */}
+          <Link
+            href="/?switch=true"
+            title="Switch Platform Section"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 12px",
+              borderRadius: 8,
+              fontSize: 11,
+              fontWeight: 700,
+              background: "rgba(99, 102, 241, 0.15)",
+              border: "1px solid rgba(99, 102, 241, 0.35)",
+              color: "#c7d2fe",
+              transition: "all 0.15s ease"
+            }}
+          >
+            <span>⇄</span>
+            <span>Switch Section</span>
+          </Link>
+
+          {/* Quick Role Toggle Button */}
           <button
             onClick={() => handleSwitchRole(role === "recruiter" ? "student" : "recruiter")}
             disabled={switching}
-            title={role === "recruiter" ? "Switch to Student Workspace" : "Switch to Recruiter Workspace"}
+            title={role === "recruiter" ? "Toggle to Student Mode" : "Toggle to Recruiter Mode"}
             style={{
               display: "flex",
               alignItems: "center",
@@ -181,8 +206,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
               transition: "all 0.15s ease"
             }}
           >
-            <span>⇄</span>
-            <span>{switching ? "Switching..." : role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
+            <span>{switching ? "..." : role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
           </button>
 
           {/* Quick Notification Bell */}
