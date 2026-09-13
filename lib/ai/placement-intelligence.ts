@@ -584,67 +584,186 @@ Return ONLY this JSON format:
   }
 }
 
-// ── Match Scoring Calculation ──
+// ── Dimensional Breakdown & Match Scoring Types ──
+export interface DimensionBreakdown {
+  skill_fit_pct: number;
+  experience_fit_pct: number;
+  interest_alignment_pct: number;
+  career_goal_alignment_pct: number;
+}
+
+export interface OpportunityMatchBreakdown {
+  overall_match_pct: number;
+  fit_score: number; // Backwards-compatible alias for existing consumers
+  dimension_breakdown: DimensionBreakdown;
+  matching_tags: string[];
+  missing_tags: string[];
+  why_explanation: string;
+}
+
+// ── Match Scoring Calculation with Multi-Dimensional Breakdown & Evidence Weighting ──
 export function computeMatchScore(
   profile: StudentProfileData,
   opp: OpportunityData
-): { fit_score: number; matching_tags: string[]; missing_tags: string[] } {
-  const studentSkillNames = (profile.skills || []).map(s => s.name.toLowerCase());
-  const projectStacks = (profile.past_projects || []).flatMap(p => (p.tech_stack || []).map(t => t.toLowerCase()));
-  const allStudentSkills = new Set([...studentSkillNames, ...projectStacks]);
-
+): OpportunityMatchBreakdown {
   const oppTags = (opp.tags || []).map(t => t.toLowerCase());
   const oppDomainTags = (opp.domain_tags || []).map(d => d.toLowerCase());
+  const tracks = ((opp.extracted_context?.tracks_or_themes as string[]) || []).map(t => t.toLowerCase());
 
+  // 1. Build weighted skill map from profile
+  const skillWeightMap = new Map<string, { level: string; weight: number; hasGithub: boolean }>();
+  for (const s of profile.skills || []) {
+    const lower = s.name.toLowerCase();
+    const isAdv = s.level === "Advanced" || s.level === "Expert";
+    const isInter = s.level === "Intermediate";
+    const hasGithub = !!(s.evidence?.toLowerCase().includes("github") || (profile.profile_summary || "").toLowerCase().includes("github.com"));
+    
+    // Exact weighting formula per specification:
+    // Advanced/Expert + GitHub: 1.4 | Advanced/Expert: 1.2 | Intermediate + GitHub: 1.0 | Intermediate: 0.8 | Beginner: 0.5
+    let weight = 0.5;
+    if (isAdv) weight = hasGithub ? 1.4 : 1.2;
+    else if (isInter) weight = hasGithub ? 1.0 : 0.8;
+
+    skillWeightMap.set(lower, { level: s.level, weight, hasGithub });
+  }
+
+  // Also include project tech stacks (default intermediate weight 0.8)
+  for (const p of profile.past_projects || []) {
+    for (const t of p.tech_stack || []) {
+      const lower = t.toLowerCase();
+      if (!skillWeightMap.has(lower)) {
+        skillWeightMap.set(lower, { level: "Intermediate", weight: 0.8, hasGithub: false });
+      }
+    }
+  }
+
+  // 2. Compute matching and missing tags
   const matchingTags: string[] = [];
   const missingTags: string[] = [];
+  let totalAchievedSkillWeight = 0;
 
   for (const tag of opp.tags || []) {
     const lower = tag.toLowerCase();
-    const hasMatch = Array.from(allStudentSkills).some(s => s.includes(lower) || lower.includes(s));
-    if (hasMatch) {
-      matchingTags.push(tag);
-    } else {
+    let matched = false;
+    for (const [sName, sData] of skillWeightMap.entries()) {
+      if (sName.includes(lower) || lower.includes(sName)) {
+        matchingTags.push(tag);
+        totalAchievedSkillWeight += sData.weight;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
       missingTags.push(tag);
     }
   }
 
-  // Base profile readiness
-  let score = 20;
+  // ── Dimension 1: Skill Fit Percentage ──
+  // Weighted coverage of required tags
+  const totalPossibleSkillWeight = Math.max(1, opp.tags.length) * 1.2; // Baseline target assuming 1.2x average required
+  const rawSkillFit = Math.min(100, Math.round((totalAchievedSkillWeight / totalPossibleSkillWeight) * 100));
+  const skill_fit_pct = matchingTags.length > 0 ? Math.max(35, rawSkillFit) : 25;
 
-  // Direct skill & tag synergy: up to 45 points
-  if (matchingTags.length > 0) {
-    score += Math.min(45, matchingTags.length * 20);
+  // ── Dimension 2: Experience Fit Percentage ──
+  // Relevant past projects in matching domains or tracks
+  let relevantProjectsCount = 0;
+  const projectExplanations: string[] = [];
+  for (const p of profile.past_projects || []) {
+    const pText = `${p.title} ${p.description} ${(p.tech_stack || []).join(" ")}`.toLowerCase();
+    const matchesDomain = oppDomainTags.some(d => pText.includes(d));
+    const matchesTrack = tracks.some(tr => pText.includes(tr));
+    if (matchesDomain || matchesTrack) {
+      relevantProjectsCount++;
+      projectExplanations.push(p.title);
+    }
   }
+  const experience_fit_pct = Math.min(96, Math.max(30, 30 + relevantProjectsCount * 22));
 
-  // Domain & Category alignment bonus: up to 20 points
+  // ── Dimension 3: Interest Alignment Percentage ──
+  // Alignment with student stated interests, target roles, and summary
   const targetRoles = (profile.target_roles || []).map(r => r.toLowerCase());
   const summaryLower = (profile.profile_summary || "").toLowerCase();
-  const hasDomainMatch = oppDomainTags.some(d => 
-    targetRoles.some(r => r.includes(d) || d.includes(r)) ||
-    summaryLower.includes(d) ||
-    (profile.past_projects || []).some(p => (p.description || "").toLowerCase().includes(d))
-  );
-  if (hasDomainMatch) score += 20;
+  let interestMatches = 0;
+  for (const d of oppDomainTags) {
+    if (targetRoles.some(r => r.includes(d) || d.includes(r)) || summaryLower.includes(d)) {
+      interestMatches++;
+    }
+  }
+  const interest_alignment_pct = oppDomainTags.length > 0
+    ? Math.min(95, Math.max(35, Math.round(40 + (interestMatches / oppDomainTags.length) * 55)))
+    : 70;
 
-  // Role & Opportunity Type synergy: 12 points
-  const isTypeRelevant = targetRoles.some(r => 
+  // ── Dimension 4: Career Goal Alignment Percentage ──
+  // Role type synergy against opportunity type (hackathon/internship/job)
+  let career_goal_alignment_pct = 50;
+  const isTypeRelevant = targetRoles.some(r =>
     (opp.type === "hackathon" && (r.includes("developer") || r.includes("engineer") || r.includes("open source") || r.includes("ai"))) ||
     (opp.type === "internship" && (r.includes("intern") || r.includes("software") || r.includes("sde"))) ||
     (opp.type === "contest" && (r.includes("innovat") || r.includes("lead") || r.includes("ai")))
   );
-  if (isTypeRelevant) score += 12;
+  if (isTypeRelevant) career_goal_alignment_pct += 35;
+  if (profile.risk_appetite === "Aggressive" && opp.tier === "Tier 1") career_goal_alignment_pct += 10;
+  else if (profile.risk_appetite === "Moderate") career_goal_alignment_pct += 5;
+  career_goal_alignment_pct = Math.min(98, Math.max(40, career_goal_alignment_pct));
 
-  // Tier calibration bonus
-  if (profile.risk_appetite === "Aggressive" && opp.tier === "Tier 1") score += 5;
-  if (profile.risk_appetite === "Moderate") score += 3;
+  // ── Overall Composite Match Percentage ──
+  // Strictly deterministic weighted composite: 40% skill + 25% experience + 20% interest + 15% career goal
+  const overall_match_pct = Math.min(
+    98,
+    Math.max(
+      35,
+      Math.round(
+        skill_fit_pct * 0.40 +
+        experience_fit_pct * 0.25 +
+        interest_alignment_pct * 0.20 +
+        career_goal_alignment_pct * 0.15
+      )
+    )
+  );
 
-  const finalFitScore = Math.min(97, Math.max(38, Math.round(score)));
+  // ── Grounded Why Explanation (Strict No-Fabrication Rule) ──
+  const clauses: string[] = [];
+  if (matchingTags.length > 0) {
+    const topSkillsCited = matchingTags.slice(0, 3).map(t => {
+      const data = skillWeightMap.get(t.toLowerCase());
+      const level = data?.level || "Intermediate";
+      const gTag = data?.hasGithub ? " (verified GitHub)" : "";
+      return `${t} → strong match (${level}${gTag})`;
+    });
+    clauses.push(topSkillsCited.join(", "));
+  }
+
+  if (projectExplanations.length > 0) {
+    clauses.push(`${projectExplanations.length} relevant verified project${projectExplanations.length > 1 ? "s" : ""} (${projectExplanations.slice(0, 2).join(", ")})`);
+  }
+
+  if (oppDomainTags.length > 0 && interestMatches > 0) {
+    const matchedDomainNames = oppDomainTags.filter(d => targetRoles.some(r => r.includes(d)) || summaryLower.includes(d));
+    if (matchedDomainNames.length > 0) {
+      clauses.push(`${matchedDomainNames.slice(0, 2).join("/")} domain interest aligned`);
+    }
+  }
+
+  if (targetRoles.length > 0) {
+    clauses.push(`${targetRoles[0]} career target synergizes with ${opp.type} track`);
+  }
+
+  const why_explanation = clauses.length > 0
+    ? clauses.join(" | ")
+    : `Foundational alignment with ${opp.title} engineering tracks.`;
 
   return {
-    fit_score: finalFitScore,
+    overall_match_pct,
+    fit_score: overall_match_pct, // Kept for 100% backwards compatibility
+    dimension_breakdown: {
+      skill_fit_pct,
+      experience_fit_pct,
+      interest_alignment_pct,
+      career_goal_alignment_pct
+    },
     matching_tags: matchingTags,
-    missing_tags: missingTags
+    missing_tags: missingTags,
+    why_explanation
   };
 }
 

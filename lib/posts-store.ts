@@ -22,6 +22,9 @@ export interface UnifiedPost {
   fit_score?: number;
   matching_tags?: string[];
   potential_candidates_count?: number;
+  problem_statement_id?: string;
+  skills_sought?: string[];
+  team_formation_id?: string;
   metadata?: {
     salary_or_stipend?: string;
     location?: string;
@@ -30,6 +33,9 @@ export interface UnifiedPost {
     collaboration_goal?: string;
     upvotes?: number;
     replies_count?: number;
+    problem_statement_id?: string;
+    skills_sought?: string[];
+    team_formation_id?: string;
   };
 }
 
@@ -386,5 +392,43 @@ export async function createCommunityPost(post: Omit<UnifiedPost, "id" | "create
   }
 
   inMemoryCustomPosts.unshift(newPost);
+
+  // Reverse Matching for Collaboration Posts:
+  // Notify matching candidate students via the shared Notification Center
+  if (newPost.type === "collaboration") {
+    try {
+      const skillsSought = newPost.skills_sought || newPost.tags || [];
+      const lowerSought = skillsSought.map(s => s.toLowerCase());
+
+      // Dynamically import to prevent circular references
+      const { CANDIDATE_POOL_STUDENTS } = await import("@/lib/ai/team-match");
+      const { createNotification } = await import("@/lib/notifications");
+
+      for (const candidate of CANDIDATE_POOL_STUDENTS) {
+        if (!candidate.team_match_opt_in) continue;
+
+        // Deterministic set comparison
+        const matchedSkills = candidate.skills.filter(s =>
+          lowerSought.some(ls => ls.includes(s.name.toLowerCase()) || s.name.toLowerCase().includes(ls))
+        );
+
+        if (matchedSkills.length > 0) {
+          const score = Math.min(95, Math.max(65, 55 + matchedSkills.length * 15));
+          await createNotification({
+            studentId: candidate.candidate_id,
+            sourceFeature: "collaboration_marketplace",
+            notificationType: "team_match_alert",
+            title: "You're a strong match for this team!",
+            body: `${newPost.author_name} is seeking teammates for "${newPost.title}". Your skills in ${matchedSkills.map(m => m.name).join(", ")} represent a ${score}% compatibility match.`,
+            linkUrl: `/post?id=${newPost.id}`,
+            priority: "high"
+          });
+        }
+      }
+    } catch (err: any) {
+      console.warn("[posts-store] Reverse matching notification dispatch error:", err.message);
+    }
+  }
+
   return newPost;
 }
