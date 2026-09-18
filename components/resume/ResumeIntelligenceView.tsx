@@ -133,7 +133,30 @@ export default function CandidatePage() {
     setLoadingSkills(true);
     try {
       const res = await fetch("/api/skills-gap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume})});
-      setSkills(await res.json());
+      const data = await res.json();
+      setSkills(data);
+
+      // Student Career Intelligence Event Bus: Emits Claimed (Level 1) Evidence
+      try {
+        const candidateId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
+        await fetch("/api/student/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            studentId: candidateId,
+            eventType: "resume_uploaded",
+            payload: {
+              skills: [
+                ...(data.strong_skills || []).map((s: any) => ({ name: s.skill, level: s.level, evidence: s.evidence })),
+                ...(data.weak_skills || []).map((s: any) => ({ name: s.skill, level: "Developing", evidence: s.evidence }))
+              ],
+              projects: []
+            }
+          })
+        });
+      } catch (evtErr) {
+        console.warn("Failed to dispatch resume_uploaded event:", evtErr);
+      }
     } catch {}
     setLoadingSkills(false);
   };

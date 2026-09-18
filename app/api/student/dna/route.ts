@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { getStudentDNA, setTeamMatchOptIn, invalidateStudentDNACache } from "@/lib/ai/student-dna";
+import { 
+  getStudentIntelligenceProfile, 
+  updateCareerIntent, 
+  getStudentEvidence 
+} from "@/lib/intelligence/student-intelligence";
 
 export async function GET(req: Request) {
   try {
@@ -11,10 +16,17 @@ export async function GET(req: Request) {
       invalidateStudentDNACache(candidateId);
     }
 
-    const dna = await getStudentDNA(candidateId);
+    const [dna, intelligence, evidence] = await Promise.all([
+      getStudentDNA(candidateId),
+      getStudentIntelligenceProfile(candidateId),
+      getStudentEvidence(candidateId)
+    ]);
+
     return NextResponse.json({
       success: true,
-      dna
+      dna,
+      intelligence,
+      evidence
     });
   } catch (error: any) {
     console.error("GET /api/student/dna error:", error);
@@ -25,16 +37,32 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { candidateId = "student-demo", teamMatchOptIn } = body;
+    const { 
+      candidateId = "student-demo", 
+      teamMatchOptIn,
+      careerIntent
+    } = body;
 
     if (typeof teamMatchOptIn === "boolean") {
       setTeamMatchOptIn(candidateId, teamMatchOptIn);
     }
 
-    const dna = await getStudentDNA(candidateId);
+    if (careerIntent) {
+      updateCareerIntent({
+        ...careerIntent,
+        studentId: candidateId
+      });
+    }
+
+    const [dna, intelligence] = await Promise.all([
+      getStudentDNA(candidateId),
+      getStudentIntelligenceProfile(candidateId)
+    ]);
+
     return NextResponse.json({
       success: true,
-      dna
+      dna,
+      intelligence
     });
   } catch (error: any) {
     console.error("POST /api/student/dna error:", error);

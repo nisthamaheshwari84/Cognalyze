@@ -39,6 +39,27 @@ export async function POST(req: Request) {
 
     const updatedApp = await upsertApplicationRecord(candidateId, opportunityId, stage, notes);
 
+    // Student Career Intelligence Event Bus: Emits Career Memory event
+    if (stage === "Offer" || stage === "Rejected" || stage === "Interviewing") {
+      try {
+        const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+        await recordStudentEvent({
+          studentId: candidateId,
+          eventType: "application_outcome",
+          payload: {
+            companyName: (updatedApp as any)?.opportunity?.organizer || "Company",
+            roleTitle: (updatedApp as any)?.opportunity?.title || "Role",
+            status: stage,
+            feedbackNotes: notes || undefined,
+            strengths: stage === "Offer" ? ["Core Alignment", "Technical Evaluation"] : undefined,
+            weaknesses: stage === "Rejected" && notes ? [notes] : undefined
+          }
+        });
+      } catch (eventErr) {
+        console.warn("Failed to record application outcome to Career Memory:", eventErr);
+      }
+    }
+
     // Unified Notification Hook
     await createNotification({
       studentId: candidateId,
@@ -69,6 +90,27 @@ export async function PUT(req: Request) {
     }
 
     const updatedApp = await updateApplicationStage(candidateId, appIdOrOppId, stage, notes);
+
+    // Student Career Intelligence Event Bus: Emits Career Memory event
+    if (stage === "Offer" || stage === "Rejected" || stage === "Interviewing") {
+      try {
+        const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+        await recordStudentEvent({
+          studentId: candidateId,
+          eventType: "application_outcome",
+          payload: {
+            companyName: (updatedApp as any)?.opportunity?.organizer || "Company",
+            roleTitle: (updatedApp as any)?.opportunity?.title || "Role",
+            status: stage,
+            feedbackNotes: notes || undefined,
+            strengths: stage === "Offer" ? ["Core Alignment", "Interview Performance"] : undefined,
+            weaknesses: stage === "Rejected" && notes ? [notes] : undefined
+          }
+        });
+      } catch (eventErr) {
+        console.warn("Failed to record application outcome to Career Memory:", eventErr);
+      }
+    }
 
     if (stage) {
       await createNotification({

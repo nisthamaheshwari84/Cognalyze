@@ -266,6 +266,26 @@ export async function updateDsaProblemProgress(
   // Check and trigger milestone badges (Phase 5a)
   await evaluateMilestoneBadges(studentId);
 
+  // Student Career Intelligence Event Bus: Emits Assessed Evidence (Level 3)
+  if (nextStatus === "solved") {
+    try {
+      const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+      const prob = STRIVER_A2Z_PROBLEMS.find(p => p.id === problemId);
+      await recordStudentEvent({
+        studentId,
+        eventType: "dsa_solved",
+        payload: {
+          problemId,
+          problemTitle: prob?.title || `Problem ${problemId}`,
+          topicName: prob?.step_title || "Algorithms",
+          difficulty: prob?.difficulty || "medium"
+        }
+      });
+    } catch (err) {
+      console.warn("Failed to record dsa_solved event to Student Intelligence:", err);
+    }
+  }
+
   return updatedRecord;
 }
 

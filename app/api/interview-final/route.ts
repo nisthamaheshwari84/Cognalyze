@@ -12,7 +12,8 @@ function extractJSON(raw: string): any {
 
 export async function POST(req: Request) {
   try {
-    const { messages, jd, resume, finalScore } = await req.json();
+    const body = await req.json();
+    const { messages, jd, resume, finalScore, candidateId = "student-demo" } = body;
 
     // Use only last 12 messages to avoid token limit
     const recentMessages = (messages || []).slice(-12);
@@ -99,6 +100,25 @@ Return ONLY this JSON:
     }
 
     const parsed = extractJSON(text);
+
+    // Student Career Intelligence Event Bus: Emits Assessed Interview Evidence (Level 3)
+    try {
+      const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+      const candidateId = (body as any)?.candidateId || (body as any)?.studentId || "student-demo";
+      await recordStudentEvent({
+        studentId: candidateId,
+        eventType: "mock_interview_completed",
+        payload: {
+          role: jd?.slice(0, 80) || "Software Engineer",
+          score: finalScore?.overall || parsed?.confidence || 75,
+          scorecard: parsed?.scorecard,
+          feedback: parsed?.interviewer_note || parsed?.headline
+        }
+      });
+    } catch (eventErr) {
+      console.warn("Failed to record interview to Student Intelligence:", eventErr);
+    }
+
     return NextResponse.json(parsed);
 
   } catch (e: any) {

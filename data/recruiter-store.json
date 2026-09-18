@@ -1,0 +1,1103 @@
+{
+  "roles": [
+    {
+      "id": "role-senior-distributed-backend-engineer-4032",
+      "title": "Senior Distributed Backend Engineer",
+      "department": "Core Infrastructure",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "status": "active",
+      "createdAt": "2026-09-17T07:00:04.032Z",
+      "updatedAt": "2026-09-17T07:00:04.033Z",
+      "uncertaintyThreshold": 0.2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Deliver high-availability distributed architecture for tier-1 service",
+          "metric": "99.99% service uptime under 5x traffic surges",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        },
+        {
+          "id": "out-2",
+          "outcome": "Mentor team on distributed caching, partition fault tolerance, and observability",
+          "metric": "Zero critical production incidents caused by cache invalidation failures",
+          "timeframe": "First 60 days",
+          "impactSeverity": "High"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Distributed Systems & Event-Driven Architecture",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Hands-on experience with Kafka, partition strategies, consensus trade-offs, and idempotency",
+          "weightPct": 35,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "architecture_spec",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-2",
+          "name": "Backend Concurrency & High-Throughput Storage",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Deep mastery of Go/Java/C++, MVCC transaction isolation, and connection pooling",
+          "weightPct": 30,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-3",
+          "name": "Cloud Observability & Reliability Engineering",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Prometheus metrics, distributed tracing, OpenTelemetry, and graceful degradation",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "production_code",
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-4",
+          "name": "Cross-Functional Technical Leadership",
+          "tier": "Preferred",
+          "category": "Leadership",
+          "description": "Ability to drive RFC design reviews, unblock peers, and lead post-mortems",
+          "weightPct": 10,
+          "verificationMethod": "behavioral_probe",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-5",
+          "name": "Kubernetes Operator & Helm Automation",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be acquired within 30 days if strong Linux and Docker container fundamentals exist",
+          "weightPct": 5,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "github_commit",
+            "verified_interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "role-ml-platform",
+      "title": "Generative AI & ML Platform Architect",
+      "department": "AI Research",
+      "seniority": "Staff",
+      "targetHires": 2,
+      "status": "active",
+      "createdAt": "2026-09-17T07:00:04.033Z",
+      "updatedAt": "2026-09-17T07:00:04.033Z",
+      "uncertaintyThreshold": 0.2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Deliver high-availability distributed architecture for tier-1 service",
+          "metric": "99.99% service uptime under 5x traffic surges",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        },
+        {
+          "id": "out-2",
+          "outcome": "Mentor team on distributed caching, partition fault tolerance, and observability",
+          "metric": "Zero critical production incidents caused by cache invalidation failures",
+          "timeframe": "First 60 days",
+          "impactSeverity": "High"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-ml-1",
+          "name": "LLM Inference Acceleration & KV-Caching",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "vLLM, TensorRT-LLM, PagedAttention, speculative decoding, and quantization (FP8/AWQ)",
+          "weightPct": 35,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-ml-2",
+          "name": "Distributed Training & Pipeline Parallelism",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "PyTorch FSDP, DeepSpeed ZeRO-3, NCCL collective communication, and GPU cluster topologies",
+          "weightPct": 30,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-ml-3",
+          "name": "Agentic Tool Use & Guardrail Reliability",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Function calling schemas, structured outputs, semantic caching, and latency optimization",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "production_code",
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-ml-4",
+          "name": "Research Paper Velocity & Prototyping",
+          "tier": "Preferred",
+          "category": "Leadership",
+          "description": "Ability to ingest new NeurIPS/ICLR papers and implement proof-of-concept architectures within 48h",
+          "weightPct": 10,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-ml-5",
+          "name": "Kubernetes Kubeflow Orchestration",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Job scheduling and GPU node auto-scaling; can be acquired on the job",
+          "weightPct": 5,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "role-fullstack-edge",
+      "title": "Fullstack Edge Systems Engineer",
+      "department": "Product Engineering",
+      "seniority": "Mid-Level",
+      "targetHires": 3,
+      "status": "active",
+      "createdAt": "2026-09-17T07:00:04.033Z",
+      "updatedAt": "2026-09-17T07:00:04.033Z",
+      "uncertaintyThreshold": 0.2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Deliver high-availability distributed architecture for tier-1 service",
+          "metric": "99.99% service uptime under 5x traffic surges",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        },
+        {
+          "id": "out-2",
+          "outcome": "Mentor team on distributed caching, partition fault tolerance, and observability",
+          "metric": "Zero critical production incidents caused by cache invalidation failures",
+          "timeframe": "First 60 days",
+          "impactSeverity": "High"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Distributed Systems & Event-Driven Architecture",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Hands-on experience with Kafka, partition strategies, consensus trade-offs, and idempotency",
+          "weightPct": 35,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "architecture_spec",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-2",
+          "name": "Backend Concurrency & High-Throughput Storage",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Deep mastery of Go/Java/C++, MVCC transaction isolation, and connection pooling",
+          "weightPct": 30,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-3",
+          "name": "Cloud Observability & Reliability Engineering",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Prometheus metrics, distributed tracing, OpenTelemetry, and graceful degradation",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "production_code",
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-4",
+          "name": "Cross-Functional Technical Leadership",
+          "tier": "Preferred",
+          "category": "Leadership",
+          "description": "Ability to drive RFC design reviews, unblock peers, and lead post-mortems",
+          "weightPct": 10,
+          "verificationMethod": "behavioral_probe",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-5",
+          "name": "Kubernetes Operator & Helm Automation",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be acquired within 30 days if strong Linux and Docker container fundamentals exist",
+          "weightPct": 5,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "github_commit",
+            "verified_interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "role-software-engineer--6287",
+      "title": "software engineer ",
+      "department": "Core Systems",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Architect distributed high-throughput processing pipeline",
+          "metric": "99.99% availability under 10k TPS",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Distributed Consensus & Partition Tolerance",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Hands-on mastery of Kafka partition balancing and Raft/Paxos consensus",
+          "weightPct": 35,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-2",
+          "name": "Backend Concurrency & ACID MVCC Isolation",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Deep knowledge of thread pools, database locks, and transaction boundaries",
+          "weightPct": 35,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-3",
+          "name": "Distributed Tracing & Telemetry",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "OpenTelemetry, Prometheus, and root-cause latency analysis",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-4",
+          "name": "Kubernetes Operator & Helm Automation",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be acquired within 30-45 days on the job",
+          "weightPct": 10,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "github_commit"
+          ]
+        }
+      ],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "createdAt": "2026-09-17T07:36:56.287Z",
+      "updatedAt": "2026-09-17T07:36:56.287Z"
+    },
+    {
+      "id": "role-software-engineer-1--6685",
+      "title": "Software Engineer 1 ",
+      "department": "Core Systems",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "businessOutcomes": [
+        {
+          "id": "out-6650",
+          "outcome": "Within the first 90 days, independently build and deploy a production-ready AI/ML feature, integrate it into a reliable application or API, establish basic monitoring and evaluation, and demonstrate measurable improvement against an agreed technical or business metric.",
+          "metric": "90-day milestone verification",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-must-1",
+          "name": "Distributed systems, Kafka partition balancing & Raft consensus",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Must-have day-one capability: Distributed systems, Kafka partition balancing & Raft consensus",
+          "weightPct": 10,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-2",
+          "name": "Backend concurrency, thread pools & ACID database isolation",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Backend concurrency, thread pools & ACID database isolation",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-3",
+          "name": "Python programming and production-quality software development",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Python programming and production-quality software development",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-4",
+          "name": "Machine learning fundamentals with hands-on model development and evaluation",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Machine learning fundamentals with hands-on model development and evaluation",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-5",
+          "name": "Ability to build and integrate AI/ML systems through APIs and real-world applications",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Ability to build and integrate AI/ML systems through APIs and real-world applications",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-6",
+          "name": "Strong problem-solving and data structures fundamentals",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Strong problem-solving and data structures fundamentals",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-must-7",
+          "name": "Experience building and shipping at least one substantial AI/ML project",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Must-have day-one capability: Experience building and shipping at least one substantial AI/ML project",
+          "weightPct": 10,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-1",
+          "name": "Kubernetes operator development & Helm automation",
+          "tier": "Preferred",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Kubernetes operator development & Helm automation",
+          "weightPct": 5,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-2",
+          "name": "OpenTelemetry tracing & Prometheus monitoring",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: OpenTelemetry tracing & Prometheus monitoring",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-3",
+          "name": "Experience with PyTorch or TensorFlow for deep learning",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Experience with PyTorch or TensorFlow for deep learning",
+          "weightPct": 4,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-4",
+          "name": "Experience deploying ML applications using Docker and cloud platforms",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Experience deploying ML applications using Docker and cloud platforms",
+          "weightPct": 4,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-5",
+          "name": "Experience with LLMs, RAG pipelines, vector databases, or agentic AI systems",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Experience with LLMs, RAG pipelines, vector databases, or agentic AI systems",
+          "weightPct": 4,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-6",
+          "name": "Experience with MLOps, model monitoring, and production ML workflows",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Experience with MLOps, model monitoring, and production ML workflows",
+          "weightPct": 4,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "req-nice-7",
+          "name": "Open-source contributions, hackathons, research, or technically substantial side projects",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Can be learned or refined on the job: Open-source contributions, hackathons, research, or technically substantial side projects",
+          "weightPct": 4,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        }
+      ],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "createdAt": "2026-09-17T23:50:36.685Z",
+      "updatedAt": "2026-09-17T23:50:36.685Z"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "cand-single-340093",
+      "name": "Candidate",
+      "email": "candidate@example.com",
+      "appliedRoleId": "role-software-engineer-1--6685",
+      "appliedRoleTitle": "Software Engineer 1 ",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-18T09:22:20.193Z",
+      "resumeText": "ANANYA SHARMA\n\nAI/ML ENGINEER\nBengaluru, India\nananya.sharma.dev@example.com\ngithub.com/ananyasharma\nlinkedin.com/in/ananyasharma\n\nPROFESSIONAL SUMMARY\n\nAI/ML Engineer with 3+ years of experience building and deploying machine learning and generative AI applications. Experienced in Python, PyTorch, scikit-learn, FastAPI, SQL, Docker, and cloud-based deployment. Strong background in developing end-to-end ML systems, from data preprocessing and model training to API integration, evaluation, and production deployment.\n\nTECHNICAL SKILLS\n\nLanguages:\nPython, C++, SQL, JavaScript\n\nMachine Learning:\nMachine Learning, Deep Learning, NLP, Computer Vision, Model Evaluation, Feature Engineering\n\nAI:\nLLMs, RAG, Embeddings, Vector Databases, Prompt Engineering, AI Agents\n\nFrameworks:\nPyTorch, scikit-learn, TensorFlow, FastAPI, Flask\n\nData:\nPandas, NumPy, PostgreSQL, Redis\n\nEngineering:\nREST APIs, Git, GitHub, Docker, CI/CD, Linux\n\nCloud:\nAWS, Google Cloud\n\nMLOps:\nDocker, MLflow, Model Monitoring, CI/CD\n\nEXPERIENCE\n\nAI/ML Engineer — NovaScale Technologies\nBengaluru, India\n2023 – Present\n\n• Built and deployed machine learning services in Python serving more than 50,000 API requests per day.\n\n• Developed a customer-intent classification system using Python, PyTorch and transformer-based models, improving F1 score from 0.78 to 0.91.\n\n• Designed FastAPI services for model inference and integrated ML models into production applications.\n\n• Containerized ML services using Docker and implemented CI/CD pipelines for automated deployment.\n\n• Built an evaluation pipeline to monitor model accuracy, latency and prediction drift.\n\n• Worked with PostgreSQL and Redis for application data and caching.\n\n• Collaborated with frontend and backend engineers to integrate AI capabilities into production products.\n\nSoftware Engineer — DataForge Labs\nPune, India\n2021 – 2023\n\n• Developed Python-based data processing and machine learning pipelines.\n\n• Built recommendation and classification models using scikit-learn and PyTorch.\n\n• Designed REST APIs using FastAPI for internal ML services.\n\n• Optimized data-processing workflows using Pandas, NumPy and SQL.\n\n• Participated in technical design reviews and implemented scalable backend components.\n\nPROJECTS\n\nCognalyze — AI-Powered Talent Intelligence Platform\nGitHub: github.com/ananyasharma/cognalyze\n\n• Built an AI-powered platform that analyzes candidate capabilities using resumes, projects, GitHub activity, assessments and interview evidence.\n\n• Developed an evidence-based candidate matching system that maps candidate capabilities to role requirements.\n\n• Implemented an AI-powered resume and job-description analysis pipeline using Python and LLM APIs.\n\n• Built FastAPI backend services for candidate analysis and intelligent matching.\n\n• Designed explainable candidate analysis where recommendations are linked to supporting evidence.\n\nMedicalVision AI\n\n• Developed a computer vision system using PyTorch for medical image classification.\n\n• Trained and evaluated a CNN model on a dataset of 25,000+ labeled images.\n\n• Achieved 89% validation accuracy after model optimization.\n\n• Built a FastAPI inference service and deployed the application using Docker.\n\nRAG Knowledge Assistant\n\n• Built a retrieval-augmented generation application using Python, LangChain and a vector database.\n\n• Implemented document chunking, embedding generation and semantic retrieval.\n\n• Developed an API layer for real-time question answering.\n\nEDUCATION\n\nB.Tech — Computer Science & Engineering\nABC Institute of Technology\n2021 – 2025\n\nCERTIFICATIONS & ACHIEVEMENTS\n\n• AWS Certified Cloud Practitioner\n• Kaggle Machine Learning Competition — Top 10%\n• Winner — University AI Hackathon\n• Open-source contributor to Python-based ML projects\n\nGITHUB & OPEN SOURCE\n\n• 25+ public repositories\n• Multiple production-oriented Python projects\n• Contributions to machine learning and developer tooling projects",
+      "currentStage": "Work Sample Pending",
+      "activeWorkSample": {
+        "id": "ws-req-1-5187",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "requirementId": "req-1",
+        "requirementName": "Distributed Systems & Event-Driven Architecture",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    },
+    {
+      "id": "cand-single-490966",
+      "name": "Neha Sen",
+      "email": "neha.sen@example.com",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Senior Distributed Backend Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-18T00:31:31.934Z",
+      "resumeText": "Neha Sen. Senior Platform Engineer with 6 years experience. Expert in distributed systems, Go, Kafka partition balancing, Kubernetes operators, and PostgreSQL. Built event-driven architecture processing 12,000 TPS.",
+      "currentStage": "Work Sample Pending",
+      "activeWorkSample": {
+        "id": "ws-req-1-4155",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "requirementId": "req-1",
+        "requirementName": "Distributed Systems & Event-Driven Architecture",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    },
+    {
+      "id": "cand-single-209926",
+      "name": "Candidate",
+      "email": "candidate@example.com",
+      "appliedRoleId": "role-software-engineer-1--6685",
+      "appliedRoleTitle": "Software Engineer 1 ",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-18T00:26:49.991Z",
+      "resumeText": "ANANYA SHARMA\n\nAI/ML ENGINEER\nBengaluru, India\nananya.sharma.dev@example.com\ngithub.com/ananyasharma\nlinkedin.com/in/ananyasharma\n\nPROFESSIONAL SUMMARY\n\nAI/ML Engineer with 3+ years of experience building and deploying machine learning and generative AI applications. Experienced in Python, PyTorch, scikit-learn, FastAPI, SQL, Docker, and cloud-based deployment. Strong background in developing end-to-end ML systems, from data preprocessing and model training to API integration, evaluation, and production deployment.\n\nTECHNICAL SKILLS\n\nLanguages:\nPython, C++, SQL, JavaScript\n\nMachine Learning:\nMachine Learning, Deep Learning, NLP, Computer Vision, Model Evaluation, Feature Engineering\n\nAI:\nLLMs, RAG, Embeddings, Vector Databases, Prompt Engineering, AI Agents\n\nFrameworks:\nPyTorch, scikit-learn, TensorFlow, FastAPI, Flask\n\nData:\nPandas, NumPy, PostgreSQL, Redis\n\nEngineering:\nREST APIs, Git, GitHub, Docker, CI/CD, Linux\n\nCloud:\nAWS, Google Cloud\n\nMLOps:\nDocker, MLflow, Model Monitoring, CI/CD\n\nEXPERIENCE\n\nAI/ML Engineer — NovaScale Technologies\nBengaluru, India\n2023 – Present\n\n• Built and deployed machine learning services in Python serving more than 50,000 API requests per day.\n\n• Developed a customer-intent classification system using Python, PyTorch and transformer-based models, improving F1 score from 0.78 to 0.91.\n\n• Designed FastAPI services for model inference and integrated ML models into production applications.\n\n• Containerized ML services using Docker and implemented CI/CD pipelines for automated deployment.\n\n• Built an evaluation pipeline to monitor model accuracy, latency and prediction drift.\n\n• Worked with PostgreSQL and Redis for application data and caching.\n\n• Collaborated with frontend and backend engineers to integrate AI capabilities into production products.\n\nSoftware Engineer — DataForge Labs\nPune, India\n2021 – 2023\n\n• Developed Python-based data processing and machine learning pipelines.\n\n• Built recommendation and classification models using scikit-learn and PyTorch.\n\n• Designed REST APIs using FastAPI for internal ML services.\n\n• Optimized data-processing workflows using Pandas, NumPy and SQL.\n\n• Participated in technical design reviews and implemented scalable backend components.\n\nPROJECTS\n\nCognalyze — AI-Powered Talent Intelligence Platform\nGitHub: github.com/ananyasharma/cognalyze\n\n• Built an AI-powered platform that analyzes candidate capabilities using resumes, projects, GitHub activity, assessments and interview evidence.\n\n• Developed an evidence-based candidate matching system that maps candidate capabilities to role requirements.\n\n• Implemented an AI-powered resume and job-description analysis pipeline using Python and LLM APIs.\n\n• Built FastAPI backend services for candidate analysis and intelligent matching.\n\n• Designed explainable candidate analysis where recommendations are linked to supporting evidence.\n\nMedicalVision AI\n\n• Developed a computer vision system using PyTorch for medical image classification.\n\n• Trained and evaluated a CNN model on a dataset of 25,000+ labeled images.\n\n• Achieved 89% validation accuracy after model optimization.\n\n• Built a FastAPI inference service and deployed the application using Docker.\n\nRAG Knowledge Assistant\n\n• Built a retrieval-augmented generation application using Python, LangChain and a vector database.\n\n• Implemented document chunking, embedding generation and semantic retrieval.\n\n• Developed an API layer for real-time question answering.\n\nEDUCATION\n\nB.Tech — Computer Science & Engineering\nABC Institute of Technology\n2021 – 2025\n\nCERTIFICATIONS & ACHIEVEMENTS\n\n• AWS Certified Cloud Practitioner\n• Kaggle Machine Learning Competition — Top 10%\n• Winner — University AI Hackathon\n• Open-source contributor to Python-based ML projects\n\nGITHUB & OPEN SOURCE\n\n• 25+ public repositories\n• Multiple production-oriented Python projects\n• Contributions to machine learning and developer tooling projects",
+      "currentStage": "Work Sample Pending",
+      "activeWorkSample": {
+        "id": "ws-req-must-1-4841",
+        "roleId": "role-software-engineer-1--6685",
+        "requirementId": "req-must-1",
+        "requirementName": "Distributed systems, Kafka partition balancing & Raft consensus",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    },
+    {
+      "id": "cand-vikram",
+      "name": "Vikram Malhotra",
+      "email": "vikram.m@example.com",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Senior Distributed Backend Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-12T08:30:00Z",
+      "resumeText": "Vikram Malhotra\nSenior Backend Systems Engineer • 5 years experience\nExpertise: Go, Java, Concurrency Primitives, Distributed Systems, Kafka, PostgreSQL MVCC.\nExperience:\n- Staff Engineer at PayFlow Global: Built event-driven transaction pipeline processing 8,000 TPS.\n- Engineered transactional outbox with PostgreSQL and Kafka topic partition balancing.\n- Resolved zero-downtime database failovers and lock contention issues under heavy concurrent load.\nSkills: Go, Java, Kafka, PostgreSQL, Docker, Redis, Kubernetes, Distributed Tracing.",
+      "githubData": {
+        "handle": "vikramm-dev",
+        "profileUrl": "https://github.com/vikramm-dev",
+        "verifiedReposCount": 14,
+        "repos": [
+          {
+            "name": "raft-consensus-go",
+            "description": "Raft consensus implementation with leader election, log replication, and snapshotting in Go",
+            "languages": [
+              "Go"
+            ],
+            "url": "https://github.com/vikramm-dev/raft-consensus-go"
+          },
+          {
+            "name": "kafka-idempotent-outbox",
+            "description": "Production-ready transactional outbox pattern using PostgreSQL LISTEN/NOTIFY and Kafka",
+            "languages": [
+              "Go",
+              "SQL"
+            ],
+            "url": "https://github.com/vikramm-dev/kafka-idempotent-outbox"
+          }
+        ]
+      },
+      "linkedInUrl": "https://linkedin.com/in/vikram-malhotra-systems",
+      "leetCodeProfile": {
+        "username": "vikram_systems",
+        "profileUrl": "https://leetcode.com/vikram_systems",
+        "problemsSolved": 480,
+        "rankingBadge": "Guardian (Top 1.2%)"
+      },
+      "hackathonRecords": [
+        "Smart India Hackathon Finalist 2024 (Distributed Ledger)"
+      ],
+      "certifications": [
+        "AWS Certified Solutions Architect",
+        "Confluent Certified Developer for Apache Kafka"
+      ],
+      "currentStage": "Work Sample Pending",
+      "activeWorkSample": {
+        "id": "ws-req-1-3036",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "requirementId": "req-1",
+        "requirementName": "Distributed Systems & Event-Driven Architecture",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    },
+    {
+      "id": "cand-ananya",
+      "name": "Ananya Sharma",
+      "email": "ananya.s@example.com",
+      "appliedRoleId": "role-ml-platform",
+      "appliedRoleTitle": "Generative AI & ML Platform Architect",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-13T10:15:00Z",
+      "resumeText": "Ananya Sharma\nML Platform Engineer • 4 years experience\nBuilt distributed training pipelines and low-latency LLM serving infrastructure.\n- Deployed vLLM with PagedAttention and continuous batching, reducing inference latency by 40%.\n- Fine-tuned 70B parameter models using PyTorch FSDP and DeepSpeed ZeRO-3 across 64 H100 GPUs.\n- Designed agentic tool execution loop with semantic caching in Redis.",
+      "githubData": {
+        "handle": "ananyasharma-ai",
+        "profileUrl": "https://github.com/ananyasharma-ai",
+        "verifiedReposCount": 9,
+        "repos": [
+          {
+            "name": "speculative-decoding-vllm",
+            "description": "Accelerated speculative decoding benchmark for LLaMA-3 models using draft networks",
+            "languages": [
+              "Python",
+              "C++",
+              "CUDA"
+            ],
+            "url": "https://github.com/ananyasharma-ai/speculative-decoding-vllm"
+          }
+        ]
+      },
+      "linkedInUrl": "https://linkedin.com/in/ananya-sharma-ml",
+      "hackathonRecords": [
+        "Razorpay AI Buildathon 1st Runner Up (Agentic Core)"
+      ],
+      "certifications": [
+        "DeepLearning.AI Generative AI Engineering"
+      ],
+      "currentStage": "Work Sample Pending",
+      "workSampleResults": {
+        "req-ml-1": {
+          "passed": true,
+          "score": 94,
+          "output": "Implemented custom continuous batch scheduler with PagedAttention block allocation."
+        }
+      },
+      "activeWorkSample": {
+        "id": "ws-req-1-8766",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "requirementId": "req-1",
+        "requirementName": "Distributed Systems & Event-Driven Architecture",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    },
+    {
+      "id": "cand-student-nistha",
+      "name": "Nistha Maheshwari",
+      "email": "nistha@example.com",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Senior Distributed Backend Engineer",
+      "sourceType": "student_application",
+      "appliedAt": "2026-09-14T02:00:00Z",
+      "resumeText": "Nistha Maheshwari\nComputer Science • Distributed Systems & AI Platforms\nActive builder on Cognalyze Platform.\nProjects:\n- Automated Customer Churn & Recovery Bot (Agentic AI + Node.js + Razorpay).\n- Distributed Edge Sensor Pipeline (Go, MQTT, PostgreSQL, Docker).\n- High-Throughput Event Broker simulation with partition isolation.\nSkills: Go, TypeScript, PostgreSQL, Docker, MQTT, Kafka primitives, Python.",
+      "githubData": {
+        "handle": "nisthamaheshwari85",
+        "profileUrl": "https://github.com/nisthamaheshwari85",
+        "verifiedReposCount": 8,
+        "repos": [
+          {
+            "name": "automated-recovery-bot",
+            "description": "Intelligent recovery bot for recurring payment failures using webhooks and predictive retry delays",
+            "languages": [
+              "TypeScript",
+              "Node.js"
+            ],
+            "url": "https://github.com/nisthamaheshwari85/automated-recovery-bot"
+          },
+          {
+            "name": "edge-sensor-pipeline",
+            "description": "Telemetry ingestion pipeline in Go with time-series indexing and anomaly alarms",
+            "languages": [
+              "Go",
+              "SQL"
+            ],
+            "url": "https://github.com/nisthamaheshwari85/edge-sensor-pipeline"
+          }
+        ]
+      },
+      "linkedInUrl": "https://linkedin.com/in/nistha-maheshwari",
+      "leetCodeProfile": {
+        "username": "nistha85",
+        "profileUrl": "https://leetcode.com/nistha85",
+        "problemsSolved": 310,
+        "rankingBadge": "Knight (Top 4%)"
+      },
+      "hackathonRecords": [
+        "Flipkart GRiD 6.0 Participant",
+        "Smart India Hackathon College Round Winner"
+      ],
+      "studentProjects": [
+        {
+          "title": "Automated Recovery Pipeline",
+          "tech": [
+            "TypeScript",
+            "Node.js",
+            "PostgreSQL"
+          ],
+          "description": "Autonomous payment recovery engine with exponential backoff and idempotency keys"
+        },
+        {
+          "title": "Distributed Edge Sensor Pipeline",
+          "tech": [
+            "Go",
+            "MQTT",
+            "PostgreSQL",
+            "Docker"
+          ],
+          "description": "Real-time telemetry collection and anomaly detection"
+        }
+      ],
+      "priorCognalyzeInterviewHistory": [
+        {
+          "roleEvaluatedFor": "Backend Engineering Simulation",
+          "score": 88,
+          "feedback": "Clear architectural thinking regarding idempotency and database schema design.",
+          "completedAt": "2026-09-11T16:00:00Z"
+        }
+      ],
+      "currentStage": "Work Sample Pending",
+      "activeWorkSample": {
+        "id": "ws-req-1-5490",
+        "roleId": "role-software-engineer--6287",
+        "requirementId": "req-1",
+        "requirementName": "Distributed Consensus & Partition Tolerance",
+        "tier": "Critical",
+        "title": "Distributed Outbox & Partition Key Idempotency Challenge",
+        "scenarioContext": "At ScalePay, our payment settlement microservice emits high-volume ledger events. During a network partition or broker rebalance, duplicate events occur, causing potential double-credits unless idempotency is strictly enforced.",
+        "technicalTask": "1. Implement an idempotent consumer handler or state transition guard for Kafka messages.\n2. Address partition rebalance edge cases: How do you prevent out-of-order execution when partition assignment shifts mid-batch?\n3. Provide the exact SQL schema or Redis transaction lock strategy you would deploy.",
+        "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}",
+        "evaluationRubric": [
+          {
+            "criterion": "Idempotency Storage Pattern",
+            "points": 40,
+            "whatToLookFor": "Uses unique database constraint or atomic Redis SETNX with distributed lease"
+          },
+          {
+            "criterion": "Partition Rebalance Handling",
+            "points": 30,
+            "whatToLookFor": "Addresses commit offsets after atomic DB transaction completes, not before"
+          },
+          {
+            "criterion": "Failure Mode Reasoning",
+            "points": 30,
+            "whatToLookFor": "Clear strategy for poison pill messages and dead-letter queues"
+          }
+        ],
+        "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
+        "timeLimitMinutes": 45,
+        "triggerContext": "direct_verification"
+      }
+    }
+  ],
+  "hireRecords": [
+    {
+      "hireId": "hire-1",
+      "candidateId": "cand-rahul",
+      "candidateName": "Rahul Verma",
+      "roleId": "role-senior-backend",
+      "roleTitle": "Senior Distributed Backend Engineer",
+      "hiredAt": "2026-04-10T10:00:00Z",
+      "preHireSignals": {
+        "overallFitScore": 92,
+        "hadVerifiedWorkSample": true,
+        "workSampleScore": 95,
+        "interviewScore": 90,
+        "criticalGapsIdentified": [],
+        "evidenceTypeForCritical": "work_sample"
+      },
+      "day30Milestone": {
+        "recordedAt": "2026-05-10T10:00:00Z",
+        "onboardingRampScore": 9,
+        "prThroughputScore": 9,
+        "managerFeedback": "Exceptional ramp-up. Shipped first idempotent consumer within week 2."
+      },
+      "day60Milestone": {
+        "recordedAt": "2026-06-10T10:00:00Z",
+        "autonomyScore": 10,
+        "systemOwnershipScore": 9,
+        "managerFeedback": "Led architectural RFC for multi-region event replication."
+      },
+      "day90Milestone": {
+        "recordedAt": "2026-07-10T10:00:00Z",
+        "businessOutcomeMet": true,
+        "overall90DayPerformance": 96,
+        "retentionRisk": "Low",
+        "managerVerdict": "Exceeded Expectations",
+        "keyLearnings": "Work-sample testing on partition edge cases directly predicted production reliability."
+      }
+    },
+    {
+      "hireId": "hire-2",
+      "candidateId": "cand-ananya",
+      "candidateName": "Ananya Sharma",
+      "roleId": "role-ml-platform",
+      "roleTitle": "Generative AI Platform Architect",
+      "hiredAt": "2026-04-18T10:00:00Z",
+      "preHireSignals": {
+        "overallFitScore": 88,
+        "hadVerifiedWorkSample": true,
+        "workSampleScore": 88,
+        "interviewScore": 85,
+        "criticalGapsIdentified": [
+          "Distributed inference caching"
+        ],
+        "evidenceTypeForCritical": "work_sample"
+      },
+      "day30Milestone": {
+        "recordedAt": "2026-05-18T10:00:00Z",
+        "onboardingRampScore": 8,
+        "prThroughputScore": 8,
+        "managerFeedback": "Solid grasp of vLLM batching primitives."
+      },
+      "day60Milestone": {
+        "recordedAt": "2026-06-18T10:00:00Z",
+        "autonomyScore": 9,
+        "systemOwnershipScore": 8,
+        "managerFeedback": "Reduced LLM inference latency by 32%."
+      },
+      "day90Milestone": {
+        "recordedAt": "2026-07-18T10:00:00Z",
+        "businessOutcomeMet": true,
+        "overall90DayPerformance": 91,
+        "retentionRisk": "Low",
+        "managerVerdict": "Met Expectations",
+        "keyLearnings": "Strong alignment between live work sample code design and production PR velocity."
+      }
+    },
+    {
+      "hireId": "hire-3",
+      "candidateId": "cand-aditya",
+      "candidateName": "Aditya Roy",
+      "roleId": "role-senior-backend",
+      "roleTitle": "Senior Distributed Backend Engineer",
+      "hiredAt": "2026-03-01T10:00:00Z",
+      "preHireSignals": {
+        "overallFitScore": 78,
+        "hadVerifiedWorkSample": false,
+        "interviewScore": 82,
+        "criticalGapsIdentified": [
+          "MVCC Transaction Isolation"
+        ],
+        "evidenceTypeForCritical": "interview_only"
+      },
+      "day30Milestone": {
+        "recordedAt": "2026-04-01T10:00:00Z",
+        "onboardingRampScore": 6,
+        "prThroughputScore": 5,
+        "managerFeedback": "Struggled with database deadlock isolation bugs."
+      },
+      "day60Milestone": {
+        "recordedAt": "2026-05-01T10:00:00Z",
+        "autonomyScore": 6,
+        "systemOwnershipScore": 5,
+        "managerFeedback": "Needed senior mentoring to diagnose lock contention."
+      },
+      "day90Milestone": {
+        "recordedAt": "2026-06-01T10:00:00Z",
+        "businessOutcomeMet": false,
+        "overall90DayPerformance": 62,
+        "retentionRisk": "Moderate",
+        "managerVerdict": "Underperformed",
+        "keyLearnings": "Interview-only signal failed to expose concurrency depth that a work sample would have flagged immediately."
+      }
+    }
+  ]
+}

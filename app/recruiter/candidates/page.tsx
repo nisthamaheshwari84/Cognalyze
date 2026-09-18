@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import AppNav from "@/components/AppNav";
+import { get100BenchmarkCandidates } from "@/lib/ai/benchmarkCandidates";
 
 // ─── TYPES ───
 interface AgentResult { name: string; color: string; response: string; score?: number; }
@@ -239,6 +240,14 @@ export default function RecruiterPage() {
   const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; filename: string } | null>(null);
   const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
   const [bulkPasteText, setBulkPasteText] = useState("");
+  const [roles, setRoles] = useState<any[]>([]);
+  const [selectedRoleId, setSelectedRoleId] = useState<string>("");
+  const [singleCandidateName, setSingleCandidateName] = useState<string>("");
+  const [analyzedCandidateInfo, setAnalyzedCandidateInfo] = useState<{ id: string; name: string; roleId: string; roleTitle: string } | null>(null);
+  const [topNShortlist, setTopNShortlist] = useState<number>(50);
+  const [shortlistFilter, setShortlistFilter] = useState<"all"|"strong_must_haves"|"no_stuffers"|"high_score">("all");
+  const [failedFiles, setFailedFiles] = useState<{ id: string; name: string; filename: string; reason: string }[]>([]);
+
   const [enterpriseWeights, setEnterpriseWeights] = useState<any>({
     technical: 20,
     projects: 20,
@@ -263,6 +272,51 @@ export default function RecruiterPage() {
         setJd(stored);
       }
     }
+
+    async function loadRoles() {
+      try {
+        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+        const requestedRoleId = urlParams?.get("roleId") || (typeof window !== "undefined" ? localStorage.getItem("cognalyze_active_role_id") : null);
+
+        const res = await fetch("/api/recruiter/roles");
+        const data = await res.json();
+        if (data.success && data.roles && data.roles.length > 0) {
+          setRoles(data.roles);
+          const matchedRole = requestedRoleId ? data.roles.find((r: any) => r.id === requestedRoleId) : null;
+          const targetRole = matchedRole || data.roles[0];
+          setSelectedRoleId(targetRole.id);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("cognalyze_active_role_id", targetRole.id);
+          }
+
+          // Preload JD from matched target role
+          const reqs = (targetRole.tieredRequirements || []).map((t: any) => `- ${t.name}: ${t.description}`).join("\n");
+          const outcomes = (targetRole.businessOutcomes || []).map((o: any) => `- ${o.outcome} (${o.metric})`).join("\n");
+          setJd(`Role: ${targetRole.title} (${targetRole.seniority})\nDepartment: ${targetRole.department}\n\nCore Requirements:\n${reqs}\n\n90-Day Target Outcomes:\n${outcomes}`);
+        }
+      } catch (err) {
+        console.error("Failed to load roles:", err);
+      }
+    }
+    loadRoles();
+
+    async function loadCandidatePool() {
+      try {
+        const res = await fetch("/api/recruiter/candidates");
+        const data = await res.json();
+        if (data.success && data.candidates && data.candidates.length > 0) {
+          const poolInputs: CandidateInput[] = data.candidates.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            resume: c.resumeText || ""
+          }));
+          setCandidates(poolInputs);
+        }
+      } catch (err) {
+        console.error("Failed to load candidates pool:", err);
+      }
+    }
+    loadCandidatePool();
   }, []);
 
   const extractCandidateName = (rawFilename: string, text: string): string => {
@@ -298,6 +352,35 @@ export default function RecruiterPage() {
     if (!file) return;
     if (!candidateId) setUploading(true);
     try {
+      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("roleId", selectedRoleId || (roles[0]?.id ?? "role-core-systems"));
+        const resp = await fetch("/api/recruiter/upload-resume", {
+          method: "POST",
+          body: formData
+        });
+        const data = await resp.json();
+        if (data.success && data.candidate) {
+          const newCand = { id: data.candidate.id, name: data.candidate.name, resume: data.candidate.resumeText };
+          if (candidateId) {
+            setCandidates(p => p.map(c => c.id === candidateId ? newCand : c));
+          } else {
+            setSingleCandidateName(data.candidate.name);
+            setResume(data.candidate.resumeText);
+            setCandidates(p => [newCand, ...p.filter(x => x.id !== "1" && x.id !== "2")]);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("cognalyze_active_candidate_id", data.candidate.id);
+              if (selectedRoleId) {
+                localStorage.setItem("cognalyze_active_role_id", selectedRoleId);
+              }
+            }
+          }
+          if (!candidateId) setUploading(false);
+          return;
+        }
+      }
+
       const b64 = await new Promise<string>((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => {
@@ -487,6 +570,41 @@ export default function RecruiterPage() {
   const runAnalysis = async () => {
     if (!jd.trim() || !resume.trim()) return;
     setError(""); setStep("loading"); setDna(null); setAnalysis(null); setActiveTab("analysis");
+
+    // Extract candidate identity and register in store
+    const candName = singleCandidateName.trim() || extractCandidateName("Candidate", resume) || "Screened Candidate";
+    const candId = `cand-single-${Date.now().toString().slice(-6)}`;
+    const targetRole = roles.find(r => r.id === selectedRoleId) || roles[0];
+    const roleIdToUse = targetRole?.id || selectedRoleId || "role-core-systems";
+    const roleTitleToUse = targetRole?.title || "Target Role";
+
+    setAnalyzedCandidateInfo({
+      id: candId,
+      name: candName,
+      roleId: roleIdToUse,
+      roleTitle: roleTitleToUse
+    });
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cognalyze_active_candidate_id", candId);
+      localStorage.setItem("cognalyze_active_role_id", roleIdToUse);
+    }
+
+    // Persist to unified recruiter store
+    fetch("/api/recruiter/candidates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: candId,
+        name: candName,
+        appliedRoleId: roleIdToUse,
+        appliedRoleTitle: roleTitleToUse,
+        resumeText: resume,
+        sourceType: "bulk_upload",
+        currentStage: "In Decision Room"
+      })
+    }).catch(err => console.error("Failed to register single candidate:", err));
+
     let i = 0; const lt = setInterval(() => { i++; if (i < loadMsgs.length) setLoadMsg(loadMsgs[i]); }, 900);
     try {
       const [debateRes, analysisRes] = await Promise.all([
@@ -589,6 +707,7 @@ const runRanking = async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        roleId: selectedRoleId,
         candidates: valid.map(c => ({
           id: c.id,
           name: c.name.trim(),
@@ -690,6 +809,17 @@ const runRanking = async () => {
             scores: { technical: 0, experience: 0, leadership: 0, culture_fit: 0, growth_potential: 0 },
             predicted_questions: [], hire_recommendation: "Re-check resume text.",
           }));
+
+          if (job.failed && Array.isArray(job.failed)) {
+            setFailedFiles(job.failed);
+          }
+
+          if (mappedRanked.length > 0 && typeof window !== "undefined") {
+            localStorage.setItem("cognalyze_active_candidate_id", mappedRanked[0].id);
+            if (selectedRoleId) {
+              localStorage.setItem("cognalyze_active_role_id", selectedRoleId);
+            }
+          }
 
           setRanked([...mappedRanked, ...mappedFailed]);
           setRankMeta({
@@ -815,8 +945,8 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
               {/* Mode toggle */}
               <div style={{display:"inline-flex",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:5,gap:4}}>
                 {[
-                  {id:"single",icon:"👤",label:"Single Candidate"},
-                  {id:"multi",icon:"👥",label:"Compare Candidates"}
+                  {id:"single",icon:"👤",label:"Single Candidate Screen"},
+                  {id:"multi",icon:"📁",label:"Bulk Screening (Up to 1000+ Resumes)"}
                 ].map(m => (
                   <button key={m.id} onClick={() => setMode(m.id as any)} style={{padding:"8px 20px",borderRadius:10,fontSize:13,fontWeight:mode===m.id?700:400,background:mode===m.id?"rgba(255,255,255,0.1)":"transparent",color:mode===m.id?"white":"rgba(255,255,255,0.4)",border:mode===m.id?"1px solid rgba(255,255,255,0.12)":"1px solid transparent",cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s",display:"flex",alignItems:"center",gap:6}}>
                     <span>{m.icon}</span><span>{m.label}</span>
@@ -825,14 +955,45 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
               </div>
             </div>
 
+            {/* Target Role DNA Selector */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, padding: "12px 18px", borderRadius: 14, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.25)", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 18 }}>🧬</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#d8b4fe" }}>Target Role DNA:</span>
+                <select
+                  value={selectedRoleId}
+                  onChange={e => {
+                    const rId = e.target.value;
+                    setSelectedRoleId(rId);
+                    const found = roles.find(r => r.id === rId);
+                    if (found) {
+                      const reqs = (found.tieredRequirements || []).map((t: any) => `- ${t.name}: ${t.description}`).join("\n");
+                      const outcomes = (found.businessOutcomes || []).map((o: any) => `- ${o.outcome} (${o.metric})`).join("\n");
+                      setJd(`Role: ${found.title} (${found.seniority})\nDepartment: ${found.department}\n\nCore Requirements:\n${reqs}\n\n90-Day Target Outcomes:\n${outcomes}`);
+                    }
+                  }}
+                  style={{ padding: "6px 12px", borderRadius: 8, background: "rgba(0,0,0,0.6)", border: "1px solid rgba(168,85,247,0.4)", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                >
+                  {roles.map(r => (
+                    <option key={r.id} value={r.id}>{r.title} ({r.department} • {r.seniority})</option>
+                  ))}
+                  <option value="">Custom / Ad-hoc Job Description</option>
+                </select>
+              </div>
+
+              <a href="/recruiter/roles" style={{ fontSize: 12, color: "#c084fc", textDecoration: "none", fontWeight: 700 }}>
+                + Architect New Role DNA ➔
+              </a>
+            </div>
+
             {/* JD Input — always shown */}
             <div className="glass-strong" style={{borderRadius:20,padding:"1.75rem",marginBottom:12}}>
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
                 <div style={{width:6,height:6,borderRadius:"50%",background:"#6366f1",boxShadow:"0 0 8px #6366f1"}}/>
-                <span style={{fontSize:11,letterSpacing:2,color:"rgba(99,102,241,0.9)",fontWeight:700}}>JOB DESCRIPTION</span>
-                <span style={{fontSize:10,color:"rgba(255,255,255,0.2)",marginLeft:4}}>min 80 characters</span>
+                <span style={{fontSize:11,letterSpacing:2,color:"rgba(99,102,241,0.9)",fontWeight:700}}>EVALUATION BASELINE (ROLE SPECIFICATION)</span>
+                <span style={{fontSize:10,color:"rgba(255,255,255,0.2)",marginLeft:4}}>grounded against Role DNA</span>
               </div>
-              <textarea value={jd} onChange={e => setJd(e.target.value)} rows={6} style={{width:"100%",background:"rgba(99,102,241,0.06)",border:`1px solid ${jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"}`,borderRadius:12,padding:"12px 14px",color:"rgba(255,255,255,0.88)",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.65,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(99,102,241,0.6)"} onBlur={e=>e.target.style.borderColor=jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"} placeholder="Paste the complete job description here — role requirements, qualifications, responsibilities..."/>
+              <textarea value={jd} onChange={e => setJd(e.target.value)} rows={6} style={{width:"100%",background:"rgba(99,102,241,0.06)",border:`1px solid ${jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"}`,borderRadius:12,padding:"12px 14px",color:"rgba(255,255,255,0.88)",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.65,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(99,102,241,0.6)"} onBlur={e=>e.target.style.borderColor=jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"} placeholder="Paste or verify the role requirements and outcomes here..."/>
               {jd.trim().length > 0 && jd.trim().length < 80 && <div style={{fontSize:11,color:"#ff4466",marginTop:5}}>⚠ Too short — need at least 80 characters for accurate analysis ({jd.trim().length}/80)</div>}
             </div>
 
@@ -876,6 +1037,27 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
                   <span style={{fontSize:11,letterSpacing:2,color:"rgba(168,85,247,0.9)",fontWeight:700}}>CANDIDATE RESUME</span>
                   <span style={{fontSize:10,color:"rgba(255,255,255,0.2)",marginLeft:4}}>min 80 characters</span>
                 </div>
+                <div style={{ marginBottom: 12 }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "#d8b4fe", display: "block", marginBottom: 6 }}>
+                    CANDIDATE NAME (OPTIONAL — AUTO-EXTRACTED FROM RESUME IF BLANK)
+                  </label>
+                  <input
+                    type="text"
+                    value={singleCandidateName}
+                    onChange={e => setSingleCandidateName(e.target.value)}
+                    placeholder="e.g. Aditi Rao, Rajesh Kumar"
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      background: "rgba(0,0,0,0.4)",
+                      border: "1px solid rgba(168,85,247,0.3)",
+                      color: "white",
+                      fontSize: 13,
+                      boxSizing: "border-box"
+                    }}
+                  />
+                </div>
                 <div onClick={() => document.getElementById("singleUp")?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileUpload(f); }} style={{border:"2px dashed rgba(168,85,247,0.25)",borderRadius:12,padding:"16px",textAlign:"center",cursor:"pointer",marginBottom:10,transition:"all 0.2s",background:"rgba(168,85,247,0.03)"}} onMouseEnter={e => {e.currentTarget.style.borderColor="rgba(168,85,247,0.5)";e.currentTarget.style.background="rgba(168,85,247,0.06)";}} onMouseLeave={e => {e.currentTarget.style.borderColor="rgba(168,85,247,0.25)";e.currentTarget.style.background="rgba(168,85,247,0.03)";}}>
                   <input id="singleUp" type="file" accept="image/*,.pdf" style={{display:"none"}} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}/>
                   {uploading ? <div style={{color:"#a855f7",fontSize:12}}><span style={{animation:"spin 0.8s linear infinite",display:"inline-block",marginRight:6}}>⟳</span>Extracting text...</div> : <div><div style={{fontSize:22,marginBottom:4}}>📄</div><div style={{color:"rgba(168,85,247,0.8)",fontSize:12,fontWeight:600}}>Upload Resume (PDF/Image)</div><div style={{color:"rgba(255,255,255,0.25)",fontSize:11,marginTop:2}}>Drag & drop or click</div></div>}
@@ -918,14 +1100,24 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:10}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     <div style={{width:6,height:6,borderRadius:"50%",background:"#a855f7",boxShadow:"0 0 8px #a855f7"}}/>
-                    <span style={{fontSize:11,letterSpacing:2,color:"rgba(168,85,247,0.9)",fontWeight:700}}>CANDIDATES ({candidates.length}/500)</span>
+                    <span style={{fontSize:11,letterSpacing:2,color:"rgba(168,85,247,0.9)",fontWeight:700}}>CANDIDATE PIPELINE ({candidates.length} LOADED)</span>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
                     <button 
                       type="button"
-                      onClick={() => candidates.length < 500 && setCandidates(p => [...p, {id:Date.now().toString(),name:`Candidate ${p.length+1}`,resume:""}])} 
-                      disabled={candidates.length >= 500} 
-                      style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(99,102,241,0.4)",background:"rgba(99,102,241,0.12)",color:"rgba(165,180,252,0.95)",cursor:"pointer",fontSize:12,fontWeight:600,opacity:candidates.length>=500?0.4:1,display:"flex",alignItems:"center",gap:5}}>
+                      onClick={() => {
+                        const bSet = get100BenchmarkCandidates();
+                        setCandidates(bSet.map((c, idx) => ({ id: c.id || `bench-${idx}`, name: c.name, resume: c.resume })));
+                        setError("");
+                      }}
+                      style={{padding:"6px 14px",borderRadius:8,border:"1px solid rgba(16,185,129,0.5)",background:"rgba(16,185,129,0.15)",color:"#6ee7b7",cursor:"pointer",fontSize:12,fontWeight:700,display:"flex",alignItems:"center",gap:6,boxShadow:"0 0 15px rgba(16,185,129,0.2)"}}>
+                      ⚡ Load 100 Benchmark Resumes (Simulate 1000 Pipeline)
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => candidates.length < 2000 && setCandidates(p => [...p, {id:Date.now().toString(),name:`Candidate ${p.length+1}`,resume:""}])} 
+                      disabled={candidates.length >= 2000} 
+                      style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(99,102,241,0.4)",background:"rgba(99,102,241,0.12)",color:"rgba(165,180,252,0.95)",cursor:"pointer",fontSize:12,fontWeight:600,opacity:candidates.length>=2000?0.4:1,display:"flex",alignItems:"center",gap:5}}>
                       + Add Candidate
                     </button>
                     <button 
@@ -1044,6 +1236,54 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
         {/* ─── VERDICT ─── */}
         {step === "verdict" && (
           <div style={{animation:"scaleIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275)"}}>
+
+            {/* NEXT STAGE: DECISION ROOM ACTION BANNER */}
+            {analyzedCandidateInfo && (
+              <div style={{
+                borderRadius: 18,
+                padding: "16px 24px",
+                marginBottom: "1.25rem",
+                background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2))",
+                border: "1px solid rgba(99,102,241,0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 14,
+                boxShadow: "0 8px 30px rgba(99,102,241,0.25)"
+              }}>
+                <div>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: "#a5b4fc", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                    🚀 NEXT PIPELINE STAGE: DECISION ROOM
+                  </span>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", marginTop: 3 }}>
+                    Ready to deliberate on {analyzedCandidateInfo.name}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 2 }}>
+                    Role: {analyzedCandidateInfo.roleTitle} • Live Minimum Proof Plan & Work Sample Studio Generated
+                  </div>
+                </div>
+
+                <a
+                  href={`/recruiter/decision-room?candidateId=${analyzedCandidateInfo.id}&roleId=${analyzedCandidateInfo.roleId}`}
+                  style={{
+                    padding: "11px 22px",
+                    borderRadius: 10,
+                    background: "linear-gradient(135deg, #6366f1, #a855f7)",
+                    color: "white",
+                    textDecoration: "none",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    boxShadow: "0 0 20px rgba(99,102,241,0.4)"
+                  }}
+                >
+                  <span>⚖️</span> Proceed to Decision Room ➔
+                </a>
+              </div>
+            )}
 
             {/* Decision Banner */}
             {analysis && (
@@ -1531,6 +1771,54 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
               </div>
             ) : ranked && (
               <div>
+                {/* ── TOP ACTION BAR: PROCEED TO DECISION ROOM ── */}
+                {ranked.length > 0 && ranked[0].overall_score > 0 && (
+                  <div style={{
+                    padding: "16px 22px",
+                    borderRadius: 16,
+                    background: "linear-gradient(135deg, rgba(16,185,129,0.18), rgba(99,102,241,0.18))",
+                    border: "1px solid rgba(16,185,129,0.45)",
+                    marginBottom: 24,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 14,
+                    boxShadow: "0 8px 30px rgba(16,185,129,0.2)"
+                  }}>
+                    <div>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: "#34d399", letterSpacing: 1.5, textTransform: "uppercase" }}>
+                        🏆 NEXT PIPELINE STAGE: DELIBERATE IN DECISION ROOM
+                      </span>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: "white", marginTop: 2 }}>
+                        Top Ranked: {ranked[0].name} (Score: {ranked[0].overall_score}/100 • {ranked[0].verdict})
+                      </div>
+                      <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 2 }}>
+                        Role: {roles.find(r => r.id === selectedRoleId)?.title || "Role DNA"} • Registered & Ready for Committee Deliberation
+                      </div>
+                    </div>
+
+                    <a
+                      href={`/recruiter/decision-room?candidateId=${ranked[0].id}&roleId=${selectedRoleId}`}
+                      style={{
+                        padding: "11px 22px",
+                        borderRadius: 10,
+                        background: "linear-gradient(135deg, #10b981, #059669)",
+                        color: "white",
+                        textDecoration: "none",
+                        fontSize: 13,
+                        fontWeight: 800,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        boxShadow: "0 0 20px rgba(16,185,129,0.35)"
+                      }}
+                    >
+                      <span>⚖️</span> Deliberate on #{ranked[0].name} in Decision Room ➔
+                    </a>
+                  </div>
+                )}
+
                 <div style={{textAlign:"center",marginBottom:"2rem"}}>
                   <div style={{fontSize:10,letterSpacing:4,color:"rgba(99,102,241,0.8)",marginBottom:8,fontWeight:600}}>CANDIDATE RANKING</div>
                   <h2 style={{fontSize:"2rem",fontWeight:800,letterSpacing:-1,marginBottom:8}}>Committee's Verdict</h2>
@@ -1559,45 +1847,180 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
                   </div>
                 )}
 
-                <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                  {ranked.filter(c => c.overall_score > 0).sort((a,b) => a.rank - b.rank).map((c, i) => {
-                    const vc = dc(c.verdict);
-                    const isExpanded = expandedCandidate === c.id;
-                    return (
-                      <div key={c.id || `ranked-${i}`} style={{borderRadius:18,border:`1px solid ${c.is_keyword_stuffer ? "rgba(255,68,102,0.4)" : `${vc}25`}`,overflow:"hidden",animation:`slideRight 0.4s ease ${i*0.06}s both`,background:c.is_keyword_stuffer ? "rgba(255,68,102,0.03)" : "rgba(255,255,255,0.03)",transition:"all 0.2s"}}>
-                        <div style={{padding:"1.2rem 1.5rem",cursor:"pointer",display:"flex",alignItems:"center",gap:14}} onClick={() => setExpandedCandidate(isExpanded ? null : c.id)}>
-                          <div style={{width:44,height:44,borderRadius:"50%",background:i===0?"linear-gradient(135deg,#fbbf24,#f59e0b)":i===1?"linear-gradient(135deg,#9ca3af,#6b7280)":i===2?"linear-gradient(135deg,#92400e,#78350f)":"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:i<3?"18px":"14px",flexShrink:0,boxShadow:i===0?"0 0 20px rgba(251,191,36,0.4)":"none"}}>
-                            {i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${c.rank}`}
-                          </div>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
-                              <span style={{fontWeight:700,fontSize:15}}>{c.name}</span>
-                              <span style={{fontSize:11,padding:"2px 9px",background:`${vc}15`,border:`1px solid ${vc}35`,borderRadius:999,color:vc,fontWeight:700,flexShrink:0}}>{c.verdict}</span>
-                              {c.is_keyword_stuffer && (
-                                <span style={{fontSize:10,padding:"2px 8px",background:"rgba(255,68,102,0.2)",border:"1px solid rgba(255,68,102,0.4)",borderRadius:999,color:"#ff4466",fontWeight:700,flexShrink:0}}>
-                                  ⚠️ Keyword Stuffing Detected
-                                </span>
-                              )}
-                            </div>
-                            <p style={{fontSize:12,color:"rgba(255,255,255,0.55)",margin:0,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.summary}</p>
-                          </div>
-                          <div style={{textAlign:"center",flexShrink:0}}>
-                            <div style={{fontSize:"1.6rem",fontWeight:900,color:vc,lineHeight:1}}>{c.overall_score}</div>
-                            <div style={{fontSize:9,color:"rgba(255,255,255,0.25)",letterSpacing:1}}>SCORE</div>
-                            {/* Confidence badge from evidence-scorer enrichment */}
-                            {(c as any).confidence_data && (
-                              <div style={{
-                                marginTop:3,fontSize:8,padding:"1px 6px",borderRadius:999,fontWeight:700,textTransform:"uppercase",
-                                color: (c as any).confidence_data.confidence_level === "high" ? "#00ff88" : (c as any).confidence_data.confidence_level === "medium" ? "#fbbf24" : "#ff4466",
-                                background: (c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.1)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.1)" : "rgba(255,68,102,0.1)",
-                                border: `1px solid ${(c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.25)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.25)" : "rgba(255,68,102,0.25)"}`,
-                              }}>
-                                {(c as any).confidence_data.confidence_level}
-                              </div>
-                            )}
-                          </div>
-                          <div style={{fontSize:16,color:"rgba(255,255,255,0.25)",flexShrink:0}}>{isExpanded?"▲":"▼"}</div>
+                {/* ── HONEST PARSE FAILURE BANNER ── */}
+                {failedFiles.length > 0 && (
+                  <div style={{ marginBottom: 20, padding: "16px 20px", borderRadius: 14, background: "rgba(255,68,102,0.08)", border: "1px solid rgba(255,68,102,0.3)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "#ff4466", display: "flex", alignItems: "center", gap: 8 }}>
+                        <span>⚠️</span>
+                        <span>Could not process: {failedFiles.length} file{failedFiles.length > 1 ? "s" : ""}</span>
+                      </div>
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
+                        Reported honestly with explicit reasons — never silently dropped or given false scores
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
+                      {failedFiles.map((f, idx) => (
+                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "rgba(255,255,255,0.75)", background: "rgba(0,0,0,0.3)", padding: "8px 12px", borderRadius: 8 }}>
+                          <span style={{ fontWeight: 600 }}>📄 {f.filename || f.name}</span>
+                          <span style={{ color: "#fca5a5", fontSize: 11 }}>Reason: {f.reason}</span>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ── TOP N SHORTLIST & SECOND-STAGE NARROWING CONTROLS ── */}
+                {(() => {
+                  const validRanked = (ranked || []).filter(c => c.overall_score > 0).sort((a, b) => a.rank - b.rank);
+                  const topSlice = topNShortlist === -1 ? validRanked : validRanked.slice(0, topNShortlist);
+                  const filteredCandidates = topSlice.filter(c => {
+                    if (shortlistFilter === "strong_must_haves") {
+                      return (c.scores?.must_have_match ?? 0) >= 60 || (c.scores?.technical ?? 0) >= 60;
+                    }
+                    if (shortlistFilter === "no_stuffers") {
+                      return !c.is_keyword_stuffer;
+                    }
+                    if (shortlistFilter === "high_score") {
+                      return c.overall_score >= 80;
+                    }
+                    return true;
+                  });
+
+                  return (
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, padding: "14px 18px", borderRadius: 14, background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)", flexWrap: "wrap", gap: 14 }}>
+                        {/* Control 1: Show me top N candidates (default 50) */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "#cbd5e1" }}>🎯 Show me the top:</span>
+                          <div style={{ display: "inline-flex", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 3, gap: 3 }}>
+                            {[
+                              { label: "10", val: 10 },
+                              { label: "25", val: 25 },
+                              { label: "50 (Default)", val: 50 },
+                              { label: "100", val: 100 },
+                              { label: "All", val: -1 },
+                            ].map(opt => (
+                              <button
+                                key={opt.val}
+                                onClick={() => setTopNShortlist(opt.val)}
+                                style={{
+                                  padding: "5px 12px",
+                                  borderRadius: 7,
+                                  fontSize: 11,
+                                  fontWeight: topNShortlist === opt.val ? 800 : 500,
+                                  background: topNShortlist === opt.val ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "transparent",
+                                  color: topNShortlist === opt.val ? "white" : "rgba(255,255,255,0.5)",
+                                  border: "none",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                            candidates ({topSlice.length} in slice)
+                          </span>
+                        </div>
+
+                        {/* Control 2: Second-stage filter to narrow 50 -> working set */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>Narrow working set:</span>
+                          <select
+                            value={shortlistFilter}
+                            onChange={e => setShortlistFilter(e.target.value as any)}
+                            style={{
+                              padding: "6px 14px",
+                              borderRadius: 8,
+                              background: "rgba(0,0,0,0.6)",
+                              border: "1px solid rgba(168,85,247,0.4)",
+                              color: "#f8fafc",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: "pointer"
+                            }}
+                          >
+                            <option value="all">All Shortlisted ({topSlice.length})</option>
+                            <option value="strong_must_haves">🟢 Strong on All Must-Haves</option>
+                            <option value="no_stuffers">🛡️ Clean Evidence (No Keyword Stuffers)</option>
+                            <option value="high_score">⭐ High Fit Only (Score ≥ 80)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontSize: 12, color: "rgba(255,255,255,0.5)", padding: "0 4px" }}>
+                        <span>
+                          Showing <strong style={{ color: "white" }}>{filteredCandidates.length}</strong> candidate{filteredCandidates.length === 1 ? "" : "s"}
+                          {shortlistFilter !== "all" ? ` (filtered from top ${topSlice.length})` : ""}
+                        </span>
+                        <span>Ranked by strict evidence grounding</span>
+                      </div>
+
+                      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+                        {filteredCandidates.map((c, i) => {
+                          const vc = dc(c.verdict);
+                          const isExpanded = expandedCandidate === c.id;
+                          return (
+                            <div key={c.id || `ranked-${i}`} style={{borderRadius:18,border:`1px solid ${c.is_keyword_stuffer ? "rgba(255,68,102,0.4)" : `${vc}25`}`,overflow:"hidden",animation:`slideRight 0.4s ease ${i*0.06}s both`,background:c.is_keyword_stuffer ? "rgba(255,68,102,0.03)" : "rgba(255,255,255,0.03)",transition:"all 0.2s"}}>
+                              <div style={{padding:"1.2rem 1.5rem",cursor:"pointer",display:"flex",alignItems:"center",gap:14}} onClick={() => setExpandedCandidate(isExpanded ? null : c.id)}>
+                                <div style={{width:44,height:44,borderRadius:"50%",background:i===0?"linear-gradient(135deg,#fbbf24,#f59e0b)":i===1?"linear-gradient(135deg,#9ca3af,#6b7280)":i===2?"linear-gradient(135deg,#92400e,#78350f)":"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:i<3?"18px":"14px",flexShrink:0,boxShadow:i===0?"0 0 20px rgba(251,191,36,0.4)":"none"}}>
+                                  {i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${c.rank}`}
+                                </div>
+                                <div style={{flex:1,minWidth:0}}>
+                                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
+                                    <span style={{fontWeight:700,fontSize:15}}>{c.name}</span>
+                                    <span style={{fontSize:11,padding:"2px 9px",background:`${vc}15`,border:`1px solid ${vc}35`,borderRadius:999,color:vc,fontWeight:700,flexShrink:0}}>{c.verdict}</span>
+                                    {c.is_keyword_stuffer && (
+                                      <span style={{fontSize:10,padding:"2px 8px",background:"rgba(255,68,102,0.2)",border:"1px solid rgba(255,68,102,0.4)",borderRadius:999,color:"#ff4466",fontWeight:700,flexShrink:0}}>
+                                        ⚠️ Keyword Stuffing Detected
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p style={{fontSize:12,color:"rgba(255,255,255,0.55)",margin:0,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.summary}</p>
+                                </div>
+
+                                <div style={{display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+                                  {/* 1-Click Link to Decision Room */}
+                                  <a
+                                    href={`/recruiter/decision-room?candidateId=${c.id}&roleId=${selectedRoleId || "role-core-systems"}`}
+                                    onClick={e => e.stopPropagation()}
+                                    style={{
+                                      padding: "7px 14px",
+                                      borderRadius: 8,
+                                      background: "linear-gradient(135deg, #a855f7, #6366f1)",
+                                      color: "white",
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                      textDecoration: "none",
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 6,
+                                      cursor: "pointer",
+                                      boxShadow: "0 2px 10px rgba(168,85,247,0.3)"
+                                    }}
+                                  >
+                                    ⚖️ Decision Room ➔
+                                  </a>
+
+                                  <div style={{textAlign:"center"}}>
+                                    <div style={{fontSize:"1.6rem",fontWeight:900,color:vc,lineHeight:1}}>{c.overall_score}</div>
+                                    <div style={{fontSize:9,color:"rgba(255,255,255,0.25)",letterSpacing:1}}>SCORE</div>
+                                    {/* Confidence badge from evidence-scorer enrichment */}
+                                    {(c as any).confidence_data && (
+                                      <div style={{
+                                        marginTop:3,fontSize:8,padding:"1px 6px",borderRadius:999,fontWeight:700,textTransform:"uppercase",
+                                        color: (c as any).confidence_data.confidence_level === "high" ? "#00ff88" : (c as any).confidence_data.confidence_level === "medium" ? "#fbbf24" : "#ff4466",
+                                        background: (c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.1)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.1)" : "rgba(255,68,102,0.1)",
+                                        border: `1px solid ${(c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.25)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.25)" : "rgba(255,68,102,0.25)"}`,
+                                      }}>
+                                        {(c as any).confidence_data.confidence_level}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div style={{fontSize:16,color:"rgba(255,255,255,0.25)"}}>{isExpanded?"▲":"▼"}</div>
+                                </div>
+                              </div>
 
                         {isExpanded && (
                           <div style={{padding:"0 1.5rem 1.4rem",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
@@ -1747,6 +2170,9 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
                     );
                   })}
                 </div>
+              </div>
+            );
+          })()}
 
                 {/* Collapsed section for unparsed/empty candidates */}
                 {ranked.filter(c => c.overall_score === 0).length > 0 && (

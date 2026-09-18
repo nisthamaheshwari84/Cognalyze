@@ -92,6 +92,32 @@ CRITICAL INSTRUCTIONS:
       console.warn("[simulation-report] LLM refinement skipped, using deterministic base report:", llmErr);
     }
 
+    // Student Career Intelligence Event Bus: Emits Assessed Simulation Evidence (Level 3)
+    try {
+      const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+      const candId = (session as any)?.candidate_id || (session as any)?.student_id || "student-demo";
+      const techRound = baseReport.round_results?.technical_interview;
+      const oaRound = baseReport.round_results?.online_assessment;
+      const gdRound = baseReport.round_results?.group_discussion;
+
+      await recordStudentEvent({
+        studentId: candId,
+        eventType: "mock_interview_completed",
+        payload: {
+          role: session.target_role || "Software Engineer",
+          score: techRound?.score || oaRound?.coding_score || 70,
+          scorecard: {
+            technical_depth: { score: techRound?.score || 70, comment: `OA Solved: ${oaRound?.coding_problems_solved || 0}/2. Tech strong: ${techRound?.strong_areas?.join(", ") || "General"}` },
+            problem_solving: { score: oaRound?.coding_score || 70, comment: `Aptitude: ${oaRound?.aptitude_score || "N/A"}, Coding: ${oaRound?.coding_score || "N/A"}` },
+            communication: { score: gdRound?.articulation_score || 70, comment: gdRound?.specific_feedback || "GD Articulation observed" }
+          },
+          feedback: baseReport.realistic_outcome.reasoning
+        }
+      });
+    } catch (simEventErr) {
+      console.warn("Failed to record simulation event to Student Intelligence:", simEventErr);
+    }
+
     return NextResponse.json({
       success: true,
       report: baseReport,

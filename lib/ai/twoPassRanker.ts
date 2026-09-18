@@ -554,7 +554,7 @@ interface RawCandidateEvaluation {
   domainMismatchNote: string;
 }
 
-function evaluateCandidate(resume: string, parsedJd: ParsedJD, name: string): RawCandidateEvaluation {
+export function evaluateCandidate(resume: string, parsedJd: ParsedJD, name: string): RawCandidateEvaluation {
   const text = resume.toLowerCase();
 
   // 1. Non-Technical Reject Check
@@ -936,8 +936,25 @@ export async function rankAllCandidates(
   for (let i = 0; i < candidates.length; i++) {
     const c = candidates[i];
     try {
-      if (!c.resumeText || c.resumeText.trim().length < 40) {
-        failed.push({ id: c.id, name: c.name, error: "Resume text too short or empty" });
+      if (!c.resumeText || c.resumeText.trim().length === 0) {
+        failed.push({
+          id: c.id,
+          name: c.name,
+          filename: c.name,
+          reason: "Empty resume file or unextractable content",
+          error: "Resume text is empty"
+        });
+        continue;
+      }
+
+      if (c.resumeText.trim().length < 40) {
+        failed.push({
+          id: c.id,
+          name: c.name,
+          filename: c.name,
+          reason: "Resume text too short (< 40 characters)",
+          error: "Insufficient content for evidence extraction"
+        });
         continue;
       }
 
@@ -948,7 +965,13 @@ export async function rankAllCandidates(
         ...evalResult,
       });
     } catch (err: any) {
-      failed.push({ id: c.id, name: c.name, error: err.message || "Failed to parse resume" });
+      failed.push({
+        id: c.id,
+        name: c.name,
+        filename: c.name,
+        reason: err.message || "Corrupted or unsupported file format",
+        error: err.message || "Failed to parse resume"
+      });
     }
 
     if ((i + 1) % 10 === 0 || i === candidates.length - 1) {

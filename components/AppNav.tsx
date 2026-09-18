@@ -15,24 +15,24 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const studentLinks = [
     { href: "/student/dashboard", label: "Overview", icon: "🏠" },
-    { href: "/post", label: "Post / Feed", icon: "📢" },
+    { href: "/student/dna", label: "My DNA", icon: "🧬" },
+    { href: "/student/journey", label: "Journey", icon: "🗺️" },
     { href: "/interview", label: "FAANG Interview", icon: "🎙️" },
     { href: "/student/simulation", label: "Recruitment Sim", icon: "🏆" },
     { href: "/student/opportunities", label: "Opportunities", icon: "🎯" },
     { href: "/student/resume", label: "Resume", icon: "📄" },
     { href: "/student/dsa-tracker", label: "DSA Tracker", icon: "⚡" },
-    { href: "/student/interview-prep", label: "All Arenas", icon: "📚" },
     { href: "/student/applications", label: "Applications", icon: "📋" },
     { href: "/student/calendar", label: "Calendar", icon: "📅" }
   ];
 
   const recruiterLinks = [
-    { href: "/recruiter/dashboard", label: "Dashboard", icon: "📊" },
-    { href: "/post", label: "Post / Feed", icon: "📢" },
-    { href: "/recruiter/jobs", label: "Jobs (JD)", icon: "💼" },
-    { href: "/recruiter/candidates", label: "Candidates & Ranking", icon: "👥" },
-    { href: "/recruiter/interviews", label: "Interview Intelligence", icon: "🎤" },
-    { href: "/recruiter/analytics", label: "Hiring Analytics", icon: "📈" }
+    { href: "/recruiter/dashboard", label: "Command Center", icon: "📊" },
+    { href: "/recruiter/roles", label: "Role Architect", icon: "🧬" },
+    { href: "/recruiter/candidates", label: "Candidate Pool", icon: "👥" },
+    { href: "/recruiter/decision-room", label: "Decision Room", icon: "⚖️" },
+    { href: "/recruiter/quality-of-hire", label: "Quality of Hire", icon: "📈" },
+    { href: "/post", label: "Post / Feed", icon: "📢" }
   ];
 
   const links = role === "recruiter" ? recruiterLinks : studentLinks;

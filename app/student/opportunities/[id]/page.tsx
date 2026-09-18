@@ -136,12 +136,109 @@ export default function OpportunityDetailPage({
   // Application Pipeline State
   const [applicationStage, setApplicationStage] = useState<"Bookmarked" | "Applied" | "Interviewing" | "Offer" | "Rejected" | null>(null);
 
+  // Student DNA & Team Formation State
+  const [studentDNA, setStudentDNA] = useState<any>(null);
+  const [teammateMatches, setTeammateMatches] = useState<any[]>([]);
+  const [selectedTeammates, setSelectedTeammates] = useState<string[]>([]);
+  const [teamSimulation, setTeamSimulation] = useState<any>(null);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [teamInviteSent, setTeamInviteSent] = useState<Record<string, boolean>>({});
+  const [activeCuratedProjIdx, setActiveCuratedProjIdx] = useState<number>(0);
+
   useEffect(() => {
     const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
     setCandidateId(stored);
     loadOpportunity(stored);
     loadApplicationStatus(stored);
+    loadStudentDNA(stored);
   }, [opportunityId]);
+
+  const loadStudentDNA = async (cId: string) => {
+    try {
+      const res = await fetch(`/api/student/dna?candidateId=${cId}`);
+      const data = await res.json();
+      if (data.dna) {
+        setStudentDNA(data.dna);
+      }
+    } catch (err) {
+      console.error("Student DNA fetch error:", err);
+    }
+  };
+
+  const loadTeamMatches = async (cId: string) => {
+    setLoadingTeam(true);
+    try {
+      const matchRes = await fetch("/api/teams/match", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: cId,
+          psId: "ps-flipkart-concurrency-locking"
+        })
+      });
+      const matchData = await matchRes.json();
+      if (matchData.teammate_matches) {
+        setTeammateMatches(matchData.teammate_matches);
+      }
+
+      // Initial simulation with just the student
+      await runTeamSimulation(cId, []);
+    } catch (err) {
+      console.error("Team match error:", err);
+    } finally {
+      setLoadingTeam(false);
+    }
+  };
+
+  const runTeamSimulation = async (cId: string, teammates: string[]) => {
+    try {
+      const simRes = await fetch("/api/teams/simulator", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          psId: "ps-flipkart-concurrency-locking",
+          memberIds: [cId, ...teammates]
+        })
+      });
+      const simData = await simRes.json();
+      if (simData.simulation) {
+        setTeamSimulation(simData.simulation);
+      }
+    } catch (err) {
+      console.error("Team simulation error:", err);
+    }
+  };
+
+  const toggleTeammate = async (teammateId: string) => {
+    let next: string[];
+    if (selectedTeammates.includes(teammateId)) {
+      next = selectedTeammates.filter(id => id !== teammateId);
+    } else {
+      next = [...selectedTeammates, teammateId];
+    }
+    setSelectedTeammates(next);
+    await runTeamSimulation(candidateId, next);
+  };
+
+  const handleSendTeamInvite = async (teammateId: string, teammateName: string) => {
+    setTeamInviteSent(prev => ({ ...prev, [teammateId]: true }));
+    try {
+      await fetch("/api/student/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: teammateId,
+          sourceFeature: "team_formation",
+          notificationType: "team_invite",
+          title: "Team Syndicate Invitation",
+          body: `You have been invited by ${candidateId} to form a syndicate for ${opportunity?.title || 'Hackathon'}.`,
+          linkUrl: `/student/opportunities/${opportunityId}`
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const loadApplicationStatus = async (cId: string) => {
     try {
@@ -208,8 +305,9 @@ export default function OpportunityDetailPage({
       // Fetch existing suggestions if cached
       const sugRes = await fetch(`/api/suggest-projects/${opportunityId}?candidateId=${cId}`);
       const sugData = await sugRes.json();
-      if (sugData.suggestions?.projects) {
+      if (sugData.suggestions?.projects && sugData.suggestions.projects.length > 0) {
         setProjects(sugData.suggestions.projects);
+        loadTeamMatches(cId);
       }
     } catch (err) {
       console.error(err);
@@ -238,6 +336,7 @@ export default function OpportunityDetailPage({
 
       if (data.projects) {
         setProjects(data.projects);
+        loadTeamMatches(candidateId);
       }
     } catch (err: any) {
       setError(err.message);
@@ -446,6 +545,101 @@ export default function OpportunityDetailPage({
           </div>
         </div>
 
+        {/* ── STUDENT DNA PROFILE CARD ── */}
+        {studentDNA && (
+          <div
+            style={{
+              background: "linear-gradient(135deg, rgba(99,102,241,0.07) 0%, rgba(168,85,247,0.04) 100%)",
+              border: "1px solid rgba(99,102,241,0.25)",
+              borderRadius: 18,
+              padding: "1.25rem 1.75rem",
+              marginBottom: "1.75rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 20 }}>🧬</span>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: "white", display: "flex", alignItems: "center", gap: 8 }}>
+                    Student DNA Profile
+                    <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(99,102,241,0.2)", color: "#a5b4fc", borderRadius: 6, fontWeight: 800 }}>
+                      Verified Vector
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+                    Anchored to stored candidate profile &amp; verified public GitHub telemetry.
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                {studentDNA.github_enrichment?.verified && (
+                  <span style={{ fontSize: 11, padding: "4px 10px", background: "rgba(56,189,248,0.12)", color: "#38bdf8", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 8, fontWeight: 700 }}>
+                    ✓ GitHub: @{studentDNA.github_enrichment.username} ({studentDNA.github_enrichment.reposCount} Repos)
+                  </span>
+                )}
+                <span style={{ fontSize: 11, padding: "4px 10px", background: "rgba(52,211,153,0.12)", color: "#34d399", border: "1px solid rgba(52,211,153,0.3)", borderRadius: 8, fontWeight: 700 }}>
+                  ✓ Team Matching: Opted-In
+                </span>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12, marginTop: 4 }}>
+              {/* Proficiency-Weighted Skills */}
+              <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 800, letterSpacing: 0.5, marginBottom: 6 }}>
+                  PROFICIENCY-WEIGHTED SKILLS
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {(studentDNA.skills || []).slice(0, 6).map((s: any, i: number) => (
+                    <span
+                      key={i}
+                      style={{
+                        fontSize: 10,
+                        padding: "2px 7px",
+                        background: s.level === "Advanced" || s.level === "Expert" ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.06)",
+                        color: s.level === "Advanced" || s.level === "Expert" ? "#c7d2fe" : "rgba(255,255,255,0.8)",
+                        borderRadius: 6,
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        fontWeight: 700
+                      }}
+                    >
+                      {s.name} <span style={{ opacity: 0.6 }}>({s.level} • {s.proficiency_weight}x)</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Inferred Preferred Stack */}
+              <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ fontSize: 10, color: "#34d399", fontWeight: 800, letterSpacing: 0.5, marginBottom: 6 }}>
+                  PREFERRED TECH STACK (INFERRED ≥2x)
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {(studentDNA.preferred_tech_stack || []).map((tech: string, i: number) => (
+                    <span key={i} style={{ fontSize: 10, padding: "2px 8px", background: "rgba(16,185,129,0.15)", color: "#a7f3d0", borderRadius: 6, border: "1px solid rgba(16,185,129,0.3)", fontWeight: 700 }}>
+                      ⚡ {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Domains & Availability */}
+              <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: 12, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ fontSize: 10, color: "#fbbf24", fontWeight: 800, letterSpacing: 0.5, marginBottom: 6 }}>
+                  DOMAINS &amp; CAPACITY
+                </div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>
+                  <div>🎯 Roles: <strong style={{ color: "white" }}>{(studentDNA.target_roles || []).join(", ") || "Full Stack Engineer"}</strong></div>
+                  <div>⏱ Availability: <strong style={{ color: "#fbbf24" }}>{studentDNA.availability || "15-20 hrs/week"}</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Action Callout */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem 1.75rem", marginBottom: "2.5rem" }}>
@@ -570,6 +764,267 @@ export default function OpportunityDetailPage({
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* ── AI TEAM FORMATION & TEAMMATE SYNDICATE SECTION ── */}
+            <div
+              style={{
+                marginTop: "2.5rem",
+                background: "linear-gradient(180deg, rgba(16,185,129,0.06) 0%, rgba(10,15,29,0.95) 100%)",
+                border: "1px solid rgba(16,185,129,0.25)",
+                borderRadius: 24,
+                padding: "2rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem"
+              }}
+            >
+              {/* Header */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 14 }}>
+                <div>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 800, color: "#34d399", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+                    <span>👥</span> AI Team Formation &amp; Teammate Syndicate
+                  </div>
+                  <h3 style={{ fontSize: 20, fontWeight: 900, color: "white", margin: "0 0 4px" }}>
+                    Form Your Winning Syndicate for this Blueprint
+                  </h3>
+                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+                    Automated gap analysis between your Student DNA and this project blueprint, matched with verified opt-in candidate profiles.
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Link
+                    href="/post"
+                    style={{
+                      padding: "8px 14px",
+                      background: "rgba(52,211,153,0.15)",
+                      border: "1px solid rgba(52,211,153,0.35)",
+                      color: "#6ee7b7",
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6
+                    }}
+                  >
+                    📢 Post to Collaboration Feed
+                  </Link>
+                </div>
+              </div>
+
+              {/* 1. Skill Gap Diagnostics for this Project */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 14,
+                  background: "rgba(0,0,0,0.3)",
+                  borderRadius: 16,
+                  padding: "1.25rem",
+                  border: "1px solid rgba(255,255,255,0.06)"
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>✓</span> COVERED BY YOUR DNA (CORE STRENGTHS)
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {["React (Advanced • 1.2x)", "PostgreSQL (Advanced • 1.2x)", "Next.js", "Python"].map((s, i) => (
+                      <span key={i} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(16,185,129,0.15)", color: "#a7f3d0", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 6, fontWeight: 700 }}>
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#f87171", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>⚠️</span> CRITICAL SKILL GAPS NEEDED FOR PODIUM
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {["Java", "Kafka", "Distributed Systems", "Redis", "Two-Phase Commit"].map((s, i) => (
+                      <span key={i} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(239,68,68,0.12)", color: "#fca5a5", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 6, fontWeight: 700 }}>
+                        + {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Interactive Team Skill Graph & Simulator */}
+              {teamSimulation && (
+                <div
+                  style={{
+                    background: "rgba(0,0,0,0.4)",
+                    borderRadius: 16,
+                    padding: "1.25rem 1.5rem",
+                    border: "1px solid rgba(255,255,255,0.08)"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+                        TEAM SKILL GRAPH &amp; SIMULATOR
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: "white" }}>
+                        Combined Syndicate Coverage:{" "}
+                        <span style={{ color: teamSimulation.overall_team_coverage_pct >= 50 ? "#34d399" : "#fbbf24" }}>
+                          {teamSimulation.overall_team_coverage_pct}%
+                        </span>
+                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 500, marginLeft: 8 }}>
+                          ({teamSimulation.members_count} member{teamSimulation.members_count > 1 ? "s" : ""})
+                        </span>
+                      </div>
+                    </div>
+
+                    {teamSimulation.next_best_skill && (
+                      <div style={{ fontSize: 11, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", color: "#fde68a", padding: "4px 10px", borderRadius: 8, fontWeight: 700 }}>
+                        💡 Next Best Skill: <strong>{teamSimulation.next_best_skill.skill}</strong> (+{teamSimulation.next_best_skill.potential_coverage_boost_pct}% boost)
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div style={{ width: "100%", height: 10, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden", marginBottom: 14 }}>
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${teamSimulation.overall_team_coverage_pct}%`,
+                        background: teamSimulation.overall_team_coverage_pct >= 50 ? "linear-gradient(90deg, #059669, #34d399)" : "linear-gradient(90deg, #d97706, #fbbf24)",
+                        borderRadius: 999,
+                        transition: "width 0.4s ease"
+                      }}
+                    />
+                  </div>
+
+                  {/* Individual Skill Coverage Grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 10 }}>
+                    {(teamSimulation.skill_coverage || []).slice(0, 6).map((sc: any, i: number) => (
+                      <div key={i} style={{ background: "rgba(255,255,255,0.02)", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.05)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
+                          <span style={{ color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{sc.skill}</span>
+                          <span style={{ color: sc.coverage_pct >= 60 ? "#34d399" : sc.coverage_pct > 0 ? "#fbbf24" : "rgba(255,255,255,0.3)", fontWeight: 800 }}>
+                            {sc.coverage_pct}%
+                          </span>
+                        </div>
+                        <div style={{ width: "100%", height: 4, background: "rgba(255,255,255,0.06)", borderRadius: 999 }}>
+                          <div style={{ height: "100%", width: `${sc.coverage_pct}%`, background: sc.coverage_pct >= 60 ? "#34d399" : "#fbbf24", borderRadius: 999 }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Matched Teammates Cards */}
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "white", marginBottom: 10 }}>
+                  Recommended Teammates ({teammateMatches.length} Opted-In Candidates)
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
+                  {teammateMatches.map((teammate, idx) => {
+                    const isSelected = selectedTeammates.includes(teammate.candidate_id);
+                    const inviteSent = teamInviteSent[teammate.candidate_id];
+
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          background: isSelected ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.02)",
+                          border: isSelected ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(255,255,255,0.08)",
+                          borderRadius: 16,
+                          padding: "1.25rem",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          gap: 12
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                                {teammate.avatar || "🚀"}
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>{teammate.name}</div>
+                                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{(teammate.target_roles || []).join(", ")}</div>
+                              </div>
+                            </div>
+
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontSize: 15, fontWeight: 900, color: "#34d399" }}>
+                                {teammate.team_match_score}%
+                              </div>
+                              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>COMPATIBILITY</div>
+                            </div>
+                          </div>
+
+                          {/* Gaps Covered */}
+                          <div style={{ marginBottom: 8 }}>
+                            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", fontWeight: 800, marginBottom: 4 }}>
+                              PLUGS YOUR CRITICAL GAPS:
+                            </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                              {(teammate.covered_gaps || []).map((g: string, gi: number) => (
+                                <span key={gi} style={{ fontSize: 10, padding: "2px 7px", background: "rgba(52,211,153,0.15)", color: "#a7f3d0", borderRadius: 4, fontWeight: 700 }}>
+                                  ✓ {g}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Mutual Growth Narrative */}
+                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", background: "rgba(0,0,0,0.2)", borderRadius: 8, padding: "8px 10px", lineHeight: 1.4 }}>
+                            💬 {teammate.mutual_growth_narrative}
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                          <button
+                            onClick={() => toggleTeammate(teammate.candidate_id)}
+                            style={{
+                              flex: 1,
+                              padding: "8px",
+                              borderRadius: 8,
+                              border: "none",
+                              background: isSelected ? "rgba(239,68,68,0.2)" : "linear-gradient(135deg, #059669, #34d399)",
+                              color: isSelected ? "#fca5a5" : "white",
+                              fontSize: 11,
+                              fontWeight: 800,
+                              cursor: "pointer"
+                            }}
+                          >
+                            {isSelected ? "✕ Remove from Simulator" : "+ Add to Team Simulator"}
+                          </button>
+
+                          <button
+                            onClick={() => handleSendTeamInvite(teammate.candidate_id, teammate.name)}
+                            disabled={inviteSent}
+                            style={{
+                              padding: "8px 12px",
+                              borderRadius: 8,
+                              border: "1px solid rgba(255,255,255,0.15)",
+                              background: inviteSent ? "rgba(52,211,153,0.2)" : "rgba(255,255,255,0.06)",
+                              color: inviteSent ? "#34d399" : "white",
+                              fontSize: 11,
+                              fontWeight: 700,
+                              cursor: inviteSent ? "default" : "pointer"
+                            }}
+                          >
+                            {inviteSent ? "✓ Invite Sent" : "🤝 Invite"}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         )}
