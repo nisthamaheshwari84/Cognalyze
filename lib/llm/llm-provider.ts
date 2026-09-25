@@ -48,9 +48,9 @@ export class OllamaProvider implements LLMProvider {
   private baseUrl: string;
   private model: string;
 
-  constructor() {
-    this.baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-    this.model = process.env.OLLAMA_MODEL || "llama3.1:8b";
+  constructor(baseUrl?: string, model?: string) {
+    this.baseUrl = baseUrl || process.env.OLLAMA_BASE_URL || "http://localhost:11434";
+    this.model = model || process.env.OLLAMA_MODEL || "llama3.1:8b";
   }
 
   async isAvailable(): Promise<boolean> {
@@ -209,11 +209,13 @@ export class ResilientLLMRouter implements LLMProvider {
   name = "ResilientRouter";
   private providers: LLMProvider[];
 
-  constructor() {
-    this.providers = [
-      new OllamaProvider(),
-      new GroqProvider(),
-    ];
+  constructor(...providers: LLMProvider[]) {
+    this.providers = providers && providers.length > 0
+      ? providers
+      : [
+          new OllamaProvider(),
+          new GroqProvider(),
+        ];
   }
 
   async isAvailable(): Promise<boolean> {

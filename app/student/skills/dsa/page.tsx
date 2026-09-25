@@ -34,7 +34,7 @@ const DSA_TOPICS: TopicItem[] = [
   { id: "intervals", name: "Intervals & Greedy", status: "Developing", color: "#fbbf24", problemCount: 7 }
 ];
 
-export default function DSACodingArenaPage() {
+function DSACodingArenaContent() {
   const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
@@ -889,5 +889,13 @@ print(longest_substring_without_repeating("abcabcbb")) # Expected: 3
       )}
 
     </div>
+  );
+}
+
+export default function DSACodingArenaPage() {
+  return (
+    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+      <DSACodingArenaContent />
+    </React.Suspense>
   );
 }

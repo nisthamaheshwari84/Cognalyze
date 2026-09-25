@@ -249,7 +249,7 @@ const CHALLENGE_CLARIFICATIONS: Record<string, ClarificationItem[]> = {
   ]
 };
 
-export default function SystemDesignPage() {
+function SystemDesignContent() {
   const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
@@ -2789,5 +2789,13 @@ export default function SystemDesignPage() {
       )}
 
     </div>
+  );
+}
+
+export default function SystemDesignPage() {
+  return (
+    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+      <SystemDesignContent />
+    </React.Suspense>
   );
 }

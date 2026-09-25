@@ -16,7 +16,7 @@ import {
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
 
-export default function CSInterviewPage() {
+function CSInterviewContent() {
   const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
@@ -1172,5 +1172,13 @@ export default function CSInterviewPage() {
 
       </main>
     </div>
+  );
+}
+
+export default function CSInterviewPage() {
+  return (
+    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+      <CSInterviewContent />
+    </React.Suspense>
   );
 }

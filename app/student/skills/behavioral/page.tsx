@@ -13,7 +13,7 @@ import {
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
 
-export default function BehavioralHRPage() {
+function BehavioralHRContent() {
   const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
@@ -955,5 +955,13 @@ export default function BehavioralHRPage() {
 
       </main>
     </div>
+  );
+}
+
+export default function BehavioralHRPage() {
+  return (
+    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+      <BehavioralHRContent />
+    </React.Suspense>
   );
 }
