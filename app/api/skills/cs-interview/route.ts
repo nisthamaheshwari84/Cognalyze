@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
-import { skillHubStore, SEED_CS_INTERVIEW_QUESTIONS, CSInterviewQuestion } from "@/lib/skill-hub-store";
+import { skillHubStore, SEED_CS_INTERVIEW_QUESTIONS } from "@/lib/skill-hub-store";
+import { evaluateAdaptiveTurn, getAdaptiveQuestion } from "@/lib/skills/adaptive-engine";
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,43 +25,77 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { questionId, candidateAnswer, candidateId = "student-demo" } = body;
+    const {
+      questionId,
+      questionText,
+      candidateAnswer,
+      candidateId = "student-demo",
+      trackSlug = "product_mid",
+      turnIndex = 0
+    } = body;
 
-    const q =
-      SEED_CS_INTERVIEW_QUESTIONS.find(item => item.id === questionId) || SEED_CS_INTERVIEW_QUESTIONS[0];
-
-    if (!candidateAnswer || candidateAnswer.trim().length < 5) {
+    if (!candidateAnswer || candidateAnswer.trim().length < 3) {
       return NextResponse.json(
         { success: false, error: "Please provide a complete answer or code snippet." },
         { status: 400 }
       );
     }
 
-    const prompt = `You are a Senior Technical Interviewer for TCS Digital, Infosys, and Amazon campus drives.
-Evaluate the candidate's answer to this technical interview question:
-Question Domain: "${q.domain.toUpperCase()}"
-Question: "${q.question}"
-Expected Key Points: ${JSON.stringify(q.expected_points)}
-Benchmark Ideal Answer: "${q.ideal_answer}"
+    // Find reference question if seeded, or create dynamic question representation
+    const seedQ = SEED_CS_INTERVIEW_QUESTIONS.find(item => item.id === questionId);
+    const effectiveQuestion = {
+      id: questionId || `q-${Date.now()}`,
+      domain: seedQ?.domain || "dbms",
+      topic: seedQ?.topic || "CS Fundamentals & Trade-offs",
+      question: questionText || seedQ?.question || "Explain your technical approach.",
+      internalIntent: "Evaluate technical precision, code correctness, and trade-off defense under interview conditions.",
+      expectedSignals: seedQ?.expected_points || ["Syntactic correctness", "Handles edge cases", "Defends trade-offs"],
+      failureSignals: ["Vague answers", "Missing edge-case guards", "Unverified claims"],
+      suggestedFollowUps: [
+        {
+          type: "CHALLENGE" as const,
+          text: seedQ?.follow_up || "How would you optimize this under strict memory constraints?"
+        }
+      ],
+      depthLevel: "Apply" as const,
+      isFreshUnseen: true
+    };
 
-Candidate's Answer:
-"${candidateAnswer}"
+    // Evaluate turn adaptively using deterministic reasoning engine first
+    const deterministicEval = evaluateAdaptiveTurn(effectiveQuestion, candidateAnswer, trackSlug);
 
-Return STRICT JSON only:
-{
-  "score": number between 30 and 98,
-  "verdict": "Strong Hire" | "Hire" | "Borderline" | "No Hire",
-  "conceptualAccuracy": number between 0 and 100,
-  "depthScore": number between 0 and 100,
-  "feedback": "2-3 sentences of direct technical critique. If code or SQL query was provided, note syntax or edge cases.",
-  "correctCodeOrSyntax": "Provide the exact, clean SQL query or code snippet if applicable",
-  "missingKeyPoints": ["Point 1", "Point 2"],
-  "interviewerFollowUp": "${q.follow_up}"
-}`;
-
-    let evalResult: any = null;
+    // Attempt AI enhancement if LLM is active
+    let evalResult = deterministicEval;
 
     try {
+      const prompt = `You are a Senior Technical Interviewer for ${trackSlug.replace("_", " ").toUpperCase()} technical hiring rounds.
+Evaluate candidate's response to this interview question:
+Question: "${effectiveQuestion.question}"
+Candidate Answer / Code:
+"${candidateAnswer}"
+
+Analyze:
+1. Did the candidate make unverified claims (e.g. "MongoDB is faster", "used Redis", "never fails")?
+2. Did they address edge cases (NULLs, duplicates, concurrency, deadlocks)?
+3. What is the most incisive follow-up probe to test their depth?
+
+Return STRICT JSON:
+{
+  "score": number between 35 and 96,
+  "verdict": "Strong Hire" | "Hire" | "Borderline" | "Needs Diagnostic",
+  "conceptualAccuracy": number between 30 and 100,
+  "depthScore": number between 30 and 100,
+  "feedback": "2-3 sentences of direct technical critique.",
+  "detectedClaims": ["Claim 1", "Claim 2"],
+  "observedStrengths": ["Strength 1"],
+  "observedGaps": ["Gap 1"],
+  "nextFollowUp": {
+    "type": "CHALLENGE" | "TRADE_OFF" | "EDGE_CASE" | "APPLICATION" | "TRANSFER" | "DIAGNOSE",
+    "question": "Realistic follow-up question directly probing candidate's answer",
+    "reason": "Why this follow-up was chosen"
+  }
+}`;
+
       const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,40 +103,24 @@ Return STRICT JSON only:
           model: "openai/gpt-oss-120b",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
-          max_tokens: 800
+          max_tokens: 700
         })
       });
 
       const data = await res.json();
       const raw = data.choices?.[0]?.message?.content || "{}";
       const clean = stripThinkTags(raw);
-      evalResult = extractJSON(clean);
-    } catch (aiErr) {
-      console.warn("Groq CS evaluation fallback triggered:", aiErr);
-    }
-
-    if (!evalResult || !evalResult.score) {
-      const ansLower = candidateAnswer.toLowerCase();
-      let score = 75;
-      if (ansLower.includes("select") || ansLower.includes("abstract") || ansLower.includes("deadlock") || ansLower.includes("dns")) {
-        score += 10;
+      const parsed = extractJSON(clean);
+      if (parsed && parsed.score && parsed.nextFollowUp) {
+        evalResult = parsed;
       }
-      evalResult = {
-        score: Math.min(95, score),
-        verdict: score >= 80 ? "Hire" : "Borderline",
-        conceptualAccuracy: score,
-        depthScore: 78,
-        feedback: "Solid foundational grasp! Ensure you explicitly verbalize runtime complexity and edge cases like NULL handling or single-inheritance limits.",
-        correctCodeOrSyntax: q.ideal_answer,
-        missingKeyPoints: q.expected_points.slice(0, 2),
-        interviewerFollowUp: q.follow_up
-      };
+    } catch (aiErr) {
+      console.warn("Groq adaptive evaluation fallback used:", aiErr);
     }
 
     return NextResponse.json({
       success: true,
-      questionId: q.id,
-      questionTitle: q.topic,
+      questionId: effectiveQuestion.id,
       evaluation: evalResult
     });
   } catch (err: any) {

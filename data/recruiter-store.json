@@ -1,6 +1,1232 @@
 {
   "roles": [
     {
+      "id": "role-principal-distributed-architect-4065",
+      "title": "Principal Distributed Architect",
+      "department": "Core Systems",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "status": "active",
+      "createdAt": "2026-09-24T17:14:04.065Z",
+      "updatedAt": "2026-09-24T17:14:04.065Z",
+      "uncertaintyThreshold": 0.2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Deliver high-availability distributed architecture for tier-1 service",
+          "metric": "99.99% service uptime under 5x traffic surges",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        },
+        {
+          "id": "out-2",
+          "outcome": "Mentor team on distributed caching, partition fault tolerance, and observability",
+          "metric": "Zero critical production incidents caused by cache invalidation failures",
+          "timeframe": "First 60 days",
+          "impactSeverity": "High"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-crit-1",
+          "name": "Raft Consensus & Distributed Log Replication",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Deep knowledge of multi-Paxos/Raft state machines and quorum failover",
+          "weightPct": 40,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-crit-2",
+          "name": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "High packet throughput with zero-copy buffers",
+          "weightPct": 30,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code"
+          ]
+        },
+        {
+          "id": "req-imp-1",
+          "name": "Distributed Tracing Architecture (OpenTelemetry)",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Context propagation across microservices boundaries",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-train-1",
+          "name": "Prometheus Alertmanager Syntax",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Rule writing; easily acquired in first 2 weeks",
+          "weightPct": 10,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "role-software-development-engineer-intern-2330",
+      "title": "Software Development Engineer Intern",
+      "department": "Software Development Engineer Intern",
+      "seniority": "Senior",
+      "targetHires": 1,
+      "workMode": "Remote",
+      "businessOutcomes": [],
+      "tieredRequirements": [
+        {
+          "id": "item-7",
+          "name": "Programming fundamentals",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Strong programming and problem-solving fundamentals.",
+          "weightPct": 7,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-8",
+          "name": "Python",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "weightPct": 7,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-9",
+          "name": "C++",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "weightPct": 7,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-10",
+          "name": "Java",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "weightPct": 7,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-11",
+          "name": "JavaScript",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-12",
+          "name": "Data Structures & Algorithms",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Understanding of Data Structures and Algorithms.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-13",
+          "name": "Git/GitHub",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Familiarity with Git and GitHub.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-14",
+          "name": "Git",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Familiarity with Git and GitHub.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-15",
+          "name": "GitHub",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Familiarity with Git and GitHub.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-16",
+          "name": "Databases and APIs",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Basic understanding of databases and APIs.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-24",
+          "name": "Bachelor's Degree",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Currently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field.",
+          "weightPct": 6,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "item-17",
+          "name": "React",
+          "tier": "Preferred",
+          "category": "Technical",
+          "description": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "item-18",
+          "name": "Node.js",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "item-19",
+          "name": "FastAPI",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "item-20",
+          "name": "Django",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "item-21",
+          "name": "Open Source",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Personal, academic, or open-source software projects.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        },
+        {
+          "id": "item-23",
+          "name": "Cloud Deployment",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Familiarity with cloud platforms such as AWS, Azure, or GCP.",
+          "weightPct": 5,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview",
+            "github_commit"
+          ]
+        }
+      ],
+      "structuredRequirements": [
+        {
+          "id": "item-7",
+          "name": "Programming fundamentals",
+          "category": "required",
+          "evidenceQuote": "Strong programming and problem-solving fundamentals.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Programming fundamentals",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Explicitly states a skill the candidate must already possess before joining.",
+          "evidenceSignals": [
+            "Work Experience",
+            "Projects"
+          ],
+          "verificationStrategy": [
+            "Technical assessment covering algorithms and coding basics."
+          ],
+          "confidence": 0.98,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "technical_skill",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-8",
+          "name": "Python",
+          "category": "required",
+          "evidenceQuote": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "Requirement is \"at least one\" of the set; each individual language is not strictly mandatory.",
+          "canonicalName": "Python",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "One of the listed languages is required; each language is a possible skill, not individually mandatory.",
+          "evidenceSignals": [
+            "Work Experience",
+            "Projects",
+            "GitHub",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Check resume for Python projects or ask coding test in Python.",
+            "Look for meaningful Python implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.97,
+          "ambiguityStatus": "INFERRED",
+          "relatedCapabilities": [],
+          "requirementType": "programming_language",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-9",
+          "name": "C++",
+          "category": "required",
+          "evidenceQuote": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "See rationale for Python.",
+          "canonicalName": "C++",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Same reasoning as Python; part of the optional set.",
+          "evidenceSignals": [
+            "Work Experience",
+            "Projects",
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Check resume for C++ projects or ask coding test in C++.",
+            "Look for meaningful C++ implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.97,
+          "ambiguityStatus": "INFERRED",
+          "relatedCapabilities": [],
+          "requirementType": "programming_language",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-10",
+          "name": "Java",
+          "category": "required",
+          "evidenceQuote": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "See rationale for Python.",
+          "canonicalName": "Java",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Same reasoning as Python; part of the optional set.",
+          "evidenceSignals": [
+            "Work Experience",
+            "Projects",
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Check resume for Java projects or ask coding test in Java.",
+            "Look for meaningful Java implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.97,
+          "ambiguityStatus": "INFERRED",
+          "relatedCapabilities": [],
+          "requirementType": "programming_language",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-11",
+          "name": "JavaScript",
+          "category": "required",
+          "evidenceQuote": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "See rationale for Python.",
+          "canonicalName": "JavaScript",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Same reasoning as Python; part of the optional set.",
+          "evidenceSignals": [
+            "Work Experience",
+            "Projects",
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Check resume for JavaScript projects or ask coding test in JavaScript.",
+            "Look for meaningful JavaScript implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.97,
+          "ambiguityStatus": "INFERRED",
+          "relatedCapabilities": [],
+          "requirementType": "programming_language",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-12",
+          "name": "Data Structures & Algorithms",
+          "category": "required",
+          "evidenceQuote": "Understanding of Data Structures and Algorithms.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Data Structures & Algorithms",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Data Structures & Algorithms is explicitly required under Must-Have Requirements: \"Understanding of Data Structures and Algorithms.\"",
+          "evidenceSignals": [
+            "GitHub",
+            "Projects",
+            "Work Experience",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Data Structures & Algorithms implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "domain_knowledge",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-13",
+          "name": "Git/GitHub",
+          "category": "required",
+          "evidenceQuote": "Familiarity with Git and GitHub.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Git/GitHub",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Git/GitHub is explicitly required under Must-Have Requirements: \"Familiarity with Git and GitHub.\"",
+          "evidenceSignals": [
+            "Commit History",
+            "Pull Requests",
+            "Code Review Activity"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Git/GitHub implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "tool",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-14",
+          "name": "Git",
+          "category": "required",
+          "evidenceQuote": "Familiarity with Git and GitHub.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Git",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Git is explicitly required under Must-Have Requirements: \"Familiarity with Git and GitHub.\"",
+          "evidenceSignals": [
+            "Commit History",
+            "Pull Requests",
+            "Code Review Activity"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Git implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "tool",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-15",
+          "name": "GitHub",
+          "category": "required",
+          "evidenceQuote": "Familiarity with Git and GitHub.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "GitHub",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "GitHub is explicitly required under Must-Have Requirements: \"Familiarity with Git and GitHub.\"",
+          "evidenceSignals": [
+            "Commit History",
+            "Pull Requests",
+            "Code Review Activity"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful GitHub implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "tool",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-16",
+          "name": "Databases and APIs",
+          "category": "required",
+          "evidenceQuote": "Basic understanding of databases and APIs.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Databases and APIs",
+          "semanticCategory": "MUST_HAVE",
+          "subtype": "technical_skill",
+          "rationale": "Databases and APIs is explicitly required under Must-Have Requirements: \"Basic understanding of databases and APIs.\"",
+          "evidenceSignals": [
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Databases and APIs implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.92,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "database",
+          "importance": "mandatory",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-17",
+          "name": "React",
+          "category": "preferred",
+          "evidenceQuote": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "React",
+          "semanticCategory": "PREFERRED",
+          "subtype": "technical_skill",
+          "rationale": "React is listed as preferred under Good-to-Have: \"Experience with React, Node.js, FastAPI, Django, or similar frameworks.\"",
+          "evidenceSignals": [
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful React implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "framework",
+          "importance": "preferred",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-18",
+          "name": "Node.js",
+          "category": "preferred",
+          "evidenceQuote": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Node.js",
+          "semanticCategory": "PREFERRED",
+          "subtype": "technical_skill",
+          "rationale": "Node.js is listed as preferred under Good-to-Have: \"Experience with React, Node.js, FastAPI, Django, or similar frameworks.\"",
+          "evidenceSignals": [
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Node.js implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "framework",
+          "importance": "preferred",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-19",
+          "name": "FastAPI",
+          "category": "preferred",
+          "evidenceQuote": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "FastAPI",
+          "semanticCategory": "PREFERRED",
+          "subtype": "technical_skill",
+          "rationale": "FastAPI is listed as preferred under Good-to-Have: \"Experience with React, Node.js, FastAPI, Django, or similar frameworks.\"",
+          "evidenceSignals": [
+            "Containerized API Repositories",
+            "Dockerfiles / CI Logs",
+            "Live API Endpoints"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful FastAPI implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "framework",
+          "importance": "preferred",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-20",
+          "name": "Django",
+          "category": "preferred",
+          "evidenceQuote": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Django",
+          "semanticCategory": "PREFERRED",
+          "subtype": "technical_skill",
+          "rationale": "Django is listed as preferred under Good-to-Have: \"Experience with React, Node.js, FastAPI, Django, or similar frameworks.\"",
+          "evidenceSignals": [
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Django implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "framework",
+          "importance": "preferred",
+          "evidenceExpectation": "implementation"
+        },
+        {
+          "id": "item-21",
+          "name": "Open Source",
+          "category": "preferred",
+          "evidenceQuote": "Personal, academic, or open-source software projects.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Open Source",
+          "semanticCategory": "PREFERRED",
+          "subtype": "technical_skill",
+          "rationale": "Open Source is listed as preferred under Good-to-Have: \"Personal, academic, or open-source software projects.\"",
+          "evidenceSignals": [
+            "GitHub Code",
+            "Demonstrated Projects",
+            "Technical Assessment"
+          ],
+          "verificationStrategy": [
+            "Look for meaningful Open Source implementation in candidate code",
+            "Do not treat keyword-only mentions or course certificates as proof",
+            "Implementation > Claim (Tier 1 Direct Evidence prioritized over Tier 3 Claim)"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "open_source",
+          "importance": "preferred",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-24",
+          "name": "Bachelor's Degree",
+          "category": "education",
+          "evidenceQuote": "Currently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Bachelor's Degree",
+          "semanticCategory": "ELIGIBILITY",
+          "subtype": "education_degree",
+          "rationale": "Eligibility constraint extracted from \"Education\": Currently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field.",
+          "evidenceSignals": [
+            "Transcript",
+            "Degree Certificate",
+            "Enrollment Record"
+          ],
+          "verificationStrategy": [
+            "Verify educational status or work eligibility"
+          ],
+          "confidence": 0.96,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "education",
+          "importance": "conditional",
+          "evidenceExpectation": "certification"
+        },
+        {
+          "id": "item-1",
+          "name": "Build, test, debug, and improve software applications and APIs",
+          "category": "responsibility",
+          "evidenceQuote": "Build, test, debug, and improve software applications and APIs.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Build, test, debug, and improve software applications and APIs",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "The sentence describes an activity the intern will perform on the job, which matches the definition of a responsibility.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Ask candidate to describe past projects where they built or debugged software."
+          ],
+          "confidence": 0.96,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-2",
+          "name": "Write clean, maintainable, and well-documented code",
+          "category": "responsibility",
+          "evidenceQuote": "Write clean, maintainable, and well-documented code.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Write clean, maintainable, and well-documented code",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "Specifies a coding practice the intern is expected to carry out, thus a responsibility.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Review code samples or GitHub repositories for code quality."
+          ],
+          "confidence": 0.96,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-3",
+          "name": "Work with databases, REST APIs, Git, and development tools",
+          "category": "responsibility",
+          "evidenceQuote": "Work with databases, REST APIs, Git, and development tools.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Work with databases, REST APIs, Git, and development tools",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "Describes tasks the intern will execute, fitting the responsibility category.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Ask candidate to discuss experience with databases, APIs, and version control."
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-4",
+          "name": "Collaborate with engineers and product teams to implement new features",
+          "category": "responsibility",
+          "evidenceQuote": "Collaborate with engineers and product teams to implement new features.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Collaborate with engineers and product teams to implement new features",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "Collaboration and feature implementation are job activities, thus responsibilities.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Behavioral interview questions about teamwork."
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-5",
+          "name": "Identify and fix bugs and contribute to testing and code reviews",
+          "category": "responsibility",
+          "evidenceQuote": "Identify and fix bugs and contribute to testing and code reviews.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Identify and fix bugs and contribute to testing and code reviews",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "Bug fixing and code review participation are job duties, classified as responsibilities.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Technical interview focusing on debugging scenarios."
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-6",
+          "name": "Participate in the complete development lifecycle from development to deployment",
+          "category": "responsibility",
+          "evidenceQuote": "Participate in the complete development lifecycle from development to deployment.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "ambiguityReason": "",
+          "canonicalName": "Participate in the complete development lifecycle from development to deployment",
+          "semanticCategory": "RESPONSIBILITY",
+          "subtype": "operational_task",
+          "rationale": "Involvement in the full lifecycle is a job activity, thus a responsibility.",
+          "evidenceSignals": [],
+          "verificationStrategy": [
+            "Ask candidate to describe end‑to‑end project experiences."
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "relatedCapabilities": [],
+          "requirementType": "operational_task",
+          "importance": "conditional",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-22",
+          "name": "Hackathons & Competitions",
+          "category": "preferred",
+          "evidenceQuote": "Hackathon or coding-contest experience.",
+          "source": "job_description",
+          "needsConfirmation": false,
+          "canonicalName": "Hackathons & Competitions",
+          "semanticCategory": "EVIDENCE_SIGNAL",
+          "subtype": "evidence_source",
+          "rationale": "The JD specifies \"Hackathon or coding-contest experience.\" as an evidence signal demonstrating candidate capability.",
+          "evidenceSignals": [
+            "Public URL",
+            "Repository Verification"
+          ],
+          "verificationStrategy": [
+            "Inspect authentic commit history and project implementation",
+            "Do not treat empty or forked profiles as evidence"
+          ],
+          "confidence": 0.95,
+          "ambiguityStatus": "CLEAR",
+          "requirementType": "tool",
+          "importance": "preferred",
+          "evidenceExpectation": "portfolio"
+        },
+        {
+          "id": "item-23",
+          "name": "Cloud Deployment",
+          "category": "other",
+          "evidenceQuote": "Familiarity with cloud platforms such as AWS, Azure, or GCP.",
+          "source": "job_description",
+          "needsConfirmation": true,
+          "ambiguityReason": "The JD mentions cloud experience but does not specify a particular cloud platform (e.g., AWS, Azure, GCP).",
+          "canonicalName": "Cloud Deployment",
+          "semanticCategory": "UNKNOWN",
+          "subtype": "technical_skill",
+          "rationale": "The JD mentions cloud experience but does not specify a particular cloud platform (e.g., AWS, Azure, GCP).",
+          "evidenceSignals": [
+            "Technical Project",
+            "Code Deployment"
+          ],
+          "verificationStrategy": [
+            "Clarify specific technology engine or platform during hiring calibration",
+            "Do not penalize candidates for using alternative standard platforms"
+          ],
+          "confidence": 0.85,
+          "ambiguityStatus": "AMBIGUOUS",
+          "requirementType": "cloud",
+          "importance": "conditional",
+          "evidenceExpectation": "implementation"
+        }
+      ],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "version": 1,
+      "jdRaw": "We are looking for a Software Development Engineer Intern to join our engineering team and work on real-world software products.\n\nResponsibilities:\n• Build, test, debug, and improve software applications and APIs.\n• Write clean, maintainable, and well-documented code.\n• Work with databases, REST APIs, Git, and development tools.\n• Collaborate with engineers and product teams to implement new features.\n• Identify and fix bugs and contribute to testing and code reviews.\n• Participate in the complete development lifecycle from development to deployment.\n\nMust-Have Requirements:\n• Strong programming and problem-solving fundamentals.\n• Proficiency in at least one of Python, C++, Java, or JavaScript.\n• Understanding of Data Structures and Algorithms.\n• Familiarity with Git and GitHub.\n• Basic understanding of databases and APIs.\n\nGood-to-Have:\n• Experience with React, Node.js, FastAPI, Django, or similar frameworks.\n• Personal, academic, or open-source software projects.\n• Hackathon or coding-contest experience.\n• Familiarity with cloud platforms such as AWS, Azure, or GCP.\n\nExperience:\n0–2 years. Students and freshers are welcome.\n\nEducation:\nCurrently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field.",
+      "spineRequirements": [
+        {
+          "id": "req-1",
+          "text": "Build, test, debug, and improve software applications and APIs.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 150,
+            "endChar": 213,
+            "rawSnippet": "Build, test, debug, and improve software applications and APIs."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-2",
+          "text": "Write clean, maintainable, and well-documented code.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 216,
+            "endChar": 268,
+            "rawSnippet": "Write clean, maintainable, and well-documented code."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-3",
+          "text": "Work with databases, REST APIs, Git, and development tools.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 271,
+            "endChar": 330,
+            "rawSnippet": "Work with databases, REST APIs, Git, and development tools."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-4",
+          "text": "Collaborate with engineers and product teams to implement new features.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 333,
+            "endChar": 404,
+            "rawSnippet": "Collaborate with engineers and product teams to implement new features."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-5",
+          "text": "Identify and fix bugs and contribute to testing and code reviews.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 407,
+            "endChar": 472,
+            "rawSnippet": "Identify and fix bugs and contribute to testing and code reviews."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-6",
+          "text": "Participate in the complete development lifecycle from development to deployment.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 475,
+            "endChar": 556,
+            "rawSnippet": "Participate in the complete development lifecycle from development to deployment."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-7",
+          "text": "Strong programming and problem-solving fundamentals.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 584,
+            "endChar": 636,
+            "rawSnippet": "Strong programming and problem-solving fundamentals."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-8",
+          "text": "Proficiency in at least one of Python, C++, Java, or JavaScript.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 639,
+            "endChar": 703,
+            "rawSnippet": "Proficiency in at least one of Python, C++, Java, or JavaScript."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-9",
+          "text": "Understanding of Data Structures and Algorithms.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 706,
+            "endChar": 754,
+            "rawSnippet": "Understanding of Data Structures and Algorithms."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-10",
+          "text": "Familiarity with Git and GitHub.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 757,
+            "endChar": 789,
+            "rawSnippet": "Familiarity with Git and GitHub."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-11",
+          "text": "Basic understanding of databases and APIs.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 792,
+            "endChar": 834,
+            "rawSnippet": "Basic understanding of databases and APIs."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-12",
+          "text": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 852,
+            "endChar": 923,
+            "rawSnippet": "Experience with React, Node.js, FastAPI, Django, or similar frameworks."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-13",
+          "text": "Personal, academic, or open-source software projects.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 926,
+            "endChar": 979,
+            "rawSnippet": "Personal, academic, or open-source software projects."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-14",
+          "text": "Hackathon or coding-contest experience.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 982,
+            "endChar": 1021,
+            "rawSnippet": "Hackathon or coding-contest experience."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-15",
+          "text": "Familiarity with cloud platforms such as AWS, Azure, or GCP.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 1024,
+            "endChar": 1084,
+            "rawSnippet": "Familiarity with cloud platforms such as AWS, Azure, or GCP."
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-16",
+          "text": "Experience:",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 1086,
+            "endChar": 1097,
+            "rawSnippet": "Experience:"
+          },
+          "status": "active",
+          "version": 1
+        },
+        {
+          "id": "req-17",
+          "text": "Currently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field.",
+          "category": "core",
+          "origin": "deterministic",
+          "jdSpan": {
+            "startChar": 1156,
+            "endChar": 1288,
+            "rawSnippet": "Currently pursuing or recently completed a Bachelor's degree in Computer Science, Information Technology, AI/ML, or a related field."
+          },
+          "status": "active",
+          "version": 1
+        }
+      ],
+      "reviewLens": {
+        "overRestrictiveCount": 1,
+        "summary": "1 requirement may be suitable for validation rather than automatic elimination.",
+        "findings": [
+          {
+            "requirementId": "req-12",
+            "requirementText": "Experience with React, Node.js, FastAPI, Django, or similar frameworks.",
+            "issue": "on_the_job_trainable",
+            "currentCategory": "core",
+            "recommendedCategory": "trainable",
+            "rationale": "Tooling requirement (\"Experience with React, Node.js, FastAPI, Django, or similar frameworks.\") can be learned rapidly on the job if the engineer has core language fundamentals. Auto-eliminating candidates without exact library experience artificially shrinks the talent pool."
+          }
+        ],
+        "historicalCaveat": "Review suggestions are observational and recruiter-editable. Edits are recorded immutably."
+      },
+      "createdAt": "2026-09-23T11:43:42.330Z",
+      "updatedAt": "2026-09-23T11:43:42.332Z"
+    },
+    {
       "id": "role-senior-distributed-backend-engineer-4032",
       "title": "Senior Distributed Backend Engineer",
       "department": "Core Infrastructure",
@@ -601,6 +1827,336 @@
   ],
   "candidates": [
     {
+      "id": "batch-3",
+      "name": "Marcus Vance",
+      "email": "marcus.vance@eng-solutions.com",
+      "appliedRoleId": "role-principal-distributed-architect-4065",
+      "appliedRoleTitle": "Principal Distributed Architect",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-24T17:54:29.447Z",
+      "resumeText": "Marcus Vance\nStaff Site Reliability & Platform Engineer\nExperience:\n- Platform Lead at Apex Networks (2021 - 2026)\n  Engineered multi-region Kubernetes clusters on AWS (EKS) across 6 availability zones.\n  Maintained PostgreSQL high-availability replication clusters with Patroni and pgBouncer.\n  Wrote custom Kubernetes operators in Go for automated failover.\n  Quantified improvement: Reduced service downtime by 42% over 3 years.\nEducation:\n- M.S. in Software Engineering, University of Washington (2019 - 2021)",
+      "currentStage": "Applied",
+      "screeningDossier": {
+        "candidateId": "batch-3",
+        "candidateName": "Marcus Vance",
+        "email": "marcus.vance@eng-solutions.com",
+        "roleId": "role-principal-distributed-architect-4065",
+        "roleTitle": "Principal Distributed Architect",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-24T17:54:29.447Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Principal Distributed Architect\" (Version 1). Limited evidence found relative to stated requirements (4/4 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 4,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 4,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-crit-1",
+            "requirementText": "Raft Consensus & Distributed Log Replication",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Raft Consensus & Distributed Log Replication evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Raft Consensus & Distributed Log Replication",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-crit-2",
+            "requirementText": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Low-Latency Kernel Network Tuning (eBPF/DPDK) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-imp-1",
+            "requirementText": "Distributed Tracing Architecture (OpenTelemetry)",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Tracing Architecture (OpenTelemetry) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Tracing Architecture (OpenTelemetry)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-train-1",
+            "requirementText": "Prometheus Alertmanager Syntax",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Prometheus Alertmanager Syntax evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Prometheus Alertmanager Syntax",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 7,
+        "originalResumeText": "Marcus Vance\nStaff Site Reliability & Platform Engineer\nExperience:\n- Platform Lead at Apex Networks (2021 - 2026)\n  Engineered multi-region Kubernetes clusters on AWS (EKS) across 6 availability zones.\n  Maintained PostgreSQL high-availability replication clusters with Patroni and pgBouncer.\n  Wrote custom Kubernetes operators in Go for automated failover.\n  Quantified improvement: Reduced service downtime by 42% over 3 years.\nEducation:\n- M.S. in Software Engineering, University of Washington (2019 - 2021)"
+      },
+      "decisionJournal": {
+        "verdict": "Reject",
+        "decidedAt": "2026-09-24T17:12:14.659Z",
+        "rationale": "[RECRUITER OVERRIDE: Demonstrated outstanding live systems architecture in whiteboard drill] Override automated hold",
+        "holdLoopCount": 0,
+        "citedEvidenceIds": [
+          "req-senior-1"
+        ]
+      }
+    },
+    {
+      "id": "batch-2",
+      "name": "Sarah Al-Mansoor",
+      "email": "sarah.mansoor@techmail.io",
+      "appliedRoleId": "role-principal-distributed-architect-4065",
+      "appliedRoleTitle": "Principal Distributed Architect",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-24T17:54:29.447Z",
+      "resumeText": "Sarah Al-Mansoor\nSoftware Engineer specializing in High-Throughput Services\nExperience:\n- Backend Engineer at Nexus Data Corp (2023 - 2026)\n  Developed microservices in Go (Golang) and Java.\n  Implemented database migrations on MySQL clusters. Note: Used MySQL for all core transaction storage.\n  Led adoption of Docker containerization across 14 internal tools.\nProjects:\n- Telemetry Broker (2024): Open-source event dispatcher written in Go with Docker compose configuration.",
+      "currentStage": "Applied",
+      "screeningDossier": {
+        "candidateId": "batch-2",
+        "candidateName": "Sarah Al-Mansoor",
+        "email": "sarah.mansoor@techmail.io",
+        "roleId": "role-principal-distributed-architect-4065",
+        "roleTitle": "Principal Distributed Architect",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-24T17:54:29.447Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Principal Distributed Architect\" (Version 1). Limited evidence found relative to stated requirements (4/4 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 4,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 4,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-crit-1",
+            "requirementText": "Raft Consensus & Distributed Log Replication",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Raft Consensus & Distributed Log Replication evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Raft Consensus & Distributed Log Replication",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-crit-2",
+            "requirementText": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Low-Latency Kernel Network Tuning (eBPF/DPDK) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-imp-1",
+            "requirementText": "Distributed Tracing Architecture (OpenTelemetry)",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Tracing Architecture (OpenTelemetry) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Tracing Architecture (OpenTelemetry)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-train-1",
+            "requirementText": "Prometheus Alertmanager Syntax",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Prometheus Alertmanager Syntax evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Prometheus Alertmanager Syntax",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 3,
+        "originalResumeText": "Sarah Al-Mansoor\nSoftware Engineer specializing in High-Throughput Services\nExperience:\n- Backend Engineer at Nexus Data Corp (2023 - 2026)\n  Developed microservices in Go (Golang) and Java.\n  Implemented database migrations on MySQL clusters. Note: Used MySQL for all core transaction storage.\n  Led adoption of Docker containerization across 14 internal tools.\nProjects:\n- Telemetry Broker (2024): Open-source event dispatcher written in Go with Docker compose configuration."
+      }
+    },
+    {
+      "id": "batch-1",
+      "name": "Devon Chen",
+      "email": "devon.chen@alum.mit.edu",
+      "appliedRoleId": "role-principal-distributed-architect-4065",
+      "appliedRoleTitle": "Principal Distributed Architect",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-09-24T17:54:29.446Z",
+      "resumeText": "Devon Chen\nEmail: devon.chen@alum.mit.edu | Location: Remote\nExperience:\n- Senior Distributed Systems Engineer at CloudCore Technologies (2022 - 2026)\n  Designed and operated distributed microservices in Go and Rust processing 85,000 requests/second.\n  Managed database scaling with PostgreSQL 15, designing connection pooling and partition strategies.\n  Architected asynchronous event streaming pipeline using Apache Kafka with strict exactly-once semantics.\n  Configured production Kubernetes clusters via Helm and Terraform.\nEducation:\n- B.S. in Computer Science, Massachusetts Institute of Technology (2018 - 2022)",
+      "currentStage": "Applied",
+      "screeningDossier": {
+        "candidateId": "batch-1",
+        "candidateName": "Devon Chen",
+        "email": "devon.chen@alum.mit.edu",
+        "roleId": "role-principal-distributed-architect-4065",
+        "roleTitle": "Principal Distributed Architect",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-24T17:54:29.446Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Principal Distributed Architect\" (Version 1). Limited evidence found relative to stated requirements (4/4 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 4,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 4,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-crit-1",
+            "requirementText": "Raft Consensus & Distributed Log Replication",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Raft Consensus & Distributed Log Replication evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Raft Consensus & Distributed Log Replication",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-crit-2",
+            "requirementText": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Low-Latency Kernel Network Tuning (eBPF/DPDK) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-imp-1",
+            "requirementText": "Distributed Tracing Architecture (OpenTelemetry)",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Tracing Architecture (OpenTelemetry) evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Tracing Architecture (OpenTelemetry)",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-train-1",
+            "requirementText": "Prometheus Alertmanager Syntax",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Prometheus Alertmanager Syntax evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Prometheus Alertmanager Syntax",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 8,
+        "originalResumeText": "Devon Chen\nEmail: devon.chen@alum.mit.edu | Location: Remote\nExperience:\n- Senior Distributed Systems Engineer at CloudCore Technologies (2022 - 2026)\n  Designed and operated distributed microservices in Go and Rust processing 85,000 requests/second.\n  Managed database scaling with PostgreSQL 15, designing connection pooling and partition strategies.\n  Architected asynchronous event streaming pipeline using Apache Kafka with strict exactly-once semantics.\n  Configured production Kubernetes clusters via Helm and Terraform.\nEducation:\n- B.S. in Computer Science, Massachusetts Institute of Technology (2018 - 2022)"
+      }
+    },
+    {
       "id": "cand-single-340093",
       "name": "Candidate",
       "email": "candidate@example.com",
@@ -611,7 +2167,7 @@
       "resumeText": "ANANYA SHARMA\n\nAI/ML ENGINEER\nBengaluru, India\nananya.sharma.dev@example.com\ngithub.com/ananyasharma\nlinkedin.com/in/ananyasharma\n\nPROFESSIONAL SUMMARY\n\nAI/ML Engineer with 3+ years of experience building and deploying machine learning and generative AI applications. Experienced in Python, PyTorch, scikit-learn, FastAPI, SQL, Docker, and cloud-based deployment. Strong background in developing end-to-end ML systems, from data preprocessing and model training to API integration, evaluation, and production deployment.\n\nTECHNICAL SKILLS\n\nLanguages:\nPython, C++, SQL, JavaScript\n\nMachine Learning:\nMachine Learning, Deep Learning, NLP, Computer Vision, Model Evaluation, Feature Engineering\n\nAI:\nLLMs, RAG, Embeddings, Vector Databases, Prompt Engineering, AI Agents\n\nFrameworks:\nPyTorch, scikit-learn, TensorFlow, FastAPI, Flask\n\nData:\nPandas, NumPy, PostgreSQL, Redis\n\nEngineering:\nREST APIs, Git, GitHub, Docker, CI/CD, Linux\n\nCloud:\nAWS, Google Cloud\n\nMLOps:\nDocker, MLflow, Model Monitoring, CI/CD\n\nEXPERIENCE\n\nAI/ML Engineer — NovaScale Technologies\nBengaluru, India\n2023 – Present\n\n• Built and deployed machine learning services in Python serving more than 50,000 API requests per day.\n\n• Developed a customer-intent classification system using Python, PyTorch and transformer-based models, improving F1 score from 0.78 to 0.91.\n\n• Designed FastAPI services for model inference and integrated ML models into production applications.\n\n• Containerized ML services using Docker and implemented CI/CD pipelines for automated deployment.\n\n• Built an evaluation pipeline to monitor model accuracy, latency and prediction drift.\n\n• Worked with PostgreSQL and Redis for application data and caching.\n\n• Collaborated with frontend and backend engineers to integrate AI capabilities into production products.\n\nSoftware Engineer — DataForge Labs\nPune, India\n2021 – 2023\n\n• Developed Python-based data processing and machine learning pipelines.\n\n• Built recommendation and classification models using scikit-learn and PyTorch.\n\n• Designed REST APIs using FastAPI for internal ML services.\n\n• Optimized data-processing workflows using Pandas, NumPy and SQL.\n\n• Participated in technical design reviews and implemented scalable backend components.\n\nPROJECTS\n\nCognalyze — AI-Powered Talent Intelligence Platform\nGitHub: github.com/ananyasharma/cognalyze\n\n• Built an AI-powered platform that analyzes candidate capabilities using resumes, projects, GitHub activity, assessments and interview evidence.\n\n• Developed an evidence-based candidate matching system that maps candidate capabilities to role requirements.\n\n• Implemented an AI-powered resume and job-description analysis pipeline using Python and LLM APIs.\n\n• Built FastAPI backend services for candidate analysis and intelligent matching.\n\n• Designed explainable candidate analysis where recommendations are linked to supporting evidence.\n\nMedicalVision AI\n\n• Developed a computer vision system using PyTorch for medical image classification.\n\n• Trained and evaluated a CNN model on a dataset of 25,000+ labeled images.\n\n• Achieved 89% validation accuracy after model optimization.\n\n• Built a FastAPI inference service and deployed the application using Docker.\n\nRAG Knowledge Assistant\n\n• Built a retrieval-augmented generation application using Python, LangChain and a vector database.\n\n• Implemented document chunking, embedding generation and semantic retrieval.\n\n• Developed an API layer for real-time question answering.\n\nEDUCATION\n\nB.Tech — Computer Science & Engineering\nABC Institute of Technology\n2021 – 2025\n\nCERTIFICATIONS & ACHIEVEMENTS\n\n• AWS Certified Cloud Practitioner\n• Kaggle Machine Learning Competition — Top 10%\n• Winner — University AI Hackathon\n• Open-source contributor to Python-based ML projects\n\nGITHUB & OPEN SOURCE\n\n• 25+ public repositories\n• Multiple production-oriented Python projects\n• Contributions to machine learning and developer tooling projects",
       "currentStage": "Work Sample Pending",
       "activeWorkSample": {
-        "id": "ws-req-1-5187",
+        "id": "ws-req-1-1763",
         "roleId": "role-senior-distributed-backend-engineer-4032",
         "requirementId": "req-1",
         "requirementName": "Distributed Systems & Event-Driven Architecture",
@@ -682,6 +2238,120 @@
         "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
         "timeLimitMinutes": 45,
         "triggerContext": "direct_verification"
+      },
+      "screeningDossier": {
+        "candidateId": "cand-single-490966",
+        "candidateName": "Neha Sen",
+        "email": "neha.sen@example.com",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "roleTitle": "Senior Distributed Backend Engineer",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-20T08:44:19.715Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Senior Distributed Backend Engineer\" (Version 1). Limited evidence found relative to stated requirements (5/5 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 5,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 5,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-1",
+            "requirementText": "Distributed Systems & Event-Driven Architecture",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Systems & Event-Driven Architecture evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Systems & Event-Driven Architecture",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-2",
+            "requirementText": "Backend Concurrency & High-Throughput Storage",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Backend Concurrency & High-Throughput Storage evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Backend Concurrency & High-Throughput Storage",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-3",
+            "requirementText": "Cloud Observability & Reliability Engineering",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cloud Observability & Reliability Engineering evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cloud Observability & Reliability Engineering",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-4",
+            "requirementText": "Cross-Functional Technical Leadership",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cross-Functional Technical Leadership evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cross-Functional Technical Leadership",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-5",
+            "requirementText": "Kubernetes Operator & Helm Automation",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Kubernetes Operator & Helm Automation evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Kubernetes Operator & Helm Automation",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 0,
+        "originalResumeText": "Neha Sen. Senior Platform Engineer with 6 years experience. Expert in distributed systems, Go, Kafka partition balancing, Kubernetes operators, and PostgreSQL. Built event-driven architecture processing 12,000 TPS."
       }
     },
     {
@@ -773,7 +2443,7 @@
         "AWS Certified Solutions Architect",
         "Confluent Certified Developer for Apache Kafka"
       ],
-      "currentStage": "Work Sample Pending",
+      "currentStage": "Technical Interview",
       "activeWorkSample": {
         "id": "ws-req-1-3036",
         "roleId": "role-senior-distributed-backend-engineer-4032",
@@ -804,6 +2474,15 @@
         "expectedDeliverable": "Written architectural code snippet (Go/TS/Java) + 3-paragraph trade-off explanation",
         "timeLimitMinutes": 45,
         "triggerContext": "direct_verification"
+      },
+      "decisionJournal": {
+        "verdict": "Reject",
+        "decidedAt": "2026-09-24T17:13:54.994Z",
+        "rationale": "[RECRUITER OVERRIDE: Demonstrated outstanding live systems architecture in whiteboard drill] Override automated hold",
+        "holdLoopCount": 0,
+        "citedEvidenceIds": [
+          "req-senior-1"
+        ]
       }
     },
     {
@@ -985,6 +2664,294 @@
         "timeLimitMinutes": 45,
         "triggerContext": "direct_verification"
       }
+    },
+    {
+      "id": "student-app-app-seed-0",
+      "name": "Demo Student (Cognalyze)",
+      "email": "student.demo@cognalyze.edu",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Flipkart GRiD 7.0 — Software Development Track",
+      "sourceType": "student_application",
+      "appliedAt": "2026-09-20T08:06:25.964Z",
+      "resumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline",
+      "linkedInUrl": "https://linkedin.com/in/demo-student",
+      "hackathonRecords": [
+        "Flipkart GRiD 7.0 — Software Development Track"
+      ],
+      "currentStage": "Applied",
+      "screeningDossier": {
+        "candidateId": "student-app-app-seed-0",
+        "candidateName": "Demo Student (Cognalyze)",
+        "email": "student.demo@cognalyze.edu",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "roleTitle": "Senior Distributed Backend Engineer",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-22T14:10:17.129Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Senior Distributed Backend Engineer\" (Version 1). Limited evidence found relative to stated requirements (5/5 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 5,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 5,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-1",
+            "requirementText": "Distributed Systems & Event-Driven Architecture",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Systems & Event-Driven Architecture evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Systems & Event-Driven Architecture",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-2",
+            "requirementText": "Backend Concurrency & High-Throughput Storage",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Backend Concurrency & High-Throughput Storage evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Backend Concurrency & High-Throughput Storage",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-3",
+            "requirementText": "Cloud Observability & Reliability Engineering",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cloud Observability & Reliability Engineering evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cloud Observability & Reliability Engineering",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-4",
+            "requirementText": "Cross-Functional Technical Leadership",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cross-Functional Technical Leadership evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cross-Functional Technical Leadership",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-5",
+            "requirementText": "Kubernetes Operator & Helm Automation",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Kubernetes Operator & Helm Automation evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Kubernetes Operator & Helm Automation",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 0,
+        "originalResumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline"
+      }
+    },
+    {
+      "id": "student-app-app-seed-1",
+      "name": "Demo Student (Cognalyze)",
+      "email": "student.demo@cognalyze.edu",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+      "sourceType": "student_application",
+      "appliedAt": "2026-09-20T08:06:25.964Z",
+      "resumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline",
+      "linkedInUrl": "https://linkedin.com/in/demo-student",
+      "hackathonRecords": [
+        "Walmart Global Tech — Campus SDE Hiring Sprint 2026"
+      ],
+      "currentStage": "Applied",
+      "screeningDossier": {
+        "candidateId": "student-app-app-seed-1",
+        "candidateName": "Demo Student (Cognalyze)",
+        "email": "student.demo@cognalyze.edu",
+        "roleId": "role-senior-distributed-backend-engineer-4032",
+        "roleTitle": "Senior Distributed Backend Engineer",
+        "roleVersion": 1,
+        "analyzedAt": "2026-09-22T14:23:02.105Z",
+        "overallCoverage": "LIMITED EVIDENCE",
+        "narrativeSummary": "Evaluated against confirmed role requirements for \"Senior Distributed Backend Engineer\" (Version 1). Limited evidence found relative to stated requirements (5/5 requirements not documented).",
+        "coverageCounts": {
+          "totalAssessed": 5,
+          "supportedCount": 0,
+          "partialCount": 0,
+          "notFoundCount": 5,
+          "conflictingCount": 0,
+          "needsReviewCount": 0
+        },
+        "assessments": [
+          {
+            "requirementId": "req-1",
+            "requirementText": "Distributed Systems & Event-Driven Architecture",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Distributed Systems & Event-Driven Architecture evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Distributed Systems & Event-Driven Architecture",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-2",
+            "requirementText": "Backend Concurrency & High-Throughput Storage",
+            "category": "required",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Backend Concurrency & High-Throughput Storage evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Backend Concurrency & High-Throughput Storage",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-3",
+            "requirementText": "Cloud Observability & Reliability Engineering",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cloud Observability & Reliability Engineering evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cloud Observability & Reliability Engineering",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-4",
+            "requirementText": "Cross-Functional Technical Leadership",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Cross-Functional Technical Leadership evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Cross-Functional Technical Leadership",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          },
+          {
+            "requirementId": "req-5",
+            "requirementText": "Kubernetes Operator & Helm Automation",
+            "category": "preferred",
+            "evidenceState": "EVIDENCE_NOT_FOUND",
+            "evidenceDepth": "level_1_mentioned",
+            "candidateEvidence": "No relevant mention identified in submitted resume.",
+            "sourceSection": "Submitted Materials",
+            "sourceText": "Not found",
+            "assessmentExplanation": "No Kubernetes Operator & Helm Automation evidence was identified in the submitted resume.",
+            "isRecruiterAddedRequirement": false,
+            "whyChain": {
+              "roleRequirement": "Kubernetes Operator & Helm Automation",
+              "candidateEvidence": "No matching record",
+              "assessment": "Absence of documented evidence in candidate materials.",
+              "sourceSection": "Entire Resume"
+            }
+          }
+        ],
+        "detectedContradictions": [],
+        "documentedExperienceYears": 0,
+        "originalResumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline"
+      }
+    },
+    {
+      "id": "student-app-app-seed-2",
+      "name": "Demo Student (Cognalyze)",
+      "email": "student.demo@cognalyze.edu",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Walmart CodeHers 2027 — India Campus Challenge",
+      "sourceType": "student_application",
+      "appliedAt": "2026-09-20T08:06:25.964Z",
+      "resumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline",
+      "linkedInUrl": "https://linkedin.com/in/demo-student",
+      "hackathonRecords": [
+        "Walmart CodeHers 2027 — India Campus Challenge"
+      ],
+      "currentStage": "Applied"
+    },
+    {
+      "id": "student-app-app-seed-3",
+      "name": "Demo Student (Cognalyze)",
+      "email": "student.demo@cognalyze.edu",
+      "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
+      "appliedRoleTitle": "Tata Imagination Challenge 2026",
+      "sourceType": "student_application",
+      "appliedAt": "2026-09-20T08:06:25.964Z",
+      "resumeText": "Demo Student Applicant\n3rd Year Computer Science student.\nSkills: Go, TypeScript, Next.js, PostgreSQL, Docker, Distributed Systems.\nCurated Projects:\n- Autonomous Recovery Bot\n- Edge Telemetry Ingestion Pipeline",
+      "linkedInUrl": "https://linkedin.com/in/demo-student",
+      "hackathonRecords": [
+        "Tata Imagination Challenge 2026"
+      ],
+      "currentStage": "Applied"
     }
   ],
   "hireRecords": [

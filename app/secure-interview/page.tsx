@@ -493,30 +493,47 @@ export default function SecureInterviewPage() {
     setViolations([...violationsRef.current]);
   }, []);
 
-  // ══ CAMERA INIT — THE KEY FIX ══
+  // ══ CAMERA INIT — WITH VIDEO-ONLY FALLBACK ══
   const initCamera = async (): Promise<boolean> => {
     setCamError("");
-    try {
-      // Stop any existing stream first
-      streamRef.current?.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
+    streamRef.current?.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
 
-      const stream = await navigator.mediaDevices.getUserMedia({
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: true
       });
+    } catch (e1) {
+      console.warn("HD Video+Audio failed, retrying video-only:", e1);
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+      } catch (e2) {
+        console.warn("User-facing video failed, retrying basic video:", e2);
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } catch (e3: any) {
+          const msg = e3.name === "NotAllowedError"
+            ? "Camera access denied. Please allow camera in browser settings and try again."
+            : e3.name === "NotFoundError"
+              ? "No camera found. Please connect a camera and try again."
+              : `Camera error: ${e3.message}`;
+          setCamError(msg);
+          return false;
+        }
+      }
+    }
+
+    if (stream) {
       streamRef.current = stream;
       setStreamReady(true);
       return true;
-    } catch (e: any) {
-      const msg = e.name === "NotAllowedError"
-        ? "Camera access denied. Please allow camera in browser settings and try again."
-        : e.name === "NotFoundError"
-          ? "No camera found. Please connect a camera and try again."
-          : `Camera error: ${e.message}`;
-      setCamError(msg);
-      return false;
     }
+    return false;
   };
 
   // ══ ATTACH STREAM TO VIDEO — separate from init ══
@@ -632,10 +649,9 @@ export default function SecureInterviewPage() {
     const steps = ["camera", "mic", "security", "network"] as const;
     for (let i = 0; i < steps.length; i++) {
       setCheckStep(i);
-      await new Promise(r => setTimeout(r, 700 + Math.random() * 600));
+      await new Promise(r => setTimeout(r, 200));
       setChecksDone(p => ({ ...p, [steps[i]]: true }));
     }
-    await new Promise(r => setTimeout(r, 300));
     await startLiveInterview();
   };
 

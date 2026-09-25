@@ -11,12 +11,53 @@
 export type EvidenceLevel = 0 | 1 | 2 | 3 | 4;
 export type EvidenceLevelName = "UNKNOWN" | "CLAIMED" | "DEMONSTRATED" | "ASSESSED" | "VERIFIED";
 export type ConfidenceLevel = "LOW" | "MEDIUM" | "HIGH";
+
+export type EpistemicStatus = 
+  | "Claimed"
+  | "Inferred"
+  | "Developing"
+  | "Demonstrated"
+  | "Verified"
+  | "Strong"
+  | "Gap"
+  | "Contradicted"
+  | "Insufficient Evidence";
+
+export type BloomDepth = "Know" | "Apply" | "Explain" | "Defend" | "Prove";
+
 export type ProficiencyState = 
   | "Insufficient Evidence" 
   | "Claimed" 
+  | "Inferred"
   | "Developing" 
+  | "Demonstrated"
+  | "Verified"
   | "Strong" 
+  | "Gap"
+  | "Contradicted"
   | "Mastered";
+
+export interface CapabilityWhyExplanation {
+  capability: string;
+  status: EpistemicStatus;
+  coverage: "High" | "Medium" | "Low";
+  evidenceCount: number;
+  verifiedCount: number;
+  lastObserved: string;
+  demonstratedStrengths: string[];
+  observedGaps: string[];
+  supportingEvidence: {
+    id: string;
+    sourceType: string;
+    claim: string;
+    extractedSnippet: string;
+    level: string;
+    confidence: string;
+    date: string;
+  }[];
+  reasoning: string;
+  recommendedNextAction: string;
+}
 
 export interface EvidenceItem {
   id: string;
@@ -31,7 +72,8 @@ export interface EvidenceItem {
     | "simulation" 
     | "hackathon" 
     | "application" 
-    | "outcome";
+    | "outcome"
+    | "mentor";
   sourceId: string;
   capability: string;             // Canonical skill name (e.g., "Python", "MLOps", "DSA")
   claim: string;                  // What was claimed or stated
@@ -84,6 +126,9 @@ export interface TargetProfile {
 export interface StudentCapability {
   name: string;
   proficiencyState: ProficiencyState;
+  epistemicStatus?: EpistemicStatus;
+  coverage?: "High" | "Medium" | "Low";
+  depthLevel?: BloomDepth;
   evidenceLevel: EvidenceLevel;
   levelName: EvidenceLevelName;
   evidenceCount: number;
@@ -268,6 +313,23 @@ export const TARGET_ROLE_PROFILES: Record<string, TargetProfile> = {
       "Security & Auth": { name: "Security & Auth", importance: "preferred", minEvidenceLevel: 2, description: "OAuth2, JWT, rate limiting, encryption." }
     },
     sourceNote: "Industry expectations synthesized from campus engineering hiring criteria & technical roadmaps."
+  },
+  "Software Engineer": {
+    roleName: "Software Engineer",
+    coreCapabilities: ["DSA & Problem Solving", "System Design", "SQL & Databases", "JavaScript / TypeScript", "Python"],
+    importantCapabilities: ["React / Next.js", "Node.js / Backend", "Communication & Articulation", "Git & Version Control"],
+    preferredCapabilities: ["Cloud Infrastructure", "Docker & Containers", "MLOps & Monitoring", "Machine Learning"],
+    expectations: {
+      "DSA & Problem Solving": { name: "DSA & Problem Solving", importance: "core", minEvidenceLevel: 3, description: "Assessed algorithm optimization, pattern recognition, and complexity." },
+      "System Design": { name: "System Design", importance: "core", minEvidenceLevel: 2, description: "Architecture, scalability, trade-off defense, failure modes." },
+      "SQL & Databases": { name: "SQL & Databases", importance: "core", minEvidenceLevel: 3, description: "Schema modeling, query execution plans, transactions, indexing." },
+      "JavaScript / TypeScript": { name: "JavaScript / TypeScript", importance: "core", minEvidenceLevel: 2, description: "Typed web engineering and clean application logic." },
+      "Python": { name: "Python", importance: "core", minEvidenceLevel: 2, description: "Core data processing and backend scripting competency." },
+      "Communication & Articulation": { name: "Communication & Articulation", importance: "important", minEvidenceLevel: 2, description: "Clear structured verbal & technical explanation without filler." },
+      "React / Next.js": { name: "React / Next.js", importance: "important", minEvidenceLevel: 2, description: "Component state architecture and full-stack rendering." },
+      "Node.js / Backend": { name: "Node.js / Backend", importance: "important", minEvidenceLevel: 2, description: "RESTful microservices, asynchronous execution, and authentication." }
+    },
+    sourceNote: "Synthesized from Product Company & FAANG campus/entry-level SDE criteria."
   }
 };
 
@@ -504,15 +566,29 @@ export function computeStudentCapabilities(evidenceList: EvidenceItem[]): Record
 
     // Compute proficiency state (never arbitrary scores)
     let proficiencyState: ProficiencyState = "Insufficient Evidence";
-    if (highestLevel === 1) {
-      proficiencyState = "Claimed";
-    } else if (highestLevel === 2) {
-      proficiencyState = items.length >= 2 ? "Developing" : "Claimed";
+    let epistemicStatus: EpistemicStatus = "Insufficient Evidence";
+
+    if (hasConflict) {
+      proficiencyState = "Contradicted";
+      epistemicStatus = "Contradicted";
+    } else if (highestLevel === 4 || verifiedCount >= 1) {
+      proficiencyState = items.length >= 4 ? "Mastered" : "Strong";
+      epistemicStatus = "Verified";
     } else if (highestLevel === 3) {
       proficiencyState = items.length >= 3 ? "Strong" : "Developing";
-    } else if (highestLevel === 4) {
-      proficiencyState = items.length >= 4 ? "Mastered" : "Strong";
+      epistemicStatus = items.length >= 2 ? "Strong" : "Demonstrated";
+    } else if (highestLevel === 2) {
+      proficiencyState = items.length >= 2 ? "Developing" : "Claimed";
+      epistemicStatus = items.length >= 2 ? "Demonstrated" : "Developing";
+    } else if (highestLevel === 1) {
+      proficiencyState = "Claimed";
+      epistemicStatus = "Claimed";
     }
+
+    const coverage: "High" | "Medium" | "Low" = 
+      items.length >= 3 && verifiedCount >= 1 ? "High" : items.length >= 1 ? "Medium" : "Low";
+    const depthLevel: BloomDepth = 
+      highestLevel >= 4 ? "Prove" : highestLevel === 3 ? "Defend" : highestLevel === 2 ? "Explain" : highestLevel === 1 ? "Apply" : "Know";
 
     const levelNames: Record<EvidenceLevel, EvidenceLevelName> = {
       0: "UNKNOWN",
@@ -525,6 +601,9 @@ export function computeStudentCapabilities(evidenceList: EvidenceItem[]): Record
     capabilities[name] = {
       name,
       proficiencyState,
+      epistemicStatus,
+      coverage,
+      depthLevel,
       evidenceLevel: highestLevel,
       levelName: levelNames[highestLevel],
       evidenceCount: items.length,
@@ -541,6 +620,73 @@ export function computeStudentCapabilities(evidenceList: EvidenceItem[]): Record
   }
 
   return capabilities;
+}
+
+/**
+ * Transparent "Why?" Diagnostic Engine
+ * Explains exactly which evidence items, observations, and benchmarks established a capability's status.
+ */
+export function getCapabilityWhy(
+  profile: StudentDNAProfile,
+  capabilityName: string
+): CapabilityWhyExplanation {
+  const norm = normalizeCapabilityName(capabilityName);
+  const cap = profile.capabilities[norm] || profile.capabilities[capabilityName];
+  const allEvidence = getStudentEvidence(profile.studentId).filter(
+    e => normalizeCapabilityName(e.capability) === norm
+  );
+
+  const status = cap?.epistemicStatus || (cap?.proficiencyState as EpistemicStatus) || "Insufficient Evidence";
+  const coverage = cap?.coverage || (allEvidence.length >= 3 ? "High" : allEvidence.length >= 1 ? "Medium" : "Low");
+
+  const strengths = allEvidence
+    .filter(e => e.evidenceLevel >= 2)
+    .map(e => `${e.claim} (${e.provenance?.sourceName || e.sourceType})`);
+
+  const gaps = allEvidence
+    .filter(e => e.evidenceLevel < 2)
+    .map(e => e.extractedEvidence || e.claim);
+
+  let reasoning = "";
+  if (status === "Verified") {
+    reasoning = `Demonstrated across multiple independent validated assessments and verified on-platform evaluations with corroborated provenance.`;
+  } else if (status === "Demonstrated" || status === "Strong") {
+    reasoning = `Demonstrated across ${allEvidence.length} live sessions or code artifacts. Core problem solving and implementation observed under timed conditions.`;
+  } else if (status === "Developing") {
+    reasoning = `Observed in ${allEvidence.length} session(s). Basic execution and definitions recalled, but trade-off defense, edge-case handling, or deeper architecture explanations require further demonstration.`;
+  } else if (status === "Claimed") {
+    reasoning = `Stated on resume or profile, but not yet verified or tested in an active assessment or interview session.`;
+  } else if (status === "Contradicted") {
+    reasoning = `Discrepancy detected between claimed profile capabilities and observed interview / assessment responses. Verification required.`;
+  } else {
+    reasoning = `No direct observational evidence recorded yet for this capability.`;
+  }
+
+  const nextAction = profile.nextBestActions.find(
+    a => normalizeCapabilityName(a.capability) === norm
+  );
+
+  return {
+    capability: norm,
+    status,
+    coverage,
+    evidenceCount: allEvidence.length,
+    verifiedCount: allEvidence.filter(e => e.verificationStatus === "verified" || e.evidenceLevel === 4).length,
+    lastObserved: cap?.latestEvidenceDate || new Date().toISOString(),
+    demonstratedStrengths: strengths.length ? strengths : ["Foundational concepts recognized"],
+    observedGaps: gaps.length ? gaps : ["Advanced trade-off defense under timed constraints"],
+    supportingEvidence: allEvidence.map(e => ({
+      id: e.id,
+      sourceType: e.sourceType,
+      claim: e.claim,
+      extractedSnippet: e.extractedEvidence,
+      level: e.evidenceLevel >= 3 ? "Assessed" : e.evidenceLevel === 2 ? "Demonstrated" : "Claimed",
+      confidence: e.confidence,
+      date: e.createdAt
+    })),
+    reasoning,
+    recommendedNextAction: nextAction ? nextAction.title : `Complete 1 targeted practice session in ${norm} to advance this capability.`
+  };
 }
 
 // ══════════════════════════════════════════════════════════════════════

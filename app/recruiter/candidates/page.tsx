@@ -1,2204 +1,1479 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import * as XLSX from "xlsx";
+
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import { get100BenchmarkCandidates } from "@/lib/ai/benchmarkCandidates";
+import { RoleDNA } from "@/lib/ai/role-dna";
+import {
+  CandidateScreeningDossier,
+  RequirementAssessmentItem,
+  EvidenceMatchState,
+  RecruiterCorrection
+} from "@/lib/screening/candidate-screening-engine";
+import { MultiSourceCandidateProfile } from "@/lib/recruiter-store";
+import { BatchProcessingItemError, BatchDeduplicationAlert } from "@/lib/screening/batch-screener";
+import PipelineEvidenceView from "@/components/evidence/PipelineEvidenceView";
+import { CandidateDecision, Evidence } from "@/lib/evidence/types";
 
-// ─── TYPES ───
-interface AgentResult { name: string; color: string; response: string; score?: number; }
-interface DNADim { name: string; candidate: number; ideal: number; }
-interface DNAData { dimensions: DNADim[]; summary: string; }
-interface Analysis {
-  decision: string; decision_confidence: number; ats_match_score: number; overall_fit: number;
-  experience_match: string; seniority_level: string; years_experience: string;
-  must_have_skills: { required: string[]; present: string[]; missing: string[]; match_percent: number };
-  good_to_have_skills: { listed: string[]; candidate_has: string[]; match_percent: number };
-  red_flags: { flag: string; severity: string; evidence: string }[];
-  green_flags: { flag: string; strength: string; evidence: string }[];
-  education_assessment: { score: number; institution_tier: string; relevance: string; notes: string };
-  interview_questions: { question: string; type: string; probes: string; difficulty: string }[];
-  salary_assessment: { estimated_expectation: string; market_fit: string; notes: string };
-  next_steps: { action: string; timeline: string; focus_areas: string[]; interviewer_recommendation: string };
-  shortlist_summary: string; comparable_benchmark: string; error?: string; message?: string;
-  faang_recruiter_report?: {
-    evidence: string[];
-    risks: string[];
-    missing_signals: string[];
-    interview_concerns: string[];
-    salary_concerns: string[];
-    team_fit_concerns: string[];
-    growth_potential: string[];
-  };
-}
-interface CandidateInput { id: string; name: string; resume: string; }
-interface RankedCandidate {
-  id: string; name: string; rank: number; overall_score: number; verdict: string; summary: string;
-  committee_note?: string;
-  strengths: string[]; weaknesses: string[];
-  scores: { technical: number; experience: number; leadership: number; culture_fit: number; growth_potential: number; must_have_match?: number; evidence_quality?: number };
-  predicted_questions: string[]; hire_recommendation: string;
-  is_keyword_stuffer?: boolean;
-  radar?: {
-    mustHave: number;
-    evidenceQuality: number;
-    practicalWork: number;
-    projects: number;
-    dsa: number;
-    engineeringPractices: number;
-    goodToHave: number;
-  };
-  matched_must_haves?: {
-    skill: string;
-    status: "verified_work" | "verified_project" | "coursework" | "listed_only" | "missing";
-    level: number;
-    evidenceSnippet: string;
-  }[];
-}
+export default function RecruiterCandidatesPage() {
+  // Navigation & Mode
+  const [activeMode, setActiveMode] = useState<"open_roles" | "analyze">("open_roles");
+  const [analyzeTab, setAnalyzeTab] = useState<"single" | "batch">("single");
 
-// ─── HELPERS ───
-export function cleanThinkText(raw: string): string {
-  if (!raw || typeof raw !== "string") return "";
-  return raw
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
-    .replace(/<think>[\s\S]*$/gi, "")
-    .replace(/<thinking>[\s\S]*$/gi, "")
-    .replace(/<\/?think(?:ing)?>/gi, "")
-    .replace(/^thinking:\s*/gi, "")
-    .trim();
-}
-
-function parseScore(t: string): number {
-  const m = t.match(/Score:\s*(\d{1,3})\s*\/\s*100/i) || t.match(/(\d{1,3})\s*\/\s*100/i);
-  if (m) { const n = parseInt(m[1]); return n >= 0 && n <= 100 ? n : 60; }
-  return 60;
-}
-
-function dc(d: string): string {
-  if (!d) return "#94a3b8";
-  const norm = d.toUpperCase();
-  return norm === "EXCEPTIONAL HIRE" ? "#38bdf8"
-    : norm === "STRONG HIRE" ? "#00ff88"
-    : norm === "HIRE" ? "#22c55e"
-    : norm === "LEAN HIRE" || norm === "LEANING HIRE" ? "#a3e635"
-    : norm === "LEAN REJECT" || norm === "LEANING NO HIRE" ? "#f97316"
-    : norm === "STRONG REJECT" || norm === "NO HIRE" || norm === "REJECT" ? "#ff4466"
-    : "#94a3b8";
-}
-
-function dIcon(d: string): string {
-  if (!d) return "⏳";
-  const norm = d.toUpperCase();
-  return norm === "EXCEPTIONAL HIRE" ? "🏆"
-    : norm === "STRONG HIRE" ? "✅"
-    : norm === "HIRE" ? "👍"
-    : norm === "LEAN HIRE" || norm === "LEANING HIRE" ? "🤔"
-    : norm === "LEAN REJECT" || norm === "LEANING NO HIRE" ? "👎"
-    : norm === "STRONG REJECT" || norm === "NO HIRE" || norm === "REJECT" ? "❌"
-    : "⏳";
-}
-
-// ─── UI COMPONENTS ───
-function GradientBg() {
-  return (
-    <>
-      <style>{`
-        @keyframes blob1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-30px,60px) scale(0.9)}}
-        @keyframes blob2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-80px,40px) scale(1.2)}66%{transform:translate(50px,-60px) scale(0.85)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-        @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes slideRight{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
-        @keyframes scaleIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
-        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-        .glass{background:rgba(255,255,255,0.04);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.08);}
-        .glass-strong{background:rgba(255,255,255,0.06);backdrop-filter:blur(60px);border:1px solid rgba(255,255,255,0.1);}
-        .btn-primary{background:linear-gradient(135deg,#6366f1,#8b5cf6,#a855f7);border:none;color:white;font-weight:700;cursor:pointer;transition:all 0.25s;letter-spacing:1px;}
-        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(99,102,241,0.4);}
-        .btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
-        .tab-btn{transition:all 0.2s;border:1px solid transparent;cursor:pointer;font-family:inherit;}
-        .tab-btn:hover{color:white !important;}
-        textarea:focus,input:focus{outline:none;}
-        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.35);border-radius:2px;}
-        .card-hover{transition:border-color 0.2s;}
-        .card-hover:hover{border-color:rgba(99,102,241,0.3) !important;}
-      `}</style>
-      <div style={{position:"fixed",inset:0,overflow:"hidden",zIndex:0,background:"linear-gradient(135deg,#06030f 0%,#0a0520 50%,#04080f 100%)"}}>
-        <div style={{position:"absolute",top:"-20%",left:"-10%",width:"55%",height:"55%",background:"radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%)",borderRadius:"50%",filter:"blur(90px)",animation:"blob1 14s ease-in-out infinite"}}/>
-        <div style={{position:"absolute",bottom:"-20%",right:"-10%",width:"50%",height:"50%",background:"radial-gradient(circle,rgba(168,85,247,0.12) 0%,transparent 70%)",borderRadius:"50%",filter:"blur(90px)",animation:"blob2 17s ease-in-out infinite"}}/>
-        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(99,102,241,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.025) 1px,transparent 1px)",backgroundSize:"70px 70px"}}/>
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent 0%,rgba(99,102,241,0.6) 30%,rgba(168,85,247,0.6) 70%,transparent 100%)"}}/>
-      </div>
-    </>
-  );
-}
-
-function Typewriter({text,speed=8,onDone}:{text:string;speed?:number;onDone?:()=>void}) {
-  const clean = cleanThinkText(text);
-  const [d,setD]=useState("");
-  const [done,setDone]=useState(false);
-  useEffect(()=>{
-    setD("");setDone(false);let i=0;
-    const t=setInterval(()=>{i++;setD(clean.slice(0,i));if(i>=clean.length){clearInterval(t);setDone(true);onDone?.();}},speed);
-    return()=>clearInterval(t);
-  },[clean]);
-  return <span style={{whiteSpace:"pre-wrap"}}>{d}{!done&&<span style={{animation:"blink 0.8s infinite",color:"rgba(255,255,255,0.5)"}}>|</span>}</span>;
-}
-
-function Ring({score,color,size=80}:{score:number;color:string;size?:number}) {
-  const [s,setS]=useState(0);
-  const r=size*0.4,circ=2*Math.PI*r;
-  useEffect(()=>{let v=0;const t=setInterval(()=>{v=Math.min(v+2,score);setS(v);if(v>=score)clearInterval(t);},14);return()=>clearInterval(t);},[score]);
-  return (
-    <div style={{position:"relative",width:size,height:size,flexShrink:0}}>
-      <svg width={size} height={size} style={{transform:"rotate(-90deg)"}}>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth={size*0.065}/>
-        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={size*0.065}
-          strokeDasharray={circ} strokeDashoffset={circ-(circ*s/100)} strokeLinecap="round"
-          style={{transition:"stroke-dashoffset 0.05s",filter:s>0?`drop-shadow(0 0 6px ${color}80)`:""}}/>
-      </svg>
-      <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column"}}>
-        <span style={{fontSize:size*0.23,fontWeight:900,color,lineHeight:1}}>{s}</span>
-        <span style={{fontSize:size*0.1,color:"rgba(255,255,255,0.3)"}}>/ 100</span>
-      </div>
-    </div>
-  );
-}
-
-function DNARadar({data}:{data:DNAData}) {
-  const [progress,setProgress]=useState(0);
-  const size=250,center=size/2,dims=data.dimensions,total=dims.length;
-  useEffect(()=>{let p=0;const t=setInterval(()=>{p+=0.03;if(p>=1){setProgress(1);clearInterval(t);}else setProgress(p);},16);return()=>clearInterval(t);},[]);
-  const gp=(idx:number,val:number)=>{const a=(Math.PI*2*idx)/total-Math.PI/2;const r=(val/100)*(size*0.38)*progress;return{x:center+r*Math.cos(a),y:center+r*Math.sin(a)};};
-  const ga=(idx:number,r:number)=>{const a=(Math.PI*2*idx)/total-Math.PI/2;return{x:center+r*Math.cos(a),y:center+r*Math.sin(a)};};
-  const pts=dims.map((d,i)=>gp(i,d.candidate));
-  const ips=dims.map((d,i)=>gp(i,d.ideal));
-  const toPath=(p:{x:number,y:number}[])=>p.map((pt,i)=>`${i===0?"M":"L"}${pt.x.toFixed(1)},${pt.y.toFixed(1)}`).join(" ")+"Z";
-  return (
-    <div>
-      <p style={{fontSize:12,color:"rgba(255,255,255,0.4)",lineHeight:1.5,textAlign:"center",marginBottom:12}}>{data.summary}</p>
-      <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:"1.5rem",flexWrap:"wrap"}}>
-        <svg width={size} height={size}>
-          {Array.from({length:4}).map((_,i)=><circle key={i} cx={center} cy={center} r={(size*0.38)*((i+1)/4)} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>)}
-          {dims.map((_,i)=>{const p=ga(i,size*0.38);return<line key={i} x1={center} y1={center} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>;})}
-          <path d={toPath(ips)} fill="rgba(99,102,241,0.07)" stroke="rgba(99,102,241,0.3)" strokeWidth="1.5" strokeDasharray="4 3"/>
-          <path d={toPath(pts)} fill="rgba(168,85,247,0.18)" stroke="#a855f7" strokeWidth="2" style={{filter:"drop-shadow(0 0 8px rgba(168,85,247,0.4))"}}/>
-          {pts.map((p,i)=><circle key={i} cx={p.x} cy={p.y} r="4" fill="#a855f7" style={{filter:"drop-shadow(0 0 5px #a855f7)"}}/>)}
-          {dims.map((d,i)=>{const p=ga(i,size*0.46);const anchor=p.x<center-10?"end":p.x>center+10?"start":"middle";return(
-            <g key={i}>
-              <text x={p.x} y={p.y} textAnchor={anchor} dominantBaseline="middle" fill="rgba(255,255,255,0.5)" fontSize="9" fontFamily="system-ui">{d.name}</text>
-              <text x={p.x} y={p.y+11} textAnchor={anchor} dominantBaseline="middle" fill="#a855f7" fontSize="9" fontWeight="700" fontFamily="system-ui">{Math.round(d.candidate*progress)}</text>
-            </g>
-          );})}
-        </svg>
-        <div style={{minWidth:175}}>
-          {dims.map((d,i)=>(
-            <div key={i} style={{marginBottom:8}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>{d.name}</span>
-                <span style={{fontSize:11,color:"#a855f7",fontWeight:700}}>{d.candidate}<span style={{color:"rgba(99,102,241,0.5)",fontWeight:400}}>/{d.ideal}</span></span>
-              </div>
-              <div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:999,overflow:"hidden"}}>
-                <div style={{height:"100%",width:`${d.candidate*progress}%`,background:d.candidate>=d.ideal?"linear-gradient(90deg,#00ff88,#22d3ee)":"linear-gradient(90deg,#a855f7,#6366f1)",borderRadius:999,transition:"width 0.05s"}}/>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── MAIN PAGE ───
-export default function RecruiterPage() {
-  const [mode, setMode] = useState<"single"|"multi"|"funnel">("single");
-  const [jd, setJd] = useState("");
-  const [resume, setResume] = useState("");
-  const [candidates, setCandidates] = useState<CandidateInput[]>([
-    {id:"1",name:"Candidate 1",resume:""},{id:"2",name:"Candidate 2",resume:""}
-  ]);
-  const [step, setStep] = useState<"input"|"loading"|"debate"|"verdict"|"ranking"|"funnel_results">("input");
-  const [agents, setAgents] = useState<(AgentResult&{typing?:boolean})[]>([]);
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const [avg, setAvg] = useState(0);
-  const [loadMsg, setLoadMsg] = useState("Initializing");
-  const [error, setError] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [dna, setDna] = useState<DNAData|null>(null);
-  const [analysis, setAnalysis] = useState<Analysis|null>(null);
-  const [githubData, setGithubData] = useState<any>(null);
-  const [linkedinAnalysis, setLinkedinAnalysis] = useState<any>(null);
-  const [ranked, setRanked] = useState<RankedCandidate[]|null>(null);
-  const [rankMeta, setRankMeta] = useState<{comparison_summary:string;top_pick_reason:string}|null>(null);
-  const [rankLoading, setRankLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"analysis"|"debate"|"questions"|"dna">("analysis");
-  const [expandedCandidate, setExpandedCandidate] = useState<string|null>(null);
-  const [funnelStates, setFunnelStates] = useState<any[]>([]);
-  const [funnelAnalytics, setFunnelAnalytics] = useState<any>(null);
-  const [enterpriseReports, setEnterpriseReports] = useState<any[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number; filename: string } | null>(null);
-  const [showBulkPasteModal, setShowBulkPasteModal] = useState(false);
-  const [bulkPasteText, setBulkPasteText] = useState("");
-  const [roles, setRoles] = useState<any[]>([]);
+  // Data State
+  const [roles, setRoles] = useState<RoleDNA[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
-  const [singleCandidateName, setSingleCandidateName] = useState<string>("");
-  const [analyzedCandidateInfo, setAnalyzedCandidateInfo] = useState<{ id: string; name: string; roleId: string; roleTitle: string } | null>(null);
-  const [topNShortlist, setTopNShortlist] = useState<number>(50);
-  const [shortlistFilter, setShortlistFilter] = useState<"all"|"strong_must_haves"|"no_stuffers"|"high_score">("all");
-  const [failedFiles, setFailedFiles] = useState<{ id: string; name: string; filename: string; reason: string }[]>([]);
+  const [candidates, setCandidates] = useState<MultiSourceCandidateProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [roleMetrics, setRoleMetrics] = useState<{
+    totalApplicants: number;
+    analyzedCount: number;
+    needsAttentionCount: number;
+  } | null>(null);
 
-  const [enterpriseWeights, setEnterpriseWeights] = useState<any>({
-    technical: 20,
-    projects: 20,
-    experience: 15,
-    problemSolving: 10,
-    aiml: 10,
-    leadership: 5,
-    communication: 5,
-    learningPotential: 5,
-    cultureFit: 5,
-    education: 3,
-    logistics: 2
-  });
-  const rawRef = useRef<AgentResult[]>([]);
+  // Filters
+  const [searchQuery, setSearchQuery] = useState("");
+  const [coverageFilter, setCoverageFilter] = useState<string>("ALL");
+  const [needsAttentionOnly, setNeedsAttentionOnly] = useState(false);
+  const [blindMode, setBlindMode] = useState(false);
 
-  const loadMsgs = ["Initializing committee","Parsing job description","Analyzing resume","Agents deliberating","Compiling analysis"];
+  // Multi-select for Side-by-Side Comparison
+  const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
+  const [comparing, setComparing] = useState(false);
+  const [comparisonData, setComparisonData] = useState<any | null>(null);
+  const [comparisonLoading, setComparisonLoading] = useState(false);
 
+  // Dossier Drawer / Modal
+  const [activeDossierCandidate, setActiveDossierCandidate] = useState<MultiSourceCandidateProfile | null>(null);
+  const [dossierLoading, setDossierLoading] = useState(false);
+  const [expandedWhyId, setExpandedWhyId] = useState<string | null>(null);
+  const [drawerTab, setDrawerTab] = useState<"pipeline_evidence" | "dossier">("pipeline_evidence");
+  const [pipelineDecisions, setPipelineDecisions] = useState<CandidateDecision[]>([]);
+  const [pipelineEvidence, setPipelineEvidence] = useState<Evidence[]>([]);
+
+  // Recruiter Correction form state
+  const [correctingReqId, setCorrectingReqId] = useState<string | null>(null);
+  const [correctedState, setCorrectedState] = useState<EvidenceMatchState>("SUPPORTED");
+  const [correctionReason, setCorrectionReason] = useState("");
+  const [correctionSaving, setCorrectionSaving] = useState(false);
+
+  // Mode B: Single Candidate form state
+  const [singleName, setSingleName] = useState("");
+  const [singleEmail, setSingleEmail] = useState("");
+  const [singlePhone, setSinglePhone] = useState("");
+  const [singleResumeText, setSingleResumeText] = useState("");
+  const [singleScreening, setSingleScreening] = useState(false);
+  const [singleError, setSingleError] = useState<string | null>(null);
+
+  // Mode B: Batch Upload state
+  const [batchRole, setBatchRole] = useState<string>("");
+  const [batchFiles, setBatchFiles] = useState<File[]>([]);
+  const [batchRawText, setBatchRawText] = useState("");
+  const [batchProcessing, setBatchProcessing] = useState(false);
+  const [batchProgress, setBatchProgress] = useState<{ processed: number; total: number } | null>(null);
+  const [batchSummary, setBatchSummary] = useState<{
+    totalSubmitted: number;
+    successfullyAnalyzed: number;
+    failedItems: BatchProcessingItemError[];
+    duplicates: BatchDeduplicationAlert[];
+  } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch Roles and Candidate Pool
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("cognalyze_active_jd");
-      if (stored && !jd) {
-        setJd(stored);
-      }
-    }
-
-    async function loadRoles() {
-      try {
-        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-        const requestedRoleId = urlParams?.get("roleId") || (typeof window !== "undefined" ? localStorage.getItem("cognalyze_active_role_id") : null);
-
-        const res = await fetch("/api/recruiter/roles");
-        const data = await res.json();
-        if (data.success && data.roles && data.roles.length > 0) {
-          setRoles(data.roles);
-          const matchedRole = requestedRoleId ? data.roles.find((r: any) => r.id === requestedRoleId) : null;
-          const targetRole = matchedRole || data.roles[0];
-          setSelectedRoleId(targetRole.id);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("cognalyze_active_role_id", targetRole.id);
-          }
-
-          // Preload JD from matched target role
-          const reqs = (targetRole.tieredRequirements || []).map((t: any) => `- ${t.name}: ${t.description}`).join("\n");
-          const outcomes = (targetRole.businessOutcomes || []).map((o: any) => `- ${o.outcome} (${o.metric})`).join("\n");
-          setJd(`Role: ${targetRole.title} (${targetRole.seniority})\nDepartment: ${targetRole.department}\n\nCore Requirements:\n${reqs}\n\n90-Day Target Outcomes:\n${outcomes}`);
-        }
-      } catch (err) {
-        console.error("Failed to load roles:", err);
-      }
-    }
-    loadRoles();
-
-    async function loadCandidatePool() {
-      try {
-        const res = await fetch("/api/recruiter/candidates");
-        const data = await res.json();
-        if (data.success && data.candidates && data.candidates.length > 0) {
-          const poolInputs: CandidateInput[] = data.candidates.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            resume: c.resumeText || ""
-          }));
-          setCandidates(poolInputs);
-        }
-      } catch (err) {
-        console.error("Failed to load candidates pool:", err);
-      }
-    }
-    loadCandidatePool();
+    loadRolesAndCandidates();
   }, []);
 
-  const extractCandidateName = (rawFilename: string, text: string): string => {
-    let clean = rawFilename
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[_\-\.]+/g, " ")
-      .replace(/\b(resume|cv|biodata|profile|curriculum|vitae|v\d+|final|draft|\d{4})\b/gi, "")
-      .trim();
-
-    if (clean && /^[a-zA-Z\s]{3,35}$/.test(clean)) {
-      return clean
-        .split(/\s+/)
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(" ");
-    }
-
-    if (text) {
-      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-      for (let i = 0; i < Math.min(lines.length, 6); i++) {
-        const line = lines[i];
-        if (/@|http|www|github|linkedin|\+?\d{10,}|education|experience|summary|skills/i.test(line)) continue;
-        const words = line.split(/\s+/);
-        if (words.length >= 2 && words.length <= 4 && /^[a-zA-Z\s\.]+$/.test(line) && line.length >= 3 && line.length <= 35) {
-          return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-        }
-      }
-    }
-
-    return clean || "Candidate";
-  };
-
-  const handleFileUpload = async (file: File, candidateId?: string) => {
-    if (!file) return;
-    if (!candidateId) setUploading(true);
+  async function loadRolesAndCandidates() {
+    setLoading(true);
     try {
-      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("roleId", selectedRoleId || (roles[0]?.id ?? "role-core-systems"));
-        const resp = await fetch("/api/recruiter/upload-resume", {
-          method: "POST",
-          body: formData
-        });
-        const data = await resp.json();
-        if (data.success && data.candidate) {
-          const newCand = { id: data.candidate.id, name: data.candidate.name, resume: data.candidate.resumeText };
-          if (candidateId) {
-            setCandidates(p => p.map(c => c.id === candidateId ? newCand : c));
-          } else {
-            setSingleCandidateName(data.candidate.name);
-            setResume(data.candidate.resumeText);
-            setCandidates(p => [newCand, ...p.filter(x => x.id !== "1" && x.id !== "2")]);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("cognalyze_active_candidate_id", data.candidate.id);
-              if (selectedRoleId) {
-                localStorage.setItem("cognalyze_active_role_id", selectedRoleId);
-              }
-            }
-          }
-          if (!candidateId) setUploading(false);
-          return;
-        }
-      }
+      // 1. Load roles
+      const rolesRes = await fetch("/api/recruiter/roles");
+      const rolesData = await rolesRes.json();
+      const loadedRoles: RoleDNA[] = rolesData.roles || [];
+      setRoles(loadedRoles);
 
-      const b64 = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => {
-          const resStr = r.result as string;
-          if (resStr && resStr.includes(",")) resolve(resStr.split(",")[1]);
-          else reject(new Error("Invalid file format"));
-        };
-        r.onerror = () => reject(new Error("File read error"));
-        r.readAsDataURL(file);
-      });
-      const resp = await fetch("/api/parse-resume", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({imageBase64: b64, mimeType: file.type}) });
-      const data = await resp.json();
-      if (data.text) {
-        if (candidateId) setCandidates(p => p.map(c => c.id === candidateId ? {...c, resume: data.text} : c));
-        else setResume(data.text);
-      } else setError("Extract failed — please paste text manually");
-    } catch { setError("Upload failed — please paste text manually"); }
-    if (!candidateId) setUploading(false);
-  };
+      const defaultRoleId = loadedRoles.length > 0 ? loadedRoles[0].id : "";
+      setSelectedRoleId(defaultRoleId);
+      setBatchRole(defaultRoleId);
 
-  const parseSingleFile = async (file: File): Promise<{ id: string; name: string; resume: string }[]> => {
-    const fname = file.name.toLowerCase();
-
-    // 1. JSON file containing candidate array
-    if (fname.endsWith(".json")) {
-      const text = await file.text();
-      try {
-        const parsed = JSON.parse(text);
-        if (Array.isArray(parsed)) {
-          return parsed.map((item: any, idx: number) => {
-            const rText = typeof item === "string" ? item : (item.resume || item.resumeText || item.text || JSON.stringify(item));
-            const candName = (typeof item === "object" && item.name) ? item.name : extractCandidateName(`Candidate ${idx + 1}`, rText);
-            return {
-              id: (Date.now() + Math.random() * 10000 + idx).toString(),
-              name: candName,
-              resume: rText,
-            };
-          });
-        }
-      } catch { /* fallback */ }
-    }
-
-    // 2. TXT / CSV file
-    if (fname.endsWith(".txt") || fname.endsWith(".csv")) {
-      const text = await file.text();
-      try {
-        const splitResp = await fetch("/api/split-resumes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ combinedText: text }),
-        });
-        const splitData = await splitResp.json();
-        if (splitData.candidates && splitData.candidates.length > 0) {
-          return splitData.candidates.map((c: any, idx: number) => ({
-            id: (Date.now() + Math.random() * 10000 + idx).toString(),
-            name: c.name || extractCandidateName(`Candidate ${idx + 1}`, c.resume),
-            resume: c.resume,
-          }));
-        }
-      } catch {}
-      return [{
-        id: (Date.now() + Math.random() * 10000).toString(),
-        name: extractCandidateName(file.name, text),
-        resume: text,
-      }];
-    }
-
-    // 3. PDF / Image file
-    try {
-      const b64 = await new Promise<string>((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => {
-          const resStr = r.result as string;
-          if (resStr && resStr.includes(",")) resolve(resStr.split(",")[1]);
-          else reject(new Error("Invalid file format"));
-        };
-        r.onerror = () => reject(new Error("File read error"));
-        r.readAsDataURL(file);
-      });
-      const resp = await fetch("/api/parse-resume", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: b64, mimeType: file.type || "application/pdf" }),
-      });
-      const data = await resp.json();
-
-      if (data.pages) {
-        const splitResp = await fetch("/api/split-resumes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ pages: data.pages }),
-        });
-        const splitData = await splitResp.json();
-        if (splitData.candidates && splitData.candidates.length > 0) {
-          return splitData.candidates.map((c: any, idx: number) => ({
-            id: (Date.now() + Math.random() * 10000 + idx).toString(),
-            name: c.name || extractCandidateName(`Candidate ${idx + 1}`, c.resume),
-            resume: c.resume,
-          }));
-        }
-      }
-      if (data.text) {
-        return [{
-          id: (Date.now() + Math.random() * 10000).toString(),
-          name: extractCandidateName(file.name, data.text),
-          resume: data.text,
-        }];
-      }
-    } catch {}
-
-    return [];
-  };
-
-  const handleBulkFileUpload = async (files: FileList | File[] | File) => {
-    const fileArray = files instanceof FileList ? Array.from(files) : Array.isArray(files) ? files : [files];
-    if (fileArray.length === 0) return;
-    setUploading(true);
-    setError("");
-    setUploadProgress({ current: 0, total: fileArray.length, filename: fileArray[0].name });
-
-    try {
-      const combinedCandidates: { id: string; name: string; resume: string }[] = [];
-      const PARALLEL_BATCH = 6;
-      let completed = 0;
-
-      for (let i = 0; i < fileArray.length; i += PARALLEL_BATCH) {
-        const batch = fileArray.slice(i, i + PARALLEL_BATCH);
-        const batchResults = await Promise.all(
-          batch.map(async (f) => {
-            const res = await parseSingleFile(f);
-            completed++;
-            setUploadProgress({ current: Math.min(completed, fileArray.length), total: fileArray.length, filename: f.name });
-            return res;
-          })
-        );
-        for (const res of batchResults) {
-          combinedCandidates.push(...res);
-        }
-      }
-
-      if (combinedCandidates.length > 0) {
-        setCandidates(prev => {
-          const hasReal = prev.some(c => c.resume.trim().length > 0);
-          return hasReal ? [...prev, ...combinedCandidates] : combinedCandidates;
-        });
+      // 2. Load candidates
+      if (defaultRoleId) {
+        await loadCandidatesForRole(defaultRoleId);
       } else {
-        setError("Failed to extract candidate resumes from uploaded files.");
+        const candRes = await fetch("/api/recruiter/candidates");
+        const candData = await candRes.json();
+        setCandidates(candData.candidates || []);
       }
-    } catch (e: any) {
-      setError(e.message || "Failed to parse and extract resumes.");
+    } catch (err) {
+      console.error("Failed to load initial data", err);
     } finally {
-      setUploading(false);
-      setUploadProgress(null);
+      setLoading(false);
     }
-  };
-
-  const handleBulkPasteImport = () => {
-    if (!bulkPasteText.trim()) return;
-    const rawEntries = bulkPasteText
-      .split(/(?:^|\n)(?:-{3,}|={3,}|Candidate\s+\d+:?)(?:\n|$)/i)
-      .map(t => t.trim())
-      .filter(t => t.length > 20);
-
-    if (rawEntries.length === 0 && bulkPasteText.trim().length >= 50) {
-      rawEntries.push(bulkPasteText.trim());
-    }
-
-    const imported = rawEntries.map((entry, idx) => {
-      const name = extractCandidateName(`Candidate ${candidates.length + idx + 1}`, entry);
-      return {
-        id: (Date.now() + idx).toString(),
-        name,
-        resume: entry,
-      };
-    });
-
-    if (imported.length > 0) {
-      setCandidates(prev => {
-        const hasReal = prev.some(c => c.resume.trim().length > 0);
-        return hasReal ? [...prev, ...imported] : imported;
-      });
-      setBulkPasteText("");
-      setShowBulkPasteModal(false);
-    }
-  };
-
-  const runAnalysis = async () => {
-    if (!jd.trim() || !resume.trim()) return;
-    setError(""); setStep("loading"); setDna(null); setAnalysis(null); setActiveTab("analysis");
-
-    // Extract candidate identity and register in store
-    const candName = singleCandidateName.trim() || extractCandidateName("Candidate", resume) || "Screened Candidate";
-    const candId = `cand-single-${Date.now().toString().slice(-6)}`;
-    const targetRole = roles.find(r => r.id === selectedRoleId) || roles[0];
-    const roleIdToUse = targetRole?.id || selectedRoleId || "role-core-systems";
-    const roleTitleToUse = targetRole?.title || "Target Role";
-
-    setAnalyzedCandidateInfo({
-      id: candId,
-      name: candName,
-      roleId: roleIdToUse,
-      roleTitle: roleTitleToUse
-    });
-
-    if (typeof window !== "undefined") {
-      localStorage.setItem("cognalyze_active_candidate_id", candId);
-      localStorage.setItem("cognalyze_active_role_id", roleIdToUse);
-    }
-
-    // Persist to unified recruiter store
-    fetch("/api/recruiter/candidates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: candId,
-        name: candName,
-        appliedRoleId: roleIdToUse,
-        appliedRoleTitle: roleTitleToUse,
-        resumeText: resume,
-        sourceType: "bulk_upload",
-        currentStage: "In Decision Room"
-      })
-    }).catch(err => console.error("Failed to register single candidate:", err));
-
-    let i = 0; const lt = setInterval(() => { i++; if (i < loadMsgs.length) setLoadMsg(loadMsgs[i]); }, 900);
-    try {
-      const [debateRes, analysisRes] = await Promise.all([
-        fetch("/api/debate", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({jd, resume}) }),
-        fetch("/api/recruiter-analysis", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({jd, resume}) }),
-      ]);
-      clearInterval(lt);
-      const [debateData, analysisData] = await Promise.all([debateRes.json(), analysisRes.json()]);
-
-      if (debateData.agents) {
-        rawRef.current = debateData.agents.map((a: AgentResult) => ({
-          ...a,
-          response: cleanThinkText(a.response),
-          score: parseScore(a.response)
-        }));
-      }
-      if (!analysisData.error || analysisData.decision) setAnalysis(analysisData);
-      if (analysisData.error && !analysisData.decision) { setError(analysisData.message || "Analysis failed"); setStep("input"); return; }
-
-      fetch("/api/dna", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({jd, resume}) })
-        .then(r => r.json()).then(setDna).catch(() => {});
-
-      setAgents([]); setCurrentIdx(0); setStep("debate");
-    } catch (e: any) { clearInterval(lt); setError(e.message); setStep("input"); }
-  };
-
-  const exportRankingToXLSX = () => {
-    if (!ranked || ranked.length === 0) return;
-
-    const rows = ranked
-      .filter(c => c.overall_score > 0)
-      .sort((a, b) => a.rank - b.rank)
-      .map(c => ({
-        Rank: c.rank,
-        Name: c.name,
-        "Overall Score": c.overall_score,
-        Verdict: c.verdict,
-        Summary: c.summary,
-        Strengths: c.strengths?.join("; ") || "",
-        Concerns: c.weaknesses?.join("; ") || "",
-        "Technical Score": c.scores?.technical ?? "",
-        "Experience Score": c.scores?.experience ?? "",
-        "Leadership Score": c.scores?.leadership ?? "",
-        "Culture Fit Score": c.scores?.culture_fit ?? "",
-        "Growth Potential Score": c.scores?.growth_potential ?? "",
-        "Hire Recommendation": c.hire_recommendation || "",
-      }));
-
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-
-    // Auto-size columns roughly based on header + content length
-    const colWidths = Object.keys(rows[0] || {}).map(key => {
-      const maxLen = Math.max(
-        key.length,
-        ...rows.map(r => String((r as any)[key] ?? "").length)
-      );
-      return { wch: Math.min(maxLen + 2, 60) };
-    });
-    worksheet["!cols"] = colWidths;
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Ranked Candidates");
-
-    const filename = `candidate-ranking-${new Date().toISOString().slice(0, 10)}.xlsx`;
-    XLSX.writeFile(workbook, filename);
-  };
-
-  // ═══════════════════════════════════════════════════════════
-// PATCH 1 — Find this function in your original page.tsx:
-//   const runRanking = async () => { ... }
-// REPLACE the entire function body with this:
-// ═══════════════════════════════════════════════════════════
-
-const runRanking = async () => {
-  const valid = candidates.filter(c => c.resume.trim().length >= 80);
-  if (!jd.trim() || valid.length < 2) {
-    setError("Need complete JD and at least 2 candidates with resumes (min 80 chars each)");
-    return;
   }
 
-  setError("");
-  setRankLoading(true);
-  setRanked(null);
-  setStep("ranking");
-  setLoadMsg("Initializing analysis...");
+  async function loadCandidatesForRole(roleId: string) {
+    try {
+      const res = await fetch(`/api/recruiter/candidates?roleId=${encodeURIComponent(roleId)}&metrics=true`);
+      const data = await res.json();
+      if (data.success) {
+        setCandidates(data.candidates || []);
+        setRoleMetrics(data.metrics || null);
+      }
+    } catch (err) {
+      console.error("Failed to load candidates for role", err);
+    }
+  }
 
-  let pollInterval: NodeJS.Timeout | null = null;
+  const handleRoleChange = (newRoleId: string) => {
+    setSelectedRoleId(newRoleId);
+    setSelectedCandidateIds([]);
+    loadCandidatesForRole(newRoleId);
+  };
 
-  // 10-minute hard timeout (30 candidates × ~15s each on free tier = ~7.5 min)
-  const timeoutId = setTimeout(() => {
-    if (pollInterval) clearInterval(pollInterval);
-    setError("Analysis timed out — try with fewer candidates");
-    setStep("input");
-    setRankLoading(false);
-  }, 600000);
+  // Inspect Dossier for a candidate
+  const handleInspectDossier = async (cand: MultiSourceCandidateProfile) => {
+    setActiveDossierCandidate(cand);
+    setExpandedWhyId(null);
+    setCorrectingReqId(null);
+    setDrawerTab("pipeline_evidence");
 
-  try {
-    // ── STEP 1: Start the job ──────────────────────────────────────────
-    const initRes = await fetch("/api/bulk-analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        roleId: selectedRoleId,
-        candidates: valid.map(c => ({
-          id: c.id,
-          name: c.name.trim(),
-          resume: c.resume.trim(),   // route converts this to resumeText internally
-        })),
-        jobDescription: jd,
-      }),
+    // Fetch pipeline evidence and decisions for this candidate
+    try {
+      const pRes = await fetch(`/api/pipeline/evidence?candidateId=${encodeURIComponent(cand.id)}`);
+      const pData = await pRes.json();
+      if (pData.success && Array.isArray(pData.decisions) && pData.decisions.length > 0) {
+        setPipelineDecisions(pData.decisions);
+        setPipelineEvidence(pData.evidence || []);
+      } else if (cand.screeningDossier) {
+        // Synthesize stage 1 decision from existing assessments
+        const synEvidence: Evidence[] = [];
+        const synCriteria = cand.screeningDossier.assessments.map((a) => {
+          const evId = `ev_${cand.id}_${a.requirementId}`;
+          if (a.sourceText) {
+            synEvidence.push({
+              id: evId,
+              source_type: "resume_text",
+              source_ref: a.sourceSection || "resume:line",
+              quote_or_fact: a.sourceText,
+              extracted_at: cand.screeningDossier?.analyzedAt || new Date().toISOString(),
+            });
+          }
+          return {
+            criterion: a.requirementText,
+            verdict: (a.evidenceState === "SUPPORTED"
+              ? "met"
+              : a.evidenceState === "PARTIALLY_SUPPORTED"
+              ? "partial"
+              : a.evidenceState === "EVIDENCE_NOT_FOUND"
+              ? "not_met"
+              : "insufficient_evidence") as any,
+            evidence_ids: a.sourceText ? [evId] : [],
+            reasoning: a.assessmentExplanation,
+          };
+        });
+
+        const synDecision: CandidateDecision = {
+          candidate_id: cand.id,
+          stage: "resume_jd_match",
+          outcome: cand.screeningDossier.coverageCounts.supportedCount >= 1 ? "advance" : "hold",
+          criteria_results: synCriteria,
+          overall_confidence: "high",
+          created_at: cand.screeningDossier.analyzedAt || new Date().toISOString(),
+        };
+
+        setPipelineDecisions([synDecision]);
+        setPipelineEvidence(synEvidence);
+      } else {
+        setPipelineDecisions([]);
+        setPipelineEvidence([]);
+      }
+    } catch {
+      setPipelineDecisions([]);
+      setPipelineEvidence([]);
+    }
+
+    // If dossier isn't loaded or need fresh one, fetch via /api/recruiter/candidates/[id]
+    if (!cand.screeningDossier) {
+      setDossierLoading(true);
+      try {
+        const res = await fetch(`/api/recruiter/candidates/${encodeURIComponent(cand.id)}`);
+        const data = await res.json();
+        if (data.success && data.candidate) {
+          setActiveDossierCandidate(data.candidate);
+          // Also update in list
+          setCandidates(prev => prev.map(c => c.id === data.candidate.id ? data.candidate : c));
+        }
+      } catch (err) {
+        console.error("Failed to load dossier", err);
+      } finally {
+        setDossierLoading(false);
+      }
+    }
+  };
+
+  // Submit recruiter correction
+  const handleSaveCorrection = async () => {
+    if (!activeDossierCandidate || !correctingReqId || !correctionReason.trim()) return;
+
+    setCorrectionSaving(true);
+    try {
+      const currentReq = activeDossierCandidate.screeningDossier?.assessments.find(
+        a => a.requirementId === correctingReqId
+      );
+
+      const res = await fetch(`/api/recruiter/candidates/${encodeURIComponent(activeDossierCandidate.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "recruiter_correction",
+          correction: {
+            requirementId: correctingReqId,
+            originalState: currentReq?.evidenceState || "EVIDENCE_NOT_FOUND",
+            correctedState,
+            reason: correctionReason.trim()
+          }
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.candidate) {
+        setActiveDossierCandidate(data.candidate);
+        setCandidates(prev => prev.map(c => c.id === data.candidate.id ? data.candidate : c));
+        setCorrectingReqId(null);
+        setCorrectionReason("");
+      }
+    } catch (err) {
+      console.error("Correction failed", err);
+    } finally {
+      setCorrectionSaving(false);
+    }
+  };
+
+  // Toggle selection for comparison
+  const toggleSelectCandidate = (id: string) => {
+    setSelectedCandidateIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(cId => cId !== id);
+      } else {
+        if (prev.length >= 4) {
+          alert("You can compare up to 4 candidates at a time.");
+          return prev;
+        }
+        return [...prev, id];
+      }
     });
+  };
 
-    const initData = await initRes.json();
-    if (initData.error) {
-      clearTimeout(timeoutId);
-      setError(initData.error);
-      setStep("input");
-      setRankLoading(false);
+  // Run Side-by-Side Comparison
+  const handleOpenComparison = async () => {
+    if (selectedCandidateIds.length < 2) {
+      alert("Please select at least 2 candidates to compare.");
       return;
     }
 
-    const { jobId } = initData;
-
-    // ── STEP 2: Poll until complete ────────────────────────────────────
-    pollInterval = setInterval(async () => {
-      try {
-        const pollRes = await fetch(`/api/bulk-analyze?jobId=${jobId}`);
-        if (!pollRes.ok) return; // transient — keep polling
-        const job = await pollRes.json();
-
-        if (job.status === "processing") {
-          const phase = job.phase === "ranking" ? "Ranking & comparing..." : "Scoring candidates...";
-          setLoadMsg(`${phase} (${job.progress || 0}/${job.total || 0})`);
-
-        } else if (job.status === "error") {
-          clearInterval(pollInterval!);
-          clearTimeout(timeoutId);
-          setError(job.error || "Analysis failed");
-          setStep("input");
-          setRankLoading(false);
-
-        } else if (job.status === "complete") {
-          clearInterval(pollInterval!);
-          clearTimeout(timeoutId);
-
-          // ── STEP 3: Map twoPassRanker output → RankedCandidate ──────
-          // New format from twoPassRanker.js:
-          // { candidate_id, candidateName, final_score, verdict, committee_note,
-          //   hire_instinct, biggest_strength, biggest_concern, hidden_signal,
-          //   red_flags, trajectory, impact_quality, recruiter_verdict, rank }
-
-          const verdictMap: Record<string, string> = {
-            STRONGLY_RECOMMEND: "Strong Hire",
-            RECOMMEND:          "Lean Hire",
-            HOLD:               "Lean Reject",
-            REJECT:             "Strong Reject",
-          };
-
-          const mappedRanked: RankedCandidate[] = (job.ranked || []).map((c: any) => ({
-            id:            c.candidate_id,
-            name:          c.candidateName || c.candidate_id,
-            rank:          c.rank,
-            overall_score: c.final_score || 0,
-            verdict:       c.verdict || "Lean Reject",
-
-            summary: cleanThinkText(c.summary || c.committee_note || "Screening complete."),
-            committee_note: cleanThinkText(c.committee_note || ""),
-
-            strengths:  (Array.isArray(c.strengths) ? c.strengths : (c.biggest_strength ? [c.biggest_strength] : [])).map(cleanThinkText),
-            weaknesses: (Array.isArray(c.concerns) ? c.concerns : (c.biggest_concern ? [c.biggest_concern] : [])).map(cleanThinkText),
-
-            predicted_questions: [
-              ...(Array.isArray(c.predicted_questions) ? c.predicted_questions : []),
-              ...(c.hidden_signal ? [`Hidden signal: ${c.hidden_signal}`] : []),
-            ].map(cleanThinkText),
-
-            scores: {
-              technical:        c.scores?.technical ?? c.final_score ?? 0,
-              experience:       c.scores?.experience ?? c.final_score ?? 0,
-              leadership:       c.scores?.leadership ?? Math.round((c.final_score || 0) * 0.85),
-              culture_fit:      c.scores?.culture_fit ?? Math.round((c.final_score || 0) * 0.90),
-              growth_potential:  c.scores?.growth_potential ?? c.final_score ?? 0,
-              must_have_match:   c.scores?.must_have_match ?? c.final_score ?? 0,
-              evidence_quality:  c.scores?.evidence_quality ?? c.final_score ?? 0,
-            },
-
-            hire_recommendation: cleanThinkText(c.hire_recommendation || c.committee_note || "Proceed to technical screen"),
-            is_keyword_stuffer: c.is_keyword_stuffer ?? false,
-            radar: c.evidence_radar,
-            matched_must_haves: c.matched_must_haves || [],
-            // Evidence-scorer enrichment fields (available for top-N candidates)
-            verification_flags: c.verification_flags || [],
-            confidence_data: c.confidence_data || null,
-            requirement_evidence: c.requirement_evidence || [],
-          }));
-
-          const mappedFailed: RankedCandidate[] = (job.failed || []).map((c: any) => ({
-            id: c.id, name: c.name || "Unknown Candidate", rank: mappedRanked.length + 1,
-            overall_score: 0, verdict: "Strong Reject",
-            summary: c.error || "Failed to process resume.",
-            strengths: [], weaknesses: [],
-            scores: { technical: 0, experience: 0, leadership: 0, culture_fit: 0, growth_potential: 0 },
-            predicted_questions: [], hire_recommendation: "Re-check resume text.",
-          }));
-
-          if (job.failed && Array.isArray(job.failed)) {
-            setFailedFiles(job.failed);
-          }
-
-          if (mappedRanked.length > 0 && typeof window !== "undefined") {
-            localStorage.setItem("cognalyze_active_candidate_id", mappedRanked[0].id);
-            if (selectedRoleId) {
-              localStorage.setItem("cognalyze_active_role_id", selectedRoleId);
-            }
-          }
-
-          setRanked([...mappedRanked, ...mappedFailed]);
-          setRankMeta({
-            comparison_summary: cleanThinkText(job.committeeReport || `${mappedRanked.length} candidates ranked by adversarial FAANG committee model.${job.failed?.length ? ` ${job.failed.length} failed.` : ""}`),
-            top_pick_reason: mappedRanked.length > 0
-              ? `${mappedRanked[0].name} leads at Rank #1 with ${mappedRanked[0].overall_score}/100 (${mappedRanked[0].verdict}) — ${cleanThinkText(mappedRanked[0].summary)}`
-              : "No candidates met the threshold.",
-          });
-          setRankLoading(false);
-        }
-      } catch (err) {
-        // network hiccup during poll — keep going
-        console.warn("Poll error:", err);
-      }
-    }, 2000);
-
-  } catch (e: any) {
-    clearTimeout(timeoutId);
-    if (pollInterval) clearInterval(pollInterval);
-    setError(e.message || "Failed to rank candidates");
-    setStep("input");
-    setRankLoading(false);
-  }
-};
-
-// Helper: derive a 0-100 sub-score from qualitative signal + base score
-function deriveScore(signal: string | undefined, base: number, weight: number): number {
-  void weight;
-  const multiplier =
-    signal === "exceptional" || signal === "rising"  ? 1.15 :
-    signal === "solid"       || signal === "flat"    ? 1.00 :
-    signal === "weak"        || signal === "unclear" ? 0.82 :
-    signal === "none"        || signal === "declining"? 0.65 : 1.00;
-  return Math.min(Math.round(base * multiplier), 100);
-}
- 
-
-  const runFunnelSimulation = async () => {
-    if (!jd.trim() || jd.trim().length < 80) { setError("Need complete JD (min 80 characters) to filter candidates."); return; }
-    setError(""); setStep("loading"); setLoadMsg("Analyzing 500 Candidates");
+    setComparing(true);
+    setComparisonLoading(true);
     try {
-      const resp = await fetch("/api/funnel/run", {
+      const res = await fetch("/api/recruiter/candidates/compare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ jobId: "job-1" })
+        body: JSON.stringify({
+          roleId: selectedRoleId,
+          candidateIds: selectedCandidateIds
+        })
       });
-      const data = await resp.json();
-      
-      const analResp = await fetch("/api/funnel/analytics?jobId=job-1");
-      const analData = await analResp.json();
 
-      if (data.funnelStates) {
-        setFunnelStates(data.funnelStates);
-        setFunnelAnalytics(analData);
-        setStep("funnel_results");
+      const data = await res.json();
+      if (data.success) {
+        setComparisonData(data);
       } else {
-        setError("Funnel simulation failed.");
-        setStep("input");
+        alert(data.error || "Failed to generate comparison matrix.");
+        setComparing(false);
       }
-    } catch (e: any) {
-      setError(e.message || "Funnel simulation failed.");
-      setStep("input");
+    } catch (err) {
+      console.error("Comparison request failed", err);
+      setComparing(false);
+    } finally {
+      setComparisonLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (step !== "debate") return;
-    if (currentIdx >= rawRef.current.length) return;
-    const a = rawRef.current[currentIdx];
-    setTimeout(() => setAgents(prev => [...prev, {...a, typing: true}]), 200);
-  }, [currentIdx, step]);
+  // Mode B: Single candidate screening
+  const handleSingleScreenSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!singleName.trim() || !singleResumeText.trim() || !batchRole) {
+      setSingleError("Candidate name, target role, and resume text are required.");
+      return;
+    }
 
-  const handleAgentDone = (i: number) => {
-    setAgents(prev => prev.map((a, idx) => idx === i ? {...a, typing: false} : a));
-    if (i + 1 < rawRef.current.length) setTimeout(() => setCurrentIdx(i + 1), 400);
-    else {
-      const scores = rawRef.current.map(a => a.score || 0).filter(s => s > 0);
-      setAvg(scores.length > 0 ? Math.round(scores.reduce((s, n) => s + n, 0) / scores.length) : 0);
-      setTimeout(() => setStep("verdict"), 800);
+    setSingleScreening(true);
+    setSingleError(null);
+
+    try {
+      const res = await fetch("/api/recruiter/candidates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: singleName.trim(),
+          email: singleEmail.trim(),
+          phone: singlePhone.trim(),
+          appliedRoleId: batchRole,
+          resumeText: singleResumeText.trim(),
+          sourceType: "bulk_upload"
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.candidate) {
+        // Refresh candidate list and open dossier
+        setSelectedRoleId(batchRole);
+        await loadCandidatesForRole(batchRole);
+        setActiveDossierCandidate(data.candidate);
+        setActiveMode("open_roles");
+        // Reset single form
+        setSingleName("");
+        setSingleEmail("");
+        setSinglePhone("");
+        setSingleResumeText("");
+      } else {
+        setSingleError(data.error || "Failed to screen candidate.");
+      }
+    } catch (err: any) {
+      setSingleError(err.message || "Network error occurred.");
+    } finally {
+      setSingleScreening(false);
     }
   };
 
-  const verdictLabel = avg >= 85 ? "STRONG HIRE" : avg >= 70 ? "HIRE" : avg >= 50 ? "LEANING HIRE" : avg >= 35 ? "LEANING NO HIRE" : "NO HIRE";
-  const verdictColor = dc(verdictLabel);
+  // Mode B: Batch Upload Trigger
+  const handleBatchScreenSubmit = async () => {
+    if (!batchRole) {
+      alert("Please select a target role first.");
+      return;
+    }
 
-  const TABS = [
-    {id:"analysis",label:"📊 Analysis"},
-    {id:"debate",label:"⚡ Debate"},
-    {id:"questions",label:"🎯 Interview Qs"},
-    {id:"dna",label:"🧬 DNA"},
-  ];
+    let itemsToProcess: { id?: string; name: string; email?: string; rawText: string }[] = [];
 
-  const vdc = analysis ? dc(analysis.decision) : "#94a3b8";
+    if (batchRawText.trim()) {
+      // Try to parse JSON array or line-delimited items
+      try {
+        const parsed = JSON.parse(batchRawText);
+        if (Array.isArray(parsed)) {
+          itemsToProcess = parsed.map((p, idx) => ({
+            id: p.id || `batch-${idx + 1}`,
+            name: p.name || `Candidate ${idx + 1}`,
+            email: p.email,
+            rawText: p.rawText || p.resume || JSON.stringify(p)
+          }));
+        }
+      } catch {
+        // Delimited by double newline
+        const blocks = batchRawText.split(/\n\s*\n---\s*\n|\n\s*\n={3,}\s*\n/);
+        itemsToProcess = blocks.map((blk, idx) => {
+          const lines = blk.trim().split("\n");
+          const name = lines[0].replace(/^Name:\s*/i, "").trim() || `Candidate ${idx + 1}`;
+          return {
+            id: `batch-${Date.now()}-${idx + 1}`,
+            name,
+            rawText: blk.trim()
+          };
+        });
+      }
+    } else if (batchFiles.length > 0) {
+      // Read files as text
+      for (let i = 0; i < batchFiles.length; i++) {
+        const file = batchFiles[i];
+        const text = await file.text();
+        const candidateName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+        itemsToProcess.push({
+          id: `file-${Date.now()}-${i + 1}`,
+          name: candidateName,
+          rawText: text
+        });
+      }
+    } else {
+      alert("Please upload resume files or paste candidate text.");
+      return;
+    }
 
-  const ScorePill = ({label,val,color}:{label:string;val:number;color:string}) => (
-    <div style={{textAlign:"center",padding:"12px 16px",background:"rgba(255,255,255,0.04)",borderRadius:12,border:"1px solid rgba(255,255,255,0.07)"}}>
-      <div style={{fontSize:"1.5rem",fontWeight:900,color,lineHeight:1}}>{val}%</div>
-      <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:1.5,marginTop:3}}>{label}</div>
-    </div>
-  );
+    if (itemsToProcess.length === 0) {
+      alert("No valid candidate resumes found in the input.");
+      return;
+    }
 
-  const reset = () => { setStep("input"); setAgents([]); setCurrentIdx(0); setResume(""); setDna(null); setAnalysis(null); setRanked(null); setGithubData(null); setLinkedinAnalysis(null); setError(""); };
+    setBatchProcessing(true);
+    setBatchProgress({ processed: 0, total: itemsToProcess.length });
+    setBatchSummary(null);
+
+    try {
+      const res = await fetch("/api/recruiter/candidates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appliedRoleId: batchRole,
+          batch: itemsToProcess
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.batchResult) {
+        setBatchSummary({
+          totalSubmitted: data.batchResult.totalSubmitted,
+          successfullyAnalyzed: data.batchResult.successfullyAnalyzed,
+          failedItems: data.batchResult.failedItems || [],
+          duplicates: data.batchResult.duplicates || []
+        });
+        setBatchProgress({
+          processed: data.batchResult.totalSubmitted,
+          total: data.batchResult.totalSubmitted
+        });
+        // Reload role candidates
+        await loadCandidatesForRole(batchRole);
+      } else {
+        alert(data.error || "Batch screening encountered an issue.");
+      }
+    } catch (err: any) {
+      alert("Batch screening failed: " + err.message);
+    } finally {
+      setBatchProcessing(false);
+    }
+  };
+
+  // Preset demo batch loader (Deterministic, strictly realistic evidence without simulation)
+  const handleLoadDemoBatch = (count: number) => {
+    const demoCandidates = [
+      {
+        name: "Devon Chen",
+        email: "devon.chen@alum.mit.edu",
+        rawText: `Devon Chen
+Email: devon.chen@alum.mit.edu | Location: Remote
+Experience:
+- Senior Distributed Systems Engineer at CloudCore Technologies (2022 - 2026)
+  Designed and operated distributed microservices in Go and Rust processing 85,000 requests/second.
+  Managed database scaling with PostgreSQL 15, designing connection pooling and partition strategies.
+  Architected asynchronous event streaming pipeline using Apache Kafka with strict exactly-once semantics.
+  Configured production Kubernetes clusters via Helm and Terraform.
+Education:
+- B.S. in Computer Science, Massachusetts Institute of Technology (2018 - 2022)`
+      },
+      {
+        name: "Sarah Al-Mansoor",
+        email: "sarah.mansoor@techmail.io",
+        rawText: `Sarah Al-Mansoor
+Software Engineer specializing in High-Throughput Services
+Experience:
+- Backend Engineer at Nexus Data Corp (2023 - 2026)
+  Developed microservices in Go (Golang) and Java.
+  Implemented database migrations on MySQL clusters. Note: Used MySQL for all core transaction storage.
+  Led adoption of Docker containerization across 14 internal tools.
+Projects:
+- Telemetry Broker (2024): Open-source event dispatcher written in Go with Docker compose configuration.`
+      },
+      {
+        name: "Marcus Vance",
+        email: "marcus.vance@eng-solutions.com",
+        rawText: `Marcus Vance
+Staff Site Reliability & Platform Engineer
+Experience:
+- Platform Lead at Apex Networks (2021 - 2026)
+  Engineered multi-region Kubernetes clusters on AWS (EKS) across 6 availability zones.
+  Maintained PostgreSQL high-availability replication clusters with Patroni and pgBouncer.
+  Wrote custom Kubernetes operators in Go for automated failover.
+  Quantified improvement: Reduced service downtime by 42% over 3 years.
+Education:
+- M.S. in Software Engineering, University of Washington (2019 - 2021)`
+      },
+      {
+        name: "Aisha Patel",
+        email: "aisha.patel@devhub.net",
+        rawText: `Aisha Patel
+Frontend & Full Stack Developer
+Experience:
+- Fullstack Engineer at Vista Web Labs (2023 - 2026)
+  Built responsive web applications with TypeScript, Next.js, React, and Tailwind CSS.
+  Integrated REST and GraphQL APIs. Explored basic Go endpoints during hackathon.
+  Used MongoDB for document storage and Redis for caching.
+  No production PostgreSQL or Kubernetes experience.`
+      },
+      {
+        name: "Carlos Mendez",
+        email: "carlos.mendez@cloudsystems.org",
+        rawText: `Carlos Mendez
+Distributed Infrastructure Engineer
+Experience:
+- Systems Engineer at Stratos Data (2022 - 2025)
+  Developed concurrent data pipelines in Go handling 100M events daily.
+  Extensive database tuning with PostgreSQL, optimizing queries and index schemas.
+  Configured CI/CD deployment pipelines to Kubernetes using GitHub Actions and ArgoCD.
+Contradiction note:
+  Summary says: "Over 8 years of production Go experience."
+  Experience section indicates graduation in 2022 with 3 years total engineering tenure.`
+      }
+    ];
+
+    const selected = demoCandidates.slice(0, count);
+    setBatchRawText(JSON.stringify(selected, null, 2));
+  };
+
+  // Filter candidates list
+  const filteredCandidates = candidates.filter(cand => {
+    // Search query
+    const matchesSearch =
+      !searchQuery.trim() ||
+      cand.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cand.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    // Coverage Filter
+    if (coverageFilter !== "ALL") {
+      const cov = cand.screeningDossier?.overallCoverage;
+      if (cov !== coverageFilter) return false;
+    }
+
+    // Needs attention only
+    if (needsAttentionOnly) {
+      const counts = cand.screeningDossier?.coverageCounts;
+      if (!counts) return false;
+      if (counts.needsReviewCount === 0 && counts.conflictingCount === 0) return false;
+    }
+
+    return true;
+  });
+
+  const selectedRoleObj = roles.find(r => r.id === selectedRoleId);
 
   return (
-    <div style={{minHeight:"100vh",color:"white",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",position:"relative"}}>
-      <GradientBg />
-
+    <div style={{ minHeight: "100vh", background: "#0B0F17", color: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <AppNav role="recruiter" />
 
-      <div style={{position:"relative",zIndex:10,maxWidth:"1000px",margin:"0 auto",padding:"3rem 2rem 5rem"}}>
-
-        {/* ─── INPUT ─── */}
-        {step === "input" && (
-          <div style={{animation:"fadeUp 0.6s ease"}}>
-            {/* Header */}
-            <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
-              <div style={{fontSize:10,letterSpacing:4,color:"rgba(99,102,241,0.8)",marginBottom:12,fontWeight:600}}>RECRUITER INTELLIGENCE</div>
-              <h1 style={{fontSize:"clamp(2rem,5vw,3.2rem)",fontWeight:900,letterSpacing:"-2px",lineHeight:1.08,marginBottom:12,background:"linear-gradient(135deg,#fff 20%,#a5b4fc 60%,#ec4899 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-                FAANG-level candidate<br/>analysis in 60 seconds
-              </h1>
-              <p style={{color:"rgba(255,255,255,0.4)",fontSize:14,marginBottom:"2rem"}}>5 adversarial AI agents · ATS scoring · Skills matrix · Red flags · Predicted questions</p>
-
-              {/* Mode toggle */}
-              <div style={{display:"inline-flex",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:5,gap:4}}>
-                {[
-                  {id:"single",icon:"👤",label:"Single Candidate Screen"},
-                  {id:"multi",icon:"📁",label:"Bulk Screening (Up to 1000+ Resumes)"}
-                ].map(m => (
-                  <button key={m.id} onClick={() => setMode(m.id as any)} style={{padding:"8px 20px",borderRadius:10,fontSize:13,fontWeight:mode===m.id?700:400,background:mode===m.id?"rgba(255,255,255,0.1)":"transparent",color:mode===m.id?"white":"rgba(255,255,255,0.4)",border:mode===m.id?"1px solid rgba(255,255,255,0.12)":"1px solid transparent",cursor:"pointer",fontFamily:"inherit",transition:"all 0.2s",display:"flex",alignItems:"center",gap:6}}>
-                    <span>{m.icon}</span><span>{m.label}</span>
-                  </button>
-                ))}
-              </div>
+      {/* Main Container */}
+      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "32px 24px 80px" }}>
+        
+        {/* Top Header & Context */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 28 }}>
+          <div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", borderRadius: 999, background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)", marginBottom: 12 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8" }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#c7d2fe", letterSpacing: "0.5px" }}>
+                CANDIDATE SCREENING ENGINE • FEATURE 2
+              </span>
             </div>
+            <h1 style={{ fontSize: "2.1rem", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>
+              Candidate Pool & Screening
+            </h1>
+            <p style={{ color: "#94a3b8", fontSize: 14, margin: "6px 0 0", maxWidth: 740, lineHeight: 1.5 }}>
+              Evidence-grounded applicant screening against confirmed job requirements. Traceable assessments, section-level provenance quotes, zero arbitrary 0–100 scores, zero autonomous hiring verdicts.
+            </p>
+          </div>
 
-            {/* Target Role DNA Selector */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, padding: "12px 18px", borderRadius: 14, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.25)", flexWrap: "wrap", gap: 10 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 18 }}>🧬</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#d8b4fe" }}>Target Role DNA:</span>
-                <select
-                  value={selectedRoleId}
-                  onChange={e => {
-                    const rId = e.target.value;
-                    setSelectedRoleId(rId);
-                    const found = roles.find(r => r.id === rId);
-                    if (found) {
-                      const reqs = (found.tieredRequirements || []).map((t: any) => `- ${t.name}: ${t.description}`).join("\n");
-                      const outcomes = (found.businessOutcomes || []).map((o: any) => `- ${o.outcome} (${o.metric})`).join("\n");
-                      setJd(`Role: ${found.title} (${found.seniority})\nDepartment: ${found.department}\n\nCore Requirements:\n${reqs}\n\n90-Day Target Outcomes:\n${outcomes}`);
-                    }
-                  }}
-                  style={{ padding: "6px 12px", borderRadius: 8, background: "rgba(0,0,0,0.6)", border: "1px solid rgba(168,85,247,0.4)", color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                >
-                  {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.title} ({r.department} • {r.seniority})</option>
-                  ))}
-                  <option value="">Custom / Ad-hoc Job Description</option>
-                </select>
-              </div>
+          {/* Mode Switcher */}
+          <div style={{ display: "flex", background: "#131b2b", padding: 4, borderRadius: 10, border: "1px solid #1e293b" }}>
+            <button
+              onClick={() => setActiveMode("open_roles")}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                background: activeMode === "open_roles" ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
+                color: activeMode === "open_roles" ? "#fff" : "#94a3b8",
+                border: "none",
+                transition: "all 0.15s ease"
+              }}
+            >
+              Mode A: Open Roles ({roles.length})
+            </button>
+            <button
+              onClick={() => setActiveMode("analyze")}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                background: activeMode === "analyze" ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
+                color: activeMode === "analyze" ? "#fff" : "#94a3b8",
+                border: "none",
+                transition: "all 0.15s ease"
+              }}
+            >
+              Mode B: Analyze Candidates
+            </button>
+          </div>
+        </div>
 
-              <a href="/recruiter/roles" style={{ fontSize: 12, color: "#c084fc", textDecoration: "none", fontWeight: 700 }}>
-                + Architect New Role DNA ➔
-              </a>
-            </div>
-
-            {/* JD Input — always shown */}
-            <div className="glass-strong" style={{borderRadius:20,padding:"1.75rem",marginBottom:12}}>
-              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                <div style={{width:6,height:6,borderRadius:"50%",background:"#6366f1",boxShadow:"0 0 8px #6366f1"}}/>
-                <span style={{fontSize:11,letterSpacing:2,color:"rgba(99,102,241,0.9)",fontWeight:700}}>EVALUATION BASELINE (ROLE SPECIFICATION)</span>
-                <span style={{fontSize:10,color:"rgba(255,255,255,0.2)",marginLeft:4}}>grounded against Role DNA</span>
-              </div>
-              <textarea value={jd} onChange={e => setJd(e.target.value)} rows={6} style={{width:"100%",background:"rgba(99,102,241,0.06)",border:`1px solid ${jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"}`,borderRadius:12,padding:"12px 14px",color:"rgba(255,255,255,0.88)",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.65,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(99,102,241,0.6)"} onBlur={e=>e.target.style.borderColor=jd.trim().length>0&&jd.trim().length<80?"rgba(255,68,102,0.4)":"rgba(99,102,241,0.2)"} placeholder="Paste or verify the role requirements and outcomes here..."/>
-              {jd.trim().length > 0 && jd.trim().length < 80 && <div style={{fontSize:11,color:"#ff4466",marginTop:5}}>⚠ Too short — need at least 80 characters for accurate analysis ({jd.trim().length}/80)</div>}
-            </div>
-
-            {/* Custom Weights matrix (only for compare candidates mode) */}
-            {mode === "multi" && (
-              <div className="glass-strong" style={{borderRadius:20,padding:"1.5rem",marginBottom:12}}>
-                <details>
-                  <summary style={{fontSize:12,fontWeight:700,color:"rgba(255,255,255,0.6)",cursor:"pointer",outline:"none",userSelect:"none"}}>
-                    ⚙️ Custom Scoring Weights Matrix ({Object.values(enterpriseWeights as Record<string, number>).reduce((a: number, b: number) => a + b, 0)}%)
-                  </summary>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"15px 30px",marginTop:14}}>
-                    {[
-                      { key: "technical", label: "Technical Skills" },
-                      { key: "projects", label: "Projects Quality" },
-                      { key: "experience", label: "Experience Match" },
-                      { key: "problemSolving", label: "Problem Solving" },
-                      { key: "aiml", label: "AI/ML Expert Knowledge" },
-                      { key: "leadership", label: "Leadership & Ownership" },
-                      { key: "communication", label: "Communication Score" },
-                      { key: "learningPotential", label: "Learning Speed" },
-                      { key: "cultureFit", label: "Culture Match" },
-                      { key: "education", label: "Education Quality" },
-                      { key: "logistics", label: "Logistics & Location" }
-                    ].map(w => (
-                      <div key={w.key} style={{display:"flex",flexDirection:"column",gap:4}}>
-                        <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:"rgba(255,255,255,0.5)"}}>
-                          <span>{w.label}</span>
-                          <span style={{fontWeight:700,color:"#6366f1"}}>{enterpriseWeights[w.key]}%</span>
-                        </div>
-                        <input type="range" min="0" max="50" value={enterpriseWeights[w.key]} onChange={e => setEnterpriseWeights((p: any) => ({...p, [w.key]: Number(e.target.value)}))} style={{accentColor:"#6366f1",width:"100%",cursor:"pointer"}}/>
-                      </div>
+        {/* ─────────────────────────────────────────────────────────────
+            MODE A: OPEN ROLES & APPLICANTS
+        ───────────────────────────────────────────────────────────── */}
+        {activeMode === "open_roles" && (
+          <div>
+            {/* Role Selector & Metrics Banner */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: "18px 22px", marginBottom: 24 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, borderBottom: "1px solid #1f2937", paddingBottom: 16, marginBottom: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <label htmlFor="role-select" style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>Active Position:</label>
+                  <select
+                    id="role-select"
+                    value={selectedRoleId}
+                    onChange={(e) => handleRoleChange(e.target.value)}
+                    style={{
+                      background: "#1e293b",
+                      color: "#f8fafc",
+                      border: "1px solid #334155",
+                      padding: "8px 14px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 600,
+                      outline: "none",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {roles.map(r => (
+                      <option key={r.id} value={r.id}>
+                        {r.title} ({r.department || "Engineering"}) • v{r.version || 1}
+                      </option>
                     ))}
-                  </div>
-                </details>
-              </div>
-            )}
-            {mode === "single" && (
-              <div className="glass-strong" style={{borderRadius:20,padding:"1.75rem",marginBottom:14}}>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
-                  <div style={{width:6,height:6,borderRadius:"50%",background:"#a855f7",boxShadow:"0 0 8px #a855f7"}}/>
-                  <span style={{fontSize:11,letterSpacing:2,color:"rgba(168,85,247,0.9)",fontWeight:700}}>CANDIDATE RESUME</span>
-                  <span style={{fontSize:10,color:"rgba(255,255,255,0.2)",marginLeft:4}}>min 80 characters</span>
+                  </select>
                 </div>
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#d8b4fe", display: "block", marginBottom: 6 }}>
-                    CANDIDATE NAME (OPTIONAL — AUTO-EXTRACTED FROM RESUME IF BLANK)
-                  </label>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Link
+                    href={`/recruiter/roles`}
+                    style={{
+                      fontSize: 12,
+                      color: "#a5b4fc",
+                      textDecoration: "none",
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      background: "rgba(99,102,241,0.1)",
+                      border: "1px solid rgba(99,102,241,0.25)"
+                    }}
+                  >
+                    View Role Requirements ({selectedRoleObj?.tieredRequirements?.length || 0}) →
+                  </Link>
+                  <Link
+                    href={`/recruiter/decision-room`}
+                    style={{
+                      fontSize: 12,
+                      color: "#34d399",
+                      textDecoration: "none",
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      background: "rgba(52,211,153,0.1)",
+                      border: "1px solid rgba(52,211,153,0.25)",
+                      fontWeight: 600
+                    }}
+                  >
+                    Open Decision Room →
+                  </Link>
+                </div>
+              </div>
+
+              {/* Real Applicant Metrics Strip */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
+                  <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>Total Applicants</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", marginTop: 4 }}>
+                    {roleMetrics?.totalApplicants ?? candidates.length}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Applied to position</div>
+                </div>
+
+                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
+                  <div style={{ fontSize: 12, color: "#38bdf8", fontWeight: 500 }}>Analyzed Candidates</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#38bdf8", marginTop: 4 }}>
+                    {roleMetrics?.analyzedCount ?? candidates.filter(c => !!c.screeningDossier).length}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                    Screened against confirmed v{selectedRoleObj?.version || 1} requirements
+                  </div>
+                </div>
+
+                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
+                  <div style={{ fontSize: 12, color: "#fb7185", fontWeight: 500 }}>Needs Attention</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#fb7185", marginTop: 4 }}>
+                    {roleMetrics?.needsAttentionCount ?? candidates.filter(c => (c.screeningDossier?.coverageCounts?.needsReviewCount || 0) > 0 || (c.screeningDossier?.coverageCounts?.conflictingCount || 0) > 0).length}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                    Contradictions or ambiguous claims flagged
+                  </div>
+                </div>
+
+                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
+                  <div style={{ fontSize: 12, color: "#a855f7", fontWeight: 500 }}>Requirements Benchmark</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: "#c084fc", marginTop: 4 }}>
+                    {selectedRoleObj?.tieredRequirements?.length || 0}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Confirmed role requirements</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter & Search Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, marginBottom: 18 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 280, maxWidth: 440 }}>
+                <input
+                  type="text"
+                  placeholder="Search applicants by name or email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "#131b2b",
+                    color: "#f8fafc",
+                    border: "1px solid #1e293b",
+                    padding: "9px 14px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    outline: "none"
+                  }}
+                />
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                {/* Coverage Filter */}
+                <select
+                  value={coverageFilter}
+                  onChange={(e) => setCoverageFilter(e.target.value)}
+                  style={{
+                    background: "#131b2b",
+                    color: "#94a3b8",
+                    border: "1px solid #1e293b",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    fontSize: 13,
+                    outline: "none",
+                    cursor: "pointer"
+                  }}
+                >
+                  <option value="ALL">All Evidence Coverage Tiers</option>
+                  <option value="STRONG EVIDENCE COVERAGE">Strong Evidence Coverage</option>
+                  <option value="PARTIAL EVIDENCE COVERAGE">Partial Evidence Coverage</option>
+                  <option value="LIMITED EVIDENCE">Limited Evidence</option>
+                  <option value="NEEDS HUMAN REVIEW">Needs Human Review</option>
+                </select>
+
+                {/* Needs Attention Toggle */}
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#cbd5e1", cursor: "pointer", background: "#131b2b", padding: "8px 12px", borderRadius: 8, border: "1px solid #1e293b" }}>
                   <input
-                    type="text"
-                    value={singleCandidateName}
-                    onChange={e => setSingleCandidateName(e.target.value)}
-                    placeholder="e.g. Aditi Rao, Rajesh Kumar"
+                    type="checkbox"
+                    checked={needsAttentionOnly}
+                    onChange={(e) => setNeedsAttentionOnly(e.target.checked)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <span>Needs Attention Only</span>
+                </label>
+
+                {/* Blind Technical Screening Toggle (Section 40) */}
+                <button
+                  type="button"
+                  onClick={() => setBlindMode(!blindMode)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 13,
+                    color: blindMode ? "#38bdf8" : "#cbd5e1",
+                    background: blindMode ? "rgba(56,189,248,0.12)" : "#131b2b",
+                    padding: "8px 14px",
+                    borderRadius: 8,
+                    border: `1px solid ${blindMode ? "rgba(56,189,248,0.4)" : "#1e293b"}`,
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    transition: "all 0.15s ease"
+                  }}
+                >
+                  <span>{blindMode ? "👁️ Blind Mode: ON" : "👁️‍🗨️ Blind Mode: OFF"}</span>
+                </button>
+
+                {/* Compare Selected Floating/Action Button */}
+                {selectedCandidateIds.length >= 2 && (
+                  <button
+                    onClick={handleOpenComparison}
+                    style={{
+                      background: "linear-gradient(135deg, #10b981, #059669)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6
+                    }}
+                  >
+                    <span>⚡ Compare Selected ({selectedCandidateIds.length}) Side-by-Side</span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Candidate Pool Table */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", overflow: "hidden" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ background: "#0f172a", borderBottom: "1px solid #1e293b", color: "#94a3b8" }}>
+                    <th style={{ padding: "14px 16px", width: 44 }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedCandidateIds.length > 0 && selectedCandidateIds.length === filteredCandidates.length}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedCandidateIds(filteredCandidates.slice(0, 4).map(c => c.id));
+                          } else {
+                            setSelectedCandidateIds([]);
+                          }
+                        }}
+                        style={{ cursor: "pointer" }}
+                      />
+                    </th>
+                    <th style={{ padding: "14px 16px" }}>Candidate & Source</th>
+                    <th style={{ padding: "14px 16px" }}>Requirements Assessed</th>
+                    <th style={{ padding: "14px 16px" }}>Evidence Breakdown</th>
+                    <th style={{ padding: "14px 16px" }}>Coverage Status</th>
+                    <th style={{ padding: "14px 16px", textAlign: "right" }}>Screening Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredCandidates.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ padding: "48px 24px", textAlign: "center", color: "#64748b" }}>
+                        No candidates match the current role or filter settings.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCandidates.map((cand) => {
+                      const dossier = cand.screeningDossier;
+                      const counts = dossier?.coverageCounts;
+                      const isSelected = selectedCandidateIds.includes(cand.id);
+
+                      return (
+                        <tr
+                          key={cand.id}
+                          style={{
+                            borderBottom: "1px solid #1e293b",
+                            background: isSelected ? "rgba(99,102,241,0.06)" : "transparent",
+                            transition: "background 0.15s ease"
+                          }}
+                        >
+                          {/* Checkbox */}
+                          <td style={{ padding: "14px 16px" }}>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={() => toggleSelectCandidate(cand.id)}
+                              style={{ cursor: "pointer" }}
+                            />
+                          </td>
+
+                          {/* Name & Contact */}
+                          <td style={{ padding: "14px 16px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <Link
+                                href={`/recruiter/candidates/${cand.id}`}
+                                style={{
+                                  fontWeight: 700,
+                                  color: "#60a5fa",
+                                  fontSize: 14,
+                                  textDecoration: "none"
+                                }}
+                                className="hover:underline"
+                              >
+                                {blindMode ? `Candidate #${cand.id.slice(-4).toUpperCase()}` : cand.name}
+                              </Link>
+                            </div>
+                            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                              {blindMode ? "Contact redacted (Blind Screening)" : cand.email}
+                            </div>
+                            <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                  background: cand.sourceType === "student_application" ? "rgba(16,185,129,0.15)" : "rgba(148,163,184,0.15)",
+                                  color: cand.sourceType === "student_application" ? "#6ee7b7" : "#cbd5e1",
+                                  border: `1px solid ${cand.sourceType === "student_application" ? "rgba(16,185,129,0.3)" : "rgba(148,163,184,0.3)"}`
+                                }}
+                              >
+                                {cand.sourceType === "student_application" ? "Cognalyze Student App" : "Direct / Batch Upload"}
+                              </span>
+                            </div>
+                          </td>
+
+                          {/* Requirements Assessed */}
+                          <td style={{ padding: "14px 16px" }}>
+                            {counts ? (
+                              <div>
+                                <span style={{ fontWeight: 700, color: "#f8fafc" }}>
+                                  {counts.totalAssessed} / {counts.totalAssessed}
+                                </span>{" "}
+                                <span style={{ color: "#94a3b8", fontSize: 12 }}>assessed</span>
+                                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                                  against v{dossier?.roleVersion || 1}
+                                </div>
+                              </div>
+                            ) : (
+                              <span style={{ color: "#f59e0b", fontSize: 12 }}>Awaiting Assessment</span>
+                            )}
+                          </td>
+
+                          {/* Evidence Breakdown Pills */}
+                          <td style={{ padding: "14px 16px" }}>
+                            {counts ? (
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                <span
+                                  title="Supported: Direct verifiable evidence located"
+                                  style={{
+                                    fontSize: 11,
+                                    padding: "2px 8px",
+                                    borderRadius: 6,
+                                    background: "rgba(16,185,129,0.12)",
+                                    color: "#34d399",
+                                    border: "1px solid rgba(16,185,129,0.3)",
+                                    fontWeight: 600
+                                  }}
+                                >
+                                  {counts.supportedCount} Supported
+                                </span>
+
+                                {counts.partialCount > 0 && (
+                                  <span
+                                    title="Partially Supported: Some evidence found, full scope not established"
+                                    style={{
+                                      fontSize: 11,
+                                      padding: "2px 8px",
+                                      borderRadius: 6,
+                                      background: "rgba(245,158,11,0.12)",
+                                      color: "#fbbf24",
+                                      border: "1px solid rgba(245,158,11,0.3)",
+                                      fontWeight: 600
+                                    }}
+                                  >
+                                    {counts.partialCount} Partial
+                                  </span>
+                                )}
+
+                                {counts.notFoundCount > 0 && (
+                                  <span
+                                    title="Evidence Not Found in submitted materials (never assumes absence)"
+                                    style={{
+                                      fontSize: 11,
+                                      padding: "2px 8px",
+                                      borderRadius: 6,
+                                      background: "rgba(100,116,139,0.12)",
+                                      color: "#94a3b8",
+                                      border: "1px solid rgba(100,116,139,0.3)",
+                                      fontWeight: 600
+                                    }}
+                                  >
+                                    {counts.notFoundCount} Not Found
+                                  </span>
+                                )}
+
+                                {(counts.needsReviewCount > 0 || counts.conflictingCount > 0) && (
+                                  <span
+                                    title="Needs Human Attention: Contradictions or ambiguity detected"
+                                    style={{
+                                      fontSize: 11,
+                                      padding: "2px 8px",
+                                      borderRadius: 6,
+                                      background: "rgba(244,63,94,0.15)",
+                                      color: "#fb7185",
+                                      border: "1px solid rgba(244,63,94,0.35)",
+                                      fontWeight: 700
+                                    }}
+                                  >
+                                    {counts.needsReviewCount + counts.conflictingCount} Review
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span style={{ color: "#64748b", fontSize: 12 }}>—</span>
+                            )}
+                          </td>
+
+                          {/* Overall Coverage */}
+                          <td style={{ padding: "14px 16px" }}>
+                            {dossier ? (
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  fontWeight: 700,
+                                  padding: "3px 8px",
+                                  borderRadius: 6,
+                                  background:
+                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
+                                      ? "rgba(16,185,129,0.15)"
+                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
+                                      ? "rgba(56,189,248,0.15)"
+                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
+                                      ? "rgba(148,163,184,0.15)"
+                                      : "rgba(244,63,94,0.15)",
+                                  color:
+                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
+                                      ? "#34d399"
+                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
+                                      ? "#38bdf8"
+                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
+                                      ? "#94a3b8"
+                                      : "#fb7185",
+                                  border: `1px solid ${
+                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
+                                      ? "rgba(16,185,129,0.35)"
+                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
+                                      ? "rgba(56,189,248,0.35)"
+                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
+                                      ? "rgba(148,163,184,0.35)"
+                                      : "rgba(244,63,94,0.35)"
+                                  }`
+                                }}
+                              >
+                                {dossier.overallCoverage}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#64748b", fontSize: 12 }}>—</span>
+                            )}
+                          </td>
+
+                          {/* Action Buttons */}
+                          <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                              <Link
+                                href={`/recruiter/candidates/${cand.id}`}
+                                style={{
+                                  background: "rgba(99,102,241,0.15)",
+                                  color: "#a5b4fc",
+                                  border: "1px solid rgba(99,102,241,0.35)",
+                                  padding: "6px 12px",
+                                  borderRadius: 6,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  textDecoration: "none",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4
+                                }}
+                              >
+                                Evidence Passport ↗
+                              </Link>
+                              <button
+                                onClick={() => handleInspectDossier(cand)}
+                                style={{
+                                  background: "#1e293b",
+                                  color: "#f8fafc",
+                                  border: "1px solid #334155",
+                                  padding: "6px 14px",
+                                  borderRadius: 6,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  cursor: "pointer",
+                                  transition: "all 0.15s ease"
+                                }}
+                              >
+                                Inspect Dossier
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            MODE B: ANALYZE CANDIDATES (SINGLE OR BATCH UPLOAD)
+        ───────────────────────────────────────────────────────────── */}
+        {activeMode === "analyze" && (
+          <div style={{ maxWidth: 960, margin: "0 auto" }}>
+            {/* Sub-tab Switcher */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 24, borderBottom: "1px solid #1f2937", paddingBottom: 12 }}>
+              <button
+                onClick={() => setAnalyzeTab("single")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: analyzeTab === "single" ? "rgba(99,102,241,0.2)" : "transparent",
+                  color: analyzeTab === "single" ? "#a5b4fc" : "#94a3b8",
+                  border: analyzeTab === "single" ? "1px solid rgba(99,102,241,0.4)" : "1px solid transparent"
+                }}
+              >
+                1. Single Candidate Analysis
+              </button>
+              <button
+                onClick={() => setAnalyzeTab("batch")}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: analyzeTab === "batch" ? "rgba(99,102,241,0.2)" : "transparent",
+                  color: analyzeTab === "batch" ? "#a5b4fc" : "#94a3b8",
+                  border: analyzeTab === "batch" ? "1px solid rgba(99,102,241,0.4)" : "1px solid transparent"
+                }}
+              >
+                2. Batch Upload (10 – 1000 Resumes)
+              </button>
+            </div>
+
+            {/* Target Role Selector for Mode B */}
+            <div style={{ background: "#111827", padding: "16px 20px", borderRadius: 10, border: "1px solid #1f2937", marginBottom: 24 }}>
+              <label htmlFor="batch-role-select" style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>
+                Target Role for Evidence Assessment:
+              </label>
+              <select
+                id="batch-role-select"
+                value={batchRole}
+                onChange={(e) => setBatchRole(e.target.value)}
+                style={{
+                  width: "100%",
+                  background: "#1e293b",
+                  color: "#f8fafc",
+                  border: "1px solid #334155",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  outline: "none"
+                }}
+              >
+                {roles.map(r => (
+                  <option key={r.id} value={r.id}>
+                    {r.title} ({r.department}) — {r.tieredRequirements?.length || 0} Confirmed Requirements (v{r.version || 1})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Single Candidate Form */}
+            {analyzeTab === "single" && (
+              <form onSubmit={handleSingleScreenSubmit} style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 24 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px" }}>
+                  Analyze Single Candidate Resume
+                </h3>
+
+                {singleError && (
+                  <div style={{ padding: "10px 14px", borderRadius: 6, background: "rgba(244,63,94,0.15)", border: "1px solid rgba(244,63,94,0.3)", color: "#fb7185", fontSize: 13, marginBottom: 16 }}>
+                    {singleError}
+                  </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>
+                      Candidate Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Liam Vance"
+                      value={singleName}
+                      onChange={(e) => setSingleName(e.target.value)}
+                      required
+                      style={{
+                        width: "100%",
+                        background: "#1e293b",
+                        color: "#f8fafc",
+                        border: "1px solid #334155",
+                        padding: "8px 12px",
+                        borderRadius: 6,
+                        fontSize: 13,
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>
+                      Candidate Email
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="e.g. liam.vance@example.com"
+                      value={singleEmail}
+                      onChange={(e) => setSingleEmail(e.target.value)}
+                      style={{
+                        width: "100%",
+                        background: "#1e293b",
+                        color: "#f8fafc",
+                        border: "1px solid #334155",
+                        padding: "8px 12px",
+                        borderRadius: 6,
+                        fontSize: 13,
+                        outline: "none"
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>
+                    Resume Text / Content *
+                  </label>
+                  <textarea
+                    rows={12}
+                    placeholder="Paste candidate's resume text, work experience, projects, and education..."
+                    value={singleResumeText}
+                    onChange={(e) => setSingleResumeText(e.target.value)}
+                    required
                     style={{
                       width: "100%",
-                      padding: "10px 14px",
-                      borderRadius: 10,
-                      background: "rgba(0,0,0,0.4)",
-                      border: "1px solid rgba(168,85,247,0.3)",
-                      color: "white",
+                      background: "#0f172a",
+                      color: "#f8fafc",
+                      border: "1px solid #334155",
+                      padding: 12,
+                      borderRadius: 8,
                       fontSize: 13,
-                      boxSizing: "border-box"
+                      lineHeight: 1.5,
+                      fontFamily: "monospace",
+                      outline: "none"
                     }}
                   />
                 </div>
-                <div onClick={() => document.getElementById("singleUp")?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFileUpload(f); }} style={{border:"2px dashed rgba(168,85,247,0.25)",borderRadius:12,padding:"16px",textAlign:"center",cursor:"pointer",marginBottom:10,transition:"all 0.2s",background:"rgba(168,85,247,0.03)"}} onMouseEnter={e => {e.currentTarget.style.borderColor="rgba(168,85,247,0.5)";e.currentTarget.style.background="rgba(168,85,247,0.06)";}} onMouseLeave={e => {e.currentTarget.style.borderColor="rgba(168,85,247,0.25)";e.currentTarget.style.background="rgba(168,85,247,0.03)";}}>
-                  <input id="singleUp" type="file" accept="image/*,.pdf" style={{display:"none"}} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }}/>
-                  {uploading ? <div style={{color:"#a855f7",fontSize:12}}><span style={{animation:"spin 0.8s linear infinite",display:"inline-block",marginRight:6}}>⟳</span>Extracting text...</div> : <div><div style={{fontSize:22,marginBottom:4}}>📄</div><div style={{color:"rgba(168,85,247,0.8)",fontSize:12,fontWeight:600}}>Upload Resume (PDF/Image)</div><div style={{color:"rgba(255,255,255,0.25)",fontSize:11,marginTop:2}}>Drag & drop or click</div></div>}
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                  <button
+                    type="submit"
+                    disabled={singleScreening}
+                    style={{
+                      background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "10px 22px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: singleScreening ? "not-allowed" : "pointer",
+                      opacity: singleScreening ? 0.7 : 1
+                    }}
+                  >
+                    {singleScreening ? "Evaluating Evidence..." : "Run Evidence Screening →"}
+                  </button>
                 </div>
-                <div style={{textAlign:"center",color:"rgba(255,255,255,0.18)",fontSize:11,marginBottom:8,letterSpacing:1}}>— OR PASTE TEXT —</div>
-                <textarea value={resume} onChange={e => setResume(e.target.value)} rows={7} style={{width:"100%",background:"rgba(168,85,247,0.05)",border:`1px solid ${resume.trim().length>0&&resume.trim().length<80?"rgba(255,68,102,0.4)":"rgba(168,85,247,0.2)"}`,borderRadius:12,padding:"12px 14px",color:"rgba(255,255,255,0.88)",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.65,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(168,85,247,0.6)"} onBlur={e=>e.target.style.borderColor=resume.trim().length>0&&resume.trim().length<80?"rgba(255,68,102,0.4)":"rgba(168,85,247,0.2)"} placeholder="Paste the complete resume here — education, experience, projects, skills, achievements..."/>
-                {resume.trim().length > 0 && resume.trim().length < 80 && <div style={{fontSize:11,color:"#ff4466",marginTop:5}}>⚠ Too short — need at least 80 characters ({resume.trim().length}/80)</div>}
-              </div>
+              </form>
             )}
 
-            {/* Multi mode */}
-            {mode === "multi" && (
-              <div className="glass-strong" style={{borderRadius:20,padding:"1.75rem",marginBottom:14}}>
-                <div onClick={() => document.getElementById("bulkUp")?.click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files.length > 0) handleBulkFileUpload(e.dataTransfer.files); }} style={{border:"2px dashed rgba(99,102,241,0.25)",borderRadius:12,padding:"20px 16px",textAlign:"center",cursor:"pointer",marginBottom:16,transition:"all 0.2s",background:"rgba(99,102,241,0.03)"}} onMouseEnter={e => {e.currentTarget.style.borderColor="rgba(99,102,241,0.5)";e.currentTarget.style.background="rgba(99,102,241,0.06)";}} onMouseLeave={e => {e.currentTarget.style.borderColor="rgba(99,102,241,0.25)";e.currentTarget.style.background="rgba(99,102,241,0.03)";}}>
-                  <input id="bulkUp" type="file" multiple accept=".pdf,.txt,.json,.csv" style={{display:"none"}} onChange={e => { if (e.target.files && e.target.files.length > 0) handleBulkFileUpload(e.target.files); }}/>
-                  {uploading && uploadProgress ? (
-                    <div style={{color:"#6366f1",fontSize:13,fontWeight:600,padding:"8px 0"}}>
-                      <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginBottom:8}}>
-                        <span style={{animation:"spin 0.8s linear infinite",display:"inline-block"}}>⟳</span>
-                        <span>Parsing Resumes: {uploadProgress.current} / {uploadProgress.total} ({Math.round((uploadProgress.current / Math.max(uploadProgress.total, 1)) * 100)}%)</span>
-                      </div>
-                      <div style={{width:"80%",maxWidth:380,height:6,background:"rgba(255,255,255,0.08)",borderRadius:999,margin:"0 auto 6px",overflow:"hidden"}}>
-                        <div style={{width:`${Math.round((uploadProgress.current / Math.max(uploadProgress.total, 1)) * 100)}%`,height:"100%",background:"linear-gradient(90deg,#6366f1,#a855f7)",borderRadius:999,transition:"width 0.2s ease"}} />
-                      </div>
-                      <div style={{fontSize:11,color:"rgba(255,255,255,0.4)",fontWeight:400,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:360,margin:"0 auto"}}>
-                        {uploadProgress.filename}
-                      </div>
-                    </div>
-                  ) : uploading ? (
-                    <div style={{color:"#6366f1",fontSize:13,fontWeight:600}}><span style={{animation:"spin 0.8s linear infinite",display:"inline-block",marginRight:6}}>⟳</span>Processing & parsing resumes...</div>
-                  ) : (
-                    <div>
-                      <div style={{fontSize:24,marginBottom:6}}>🌪️</div>
-                      <div style={{color:"rgba(99,102,241,0.95)",fontSize:13,fontWeight:600}}>Bulk Upload Multi-Resume Files (PDF, TXT, JSON, CSV)</div>
-                      <div style={{color:"rgba(255,255,255,0.35)",fontSize:11,marginTop:3}}>Drag & drop 50–200+ single or multi-candidate resume files</div>
-                    </div>
-                  )}
-                </div>
-
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:10}}>
-                  <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <div style={{width:6,height:6,borderRadius:"50%",background:"#a855f7",boxShadow:"0 0 8px #a855f7"}}/>
-                    <span style={{fontSize:11,letterSpacing:2,color:"rgba(168,85,247,0.9)",fontWeight:700}}>CANDIDATE PIPELINE ({candidates.length} LOADED)</span>
-                  </div>
-                  <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        const bSet = get100BenchmarkCandidates();
-                        setCandidates(bSet.map((c, idx) => ({ id: c.id || `bench-${idx}`, name: c.name, resume: c.resume })));
-                        setError("");
-                      }}
-                      style={{padding:"6px 14px",borderRadius:8,border:"1px solid rgba(16,185,129,0.5)",background:"rgba(16,185,129,0.15)",color:"#6ee7b7",cursor:"pointer",fontSize:12,fontWeight:700,display:"flex",alignItems:"center",gap:6,boxShadow:"0 0 15px rgba(16,185,129,0.2)"}}>
-                      ⚡ Load 100 Benchmark Resumes (Simulate 1000 Pipeline)
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => candidates.length < 2000 && setCandidates(p => [...p, {id:Date.now().toString(),name:`Candidate ${p.length+1}`,resume:""}])} 
-                      disabled={candidates.length >= 2000} 
-                      style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(99,102,241,0.4)",background:"rgba(99,102,241,0.12)",color:"rgba(165,180,252,0.95)",cursor:"pointer",fontSize:12,fontWeight:600,opacity:candidates.length>=2000?0.4:1,display:"flex",alignItems:"center",gap:5}}>
-                      + Add Candidate
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => setShowBulkPasteModal(true)} 
-                      style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(168,85,247,0.4)",background:"rgba(168,85,247,0.12)",color:"rgba(216,180,254,0.95)",cursor:"pointer",fontSize:12,fontWeight:600,display:"flex",alignItems:"center",gap:5}}>
-                      📋 Paste Bulk Resumes
-                    </button>
-
-                    {candidates.length > 2 && (
-                      <button 
-                        type="button"
-                        onClick={() => setCandidates([{id:"1",name:"Candidate 1",resume:""},{id:"2",name:"Candidate 2",resume:""}])} 
-                        style={{padding:"6px 10px",borderRadius:8,border:"1px solid rgba(255,68,102,0.3)",background:"rgba(255,68,102,0.08)",color:"rgba(255,68,102,0.85)",cursor:"pointer",fontSize:11,fontWeight:600}}>
-                        ✕ Clear All
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div style={{display:"flex",flexDirection:"column",gap:10,maxHeight:500,overflowY:"auto",paddingRight:5}}>
-                  {candidates.map((c, i) => {
-                    const isExpanded = expandedCandidate === c.id || candidates.length <= 2;
-                    return (
-                      <div key={c.id || `cand-input-${i}`} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:"10px 14px"}}>
-                        <div style={{display:"flex",gap:10,alignItems:"center",justifyContent:"space-between"}}>
-                          <div onClick={() => setExpandedCandidate(isExpanded ? null : c.id)} style={{cursor:"pointer",display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
-                            <div style={{width:24,height:24,borderRadius:"50%",background:`linear-gradient(135deg,#6366f1,#a855f7)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,flexShrink:0}}>{i+1}</div>
-                            <span style={{fontWeight:600,fontSize:13,color:"white",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.name}</span>
-                            <span style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>{c.resume.trim().length > 0 ? "✓ Uploaded" : "Empty"}</span>
-                          </div>
-                          <div style={{display:"flex",alignItems:"center",gap:6}}>
-                            <button onClick={() => setExpandedCandidate(isExpanded ? null : c.id)} style={{background:"transparent",border:"none",color:"rgba(255,255,255,0.4)",cursor:"pointer",fontSize:11}}>{isExpanded ? "Collapse" : "Edit"}</button>
-                            <label style={{padding:"3px 8px",borderRadius:6,border:"1px solid rgba(168,85,247,0.3)",background:"rgba(168,85,247,0.08)",color:"rgba(168,85,247,0.8)",cursor:"pointer",fontSize:10,fontWeight:600,flexShrink:0}}>
-                              Upload<input type="file" accept="image/*,.pdf" style={{display:"none"}} onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(f, c.id); }}/>
-                            </label>
-                            {candidates.length > 2 && <button onClick={() => setCandidates(p => p.filter(x => x.id !== c.id))} style={{padding:"3px 6px",borderRadius:5,border:"1px solid rgba(255,68,102,0.25)",background:"transparent",color:"rgba(255,68,102,0.6)",cursor:"pointer",fontSize:11}}>✕</button>}
-                          </div>
-                        </div>
-                        {isExpanded && (
-                          <div style={{marginTop:10}}>
-                            <input value={c.name} onChange={e => setCandidates(p => p.map(x => x.id===c.id ? {...x,name:e.target.value} : x))} style={{width:"100%",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,padding:"8px 10px",color:"white",fontSize:12,marginBottom:8,boxSizing:"border-box"}} placeholder="Candidate name"/>
-                            <textarea value={c.resume} onChange={e => setCandidates(p => p.map(x => x.id===c.id ? {...x,resume:e.target.value} : x))} rows={3} style={{width:"100%",background:"rgba(168,85,247,0.04)",border:`1px solid ${c.resume.trim().length>0&&c.resume.trim().length<80?"rgba(255,68,102,0.3)":"rgba(168,85,247,0.15)"}`,borderRadius:10,padding:"10px 12px",color:"rgba(255,255,255,0.75)",fontSize:12,resize:"none",fontFamily:"inherit",lineHeight:1.5,boxSizing:"border-box"}} placeholder="Paste resume content here..."/>
-                            {c.resume.trim().length > 0 && c.resume.trim().length < 80 && <div style={{fontSize:10,color:"#ff4466",marginTop:3}}>Too short ({c.resume.trim().length}/80)</div>}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {error && <div style={{padding:"10px 14px",background:"rgba(255,68,102,0.1)",border:"1px solid rgba(255,68,102,0.25)",borderRadius:10,color:"#ff4466",fontSize:13,marginBottom:12}}>⚠ {error}</div>}
-
-            {mode === "single" ? (
-              <button className="btn-primary" onClick={runAnalysis} disabled={!jd.trim()||!resume.trim()||jd.trim().length<80||resume.trim().length<80} style={{width:"100%",padding:"1rem",borderRadius:14,fontSize:15,letterSpacing:2,boxShadow:"0 0 60px rgba(99,102,241,0.2)"}}>
-                ⚡ RUN FULL ANALYSIS →
-              </button>
-            ) : (
-              <button className="btn-primary" onClick={runRanking} disabled={!jd.trim()||jd.trim().length<80||candidates.filter(c=>c.resume.trim().length>=80).length<2} style={{width:"100%",padding:"1rem",borderRadius:14,fontSize:15,letterSpacing:2,boxShadow:"0 0 60px rgba(99,102,241,0.2)"}}>
-                🏆 RANK & COMPARE ALL →
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* ─── LOADING ─── */}
-        {step === "loading" && (
-          <div style={{textAlign:"center",padding:"8rem 0",animation:"fadeIn 0.4s ease"}}>
-            <div style={{position:"relative",width:100,height:100,margin:"0 auto 2.5rem"}}>
-              <div style={{position:"absolute",inset:0,border:"1.5px solid rgba(99,102,241,0.2)",borderTop:"1.5px solid #6366f1",borderRadius:"50%",animation:"spin 1.2s linear infinite"}}/>
-              <div style={{position:"absolute",inset:"14px",border:"1.5px solid rgba(168,85,247,0.15)",borderBottom:"1.5px solid #a855f7",borderRadius:"50%",animation:"spin 0.8s linear infinite reverse"}}/>
-              <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>⚡</span>
-            </div>
-            <div style={{fontSize:14,letterSpacing:3,color:"rgba(255,255,255,0.5)"}}>{loadMsg}...</div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,0.2)",marginTop:8}}>Running 5 agents + comprehensive analysis in parallel</div>
-          </div>
-        )}
-
-        {/* ─── DEBATE STEP ─── */}
-        {step === "debate" && (
-          <div style={{animation:"fadeIn 0.5s ease"}}>
-            <div style={{textAlign:"center",marginBottom:"2rem"}}>
-              <div style={{display:"inline-flex",alignItems:"center",gap:8,padding:"4px 14px",background:"rgba(34,211,238,0.08)",border:"1px solid rgba(34,211,238,0.2)",borderRadius:999,marginBottom:10}}>
-                <div style={{width:6,height:6,borderRadius:"50%",background:"#22d3ee",animation:"blink 1s infinite"}}/>
-                <span style={{fontSize:10,color:"#22d3ee",letterSpacing:2,fontWeight:600}}>COMMITTEE IN SESSION</span>
-              </div>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {agents.map((a, i) => (
-                <div key={i} style={{animation:"slideRight 0.4s ease"}}>
-                  <div className="glass" style={{borderRadius:16,padding:"1.25rem",border:`1px solid ${a.color}20`,position:"relative",overflow:"hidden"}}>
-                    <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:`linear-gradient(90deg,transparent,${a.color}50,transparent)`}}/>
-                    <div style={{position:"absolute",left:0,top:0,bottom:0,width:"2px",background:`linear-gradient(180deg,${a.color},${a.color}15)`}}/>
-                    <div style={{display:"flex",gap:"1rem",alignItems:"flex-start",paddingLeft:8}}>
-                      <Ring score={a.score||0} color={a.color} size={60}/>
-                      <div style={{flex:1}}>
-                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-                          <span style={{fontSize:10,fontWeight:800,letterSpacing:2,color:a.color}}>{a.name.toUpperCase()}</span>
-                          {a.typing && <span style={{fontSize:9,padding:"1px 8px",background:`${a.color}15`,border:`1px solid ${a.color}30`,borderRadius:999,color:a.color,animation:"blink 1s infinite"}}>SPEAKING</span>}
-                        </div>
-                        <div style={{color:"rgba(255,255,255,0.72)",fontSize:13,lineHeight:1.8,whiteSpace:"pre-wrap"}}>
-                          {a.typing ? <Typewriter text={a.response} speed={6} onDone={() => handleAgentDone(i)}/> : a.response}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              {agents.length < rawRef.current.length && <div style={{textAlign:"center",color:"rgba(255,255,255,0.2)",fontSize:13,padding:"1rem",animation:"blink 1.5s infinite"}}>Next agent preparing...</div>}
-            </div>
-          </div>
-        )}
-
-        {/* ─── VERDICT ─── */}
-        {step === "verdict" && (
-          <div style={{animation:"scaleIn 0.6s cubic-bezier(0.175,0.885,0.32,1.275)"}}>
-
-            {/* NEXT STAGE: DECISION ROOM ACTION BANNER */}
-            {analyzedCandidateInfo && (
-              <div style={{
-                borderRadius: 18,
-                padding: "16px 24px",
-                marginBottom: "1.25rem",
-                background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2))",
-                border: "1px solid rgba(99,102,241,0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                gap: 14,
-                boxShadow: "0 8px 30px rgba(99,102,241,0.25)"
-              }}>
-                <div>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: "#a5b4fc", letterSpacing: 1.5, textTransform: "uppercase" }}>
-                    🚀 NEXT PIPELINE STAGE: DECISION ROOM
-                  </span>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: "white", marginTop: 3 }}>
-                    Ready to deliberate on {analyzedCandidateInfo.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 2 }}>
-                    Role: {analyzedCandidateInfo.roleTitle} • Live Minimum Proof Plan & Work Sample Studio Generated
-                  </div>
-                </div>
-
-                <a
-                  href={`/recruiter/decision-room?candidateId=${analyzedCandidateInfo.id}&roleId=${analyzedCandidateInfo.roleId}`}
-                  style={{
-                    padding: "11px 22px",
-                    borderRadius: 10,
-                    background: "linear-gradient(135deg, #6366f1, #a855f7)",
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 8,
-                    boxShadow: "0 0 20px rgba(99,102,241,0.4)"
-                  }}
-                >
-                  <span>⚖️</span> Proceed to Decision Room ➔
-                </a>
-              </div>
-            )}
-
-            {/* Decision Banner */}
-            {analysis && (
-              <div style={{borderRadius:22,padding:"1.75rem 2rem",marginBottom:"1.25rem",border:`1.5px solid ${vdc}30`,background:`linear-gradient(135deg,${vdc}06 0%,rgba(0,0,0,0.3) 100%)`,position:"relative",overflow:"hidden"}}>
-                <div style={{position:"absolute",top:0,left:0,right:0,height:"2px",background:`linear-gradient(90deg,transparent,${vdc}80,transparent)`}}/>
-                {analysis.decision === "INSUFFICIENT_DATA" ? (
-                  <div style={{textAlign:"center",padding:"1rem 0"}}>
-                    <div style={{fontSize:"3rem",marginBottom:"1rem"}}>⚠️</div>
-                    <div style={{fontSize:"1.8rem",fontWeight:900,color:"#94a3b8",marginBottom:8}}>INSUFFICIENT DATA</div>
-                    <div style={{fontSize:14,color:"rgba(255,255,255,0.5)",marginBottom:"1.5rem"}}>{analysis.message}</div>
-                    <button className="btn-primary" onClick={reset} style={{padding:"0.75rem 2rem",borderRadius:12,fontSize:13,letterSpacing:2}}>← Try Again with Complete Data</button>
-                  </div>
-                ) : (
-                  <>
-                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"1.25rem"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:"1.25rem"}}>
-                        <div style={{fontSize:"3rem"}}>{dIcon(analysis.decision)}</div>
-                        <div>
-                          <div style={{fontSize:"2.5rem",fontWeight:900,color:vdc,letterSpacing:-1.5,lineHeight:1,textShadow:`0 0 40px ${vdc}60`}}>{analysis.decision}</div>
-                          <div style={{fontSize:12,color:"rgba(255,255,255,0.4)",marginTop:5}}>{analysis.seniority_level} · {analysis.years_experience} · {analysis.experience_match} Match</div>
-                        </div>
-                      </div>
-                      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                        <ScorePill label="ATS MATCH" val={analysis.ats_match_score} color={analysis.ats_match_score>=70?"#00ff88":"#fbbf24"}/>
-                        <ScorePill label="OVERALL FIT" val={analysis.overall_fit} color={analysis.overall_fit>=70?"#00ff88":analysis.overall_fit>=50?"#fbbf24":"#ff4466"}/>
-                        {/* Confidence Badge — visually distinct from score pills */}
-                        <div title={(analysis as any).confidence?.confidence_reasoning || ''} style={{
-                          display:'flex',flexDirection:'column',alignItems:'center',padding:'6px 14px',
-                          borderRadius:12,
-                          background: (analysis as any).confidence?.confidence_level === 'high' ? 'rgba(0,255,136,0.08)' : (analysis as any).confidence?.confidence_level === 'medium' ? 'rgba(251,191,36,0.08)' : 'rgba(255,68,102,0.08)',
-                          border: `1px solid ${(analysis as any).confidence?.confidence_level === 'high' ? 'rgba(0,255,136,0.25)' : (analysis as any).confidence?.confidence_level === 'medium' ? 'rgba(251,191,36,0.25)' : 'rgba(255,68,102,0.25)'}`,
-                          cursor:'help'
-                        }}>
-                          <span style={{fontSize:9,letterSpacing:1.5,color:'rgba(255,255,255,0.4)',fontWeight:600}}>CONFIDENCE</span>
-                          <span style={{
-                            fontSize:13,fontWeight:800,textTransform:'uppercase',
-                            color: (analysis as any).confidence?.confidence_level === 'high' ? '#00ff88' : (analysis as any).confidence?.confidence_level === 'medium' ? '#fbbf24' : '#ff4466'
-                          }}>
-                            {(analysis as any).confidence?.confidence_level || 'N/A'}
-                          </span>
-                          <span style={{fontSize:9,color:'rgba(255,255,255,0.3)'}}>{(analysis as any).confidence?.evidence_coverage_pct || 0}% coverage</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{marginTop:"1.25rem",padding:"10px 14px",background:"rgba(255,255,255,0.04)",borderRadius:10,borderLeft:`3px solid ${vdc}`,display:"flex",flexDirection:"column",gap:4}}>
-                      <div style={{fontSize:13,color:"rgba(255,255,255,0.65)",lineHeight:1.5}}>{analysis.shortlist_summary}</div>
-                      <div style={{fontSize:11,color:"rgba(255,255,255,0.3)"}}>Benchmark: {analysis.comparable_benchmark}</div>
-                    </div>
-                    {/* Confidence Reasoning */}
-                    {(analysis as any).confidence?.confidence_reasoning && (
-                      <div style={{marginTop:8,padding:"8px 12px",background:"rgba(165,180,252,0.05)",border:"1px solid rgba(165,180,252,0.12)",borderRadius:8,fontSize:11,color:"rgba(255,255,255,0.5)",lineHeight:1.5}}>
-                        📊 {(analysis as any).confidence.confidence_reasoning}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* PROFILE INTELLIGENCE PANEL */}
-            {(githubData || linkedinAnalysis) && (
-              <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem", marginBottom: "1rem" }}>
-                <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(99,102,241,0.8)", fontWeight: 600, marginBottom: "1rem" }}>
-                  🔍 PROFILE INTELLIGENCE
-                </div>
-
-                {/* GitHub Summary */}
-                {githubData && (
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                      <img src={githubData.profile.avatar_url} alt="Avatar" style={{ width: 32, height: 32, borderRadius: "50%" }} />
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: "white" }}>github.com/{githubData.profile.username}</div>
-                        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>{githubData.repoCount} repos · ⭐{githubData.totalStars} total stars · {githubData.profile.followers} followers</div>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 8 }}>
-                      {githubData.topLanguages.map((l: any) => (
-                        <span key={l.lang} style={{ fontSize: 10, padding: "2px 8px", background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 999, color: "#a5b4fc" }}>{l.lang}</span>
-                      ))}
-                    </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>TOP PROJECTS</div>
-                    {githubData.topRepos.map((r: any) => (
-                      <div key={r.name} style={{ display: "flex", justifyContent: "space-between", marginBottom: 4, padding: "5px 8px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}>
-                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>{r.name}</span>
-                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>⭐{r.stars} · {r.language || "?"}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* LinkedIn Analysis */}
-                {linkedinAnalysis && (
+            {/* Batch Upload Form */}
+            {analyzeTab === "batch" && (
+              <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 24 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                      <div style={{ fontSize: 11, color: "rgba(14,165,233,0.9)", fontWeight: 600 }}>LinkedIn Analysis</div>
-                      <div style={{ padding: "2px 10px", borderRadius: 999, background: `rgba(${linkedinAnalysis.fitScore >= 70 ? "0,255,136" : linkedinAnalysis.fitScore >= 50 ? "251,191,36" : "255,68,102"},0.12)`, fontSize: 10, fontWeight: 700, color: linkedinAnalysis.fitScore >= 70 ? "#00ff88" : linkedinAnalysis.fitScore >= 50 ? "#fbbf24" : "#ff4466" }}>
-                        Fit: {linkedinAnalysis.fitScore}/100
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{linkedinAnalysis.careerTrajectory}</div>
-                    {linkedinAnalysis.redFlags?.length > 0 && (
-                      <div style={{ marginBottom: 6 }}>
-                        <div style={{ fontSize: 9, color: "#ff4466", fontWeight: 600, marginBottom: 4, letterSpacing: 1 }}>⚠ RED FLAGS</div>
-                        {linkedinAnalysis.redFlags.map((f: string, i: number) => (
-                          <div key={i} style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", paddingLeft: 8, borderLeft: "2px solid rgba(255,68,102,0.4)", marginBottom: 3 }}>{f}</div>
-                        ))}
-                      </div>
-                    )}
-                    {linkedinAnalysis.greenFlags?.length > 0 && (
-                      <div>
-                        <div style={{ fontSize: 9, color: "#00ff88", fontWeight: 600, marginBottom: 4, letterSpacing: 1 }}>✓ STRENGTHS</div>
-                        {linkedinAnalysis.greenFlags.map((f: string, i: number) => (
-                          <div key={i} style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", paddingLeft: 8, borderLeft: "2px solid rgba(0,255,136,0.4)", marginBottom: 3 }}>{f}</div>
-                        ))}
-                      </div>
-                    )}
+                    <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>
+                      High-Volume Candidate Intake
+                    </h3>
+                    <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>
+                      Upload resumes in bulk or paste candidate payloads. Deterministic assessment, automatic deduplication, and failure isolation.
+                    </p>
                   </div>
-                )}
-              </div>
-            )}
 
-            {analysis && analysis.decision !== "INSUFFICIENT_DATA" && (
-              <>
-                {/* Tabs */}
-                <div style={{display:"flex",gap:5,marginBottom:"1.25rem",background:"rgba(255,255,255,0.03)",borderRadius:14,padding:"5px",border:"1px solid rgba(255,255,255,0.06)"}}>
-                  {TABS.map(t => (
-                    <button key={t.id} className="tab-btn" onClick={() => setActiveTab(t.id as any)} style={{flex:1,padding:"0.55rem 0.25rem",borderRadius:10,fontSize:12,background:activeTab===t.id?"rgba(255,255,255,0.09)":"transparent",color:activeTab===t.id?"white":"rgba(255,255,255,0.38)",border:activeTab===t.id?"1px solid rgba(255,255,255,0.12)":"1px solid transparent",fontWeight:activeTab===t.id?600:400}}>
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Tab: Full Analysis */}
-                {activeTab === "analysis" && (
-                  <div style={{animation:"fadeIn 0.3s ease"}}>
-                    {analysis.faang_recruiter_report && (
-                      <div className="glass card-hover" style={{borderRadius:20,padding:"1.5rem",border:"1px solid rgba(255,255,255,0.08)",marginBottom:"1rem"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"rgba(255,255,255,0.4)",marginBottom:"1.25rem",fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
-                          <span>🕵️ FAANG REC RATING & HM INTELLIGENCE</span>
-                        </div>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1.25rem"}}>
-                          <div>
-                            <div style={{fontSize:11,color:"#00ff88",fontWeight:700,marginBottom:6}}>EVIDENCE</div>
-                            {analysis.faang_recruiter_report.evidence?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div>
-                            <div style={{fontSize:11,color:"#ff4466",fontWeight:700,marginBottom:6}}>RISKS</div>
-                            {analysis.faang_recruiter_report.risks?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div>
-                            <div style={{fontSize:11,color:"#818cf8",fontWeight:700,marginBottom:6}}>MISSING SIGNALS</div>
-                            {analysis.faang_recruiter_report.missing_signals?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div>
-                            <div style={{fontSize:11,color:"#c084fc",fontWeight:700,marginBottom:6}}>INTERVIEW CONCERNS</div>
-                            {analysis.faang_recruiter_report.interview_concerns?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div>
-                            <div style={{fontSize:11,color:"#fbbf24",fontWeight:700,marginBottom:6}}>SALARY CONCERNS</div>
-                            {analysis.faang_recruiter_report.salary_concerns?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div>
-                            <div style={{fontSize:11,color:"#f43f5e",fontWeight:700,marginBottom:6}}>TEAM FIT CONCERNS</div>
-                            {analysis.faang_recruiter_report.team_fit_concerns?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                          <div style={{gridColumn:"span 2"}}>
-                            <div style={{fontSize:11,color:"#22d3ee",fontWeight:700,marginBottom:6}}>GROWTH POTENTIAL</div>
-                            {analysis.faang_recruiter_report.growth_potential?.map((item, idx) => (
-                              <div key={idx} style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4,lineHeight:1.4}}>• {item}</div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── REQUIREMENT BREAKDOWN TABLE ── */}
-                    {(analysis as any).requirement_breakdown?.length > 0 && (
-                      <div className="glass card-hover" style={{borderRadius:20,padding:"1.5rem",border:"1px solid rgba(99,102,241,0.15)",marginBottom:"1rem"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"rgba(99,102,241,0.8)",marginBottom:"1.25rem",fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
-                          <span>📊 REQUIREMENT-BY-REQUIREMENT EVIDENCE</span>
-                        </div>
-                        <div style={{overflowX:"auto"}}>
-                          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                            <thead>
-                              <tr style={{borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
-                                <th style={{textAlign:"left",padding:"8px 10px",color:"rgba(255,255,255,0.5)",fontWeight:600,fontSize:10,letterSpacing:1}}>REQUIREMENT</th>
-                                <th style={{textAlign:"center",padding:"8px 6px",color:"rgba(255,255,255,0.5)",fontWeight:600,fontSize:10,letterSpacing:1,width:60}}>WEIGHT</th>
-                                <th style={{textAlign:"center",padding:"8px 6px",color:"rgba(255,255,255,0.5)",fontWeight:600,fontSize:10,letterSpacing:1,width:90}}>ASSESSMENT</th>
-                                <th style={{textAlign:"left",padding:"8px 10px",color:"rgba(255,255,255,0.5)",fontWeight:600,fontSize:10,letterSpacing:1}}>EVIDENCE</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(analysis as any).requirement_breakdown.map((rb: any, idx: number) => {
-                                const assessColor = rb.assessment === "strong" ? "#00ff88" : rb.assessment === "moderate" ? "#fbbf24" : rb.assessment === "weak" ? "#f97316" : "#ff4466";
-                                return (
-                                  <tr key={idx} style={{borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
-                                    <td style={{padding:"10px 10px",color:"rgba(255,255,255,0.8)",fontWeight:500,maxWidth:200}}>{rb.requirement}</td>
-                                    <td style={{textAlign:"center",padding:"10px 6px",color:"rgba(255,255,255,0.4)",fontSize:11}}>{rb.weight_pct ? `${rb.weight_pct}%` : "—"}</td>
-                                    <td style={{textAlign:"center",padding:"10px 6px"}}>
-                                      <span style={{fontSize:10,padding:"2px 8px",background:`${assessColor}15`,border:`1px solid ${assessColor}30`,borderRadius:999,color:assessColor,fontWeight:700,textTransform:"uppercase"}}>{rb.assessment}</span>
-                                    </td>
-                                    <td style={{padding:"10px 10px",maxWidth:350}}>
-                                      {rb.evidence_quote ? (
-                                        <div>
-                                          <span style={{fontSize:11,color:"rgba(255,255,255,0.65)",lineHeight:1.5,fontStyle:"italic"}}>"{rb.evidence_quote}"</span>
-                                          {rb.evidence_location && <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",marginTop:2}}>📍 {rb.evidence_location}</div>}
-                                        </div>
-                                      ) : (
-                                        <span style={{fontSize:11,color:"rgba(255,255,255,0.25)"}}>No evidence found in resume</span>
-                                      )}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* ── VERIFICATION FLAGS — "Worth Probing in Interview" ── */}
-                    {(analysis as any).verification_flags?.length > 0 && (
-                      <div className="glass card-hover" style={{borderRadius:20,padding:"1.5rem",border:"1px solid rgba(251,191,36,0.15)",marginBottom:"1rem"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"#fbbf24",marginBottom:"1.25rem",fontWeight:700,display:"flex",alignItems:"center",gap:6}}>
-                          <span>📋 WORTH PROBING IN INTERVIEW</span>
-                        </div>
-                        <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                          {(analysis as any).verification_flags.map((vf: any, idx: number) => (
-                            <div key={idx} style={{padding:"12px 14px",background:"rgba(251,191,36,0.04)",borderRadius:12,borderLeft:"3px solid rgba(251,191,36,0.4)"}}>
-                              <div style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,0.85)",marginBottom:4}}>{vf.claim}</div>
-                              <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",lineHeight:1.5,marginBottom:6}}>{vf.concern}</div>
-                              <div style={{fontSize:11,color:"#fbbf24",lineHeight:1.4}}>
-                                💬 <strong>Suggested probe:</strong> {vf.suggested_interview_probe}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
-
-                      {/* Skills Matrix */}
-                      <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(255,255,255,0.07)"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"rgba(255,255,255,0.35)",marginBottom:"1rem",fontWeight:600}}>SKILLS MATRIX</div>
-                        {analysis.must_have_skills && (
-                        <div style={{marginBottom:12}}>
-                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                            <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Must-Have</span>
-                            <span style={{fontSize:12,fontWeight:700,color:(analysis.must_have_skills.match_percent ?? 0)>=70?"#00ff88":"#ff4466"}}>{analysis.must_have_skills.match_percent ?? 0}%</span>
-                          </div>
-                          <div style={{height:4,background:"rgba(255,255,255,0.06)",borderRadius:999,marginBottom:8,overflow:"hidden"}}>
-                            <div style={{height:"100%",width:`${analysis.must_have_skills.match_percent ?? 0}%`,background:(analysis.must_have_skills.match_percent ?? 0)>=70?"linear-gradient(90deg,#00ff88,#22d3ee)":"linear-gradient(90deg,#ff4466,#ff6b6b)",borderRadius:999,transition:"width 0.8s ease"}}/>
-                          </div>
-                          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                            {analysis.must_have_skills.present?.map((s,i) => <span key={i} style={{fontSize:10,padding:"2px 8px",background:"rgba(0,255,136,0.1)",border:"1px solid rgba(0,255,136,0.25)",borderRadius:6,color:"#00ff88"}}>✓ {s}</span>)}
-                            {analysis.must_have_skills.missing?.map((s,i) => <span key={i} style={{fontSize:10,padding:"2px 8px",background:"rgba(255,68,102,0.1)",border:"1px solid rgba(255,68,102,0.25)",borderRadius:6,color:"#ff4466"}}>✗ {s}</span>)}
-                          </div>
-                        </div>
-                        )}
-                        {analysis.good_to_have_skills?.listed?.length > 0 && (
-                          <div>
-                            <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                              <span style={{fontSize:11,color:"rgba(255,255,255,0.5)"}}>Good-to-Have</span>
-                              <span style={{fontSize:12,fontWeight:700,color:"#fbbf24"}}>{analysis.good_to_have_skills.match_percent}%</span>
-                            </div>
-                            <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                              {analysis.good_to_have_skills.candidate_has?.map((s,i) => <span key={i} style={{fontSize:10,padding:"2px 8px",background:"rgba(251,191,36,0.1)",border:"1px solid rgba(251,191,36,0.25)",borderRadius:6,color:"#fbbf24"}}>✓ {s}</span>)}
-                              {analysis.good_to_have_skills.listed?.filter(s => !analysis.good_to_have_skills.candidate_has?.includes(s)).map((s,i) => <span key={i} style={{fontSize:10,padding:"2px 8px",background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:6,color:"rgba(255,255,255,0.3)"}}>— {s}</span>)}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Education */}
-                      {analysis.education_assessment && (
-                        <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(255,255,255,0.07)"}}>
-                          <div style={{fontSize:10,letterSpacing:2,color:"rgba(255,255,255,0.35)",marginBottom:"1rem",fontWeight:600}}>EDUCATION ASSESSMENT</div>
-                          <div style={{display:"flex",gap:"1rem",alignItems:"flex-start"}}>
-                            <Ring score={analysis.education_assessment.score} color="#a855f7" size={64}/>
-                            <div>
-                              <div style={{display:"flex",gap:5,marginBottom:8,flexWrap:"wrap"}}>
-                                <span style={{fontSize:11,padding:"2px 8px",background:"rgba(168,85,247,0.12)",border:"1px solid rgba(168,85,247,0.25)",borderRadius:6,color:"#a855f7"}}>{analysis.education_assessment.institution_tier}</span>
-                                <span style={{fontSize:11,padding:"2px 8px",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:6,color:"rgba(255,255,255,0.5)"}}>{analysis.education_assessment.relevance} Relevance</span>
-                              </div>
-                              <div style={{fontSize:12,color:"rgba(255,255,255,0.6)",lineHeight:1.5}}>{analysis.education_assessment.notes}</div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Red + Green Flags */}
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
-                      <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(255,68,102,0.15)"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"#ff4466",marginBottom:"1rem",fontWeight:600}}>🚩 RED FLAGS</div>
-                        {analysis.red_flags?.length > 0 ? analysis.red_flags.map((f, i) => (
-                          <div key={i} style={{marginBottom:9,padding:"9px 11px",background:"rgba(255,68,102,0.06)",borderRadius:9,borderLeft:`2px solid ${f.severity==="High"||f.severity==="Critical"?"#ff4466":"#fbbf24"}`}}>
-                            <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                              <span style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,0.85)"}}>{f.flag}</span>
-                              <span style={{fontSize:9,padding:"1px 7px",background:f.severity==="High"||f.severity==="Critical"?"rgba(255,68,102,0.2)":"rgba(251,191,36,0.15)",borderRadius:999,color:f.severity==="High"||f.severity==="Critical"?"#ff4466":"#fbbf24",fontWeight:600,flexShrink:0}}>{f.severity}</span>
-                            </div>
-                            <div style={{fontSize:11,color:"rgba(255,255,255,0.42)",lineHeight:1.4}}>{f.evidence}</div>
-                          </div>
-                        )) : <div style={{color:"rgba(255,255,255,0.25)",fontSize:13}}>No major red flags identified</div>}
-                      </div>
-                      <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(0,255,136,0.15)"}}>
-                        <div style={{fontSize:10,letterSpacing:2,color:"#00ff88",marginBottom:"1rem",fontWeight:600}}>✅ GREEN FLAGS</div>
-                        {analysis.green_flags?.length > 0 ? analysis.green_flags.map((f, i) => (
-                          <div key={i} style={{marginBottom:9,padding:"9px 11px",background:"rgba(0,255,136,0.05)",borderRadius:9,borderLeft:`2px solid ${f.strength==="High"?"#00ff88":"#fbbf24"}`}}>
-                            <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                              <span style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,0.85)"}}>{f.flag}</span>
-                              <span style={{fontSize:9,padding:"1px 7px",background:f.strength==="High"?"rgba(0,255,136,0.15)":"rgba(251,191,36,0.15)",borderRadius:999,color:f.strength==="High"?"#00ff88":"#fbbf24",fontWeight:600,flexShrink:0}}>{f.strength}</span>
-                            </div>
-                            <div style={{fontSize:11,color:"rgba(255,255,255,0.42)",lineHeight:1.4}}>{f.evidence}</div>
-                          </div>
-                        )) : <div style={{color:"rgba(255,255,255,0.25)",fontSize:13}}>Identifying strengths...</div>}
-                      </div>
-                    </div>
-
-                    {/* Next Steps + Salary */}
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
-                      {analysis.next_steps && (
-                        <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(99,102,241,0.18)"}}>
-                          <div style={{fontSize:10,letterSpacing:2,color:"rgba(99,102,241,0.8)",marginBottom:"1rem",fontWeight:600}}>📋 NEXT STEPS</div>
-                          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
-                            <div style={{padding:"5px 14px",background:"linear-gradient(135deg,#6366f1,#a855f7)",borderRadius:8,fontSize:12,fontWeight:700}}>{analysis.next_steps.action}</div>
-                            <span style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>{analysis.next_steps.timeline}</span>
-                          </div>
-                          {analysis.next_steps.focus_areas?.map((f, i) => (
-                            <div key={i} style={{display:"flex",gap:6,marginBottom:5}}>
-                              <span style={{color:"#6366f1",fontSize:11,flexShrink:0}}>→</span>
-                              <span style={{fontSize:12,color:"rgba(255,255,255,0.58)",lineHeight:1.4}}>{f}</span>
-                            </div>
-                          ))}
-                          <div style={{marginTop:10,padding:"8px 10px",background:"rgba(99,102,241,0.08)",borderRadius:8,fontSize:11,color:"rgba(99,102,241,0.7)",lineHeight:1.4}}>
-                            💡 {analysis.next_steps.interviewer_recommendation}
-                          </div>
-                        </div>
-                      )}
-                      {analysis.salary_assessment && (
-                        <div className="glass card-hover" style={{borderRadius:16,padding:"1.25rem",border:"1px solid rgba(251,191,36,0.15)"}}>
-                          <div style={{fontSize:10,letterSpacing:2,color:"#fbbf24",marginBottom:"1rem",fontWeight:600}}>💰 SALARY ASSESSMENT</div>
-                          <div style={{fontSize:"1.4rem",fontWeight:700,color:"white",marginBottom:6}}>{analysis.salary_assessment.estimated_expectation}</div>
-                          <div style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 10px",background:"rgba(251,191,36,0.1)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:999,marginBottom:10}}>
-                            <span style={{fontSize:11,color:"#fbbf24",fontWeight:600}}>{analysis.salary_assessment.market_fit}</span>
-                          </div>
-                          <div style={{fontSize:12,color:"rgba(255,255,255,0.45)",lineHeight:1.5}}>{analysis.salary_assessment.notes}</div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab: Debate */}
-                {activeTab === "debate" && (
-                  <div style={{animation:"fadeIn 0.3s ease"}}>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:"1.25rem"}}>
-                      {agents.map((a, i) => (
-                        <div key={i} className="glass" style={{borderRadius:14,padding:"0.9rem",border:`1px solid ${a.color}20`,textAlign:"center"}}>
-                          <Ring score={a.score||0} color={a.color} size={54}/>
-                          <div style={{fontSize:9,color:a.color,letterSpacing:1,fontWeight:700,marginTop:6}}>{a.name.toUpperCase()}</div>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{textAlign:"center",marginBottom:"1.5rem"}}>
-                      <Ring score={avg} color={verdictColor} size={110}/>
-                      <div style={{fontSize:"2.8rem",fontWeight:900,color:verdictColor,letterSpacing:-2,marginTop:8,textShadow:`0 0 40px ${verdictColor}60`}}>{verdictLabel}</div>
-                      <div style={{fontSize:11,color:"rgba(255,255,255,0.3)",marginTop:4}}>Committee Average</div>
-                    </div>
-                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                      {agents.map((a, i) => (
-                        <div key={i} className="glass" style={{borderRadius:14,padding:"1.2rem",border:`1px solid ${a.color}18`,position:"relative",overflow:"hidden"}}>
-                          <div style={{position:"absolute",left:0,top:0,bottom:0,width:"2px",background:`linear-gradient(180deg,${a.color},${a.color}10)`}}/>
-                          <div style={{paddingLeft:12}}>
-                            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-                              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                                <div style={{width:6,height:6,borderRadius:"50%",background:a.color,boxShadow:`0 0 8px ${a.color}`}}/>
-                                <span style={{fontSize:10,fontWeight:800,letterSpacing:2,color:a.color}}>{a.name.toUpperCase()}</span>
-                              </div>
-                              <span style={{fontSize:11,color:a.color,fontWeight:700}}>{a.score}/100</span>
-                            </div>
-                            <div style={{color:"rgba(255,255,255,0.7)",fontSize:13,lineHeight:1.8,whiteSpace:"pre-wrap"}}>{a.response}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Tab: Interview Questions */}
-                {activeTab === "questions" && (() => {
-                  // Normalize: API may return interview_questions as an object {dsa:[], core_cs:[], ...} or a flat array
-                  let qs: any[] = [];
-                  if (Array.isArray(analysis.interview_questions)) {
-                    qs = analysis.interview_questions;
-                  } else if (analysis.interview_questions && typeof analysis.interview_questions === "object") {
-                    for (const [cat, arr] of Object.entries(analysis.interview_questions)) {
-                      if (Array.isArray(arr)) {
-                        qs.push(...(arr as any[]).map((q: any) => ({ ...q, type: q.type || cat.replace(/_/g, " ").toUpperCase() })));
-                      }
-                    }
-                  }
-                  return (
-                  <div style={{animation:"fadeIn 0.3s ease"}}>
-                    <p style={{fontSize:13,color:"rgba(255,255,255,0.4)",marginBottom:"1.25rem"}}>Questions crafted to probe specific gaps and verify claims in this candidate's profile.</p>
-                    <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                      {qs.map((q, i) => (
-                        <div key={i} className="glass card-hover" style={{borderRadius:16,padding:"1.4rem",border:"1px solid rgba(251,191,36,0.12)",position:"relative",overflow:"hidden"}}>
-                          <div style={{position:"absolute",left:0,top:0,bottom:0,width:"3px",background:"linear-gradient(180deg,#fbbf24,#fbbf2415)"}}/>
-                          <div style={{paddingLeft:14}}>
-                            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:6}}>
-                              <div style={{display:"flex",gap:5,alignItems:"center"}}>
-                                <span style={{fontSize:10,fontWeight:700,color:"rgba(251,191,36,0.8)",letterSpacing:1}}>Q{i+1}</span>
-                                <span style={{fontSize:10,padding:"2px 8px",background:"rgba(251,191,36,0.1)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:999,color:"#fbbf24"}}>{q.type || q.topic || "General"}</span>
-                              </div>
-                              <span style={{fontSize:10,padding:"2px 8px",background:q.difficulty==="Hard"?"rgba(255,68,102,0.1)":q.difficulty==="Medium"?"rgba(251,191,36,0.1)":"rgba(0,255,136,0.08)",border:`1px solid ${q.difficulty==="Hard"?"rgba(255,68,102,0.25)":q.difficulty==="Medium"?"rgba(251,191,36,0.25)":"rgba(0,255,136,0.2)"}`,borderRadius:999,color:q.difficulty==="Hard"?"#ff4466":q.difficulty==="Medium"?"#fbbf24":"#00ff88"}}>{q.difficulty}</span>
-                            </div>
-                            <p style={{color:"rgba(255,255,255,0.88)",fontSize:14,fontWeight:500,marginBottom:10,lineHeight:1.5}}>{q.question}</p>
-                            <div style={{padding:"7px 10px",background:"rgba(99,102,241,0.08)",borderRadius:8,display:"flex",gap:7,alignItems:"flex-start"}}>
-                              <span style={{color:"#6366f1",fontSize:11,flexShrink:0,marginTop:1}}>🎯</span>
-                              <span style={{fontSize:11,color:"rgba(255,255,255,0.45)",lineHeight:1.4}}>Probes: {q.probes || q.why_asked || ""}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  );
-                })()}
-
-                {/* Tab: DNA */}
-                {activeTab === "dna" && (
-                  <div style={{animation:"fadeIn 0.3s ease"}}>
-                    {dna ? (
-                      <div className="glass" style={{borderRadius:18,padding:"2rem",border:"1px solid rgba(168,85,247,0.18)"}}>
-                        <div style={{fontSize:10,letterSpacing:3,color:"rgba(168,85,247,0.8)",marginBottom:"1.25rem",fontWeight:600,textAlign:"center"}}>CANDIDATE DNA PROFILE</div>
-                        <DNARadar data={dna}/>
-                      </div>
-                    ) : (
-                      <div style={{textAlign:"center",padding:"4rem",color:"rgba(255,255,255,0.25)"}}>
-                        <div style={{fontSize:28,animation:"spin 1.2s linear infinite",display:"inline-block",marginBottom:12}}>⟳</div>
-                        <div style={{fontSize:14}}>Building DNA profile...</div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-
-            {analysis && analysis.decision !== "INSUFFICIENT_DATA" && (
-              <div style={{display:"flex",gap:10,justifyContent:"center",marginTop:"1.5rem"}}>
-                <button className="btn-primary" onClick={reset} style={{padding:"0.75rem 2rem",borderRadius:12,fontSize:13,letterSpacing:2}}>↺ New Analysis</button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ─── RANKING ─── */}
-        {step === "ranking" && (
-          <div style={{animation:"fadeIn 0.5s ease"}}>
-            {rankLoading ? (
-              <div style={{textAlign:"center",padding:"6rem 0"}}>
-                <div style={{position:"relative",width:100,height:100,margin:"0 auto 2rem"}}>
-                  <div style={{position:"absolute",inset:0,border:"1.5px solid rgba(99,102,241,0.2)",borderTop:"1.5px solid #6366f1",borderRadius:"50%",animation:"spin 1.2s linear infinite"}}/>
-                  <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28}}>🏆</span>
-                </div>
-                <div style={{fontSize:14,letterSpacing:3,color:"rgba(255,255,255,0.5)",marginBottom:8}}>{loadMsg}</div>
-                <div style={{fontSize:11,color:"rgba(255,255,255,0.25)",maxWidth:400,margin:"0 auto",lineHeight:1.5}}>
-                  Each candidate goes through 3 stages: parsing → scoring → deep analysis. This takes ~15-30s per candidate on free tier.
-                </div>
-              </div>
-            ) : ranked && (
-              <div>
-                {/* ── TOP ACTION BAR: PROCEED TO DECISION ROOM ── */}
-                {ranked.length > 0 && ranked[0].overall_score > 0 && (
-                  <div style={{
-                    padding: "16px 22px",
-                    borderRadius: 16,
-                    background: "linear-gradient(135deg, rgba(16,185,129,0.18), rgba(99,102,241,0.18))",
-                    border: "1px solid rgba(16,185,129,0.45)",
-                    marginBottom: 24,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    gap: 14,
-                    boxShadow: "0 8px 30px rgba(16,185,129,0.2)"
-                  }}>
-                    <div>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: "#34d399", letterSpacing: 1.5, textTransform: "uppercase" }}>
-                        🏆 NEXT PIPELINE STAGE: DELIBERATE IN DECISION ROOM
-                      </span>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "white", marginTop: 2 }}>
-                        Top Ranked: {ranked[0].name} (Score: {ranked[0].overall_score}/100 • {ranked[0].verdict})
-                      </div>
-                      <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 2 }}>
-                        Role: {roles.find(r => r.id === selectedRoleId)?.title || "Role DNA"} • Registered & Ready for Committee Deliberation
-                      </div>
-                    </div>
-
-                    <a
-                      href={`/recruiter/decision-room?candidateId=${ranked[0].id}&roleId=${selectedRoleId}`}
+                  {/* Preset Demo Loaders for Easy Testing */}
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleLoadDemoBatch(3)}
                       style={{
-                        padding: "11px 22px",
-                        borderRadius: 10,
-                        background: "linear-gradient(135deg, #10b981, #059669)",
-                        color: "white",
-                        textDecoration: "none",
-                        fontSize: 13,
-                        fontWeight: 800,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        boxShadow: "0 0 20px rgba(16,185,129,0.35)"
+                        background: "#1e293b",
+                        color: "#cbd5e1",
+                        border: "1px solid #334155",
+                        padding: "5px 10px",
+                        borderRadius: 6,
+                        fontSize: 11,
+                        cursor: "pointer"
                       }}
                     >
-                      <span>⚖️</span> Deliberate on #{ranked[0].name} in Decision Room ➔
-                    </a>
+                      Load 3 Demo Resumes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleLoadDemoBatch(5)}
+                      style={{
+                        background: "#1e293b",
+                        color: "#cbd5e1",
+                        border: "1px solid #334155",
+                        padding: "5px 10px",
+                        borderRadius: 6,
+                        fontSize: 11,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Load 5 Demo Resumes
+                    </button>
                   </div>
-                )}
-
-                <div style={{textAlign:"center",marginBottom:"2rem"}}>
-                  <div style={{fontSize:10,letterSpacing:4,color:"rgba(99,102,241,0.8)",marginBottom:8,fontWeight:600}}>CANDIDATE RANKING</div>
-                  <h2 style={{fontSize:"2rem",fontWeight:800,letterSpacing:-1,marginBottom:8}}>Committee's Verdict</h2>
-                  {rankMeta && (
-                    <div style={{
-                      fontSize: 13,
-                      color: "rgba(255,255,255,0.7)",
-                      maxWidth: 800,
-                      margin: "1.5rem auto 0",
-                      textAlign: "left",
-                      whiteSpace: "pre-wrap",
-                      background: "rgba(99, 102, 241, 0.05)",
-                      border: "1px solid rgba(99, 102, 241, 0.15)",
-                      borderRadius: 14,
-                      padding: "20px",
-                      lineHeight: "1.7"
-                    }}>
-                      {rankMeta.comparison_summary}
-                    </div>
-                  )}
                 </div>
 
-                {rankMeta?.top_pick_reason && (
-                  <div style={{padding:"12px 16px",background:"rgba(0,255,136,0.06)",border:"1px solid rgba(0,255,136,0.15)",borderRadius:12,marginBottom:"1.25rem",fontSize:13,color:"rgba(255,255,255,0.65)",lineHeight:1.5}}>
-                    🏆 <strong style={{color:"#00ff88"}}>Top pick reason:</strong> {rankMeta.top_pick_reason}
+                {/* File Upload Box */}
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    border: "2px dashed #334155",
+                    borderRadius: 10,
+                    padding: "32px 20px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    background: "rgba(15,23,42,0.6)",
+                    marginBottom: 16
+                  }}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept=".txt,.pdf,.docx,.json"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setBatchFiles(Array.from(e.target.files));
+                      }
+                    }}
+                    style={{ display: "none" }}
+                  />
+                  <div style={{ fontSize: 24, marginBottom: 8 }}>📁</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "#f8fafc" }}>
+                    {batchFiles.length > 0
+                      ? `${batchFiles.length} file(s) selected`
+                      : "Click to upload candidate resume files (TXT, PDF, DOCX)"}
                   </div>
-                )}
+                  <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+                    Supports batches from 10 to 1000 candidates with failure-safe isolation
+                  </div>
+                </div>
 
-                {/* ── HONEST PARSE FAILURE BANNER ── */}
-                {failedFiles.length > 0 && (
-                  <div style={{ marginBottom: 20, padding: "16px 20px", borderRadius: 14, background: "rgba(255,68,102,0.08)", border: "1px solid rgba(255,68,102,0.3)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: "#ff4466", display: "flex", alignItems: "center", gap: 8 }}>
-                        <span>⚠️</span>
-                        <span>Could not process: {failedFiles.length} file{failedFiles.length > 1 ? "s" : ""}</span>
-                      </div>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
-                        Reported honestly with explicit reasons — never silently dropped or given false scores
+                {/* Raw Text / JSON Area */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 4 }}>
+                    Or Paste Batch Candidates (JSON Array or Delimited Text):
+                  </label>
+                  <textarea
+                    rows={8}
+                    placeholder={`[\n  {\n    "name": "Devon Chen",\n    "email": "devon@example.com",\n    "rawText": "Experience: Senior Backend..."\n  }\n]`}
+                    value={batchRawText}
+                    onChange={(e) => setBatchRawText(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "#0f172a",
+                      color: "#f8fafc",
+                      border: "1px solid #334155",
+                      padding: 12,
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontFamily: "monospace",
+                      outline: "none"
+                    }}
+                  />
+                </div>
+
+                {/* Real-time Progress Bar */}
+                {batchProcessing && batchProgress && (
+                  <div style={{ background: "#0f172a", padding: 16, borderRadius: 8, border: "1px solid #1e293b", marginBottom: 16 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+                      <span style={{ color: "#38bdf8", fontWeight: 600 }}>Analyzing Resumes Deterministically...</span>
+                      <span style={{ color: "#f8fafc", fontWeight: 700 }}>
+                        {batchProgress.processed} / {batchProgress.total} analyzed
                       </span>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
-                      {failedFiles.map((f, idx) => (
-                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "rgba(255,255,255,0.75)", background: "rgba(0,0,0,0.3)", padding: "8px 12px", borderRadius: 8 }}>
-                          <span style={{ fontWeight: 600 }}>📄 {f.filename || f.name}</span>
-                          <span style={{ color: "#fca5a5", fontSize: 11 }}>Reason: {f.reason}</span>
-                        </div>
-                      ))}
+                    <div style={{ width: "100%", height: 8, background: "#1e293b", borderRadius: 4, overflow: "hidden" }}>
+                      <div
+                        style={{
+                          width: `${(batchProgress.processed / batchProgress.total) * 100}%`,
+                          height: "100%",
+                          background: "linear-gradient(90deg, #6366f1, #38bdf8)",
+                          transition: "width 0.2s ease"
+                        }}
+                      />
                     </div>
                   </div>
                 )}
 
-                {/* ── TOP N SHORTLIST & SECOND-STAGE NARROWING CONTROLS ── */}
-                {(() => {
-                  const validRanked = (ranked || []).filter(c => c.overall_score > 0).sort((a, b) => a.rank - b.rank);
-                  const topSlice = topNShortlist === -1 ? validRanked : validRanked.slice(0, topNShortlist);
-                  const filteredCandidates = topSlice.filter(c => {
-                    if (shortlistFilter === "strong_must_haves") {
-                      return (c.scores?.must_have_match ?? 0) >= 60 || (c.scores?.technical ?? 0) >= 60;
-                    }
-                    if (shortlistFilter === "no_stuffers") {
-                      return !c.is_keyword_stuffer;
-                    }
-                    if (shortlistFilter === "high_score") {
-                      return c.overall_score >= 80;
-                    }
-                    return true;
-                  });
-
-                  return (
-                    <div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, padding: "14px 18px", borderRadius: 14, background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)", flexWrap: "wrap", gap: 14 }}>
-                        {/* Control 1: Show me top N candidates (default 50) */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: "#cbd5e1" }}>🎯 Show me the top:</span>
-                          <div style={{ display: "inline-flex", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: 3, gap: 3 }}>
-                            {[
-                              { label: "10", val: 10 },
-                              { label: "25", val: 25 },
-                              { label: "50 (Default)", val: 50 },
-                              { label: "100", val: 100 },
-                              { label: "All", val: -1 },
-                            ].map(opt => (
-                              <button
-                                key={opt.val}
-                                onClick={() => setTopNShortlist(opt.val)}
-                                style={{
-                                  padding: "5px 12px",
-                                  borderRadius: 7,
-                                  fontSize: 11,
-                                  fontWeight: topNShortlist === opt.val ? 800 : 500,
-                                  background: topNShortlist === opt.val ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "transparent",
-                                  color: topNShortlist === opt.val ? "white" : "rgba(255,255,255,0.5)",
-                                  border: "none",
-                                  cursor: "pointer",
-                                }}
-                              >
-                                {opt.label}
-                              </button>
-                            ))}
-                          </div>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                            candidates ({topSlice.length} in slice)
-                          </span>
-                        </div>
-
-                        {/* Control 2: Second-stage filter to narrow 50 -> working set */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>Narrow working set:</span>
-                          <select
-                            value={shortlistFilter}
-                            onChange={e => setShortlistFilter(e.target.value as any)}
-                            style={{
-                              padding: "6px 14px",
-                              borderRadius: 8,
-                              background: "rgba(0,0,0,0.6)",
-                              border: "1px solid rgba(168,85,247,0.4)",
-                              color: "#f8fafc",
-                              fontSize: 12,
-                              fontWeight: 700,
-                              cursor: "pointer"
-                            }}
-                          >
-                            <option value="all">All Shortlisted ({topSlice.length})</option>
-                            <option value="strong_must_haves">🟢 Strong on All Must-Haves</option>
-                            <option value="no_stuffers">🛡️ Clean Evidence (No Keyword Stuffers)</option>
-                            <option value="high_score">⭐ High Fit Only (Score ≥ 80)</option>
-                          </select>
+                {/* Batch Outcome Summary & Failure Isolation */}
+                {batchSummary && (
+                  <div style={{ background: "#0f172a", padding: 18, borderRadius: 10, border: "1px solid #1e293b", marginBottom: 16 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 10px", color: "#34d399" }}>
+                      ✓ Batch Screening Complete
+                    </h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+                      <div style={{ background: "#131b2b", padding: "10px 14px", borderRadius: 6 }}>
+                        <div style={{ fontSize: 11, color: "#94a3b8" }}>Successfully Analyzed</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "#34d399" }}>
+                          {batchSummary.successfullyAnalyzed}
                         </div>
                       </div>
-
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, fontSize: 12, color: "rgba(255,255,255,0.5)", padding: "0 4px" }}>
-                        <span>
-                          Showing <strong style={{ color: "white" }}>{filteredCandidates.length}</strong> candidate{filteredCandidates.length === 1 ? "" : "s"}
-                          {shortlistFilter !== "all" ? ` (filtered from top ${topSlice.length})` : ""}
-                        </span>
-                        <span>Ranked by strict evidence grounding</span>
-                      </div>
-
-                      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-                        {filteredCandidates.map((c, i) => {
-                          const vc = dc(c.verdict);
-                          const isExpanded = expandedCandidate === c.id;
-                          return (
-                            <div key={c.id || `ranked-${i}`} style={{borderRadius:18,border:`1px solid ${c.is_keyword_stuffer ? "rgba(255,68,102,0.4)" : `${vc}25`}`,overflow:"hidden",animation:`slideRight 0.4s ease ${i*0.06}s both`,background:c.is_keyword_stuffer ? "rgba(255,68,102,0.03)" : "rgba(255,255,255,0.03)",transition:"all 0.2s"}}>
-                              <div style={{padding:"1.2rem 1.5rem",cursor:"pointer",display:"flex",alignItems:"center",gap:14}} onClick={() => setExpandedCandidate(isExpanded ? null : c.id)}>
-                                <div style={{width:44,height:44,borderRadius:"50%",background:i===0?"linear-gradient(135deg,#fbbf24,#f59e0b)":i===1?"linear-gradient(135deg,#9ca3af,#6b7280)":i===2?"linear-gradient(135deg,#92400e,#78350f)":"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:i<3?"18px":"14px",flexShrink:0,boxShadow:i===0?"0 0 20px rgba(251,191,36,0.4)":"none"}}>
-                                  {i===0?"🥇":i===1?"🥈":i===2?"🥉":`#${c.rank}`}
-                                </div>
-                                <div style={{flex:1,minWidth:0}}>
-                                  <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
-                                    <span style={{fontWeight:700,fontSize:15}}>{c.name}</span>
-                                    <span style={{fontSize:11,padding:"2px 9px",background:`${vc}15`,border:`1px solid ${vc}35`,borderRadius:999,color:vc,fontWeight:700,flexShrink:0}}>{c.verdict}</span>
-                                    {c.is_keyword_stuffer && (
-                                      <span style={{fontSize:10,padding:"2px 8px",background:"rgba(255,68,102,0.2)",border:"1px solid rgba(255,68,102,0.4)",borderRadius:999,color:"#ff4466",fontWeight:700,flexShrink:0}}>
-                                        ⚠️ Keyword Stuffing Detected
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p style={{fontSize:12,color:"rgba(255,255,255,0.55)",margin:0,lineHeight:1.4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.summary}</p>
-                                </div>
-
-                                <div style={{display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-                                  {/* 1-Click Link to Decision Room */}
-                                  <a
-                                    href={`/recruiter/decision-room?candidateId=${c.id}&roleId=${selectedRoleId || "role-core-systems"}`}
-                                    onClick={e => e.stopPropagation()}
-                                    style={{
-                                      padding: "7px 14px",
-                                      borderRadius: 8,
-                                      background: "linear-gradient(135deg, #a855f7, #6366f1)",
-                                      color: "white",
-                                      fontSize: 11,
-                                      fontWeight: 800,
-                                      textDecoration: "none",
-                                      display: "inline-flex",
-                                      alignItems: "center",
-                                      gap: 6,
-                                      cursor: "pointer",
-                                      boxShadow: "0 2px 10px rgba(168,85,247,0.3)"
-                                    }}
-                                  >
-                                    ⚖️ Decision Room ➔
-                                  </a>
-
-                                  <div style={{textAlign:"center"}}>
-                                    <div style={{fontSize:"1.6rem",fontWeight:900,color:vc,lineHeight:1}}>{c.overall_score}</div>
-                                    <div style={{fontSize:9,color:"rgba(255,255,255,0.25)",letterSpacing:1}}>SCORE</div>
-                                    {/* Confidence badge from evidence-scorer enrichment */}
-                                    {(c as any).confidence_data && (
-                                      <div style={{
-                                        marginTop:3,fontSize:8,padding:"1px 6px",borderRadius:999,fontWeight:700,textTransform:"uppercase",
-                                        color: (c as any).confidence_data.confidence_level === "high" ? "#00ff88" : (c as any).confidence_data.confidence_level === "medium" ? "#fbbf24" : "#ff4466",
-                                        background: (c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.1)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.1)" : "rgba(255,68,102,0.1)",
-                                        border: `1px solid ${(c as any).confidence_data.confidence_level === "high" ? "rgba(0,255,136,0.25)" : (c as any).confidence_data.confidence_level === "medium" ? "rgba(251,191,36,0.25)" : "rgba(255,68,102,0.25)"}`,
-                                      }}>
-                                        {(c as any).confidence_data.confidence_level}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div style={{fontSize:16,color:"rgba(255,255,255,0.25)"}}>{isExpanded?"▲":"▼"}</div>
-                                </div>
-                              </div>
-
-                        {isExpanded && (
-                          <div style={{padding:"0 1.5rem 1.4rem",borderTop:"1px solid rgba(255,255,255,0.06)"}}>
-                            {/* Evidence Radar Section */}
-                            {c.radar && (
-                              <div style={{margin:"1.2rem 0",padding:"14px 16px",background:"rgba(255,255,255,0.025)",borderRadius:14,border:"1px solid rgba(255,255,255,0.06)"}}>
-                                <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",fontWeight:700,letterSpacing:1.5,marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                                  <span>EVIDENCE RADAR & DOMAIN CALIBRATION</span>
-                                  <span style={{fontSize:10,color:vc,fontWeight:600}}>{c.verdict.toUpperCase()} TIER</span>
-                                </div>
-                                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(180px, 1fr))",gap:"10px 18px"}}>
-                                  {[
-                                    { label: "Must-Have Alignment", val: c.radar.mustHave, color: "#00ff88" },
-                                    { label: "Evidence Depth / Quality", val: c.radar.evidenceQuality, color: "#38bdf8" },
-                                    { label: "Hands-on Experience", val: c.radar.practicalWork, color: "#a855f7" },
-                                    { label: "Technical Projects", val: c.radar.projects, color: "#6366f1" },
-                                    { label: "Problem Solving / DSA", val: c.radar.dsa, color: "#fbbf24" },
-                                    { label: "Engineering Rigor (Testing/Git)", val: c.radar.engineeringPractices, color: "#22c55e" },
-                                  ].map((r, rIdx) => (
-                                    <div key={rIdx}>
-                                      <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
-                                        <span style={{color:"rgba(255,255,255,0.6)"}}>{r.label}</span>
-                                        <span style={{color:r.color,fontWeight:700}}>{r.val}%</span>
-                                      </div>
-                                      <div style={{height:5,background:"rgba(255,255,255,0.08)",borderRadius:999,overflow:"hidden"}}>
-                                        <div style={{height:"100%",width:`${r.val}%`,background:r.color,borderRadius:999,transition:"width 0.6s ease"}}/>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Matched Must-Haves Breakdown */}
-                            {c.matched_must_haves && c.matched_must_haves.length > 0 && (
-                              <div style={{marginBottom:14}}>
-                                <div style={{fontSize:10,color:"rgba(255,255,255,0.4)",fontWeight:700,letterSpacing:1,marginBottom:8}}>MUST-HAVE REQUIREMENTS VERIFICATION</div>
-                                <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
-                                  {c.matched_must_haves.map((m, mIdx) => {
-                                    const isVerified = m.status === "verified_work" || m.status === "verified_project";
-                                    const isCoursework = m.status === "coursework";
-                                    const isListed = m.status === "listed_only";
-                                    const chipColor = isVerified ? "#00ff88" : isCoursework ? "#fbbf24" : isListed ? "#f97316" : "#ff4466";
-                                    const badgeLabel = isVerified ? "Verified Proof" : isCoursework ? "Coursework" : isListed ? "Listed Only" : "Missing";
-                                    return (
-                                      <div key={mIdx} title={m.evidenceSnippet} style={{display:"flex",alignItems:"center",gap:6,background:`${chipColor}0e`,border:`1px solid ${chipColor}30`,borderRadius:8,padding:"4px 10px",fontSize:11,cursor:"help"}}>
-                                        <span style={{color:chipColor,fontWeight:600}}>{m.skill}</span>
-                                        <span style={{fontSize:9,padding:"1px 5px",background:`${chipColor}20`,color:chipColor,borderRadius:4,fontWeight:700}}>{badgeLabel}</span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Evidence-Based Requirement Table (from evidence-scorer enrichment) */}
-                            {(c as any).requirement_evidence?.length > 0 && (
-                              <div style={{marginBottom:14}}>
-                                <div style={{fontSize:10,color:"rgba(99,102,241,0.8)",fontWeight:700,letterSpacing:1,marginBottom:8}}>📊 REQUIREMENT-BY-REQUIREMENT EVIDENCE</div>
-                                <div style={{overflowX:"auto"}}>
-                                  <table style={{width:"100%",borderCollapse:"collapse",fontSize:11}}>
-                                    <thead>
-                                      <tr style={{borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
-                                        <th style={{textAlign:"left",padding:"6px 8px",color:"rgba(255,255,255,0.4)",fontWeight:600,fontSize:9,letterSpacing:1}}>REQUIREMENT</th>
-                                        <th style={{textAlign:"center",padding:"6px 4px",color:"rgba(255,255,255,0.4)",fontWeight:600,fontSize:9,letterSpacing:1,width:70}}>ASSESSMENT</th>
-                                        <th style={{textAlign:"left",padding:"6px 8px",color:"rgba(255,255,255,0.4)",fontWeight:600,fontSize:9,letterSpacing:1}}>EVIDENCE</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {(c as any).requirement_evidence.filter((re: any) => re.criticality === "High" || re.criticality === "Medium").map((re: any, reIdx: number) => {
-                                        const ac = re.assessment === "strong" ? "#00ff88" : re.assessment === "moderate" ? "#fbbf24" : re.assessment === "weak" ? "#f97316" : "#ff4466";
-                                        return (
-                                          <tr key={reIdx} style={{borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
-                                            <td style={{padding:"6px 8px",color:"rgba(255,255,255,0.7)",maxWidth:160}}>{re.requirement}</td>
-                                            <td style={{textAlign:"center",padding:"6px 4px"}}>
-                                              <span style={{fontSize:9,padding:"1px 6px",background:`${ac}12`,border:`1px solid ${ac}25`,borderRadius:999,color:ac,fontWeight:700,textTransform:"uppercase"}}>{re.assessment}</span>
-                                            </td>
-                                            <td style={{padding:"6px 8px",maxWidth:280}}>
-                                              {re.verbatim_quote ? (
-                                                <span style={{color:"rgba(255,255,255,0.55)",fontStyle:"italic",fontSize:10}}>"{re.verbatim_quote.slice(0, 120)}{re.verbatim_quote.length > 120 ? "…" : ""}"</span>
-                                              ) : (
-                                                <span style={{color:"rgba(255,255,255,0.2)",fontSize:10}}>{re.status === "missing" ? "No evidence" : "Listed in skills"}</span>
-                                              )}
-                                            </td>
-                                          </tr>
-                                        );
-                                      })}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Verification Flags for ranked candidates */}
-                            {(c as any).verification_flags?.length > 0 && (
-                              <div style={{marginBottom:14}}>
-                                <div style={{fontSize:10,color:"#fbbf24",fontWeight:700,letterSpacing:1,marginBottom:8}}>📋 WORTH PROBING IN INTERVIEW</div>
-                                <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                                  {(c as any).verification_flags.slice(0, 3).map((vf: any, vfIdx: number) => (
-                                    <div key={vfIdx} style={{padding:"8px 10px",background:"rgba(251,191,36,0.04)",borderRadius:8,borderLeft:"2px solid rgba(251,191,36,0.35)"}}>
-                                      <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,0.8)",marginBottom:2}}>{vf.claim}</div>
-                                      <div style={{fontSize:10,color:"#fbbf24",lineHeight:1.4}}>💬 {vf.suggested_interview_probe}</div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Strengths and Concerns */}
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
-                              <div style={{background:"rgba(0,255,136,0.05)",border:"1px solid rgba(0,255,136,0.14)",borderRadius:12,padding:"12px 14px"}}>
-                                <div style={{fontSize:9,color:"#00ff88",fontWeight:700,letterSpacing:1,marginBottom:8}}>VERIFIED STRENGTHS</div>
-                                {c.strengths?.map((s,j) => <div key={j} style={{display:"flex",gap:6,marginBottom:6}}><span style={{color:"#00ff88",fontSize:11,flexShrink:0}}>✓</span><span style={{fontSize:12,color:"rgba(255,255,255,0.75)",lineHeight:1.4}}>{s}</span></div>)}
-                              </div>
-                              <div style={{background:"rgba(255,68,102,0.05)",border:"1px solid rgba(255,68,102,0.14)",borderRadius:12,padding:"12px 14px"}}>
-                                <div style={{fontSize:9,color:"#ff4466",fontWeight:700,letterSpacing:1,marginBottom:8}}>SCREENING CONCERNS & GAPS</div>
-                                {c.weaknesses?.length > 0 ? (
-                                  c.weaknesses.map((s,j) => <div key={j} style={{display:"flex",gap:6,marginBottom:6}}><span style={{color:"#ff4466",fontSize:11,flexShrink:0}}>•</span><span style={{fontSize:12,color:"rgba(255,255,255,0.75)",lineHeight:1.4}}>{s}</span></div>)
-                                ) : (
-                                  <div style={{fontSize:12,color:"rgba(255,255,255,0.4)"}}>No critical gaps or disqualifying concerns identified.</div>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* 50-Year Recruiter Committee Verdict Box */}
-                            <div style={{padding:"12px 16px",background:"rgba(99,102,241,0.08)",border:"1px solid rgba(99,102,241,0.25)",borderRadius:12,marginBottom:12,fontSize:12,lineHeight:1.6}}>
-                              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
-                                <span style={{color:"#a855f7",fontWeight:700,letterSpacing:0.5}}>🏛️ 50-YEAR FAANG BAR-RAISER VERDICT</span>
-                                <span style={{fontSize:11,color:vc,fontWeight:700}}>{c.verdict} ({c.overall_score}/100)</span>
-                              </div>
-                              <p style={{color:"rgba(255,255,255,0.85)",margin:0,marginBottom:6}}>{c.committee_note || c.summary}</p>
-                              <div style={{fontSize:11,color:"rgba(99,102,241,0.9)",fontWeight:600}}>
-                                Next Action: <span style={{color:"rgba(255,255,255,0.7)"}}>{c.hire_recommendation}</span>
-                              </div>
-                            </div>
-
-                            {/* Predicted Technical Screen Questions */}
-                            {c.predicted_questions?.length > 0 && (
-                              <div style={{background:"rgba(251,191,36,0.05)",border:"1px solid rgba(251,191,36,0.14)",borderRadius:12,padding:"12px 14px"}}>
-                                <div style={{fontSize:9,color:"#fbbf24",fontWeight:700,letterSpacing:1,marginBottom:8}}>TARGETED TECHNICAL INTERVIEW QUESTIONS</div>
-                                {c.predicted_questions.map((q,j) => <div key={j} style={{display:"flex",gap:7,marginBottom:6}}><span style={{color:"#fbbf24",fontSize:10,flexShrink:0,fontWeight:700}}>Q{j+1}</span><span style={{fontSize:12,color:"rgba(255,255,255,0.75)",lineHeight:1.4}}>{q}</span></div>)}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
-
-                {/* Collapsed section for unparsed/empty candidates */}
-                {ranked.filter(c => c.overall_score === 0).length > 0 && (
-                  <details style={{marginTop:"1rem"}}>
-                    <summary style={{fontSize:12,color:"rgba(255,255,255,0.35)",cursor:"pointer",padding:"8px 0",userSelect:"none"}}>
-                      ⚠️ {ranked.filter(c => c.overall_score === 0).length} candidate(s) could not be parsed — click to expand
-                    </summary>
-                    <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
-                      {ranked.filter(c => c.overall_score === 0).map((c, i) => (
-                        <div key={c.id || `unparsed-${i}`} style={{padding:"8px 14px",background:"rgba(255,68,102,0.04)",border:"1px solid rgba(255,68,102,0.1)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                          <span style={{fontSize:12,color:"rgba(255,255,255,0.4)"}}>{c.name}</span>
-                          <span style={{fontSize:10,color:"rgba(255,68,102,0.5)"}}>Resume empty or could not be parsed</span>
+                      <div style={{ background: "#131b2b", padding: "10px 14px", borderRadius: 6 }}>
+                        <div style={{ fontSize: 11, color: "#94a3b8" }}>Duplicates Isolated</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "#fbbf24" }}>
+                          {batchSummary.duplicates.length}
                         </div>
-                      ))}
+                      </div>
+                      <div style={{ background: "#131b2b", padding: "10px 14px", borderRadius: 6 }}>
+                        <div style={{ fontSize: 11, color: "#94a3b8" }}>Corrupted / Needing Review</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "#fb7185" }}>
+                          {batchSummary.failedItems.length}
+                        </div>
+                      </div>
                     </div>
-                  </details>
+
+                    {batchSummary.duplicates.length > 0 && (
+                      <div style={{ fontSize: 12, color: "#fbbf24", marginBottom: 8 }}>
+                        ⚠️ {batchSummary.duplicates.length} duplicate submissions were identified and merged without duplicate evaluations.
+                      </div>
+                    )}
+
+                    {batchSummary.failedItems.length > 0 && (
+                      <div style={{ fontSize: 12, color: "#fb7185" }}>
+                        ⚠️ {batchSummary.failedItems.length} files could not be evaluated (e.g. unreadable or missing text) and were safely isolated.
+                      </div>
+                    )}
+
+                    <div style={{ marginTop: 14 }}>
+                      <button
+                        onClick={() => {
+                          setSelectedRoleId(batchRole);
+                          setActiveMode("open_roles");
+                        }}
+                        style={{
+                          background: "#1e293b",
+                          color: "#f8fafc",
+                          border: "1px solid #334155",
+                          padding: "8px 16px",
+                          borderRadius: 6,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        }}
+                      >
+                        View Evaluated Candidates in Pool →
+                      </button>
+                    </div>
+                  </div>
                 )}
 
-                <div style={{display:"flex",justifyContent:"center",gap:"1rem",marginTop:"1.5rem"}}>
-                  <button className="btn-primary" onClick={() => { setStep("input"); setRanked(null); }} style={{padding:"0.75rem 2rem",borderRadius:12,fontSize:13,letterSpacing:2}}>↺ New Ranking</button>
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
                   <button
-                    className="btn-primary"
-                    onClick={exportRankingToXLSX}
-                    style={{ padding: "0.75rem 2rem", borderRadius: 12, fontSize: 13, letterSpacing: 2 }}
+                    onClick={handleBatchScreenSubmit}
+                    disabled={batchProcessing}
+                    style={{
+                      background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                      color: "#fff",
+                      border: "none",
+                      padding: "10px 24px",
+                      borderRadius: 8,
+                      fontSize: 14,
+                      fontWeight: 700,
+                      cursor: batchProcessing ? "not-allowed" : "pointer",
+                      opacity: batchProcessing ? 0.7 : 1
+                    }}
                   >
-                    ⬇ Export to XLSX
+                    {batchProcessing ? "Screening Batch..." : "Start Batch Screening →"}
                   </button>
                 </div>
               </div>
@@ -2206,186 +1481,671 @@ function deriveScore(signal: string | undefined, base: number, weight: number): 
           </div>
         )}
 
-        {/* ─── FUNNEL RESULTS ─── */}
-        {step === "funnel_results" && (
-          <div style={{animation:"fadeIn 0.5s ease"}}>
-            <div style={{textAlign:"center",marginBottom:"2.5rem"}}>
-              <div style={{fontSize:10,letterSpacing:4,color:"rgba(99,102,241,0.8)",marginBottom:8,fontWeight:600}}>HIRING FUNNEL SIMULATION</div>
-              <h2 style={{fontSize:"2.2rem",fontWeight:900,letterSpacing:-1.5,marginBottom:8}}>Multi-Stage Shortlisting Report</h2>
-              <p style={{fontSize:13,color:"rgba(255,255,255,0.45)",maxWidth:600,margin:"0 auto"}}>Candid evaluation of 500 applicants through resume filters, code deep screening, and live hiring committee review.</p>
-            </div>
-
-            {/* Funnel Stats Grid */}
-            {funnelAnalytics && (
-              <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:"2rem"}}>
-                {[
-                  { label: "APPLICANTS", val: funnelAnalytics.funnel.totalApplicants, color: "#94a3b8" },
-                  { label: "STAGE 1 PASSED", val: funnelAnalytics.funnel.stage1Passed, color: "#a855f7" },
-                  { label: "STAGE 2 PASSED", val: funnelAnalytics.funnel.stage2Passed, color: "#6366f1" },
-                  { label: "FINALISTS", val: funnelAnalytics.funnel.finalists, color: "#22d3ee" },
-                  { label: "OFFERS", val: funnelAnalytics.funnel.offers, color: "#00ff88" },
-                  { label: "WAITLIST", val: funnelAnalytics.funnel.waitlist, color: "#fbbf24" }
-                ].map((stat, idx) => (
-                  <div key={idx} className="glass" style={{padding:"14px",borderRadius:14,textAlign:"center",border:`1px solid ${stat.color}25`}}>
-                    <div style={{fontSize:"1.6rem",fontWeight:900,color:stat.color}}>{stat.val}</div>
-                    <div style={{fontSize:8,color:"rgba(255,255,255,0.3)",letterSpacing:1,marginTop:2}}>{stat.label}</div>
+        {/* ─────────────────────────────────────────────────────────────
+            CANDIDATE SCREENING DOSSIER SLIDE-OVER / MODAL
+        ───────────────────────────────────────────────────────────── */}
+        {activeDossierCandidate && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              justifyContent: "flex-end",
+              zIndex: 100
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 780,
+                height: "100%",
+                background: "#0d131f",
+                borderLeft: "1px solid #1f2937",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  padding: "20px 24px",
+                  borderBottom: "1px solid #1f2937",
+                  background: "#111827",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start"
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", letterSpacing: "0.5px" }}>
+                      EVIDENCE-GROUNDED CANDIDATE DOSSIER
+                    </span>
+                    <span style={{ color: "#475569" }}>•</span>
+                    <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                      Target Role: {activeDossierCandidate.appliedRoleTitle} (v{activeDossierCandidate.screeningDossier?.roleVersion || 1})
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                  <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                    {activeDossierCandidate.name}
+                  </h2>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                    {activeDossierCandidate.email} {activeDossierCandidate.phone ? `• ${activeDossierCandidate.phone}` : ""}
+                  </div>
+                </div>
 
-            {/* Funnel Stack Diagram */}
-            {funnelAnalytics && (
-              <div className="glass" style={{borderRadius:20,padding:"2rem",border:"1px solid rgba(255,255,255,0.06)",marginBottom:"2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:10}}>
-                <div style={{fontSize:10,letterSpacing:2,color:"rgba(255,255,255,0.35)",fontWeight:700,marginBottom:10}}>CONVERSION PIPELINE</div>
-                <div style={{width:"100%",maxWidth:400,height:24,background:"rgba(148,163,184,0.15)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(148,163,184,0.3)",fontSize:11,fontWeight:700}}>
-                  Total applicants: {funnelAnalytics.funnel.totalApplicants}
-                </div>
-                <div style={{width:"80%",maxWidth:320,height:24,background:"rgba(168,85,247,0.15)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(168,85,247,0.3)",fontSize:11,fontWeight:700,color:"#c084fc"}}>
-                  Stage 1 Screened: {funnelAnalytics.funnel.stage1Passed}
-                </div>
-                <div style={{width:"60%",maxWidth:320,height:24,background:"rgba(99,102,241,0.15)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(99,102,241,0.3)",fontSize:11,fontWeight:700,color:"#818cf8"}}>
-                  Stage 2 Deep Checked: {funnelAnalytics.funnel.stage2Passed}
-                </div>
-                <div style={{width:"40%",maxWidth:320,height:24,background:"rgba(34,211,238,0.15)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(34,211,238,0.3)",fontSize:11,fontWeight:700,color:"#22d3ee"}}>
-                  Committee Finalists: {funnelAnalytics.funnel.finalists}
-                </div>
-                <div style={{width:"20%",maxWidth:320,height:24,background:"rgba(0,255,136,0.15)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",border:"1px solid rgba(0,255,136,0.3)",fontSize:11,fontWeight:700,color:"#00ff88"}}>
-                  Offers: {funnelAnalytics.funnel.offers}
-                </div>
+                <button
+                  onClick={() => setActiveDossierCandidate(null)}
+                  style={{
+                    background: "transparent",
+                    color: "#94a3b8",
+                    border: "none",
+                    fontSize: 22,
+                    cursor: "pointer",
+                    padding: 4
+                  }}
+                >
+                  ✕
+                </button>
               </div>
-            )}
 
-            {/* Funnel Candidates List */}
-            <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:"2rem"}}>
-              {funnelStates.map((fs, idx) => {
-                const isExpanded = expandedCandidate === fs.candidate_id;
-                const statusColor = fs.status === "HIRE" ? "#00ff88" : fs.status === "ADVANCE" ? "#22d3ee" : fs.status === "HOLD" ? "#fbbf24" : "#ff4466";
-                return (
-                  <div key={fs.candidate_id} style={{borderRadius:18,border:`1px solid ${statusColor}20`,background:"rgba(255,255,255,0.03)",overflow:"hidden"}}>
-                    <div style={{padding:"1.2rem 1.5rem",cursor:"pointer",display:"flex",alignItems:"center",gap:14}} onClick={() => setExpandedCandidate(isExpanded ? null : fs.candidate_id)}>
-                      <div style={{width:32,height:32,borderRadius:"50%",background:"rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13}}>
-                        #{fs.rank || idx + 1}
+              {/* Body */}
+              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+                {/* View Switcher: Pipeline Evidence vs Screening Overview */}
+                <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #1f2937", paddingBottom: 12 }}>
+                  <button
+                    onClick={() => setDrawerTab("pipeline_evidence")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      border: drawerTab === "pipeline_evidence" ? "1px solid #6366f1" : "1px solid #334155",
+                      background: drawerTab === "pipeline_evidence" ? "rgba(99,102,241,0.2)" : "#0f172a",
+                      color: drawerTab === "pipeline_evidence" ? "#a5b4fc" : "#94a3b8",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <span>🛡️ Fact-Level Evidence Pipeline</span>
+                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#10b981", color: "#022c22", fontWeight: 800 }}>
+                      AUDITABLE
+                    </span>
+                  </button>
+                  <button
+                    onClick={() => setDrawerTab("dossier")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      border: drawerTab === "dossier" ? "1px solid #6366f1" : "1px solid #334155",
+                      background: drawerTab === "dossier" ? "rgba(99,102,241,0.2)" : "#0f172a",
+                      color: drawerTab === "dossier" ? "#a5b4fc" : "#94a3b8",
+                    }}
+                  >
+                    📋 Traditional Screening Dossier
+                  </button>
+                </div>
+
+                {dossierLoading ? (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>
+                    Evaluating candidate evidence against confirmed requirements...
+                  </div>
+                ) : drawerTab === "pipeline_evidence" ? (
+                  <PipelineEvidenceView
+                    candidateId={activeDossierCandidate.id}
+                    candidateName={activeDossierCandidate.name}
+                    decisions={pipelineDecisions}
+                    evidenceList={pipelineEvidence}
+                  />
+                ) : activeDossierCandidate.screeningDossier ? (
+                  <div>
+                    {/* Coverage Summary Card */}
+                    <div style={{ background: "#111827", borderRadius: 10, border: "1px solid #1f2937", padding: 18, marginBottom: 20 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>
+                          ASSESSMENT COVERAGE SUMMARY
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 800,
+                            padding: "3px 10px",
+                            borderRadius: 6,
+                            background: "rgba(99,102,241,0.15)",
+                            color: "#a5b4fc",
+                            border: "1px solid rgba(99,102,241,0.3)"
+                          }}
+                        >
+                          {activeDossierCandidate.screeningDossier.overallCoverage}
+                        </span>
                       </div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
-                          <span style={{fontWeight:700,fontSize:14}}>{fs.name}</span>
-                          <span style={{fontSize:9,padding:"1px 8px",background:`${statusColor}15`,border:`1px solid ${statusColor}30`,borderRadius:999,color:statusColor,fontWeight:600}}>{fs.status}</span>
-                        </div>
-                        <p style={{fontSize:12,color:"rgba(255,255,255,0.45)",margin:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{fs.headline}</p>
+
+                      {/* Pill Counters */}
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 14 }}>
+                        <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 6, background: "rgba(16,185,129,0.12)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)", fontWeight: 600 }}>
+                          {activeDossierCandidate.screeningDossier.coverageCounts.supportedCount} Supported
+                        </span>
+                        <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 6, background: "rgba(245,158,11,0.12)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.3)", fontWeight: 600 }}>
+                          {activeDossierCandidate.screeningDossier.coverageCounts.partialCount} Partially Supported
+                        </span>
+                        <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 6, background: "rgba(100,116,139,0.12)", color: "#94a3b8", border: "1px solid rgba(100,116,139,0.3)", fontWeight: 600 }}>
+                          {activeDossierCandidate.screeningDossier.coverageCounts.notFoundCount} Evidence Not Found
+                        </span>
+                        {(activeDossierCandidate.screeningDossier.coverageCounts.needsReviewCount > 0 || activeDossierCandidate.screeningDossier.coverageCounts.conflictingCount > 0) && (
+                          <span style={{ fontSize: 12, padding: "3px 10px", borderRadius: 6, background: "rgba(244,63,94,0.15)", color: "#fb7185", border: "1px solid rgba(244,63,94,0.3)", fontWeight: 700 }}>
+                            {activeDossierCandidate.screeningDossier.coverageCounts.needsReviewCount + activeDossierCandidate.screeningDossier.coverageCounts.conflictingCount} Flags Needing Review
+                          </span>
+                        )}
                       </div>
-                      <div style={{fontSize:16,color:"rgba(255,255,255,0.25)"}}>{isExpanded?"▲":"▼"}</div>
+
+                      {/* Narrative Summary */}
+                      <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.6, margin: 0 }}>
+                        {activeDossierCandidate.screeningDossier.narrativeSummary}
+                      </p>
                     </div>
 
-                    {isExpanded && (
-                      <div style={{padding:"1.25rem 1.5rem",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",flexDirection:"column",gap:12}}>
-                        {/* Stage 1 Report */}
-                        <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.05)"}}>
-                          <div style={{fontSize:10,fontWeight:700,letterSpacing:1,color:"#a855f7",marginBottom:6}}>STAGE 1: RESUME SCREEN</div>
-                          <div style={{fontSize:13,color:"rgba(255,255,255,0.8)",lineHeight:1.5}}>{fs.stage_1_report.reasons}</div>
+                    {/* Contradictions / Red Flags if any */}
+                    {activeDossierCandidate.screeningDossier.detectedContradictions && activeDossierCandidate.screeningDossier.detectedContradictions.length > 0 && (
+                      <div style={{ background: "rgba(244,63,94,0.08)", borderRadius: 10, border: "1px solid rgba(244,63,94,0.3)", padding: 16, marginBottom: 20 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#fb7185", marginBottom: 8 }}>
+                          ⚠️ Discrepancies & Contradictions Flagged in Submitted Materials
                         </div>
-
-                        {/* Stage 2 Report */}
-                        {fs.stage_2_report && (
-                          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.05)"}}>
-                            <div style={{fontSize:10,fontWeight:700,letterSpacing:1,color:"#6366f1",marginBottom:6}}>STAGE 2: DEEP SCREEN</div>
-                            <div style={{fontSize:13,color:"rgba(255,255,255,0.8)",lineHeight:1.5}}>{fs.stage_2_report.reasonForDecision}</div>
+                        {activeDossierCandidate.screeningDossier.detectedContradictions.map((c, idx) => (
+                          <div key={idx} style={{ fontSize: 12, color: "#fda4af", marginBottom: 6, lineHeight: 1.4 }}>
+                            • <strong>{c.topic}</strong>: {c.reason}
                           </div>
-                        )}
-
-                        {/* Stage 3 Committee Report */}
-                        {fs.committee_report && (
-                          <div style={{background:"rgba(255,255,255,0.02)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(255,255,255,0.05)"}}>
-                            <div style={{fontSize:10,fontWeight:700,letterSpacing:1,color:"#22d3ee",marginBottom:6}}>STAGE 3: COMMITTEE FEEDBACK</div>
-                            <div style={{display:"flex",flexDirection:"column",gap:6,marginTop:6}}>
-                              <div style={{fontSize:12,color:"rgba(255,255,255,0.6)"}}><strong style={{color:"#00ff88"}}>Recruiter:</strong> {fs.committee_report.recruiterOpinion}</div>
-                              <div style={{fontSize:12,color:"rgba(255,255,255,0.6)"}}><strong style={{color:"#22d3ee"}}>Hiring Manager:</strong> {fs.committee_report.hiringManagerOpinion}</div>
-                              <div style={{fontSize:12,color:"rgba(255,255,255,0.6)"}}><strong style={{color:"#fbbf24"}}>Tech Lead:</strong> {fs.committee_report.technicalLeadOpinion}</div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Stage 4 Decision */}
-                        {fs.final_decision_report && (
-                          <div style={{background:"rgba(0,255,136,0.04)",borderRadius:12,padding:"12px 14px",border:"1px solid rgba(0,255,136,0.12)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                            <div>
-                              <div style={{fontSize:10,fontWeight:700,letterSpacing:1,color:"#00ff88",marginBottom:4}}>STAGE 4: FINAL RECRUITING OFFER</div>
-                              <div style={{fontSize:12,color:"rgba(255,255,255,0.7)"}}>Expected performance: <strong>{fs.final_decision_report.expectedPerformance}</strong></div>
-                            </div>
-                            <div style={{fontSize:"1.2rem",fontWeight:800,color:"#00ff88"}}>{fs.final_decision_report.recommendedSalaryBand}</div>
-                          </div>
-                        )}
+                        ))}
                       </div>
                     )}
+
+                    {/* Requirement-Level Assessments */}
+                    <div style={{ marginBottom: 12 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px", color: "#f8fafc" }}>
+                        Requirement-Level Evidence Verification
+                      </h4>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                        {activeDossierCandidate.screeningDossier.assessments.map((reqItem) => {
+                          const isWhyOpen = expandedWhyId === reqItem.requirementId;
+                          const isCorrecting = correctingReqId === reqItem.requirementId;
+
+                          return (
+                            <div
+                              key={reqItem.requirementId}
+                              style={{
+                                background: "#111827",
+                                borderRadius: 10,
+                                border: "1px solid #1f2937",
+                                padding: 16
+                              }}
+                            >
+                              {/* Header: Requirement text & badges */}
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
+                                <div>
+                                  <span style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>
+                                    {reqItem.category}
+                                  </span>
+                                  <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                                    {reqItem.requirementText}
+                                  </div>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                                  {/* Match State Badge */}
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                      padding: "3px 8px",
+                                      borderRadius: 6,
+                                      background:
+                                        reqItem.evidenceState === "SUPPORTED"
+                                          ? "rgba(16,185,129,0.15)"
+                                          : reqItem.evidenceState === "PARTIALLY_SUPPORTED"
+                                          ? "rgba(245,158,11,0.15)"
+                                          : reqItem.evidenceState === "EVIDENCE_NOT_FOUND"
+                                          ? "rgba(100,116,139,0.15)"
+                                          : "rgba(244,63,94,0.15)",
+                                      color:
+                                        reqItem.evidenceState === "SUPPORTED"
+                                          ? "#34d399"
+                                          : reqItem.evidenceState === "PARTIALLY_SUPPORTED"
+                                          ? "#fbbf24"
+                                          : reqItem.evidenceState === "EVIDENCE_NOT_FOUND"
+                                          ? "#94a3b8"
+                                          : "#fb7185",
+                                      border: `1px solid ${
+                                        reqItem.evidenceState === "SUPPORTED"
+                                          ? "rgba(16,185,129,0.3)"
+                                          : reqItem.evidenceState === "PARTIALLY_SUPPORTED"
+                                          ? "rgba(245,158,11,0.3)"
+                                          : reqItem.evidenceState === "EVIDENCE_NOT_FOUND"
+                                          ? "rgba(100,116,139,0.3)"
+                                          : "rgba(244,63,94,0.3)"
+                                      }`
+                                    }}
+                                  >
+                                    {reqItem.evidenceState.replace(/_/g, " ")}
+                                  </span>
+
+                                  {/* Depth Badge */}
+                                  <span style={{ fontSize: 10, color: "#64748b" }}>
+                                    Depth: {reqItem.evidenceDepth.replace(/_/g, " ")}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Candidate Evidence Quote */}
+                              <div
+                                style={{
+                                  background: "#0b0f17",
+                                  borderLeft: "3px solid #6366f1",
+                                  padding: "10px 14px",
+                                  borderRadius: "0 6px 6px 0",
+                                  fontSize: 12,
+                                  color: "#cbd5e1",
+                                  marginBottom: 10,
+                                  lineHeight: 1.5,
+                                  fontStyle: reqItem.candidateEvidence.includes("No ") ? "italic" : "normal"
+                                }}
+                              >
+                                <strong>Evidence Quote:</strong> “{reqItem.candidateEvidence}”
+                                <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+                                  Source Section: {reqItem.sourceSection}
+                                </div>
+                              </div>
+
+                              {/* Explanation */}
+                              <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5, marginBottom: 10 }}>
+                                {reqItem.assessmentExplanation}
+                              </div>
+
+                              {/* Action Row: [Why?] & Recruiter Correction */}
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 8, borderTop: "1px solid #1e293b" }}>
+                                <button
+                                  onClick={() => setExpandedWhyId(isWhyOpen ? null : reqItem.requirementId)}
+                                  style={{
+                                    background: isWhyOpen ? "rgba(99,102,241,0.2)" : "#1e293b",
+                                    color: isWhyOpen ? "#c7d2fe" : "#94a3b8",
+                                    border: "1px solid #334155",
+                                    padding: "4px 10px",
+                                    borderRadius: 5,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 4
+                                  }}
+                                >
+                                  <span>[Why?]</span>
+                                  <span>{isWhyOpen ? "Hide Audit Chain" : "Trace Audit Chain"}</span>
+                                </button>
+
+                                <button
+                                  onClick={() => {
+                                    if (isCorrecting) {
+                                      setCorrectingReqId(null);
+                                    } else {
+                                      setCorrectingReqId(reqItem.requirementId);
+                                      setCorrectedState(reqItem.evidenceState);
+                                      setCorrectionReason("");
+                                    }
+                                  }}
+                                  style={{
+                                    background: "transparent",
+                                    color: "#a5b4fc",
+                                    border: "none",
+                                    fontSize: 11,
+                                    cursor: "pointer",
+                                    textDecoration: "underline"
+                                  }}
+                                >
+                                  {isCorrecting ? "Cancel Override" : "Recruiter Override"}
+                                </button>
+                              </div>
+
+                              {/* Expandable [Why?] Audit Chain */}
+                              {isWhyOpen && (
+                                <div
+                                  style={{
+                                    marginTop: 12,
+                                    background: "#080d1a",
+                                    borderRadius: 8,
+                                    border: "1px solid #2d3748",
+                                    padding: 14
+                                  }}
+                                >
+                                  <div style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", marginBottom: 8, letterSpacing: "0.5px" }}>
+                                    DETERMINISTIC 4-STEP AUDIT CHAIN
+                                  </div>
+                                  <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 12 }}>
+                                    <div>
+                                      <span style={{ color: "#64748b" }}>1. Role Requirement:</span>{" "}
+                                      <span style={{ color: "#f8fafc" }}>{reqItem.whyChain.roleRequirement}</span>
+                                    </div>
+                                    <div>
+                                      <span style={{ color: "#64748b" }}>2. Candidate Evidence:</span>{" "}
+                                      <span style={{ color: "#e2e8f0" }}>“{reqItem.whyChain.candidateEvidence}”</span>
+                                    </div>
+                                    <div>
+                                      <span style={{ color: "#64748b" }}>3. Assessment Rule:</span>{" "}
+                                      <span style={{ color: "#cbd5e1" }}>{reqItem.whyChain.assessment}</span>
+                                    </div>
+                                    <div>
+                                      <span style={{ color: "#64748b" }}>4. Source Provenance:</span>{" "}
+                                      <span style={{ color: "#38bdf8" }}>{reqItem.whyChain.sourceSection}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Inline Recruiter Correction Form */}
+                              {isCorrecting && (
+                                <div
+                                  style={{
+                                    marginTop: 12,
+                                    background: "#131b2b",
+                                    borderRadius: 8,
+                                    border: "1px solid #3b82f6",
+                                    padding: 14
+                                  }}
+                                >
+                                  <div style={{ fontSize: 12, fontWeight: 700, color: "#93c5fd", marginBottom: 8 }}>
+                                    Recruiter Override & Calibration Audit
+                                  </div>
+                                  <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+                                    <div style={{ flex: 1 }}>
+                                      <label style={{ fontSize: 11, color: "#94a3b8", display: "block", marginBottom: 4 }}>
+                                        Corrected State:
+                                      </label>
+                                      <select
+                                        value={correctedState}
+                                        onChange={(e) => setCorrectedState(e.target.value as EvidenceMatchState)}
+                                        style={{
+                                          width: "100%",
+                                          background: "#0f172a",
+                                          color: "#f8fafc",
+                                          border: "1px solid #334155",
+                                          padding: "6px 10px",
+                                          borderRadius: 6,
+                                          fontSize: 12
+                                        }}
+                                      >
+                                        <option value="SUPPORTED">SUPPORTED</option>
+                                        <option value="PARTIALLY_SUPPORTED">PARTIALLY_SUPPORTED</option>
+                                        <option value="EVIDENCE_NOT_FOUND">EVIDENCE_NOT_FOUND</option>
+                                        <option value="CONFLICTING">CONFLICTING</option>
+                                        <option value="NEEDS_REVIEW">NEEDS_REVIEW</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                  <div style={{ marginBottom: 10 }}>
+                                    <label style={{ fontSize: 11, color: "#94a3b8", display: "block", marginBottom: 4 }}>
+                                      Required Audit Rationale:
+                                    </label>
+                                    <input
+                                      type="text"
+                                      placeholder="Explain verified justification for changing match state..."
+                                      value={correctionReason}
+                                      onChange={(e) => setCorrectionReason(e.target.value)}
+                                      style={{
+                                        width: "100%",
+                                        background: "#0f172a",
+                                        color: "#f8fafc",
+                                        border: "1px solid #334155",
+                                        padding: "6px 10px",
+                                        borderRadius: 6,
+                                        fontSize: 12
+                                      }}
+                                    />
+                                  </div>
+                                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                                    <button
+                                      type="button"
+                                      onClick={() => setCorrectingReqId(null)}
+                                      style={{
+                                        background: "transparent",
+                                        color: "#94a3b8",
+                                        border: "none",
+                                        fontSize: 12,
+                                        cursor: "pointer"
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={correctionSaving || !correctionReason.trim()}
+                                      onClick={handleSaveCorrection}
+                                      style={{
+                                        background: "#2563eb",
+                                        color: "#fff",
+                                        border: "none",
+                                        padding: "5px 12px",
+                                        borderRadius: 5,
+                                        fontSize: 12,
+                                        fontWeight: 600,
+                                        cursor: correctionSaving ? "not-allowed" : "pointer"
+                                      }}
+                                    >
+                                      {correctionSaving ? "Saving..." : "Save Override"}
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-
-            <div style={{display:"flex",justifyContent:"center",marginTop:"1.5rem"}}>
-              <button className="btn-primary" onClick={() => { setStep("input"); setFunnelStates([]); }} style={{padding:"0.75rem 2rem",borderRadius:12,fontSize:13,letterSpacing:2}}>↺ New Simulation</button>
+                ) : (
+                  <div style={{ textAlign: "center", padding: "40px 0", color: "#64748b" }}>
+                    No screening dossier found for this candidate.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        {/* Bulk Paste Modal */}
-        {showBulkPasteModal && (
-          <div style={{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.85)",backdropFilter:"blur(8px)",zIndex:9999,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-            <div style={{background:"#0e0d1a",border:"1px solid rgba(168,85,247,0.35)",borderRadius:18,padding:"24px",maxWidth:700,width:"100%",boxShadow:"0 24px 70px rgba(0,0,0,0.95)",display:"flex",flexDirection:"column",gap:16}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <div style={{display:"flex",alignItems:"center",gap:8}}>
-                  <span style={{fontSize:20}}>📋</span>
-                  <h3 style={{margin:0,fontSize:17,fontWeight:700,color:"white"}}>Paste Multiple Resumes in Bulk</h3>
-                </div>
-                <button onClick={() => setShowBulkPasteModal(false)} style={{background:"transparent",border:"none",color:"rgba(255,255,255,0.4)",cursor:"pointer",fontSize:18,padding:4}}>✕</button>
-              </div>
-
-              <p style={{fontSize:12,color:"rgba(255,255,255,0.6)",margin:0,lineHeight:1.5}}>
-                Paste 10 to 200+ resumes all at once. Separate individual candidate resumes using a delimiter line like <code style={{color:"#a855f7",background:"rgba(168,85,247,0.1)",padding:"2px 5px",borderRadius:4}}>---</code> or <code style={{color:"#a855f7",background:"rgba(168,85,247,0.1)",padding:"2px 5px",borderRadius:4}}>===</code> or write candidate names on the first line of each section.
-              </p>
-
-              <textarea
-                value={bulkPasteText}
-                onChange={e => setBulkPasteText(e.target.value)}
-                rows={12}
-                placeholder={`Candidate 1: Aarav Sharma\nEducation: IIT Bombay B.Tech CSE\nExperience: SDE Intern at Swiggy, built real-time tracking engine in Go and Redis...\n\n---\n\nCandidate 2: Rohan Verma\nEducation: BITS Pilani CS\nExperience: Full Stack Intern at Razorpay, Next.js, Node.js, Postgres...`}
+        {/* ─────────────────────────────────────────────────────────────
+            SIDE-BY-SIDE CANDIDATE COMPARISON MODAL
+        ───────────────────────────────────────────────────────────── */}
+        {comparing && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.85)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 110,
+              padding: 24
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 1200,
+                maxHeight: "90vh",
+                background: "#0d131f",
+                borderRadius: 14,
+                border: "1px solid #1f2937",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+              }}
+            >
+              {/* Modal Header */}
+              <div
                 style={{
-                  width:"100%",
-                  background:"rgba(255,255,255,0.03)",
-                  border:"1px solid rgba(168,85,247,0.25)",
-                  borderRadius:12,
-                  padding:"14px",
-                  color:"white",
-                  fontSize:12,
-                  fontFamily:"monospace",
-                  lineHeight:1.5,
-                  resize:"vertical",
-                  boxSizing:"border-box"
+                  padding: "18px 24px",
+                  borderBottom: "1px solid #1f2937",
+                  background: "#111827",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
                 }}
-              />
+              >
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                    Side-by-Side Candidate Comparison Matrix
+                  </h3>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                    Role: {comparisonData?.role?.title || selectedRoleObj?.title} (v{comparisonData?.role?.version || 1}) • {comparisonData?.candidates?.length || selectedCandidateIds.length} Candidates Evaluated
+                  </div>
+                </div>
 
-              <div style={{display:"flex",justifyContent:"flex-end",gap:10,alignItems:"center"}}>
                 <button
-                  type="button"
-                  onClick={() => setShowBulkPasteModal(false)}
-                  style={{padding:"8px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.12)",background:"transparent",color:"rgba(255,255,255,0.6)",cursor:"pointer",fontSize:12}}
+                  onClick={() => {
+                    setComparing(false);
+                    setComparisonData(null);
+                  }}
+                  style={{
+                    background: "transparent",
+                    color: "#94a3b8",
+                    border: "none",
+                    fontSize: 22,
+                    cursor: "pointer",
+                    padding: 4
+                  }}
                 >
-                  Cancel
+                  ✕
                 </button>
-                <button
-                  type="button"
-                  onClick={handleBulkPasteImport}
-                  disabled={!bulkPasteText.trim()}
-                  className="btn-primary"
-                  style={{padding:"8px 20px",borderRadius:10,fontSize:12,fontWeight:700,cursor:!bulkPasteText.trim()?"not-allowed":"pointer",opacity:!bulkPasteText.trim()?0.5:1}}
-                >
-                  Import Candidates
-                </button>
+              </div>
+
+              {/* Comparison Matrix Table */}
+              <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
+                {comparisonLoading ? (
+                  <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+                    Generating standardized comparison matrix across confirmed role requirements...
+                  </div>
+                ) : comparisonData ? (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#111827", borderBottom: "2px solid #1f2937" }}>
+                        <th style={{ padding: "14px 16px", width: 280, color: "#94a3b8" }}>
+                          Role Requirement
+                        </th>
+                        {comparisonData.candidates.map((c: any) => (
+                          <th key={c.id} style={{ padding: "14px 16px", color: "#f8fafc", minWidth: 240 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <div style={{ fontSize: 14, fontWeight: 700 }}>
+                                {blindMode ? `Candidate #${c.id.slice(-4).toUpperCase()}` : c.name}
+                              </div>
+                              <Link
+                                href={`/recruiter/candidates/${c.id}`}
+                                target="_blank"
+                                style={{
+                                  fontSize: 11,
+                                  color: "#a5b4fc",
+                                  textDecoration: "none",
+                                  background: "rgba(99,102,241,0.15)",
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                  border: "1px solid rgba(99,102,241,0.3)"
+                                }}
+                              >
+                                Passport ↗
+                              </Link>
+                            </div>
+                            <div style={{ fontSize: 11, color: "#818cf8", marginTop: 2 }}>
+                              {c.overallCoverage}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonData.matrix.map((row: any) => (
+                        <tr key={row.requirementId} style={{ borderBottom: "1px solid #1e293b" }}>
+                          <td style={{ padding: "14px 16px", verticalAlign: "top", background: "#0b0f17" }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                              {row.category}
+                            </span>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                              {row.requirementText}
+                            </div>
+                          </td>
+
+                          {row.candidates.map((cell: any) => (
+                            <td key={cell.candidateId} style={{ padding: "14px 16px", verticalAlign: "top" }}>
+                              <div style={{ marginBottom: 6 }}>
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 800,
+                                    padding: "2px 6px",
+                                    borderRadius: 4,
+                                    background:
+                                      cell.evidenceState === "SUPPORTED"
+                                        ? "rgba(16,185,129,0.15)"
+                                        : cell.evidenceState === "PARTIALLY_SUPPORTED"
+                                        ? "rgba(245,158,11,0.15)"
+                                        : cell.evidenceState === "EVIDENCE_NOT_FOUND"
+                                        ? "rgba(100,116,139,0.15)"
+                                        : "rgba(244,63,94,0.15)",
+                                    color:
+                                      cell.evidenceState === "SUPPORTED"
+                                        ? "#34d399"
+                                        : cell.evidenceState === "PARTIALLY_SUPPORTED"
+                                        ? "#fbbf24"
+                                        : cell.evidenceState === "EVIDENCE_NOT_FOUND"
+                                        ? "#94a3b8"
+                                        : "#fb7185"
+                                  }}
+                                >
+                                  {cell.evidenceState.replace(/_/g, " ")}
+                                </span>
+                              </div>
+
+                              <div
+                                style={{
+                                  fontSize: 11,
+                                  color: "#cbd5e1",
+                                  lineHeight: 1.4,
+                                  background: "#080d1a",
+                                  padding: "8px 10px",
+                                  borderRadius: 6,
+                                  borderLeft: "2px solid #6366f1"
+                                }}
+                              >
+                                “{cell.candidateEvidence}”
+                                <div style={{ fontSize: 10, color: "#64748b", marginTop: 4 }}>
+                                  Source: {cell.sourceSection}
+                                </div>
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : null}
               </div>
             </div>
           </div>
         )}
-      </div>
+
+      </main>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { UnifiedPost, PostType } from "@/lib/posts-store";
+import CollaborationFeed from "@/components/collab/CollaborationFeed";
 
 function PostFeedContent() {
   const router = useRouter();
@@ -347,7 +348,11 @@ function PostFeedContent() {
         </div>
 
         {/* ── POSTS FEED LIST ── */}
-        {loading ? (
+        {activeFilter === "collaboration" ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <CollaborationFeed />
+          </div>
+        ) : loading ? (
           <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
             <div style={{ fontSize: 28, marginBottom: 12 }}>⚡</div>
             <p style={{ margin: 0, fontWeight: 700 }}>Aggregating unified feed across hiring, opportunities, and community...</p>

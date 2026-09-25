@@ -1,11 +1,39 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 
-// ═══ NORMAL INTERVIEW INTERFACES ═══
+// ═══ EVIDENCE-BASED INTERVIEW INTERFACES ═══
+export interface EvidenceMarker {
+  id: string;
+  type: "demonstrated" | "partial" | "gap" | "repeated_gap";
+  competency: string;
+  detail: string;
+  quote?: string;
+  occurrences?: number;
+}
+
+export interface RepeatedGapAlert {
+  competency: string;
+  occurrences: number;
+  message: string;
+}
+
 interface Msg { role: "user" | "assistant"; content: string; time: string; }
 interface ScoreBreakdown { relevance: number; technicalAccuracy: number; communicationClarity: number; problemSolving: number; depth: number; examples: number; confidence: number; }
 interface ScoreEvidence { strengths: string[]; improvements: string[]; suggestedAnswer: string; scoreReason: string; }
-interface ScoreData { overall: number; breakdown: ScoreBreakdown; evidence: ScoreEvidence; verdict: string; hiringSignal: string; bodyLanguage: any; timestamp: number; }
+interface ScoreData {
+  evidenceMarkers?: EvidenceMarker[];
+  repeatedGapAlert?: RepeatedGapAlert | null;
+  strengths?: string[];
+  improvements?: string[];
+  suggestedAnswer?: string;
+  overall: number;
+  breakdown: ScoreBreakdown;
+  evidence: ScoreEvidence;
+  verdict: string;
+  hiringSignal: string;
+  bodyLanguage: any;
+  timestamp: number;
+}
 interface BodyLang { overall: number; posture: number; eyeContact: number; confidence: number; expression: number; notes: string; }
 interface FinalVerdict { decision: string; confidence: number; headline: string; overview: string; hire_reasons: string[]; no_hire_reasons: string[]; standout_moments: string[]; concerning_moments: string[]; scorecard: Record<string, { score: number; comment: string }>; next_steps: string; interviewer_note: string; }
 
@@ -15,26 +43,56 @@ interface AICheck { isAI: boolean; ai_score: number; risk_level: string; signals
 interface TrustReport { trust_score: number; verdict: string; verdict_reason: string; breakdown: Record<string, { score: number; label: string; note: string }>; flags: string[]; ai_observation: string; recruiter_recommendation: string; confidence_level: string; }
 
 const ZERO_SCORE: ScoreData = {
+  evidenceMarkers: [],
+  repeatedGapAlert: null,
+  strengths: [],
+  improvements: [],
+  suggestedAnswer: "",
   overall: 0, timestamp: 0,
   breakdown: { relevance: 0, technicalAccuracy: 0, communicationClarity: 0, problemSolving: 0, depth: 0, examples: 0, confidence: 0 },
-  evidence: { strengths: [], improvements: [], suggestedAnswer: "", scoreReason: "Answer the first question to see your score" },
+  evidence: { strengths: [], improvements: [], suggestedAnswer: "", scoreReason: "Answer the question to stream live evidence" },
   verdict: "Waiting for first answer...", hiringSignal: "NEUTRAL",
   bodyLanguage: { overall: 0, posture: 0, eyeContact: 0, confidence: 0, expression: 0, notes: "" }
 };
 
-// ═══ FACE OVAL (from secure interview) ═══
+// ═══ FACE OVAL (Proctored Face Tracking) ═══
 function FaceOval({ status }: { status: "idle" | "ok" | "missing" | "multiple" }) {
-  const c = status === "ok" ? "#00ff88" : status === "missing" ? "#ff4466" : status === "multiple" ? "#fbbf24" : "rgba(255,255,255,0.3)";
+  const c = status === "ok" ? "#00ff88" : status === "missing" ? "#ff4466" : status === "multiple" ? "#fbbf24" : "rgba(255,255,255,0.35)";
+  const label = status === "ok" ? "✓ FACE DETECTED & ALIGNED" : status === "missing" ? "✗ ALIGN FACE IN OVAL" : status === "multiple" ? "⚠ MULTIPLE FACES DETECTED" : "ALIGN YOUR FACE";
+
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none", zIndex: 2 }}>
-      <div style={{ width: "55%", height: "75%", border: `2px solid ${c}`, borderRadius: "50%", boxShadow: status !== "idle" ? `0 0 20px ${c}40, inset 0 0 20px ${c}10` : "none", transition: "all 0.5s" }} />
-      {status !== "idle" && (
-        <div style={{ position: "absolute", bottom: "8%", left: "50%", transform: "translateX(-50%)", padding: "3px 12px", background: `${c}20`, border: `1px solid ${c}50`, borderRadius: 999, whiteSpace: "nowrap" }}>
-          <span style={{ fontSize: 9, color: c, fontWeight: 700, letterSpacing: 1 }}>
-            {status === "ok" ? "✓ FACE DETECTED" : status === "missing" ? "✗ FACE NOT VISIBLE" : "⚠ MULTIPLE FACES"}
-          </span>
-        </div>
-      )}
+      <div style={{
+        width: "55%",
+        height: "75%",
+        border: `2.5px solid ${c}`,
+        borderRadius: "50%",
+        boxShadow: status === "ok"
+          ? `0 0 35px ${c}60, inset 0 0 25px ${c}20`
+          : status === "missing"
+            ? `0 0 25px ${c}40, inset 0 0 20px ${c}10`
+            : status === "multiple"
+              ? `0 0 25px ${c}40, inset 0 0 20px ${c}10`
+              : "0 0 15px rgba(255,255,255,0.08)",
+        transition: "all 0.3s ease"
+      }} />
+      <div style={{
+        position: "absolute",
+        bottom: "8%",
+        left: "50%",
+        transform: "translateX(-50%)",
+        padding: "4px 14px",
+        background: status === "ok" ? "rgba(0,255,136,0.18)" : status === "missing" ? "rgba(255,68,102,0.18)" : status === "multiple" ? "rgba(251,191,36,0.18)" : "rgba(0,0,0,0.6)",
+        border: `1px solid ${c}`,
+        borderRadius: 999,
+        whiteSpace: "nowrap",
+        backdropFilter: "blur(8px)",
+        transition: "all 0.3s ease"
+      }}>
+        <span style={{ fontSize: 10, color: c, fontWeight: 800, letterSpacing: 1.2 }}>
+          {label}
+        </span>
+      </div>
     </div>
   );
 }
@@ -118,96 +176,211 @@ function AlexFace({ speaking, listening }: { speaking: boolean; listening: boole
   );
 }
 
-// ═══ SCORE PANEL (unchanged) ═══
+// ═══ EVIDENCE STREAM PANEL (Replaces arbitrary 100-pt ScorePanel) ═══
 function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }) {
-  const ov = score.overall, bd = score.breakdown, ev = score.evidence, bl = score.bodyLanguage, hs = score.hiringSignal;
-  const hsColor = hs === "STRONG" ? "#00ff88" : hs === "MODERATE" ? "#fbbf24" : hs === "WEAK" ? "#ff8c00" : hs === "CRITICAL" ? "#ff4466" : "rgba(255,255,255,0.25)";
-  const oc = ov >= 75 ? "#00ff88" : ov >= 55 ? "#fbbf24" : ov > 0 ? "#ff4466" : "rgba(255,255,255,0.15)";
-  const r = 40, circ = 2 * Math.PI * r;
-  const DIMS = [
-    { key: "relevance", label: "Relevance", max: 20, color: "#6366f1" },
-    { key: "technicalAccuracy", label: "Technical", max: 20, color: "#00ff88" },
-    { key: "communicationClarity", label: "Clarity", max: 15, color: "#22d3ee" },
-    { key: "problemSolving", label: "Problem Solving", max: 15, color: "#fbbf24" },
-    { key: "depth", label: "Depth", max: 15, color: "#a855f7" },
-    { key: "examples", label: "Examples", max: 10, color: "#ec4899" },
-    { key: "confidence", label: "Confidence", max: 5, color: "#38bdf8" },
-  ];
+  const markers = score.evidenceMarkers || [];
+  const repeatedAlert = score.repeatedGapAlert;
+  const strengths = score.strengths || score.evidence?.strengths || [];
+  const improvements = score.improvements || score.evidence?.improvements || [];
+  const suggestedAnswer = score.suggestedAnswer || score.evidence?.suggestedAnswer || "";
+
+  const getMarkerBadge = (type: EvidenceMarker["type"], occurrences?: number) => {
+    switch (type) {
+      case "demonstrated":
+        return {
+          icon: "✅",
+          label: "Demonstrated",
+          color: "#00ff88",
+          bg: "rgba(0,255,136,0.08)",
+          border: "rgba(0,255,136,0.25)"
+        };
+      case "partial":
+        return {
+          icon: "⚠️",
+          label: "Partial Evidence",
+          color: "#fbbf24",
+          bg: "rgba(251,191,36,0.08)",
+          border: "rgba(251,191,36,0.25)"
+        };
+      case "repeated_gap":
+        return {
+          icon: "🔁",
+          label: `Repeated Gap (${occurrences || 2}x)`,
+          color: "#f43f5e",
+          bg: "rgba(244,63,94,0.12)",
+          border: "rgba(244,63,94,0.35)"
+        };
+      case "gap":
+      default:
+        return {
+          icon: "❌",
+          label: "Gap",
+          color: "#ff4466",
+          bg: "rgba(255,68,102,0.08)",
+          border: "rgba(255,68,102,0.25)"
+        };
+    }
+  };
+
   return (
-    <div style={{ height: "100%", overflowY: "auto", padding: "12px 12px 8px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-        <span style={{ fontSize: 9, letterSpacing: 2, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>LIVE SCORE</span>
-        {updating && <div style={{ display: "flex", alignItems: "center", gap: 4 }}><div style={{ width: 4, height: 4, borderRadius: "50%", background: "#6366f1", animation: "blink 0.6s infinite" }} /><span style={{ fontSize: 9, color: "rgba(99,102,241,0.7)" }}>updating</span></div>}
+    <div style={{ height: "100%", overflowY: "auto", padding: "14px 12px 10px", display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* HEADER & DNA STATUS */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)", paddingBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 9, letterSpacing: 1.5, color: "#818cf8", fontWeight: 800 }}>LIVE EVIDENCE STREAM</span>
+          <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#10b981", fontWeight: 700 }}>
+            ● Synced to DNA
+          </span>
+        </div>
+        {updating && (
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 4, height: 4, borderRadius: "50%", background: "#6366f1", animation: "blink 0.6s infinite" }} />
+            <span style={{ fontSize: 8, color: "rgba(99,102,241,0.8)", fontWeight: 700 }}>extracting</span>
+          </div>
+        )}
       </div>
-      <div style={{ textAlign: "center", marginBottom: 10 }}>
-        <div style={{ position: "relative", width: 88, height: 88, margin: "0 auto 6px" }}>
-          <svg width="88" height="88" style={{ transform: "rotate(-90deg)" }}>
-            <circle cx="44" cy="44" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
-            <circle cx="44" cy="44" r={r} fill="none" stroke={oc} strokeWidth="6"
-              strokeDasharray={circ} strokeDashoffset={circ - (circ * ov / 100)}
-              strokeLinecap="round" style={{ transition: "stroke-dashoffset 1s ease, stroke 0.5s", filter: ov > 0 ? `drop-shadow(0 0 8px ${oc})` : "none" }} />
-          </svg>
-          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: oc, lineHeight: 1 }}>{ov > 0 ? ov : "—"}</span>
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>/ 100</span>
+
+      {/* REPEATED GAP ALERT BANNER (Triggers after 2+ independent failures) */}
+      {repeatedAlert && (
+        <div style={{
+          background: "linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(159,18,57,0.1) 100%)",
+          border: "1px solid rgba(239,68,68,0.45)",
+          borderRadius: 10,
+          padding: "10px 12px",
+          boxShadow: "0 4px 14px rgba(239,68,68,0.15)"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#f87171", fontWeight: 800, fontSize: 10, letterSpacing: 0.8 }}>
+            <span style={{ fontSize: 12 }}>🔁</span> REPEATED GAP DETECTED
+          </div>
+          <div style={{ fontSize: 11, color: "#fecaca", marginTop: 4, lineHeight: 1.45, fontWeight: 500 }}>
+            {repeatedAlert.message}
+          </div>
+          <div style={{ marginTop: 6, fontSize: 9, color: "rgba(255,255,255,0.4)" }}>
+            Observed across interview history. Flagged in Student DNA Career Memory.
           </div>
         </div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 10px", background: `${hsColor}18`, border: `1px solid ${hsColor}35`, borderRadius: 999 }}>
-          <div style={{ width: 5, height: 5, borderRadius: "50%", background: hsColor }} />
-          <span style={{ fontSize: 9, color: hsColor, fontWeight: 700, letterSpacing: 1 }}>{hs}</span>
+      )}
+
+      {/* QUALITATIVE VERDICT */}
+      {score.verdict && (
+        <div style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.07)",
+          borderRadius: 9,
+          padding: "8px 10px",
+          fontSize: 11,
+          color: "rgba(255,255,255,0.75)",
+          lineHeight: 1.4,
+          fontStyle: "italic"
+        }}>
+          "{score.verdict}"
         </div>
-        {score.verdict && <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 5, fontStyle: "italic", lineHeight: 1.4, padding: "0 2px" }}>"{score.verdict}"</div>}
+      )}
+
+      {/* EVIDENCE MARKERS LIST */}
+      <div>
+        <div style={{ fontSize: 9, letterSpacing: 1.5, color: "rgba(255,255,255,0.35)", fontWeight: 700, marginBottom: 7, textTransform: "uppercase" }}>
+          Demonstrated Competencies ({markers.length})
+        </div>
+
+        {markers.length === 0 ? (
+          <div style={{
+            padding: "16px 12px",
+            background: "rgba(255,255,255,0.02)",
+            border: "1px dashed rgba(255,255,255,0.1)",
+            borderRadius: 10,
+            textAlign: "center",
+            color: "rgba(255,255,255,0.4)",
+            fontSize: 11,
+            lineHeight: 1.5
+          }}>
+            Speak or submit your answer. Evidence markers will stream here in real time as you demonstrate competencies or encounter gaps.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {markers.map((m) => {
+              const meta = getMarkerBadge(m.type, m.occurrences);
+              return (
+                <div
+                  key={m.id}
+                  style={{
+                    background: meta.bg,
+                    border: `1px solid ${meta.border}`,
+                    borderRadius: 9,
+                    padding: "8px 10px"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "white" }}>
+                      {m.competency}
+                    </span>
+                    <span style={{
+                      fontSize: 8.5,
+                      fontWeight: 800,
+                      color: meta.color,
+                      padding: "1px 6px",
+                      borderRadius: 4,
+                      background: "rgba(0,0,0,0.3)"
+                    }}>
+                      {meta.icon} {meta.label}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.35 }}>
+                    {m.detail}
+                  </div>
+                  {m.quote && (
+                    <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.4)", marginTop: 4, fontStyle: "italic", borderLeft: "2px solid rgba(255,255,255,0.15)", paddingLeft: 6 }}>
+                      "{m.quote}"
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-      <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 11, padding: "10px 10px 4px", marginBottom: 8 }}>
-        <div style={{ fontSize: 9, letterSpacing: 2, color: "rgba(255,255,255,0.3)", marginBottom: 8, fontWeight: 600 }}>BREAKDOWN</div>
-        {DIMS.map(d => {
-          const val = (bd as any)[d.key] || 0, pct = (val / d.max) * 100;
-          const c = pct >= 75 ? "#00ff88" : pct >= 50 ? "#fbbf24" : pct > 0 ? "#ff4466" : "rgba(255,255,255,0.1)";
-          return (
-            <div key={d.key} style={{ marginBottom: 7 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{d.label}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: c }}>{val > 0 ? `${val}/${d.max}` : "—"}</span>
-              </div>
-              <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" }}>
-                <div style={{ height: "100%", width: `${pct}%`, background: `linear-gradient(90deg,${d.color}60,${d.color})`, borderRadius: 999, transition: "width 0.9s ease" }} />
-              </div>
-            </div>
-          );
-        })}
-        {ev.scoreReason && <div style={{ marginTop: 6, padding: "6px 8px", background: "rgba(99,102,241,0.08)", borderRadius: 8, fontSize: 10, color: "rgba(99,102,241,0.8)", lineHeight: 1.5, borderLeft: "2px solid rgba(99,102,241,0.4)" }}>{ev.scoreReason}</div>}
-      </div>
-      {ev.strengths?.length > 0 && (
-        <div style={{ background: "rgba(0,255,136,0.05)", border: "1px solid rgba(0,255,136,0.15)", borderRadius: 10, padding: "8px 10px", marginBottom: 7 }}>
-          <div style={{ fontSize: 9, color: "#00ff88", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>✓ STRENGTHS</div>
-          {ev.strengths.map((s, i) => <div key={i} style={{ display: "flex", gap: 5, marginBottom: 5 }}><span style={{ color: "#00ff88", fontSize: 10, flexShrink: 0, marginTop: 1 }}>•</span><span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>{s}</span></div>)}
-        </div>
-      )}
-      {ev.improvements?.length > 0 && (
-        <div style={{ background: "rgba(255,68,102,0.05)", border: "1px solid rgba(255,68,102,0.15)", borderRadius: 10, padding: "8px 10px", marginBottom: 7 }}>
-          <div style={{ fontSize: 9, color: "#ff4466", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>⚠ IMPROVE</div>
-          {ev.improvements.map((s, i) => <div key={i} style={{ display: "flex", gap: 5, marginBottom: 5 }}><span style={{ color: "#ff4466", fontSize: 10, flexShrink: 0, marginTop: 1 }}>•</span><span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>{s}</span></div>)}
-        </div>
-      )}
-      {ev.suggestedAnswer && (
-        <div style={{ background: "rgba(251,191,36,0.05)", border: "1px solid rgba(251,191,36,0.18)", borderRadius: 10, padding: "8px 10px", marginBottom: 7 }}>
-          <div style={{ fontSize: 9, color: "#fbbf24", fontWeight: 600, marginBottom: 5, letterSpacing: 1 }}>🎯 STRONGER ANSWER</div>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", lineHeight: 1.5, margin: 0, fontStyle: "italic" }}>{ev.suggestedAnswer}</p>
-        </div>
-      )}
-      {bl?.overall > 0 && (
-        <div style={{ background: "rgba(249,115,22,0.05)", border: "1px solid rgba(249,115,22,0.18)", borderRadius: 10, padding: "8px 10px", marginBottom: 7 }}>
-          <div style={{ fontSize: 9, color: "#f97316", fontWeight: 600, marginBottom: 6, letterSpacing: 1 }}>📷 BODY LANGUAGE</div>
-          {[["Posture", bl.posture], ["Eye Contact", bl.eyeContact], ["Confidence", bl.confidence], ["Expression", bl.expression]].map(([l, v]) => (
-            <div key={l as string} style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)" }}>{l}</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: Number(v) >= 70 ? "#00ff88" : Number(v) >= 50 ? "#fbbf24" : "#ff4466" }}>{v}</span>
+
+      {/* FACTUAL STRENGTHS */}
+      {strengths.length > 0 && (
+        <div style={{ background: "rgba(0,255,136,0.04)", border: "1px solid rgba(0,255,136,0.15)", borderRadius: 10, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#00ff88", fontWeight: 700, marginBottom: 5, letterSpacing: 1 }}>
+            ✓ DEMONSTRATED STRENGTHS
+          </div>
+          {strengths.map((s, i) => (
+            <div key={i} style={{ display: "flex", gap: 5, marginBottom: 4 }}>
+              <span style={{ color: "#00ff88", fontSize: 9, flexShrink: 0, marginTop: 2 }}>•</span>
+              <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>{s}</span>
             </div>
           ))}
-          {bl.notes && <div style={{ fontSize: 9, color: "rgba(249,115,22,0.6)", marginTop: 4, fontStyle: "italic", lineHeight: 1.3 }}>{bl.notes}</div>}
         </div>
       )}
-      {score.timestamp > 0 && <div style={{ textAlign: "center", fontSize: 9, color: "rgba(255,255,255,0.12)", letterSpacing: 1 }}>{new Date(score.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}</div>}
+
+      {/* STRONGER ANSWER GUIDANCE */}
+      {suggestedAnswer && (
+        <div style={{ background: "rgba(251,191,36,0.04)", border: "1px solid rgba(251,191,36,0.18)", borderRadius: 10, padding: "8px 10px" }}>
+          <div style={{ fontSize: 9, color: "#fbbf24", fontWeight: 700, marginBottom: 4, letterSpacing: 1 }}>
+            🎯 WHAT A STRONGER ANSWER COVERS
+          </div>
+          <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.65)", lineHeight: 1.45, margin: 0, fontStyle: "italic" }}>
+            {suggestedAnswer}
+          </p>
+        </div>
+      )}
+
+      {/* FOOTER & STUDENT DNA LINK */}
+      <div style={{ marginTop: "auto", paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <a
+          href="/student/dna"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ textDecoration: "none", fontSize: 9.5, color: "#818cf8", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}
+        >
+          <span>🧬 Inspect in Student DNA</span>
+        </a>
+        <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.25)" }}>
+          Zero Arbitrary Scores
+        </span>
+      </div>
     </div>
   );
 }
@@ -401,6 +574,10 @@ export default function InterviewPage() {
   const [secureMode, setSecureMode] = useState(false);
   const [securePhase, setSecurePhase] = useState<"identity" | "precheck" | "done">("identity");
   const [identityPhoto, setIdentityPhoto] = useState<string | null>(null);
+  const [identityFaceStatus, setIdentityFaceStatus] = useState<"idle" | "ok" | "missing" | "multiple">("idle");
+  const [identityFaceCount, setIdentityFaceCount] = useState<number>(0);
+  const [modelsReady, setModelsReady] = useState(false);
+  const faceapiRef = useRef<any>(null);
   const [checksDone, setChecksDone] = useState({ camera: false, mic: false, security: false, network: false });
   const [checkStep, setCheckStep] = useState(-1);
   const [faceStatus, setFaceStatus] = useState<"idle" | "ok" | "missing" | "multiple">("idle");
@@ -456,10 +633,33 @@ export default function InterviewPage() {
   useEffect(() => { secureModeRef.current = secureMode; }, [secureMode]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
+  // Load client-side Face Detection model (TinyFaceDetector)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const faceapi = await import("face-api.js");
+        faceapiRef.current = faceapi;
+        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
+        const warmup = document.createElement("canvas");
+        warmup.width = 320;
+        warmup.height = 240;
+        await faceapi.detectAllFaces(warmup, new faceapi.TinyFaceDetectorOptions({ inputSize: 416 }));
+        if (!cancelled) setModelsReady(true);
+      } catch (e) {
+        console.warn("Client face model load warning (will use fallback if needed):", e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get("jd")) setJd(decodeURIComponent(p.get("jd")!));
     if (p.get("resume")) setResume(decodeURIComponent(p.get("resume")!));
+    if (p.get("secure") === "true" || p.get("mode") === "secure") {
+      setSecureMode(true);
+    }
     setVoiceOk("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
     if (window.speechSynthesis) {
       synthRef.current = window.speechSynthesis;
@@ -469,15 +669,39 @@ export default function InterviewPage() {
     return () => { streamRef.current?.getTracks().forEach(t => t.stop()); };
   }, []);
 
+  // Safe stream attacher for Safari & Chrome
+  const attachStream = useCallback((videoEl: HTMLVideoElement | null, stream: MediaStream | null) => {
+    if (!videoEl || !stream) return;
+    if (videoEl.srcObject !== stream) {
+      videoEl.srcObject = stream;
+    }
+    videoEl.muted = true;
+    (videoEl as any).defaultMuted = true;
+    videoEl.playsInline = true;
+    videoEl.autoplay = true;
+
+    const tryPlay = () => {
+      videoEl.play().catch(() => {
+        setTimeout(() => videoEl.play().catch(() => {}), 250);
+      });
+    };
+
+    if (videoEl.readyState >= 2) {
+      tryPlay();
+    } else {
+      videoEl.onloadedmetadata = tryPlay;
+      videoEl.onloadeddata = tryPlay;
+    }
+  }, []);
+
   // Sync stream to video
   useEffect(() => {
     if (!streamRef.current) return;
     const vid = !started && secureMode && securePhase === "identity" ? identityVideoRef.current : videoRef.current;
-    if (vid && vid.srcObject !== streamRef.current) {
-      vid.srcObject = streamRef.current;
-      vid.onloadedmetadata = () => vid.play().catch(() => {});
+    if (vid) {
+      attachStream(vid, streamRef.current);
     }
-  }, [started, secureMode, securePhase]);
+  }, [started, secureMode, securePhase, camOn, attachStream]);
 
   // Normal camera (non-secure)
   useEffect(() => {
@@ -562,42 +786,125 @@ export default function InterviewPage() {
     };
   }, [started, secureMode]);
 
-  // ── FACE DETECTION LOOP ──
-  useEffect(() => {
-    if (!started || !secureMode || !streamRef.current) return;
-    faceIntervalRef.current = setInterval(async () => {
-      const vid = videoRef.current;
-      if (!vid || vid.readyState < 2 || vid.videoWidth === 0) return;
-      const canvas = document.createElement("canvas");
-      canvas.width = 320; canvas.height = 240;
-      canvas.getContext("2d")?.drawImage(vid, 0, 0, 320, 240);
-      const b64 = canvas.toDataURL("image/jpeg", 0.5).split(",")[1];
-      totalFramesRef.current += 1;
-      setTotalFrames(totalFramesRef.current);
+  // ── MULTI-TIER CLIENT-SIDE FACE DETECTION ──
+  const detectFaceCount = useCallback(async (
+    videoEl: HTMLVideoElement | null,
+    mode: "lenient" | "strict" = "lenient"
+  ): Promise<{ count: number; status: "idle" | "ok" | "missing" | "multiple" }> => {
+    if (!videoEl || videoEl.readyState < 2 || videoEl.videoWidth === 0) {
+      return { count: -1, status: "idle" };
+    }
+
+    const faceapi = faceapiRef.current;
+    if (faceapi && modelsReady) {
       try {
-        const res = await fetch("/api/face-check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageBase64: b64 }) });
-        const d = await res.json();
-        if (d.faces === 0) {
-          setFaceStatus("missing");
-          addViolation("Face not visible", "high");
-        } else if (d.faces > 1) {
-          setFaceStatus("multiple");
-          multipleFaceFramesRef.current += 1;
-          setMultipleFaceFrames(multipleFaceFramesRef.current);
-          addViolation("Multiple faces detected", "critical");
-        } else {
-          setFaceStatus("ok");
-          faceOkFramesRef.current += 1;
-          setFaceOkFrames(faceOkFramesRef.current);
+        const threshold = mode === "strict" ? 0.6 : 0.35;
+        const detections = await faceapi.detectAllFaces(
+          videoEl,
+          new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: threshold })
+        );
+        const w = videoEl.videoWidth || 1;
+        const valid = detections.filter((d: any) => d.box.width >= w * 0.07);
+
+        if (valid.length === 0 && mode === "lenient") {
+          const retryDetections = await faceapi.detectAllFaces(
+            videoEl,
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.22 })
+          );
+          const retryValid = retryDetections.filter((d: any) => d.box.width >= w * 0.06);
+          if (retryValid.length > 0) {
+            const count = retryValid.length;
+            return { count, status: count === 1 ? "ok" : count > 1 ? "multiple" : "missing" };
+          }
         }
-      } catch {
-        faceOkFramesRef.current += 1;
-        setFaceOkFrames(faceOkFramesRef.current);
-        setFaceStatus("ok");
+
+        const count = valid.length;
+        return { count, status: count === 1 ? "ok" : count > 1 ? "multiple" : "missing" };
+      } catch (err) {
+        console.warn("face-api error, falling back to shape/heuristic detection:", err);
       }
-    }, 12000);
-    return () => { if (faceIntervalRef.current) clearInterval(faceIntervalRef.current); };
-  }, [started, secureMode]);
+    }
+
+    // Fallback 1: Native FaceDetector API (Chromium / Android)
+    if (typeof window !== "undefined" && (window as any).FaceDetector) {
+      try {
+        const detector = new (window as any).FaceDetector({ fastMode: true, maxDetectedFaces: 5 });
+        const faces = await detector.detect(videoEl);
+        const count = faces.length;
+        return { count, status: count === 1 ? "ok" : count > 1 ? "multiple" : "missing" };
+      } catch {}
+    }
+
+    // Fallback 2: Canvas luminance & skin tone heuristic
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 160;
+      canvas.height = 120;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (ctx) {
+        ctx.drawImage(videoEl, 0, 0, 160, 120);
+        const imgData = ctx.getImageData(0, 0, 160, 120);
+        const data = imgData.data;
+        let totalLum = 0;
+        let centerSkin = 0;
+        let centerCount = 0;
+
+        for (let y = 0; y < 120; y++) {
+          for (let x = 0; x < 160; x++) {
+            const i = (y * 160 + x) * 4;
+            const r = data[i], g = data[i + 1], b = data[i + 2];
+            totalLum += 0.299 * r + 0.587 * g + 0.114 * b;
+            const isSkin = (r > 60 && g > 40 && b > 20 && r > g && r > b && (Math.max(r, g, b) - Math.min(r, g, b) > 15));
+            if (x >= 40 && x <= 120 && y >= 20 && y <= 100) {
+              centerCount++;
+              if (isSkin) centerSkin++;
+            }
+          }
+        }
+        const avgLum = totalLum / (160 * 120);
+        const skinRatio = centerSkin / Math.max(1, centerCount);
+        if (avgLum < 12 || skinRatio < 0.08) {
+          return { count: 0, status: "missing" };
+        }
+        return { count: 1, status: "ok" };
+      }
+    } catch {}
+
+    return { count: 1, status: "ok" };
+  }, [modelsReady]);
+
+  // ── AUTO-INIT SECURE CAMERA ON IDENTITY STEP ──
+  useEffect(() => {
+    if (secureMode && !started && securePhase === "identity") {
+      if (!streamRef.current && !camOn) {
+        initSecureCamera();
+      } else if (identityVideoRef.current && streamRef.current) {
+        attachStream(identityVideoRef.current, streamRef.current);
+      }
+    }
+  }, [secureMode, started, securePhase, camOn, attachStream]);
+
+  // ── STEP 1: IDENTITY FACE OVAL TRACKING LOOP ──
+  useEffect(() => {
+    if (!secureMode || started || securePhase !== "identity" || !camOn || identityPhoto) return;
+    let active = true;
+
+    const interval = setInterval(async () => {
+      const vid = identityVideoRef.current;
+      if (!vid || vid.readyState < 2 || vid.videoWidth === 0) return;
+      const res = await detectFaceCount(vid, "lenient");
+      if (!active) return;
+      if (res.count >= 0) {
+        setIdentityFaceStatus(res.status);
+        setIdentityFaceCount(res.count);
+      }
+    }, 400);
+
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [secureMode, started, securePhase, camOn, identityPhoto, detectFaceCount]);
 
   const addViolation = useCallback((type: string, severity: Violation["severity"]) => {
     const v: Violation = { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, severity };
@@ -605,33 +912,128 @@ export default function InterviewPage() {
     setViolations([...violationsRef.current]);
   }, []);
 
-  // ── SECURE CAMERA INIT ──
-  const initSecureCamera = async () => {
+  // ── STEP 3: LIVE INTERVIEW FACE MONITORING LOOP ──
+  useEffect(() => {
+    if (!started || !secureMode || !streamRef.current) return;
+    let consecutiveMisses = 0;
+
+    faceIntervalRef.current = setInterval(async () => {
+      const vid = videoRef.current;
+      if (!vid || vid.readyState < 2 || vid.videoWidth === 0) return;
+
+      totalFramesRef.current += 1;
+      setTotalFrames(totalFramesRef.current);
+
+      const res = await detectFaceCount(vid, "lenient");
+      if (res.count === -1) return; // not ready
+
+      if (res.count === 0) {
+        consecutiveMisses++;
+        if (consecutiveMisses >= 2) {
+          setFaceStatus("missing");
+          addViolation("Face not visible in camera frame", "high");
+        }
+      } else if (res.count > 1) {
+        consecutiveMisses = 0;
+        setFaceStatus("multiple");
+        multipleFaceFramesRef.current += 1;
+        setMultipleFaceFrames(multipleFaceFramesRef.current);
+        addViolation("Multiple faces detected in proctored session", "critical");
+      } else {
+        consecutiveMisses = 0;
+        setFaceStatus("ok");
+        faceOkFramesRef.current += 1;
+        setFaceOkFrames(faceOkFramesRef.current);
+      }
+    }, 5000);
+
+    return () => { if (faceIntervalRef.current) clearInterval(faceIntervalRef.current); };
+  }, [started, secureMode, detectFaceCount, addViolation]);
+
+  // ── SECURE CAMERA INIT (With Video-only Fallback for Safari/Mic constraints) ──
+  const initSecureCamera = async (): Promise<boolean> => {
     setCamErr("");
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+      streamRef.current = null;
+    }
+
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true
+      // 1. Try ideal HD video + audio
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: true
       });
+    } catch (e1) {
+      console.warn("HD Video+Audio failed, retrying video-only user-facing:", e1);
+      try {
+        // 2. Try HD user-facing video only
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+      } catch (e2) {
+        console.warn("User-facing video failed, retrying any video stream:", e2);
+        try {
+          // 3. Fallback to basic video
+          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        } catch (e3: any) {
+          const msg = e3.name === "NotAllowedError"
+            ? "Camera permission denied. Please allow camera access in browser settings and retry."
+            : e3.name === "NotFoundError"
+              ? "No camera found on this device."
+              : `Camera error: ${e3.message || "Unable to start camera"}`;
+          setCamErr(msg);
+          setCamOn(false);
+          return false;
+        }
+      }
+    }
+
+    if (stream) {
       streamRef.current = stream;
       setCamOn(true);
+      setCamErr("");
       setTimeout(() => {
-        const vid = identityVideoRef.current;
-        if (vid) { vid.srcObject = stream; vid.onloadedmetadata = () => vid.play().catch(() => {}); }
+        const vid = (!started && secureMode && securePhase === "identity") ? identityVideoRef.current : videoRef.current;
+        if (vid) attachStream(vid, stream);
       }, 100);
       return true;
-    } catch (e: any) {
-      setCamErr(e.name === "NotAllowedError" ? "Camera permission denied" : "Camera not available");
-      return false;
     }
+    return false;
   };
 
-  const captureIdentity = () => {
+  const captureIdentity = async () => {
+    setCamErr("");
     const vid = identityVideoRef.current;
-    if (!vid || vid.videoWidth === 0) return;
+    if (!vid || vid.videoWidth === 0 || vid.readyState < 2) {
+      setCamErr("Camera is still initializing. Please wait a moment.");
+      return;
+    }
+
+    const check = await detectFaceCount(vid, "strict");
+    if (check.count === 0 && modelsReady) {
+      setCamErr("No face detected in the oval. Please position your face inside the frame and ensure good lighting.");
+      return;
+    }
+    if (check.count > 1) {
+      setCamErr("Multiple faces detected. Please make sure only you are in the camera frame.");
+      return;
+    }
+
     const c = document.createElement("canvas");
-    c.width = vid.videoWidth; c.height = vid.videoHeight;
-    c.getContext("2d")?.drawImage(vid, 0, 0);
-    setIdentityPhoto(c.toDataURL("image/jpeg", 0.85));
+    c.width = vid.videoWidth;
+    c.height = vid.videoHeight;
+    const ctx = c.getContext("2d");
+    if (!ctx) return;
+    // Mirror snapshot to match preview
+    ctx.translate(c.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(vid, 0, 0);
+    const dataUrl = c.toDataURL("image/jpeg", 0.9);
+    setIdentityPhoto(dataUrl);
+    setCamErr("");
   };
 
   const runPrechecks = async () => {
@@ -639,10 +1041,9 @@ export default function InterviewPage() {
     const steps: (keyof typeof checksDone)[] = ["camera", "mic", "security", "network"];
     for (let i = 0; i < steps.length; i++) {
       setCheckStep(i);
-      await new Promise(r => setTimeout(r, 800 + Math.random() * 500));
+      await new Promise(r => setTimeout(r, 200));
       setChecksDone(p => ({ ...p, [steps[i]]: true }));
     }
-    await new Promise(r => setTimeout(r, 400));
     setSecurePhase("done");
     await doStartInterview();
   };
@@ -879,28 +1280,124 @@ export default function InterviewPage() {
   if (secureMode && !started && securePhase === "identity") return (
     <div style={{ minHeight: "100vh", background: "#04030d", color: "white", fontFamily: "-apple-system,sans-serif", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}`}</style>
-      <div style={{ maxWidth: 500, width: "100%", textAlign: "center", animation: "fadeUp 0.5s ease" }}>
+      <div style={{ maxWidth: 520, width: "100%", textAlign: "center", animation: "fadeUp 0.5s ease" }}>
         <div style={{ fontSize: 10, letterSpacing: 4, color: "rgba(230,57,70,0.8)", marginBottom: 10, fontWeight: 600 }}>STEP 1 OF 3 — IDENTITY VERIFICATION</div>
         <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: -1, marginBottom: 8 }}>Look directly at the camera</h2>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginBottom: "1.5rem" }}>Align your face in the oval. Click capture when ready.</p>
-        <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `2px solid ${identityPhoto ? "#00ff88" : "rgba(230,57,70,0.3)"}`, marginBottom: "1.5rem", background: "#0a0810", minHeight: 280 }}>
+        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginBottom: "1.5rem" }}>Align your face inside the oval. Live face detection verifies your position before capture.</p>
+        
+        <div style={{
+          position: "relative",
+          borderRadius: 20,
+          overflow: "hidden",
+          border: `2px solid ${identityPhoto ? "#00ff88" : identityFaceStatus === "ok" ? "#00ff88" : identityFaceStatus === "missing" ? "rgba(255,68,102,0.6)" : "rgba(230,57,70,0.3)"}`,
+          boxShadow: identityPhoto ? "0 0 35px rgba(0,255,136,0.2)" : identityFaceStatus === "ok" ? "0 0 30px rgba(0,255,136,0.18)" : "none",
+          marginBottom: "1.5rem",
+          background: "#0a0810",
+          minHeight: 300,
+          aspectRatio: "4/3",
+          transition: "all 0.35s ease"
+        }}>
           {identityPhoto ? (
-            <img src={identityPhoto} alt="Identity" style={{ width: "100%", display: "block", transform: "scaleX(-1)" }} />
+            <img src={identityPhoto} alt="Identity" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
           ) : (
-            <video ref={identityVideoRef} autoPlay muted playsInline style={{ width: "100%", display: "block", transform: "scaleX(-1)", minHeight: 280, objectFit: "cover" }} />
+            <video
+              ref={identityVideoRef}
+              autoPlay
+              muted
+              playsInline
+              style={{ width: "100%", height: "100%", display: "block", transform: "scaleX(-1)", objectFit: "cover" }}
+            />
           )}
-          {!identityPhoto && <FaceOval status={camOn ? "ok" : "idle"} />}
-          {identityPhoto && <div style={{ position: "absolute", top: 12, right: 12, padding: "4px 12px", background: "rgba(0,255,136,0.9)", borderRadius: 999, fontSize: 11, fontWeight: 700, color: "#000" }}>✓ CAPTURED</div>}
+
+          {!identityPhoto && <FaceOval status={!camOn ? "idle" : identityFaceStatus} />}
+
+          {/* Camera permission overlay if camera is not streaming */}
+          {!camOn && !identityPhoto && (
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(4,3,13,0.88)", zIndex: 3, padding: "1.5rem" }}>
+              <div style={{ fontSize: 36, marginBottom: 12 }}>📷</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "white", marginBottom: 6 }}>Camera access needed</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 16, maxWidth: 300, lineHeight: 1.5 }}>
+                Please allow camera access to enable live face detection and identity capture.
+              </div>
+              <button
+                onClick={initSecureCamera}
+                style={{
+                  padding: "10px 22px",
+                  borderRadius: 10,
+                  border: "none",
+                  background: "linear-gradient(135deg,#e63946,#ff6b6b)",
+                  color: "white",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  letterSpacing: 1.5,
+                  boxShadow: "0 0 20px rgba(230,57,70,0.3)"
+                }}
+              >
+                ENABLE CAMERA
+              </button>
+            </div>
+          )}
+
+          {identityPhoto && (
+            <div style={{ position: "absolute", top: 14, right: 14, padding: "5px 14px", background: "rgba(0,255,136,0.9)", backdropFilter: "blur(8px)", borderRadius: 999, fontSize: 11, fontWeight: 800, color: "#000", zIndex: 3, boxShadow: "0 0 20px rgba(0,255,136,0.3)" }}>
+              ✓ CAPTURED & VERIFIED
+            </div>
+          )}
         </div>
+
         {!identityPhoto ? (
-          <button onClick={captureIdentity} disabled={!camOn} style={{ width: "100%", padding: "0.9rem", borderRadius: 12, border: "none", background: !camOn ? "rgba(230,57,70,0.15)" : "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: !camOn ? "not-allowed" : "pointer", letterSpacing: 2, opacity: !camOn ? 0.5 : 1 }}>📸 CAPTURE PHOTO</button>
+          <button
+            onClick={!camOn ? initSecureCamera : captureIdentity}
+            style={{
+              width: "100%",
+              padding: "0.95rem",
+              borderRadius: 13,
+              border: "none",
+              background: !camOn
+                ? "linear-gradient(135deg,#6366f1,#8b5cf6)"
+                : identityFaceStatus === "ok"
+                  ? "linear-gradient(135deg,#059669,#10b981)"
+                  : "linear-gradient(135deg,#e63946,#ff6b6b)",
+              color: "white",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              letterSpacing: 2,
+              boxShadow: identityFaceStatus === "ok" ? "0 0 25px rgba(16,185,129,0.35)" : "none",
+              transition: "all 0.3s ease"
+            }}
+          >
+            {!camOn ? "📷 ENABLE CAMERA" : identityFaceStatus === "ok" ? "📸 CAPTURE PHOTO (FACE DETECTED)" : "📸 CAPTURE PHOTO"}
+          </button>
         ) : (
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => setIdentityPhoto(null)} style={{ flex: 1, padding: "0.9rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>↺ Retake</button>
-            <button onClick={() => setSecurePhase("precheck")} style={{ flex: 2, padding: "0.9rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2 }}>CONFIRM →</button>
+            <button
+              onClick={() => { setIdentityPhoto(null); setIdentityFaceStatus("idle"); }}
+              style={{ flex: 1, padding: "0.9rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}
+            >
+              ↺ Retake
+            </button>
+            <button
+              onClick={() => setSecurePhase("precheck")}
+              style={{ flex: 2, padding: "0.9rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, boxShadow: "0 0 30px rgba(230,57,70,0.3)" }}
+            >
+              CONFIRM →
+            </button>
           </div>
         )}
-        {camErr && <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(255,68,102,0.1)", border: "1px solid rgba(255,68,102,0.3)", borderRadius: 8, fontSize: 12, color: "#ff4466" }}>⚠ {camErr}</div>}
+
+        {camErr && (
+          <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(255,68,102,0.1)", border: "1px solid rgba(255,68,102,0.3)", borderRadius: 10, fontSize: 12, color: "#ff4466", textAlign: "left", lineHeight: 1.5 }}>
+            ⚠ {camErr}
+            <button
+              onClick={initSecureCamera}
+              style={{ display: "block", marginTop: 8, padding: "4px 12px", borderRadius: 6, border: "1px solid rgba(255,68,102,0.4)", background: "rgba(255,68,102,0.15)", color: "#ff6b6b", cursor: "pointer", fontSize: 11, fontWeight: 600 }}
+            >
+              ↺ Retry Camera
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

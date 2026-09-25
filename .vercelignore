@@ -1,0 +1,11 @@
+.git
+.github
+.env*.local
+.env
+.npm
+/tmp
+tests
+coverage
+docs
+*.log
+*.tsbuildinfo

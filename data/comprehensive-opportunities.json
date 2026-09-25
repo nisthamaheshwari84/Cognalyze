@@ -1,0 +1,4282 @@
+[
+  {
+    "id": "opp-sih-2026",
+    "title": "Smart India Hackathon (SIH) 2026 — National Innovation Mission",
+    "type": "hackathon",
+    "organizer": "Ministry of Education & AICTE",
+    "organizer_type": "government",
+    "tags": [
+      "AI",
+      "GovTech",
+      "IoT",
+      "Robotics",
+      "CleanTech",
+      "Indic NLP",
+      "Computer Vision",
+      "Cybersecurity"
+    ],
+    "domain_tags": [
+      "National Mission",
+      "Smart Governance",
+      "Public Infrastructure"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-30T18:30:00Z",
+    "eligibility": "All undergraduate & postgraduate engineering students in India (teams of 6, min 1 female)",
+    "source_url": "https://www.sih.gov.in",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "6 members (mandatory 1 female)",
+    "extracted_context": {
+      "platform": "Smart India Hackathon",
+      "summary": "India's largest nationwide innovation hackathon across 20+ Union Ministries and PSUs. Syndicates solve pressing national challenges with institutional incubation and AICTE honors.",
+      "prize_pool": "₹1,00,000 per Problem Statement + National Incubation & Deployment Grants",
+      "tracks_or_themes": [
+        "Smart Rail Safety & Track Defect AI (Railways)",
+        "Rural Tele-Triage & Indic Voice AI (Health)",
+        "Satellite Crop Disease Forecaster (Agriculture)",
+        "Renewable Microgrid RL Balancing (Power)",
+        "Disaster Search Drone Swarms (Home Affairs)",
+        "Sub-50ms Contactless Biometrics (UIDAI)",
+        "Cross-Border UPI Fraud Anomaly Graph (NPCI)",
+        "Highway Accident Triage SOS (Road Transport)",
+        "Mine Gas Leakage Structural IoT (Coal & Mines)",
+        "Multilingual AR Monument Guide (Tourism)",
+        "Robotic Solid Waste Classifier (Urban Affairs)"
+      ],
+      "team_size": "6 members",
+      "schedule_label": "Idea Submissions: Oct 30, 2026 | Grand Finale: Dec 2026",
+      "status_badge": "Official National Mission",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-1",
+    "title": "IIT Bombay Techfest 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Bombay Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-bombay-techfest-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Bombay attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹5,00,000 + Sponsor PPIs",
+      "tracks_or_themes": [
+        "Autonomous Rovers",
+        "Generative Media",
+        "Quantum Computing Challenge"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Bombay Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-2",
+    "title": "IIT Delhi Tryst 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Delhi Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-delhi-tryst-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Delhi attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹4,50,000 + VC Pitching",
+      "tracks_or_themes": [
+        "FinTech Distributed Ledger",
+        "Decentralized Compute",
+        "Smart Mobility"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Delhi Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-3",
+    "title": "IIT Madras Shaastra 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Madras Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-madras-shaastra-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Madras attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹6,00,000 + Lab Incubation",
+      "tracks_or_themes": [
+        "Biomedical AI Diagnostics",
+        "Underwater Robotics",
+        "Cyber Defense CTF"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Madras Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-4",
+    "title": "IIT Kanpur Techkriti 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Kanpur Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-kanpur-techkriti-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Kanpur attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹5,00,000 + Sponsor Offers",
+      "tracks_or_themes": [
+        "High-Frequency Trading Engines",
+        "Aerospace Design Sprint",
+        "Zero Knowledge Proofs"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Kanpur Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-5",
+    "title": "IIT Kharagpur Kshitij 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Kharagpur Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-kharagpur-kshitij-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Kharagpur attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹4,00,000 + Merit Awards",
+      "tracks_or_themes": [
+        "Supply Chain Digital Twin",
+        "Autonomous Drone Swarms",
+        "Conversational AI"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Kharagpur Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-6",
+    "title": "IIT Roorkee Cognizance 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Roorkee Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-roorkee-cognizance-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Roorkee attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,50,000 + Grants",
+      "tracks_or_themes": [
+        "Geospatial AI",
+        "Clean Energy Smart Grids",
+        "Web3 Micropayments"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Roorkee Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-7",
+    "title": "IIT Guwahati Techniche 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Guwahati Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-guwahati-techniche-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Guwahati attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000 + Trophies",
+      "tracks_or_themes": [
+        "Edge Computing for Agriculture",
+        "Robotic Manipulation",
+        "Indic Language AI"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Guwahati Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-8",
+    "title": "IIT BHU Varanasi Technex 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT BHU Varanasi Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-bhu-varanasi-technex-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT BHU Varanasi attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,50,000",
+      "tracks_or_themes": [
+        "Defense Autonomous Systems",
+        "Smart Industrial Automation",
+        "Cloud Optimization"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT BHU Varanasi Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-9",
+    "title": "IIT Hyderabad Elan & nVision 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Hyderabad Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-hyderabad-elan---nvision-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Hyderabad attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000",
+      "tracks_or_themes": [
+        "5G/6G Network Slicing",
+        "Semiconductor VLSI Verification",
+        "Bio-Computing"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Hyderabad Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-10",
+    "title": "IIT Indore Fluxus 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIT Indore Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iit-indore-fluxus-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIT Indore attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹2,50,000",
+      "tracks_or_themes": [
+        "Precision Agritech",
+        "Predictive SRE Incident Agents",
+        "Full Stack NextGen"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIT Indore Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-11",
+    "title": "BITS Pilani (Pilani Campus) APOGEE 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "BITS Pilani (Pilani Campus) Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/bits-pilani--pilani-campus--apogee-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at BITS Pilani (Pilani Campus) attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹4,00,000",
+      "tracks_or_themes": [
+        "Algorithmic Trading & DeFi",
+        "Quantum Cryptography",
+        "Computer Vision"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at BITS Pilani (Pilani Campus) Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-12",
+    "title": "BITS Pilani (Goa Campus) Quark 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "BITS Pilani (Goa Campus) Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/bits-pilani--goa-campus--quark-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at BITS Pilani (Goa Campus) attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,50,000",
+      "tracks_or_themes": [
+        "Robotics Combat & Automation",
+        "Decentralized Social Networks",
+        "AI Agents"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at BITS Pilani (Goa Campus) Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-13",
+    "title": "BITS Pilani (Hyderabad Campus) ATMOS 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "BITS Pilani (Hyderabad Campus) Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/bits-pilani--hyderabad-campus--atmos-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at BITS Pilani (Hyderabad Campus) attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000",
+      "tracks_or_themes": [
+        "Cyber Threat Hunting",
+        "Autonomous Vehicle Simulation",
+        "Serverless Scale"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at BITS Pilani (Hyderabad Campus) Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-14",
+    "title": "NIT Trichy Pragyan 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "NIT Trichy Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/nit-trichy-pragyan-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at NIT Trichy attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,50,000",
+      "tracks_or_themes": [
+        "Humanitarian Open Source",
+        "High-Throughput Distributed DBs",
+        "Fintech Fraud"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at NIT Trichy Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-15",
+    "title": "NIT Surathkal Incident & Engineer 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "NIT Surathkal Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/nit-surathkal-incident---engineer-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at NIT Surathkal attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000",
+      "tracks_or_themes": [
+        "Marine Robotics",
+        "Smart Highway Toll Automation",
+        "Renewable Energy"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at NIT Surathkal Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-16",
+    "title": "NIT Warangal Technozion 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "NIT Warangal Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/nit-warangal-technozion-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at NIT Warangal attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000",
+      "tracks_or_themes": [
+        "Aerospace Control Systems",
+        "Healthcare AI",
+        "Microservices Security"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at NIT Warangal Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-17",
+    "title": "IIIT Hyderabad Megathon 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIIT Hyderabad Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iiit-hyderabad-megathon-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIIT Hyderabad attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹4,00,000 + Research PPIs",
+      "tracks_or_themes": [
+        "Advanced Computer Vision",
+        "Speech-to-Speech Translation",
+        "Robotic Grasping"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIIT Hyderabad Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-18",
+    "title": "IIIT Delhi Esya 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "IIIT Delhi Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/iiit-delhi-esya-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at IIIT Delhi attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹2,50,000",
+      "tracks_or_themes": [
+        "Human-AI Interaction",
+        "Privacy-Preserving Computation",
+        "Game Engine Tech"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at IIIT Delhi Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-19",
+    "title": "DTU Delhi Invictus 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "DTU Delhi Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/dtu-delhi-invictus-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at DTU Delhi attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹3,00,000",
+      "tracks_or_themes": [
+        "Automated Trading Bots",
+        "Smart City Surveillance AI",
+        "Distributed Systems"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at DTU Delhi Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-college-20",
+    "title": "NSUT Delhi Moksha-Innovision 2026 — Annual Flagship Hackathon",
+    "type": "hackathon",
+    "organizer": "NSUT Delhi Student Technical Council",
+    "organizer_type": "IIT-fest",
+    "tags": [
+      "Python",
+      "React",
+      "Node.js",
+      "Docker",
+      "FastAPI",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Premier Campus",
+      "Engineering Sprint",
+      "Technical Fest"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T23:59:59Z",
+    "eligibility": "Open to engineering & sciences undergraduate/graduate students nationwide",
+    "source_url": "https://unstop.com/fests/nsut-delhi-moksha-innovision-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Official Fest",
+      "summary": "Flagship national competition at NSUT Delhi attracting podium teams across India. Includes VC jury pitching, hardware lab access, and sponsor PPIs.",
+      "prize_pool": "₹2,50,000",
+      "tracks_or_themes": [
+        "EdTech Personalization",
+        "Web3 Zero Knowledge Rollups",
+        "DevOps Pipelines"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Annual Finale at NSUT Delhi Campus",
+      "status_badge": "Premier Campus Hackathon",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-corp-1",
+    "title": "Google: Solution Challenge 2026",
+    "type": "hackathon",
+    "organizer": "Google Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Flutter",
+      "GCP",
+      "Firebase",
+      "TensorFlow",
+      "Node.js"
+    ],
+    "domain_tags": [
+      "Social Impact & AI",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/google-solution-challenge-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Google. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$10,000 + Google Mentorship",
+      "tracks_or_themes": [
+        "AI for UN SDGs",
+        "Mobile Health",
+        "Education Accessibility"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-2",
+    "title": "Microsoft: Imagine Cup 2026 Global Sprint",
+    "type": "hackathon",
+    "organizer": "Microsoft Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Azure",
+      "OpenAI",
+      "C#",
+      "Python",
+      "React"
+    ],
+    "domain_tags": [
+      "AI for Earth & Accessibility",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/microsoft-imagine-cup-2026-global-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Microsoft. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$100,000 + Microsoft Founder Hub",
+      "tracks_or_themes": [
+        "Earth & CleanTech",
+        "Generative AI",
+        "Inclusive Tech"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-3",
+    "title": "Amazon: AWS Generative AI Serverless Challenge",
+    "type": "hackathon",
+    "organizer": "Amazon Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "AWS",
+      "Python",
+      "TypeScript",
+      "Docker",
+      "FastAPI"
+    ],
+    "domain_tags": [
+      "Cloud Architecture",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/amazon-aws-generative-ai-serverless-challenge",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Amazon. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$50,000 + AWS Activate Credits",
+      "tracks_or_themes": [
+        "Serverless Multi-Agent",
+        "Event-Driven Bedrock",
+        "Cost-Optimized Scale"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-4",
+    "title": "Meta: Llama 3 Open Source Hackathon",
+    "type": "hackathon",
+    "organizer": "Meta Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "PyTorch",
+      "Python",
+      "Transformers",
+      "CUDA",
+      "FastAPI"
+    ],
+    "domain_tags": [
+      "Open Source LLMs",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/meta-llama-3-open-source-hackathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Meta. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$35,000 + Compute Grants",
+      "tracks_or_themes": [
+        "Fine-Tuning on Custom Data",
+        "Local On-Device Inference",
+        "Agentic Tool Calling"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-5",
+    "title": "Uber: Urban Logistics & Fleet Dispatch Sprint",
+    "type": "hackathon",
+    "organizer": "Uber Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Go",
+      "Java",
+      "Distributed Systems",
+      "Kafka",
+      "PostgreSQL"
+    ],
+    "domain_tags": [
+      "Distributed Systems",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/uber-urban-logistics---fleet-dispatch-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Uber. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "INR 10,00,000 + SDE-1 PPIs",
+      "tracks_or_themes": [
+        "High-Concurrency Ride Matching",
+        "Route Graph Optimization",
+        "Surge Pricing Models"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-6",
+    "title": "Atlassian: DevOps Productivity & AI Plugin Hackathon",
+    "type": "hackathon",
+    "organizer": "Atlassian Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "TypeScript",
+      "React",
+      "Node.js",
+      "Docker",
+      "GraphQL"
+    ],
+    "domain_tags": [
+      "Developer Tools",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/atlassian-devops-productivity---ai-plugin-hackathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Atlassian. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Direct SDE-1 Interview Invites + ₹5 Lakhs",
+      "tracks_or_themes": [
+        "Jira Agent Automation",
+        "Code Review LLMs",
+        "CI/CD Metric Predictors"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-7",
+    "title": "Goldman Sachs: Engineering Campus Hiring Challenge 2026",
+    "type": "hackathon",
+    "organizer": "Goldman Sachs Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "C++",
+      "Python",
+      "Algorithms",
+      "SQL"
+    ],
+    "domain_tags": [
+      "Financial Systems",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/goldman sachs-engineering-campus-hiring-challenge-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Goldman Sachs. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Direct Summer 2027 Intern & Full-Time Offers",
+      "tracks_or_themes": [
+        "Quantitative Data Structures",
+        "High-Throughput Order Book",
+        "Financial Risk Analysis"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-8",
+    "title": "Morgan Stanley: Code to Elevate Technology Sprint",
+    "type": "hackathon",
+    "organizer": "Morgan Stanley Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Spring Boot",
+      "C++",
+      "System Design",
+      "SQL"
+    ],
+    "domain_tags": [
+      "Fintech Systems",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/morgan stanley-code-to-elevate-technology-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Morgan Stanley. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Direct SDE Interview Invites + ₹4 Lakhs",
+      "tracks_or_themes": [
+        "Trading Analytics",
+        "Cloud Resilience",
+        "Enterprise App Security"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-9",
+    "title": "D.E. Shaw: DESCO Tech Nexus Engineering Fellowship",
+    "type": "hackathon",
+    "organizer": "D.E. Shaw Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "C++",
+      "Algorithms",
+      "Data Structures",
+      "Linux"
+    ],
+    "domain_tags": [
+      "Quantitative Software Engineering",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/d.e. shaw-desco-tech-nexus-engineering-fellowship",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by D.E. Shaw. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "INR 6,00,000 + Direct Mentorship",
+      "tracks_or_themes": [
+        "Low-Latency Data Pipelines",
+        "Numerical Simulations",
+        "Distributed Compute"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-10",
+    "title": "Adobe: GenSolve Creative Intelligence Hackathon",
+    "type": "hackathon",
+    "organizer": "Adobe Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Python",
+      "Computer Vision",
+      "PyTorch",
+      "WebGL"
+    ],
+    "domain_tags": [
+      "Computer Graphics & Vision",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/adobe-gensolve-creative-intelligence-hackathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Adobe. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "INR 7,50,000 + Direct Research Internships",
+      "tracks_or_themes": [
+        "Generative Fill Models",
+        "Vector Asset Synthesis",
+        "Real-Time 3D Rendering"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-11",
+    "title": "Salesforce: Agentforce Autonomous Enterprise Bot Hack",
+    "type": "hackathon",
+    "organizer": "Salesforce Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "JavaScript",
+      "Node.js",
+      "Python",
+      "FastAPI",
+      "React"
+    ],
+    "domain_tags": [
+      "Autonomous Agents",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/salesforce-agentforce-autonomous-enterprise-bot-hack",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Salesforce. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$25,000 + AppExchange Feature",
+      "tracks_or_themes": [
+        "CRM Agent Workflows",
+        "Multi-Tenant Security",
+        "Event-Driven Automation"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-12",
+    "title": "Cisco: Cisco Ideathon 2026 — Secure Mesh Networks",
+    "type": "hackathon",
+    "organizer": "Cisco Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "Networking",
+      "C++",
+      "Cybersecurity",
+      "Linux"
+    ],
+    "domain_tags": [
+      "Networking & Cybersecurity",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/cisco-cisco-ideathon-2026---secure-mesh-networks",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Cisco. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Direct Software Engineer Offers (CTC ₹18 LPA)",
+      "tracks_or_themes": [
+        "Zero-Trust IoT Mesh",
+        "Anomaly Packet Sniffing",
+        "Edge SD-WAN Security"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-13",
+    "title": "Samsung: Samsung PRISM On-Device AI Innovation Sprint",
+    "type": "hackathon",
+    "organizer": "Samsung Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "TensorFlow Lite",
+      "Android",
+      "Kotlin",
+      "C++"
+    ],
+    "domain_tags": [
+      "Mobile & Edge AI",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/samsung-samsung-prism-on-device-ai-innovation-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Samsung. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Funded Work-Let Projects + Direct PPIs",
+      "tracks_or_themes": [
+        "NPU Model Optimization",
+        "Vision LLMs on Phone",
+        "Ultra-Low Power Audio AI"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-14",
+    "title": "Intel: oneAPI AI & Accelerated Computing Hack",
+    "type": "hackathon",
+    "organizer": "Intel Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "oneAPI",
+      "SYCL",
+      "OpenVINO",
+      "Python"
+    ],
+    "domain_tags": [
+      "High-Performance Computing",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/intel-oneapi-ai---accelerated-computing-hack",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Intel. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$15,000 + Intel Cloud Access",
+      "tracks_or_themes": [
+        "Cross-Architecture SYCL Code",
+        "GPU/FPGA Acceleration",
+        "OpenVINO Model Pipeline"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-15",
+    "title": "NVIDIA: Jetson Edge AI Robotics Hackathon",
+    "type": "hackathon",
+    "organizer": "NVIDIA Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "CUDA",
+      "C++",
+      "ROS2",
+      "Computer Vision"
+    ],
+    "domain_tags": [
+      "Robotics & Edge AI",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/nvidia-jetson-edge-ai-robotics-hackathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by NVIDIA. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$20,000 + Jetson Orin Hardware Kits",
+      "tracks_or_themes": [
+        "Autonomous Mobile Robots",
+        "Isaac Sim Digital Twins",
+        "Edge VLM Triage"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-16",
+    "title": "AMD: ROCm Open Ecosystem AI Acceleration Hack",
+    "type": "hackathon",
+    "organizer": "AMD Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "PyTorch",
+      "ROCm",
+      "CUDA Migration",
+      "Python"
+    ],
+    "domain_tags": [
+      "Heterogeneous Compute",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/amd-rocm-open-ecosystem-ai-acceleration-hack",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by AMD. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "$25,000 + AMD Instinct Hardware Grants",
+      "tracks_or_themes": [
+        "PyTorch ROCm Acceleration",
+        "Kernel Optimization",
+        "Distributed Cluster LLM"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-17",
+    "title": "Qualcomm: Snapdragon Neural Processing Engine Challenge",
+    "type": "hackathon",
+    "organizer": "Qualcomm Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Qualcomm SNPE",
+      "Android",
+      "Python",
+      "Edge AI"
+    ],
+    "domain_tags": [
+      "Mobile Neural Computing",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/qualcomm-snapdragon-neural-processing-engine-challenge",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Qualcomm. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "INR 5,00,000 + Hardware Kits",
+      "tracks_or_themes": [
+        "Snapdragon On-Device AI",
+        "Hexagon DSP Quantization",
+        "Heterogeneous Compute"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-18",
+    "title": "Swiggy: Hyperlocal Delivery ETA & Kitchen Dispatch Hack",
+    "type": "hackathon",
+    "organizer": "Swiggy Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Go",
+      "Redis",
+      "Kafka",
+      "Microservices"
+    ],
+    "domain_tags": [
+      "E-Commerce Logistics",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/swiggy-hyperlocal-delivery-eta---kitchen-dispatch-hack",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Swiggy. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "INR 4,00,000 + SDE-1 PPIs",
+      "tracks_or_themes": [
+        "ETA Dynamic Prediction",
+        "Batched Order Routing",
+        "Cold Chain Assurance"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-19",
+    "title": "Zomato: Real-Time Flash Cart Pricing & Fraud Mitigation Sprint",
+    "type": "hackathon",
+    "organizer": "Zomato Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Go",
+      "Node.js",
+      "PostgreSQL",
+      "Kafka",
+      "Distributed Systems"
+    ],
+    "domain_tags": [
+      "High-Concurrency Backend",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/zomato-real-time-flash-cart-pricing---fraud-mitigation-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by Zomato. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Direct SDE-1 PPIs + ₹5 Lakhs",
+      "tracks_or_themes": [
+        "Sub-10ms Cart Checkout",
+        "Voucher Fraud Detection",
+        "Live Rider Geofencing"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-corp-20",
+    "title": "JPMorgan Chase: Code for Good 2026 National Chapter",
+    "type": "hackathon",
+    "organizer": "JPMorgan Chase Engineering",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Spring Boot",
+      "React",
+      "Python",
+      "SQL"
+    ],
+    "domain_tags": [
+      "Fintech & Social Impact",
+      "Corporate Drive",
+      "High-Stakes PPI"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Final & Pre-Final Year B.Tech, Dual Degree, M.Tech, and MCA students",
+    "source_url": "https://unstop.com/competitions/jpmorgan chase-code-for-good-2026-national-chapter",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Corporate Portal",
+      "summary": "Official hiring and innovation challenge hosted by JPMorgan Chase. Top-performing teams earn direct interview fast-tracks, grand jury prizes, and cloud infrastructure credits.",
+      "prize_pool": "Full-Time SDE Offers (CTC ₹20+ LPA)",
+      "tracks_or_themes": [
+        "NGO Digital Transformation",
+        "Micro-Finance Lending",
+        "Accessible Banking UI"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Registrations Live | Code Submissions Open",
+      "status_badge": "Corporate SDE Fast-Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-1",
+    "title": "ETHIndia 2026 — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Ethereum Foundation Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Solidity",
+      "TypeScript",
+      "EVM",
+      "Next.js",
+      "Web3"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/ethindia-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Ethereum Foundation. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Account Abstraction",
+        "Layer 2 Rollups",
+        "DeFi Interop",
+        "Decentralized Identity"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-2",
+    "title": "Polygon BUIDL Guild 2026 — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Polygon Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Rust",
+      "Solidity",
+      "ZK-Rollups",
+      "TypeScript",
+      "Go"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/polygon-buidl-guild-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Polygon. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Zero-Knowledge Proofs",
+        "AggLayer Cross-Chain",
+        "Consumer dApps"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-3",
+    "title": "Solana Renaissance Summer Camp — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Solana Foundation Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Rust",
+      "Solana Anchor",
+      "TypeScript",
+      "React",
+      "WebSockets"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/solana-renaissance-summer-camp",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Solana Foundation. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "High-Throughput DeFi",
+        "DePIN Physical Infrastructure",
+        "Mobile Solana"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-4",
+    "title": "Avalanche Summit Hackathon — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Avalanche Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Go",
+      "Solidity",
+      "EVM",
+      "Docker",
+      "Next.js"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/avalanche-summit-hackathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Avalanche. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Custom Subnets",
+        "Real-World Assets (RWA)",
+        "Gaming Micro-Chains"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-5",
+    "title": "Chainlink Constellation 2026 — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Chainlink Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Solidity",
+      "Chainlink Functions",
+      "TypeScript",
+      "Python"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/chainlink-constellation-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Chainlink. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Cross-Chain Interop Protocol (CCIP)",
+        "Chainlink Functions",
+        "DeFi Oracles"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-6",
+    "title": "Aptos Move Hackathon Asia — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Aptos Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Move",
+      "Rust",
+      "TypeScript",
+      "React"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/aptos-move-hackathon-asia",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Aptos. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Parallel Execution",
+        "Move Smart Contracts",
+        "DeFi Automation"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-7",
+    "title": "Sui Builder House Global — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Sui Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Move",
+      "Rust",
+      "TypeScript",
+      "Node.js"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/sui-builder-house-global",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Sui. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Object-Centric On-Chain Gaming",
+        "Decentralized Social",
+        "High-TPS Minting"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-8",
+    "title": "Arbitrum Nitro Stylus Sprint — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Arbitrum Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Rust",
+      "C++",
+      "Solidity",
+      "WASM",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/arbitrum-nitro-stylus-sprint",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Arbitrum. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Multi-Language WASM Contracts (Rust & C++)",
+        "L3 Orbit Chains",
+        "Arbitrum DeFi"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-9",
+    "title": "Optimism Superchain Buildathon — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Optimism Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Solidity",
+      "Go",
+      "TypeScript",
+      "EVM"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/optimism-superchain-buildathon",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Optimism. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Interoperable Superchain Bridges",
+        "Retroactive Public Goods",
+        "Governance Tooling"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-10",
+    "title": "Base Onchain Summer Global — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Base Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "TypeScript",
+      "Solidity",
+      "Next.js",
+      "Smart Contracts"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/base-onchain-summer-global",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Base. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Consumer Apps",
+        "Onchain Micro-Payments",
+        "Creator Economies"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-11",
+    "title": "Filecoin Orbit Data Economy Hack — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Filecoin Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Go",
+      "Rust",
+      "IPFS",
+      "Filecoin",
+      "Python"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/filecoin-orbit-data-economy-hack",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Filecoin. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Decentralized AI Storage",
+        "Proof of Spacetime",
+        "Compute-Over-Data"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-web3-12",
+    "title": "NEAR Chain Abstraction Summit — Global Web3 & Ecosystem Hackathon",
+    "type": "hackathon",
+    "organizer": "Near Protocol Developer DAO",
+    "organizer_type": "open",
+    "tags": [
+      "Rust",
+      "JavaScript",
+      "TypeScript",
+      "WebAssembly"
+    ],
+    "domain_tags": [
+      "Web3",
+      "Blockchain",
+      "Decentralized Systems"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T23:59:59Z",
+    "eligibility": "Open globally to all developers, researchers, and students",
+    "source_url": "https://devfolio.co/hackathons/near-chain-abstraction-summit",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-4 members",
+    "extracted_context": {
+      "platform": "Devfolio / ETHGlobal",
+      "summary": "Ecosystem buildathon organized by Near Protocol. Teams build production-ready decentralized protocols with direct bounty pools, venture accelerator grants, and token bounties.",
+      "prize_pool": "$50,000 + Ecosystem Seed Grants",
+      "tracks_or_themes": [
+        "Universal Keyless Onboarding",
+        "FastAuth Web3",
+        "Near BOS Components"
+      ],
+      "team_size": "1-4 members",
+      "schedule_label": "Bounties Active | Remote Submission",
+      "status_badge": "Ecosystem Bounty Track",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-global-1",
+    "title": "CalHacks 12.0 — UC Berkeley",
+    "type": "hackathon",
+    "organizer": "UC Berkeley & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "PyTorch",
+      "React",
+      "FastAPI",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "AI Hardware & Large Models"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-15T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/calhacks-12-0",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by UC Berkeley. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Frontier LLMs",
+        "Robotics & Hardware",
+        "Civic Resilience"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-2",
+    "title": "HackMIT 2026 — MIT",
+    "type": "hackathon",
+    "organizer": "MIT & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "Rust",
+      "TypeScript",
+      "React",
+      "Next.js"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Frontier Computing & Bio-Informatics"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-16T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/hackmit-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by MIT. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Synthetic Biology AI",
+        "Quantum Computing",
+        "Open Science"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-3",
+    "title": "PennApps XXVII — University of Pennsylvania",
+    "type": "hackathon",
+    "organizer": "University of Pennsylvania & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "React Native",
+      "Node.js",
+      "Python",
+      "PostgreSQL"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Healthcare & Fintech Disruption"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-17T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/pennapps-xxvii",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by University of Pennsylvania. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Medical Imaging",
+        "Micro-Lending",
+        "Emergency Dispatch"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-4",
+    "title": "TreeHacks 2026 — Stanford University",
+    "type": "hackathon",
+    "organizer": "Stanford University & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "TypeScript",
+      "PyTorch",
+      "FastAPI",
+      "Go"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Moonshots for Global Resilience"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-18T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/treehacks-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by Stanford University. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Climate Intelligence",
+        "Human Health",
+        "Autonomous Systems"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-5",
+    "title": "HackTheNorth 2026 — University of Waterloo",
+    "type": "hackathon",
+    "organizer": "University of Waterloo & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Go",
+      "Rust",
+      "C++",
+      "Distributed Systems"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Systems Performance & Scalability"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-19T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/hackthenorth-2026",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by University of Waterloo. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "High-Throughput Infra",
+        "Low-Latency Web",
+        "Developer Tooling"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-6",
+    "title": "OpenAI DevDay Global Hackathon — OpenAI",
+    "type": "hackathon",
+    "organizer": "OpenAI & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "TypeScript",
+      "FastAPI",
+      "React",
+      "WebSockets"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Multi-Agent Swarms & Realtime API"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/openai-devday-global-hackathon",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by OpenAI. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Realtime Voice Agents",
+        "Vision Tooling",
+        "Multi-Agent Orchestration"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-7",
+    "title": "Anthropic Claude Agents Hack — Anthropic",
+    "type": "hackathon",
+    "organizer": "Anthropic & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "TypeScript",
+      "Docker",
+      "FastAPI"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Computer Use & Deterministic Workflows"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-21T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/anthropic-claude-agents-hack",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by Anthropic. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Computer Use OS Automation",
+        "Evaluations & Benchmarks",
+        "Structured RAG"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-8",
+    "title": "Hugging Face Open LLM Sprint — Hugging Face",
+    "type": "hackathon",
+    "organizer": "Hugging Face & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "PyTorch",
+      "Transformers",
+      "Python",
+      "CUDA"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Edge Model Quantization & Fine-Tuning"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-22T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/hugging-face-open-llm-sprint",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by Hugging Face. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Small Language Models (SLMs)",
+        "Dataset Distillation",
+        "Local vLLM Serving"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-9",
+    "title": "Mistral AI Hackathon Europe — Mistral AI",
+    "type": "hackathon",
+    "organizer": "Mistral AI & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "Python",
+      "Rust",
+      "FastAPI",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Reasoning Models & Codestral Workflows"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-23T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/mistral-ai-hackathon-europe",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by Mistral AI. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Codestral Code Refactor",
+        "Multilingual Reasoning",
+        "Mixtral MoE Tuning"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-global-10",
+    "title": "GitHub Universe Cloud Hack — GitHub",
+    "type": "hackathon",
+    "organizer": "GitHub & MLH",
+    "organizer_type": "university",
+    "tags": [
+      "TypeScript",
+      "Node.js",
+      "React",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Global Hackathon",
+      "International",
+      "Developer Tooling & Copilot Extensions"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-24T23:59:59Z",
+    "eligibility": "Open to students enrolled in accredited colleges & universities globally",
+    "source_url": "https://devpost.com/hackathons/github-universe-cloud-hack",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Devpost / MLH",
+      "summary": "Premier international hackathon hosted by GitHub. Top global engineering judges evaluate 36-hour sprint submissions with hardware testbeds and cloud API sponsorships.",
+      "prize_pool": "$30,000 + Sponsor APIs & YC Fast-Tracks",
+      "tracks_or_themes": [
+        "Copilot Chat Plugins",
+        "GitHub Actions Automation",
+        "Open Source Metrics"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Global Virtual Track Available",
+      "status_badge": "MLH Official Member",
+      "difficulty_tier": "high",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-career-1",
+    "title": "Google STEP Internship 2027",
+    "type": "internship",
+    "organizer": "Google",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Java",
+      "Python",
+      "Data Structures",
+      "Algorithms"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/google-google-step-internship-2027",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Google STEP Internship 2027 at Google. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,10,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-2",
+    "title": "Microsoft Engage & SWE Summer Intern 2027",
+    "type": "internship",
+    "organizer": "Microsoft",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "C#",
+      "Algorithms",
+      "System Design",
+      "Python"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/microsoft-microsoft-engage---swe-summer-intern-2027",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Microsoft Engage & SWE Summer Intern 2027 at Microsoft. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,25,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-3",
+    "title": "Amazon WOW & SDE Internship Drive",
+    "type": "internship",
+    "organizer": "Amazon",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Distributed Systems",
+      "SQL",
+      "Linux",
+      "Algorithms"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-31T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/amazon-amazon-wow---sde-internship-drive",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Amazon WOW & SDE Internship Drive at Amazon. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,10,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-4",
+    "title": "Uber STAR Engineering Internship",
+    "type": "internship",
+    "organizer": "Uber",
+    "organizer_type": "corporate",
+    "tags": [
+      "Go",
+      "Java",
+      "Kafka",
+      "Data Structures",
+      "Algorithms"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-05T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/uber-uber-star-engineering-internship",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Uber STAR Engineering Internship at Uber. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,60,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-5",
+    "title": "D.E. Shaw Technology Summer Associate",
+    "type": "internship",
+    "organizer": "D. E. Shaw India",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Python",
+      "Linux",
+      "Algorithms",
+      "System Design"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/d--e--shaw-india-d-e--shaw-technology-summer-associate",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for D.E. Shaw Technology Summer Associate at D. E. Shaw India. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹2,00,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-6",
+    "title": "Morgan Stanley Technology Analyst Intern",
+    "type": "internship",
+    "organizer": "Morgan Stanley",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Spring Boot",
+      "SQL",
+      "C++",
+      "Data Structures"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-10T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/morgan-stanley-morgan-stanley-technology-analyst-intern",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Morgan Stanley Technology Analyst Intern at Morgan Stanley. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,00,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-7",
+    "title": "Goldman Sachs Summer Analyst Program",
+    "type": "internship",
+    "organizer": "Goldman Sachs",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "C++",
+      "Python",
+      "Algorithms",
+      "Financial Systems"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-12T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/goldman-sachs-goldman-sachs-summer-analyst-program",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Goldman Sachs Summer Analyst Program at Goldman Sachs. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,00,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-8",
+    "title": "Atlassian Software Engineer Intern 2027",
+    "type": "internship",
+    "organizer": "Atlassian",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "React",
+      "TypeScript",
+      "System Design",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-25T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/atlassian-atlassian-software-engineer-intern-2027",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Atlassian Software Engineer Intern 2027 at Atlassian. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,20,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-9",
+    "title": "Cisco International Software Intern Program",
+    "type": "internship",
+    "organizer": "Cisco",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "C++",
+      "Networking",
+      "Linux",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-30T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/cisco-cisco-international-software-intern-program",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Cisco International Software Intern Program at Cisco. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹80,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-10",
+    "title": "Adobe Research & SDE Intern 2027",
+    "type": "internship",
+    "organizer": "Adobe",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Python",
+      "Computer Vision",
+      "Machine Learning"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-18T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/adobe-adobe-research---sde-intern-2027",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Adobe Research & SDE Intern 2027 at Adobe. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹1,00,000/mo + PPO",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-11",
+    "title": "MLH Fellowship: Open Source & SWE",
+    "type": "fellowship",
+    "organizer": "Major League Hacking",
+    "organizer_type": "corporate",
+    "tags": [
+      "Open Source",
+      "Git",
+      "Python",
+      "JavaScript",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "FELLOWSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-01T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/major-league-hacking-mlh-fellowship--open-source---swe",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for MLH Fellowship: Open Source & SWE at Major League Hacking. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "$5,000 Educational Stipend",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-12",
+    "title": "Google Summer of Code (GSoC) 2027",
+    "type": "open-source",
+    "organizer": "Google Open Source",
+    "organizer_type": "corporate",
+    "tags": [
+      "Git",
+      "C++",
+      "Python",
+      "Rust",
+      "Go"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "OPEN-SOURCE",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/google-open-source-google-summer-of-code--gsoc--2027",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Google Summer of Code (GSoC) 2027 at Google Open Source. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "$3,000 - $6,000 Stipend",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-13",
+    "title": "Linux Foundation Mentorship Program (LFX)",
+    "type": "open-source",
+    "organizer": "Linux Foundation",
+    "organizer_type": "corporate",
+    "tags": [
+      "Linux Kernel",
+      "Go",
+      "Rust",
+      "Kubernetes",
+      "C"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "OPEN-SOURCE",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-25T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/linux-foundation-linux-foundation-mentorship-program--lfx-",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Linux Foundation Mentorship Program (LFX) at Linux Foundation. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "$3,000 - $6,000 Stipend",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-14",
+    "title": "Outreachy Open Source Diversity Fellowship",
+    "type": "fellowship",
+    "organizer": "Software Freedom Conservancy",
+    "organizer_type": "corporate",
+    "tags": [
+      "Python",
+      "Documentation",
+      "Git",
+      "JavaScript"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "FELLOWSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-28T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/software-freedom-conservancy-outreachy-open-source-diversity-fellowship",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Outreachy Open Source Diversity Fellowship at Software Freedom Conservancy. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "$7,000 Remote Stipend",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-15",
+    "title": "CERN Openlab Summer Student Research",
+    "type": "research",
+    "organizer": "CERN",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "High Energy Physics",
+      "HPC",
+      "Python",
+      "Linux"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "RESEARCH",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-12-10T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/cern-cern-openlab-summer-student-research",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for CERN Openlab Summer Student Research at CERN. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Geneva Residency + 3,400 CHF/mo",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-16",
+    "title": "PM Internship Scheme 2026 (Govt of India)",
+    "type": "internship",
+    "organizer": "Ministry of Corporate Affairs (MCA)",
+    "organizer_type": "corporate",
+    "tags": [
+      "Corporate Governance",
+      "Python",
+      "Data Analysis",
+      "Management"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "INTERNSHIP",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-30T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/ministry-of-corporate-affairs--mca--pm-internship-scheme-2026--govt-of-india-",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for PM Internship Scheme 2026 (Govt of India) at Ministry of Corporate Affairs (MCA). Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Stipend ₹5,000/mo + ₹6,000 One-time grant",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-17",
+    "title": "TCS CodeVita Season 14 Global Contest",
+    "type": "contest",
+    "organizer": "Tata Consultancy Services",
+    "organizer_type": "corporate",
+    "tags": [
+      "C++",
+      "Java",
+      "Python",
+      "Data Structures",
+      "Algorithms"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "CONTEST",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-22T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/tata-consultancy-services-tcs-codevita-season-14-global-contest",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for TCS CodeVita Season 14 Global Contest at Tata Consultancy Services. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "INR 15,00,000 + Direct Digital/Prime Offers",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-18",
+    "title": "Infosys HackWithInfy 2026",
+    "type": "contest",
+    "organizer": "Infosys",
+    "organizer_type": "corporate",
+    "tags": [
+      "Java",
+      "Python",
+      "Competitive Programming",
+      "Algorithms"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "CONTEST",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-08T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/infosys-infosys-hackwithinfy-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Infosys HackWithInfy 2026 at Infosys. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "Direct Specialist Programmer (SP) Offers",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-19",
+    "title": "Tata Imagination Challenge 2026",
+    "type": "contest",
+    "organizer": "Tata Sons",
+    "organizer_type": "corporate",
+    "tags": [
+      "Case Study",
+      "Business Strategy",
+      "Technology Innovation"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "CONTEST",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/tata-sons-tata-imagination-challenge-2026",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Tata Imagination Challenge 2026 at Tata Sons. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "INR 2,00,000 + Tata Leadership Fast-Track",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-career-20",
+    "title": "Mahindra Rise Innovation Derby",
+    "type": "contest",
+    "organizer": "Mahindra & Mahindra",
+    "organizer_type": "corporate",
+    "tags": [
+      "EV Architecture",
+      "AI Telematics",
+      "IoT",
+      "CleanTech"
+    ],
+    "domain_tags": [
+      "Career Track",
+      "CONTEST",
+      "Verified Pathway"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-14T18:30:00Z",
+    "eligibility": "Pre-final and graduating undergraduate / graduate students",
+    "source_url": "https://unstop.com/jobs-internships/mahindra---mahindra-mahindra-rise-innovation-derby",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "Individual Application",
+    "extracted_context": {
+      "platform": "Direct Corporate Portal / Unstop",
+      "summary": "Official hiring pipeline for Mahindra Rise Innovation Derby at Mahindra & Mahindra. Verified recruiter assessment with direct interview shortlists and performance stipend.",
+      "prize_pool": "INR 5,00,000 + PPIs",
+      "tracks_or_themes": [
+        "Data Structures & Algorithms",
+        "System Design & Architecture",
+        "Executive Interview Round"
+      ],
+      "team_size": "Individual",
+      "schedule_label": "Rolling Applications Active",
+      "status_badge": "Verified Career Pathway",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-regional-1",
+    "title": "Bengaluru Tech Summit (BTS) Hackathon (Bangalore)",
+    "type": "hackathon",
+    "organizer": "Bangalore Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Java",
+      "Go",
+      "Kafka",
+      "ONDC",
+      "React"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Fintech & Open Commerce",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/bangalore-bengaluru-tech-summit--bts--hackathon",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Bangalore. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Fintech & Open Commerce",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-2",
+    "title": "T-Hub Global Innovation Challenge (Hyderabad)",
+    "type": "hackathon",
+    "organizer": "Hyderabad Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "C++",
+      "Edge AI",
+      "VLSI",
+      "FastAPI"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "DeepTech & Semiconductor",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/hyderabad-t-hub-global-innovation-challenge",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Hyderabad. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "DeepTech & Semiconductor",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-3",
+    "title": "Pune Tech Conclave Hackathon (Pune)",
+    "type": "hackathon",
+    "organizer": "Pune Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "C++",
+      "Python",
+      "ROS",
+      "CAN Bus",
+      "IoT"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Automotive & Electric Mobility",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/pune-pune-tech-conclave-hackathon",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Pune. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Automotive & Electric Mobility",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-4",
+    "title": "Chennai SaaS Builders Sprint (Chennai)",
+    "type": "hackathon",
+    "organizer": "Chennai Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "TypeScript",
+      "Next.js",
+      "PostgreSQL",
+      "Tailwind",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Multi-Tenant Enterprise SaaS",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/chennai-chennai-saas-builders-sprint",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Chennai. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Multi-Tenant Enterprise SaaS",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-5",
+    "title": "Delhi Smart Governance Sprint (Delhi NCR)",
+    "type": "hackathon",
+    "organizer": "Delhi NCR Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "FastAPI",
+      "GIS",
+      "React",
+      "PostgreSQL"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Public Service Delivery & Air Quality",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/delhi ncr-delhi-smart-governance-sprint",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Delhi NCR. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Public Service Delivery & Air Quality",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-6",
+    "title": "Fintech Mumbai Innovation Derby (Mumbai)",
+    "type": "hackathon",
+    "organizer": "Mumbai Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "C++",
+      "Redis",
+      "WebSockets",
+      "Kafka"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Algorithmic Trading & Capital Markets",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/mumbai-fintech-mumbai-innovation-derby",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Mumbai. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Algorithmic Trading & Capital Markets",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-7",
+    "title": "GIFT City Financial Sandbox Challenge (Ahmedabad)",
+    "type": "hackathon",
+    "organizer": "Ahmedabad Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Solidity",
+      "Go",
+      "Distributed Systems",
+      "SQL"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Cross-Border Settlement & DeFi",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/ahmedabad-gift-city-financial-sandbox-challenge",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Ahmedabad. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Cross-Border Settlement & DeFi",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-8",
+    "title": "Eastern India Developer League (Kolkata)",
+    "type": "hackathon",
+    "organizer": "Kolkata Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "React Native",
+      "Node.js",
+      "PostgreSQL"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Agritech & Supply Chain Logistics",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/kolkata-eastern-india-developer-league",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Kolkata. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Agritech & Supply Chain Logistics",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-9",
+    "title": "Rajasthan DigiFest Hackathon (Jaipur)",
+    "type": "hackathon",
+    "organizer": "Jaipur Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "Indic NLP",
+      "React",
+      "MongoDB"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Heritage Tourism & Vernacular AI",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/jaipur-rajasthan-digifest-hackathon",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Jaipur. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Heritage Tourism & Vernacular AI",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-10",
+    "title": "North India AI & Agritech Sprint (Chandigarh)",
+    "type": "hackathon",
+    "organizer": "Chandigarh Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "Computer Vision",
+      "TensorFlow",
+      "FastAPI"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Precision Agriculture & Water Systems",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/chandigarh-north-india-ai---agritech-sprint",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Chandigarh. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Precision Agriculture & Water Systems",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-11",
+    "title": "Kerala Startup Mission (KSUM) Hack (Kochi)",
+    "type": "hackathon",
+    "organizer": "Kochi Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "IoT",
+      "React",
+      "FastAPI",
+      "Docker"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Marine Tech & Sustainable Tourism",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/kochi-kerala-startup-mission--ksum--hack",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Kochi. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Marine Tech & Sustainable Tourism",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-12",
+    "title": "Odisha Mining & Disaster Tech Hack (Bhubaneswar)",
+    "type": "hackathon",
+    "organizer": "Bhubaneswar Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "GIS",
+      "Time Series",
+      "WebSockets"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Cyclone Early Warning & Mine Safety",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/bhubaneswar-odisha-mining---disaster-tech-hack",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Bhubaneswar. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Cyclone Early Warning & Mine Safety",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-13",
+    "title": "Clean City Smart Waste Innovation Sprint (Indore)",
+    "type": "hackathon",
+    "organizer": "Indore Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "Computer Vision",
+      "YOLOv8",
+      "React"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Circular Economy & Automated Sorting",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-10-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/indore-clean-city-smart-waste-innovation-sprint",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Indore. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Circular Economy & Automated Sorting",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-14",
+    "title": "Uttar Pradesh HealthTech Hackathon (Lucknow)",
+    "type": "hackathon",
+    "organizer": "Lucknow Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Python",
+      "FastAPI",
+      "WebRTC",
+      "React Native"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Rural Primary Healthcare Triage",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-11-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/lucknow-uttar-pradesh-healthtech-hackathon",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Lucknow. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Rural Primary Healthcare Triage",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-regional-15",
+    "title": "Goa International Web3 & Coastal Hack (Goa)",
+    "type": "hackathon",
+    "organizer": "Goa Innovation Ecosystem & State Tech Board",
+    "organizer_type": "community",
+    "tags": [
+      "Solidity",
+      "TypeScript",
+      "Python",
+      "Next.js"
+    ],
+    "domain_tags": [
+      "Regional Flagship",
+      "Decentralized Eco-Tourism & Marine AI",
+      "Civic Tech"
+    ],
+    "tier": "Tier 2",
+    "deadline": "2026-12-15T18:30:00Z",
+    "eligibility": "Open to students & developer syndicates nationwide",
+    "source_url": "https://unstop.com/hackathons/goa-goa-international-web3---coastal-hack",
+    "verificationStatus": "verified",
+    "mode": "hybrid",
+    "teamSize": "2-4 members",
+    "extracted_context": {
+      "platform": "Unstop / Regional Tech Board",
+      "summary": "State and city flagship hackathon for Goa. Direct cash awards, state incubation seed grants, and government sandbox deployment for top podium projects.",
+      "prize_pool": "₹3,00,000 + State Incubation Fast-Track",
+      "tracks_or_themes": [
+        "Decentralized Eco-Tourism & Marine AI",
+        "Public Infrastructure",
+        "Smart Systems",
+        "Local Impact"
+      ],
+      "team_size": "2-4 members",
+      "schedule_label": "Open Submissions Phase",
+      "status_badge": "Regional Innovation Track",
+      "difficulty_tier": "medium",
+      "mode": "hybrid"
+    }
+  },
+  {
+    "id": "opp-contest-1",
+    "title": "ICPC Asia Regional Contest 2026",
+    "type": "contest",
+    "organizer": "ICPC Foundation & Amrita / IIT Kanpur",
+    "organizer_type": "open",
+    "tags": [
+      "C++",
+      "Java",
+      "Algorithms",
+      "Graph Theory",
+      "Dynamic Programming"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-20T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by ICPC Foundation & Amrita / IIT Kanpur. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "World Finals Qualification + Sponsor Prizes",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-contest-2",
+    "title": "Codeforces Global Round Championship",
+    "type": "contest",
+    "organizer": "Codeforces",
+    "organizer_type": "open",
+    "tags": [
+      "Competitive Programming",
+      "Math",
+      "Number Theory",
+      "Binary Search"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-31T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by Codeforces. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "Rating Honors + International Recognition",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-contest-3",
+    "title": "LeetCode Biweekly & Weekly Grand Championship",
+    "type": "contest",
+    "organizer": "LeetCode",
+    "organizer_type": "open",
+    "tags": [
+      "Algorithms",
+      "Data Structures",
+      "System Optimization"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-10-28T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by LeetCode. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "LeetCode Coins + Direct SDE Referrals",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-contest-4",
+    "title": "AtCoder Grand Contest (AGC 2026)",
+    "type": "contest",
+    "organizer": "AtCoder Japan",
+    "organizer_type": "open",
+    "tags": [
+      "Algorithms",
+      "Combinatorics",
+      "C++",
+      "Competitive Coding"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-05T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by AtCoder Japan. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "Grandmaster Ranking + Sponsor Bounties",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-contest-5",
+    "title": "Kaggle Grandmaster Reasoning Challenge",
+    "type": "contest",
+    "organizer": "Kaggle & Google",
+    "organizer_type": "open",
+    "tags": [
+      "Python",
+      "PyTorch",
+      "Transformers",
+      "Kaggle",
+      "Data Science"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-22T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by Kaggle & Google. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "$50,000 + Kaggle Gold Medals",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  },
+  {
+    "id": "opp-contest-6",
+    "title": "DEF CON National CTF Qualifiers",
+    "type": "contest",
+    "organizer": "DEF CON & OWASP",
+    "organizer_type": "open",
+    "tags": [
+      "Reverse Engineering",
+      "Binary Exploitation",
+      "Cryptography",
+      "Python",
+      "C"
+    ],
+    "domain_tags": [
+      "Competitive Programming",
+      "Algorithmic Contest",
+      "High Performance"
+    ],
+    "tier": "Tier 1",
+    "deadline": "2026-11-18T18:30:00Z",
+    "eligibility": "Open to all students and competitive programmers worldwide",
+    "source_url": "https://codeforces.com/contests",
+    "verificationStatus": "verified",
+    "mode": "remote",
+    "teamSize": "1-3 members",
+    "extracted_context": {
+      "platform": "Global Contest Platform",
+      "summary": "Premier international competitive coding contest hosted by DEF CON & OWASP. Top algorithmic thinkers compete under timed conditions.",
+      "prize_pool": "DEF CON Black Badge + Las Vegas Travel",
+      "tracks_or_themes": [
+        "Advanced Data Structures",
+        "Combinatorics & Graph Theory",
+        "High-Speed Algorithmic Solving"
+      ],
+      "team_size": "1-3 members",
+      "schedule_label": "Upcoming Rated Round",
+      "status_badge": "Verified Contest",
+      "difficulty_tier": "high",
+      "mode": "remote"
+    }
+  }
+]

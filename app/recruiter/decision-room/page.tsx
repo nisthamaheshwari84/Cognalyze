@@ -3,1034 +3,854 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import { RoleDNA } from "@/lib/ai/role-dna";
-import { CandidateDNA, EvidenceNode } from "@/lib/ai/evidence-graph";
-import { MatchEngineResult, MinimumProofPlan } from "@/lib/ai/minimum-proof";
-import { WorkSampleMiniTask, WorkSampleEvaluationResult } from "@/lib/ai/work-sample";
-import { GeneratedInterviewQuestion, CandidateInterviewHistory } from "@/lib/ai/interview-memory";
-import { DetectedConflict } from "@/lib/ai/conflict-detector";
-import { TalentRecoveryResult } from "@/lib/ai/talent-recovery";
-import { MultiSourceCandidateProfile } from "@/lib/recruiter-store";
+import {
+  DecisionRoomDossier,
+  DecisionRequirementMatch,
+  InspectedProjectEvidence,
+  VerificationTask,
+  DiscoveredEvidenceSource,
+  DecisionEvidenceState
+} from "@/lib/decision-room/decision-engine";
 
-export type FlowStage = 
-  | "role_dna"
-  | "candidate_intel"
-  | "evidence_graph"
-  | "match_split"
-  | "minimum_proof"
-  | "work_sample"
-  | "interviews"
-  | "conflicts"
-  | "decision";
+type DecisionTab =
+  | "candidate"
+  | "evidence"
+  | "role_match"
+  | "projects"
+  | "gaps_conflicts"
+  | "verify"
+  | "decide";
 
 export default function RecruiterDecisionRoomPage() {
-  const [candidates, setCandidates] = useState<MultiSourceCandidateProfile[]>([]);
-  const [roles, setRoles] = useState<RoleDNA[]>([]);
+  // Navigation & Active Data State
+  const [dossier, setDossier] = useState<DecisionRoomDossier | null>(null);
+  const [candidatesList, setCandidatesList] = useState<{ id: string; name: string; email: string; currentStage: string }[]>([]);
+  const [rolesList, setRolesList] = useState<{ id: string; title: string; version: number }[]>([]);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>("");
   const [selectedRoleId, setSelectedRoleId] = useState<string>("");
-  
-  const [activeTab, setActiveTab] = useState<FlowStage>("role_dna");
-  const [showFlowVisualizer, setShowFlowVisualizer] = useState(true);
-
+  const [activeTab, setActiveTab] = useState<DecisionTab>("candidate");
   const [loading, setLoading] = useState(true);
-  const [analyzing, setAnalyzing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
-  // Computed state
-  const [candidateDna, setCandidateDna] = useState<CandidateDNA | null>(null);
-  const [evidenceNodes, setEvidenceNodes] = useState<EvidenceNode[]>([]);
-  const [matchResult, setMatchResult] = useState<MatchEngineResult | null>(null);
-  const [minimumProofPlan, setMinimumProofPlan] = useState<MinimumProofPlan | null>(null);
-  
-  // Work sample studio
-  const [activeTask, setActiveTask] = useState<WorkSampleMiniTask | null>(null);
-  const [sampleSubmission, setSampleSubmission] = useState("");
-  const [evaluationResult, setEvaluationResult] = useState<WorkSampleEvaluationResult | null>(null);
-  const [evaluatingSample, setEvaluatingSample] = useState(false);
+  // Progressive Disclosure: [Why?] Drawer
+  const [activeWhyMatch, setActiveWhyMatch] = useState<DecisionRequirementMatch | null>(null);
 
-  // Interview memory
-  const [interviewQuestions, setInterviewQuestions] = useState<GeneratedInterviewQuestion[]>([]);
-  const [interviewHistory, setInterviewHistory] = useState<CandidateInterviewHistory | null>(null);
+  // Blind Technical Screening Mode (Section 40)
+  const [blindMode, setBlindMode] = useState(false);
 
-  // Interview Scorecard Logging state
-  const [activeFeedbackQuestionId, setActiveFeedbackQuestionId] = useState<string | null>(null);
-  const [feedbackInterviewerName, setFeedbackInterviewerName] = useState("Staff Engineering Lead");
-  const [feedbackRoundType, setFeedbackRoundType] = useState<"system_design" | "coding" | "behavioral" | "deep_dive">("system_design");
-  const [feedbackRating, setFeedbackRating] = useState<number>(8);
-  const [feedbackInsights, setFeedbackInsights] = useState("");
-  const [feedbackStrengths, setFeedbackStrengths] = useState("");
-  const [feedbackRedFlags, setFeedbackRedFlags] = useState("");
-  const [savingFeedback, setSavingFeedback] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  // Recruiter Decision & Override State (Section 37, 58)
+  const [decisionStage, setDecisionStage] = useState<string>("Technical Interview");
+  const [decisionVerdict, setDecisionVerdict] = useState<"Advance" | "Request Verification" | "Hold" | "Not Proceeding" | "Hire">("Advance");
+  const [isOverride, setIsOverride] = useState<boolean>(false);
+  const [overrideReason, setOverrideReason] = useState<string>("");
+  const [selectedEvidenceIds, setSelectedEvidenceIds] = useState<string[]>([]);
+  const [recruiterNote, setRecruiterNote] = useState<string>("");
+  const [savingDecision, setSavingDecision] = useState<boolean>(false);
+  const [decisionSuccess, setDecisionSuccess] = useState<string | null>(null);
 
-  // Conflicts
-  const [conflicts, setConflicts] = useState<DetectedConflict[]>([]);
+  // Candidate Comparison Modal
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [compareCandidateIds, setCompareCandidateIds] = useState<string[]>([]);
+  const [comparisonData, setComparisonData] = useState<any | null>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
 
-  // Decision & Talent Recovery
-  const [decisionVerdict, setDecisionVerdict] = useState<"Hire" | "Hold" | "Reject" | null>(null);
-  const [decisionRationale, setDecisionRationale] = useState("");
-  const [decisionMessage, setDecisionMessage] = useState<string | null>(null);
-  const [talentRecovery, setTalentRecovery] = useState<TalentRecoveryResult | null>(null);
-
-  // Load candidates and roles
+  // Fetch initial dossier & lists
   useEffect(() => {
-    async function init() {
-      try {
-        const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-        let paramCandidateId = urlParams?.get("candidateId");
-        let paramRoleId = urlParams?.get("roleId");
-
-        // Continuity fallback: check localStorage if not explicitly in URL
-        if (!paramCandidateId && typeof window !== "undefined") {
-          paramCandidateId = localStorage.getItem("cognalyze_active_candidate_id");
-        }
-        if (!paramRoleId && typeof window !== "undefined") {
-          paramRoleId = localStorage.getItem("cognalyze_active_role_id");
-        }
-
-        const [candRes, roleRes] = await Promise.all([
-          fetch("/api/recruiter/candidates"),
-          fetch("/api/recruiter/roles")
-        ]);
-        const candData = await candRes.json();
-        const roleData = await roleRes.json();
-
-        if (roleData.success && roleData.roles.length > 0) {
-          setRoles(roleData.roles);
-          if (paramRoleId && roleData.roles.some((r: any) => r.id === paramRoleId)) {
-            setSelectedRoleId(paramRoleId);
-          } else {
-            setSelectedRoleId(roleData.roles[0].id);
-          }
-        }
-
-        if (candData.success && candData.candidates.length > 0) {
-          setCandidates(candData.candidates);
-          if (paramCandidateId && candData.candidates.some((c: any) => c.id === paramCandidateId)) {
-            setSelectedCandidateId(paramCandidateId);
-          } else {
-            setSelectedCandidateId(candData.candidates[0].id);
-          }
-        }
-      } catch (err) {
-        console.error("Init failure:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    init();
+    loadDossier();
   }, []);
 
-  // Sync active selection to localStorage
-  useEffect(() => {
-    if (selectedCandidateId && typeof window !== "undefined") {
-      localStorage.setItem("cognalyze_active_candidate_id", selectedCandidateId);
-    }
-  }, [selectedCandidateId]);
-
-  useEffect(() => {
-    if (selectedRoleId && typeof window !== "undefined") {
-      localStorage.setItem("cognalyze_active_role_id", selectedRoleId);
-    }
-  }, [selectedRoleId]);
-
-  // Compute analysis whenever candidate or role changes
-  useEffect(() => {
-    if (!selectedCandidateId || !selectedRoleId) return;
-
-    async function runAnalysis() {
-      setAnalyzing(true);
-      setDecisionMessage(null);
-      setTalentRecovery(null);
-      try {
-        // 1. Evidence Graph
-        const evRes = await fetch("/api/recruiter/evidence-graph", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const evData = await evRes.json();
-        if (evData.success) {
-          setCandidateDna(evData.candidateDNA);
-          setEvidenceNodes(evData.evidenceNodes);
-        }
-
-        // 2. Match Engine & Minimum Proof
-        const matchRes = await fetch("/api/recruiter/match-engine", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const mData = await matchRes.json();
-        if (mData.success) {
-          setMatchResult(mData.match);
-          setMinimumProofPlan(mData.minimumProofPlan);
-        }
-
-        // 3. Conflicts
-        const confRes = await fetch("/api/recruiter/conflict", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const confData = await confRes.json();
-        if (confData.success && confData.conflictResult) {
-          setConflicts(confData.conflictResult.conflicts || []);
-        }
-
-        // 4. Interview memory
-        const intRes = await fetch("/api/recruiter/interviews", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "generate_questions", candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const intData = await intRes.json();
-        if (intData.success) {
-          setInterviewQuestions(intData.suggestedQuestions || []);
-        }
-
-        // Default Work Sample generator for top critical gap
-        const targetRole = roles.find(r => r.id === selectedRoleId);
-        const topCritReq = targetRole?.tieredRequirements.find(r => r.tier === "Critical") || targetRole?.tieredRequirements[0];
-        if (topCritReq) {
-          const wsRes = await fetch("/api/recruiter/work-sample", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "generate", roleId: selectedRoleId, requirementId: topCritReq.id, candidateId: selectedCandidateId })
-          });
-          const wsData = await wsRes.json();
-          if (wsData.success) {
-            setActiveTask(wsData.task);
-          }
-        }
-      } catch (err) {
-        console.error("Analysis pipeline error:", err);
-      } finally {
-        setAnalyzing(false);
-      }
-    }
-
-    runAnalysis();
-  }, [selectedCandidateId, selectedRoleId, roles]);
-
-  const selectedCandidate = candidates.find(c => c.id === selectedCandidateId);
-  const selectedRole = roles.find(r => r.id === selectedRoleId);
-
-  // Evaluate Work Sample
-  const handleEvaluateWorkSample = async () => {
-    if (!activeTask || !sampleSubmission.trim()) return;
-    setEvaluatingSample(true);
-
+  async function loadDossier(candidateId?: string, roleId?: string) {
+    setLoading(true);
+    setStatusMessage(null);
     try {
-      const res = await fetch("/api/recruiter/work-sample", {
+      const urlParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const targetCandidateId = candidateId || urlParams?.get("candidate") || urlParams?.get("candidateId") || "";
+      const targetRoleId = roleId || urlParams?.get("role") || urlParams?.get("roleId") || "";
+
+      let url = "/api/recruiter/decision-room";
+      const params = new URLSearchParams();
+      if (targetCandidateId) params.set("candidateId", targetCandidateId);
+      if (targetRoleId) params.set("roleId", targetRoleId);
+      if (params.toString()) url += `?${params.toString()}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.success && data.dossier) {
+        setDossier(data.dossier);
+        setSelectedCandidateId(data.dossier.candidateId);
+        setSelectedRoleId(data.dossier.roleId);
+        setCandidatesList(data.candidatesList || []);
+        setRolesList(data.rolesList || []);
+        setDecisionStage(data.dossier.currentStage || "Technical Interview");
+
+        // Pre-select verified evidence IDs
+        const preselected = data.dossier.requirementsMatch
+          .filter((m: DecisionRequirementMatch) => m.evidenceState === "SUPPORTED" || m.evidenceState === "CORROBORATED")
+          .map((m: DecisionRequirementMatch) => m.requirementId);
+        setSelectedEvidenceIds(preselected);
+      } else {
+        setStatusMessage(data.error || "Failed to load Decision Room data.");
+      }
+    } catch (err: any) {
+      console.error("Decision Room fetch failed", err);
+      setStatusMessage("Network error connecting to Decision Room API.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Handle Candidate or Role Change
+  const handleSwitchCandidate = (newId: string) => {
+    setSelectedCandidateId(newId);
+    loadDossier(newId, selectedRoleId);
+  };
+
+  const handleSwitchRole = (newRoleId: string) => {
+    setSelectedRoleId(newRoleId);
+    loadDossier(selectedCandidateId, newRoleId);
+  };
+
+  // Refresh Evidence Trigger
+  const handleRefreshEvidence = async () => {
+    if (!dossier) return;
+    setRefreshing(true);
+    setStatusMessage(null);
+    try {
+      const res = await fetch("/api/recruiter/decision-room", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: "evaluate",
-          candidateId: selectedCandidateId,
-          task: activeTask,
-          submissionText: sampleSubmission
+          action: "refresh_evidence",
+          candidateId: dossier.candidateId,
+          roleId: dossier.roleId
         })
       });
       const data = await res.json();
-      if (data.success && data.evaluation) {
-        setEvaluationResult(data.evaluation);
-        // Refresh evidence graph to show promotion from Unknown to Known
-        const evRes = await fetch("/api/recruiter/evidence-graph", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const evData = await evRes.json();
-        if (evData.success) {
-          setCandidateDna(evData.candidateDNA);
-          setEvidenceNodes(evData.evidenceNodes);
-        }
+      if (data.success && data.dossier) {
+        setDossier(data.dossier);
+        setStatusMessage("✓ Evidence refreshed from external connectors without altering prior decisions.");
       }
     } catch (err) {
-      console.error("Evaluation error:", err);
+      console.error("Refresh failed", err);
     } finally {
-      setEvaluatingSample(false);
+      setRefreshing(false);
     }
   };
 
-  // Submit Final Committee Verdict
-  const handleSubmitVerdict = async (verdict: "Hire" | "Hold" | "Reject") => {
-    setDecisionVerdict(verdict);
-    setDecisionMessage(null);
+  // Submit Recruiter Decision
+  const handleSaveDecision = async () => {
+    if (!dossier) return;
+    if (isOverride && !overrideReason.trim()) {
+      alert("Override reason is strictly required when overriding the system recommendation.");
+      return;
+    }
 
+    setSavingDecision(true);
+    setDecisionSuccess(null);
     try {
-      const res = await fetch("/api/recruiter/decision", {
+      const res = await fetch("/api/recruiter/decision-room", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          candidateId: selectedCandidateId,
-          roleId: selectedRoleId,
-          verdict,
-          rationale: decisionRationale
+          action: "record_decision",
+          candidateId: dossier.candidateId,
+          roleId: dossier.roleId,
+          stage: decisionStage,
+          verdict: decisionVerdict,
+          supportingEvidenceIds: selectedEvidenceIds,
+          recruiterNote: recruiterNote.trim(),
+          isOverride,
+          recruiterOverrideReason: overrideReason.trim(),
+          decidedBy: "Recruiter / Hiring Committee"
         })
       });
       const data = await res.json();
       if (data.success) {
-        setDecisionMessage(data.message);
-        if (verdict === "Hold" && data.triggeredWorkSampleTask) {
-          setActiveTask(data.triggeredWorkSampleTask);
-          setActiveTab("work_sample");
+        setDecisionSuccess(data.message || `✓ Decision recorded: Candidate transitioned to stage "${data.stage}".`);
+        // Refresh local dossier
+        setDossier(prev => prev ? { ...prev, currentStage: data.stage } : null);
+        if (isOverride) {
+          setIsOverride(false);
+          setOverrideReason("");
         }
-        if (verdict === "Reject" && data.talentRecovery) {
-          setTalentRecovery(data.talentRecovery);
-        }
+      } else {
+        alert(data.error || "Failed to record decision.");
       }
     } catch (err: any) {
-      setDecisionMessage(`Error executing decision: ${err.message}`);
+      alert("Error saving decision: " + err.message);
+    } finally {
+      setSavingDecision(false);
     }
   };
 
-  const handleSaveInterviewFeedback = async (q: GeneratedInterviewQuestion) => {
-    if (!feedbackInsights.trim()) return;
-    setSavingFeedback(true);
-    setFeedbackMessage(null);
+  // Open Candidate Comparison
+  const handleOpenComparison = async () => {
+    if (!dossier) return;
+    const initialList = [dossier.candidateId, ...candidatesList.filter(c => c.id !== dossier.candidateId).slice(0, 2).map(c => c.id)];
+    setCompareCandidateIds(initialList);
+    setShowCompareModal(true);
+    await loadComparison(initialList, dossier.roleId);
+  };
+
+  const loadComparison = async (ids: string[], roleId: string) => {
+    setCompareLoading(true);
     try {
-      const res = await fetch("/api/recruiter/interviews", {
+      const res = await fetch("/api/recruiter/decision-room/compare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "record_feedback",
-          candidateId: selectedCandidateId,
-          roleId: selectedRoleId,
-          feedback: {
-            roundNumber: (interviewHistory?.roundsCompleted || 0) + 1,
-            interviewerName: feedbackInterviewerName,
-            roundType: feedbackRoundType,
-            questionAsked: q.questionText,
-            coveredRequirementId: q.requirementId,
-            rating: feedbackRating,
-            keyInsights: feedbackInsights,
-            redFlags: feedbackRedFlags ? feedbackRedFlags.split(",").map(s => s.trim()).filter(Boolean) : [],
-            strengths: feedbackStrengths ? feedbackStrengths.split(",").map(s => s.trim()).filter(Boolean) : []
-          }
-        })
+        body: JSON.stringify({ roleId, candidateIds: ids })
       });
       const data = await res.json();
       if (data.success) {
-        setFeedbackMessage(`✓ Scorecard for ${q.requirementName} recorded permanently to candidate memory!`);
-        setActiveFeedbackQuestionId(null);
-        setFeedbackInsights("");
-        setFeedbackStrengths("");
-        setFeedbackRedFlags("");
-        // Reload interview questions
-        const intRes = await fetch("/api/recruiter/interviews", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "generate_questions", candidateId: selectedCandidateId, roleId: selectedRoleId })
-        });
-        const intData = await intRes.json();
-        if (intData.success) {
-          setInterviewQuestions(intData.suggestedQuestions || []);
-          if (data.updatedHistory) {
-            setInterviewHistory(data.updatedHistory);
-          }
-        }
+        setComparisonData(data);
       }
-    } catch (err: any) {
-      setFeedbackMessage(`Error saving feedback: ${err.message}`);
+    } catch (err) {
+      console.error("Comparison load failed", err);
     } finally {
-      setSavingFeedback(false);
+      setCompareLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0B0F17", color: "#f8fafc", fontFamily: "system-ui, sans-serif" }}>
+        <AppNav role="recruiter" />
+        <main style={{ maxWidth: 1400, margin: "80px auto", textAlign: "center", color: "#94a3b8" }}>
+          <div style={{ fontSize: 18, fontWeight: 600 }}>Loading Candidate Decision Room...</div>
+          <p style={{ fontSize: 13, color: "#64748b", marginTop: 8 }}>Retrieving verified sources, repository artifacts, and confirmed role requirements.</p>
+        </main>
+      </div>
+    );
+  }
+
+  if (!dossier) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#0B0F17", color: "#f8fafc", fontFamily: "system-ui, sans-serif" }}>
+        <AppNav role="recruiter" />
+        <main style={{ maxWidth: 1400, margin: "80px auto", textAlign: "center" }}>
+          <h2>No Candidate Selected</h2>
+          <p style={{ color: "#94a3b8" }}>{statusMessage || "Please select an applicant to inspect."}</p>
+          <Link href="/recruiter/candidates" style={{ color: "#818cf8", textDecoration: "underline" }}>
+            Return to Candidate Pool →
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
+  const counts = dossier.coverageCounts;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0B0F17", color: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
       <AppNav role="recruiter" />
 
-      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
-        
-        {/* TOP CONTROL BAR: CANDIDATE & ROLE SELECTOR */}
-        <div
-          style={{
-            background: "rgba(15, 23, 42, 0.8)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: 16,
-            padding: "18px 24px",
-            marginBottom: 24,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 16
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(245,158,11,0.2)", color: "#fde68a", fontWeight: 800 }}>
-                ⚖️ PHASE 10 DECISION ROOM
-              </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>Evidence Synthesis & Action Engine</span>
-            </div>
-            <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0 }}>
-              Hiring Committee Deliberation Room
-            </h1>
-          </div>
+      {/* Main Container */}
+      <main style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 24px 80px" }}>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+        {/* ─────────────────────────────────────────────────────────────
+            FIRST-SCREEN: CANDIDATE HEADER STRIP (Section 40)
+        ───────────────────────────────────────────────────────────── */}
+        <div style={{ background: "#111827", borderRadius: 14, border: "1px solid #1f2937", padding: "20px 24px", marginBottom: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
             <div>
-              <label style={{ fontSize: 10, color: "#818cf8", fontWeight: 800, display: "block", marginBottom: 2 }}>SELECT CANDIDATE ({candidates.length})</label>
-              <select
-                value={selectedCandidateId}
-                onChange={e => setSelectedCandidateId(e.target.value)}
-                style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(0,0,0,0.6)", border: "1px solid rgba(99,102,241,0.4)", color: "white", fontSize: 12, fontWeight: 700, maxWidth: 260 }}
-              >
-                {candidates.map(c => (
-                  <option key={c.id} value={c.id}>
-                    {c.name} ({c.appliedRoleTitle || "Candidate"})
-                  </option>
-                ))}
-              </select>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "1px solid rgba(99,102,241,0.3)" }}>
+                  DECISION ROOM • INVESTIGATION WORKSPACE
+                </span>
+
+                {dossier.isDemoData && (
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 6, background: "rgba(245,158,11,0.15)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.3)" }}>
+                    DEMO DATA
+                  </span>
+                )}
+
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  Applied: {new Date(dossier.appliedAt).toLocaleDateString()}
+                </span>
+                <span style={{ fontSize: 12, color: "#64748b" }}>•</span>
+                <span style={{ fontSize: 12, color: "#64748b" }}>
+                  Evidence v{dossier.evidenceVersion}
+                </span>
+              </div>
+
+              {/* Candidate Switcher Dropdown */}
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <select
+                  value={dossier.candidateId}
+                  onChange={(e) => handleSwitchCandidate(e.target.value)}
+                  style={{
+                    background: "#1e293b",
+                    color: "#f8fafc",
+                    border: "1px solid #334155",
+                    padding: "8px 14px",
+                    borderRadius: 8,
+                    fontSize: 18,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    outline: "none"
+                  }}
+                >
+                  {candidatesList.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {blindMode ? `Candidate #${c.id.slice(-4).toUpperCase()}` : c.name} ({c.currentStage})
+                    </option>
+                  ))}
+                </select>
+
+                <span style={{ fontSize: 14, color: "#94a3b8" }}>evaluating for:</span>
+
+                {/* Role Switcher Dropdown */}
+                <select
+                  value={dossier.roleId}
+                  onChange={(e) => handleSwitchRole(e.target.value)}
+                  style={{
+                    background: "#1e293b",
+                    color: "#f8fafc",
+                    border: "1px solid #334155",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    outline: "none"
+                  }}
+                >
+                  {rolesList.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.title} (v{r.version})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 6 }}>
+                {blindMode ? "Identity & contact blinded for unbiased technical evaluation" : `${dossier.email} ${dossier.phone ? `• ${dossier.phone}` : ""}`} • Current Stage: <strong style={{ color: "#38bdf8" }}>{dossier.currentStage}</strong>
+              </div>
             </div>
 
-            <div>
-              <label style={{ fontSize: 10, color: "#c084fc", fontWeight: 800, display: "block", marginBottom: 2 }}>TARGET ROLE DNA ({roles.length})</label>
-              <select
-                value={selectedRoleId}
-                onChange={e => setSelectedRoleId(e.target.value)}
-                style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(0,0,0,0.6)", border: "1px solid rgba(168,85,247,0.4)", color: "white", fontSize: 12, fontWeight: 700, maxWidth: 280 }}
-              >
-                {roles.map(r => (
-                  <option key={r.id} value={r.id}>{r.title} ({r.department})</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ alignSelf: "flex-end" }}>
+            {/* Quick Actions: Evidence Passport, Blind Mode, Compare & Refresh */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <Link
-                href={`/recruiter/candidates?roleId=${selectedRoleId}`}
+                href={`/recruiter/candidates/${dossier.candidateId}`}
                 style={{
+                  background: "rgba(99,102,241,0.15)",
+                  color: "#a5b4fc",
+                  border: "1px solid rgba(99,102,241,0.35)",
                   padding: "8px 14px",
                   borderRadius: 8,
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  color: "#94a3b8",
+                  fontSize: 12,
+                  fontWeight: 600,
                   textDecoration: "none",
-                  fontSize: 11,
-                  fontWeight: 700,
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 5
+                  gap: 6
                 }}
               >
-                <span>←</span> Screening Pool
+                Evidence Passport ↗
               </Link>
+
+              <button
+                onClick={() => setBlindMode(!blindMode)}
+                style={{
+                  background: blindMode ? "rgba(56,189,248,0.15)" : "#1e293b",
+                  color: blindMode ? "#38bdf8" : "#cbd5e1",
+                  border: `1px solid ${blindMode ? "rgba(56,189,248,0.4)" : "#334155"}`,
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+              >
+                {blindMode ? "👁️ Blind Mode: ON" : "👁️‍🗨️ Blind Mode: OFF"}
+              </button>
+
+              <button
+                onClick={handleRefreshEvidence}
+                disabled={refreshing}
+                style={{
+                  background: "#1e293b",
+                  color: "#cbd5e1",
+                  border: "1px solid #334155",
+                  padding: "8px 14px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: refreshing ? "not-allowed" : "pointer"
+                }}
+              >
+                {refreshing ? "Refreshing..." : "↻ Refresh Evidence"}
+              </button>
+
+              <button
+                onClick={handleOpenComparison}
+                style={{
+                  background: "linear-gradient(135deg, #10b981, #059669)",
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 16px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                ⚡ Compare Candidates
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* CANDIDATE DNA HERO SUMMARY */}
-        {candidateDna && selectedCandidate && (
-          <div
-            style={{
-              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 16,
-              padding: "20px 24px",
-              marginBottom: 24,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
-              gap: 16
-            }}
-          >
+          {statusMessage && (
+            <div style={{ marginTop: 12, padding: "8px 12px", borderRadius: 6, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", color: "#34d399", fontSize: 12 }}>
+              {statusMessage}
+            </div>
+          )}
+
+          {/* Source Footprint & Requirement Summary Bar */}
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #1f2937", display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16, alignItems: "center" }}>
+            
+            {/* Source Footprint Pills */}
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: 0 }}>
-                  {candidateDna.name}
-                </h2>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(99,102,241,0.2)", color: "#a5b4fc", fontWeight: 800 }}>
-                  STAGE: {selectedCandidate.currentStage.toUpperCase()}
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase" }}>
+                Active Evidence Footprint
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.resume ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.resume ? "#34d399" : "#64748b" }}>
+                  Resume {dossier.sourceFootprint.resume ? "✓" : "—"}
                 </span>
-                {selectedCandidate.githubData && (
-                  <span style={{ fontSize: 11, color: "#38bdf8" }}>
-                    GitHub: @{selectedCandidate.githubData.handle} ({selectedCandidate.githubData.verifiedReposCount} repos)
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.github ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.github ? "#34d399" : "#64748b" }}>
+                  GitHub {dossier.sourceFootprint.github ? "✓" : "—"}
+                </span>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.linkedin ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.linkedin ? "#34d399" : "#64748b" }}>
+                  LinkedIn {dossier.sourceFootprint.linkedin ? "✓" : "—"}
+                </span>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.leetcode ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.leetcode ? "#34d399" : "#64748b" }}>
+                  LeetCode {dossier.sourceFootprint.leetcode ? "✓" : "—"}
+                </span>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.hackathon ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.hackathon ? "#34d399" : "#64748b" }}>
+                  Hackathons {dossier.sourceFootprint.hackathon ? "✓" : "—"}
+                </span>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: dossier.sourceFootprint.projects ? "rgba(16,185,129,0.15)" : "#1e293b", color: dossier.sourceFootprint.projects ? "#34d399" : "#64748b" }}>
+                  Repositories ({dossier.inspectedProjects.length})
+                </span>
+              </div>
+            </div>
+
+            {/* Confirmed Role Requirement Counts */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6, textTransform: "uppercase" }}>
+                Confirmed Role Match Status ({counts.totalAssessed} Requirements)
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#34d399" }}>
+                  {counts.supportedCount} Supported
+                </span>
+                {counts.partialCount > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: "rgba(245,158,11,0.15)", color: "#fbbf24" }}>
+                    {counts.partialCount} Partial
+                  </span>
+                )}
+                {counts.notFoundCount > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: "rgba(100,116,139,0.15)", color: "#94a3b8" }}>
+                    {counts.notFoundCount} Not Found
+                  </span>
+                )}
+                {counts.conflictingCount > 0 && (
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4, background: "rgba(244,63,94,0.15)", color: "#fb7185" }}>
+                    {counts.conflictingCount} Conflicting
                   </span>
                 )}
               </div>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "0 0 6px", maxWidth: 780 }}>
-                {candidateDna.capabilitySummary}
-              </p>
-
-              {candidateDna.hiddenTalents.length > 0 && (
-                <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 6 }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(234, 179, 8, 0.15)", color: "#facc15", fontWeight: 800 }}>
-                    ⭐ HIDDEN TALENT DETECTED
-                  </span>
-                  <span style={{ fontSize: 12, color: "#fef08a" }}>
-                    {candidateDna.hiddenTalents[0].competency}: {candidateDna.hiddenTalents[0].strategicValue}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-              <div style={{ textAlign: "center", padding: "10px 18px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800 }}>GROWTH VELOCITY</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: "#34d399" }}>{candidateDna.growthVelocityScore}/100</div>
-              </div>
-
-              <div style={{ textAlign: "center", padding: "10px 18px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 800 }}>OVERALL FIT</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: "#818cf8" }}>{candidateDna.overallScore}%</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── INTERACTIVE ARCHITECTURE WORKFLOW PIPELINE ── */}
-        <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.1)", borderRadius: 16, padding: "18px 20px", marginBottom: 24 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.25)", color: "#e9d5ff", fontWeight: 800 }}>
-                🧭 END-TO-END RECRUITER PIPELINE
-              </span>
-              <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                Step-by-step continuous execution matching the architecture flowchart
-              </span>
-            </div>
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <button
-                onClick={() => {
-                  const stages: FlowStage[] = ["role_dna", "candidate_intel", "evidence_graph", "match_split", "minimum_proof", "work_sample", "interviews", "conflicts", "decision"];
-                  const idx = stages.indexOf(activeTab);
-                  if (idx > 0) setActiveTab(stages[idx - 1]);
-                }}
-                disabled={activeTab === "role_dna"}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: 6,
-                  background: activeTab === "role_dna" ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.08)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: activeTab === "role_dna" ? "#64748b" : "white",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: activeTab === "role_dna" ? "not-allowed" : "pointer"
-                }}
-              >
-                ◀ Previous Stage
-              </button>
-              <button
-                onClick={() => {
-                  const stages: FlowStage[] = ["role_dna", "candidate_intel", "evidence_graph", "match_split", "minimum_proof", "work_sample", "interviews", "conflicts", "decision"];
-                  const idx = stages.indexOf(activeTab);
-                  if (idx < stages.length - 1) setActiveTab(stages[idx + 1]);
-                }}
-                disabled={activeTab === "decision"}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: 6,
-                  background: activeTab === "decision" ? "rgba(255,255,255,0.03)" : "linear-gradient(135deg, #a855f7, #6366f1)",
-                  border: "none",
-                  color: "white",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: activeTab === "decision" ? "not-allowed" : "pointer"
-                }}
-              >
-                Next Stage ▶
-              </button>
             </div>
           </div>
 
-          {/* Visual Horizontal Flow Nodes */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, overflowX: "auto", paddingBottom: 8 }}>
-            {[
-              { id: "role_dna" as FlowStage, label: "Role DNA", icon: "🧬", num: "1", sub: "Outcomes & Tiers" },
-              { id: "candidate_intel" as FlowStage, label: "Candidate Intel", icon: "🔎", num: "2", sub: "10-Source Dossier" },
-              { id: "evidence_graph" as FlowStage, label: "Evidence Graph", icon: "🕸️", num: "3", sub: "Claim ➔ Source ➔ Proof" },
-              { id: "match_split" as FlowStage, label: "3-Way Match Split", icon: "⚖️", num: "4", sub: "Strong / Partial / Unknown" },
-              { id: "minimum_proof" as FlowStage, label: "Minimum Proof", icon: "🎯", num: "5", sub: "Uncertainty Strategy" },
-              { id: "work_sample" as FlowStage, label: "Work Sample", icon: "🧪", num: "6", sub: "Live AI Rubric" },
-              { id: "interviews" as FlowStage, label: "Interview Memory", icon: "🎤", num: "7", sub: "Scorecard Logging" },
-              { id: "conflicts" as FlowStage, label: "Conflict Detector", icon: "🚨", num: "8", sub: `${conflicts.length} Discrepancies` },
-              { id: "decision" as FlowStage, label: "Decision Room", icon: "🏛️", num: "9", sub: "Hire / Hold / Reject" }
-            ].map((st, i, arr) => {
-              const isActive = activeTab === st.id;
-              return (
-                <React.Fragment key={st.id}>
-                  <button
-                    onClick={() => setActiveTab(st.id)}
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: 10,
-                      background: isActive ? "linear-gradient(135deg, rgba(168,85,247,0.3), rgba(99,102,241,0.25))" : "rgba(0,0,0,0.3)",
-                      border: `1px solid ${isActive ? "rgba(168,85,247,0.6)" : "rgba(255,255,255,0.08)"}`,
-                      textAlign: "left",
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                      minWidth: 140,
-                      transition: "all 0.15s ease",
-                      boxShadow: isActive ? "0 0 16px rgba(168,85,247,0.25)" : "none"
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                      <span style={{ fontSize: 13 }}>{st.icon}</span>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: isActive ? "#e9d5ff" : "#cbd5e1" }}>
-                        {st.num}. {st.label}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 10, color: isActive ? "#c084fc" : "#64748b" }}>
-                      {st.sub}
-                    </div>
-                  </button>
-                  {i < arr.length - 1 && (
-                    <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 12, userSelect: "none" }}>➔</span>
-                  )}
-                </React.Fragment>
-              );
-            })}
+          {/* Quick Highlights Strip */}
+          <div style={{ marginTop: 14, background: "#0a0f1d", padding: "10px 14px", borderRadius: 8, display: "flex", flexWrap: "wrap", gap: 16, fontSize: 12 }}>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <span style={{ color: "#34d399", fontWeight: 700 }}>✓ Strongest Evidence:</span>{" "}
+              <span style={{ color: "#cbd5e1" }}>{dossier.topHighlights.strongestVerifiedEvidence}</span>
+            </div>
+            <div style={{ flex: 1, minWidth: 260 }}>
+              <span style={{ color: "#fbbf24", fontWeight: 700 }}>⚠ Verification Gap:</span>{" "}
+              <span style={{ color: "#cbd5e1" }}>{dossier.topHighlights.biggestVerificationGap}</span>
+            </div>
+            {dossier.topHighlights.importantConflict && (
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <span style={{ color: "#fb7185", fontWeight: 700 }}>⚠️ Discrepancy:</span>{" "}
+                <span style={{ color: "#fda4af" }}>{dossier.topHighlights.importantConflict}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ── STAGE 1: ROLE ARCHITECT & ROLE DNA ── */}
-        {activeTab === "role_dna" && selectedRole && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.2)", color: "#d8b4fe", fontWeight: 800 }}>
-                  STAGE 1: ROLE ARCHITECT & ROLE DNA
-                </span>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                  {selectedRole.title} ({selectedRole.seniority})
+        {/* ─────────────────────────────────────────────────────────────
+            PRIMARY 7-TAB NAVIGATION (Section 72 Rule)
+        ───────────────────────────────────────────────────────────── */}
+        <div style={{ display: "flex", gap: 4, background: "#111827", padding: 4, borderRadius: 10, border: "1px solid #1f2937", marginBottom: 20, overflowX: "auto" }}>
+          {[
+            { id: "candidate", label: "1. Candidate" },
+            { id: "evidence", label: "2. Evidence Discovery" },
+            { id: "role_match", label: `3. Role Match (${dossier.requirementsMatch.length})` },
+            { id: "projects", label: `4. Projects & Work (${dossier.inspectedProjects.length})` },
+            { id: "gaps_conflicts", label: "5. Gaps & Conflicts" },
+            { id: "verify", label: `6. Verify (${dossier.verificationTasks.length})` },
+            { id: "decide", label: "7. Decide & Audit" }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as DecisionTab)}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+                background: activeTab === tab.id ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
+                color: activeTab === tab.id ? "#fff" : "#94a3b8",
+                border: "none",
+                whiteSpace: "nowrap",
+                transition: "all 0.15s ease"
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 1: CANDIDATE OVERVIEW (Sections 20, 21, 31, 32)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "candidate" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* 1. WHY THIS CANDIDATE IS HERE (Section 21) */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 16 }}>🎯</span>
+                <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                  Why This Candidate Is Here (Stage: {dossier.currentStage})
                 </h3>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                  Department: {selectedRole.department} • Target Hires: {selectedRole.targetHires} • Uncertainty Threshold: {Math.round(selectedRole.uncertaintyThreshold * 100)}%
-                </div>
               </div>
-
-              <button
-                onClick={() => setActiveTab("candidate_intel")}
-                style={{ padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #a855f7, #6366f1)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-              >
-                Proceed to Candidate Intel ➔
-              </button>
-            </div>
-
-            {/* Target Business Outcomes */}
-            <div style={{ marginBottom: 20 }}>
-              <h4 style={{ fontSize: 12, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", marginBottom: 8 }}>
-                Target Business Outcomes
-              </h4>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-                {selectedRole.businessOutcomes.map((bo, idx) => (
-                  <div key={bo.id || idx} style={{ padding: "14px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: bo.impactSeverity === "Critical" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)", color: bo.impactSeverity === "Critical" ? "#f87171" : "#fbbf24", fontWeight: 800 }}>
-                        {bo.impactSeverity.toUpperCase()}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#94a3b8" }}>{bo.timeframe}</span>
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>{bo.outcome}</div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Metric: {bo.metric}</div>
+              <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 12px" }}>
+                Cognalyze advanced this candidate based on substantiated criteria from the confirmed role version. No unsupported claims or arbitrary scores.
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {dossier.whyThisCandidateIsHere?.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 10,
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      background: item.isWarning ? "rgba(245,158,11,0.08)" : "rgba(16,185,129,0.08)",
+                      border: `1px solid ${item.isWarning ? "rgba(245,158,11,0.25)" : "rgba(16,185,129,0.25)"}`,
+                      fontSize: 13,
+                      color: item.isWarning ? "#fde68a" : "#a7f3d0"
+                    }}
+                  >
+                    <span>{item.isWarning ? "⚠️" : "✓"}</span>
+                    <span>{item.bullet}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* 4-Tier Requirements Table */}
-            <div>
-              <h4 style={{ fontSize: 12, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", marginBottom: 8 }}>
-                4-Tier Requirements Hierarchy & Evidence Needed
-              </h4>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {selectedRole.tieredRequirements.map(req => {
-                  const tierColor = req.tier === "Critical" ? "#f87171" : req.tier === "Important" ? "#fbbf24" : req.tier === "Preferred" ? "#34d399" : "#60a5fa";
-                  return (
-                    <div key={req.id} style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                          <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: `${tierColor}20`, color: tierColor, fontWeight: 800 }}>
-                            {req.tier.toUpperCase()} {req.dealBreakerIfMissing ? "• DEALBREAKER" : ""}
-                          </span>
-                          <strong style={{ fontSize: 13, color: "white" }}>{req.name}</strong>
-                          <span style={{ fontSize: 11, color: "#94a3b8" }}>({req.category})</span>
-                        </div>
-                        <div style={{ fontSize: 12, color: "#cbd5e1" }}>{req.description}</div>
-                      </div>
-
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: "#38bdf8" }}>{req.weightPct}% Weight</div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>Proof: {req.verificationMethod}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── STAGE 2: CANDIDATE INTELLIGENCE (10 SOURCES) ── */}
-        {activeTab === "candidate_intel" && selectedCandidate && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(56,189,248,0.2)", color: "#38bdf8", fontWeight: 800 }}>
-                  STAGE 2: CANDIDATE INTELLIGENCE
-                </span>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                  10-Source Intelligence Dossier for {selectedCandidate.name}
-                </h3>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                  Intake Channel: {selectedCandidate.sourceType === "student_application" ? "Cognalyze Student Platform" : "Bulk Resume Upload"} • Applied: {new Date(selectedCandidate.appliedAt).toLocaleDateString()}
+            {/* 2. NEEDS YOUR ATTENTION (Section 32) */}
+            {dossier.needsAttention && dossier.needsAttention.length > 0 && (
+              <div style={{ background: "#111827", borderRadius: 12, border: "1px solid rgba(244,63,94,0.3)", padding: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 16 }}>🚨</span>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#fda4af" }}>
+                    Needs Your Attention ({dossier.needsAttention.length} Items Requiring Human Judgment)
+                  </h3>
                 </div>
-              </div>
-
-              <button
-                onClick={() => setActiveTab("evidence_graph")}
-                style={{ padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #a855f7, #6366f1)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-              >
-                Proceed to Evidence Graph ➔
-              </button>
-            </div>
-
-            {/* 10-Source Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
-              {/* 1. Resume */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#a855f7", marginBottom: 6 }}>1. 📄 RESUME DOSSIER</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1", maxHeight: 90, overflowY: "auto", fontFamily: "monospace", background: "rgba(0,0,0,0.2)", padding: 8, borderRadius: 6 }}>
-                  {selectedCandidate.resumeText || "No resume text attached."}
-                </div>
-              </div>
-
-              {/* 2. Student DNA */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", marginBottom: 6 }}>2. 🧬 STUDENT DNA & PROFILE</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {candidateDna?.capabilitySummary || "Cross-disciplinary builder profile synchronized."}
-                </div>
-              </div>
-
-              {/* 3. GitHub */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", marginBottom: 6 }}>3. 🐙 GITHUB REPOSITORIES</div>
-                {selectedCandidate.githubData ? (
-                  <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                    <div><strong>@{selectedCandidate.githubData.handle}</strong> ({selectedCandidate.githubData.verifiedReposCount} verified repos)</div>
-                    <div style={{ color: "#94a3b8", marginTop: 4 }}>
-                      Top Repo: {selectedCandidate.githubData.repos[0]?.name} ({selectedCandidate.githubData.repos[0]?.languages.join(", ")})
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>No GitHub account linked</div>
-                )}
-              </div>
-
-              {/* 4. LinkedIn Reference */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#60a5fa", marginBottom: 6 }}>4. 💼 LINKEDIN ATTESTED PROFILE</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.linkedInUrl ? (
-                    <a href={selectedCandidate.linkedInUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#38bdf8", textDecoration: "none" }}>
-                      {selectedCandidate.linkedInUrl} ↗
-                    </a>
-                  ) : "Candidate has not attested a LinkedIn URL"}
-                  <div style={{ fontSize: 10, color: "#94a3b8", marginTop: 4 }}>Ethical reference link — zero scraping policy</div>
-                </div>
-              </div>
-
-              {/* 5. LeetCode */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", marginBottom: 6 }}>5. ⚡ LEETCODE PROBLEM SOLVING</div>
-                {selectedCandidate.leetCodeProfile ? (
-                  <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                    <strong>@{selectedCandidate.leetCodeProfile.username}</strong>: {selectedCandidate.leetCodeProfile.problemsSolved} Problems Solved
-                    <div style={{ color: "#facc15", marginTop: 2 }}>Badge: {selectedCandidate.leetCodeProfile.rankingBadge}</div>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: 12, color: "#94a3b8" }}>No LeetCode profile submitted</div>
-                )}
-              </div>
-
-              {/* 6. Hackathons */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#f472b6", marginBottom: 6 }}>6. 🏆 HACKATHON ACHIEVEMENTS</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.hackathonRecords && selectedCandidate.hackathonRecords.length > 0
-                    ? selectedCandidate.hackathonRecords.join(" • ")
-                    : "No competitive hackathons recorded"}
-                </div>
-              </div>
-
-              {/* 7. Student Projects */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#2dd4bf", marginBottom: 6 }}>7. 💻 STUDENT PROJECTS</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.studentProjects && selectedCandidate.studentProjects.length > 0 ? (
-                    selectedCandidate.studentProjects.map((p, idx) => (
-                      <div key={idx} style={{ marginBottom: 4 }}>
-                        <strong>{p.title}</strong>: {p.tech.join(", ")}
-                      </div>
-                    ))
-                  ) : "No independent projects logged"}
-                </div>
-              </div>
-
-              {/* 8. Certifications & Learning */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#a78bfa", marginBottom: 6 }}>8. 📜 CERTIFICATIONS & LEARNING</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.certifications && selectedCandidate.certifications.length > 0
-                    ? selectedCandidate.certifications.join(", ")
-                    : "Continuous learning verified through repository commits"}
-                </div>
-              </div>
-
-              {/* 9. Assessments */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", marginBottom: 6 }}>9. 📊 ASSESSMENTS & WORK SAMPLES</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.workSampleResults && Object.keys(selectedCandidate.workSampleResults).length > 0 ? (
-                    Object.entries(selectedCandidate.workSampleResults).map(([k, v]) => (
-                      <div key={k} style={{ color: v.passed ? "#6ee7b7" : "#fde68a" }}>
-                        ✓ {k}: Score {v.score}/100 ({v.output})
-                      </div>
-                    ))
-                  ) : (
-                    <span style={{ color: "#94a3b8" }}>No work samples submitted yet</span>
-                  )}
-                </div>
-              </div>
-
-              {/* 10. Previous Interviews */}
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.35)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#ec4899", marginBottom: 6 }}>10. 🎙️ PREVIOUS INTERVIEWS & MEMORY</div>
-                <div style={{ fontSize: 12, color: "#cbd5e1" }}>
-                  {selectedCandidate.priorCognalyzeInterviewHistory && selectedCandidate.priorCognalyzeInterviewHistory.length > 0 ? (
-                    selectedCandidate.priorCognalyzeInterviewHistory.map((h, idx) => (
-                      <div key={idx}>
-                        <strong>{h.roleEvaluatedFor}</strong>: Score {h.score}/100 — &ldquo;{h.feedback}&rdquo;
-                      </div>
-                    ))
-                  ) : (
-                    <span style={{ color: "#94a3b8" }}>No previous Cognalyze interview rounds recorded</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── STAGE 3: EVIDENCE GRAPH (CLAIM ➔ SOURCE ➔ PROOF) & CANDIDATE DNA ── */}
-        {activeTab === "evidence_graph" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.2)", color: "#d8b4fe", fontWeight: 800 }}>
-                  STAGE 3: EVIDENCE GRAPH
-                </span>
-                <h3 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                  Claim ➔ Source ➔ Proof Verification Network
-                </h3>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                  Synthesizes candidate claims against verified artifacts and calculates empirical uncertainty
-                </div>
-              </div>
-
-              <button
-                onClick={() => setActiveTab("match_split")}
-                style={{ padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #a855f7, #6366f1)", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-              >
-                Proceed to Match & 3-Way Split ➔
-              </button>
-            </div>
-
-            {/* Evidence Nodes */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {evidenceNodes.map(node => {
-                const isKnown = node.uncertaintyStatus === "known";
-                const isPartial = node.uncertaintyStatus === "partially_known";
-                const badgeColor = isKnown ? "#34d399" : isPartial ? "#fbbf24" : "#f87171";
-                const badgeBg = isKnown ? "rgba(16,185,129,0.2)" : isPartial ? "rgba(245,158,11,0.2)" : "rgba(239,68,68,0.2)";
-
-                return (
-                  <div
-                    key={node.requirementId}
-                    style={{
-                      padding: "16px 20px",
-                      borderRadius: 12,
-                      background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.06)"
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: badgeBg, color: badgeColor, fontWeight: 800 }}>
-                          {node.uncertaintyStatus.toUpperCase()}
-                        </span>
-                        <strong style={{ fontSize: 14, color: "white" }}>{node.requirementName}</strong>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>({node.tier.toUpperCase()})</span>
-                      </div>
-                      <span style={{ fontSize: 11, color: "#cbd5e1" }}>Confidence: {Math.round(node.confidenceScore * 100)}%</span>
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, fontSize: 12, marginBottom: 8 }}>
-                      <div style={{ padding: 10, borderRadius: 8, background: "rgba(255,255,255,0.03)" }}>
-                        <strong style={{ color: "#38bdf8" }}>Candidate Claim:</strong>
-                        <div style={{ color: "#cbd5e1", marginTop: 3 }}>{node.claim}</div>
-                      </div>
-                      <div style={{ padding: 10, borderRadius: 8, background: "rgba(255,255,255,0.03)" }}>
-                        <strong style={{ color: "#34d399" }}>Source Artifact:</strong>
-                        <div style={{ color: "#cbd5e1", marginTop: 3 }}>
-                          {node.source.toUpperCase()}: &ldquo;{node.proofLocation}&rdquo;
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 6 }}>
-                      {node.verbatimProof ? `Verified Verbatim Proof: "${node.verbatimProof}"` : `Proof Type: ${node.proofType}`}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* ── STAGE 4: 3-WAY EVIDENCE SPLIT ── */}
-        {activeTab === "match_split" && matchResult && (
-          <div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#6ee7b7", marginBottom: 2 }}>🟢 STRONG EVIDENCE (KNOWN)</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#34d399" }}>{matchResult.evidenceSplit.strong.length} Verified</div>
-                <div style={{ fontSize: 11, color: "#a7f3d0" }}>Backed by code commits or work samples</div>
-              </div>
-
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(245, 158, 11, 0.1)", border: "1px solid rgba(245, 158, 11, 0.25)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#fde68a", marginBottom: 2 }}>🟡 PARTIAL EVIDENCE</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#fbbf24" }}>{matchResult.evidenceSplit.partial.length} Mentioned</div>
-                <div style={{ fontSize: 11, color: "#fef08a" }}>Resume claims or coursework without live proof</div>
-              </div>
-
-              <div style={{ padding: "16px", borderRadius: 12, background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.25)" }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#fca5a5", marginBottom: 2 }}>🔴 UNKNOWN / MISSING</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#f87171" }}>{matchResult.evidenceSplit.unknown.length} Gaps</div>
-                <div style={{ fontSize: 11, color: "#fecaca" }}>Zero verifiable presence in candidate dossier</div>
-              </div>
-            </div>
-
-            {/* REQUIREMENTS BREAKDOWN TABLE */}
-            <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: "20px" }}>
-              <h3 style={{ fontSize: 14, fontWeight: 800, color: "white", margin: "0 0 14px" }}>
-                Role DNA Requirement Traceability & Proof Locations
-              </h3>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {[...matchResult.evidenceSplit.strong, ...matchResult.evidenceSplit.partial, ...matchResult.evidenceSplit.unknown].map(item => {
-                  const isStrong = item.status === "Strong";
-                  const isPartial = item.status === "Partial";
-                  const statusBg = isStrong ? "rgba(16,185,129,0.2)" : isPartial ? "rgba(245,158,11,0.2)" : "rgba(239,68,68,0.2)";
-                  const statusColor = isStrong ? "#34d399" : isPartial ? "#fbbf24" : "#f87171";
-
-                  return (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 12 }}>
+                  {dossier.needsAttention.map((item, idx) => (
                     <div
-                      key={item.requirementId}
+                      key={idx}
                       style={{
-                        padding: "14px 18px",
-                        borderRadius: 10,
-                        background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(255,255,255,0.06)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 16
+                        background: "#1c1917",
+                        border: "1px solid rgba(244,63,94,0.25)",
+                        borderRadius: 8,
+                        padding: 14
                       }}
                     >
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                          <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.06)", color: "#cbd5e1", fontWeight: 800 }}>
-                            {item.tier.toUpperCase()} {item.dealBreaker ? "• DEALBREAKER" : ""}
-                          </span>
-                          <strong style={{ fontSize: 13, color: "white" }}>{item.name}</strong>
-                        </div>
-                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                          Proof Location: <span style={{ color: "#38bdf8" }}>{item.proofLocation}</span>
-                        </div>
-                        {item.verbatimSnippet && (
-                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 4, fontStyle: "italic" }}>
-                            &ldquo;{item.verbatimSnippet}&rdquo;
-                          </div>
-                        )}
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#f87171", marginBottom: 4 }}>
+                        {item.issueTitle}
                       </div>
-
-                      <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, background: statusBg, color: statusColor, fontWeight: 800 }}>
-                        {item.status.toUpperCase()}
-                      </span>
+                      <div style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 6 }}>
+                        {item.description}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>
+                        <strong>Why it matters:</strong> {item.whyItMatters}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#38bdf8", background: "rgba(56,189,248,0.1)", padding: "6px 10px", borderRadius: 6 }}>
+                        <strong>Suggested verification:</strong> {item.suggestedVerification}
+                      </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 3. Professional Profile & Evidence Timeline */}
+            <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 20 }}>
+              {/* Left: Summary & Experience */}
+              <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 20 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Professional Profile</h3>
+                <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 16px" }}>
+                  {dossier.summary}
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                  <div style={{ background: "#0f172a", padding: 12, borderRadius: 8 }}>
+                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Claimed Tenure</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc", marginTop: 2 }}>
+                      ~{dossier.claimedExperienceYears} Years
+                    </div>
+                  </div>
+                  <div style={{ background: "#0f172a", padding: 12, borderRadius: 8 }}>
+                    <div style={{ fontSize: 11, color: "#94a3b8" }}>Documented In Resume</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: "#38bdf8", marginTop: 2 }}>
+                      ~{dossier.documentedExperienceYears} Years
+                    </div>
+                  </div>
+                </div>
+
+                <h4 style={{ fontSize: 14, fontWeight: 700, margin: "16px 0 10px" }}>What Cognalyze Cannot Verify (Section 31)</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {dossier.whatCognalyzeCannotVerify?.map((limit, idx) => (
+                    <div key={idx} style={{ fontSize: 12, color: "#94a3b8", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ color: "#64748b" }}>•</span>
+                      <span>{limit}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Evidence-Backed Timeline */}
+              <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 20 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Evidence-Backed Timeline</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {dossier.timeline.map((evt, idx) => (
+                    <div key={idx} style={{ display: "flex", gap: 12, alignItems: "flex-start", borderLeft: "2px solid #6366f1", paddingLeft: 12 }}>
+                      <div>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#818cf8" }}>{evt.year}</span>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc" }}>{evt.title}</div>
+                        {evt.organization && <div style={{ fontSize: 12, color: "#94a3b8" }}>{evt.organization}</div>}
+                        <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Source: {evt.source}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── TAB 2: MINIMUM PROOF ENGINE ── */}
-        {activeTab === "minimum_proof" && minimumProofPlan && (
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 2: EVIDENCE DISCOVERY
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "evidence" && (
           <div>
-            <div style={{ padding: "16px 20px", borderRadius: 12, background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)", marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div>
-                  <strong style={{ fontSize: 14, color: "#c7d2fe" }}>
-                    🎯 Minimum Proof Prioritization Logic
-                  </strong>
-                  <div style={{ fontSize: 12, color: "#a5b4fc", marginTop: 2 }}>
-                    {minimumProofPlan.prioritizationIntegrityCheck.explanation}
+            <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>
+                Active external discovery across permitted developer sources. Ambiguous profiles with common names are never automatically attached.
+              </p>
+              <button
+                onClick={handleRefreshEvidence}
+                disabled={refreshing}
+                style={{
+                  background: "#1e293b",
+                  color: "#cbd5e1",
+                  border: "1px solid #334155",
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  cursor: "pointer"
+                }}
+              >
+                {refreshing ? "Re-checking Sources..." : "Re-check Sources"}
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+              {dossier.discoveredSources.map(src => (
+                <div
+                  key={src.sourceId}
+                  style={{
+                    background: "#111827",
+                    borderRadius: 10,
+                    border: "1px solid #1f2937",
+                    padding: 18,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase" }}>
+                        {src.sourceCategory.replace(/_/g, " ")}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 800,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background:
+                            src.identityStatus === "VERIFIED"
+                              ? "rgba(16,185,129,0.15)"
+                              : src.identityStatus === "AMBIGUOUS"
+                              ? "rgba(244,63,94,0.15)"
+                              : "rgba(100,116,139,0.15)",
+                          color:
+                            src.identityStatus === "VERIFIED"
+                              ? "#34d399"
+                              : src.identityStatus === "AMBIGUOUS"
+                              ? "#fb7185"
+                              : "#94a3b8"
+                        }}
+                      >
+                        {src.identityStatus}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
+                      {src.sourceName}
+                    </div>
+
+                    {src.url && (
+                      <a
+                        href={src.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: 12, color: "#818cf8", textDecoration: "underline", display: "block", marginTop: 2, wordBreak: "break-all" }}
+                      >
+                        {src.url}
+                      </a>
+                    )}
+
+                    <p style={{ fontSize: 12, color: "#cbd5e1", marginTop: 8, lineHeight: 1.4 }}>
+                      {src.evidenceSummary}
+                    </p>
+
+                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+                      Identity: {src.identityReason}
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 12, paddingTop: 8, borderTop: "1px solid #1f2937", display: "flex", justifyContent: "space-between", fontSize: 11, color: "#64748b" }}>
+                    <span>Items: {src.evidenceItemsCount}</span>
+                    <span>Last checked: {new Date(src.lastCheckedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                 </div>
-                <div style={{ textAlign: "right", fontSize: 12, color: "#cbd5e1" }}>
-                  Est. Total Verification Time: <strong style={{ color: "#38bdf8" }}>{minimumProofPlan.totalTimeEstimateMinutes} mins</strong>
-                </div>
-              </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 3: ROLE MATCH (Confirmed Requirements vs. Evidence)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "role_match" && (
+          <div>
+            <div style={{ marginBottom: 14, fontSize: 13, color: "#94a3b8" }}>
+              Matched against confirmed role: <strong>{dossier.roleTitle}</strong> (v{dossier.roleVersion}). Controlled 10 evidence states; absence of evidence is never evidence of absence.
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {minimumProofPlan.proposals.map(p => (
+              {dossier.requirementsMatch.map(reqMatch => (
                 <div
-                  key={p.priorityRank}
+                  key={reqMatch.requirementId}
                   style={{
-                    background: "rgba(15, 23, 42, 0.7)",
-                    border: `1px solid ${p.tier === "Critical" ? "rgba(239, 68, 68, 0.4)" : "rgba(255, 255, 255, 0.08)"}`,
-                    borderRadius: 12,
-                    padding: "18px 22px"
+                    background: "#111827",
+                    borderRadius: 10,
+                    border: "1px solid #1f2937",
+                    padding: 16
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 12, padding: "2px 8px", borderRadius: 4, background: p.tier === "Critical" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)", color: p.tier === "Critical" ? "#fca5a5" : "#fde68a", fontWeight: 800 }}>
-                        RANK #{p.priorityRank} • {p.gapSeverity.toUpperCase()}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
+                    <div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                        {reqMatch.tier} • {reqMatch.category}
                       </span>
-                      <h4 style={{ fontSize: 15, fontWeight: 800, color: "white", margin: 0 }}>
-                        {p.requirementName}
-                      </h4>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                        {reqMatch.requirementName}
+                      </div>
                     </div>
 
-                    <span style={{ fontSize: 12, color: "#38bdf8", fontWeight: 700 }}>
-                      ⏱️ ~{p.estimatedMinutesToVerify} mins • {p.recommendedMethod.replace(/_/g, " ")}
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          padding: "2px 8px",
+                          borderRadius: 6,
+                          background:
+                            reqMatch.evidenceState === "SUPPORTED" || reqMatch.evidenceState === "CORROBORATED"
+                              ? "rgba(16,185,129,0.15)"
+                              : reqMatch.evidenceState === "PARTIALLY_SUPPORTED" || reqMatch.evidenceState === "CANDIDATE_REPORTED"
+                              ? "rgba(245,158,11,0.15)"
+                              : reqMatch.evidenceState === "EVIDENCE_NOT_FOUND"
+                              ? "rgba(100,116,139,0.15)"
+                              : "rgba(244,63,94,0.15)",
+                          color:
+                            reqMatch.evidenceState === "SUPPORTED" || reqMatch.evidenceState === "CORROBORATED"
+                              ? "#34d399"
+                              : reqMatch.evidenceState === "PARTIALLY_SUPPORTED" || reqMatch.evidenceState === "CANDIDATE_REPORTED"
+                              ? "#fbbf24"
+                              : reqMatch.evidenceState === "EVIDENCE_NOT_FOUND"
+                              ? "#94a3b8"
+                              : "#fb7185"
+                        }}
+                      >
+                        {reqMatch.evidenceState.replace(/_/g, " ")}
+                      </span>
+                      <span style={{ fontSize: 10, color: "#64748b" }}>
+                        Depth: {reqMatch.evidenceDepth}
+                      </span>
+                    </div>
                   </div>
 
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", margin: "0 0 10px", lineHeight: 1.5 }}>
-                    {p.proposedTaskOrQuestion}
-                  </p>
+                  {/* Verbatim Candidate Quote */}
+                  <div style={{ background: "#0b0f17", borderLeft: "3px solid #6366f1", padding: "8px 12px", borderRadius: "0 6px 6px 0", fontSize: 12, color: "#cbd5e1", marginBottom: 8, lineHeight: 1.5 }}>
+                    <strong>Candidate Evidence:</strong> “{reqMatch.candidateEvidence}”
+                    <div style={{ fontSize: 10, color: "#64748b", marginTop: 2 }}>
+                      Source: {reqMatch.sourceName} ({reqMatch.sourceLocation})
+                    </div>
+                  </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
-                    <span style={{ fontSize: 11, color: "#64748b" }}>
-                      Uncertainty Reduction Impact: +{p.uncertaintyReductionImpact}%
-                    </span>
+                  <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.4, marginBottom: 8 }}>
+                    {reqMatch.assessmentReasoning}
+                  </div>
+
+                  {reqMatch.evidenceGap && (
+                    <div style={{ fontSize: 11, color: "#fbbf24", marginBottom: 8 }}>
+                      ⚠ Verification Gap: {reqMatch.evidenceGap}
+                    </div>
+                  )}
+
+                  {/* Interactive [Why?] Provenance Button */}
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     <button
-                      onClick={() => setActiveTab("work_sample")}
-                      style={{ padding: "6px 14px", borderRadius: 6, background: "rgba(168,85,247,0.2)", border: "1px solid rgba(168,85,247,0.4)", color: "#e9d5ff", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                      onClick={() => setActiveWhyMatch(reqMatch)}
+                      style={{
+                        background: "#1e293b",
+                        color: "#a5b4fc",
+                        border: "1px solid #334155",
+                        padding: "4px 10px",
+                        borderRadius: 5,
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
                     >
-                      Launch Verification Studio ➔
+                      [Why?] Inspect Audit Chain →
                     </button>
                   </div>
                 </div>
@@ -1039,655 +859,693 @@ export default function RecruiterDecisionRoomPage() {
           </div>
         )}
 
-        {/* ── TAB 3: WORK SAMPLE STUDIO ── */}
-        {activeTab === "work_sample" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            {activeTask ? (
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-                  <div>
-                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.2)", color: "#d8b4fe", fontWeight: 800 }}>
-                      WORK SAMPLE CHALLENGE • {activeTask.triggerContext.toUpperCase()}
-                    </span>
-                    <h3 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                      {activeTask.title}
-                    </h3>
-                    <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                      Tied to Role DNA Critical Requirement: <strong style={{ color: "#38bdf8" }}>{activeTask.requirementName}</strong>
-                    </div>
-                  </div>
-
-                  <span style={{ fontSize: 12, color: "#fbbf24", fontWeight: 700 }}>
-                    ⏳ Limit: {activeTask.timeLimitMinutes} mins
-                  </span>
-                </div>
-
-                {/* Scenario Context */}
-                <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", marginBottom: 4 }}>PRODUCTION SCENARIO CONTEXT</div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: 0, lineHeight: 1.5 }}>
-                    {activeTask.scenarioContext}
-                  </p>
-                </div>
-
-                {/* Technical Task Details */}
-                <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", marginBottom: 16 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", marginBottom: 4 }}>TECHNICAL DELIVERABLE EXPECTATIONS</div>
-                  <pre style={{ fontSize: 12, color: "#cbd5e1", whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0 }}>
-                    {activeTask.technicalTask}
-                  </pre>
-                </div>
-
-                {/* Candidate Submission Input */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexWrap: "wrap", gap: 8 }}>
-                    <label style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>
-                      CANDIDATE CODE / ARCHITECTURAL SUBMISSION
-                    </label>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      {activeTask.starterCodeOrTemplate && (
-                        <button
-                          type="button"
-                          onClick={() => setSampleSubmission(activeTask.starterCodeOrTemplate || "")}
-                          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "#cbd5e1", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          📋 Reset Starter Code
-                        </button>
-                      )}
-                      <label style={{ background: "rgba(168,85,247,0.15)", border: "1px solid rgba(168,85,247,0.3)", color: "#e9d5ff", borderRadius: 6, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-                        📂 Upload Code File
-                        <input
-                          type="file"
-                          accept=".go,.ts,.js,.py,.sql,.java,.cpp,.txt"
-                          style={{ display: "none" }}
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const text = await file.text();
-                              setSampleSubmission(text);
-                            }
-                          }}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <textarea
-                    rows={8}
-                    value={sampleSubmission}
-                    onChange={e => setSampleSubmission(e.target.value)}
-                    placeholder="Enter or paste candidate's code or architectural solution here..."
-                    style={{ width: "100%", padding: "14px", borderRadius: 8, background: "rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.12)", color: "#38bdf8", fontSize: 13, fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace", lineHeight: 1.5, boxSizing: "border-box" }}
-                  />
-                </div>
-
-                <button
-                  onClick={handleEvaluateWorkSample}
-                  disabled={evaluatingSample || !sampleSubmission.trim()}
-                  style={{
-                    padding: "11px 22px",
-                    borderRadius: 8,
-                    background: evaluatingSample ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg, #10b981, #059669)",
-                    border: "none",
-                    color: "white",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: evaluatingSample ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8
-                  }}
-                >
-                  {evaluatingSample ? (
-                    <>
-                      <span style={{ display: "inline-block", animation: "spin 0.8s linear infinite" }}>⟳</span>
-                      <span>Running Principal Staff AI Code Review (Groq LLaMA 3.3 70B)...</span>
-                    </>
-                  ) : (
-                    <>⚡ Run Principal Staff AI Code Review</>
-                  )}
-                </button>
-
-                {/* Evaluation Results Box */}
-                {evaluationResult && (
-                  <div style={{ marginTop: 20, padding: "20px", borderRadius: 12, background: evaluationResult.passed ? "rgba(16,185,129,0.12)" : "rgba(245,158,11,0.12)", border: `1px solid ${evaluationResult.passed ? "rgba(16,185,129,0.35)" : "rgba(245,158,11,0.35)"}` }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span style={{ fontSize: 18 }}>{evaluationResult.passed ? "🏆" : "⚠️"}</span>
-                        <div>
-                          <strong style={{ fontSize: 15, color: evaluationResult.passed ? "#6ee7b7" : "#fde68a" }}>
-                            {evaluationResult.passed ? "VERIFIED PASS" : "CONDITIONAL / PARTIAL"} — Score: {evaluationResult.score}/100
-                          </strong>
-                          <div style={{ fontSize: 11, color: "#94a3b8" }}>Verdict: {evaluationResult.interviewerVerdict}</div>
-                        </div>
-                      </div>
-                      <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", color: "white", fontWeight: 800, border: "1px solid rgba(255,255,255,0.1)" }}>
-                        EVIDENCE STATUS: {evaluationResult.updatedEvidenceState.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <p style={{ fontSize: 13, color: "white", margin: "0 0 14px", lineHeight: 1.5 }}>
-                      {evaluationResult.decisionImpact}
-                    </p>
-
-                    {/* Rubric Breakdown Grid */}
-                    {evaluationResult.rubricBreakdown && evaluationResult.rubricBreakdown.length > 0 && (
-                      <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", marginBottom: 6 }}>DETAILED RUBRIC SCORECARD</div>
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
-                          {evaluationResult.rubricBreakdown.map((r, i) => (
-                            <div key={i} style={{ background: "rgba(0,0,0,0.3)", padding: "10px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, fontWeight: 700, marginBottom: 4 }}>
-                                <span style={{ color: "#cbd5e1" }}>{r.criterion}</span>
-                                <span style={{ color: r.scoreAwarded === r.maxScore ? "#34d399" : "#fde68a" }}>{r.scoreAwarded}/{r.maxScore}</span>
-                              </div>
-                              <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>{r.feedback}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div style={{ fontSize: 11, color: "#cbd5e1", fontStyle: "italic", background: "rgba(0,0,0,0.25)", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.06)" }}>
-                      <strong>Verbatim Technical Proof:</strong> &ldquo;{evaluationResult.verbatimProof}&rdquo;
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ textAlign: "center", padding: 32, color: "#94a3b8" }}>
-                Generating targeted work sample...
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 4: INTERVIEW INTELLIGENCE & MEMORY ── */}
-        {activeTab === "interviews" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(236,72,153,0.2)", color: "#f472b6", fontWeight: 800 }}>
-                  PHASE 8 INTERVIEW MEMORY
-                </span>
-                <h3 style={{ fontSize: 16, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                  Precision Gap Probing Questions (Non-Repetitive)
-                </h3>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                  These questions explicitly target unresolved unknowns from the Evidence Graph and avoid repeating questions asked in previous rounds.
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: 10 }}>
-                <div style={{ padding: "6px 12px", borderRadius: 8, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>ROUNDS COMPLETED</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#f472b6" }}>{interviewHistory?.roundsCompleted || 0}</div>
-                </div>
-                <div style={{ padding: "6px 12px", borderRadius: 8, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", textAlign: "center" }}>
-                  <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>LOCKED IN MEMORY</div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#38bdf8" }}>{interviewHistory?.questionHistory?.length || 0}</div>
-                </div>
-              </div>
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 4: PROJECTS & WORK ANALYSIS (Code, Tests, CI/CD, AI Indicators)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "projects" && (
+          <div>
+            <div style={{ marginBottom: 14, fontSize: 13, color: "#94a3b8" }}>
+              Inspected repositories and platform artifacts. Examines dependency declarations, test suites, architecture patterns, and commit history without fake certainty.
             </div>
-
-            {feedbackMessage && (
-              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#6ee7b7", fontSize: 12, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>{feedbackMessage}</span>
-                <button onClick={() => setFeedbackMessage(null)} style={{ background: "transparent", border: "none", color: "#6ee7b7", cursor: "pointer" }}>✕</button>
-              </div>
-            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {interviewQuestions.map((q, idx) => {
-                const isLogging = activeFeedbackQuestionId === (q.questionId || String(idx));
-                return (
-                  <div
-                    key={q.questionId || idx}
-                    style={{
-                      padding: "18px 22px",
-                      borderRadius: 12,
-                      background: "rgba(0,0,0,0.3)",
-                      border: isLogging ? "1px solid rgba(236,72,153,0.5)" : "1px solid rgba(255,255,255,0.06)",
-                      transition: "border 0.2s ease"
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#f472b6" }}>
-                        PROBING GAP: {q.requirementName} ({q.tier.toUpperCase()})
-                      </span>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <span style={{ fontSize: 10, color: "#94a3b8" }}>
-                          {q.reasonForSelection}
-                        </span>
-                        <button
-                          onClick={() => setActiveFeedbackQuestionId(isLogging ? null : (q.questionId || String(idx)))}
-                          style={{
-                            padding: "4px 10px",
-                            borderRadius: 6,
-                            background: isLogging ? "rgba(255,255,255,0.1)" : "rgba(236,72,153,0.18)",
-                            border: `1px solid ${isLogging ? "rgba(255,255,255,0.2)" : "rgba(236,72,153,0.4)"}`,
-                            color: isLogging ? "white" : "#f472b6",
-                            fontSize: 11,
-                            fontWeight: 700,
-                            cursor: "pointer"
-                          }}
-                        >
-                          {isLogging ? "✕ Cancel Scorecard" : "📝 Log Interview Scorecard"}
-                        </button>
-                      </div>
+              {dossier.inspectedProjects.map(proj => (
+                <div
+                  key={proj.projectId}
+                  style={{
+                    background: "#111827",
+                    borderRadius: 12,
+                    border: "1px solid #1f2937",
+                    padding: 20
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                    <div>
+                      <h4 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#f8fafc" }}>
+                        {proj.name}
+                      </h4>
+                      <p style={{ fontSize: 13, color: "#94a3b8", margin: "2px 0 0" }}>
+                        {proj.claimedDescription}
+                      </p>
                     </div>
 
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 10 }}>
-                      &ldquo;{q.questionText}&rdquo;
-                    </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 11, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 10 }}>
-                      <div>
-                        <strong style={{ color: "#34d399" }}>What Strong Answers Look Like:</strong>
-                        <div style={{ color: "#a7f3d0", marginTop: 2, lineHeight: 1.4 }}>{q.whatStrongLookLike}</div>
-                      </div>
-                      <div>
-                        <strong style={{ color: "#f87171" }}>Red Flag Responses:</strong>
-                        <div style={{ color: "#fecaca", marginTop: 2, lineHeight: 1.4 }}>{q.redFlagAnswer}</div>
-                      </div>
-                    </div>
-
-                    {/* Interactive Scorecard Form */}
-                    {isLogging && (
-                      <div style={{ marginTop: 16, padding: "16px", borderRadius: 10, background: "rgba(236,72,153,0.05)", border: "1px solid rgba(236,72,153,0.2)" }}>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: "#f472b6", marginBottom: 12 }}>
-                          INTERVIEWER SCORECARD LOGGING
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 12 }}>
-                          <div>
-                            <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, display: "block", marginBottom: 3 }}>INTERVIEWER NAME</label>
-                            <input
-                              type="text"
-                              value={feedbackInterviewerName}
-                              onChange={e => setFeedbackInterviewerName(e.target.value)}
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                            />
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, display: "block", marginBottom: 3 }}>ROUND TYPE</label>
-                            <select
-                              value={feedbackRoundType}
-                              onChange={e => setFeedbackRoundType(e.target.value as any)}
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                            >
-                              <option value="system_design">System Design & Architecture</option>
-                              <option value="coding">Live Technical Coding</option>
-                              <option value="deep_dive">Deep Dive Portfolio & Code Audit</option>
-                              <option value="behavioral">Engineering Principles & Behavioral</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, display: "block", marginBottom: 3 }}>SCORE (1-10)</label>
-                            <input
-                              type="number"
-                              min={1}
-                              max={10}
-                              value={feedbackRating}
-                              onChange={e => setFeedbackRating(Number(e.target.value))}
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                            />
-                          </div>
-                        </div>
-
-                        <div style={{ marginBottom: 12 }}>
-                          <label style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, display: "block", marginBottom: 3 }}>CANDIDATE RESPONSE & KEY INSIGHTS</label>
-                          <textarea
-                            rows={3}
-                            value={feedbackInsights}
-                            onChange={e => setFeedbackInsights(e.target.value)}
-                            placeholder="Enter candidate's explanation, architecture choices, and depth demonstrated..."
-                            style={{ width: "100%", padding: "10px", borderRadius: 8, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                          />
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
-                          <div>
-                            <label style={{ fontSize: 10, color: "#34d399", fontWeight: 700, display: "block", marginBottom: 3 }}>KEY STRENGTHS OBSERVED</label>
-                            <input
-                              type="text"
-                              value={feedbackStrengths}
-                              onChange={e => setFeedbackStrengths(e.target.value)}
-                              placeholder="e.g. Understood partition rebalances, clear lock management"
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                            />
-                          </div>
-                          <div>
-                            <label style={{ fontSize: 10, color: "#f87171", fontWeight: 700, display: "block", marginBottom: 3 }}>RED FLAGS / GAPS DETECTED</label>
-                            <input
-                              type="text"
-                              value={feedbackRedFlags}
-                              onChange={e => setFeedbackRedFlags(e.target.value)}
-                              placeholder="e.g. Hesitant on split-brain scenarios, hand-waving rollback"
-                              style={{ width: "100%", padding: "8px 10px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12, boxSizing: "border-box" }}
-                            />
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={() => handleSaveInterviewFeedback(q)}
-                          disabled={savingFeedback || !feedbackInsights.trim()}
-                          style={{
-                            padding: "9px 18px",
-                            borderRadius: 8,
-                            background: "linear-gradient(135deg, #ec4899, #db2777)",
-                            border: "none",
-                            color: "white",
-                            fontSize: 12,
-                            fontWeight: 700,
-                            cursor: savingFeedback ? "not-allowed" : "pointer"
-                          }}
-                        >
-                          {savingFeedback ? "Saving to Candidate Memory..." : "💾 Save Scorecard to Candidate Permanent Memory"}
-                        </button>
-                      </div>
+                    {proj.repositoryUrl && (
+                      <a
+                        href={proj.repositoryUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{
+                          fontSize: 12,
+                          color: "#818cf8",
+                          textDecoration: "underline"
+                        }}
+                      >
+                        Inspect Repo ↗
+                      </a>
                     )}
                   </div>
-                );
-              })}
+
+                  {/* Technical Depth & Technologies */}
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>
+                      Verified Technical Implementation
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {proj.technologies.map((t, idx) => (
+                        <span
+                          key={idx}
+                          style={{
+                            fontSize: 12,
+                            padding: "4px 10px",
+                            borderRadius: 6,
+                            background: "#0f172a",
+                            border: "1px solid #1e293b",
+                            color: "#f8fafc"
+                          }}
+                        >
+                          <strong>{t.name}</strong> • <span style={{ color: "#38bdf8" }}>{t.depth}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Architecture & Engineering Footprint */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, background: "#0b0f17", padding: 12, borderRadius: 8, marginBottom: 14 }}>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Architecture Patterns</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginTop: 2 }}>
+                        {proj.architecturePatterns.join(", ") || "Standard Application"}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 11, color: "#94a3b8" }}>Tests & CI/CD</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0", marginTop: 2 }}>
+                        {proj.testSuiteEvidence?.hasTests ? `✓ ${proj.testSuiteEvidence.testFilesCount} Test Files (${proj.testSuiteEvidence.framework})` : "No tests detected"} • {proj.deploymentEvidence?.hasDocker ? "Docker ✓" : "No Docker"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI-Assistance Indicators & Counter-Signals (Section 13) */}
+                  <div style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)", padding: 12, borderRadius: 8, fontSize: 12 }}>
+                    <div style={{ fontWeight: 700, color: "#a5b4fc", marginBottom: 4 }}>
+                      Authorship & Development Pattern Analysis
+                    </div>
+                    <p style={{ color: "#cbd5e1", margin: "0 0 6px", lineHeight: 1.5 }}>
+                      {proj.aiAssistanceAnalysis.summary}
+                    </p>
+                    {proj.aiAssistanceAnalysis.counterSignals.map((cs, i) => (
+                      <div key={i} style={{ color: "#34d399", fontSize: 11 }}>
+                        • Counter-signal: {cs}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ── TAB 5: CONFLICT DETECTOR ── */}
-        {activeTab === "conflicts" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ marginBottom: 18 }}>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(239,68,68,0.2)", color: "#fca5a5", fontWeight: 800 }}>
-                PHASE 9 CONFLICT DETECTOR & LOOPBACK
-              </span>
-              <h3 style={{ fontSize: 16, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                Claim vs Proof Discrepancies ({conflicts.length} Detected)
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 5: GAPS & CONFLICTS ("What Cognalyze Knows" Ledger)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "gaps_conflicts" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+            {/* Left: What Cognalyze Knows */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px", color: "#f8fafc" }}>
+                What Cognalyze Knows
               </h3>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                Discrepancies automatically trigger a Phase 7 Targeted Verification challenge scoped specifically to the disputed competency.
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#34d399", marginBottom: 6 }}>
+                  VERIFIED ({dossier.whatCognalyzeKnows.verified.length})
+                </div>
+                {dossier.whatCognalyzeKnows.verified.map((v, i) => (
+                  <div key={i} style={{ fontSize: 12, color: "#cbd5e1", marginBottom: 4, lineHeight: 1.4 }}>
+                    ✓ {v}
+                  </div>
+                ))}
               </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#fbbf24", marginBottom: 6 }}>
+                  CANDIDATE-REPORTED ONLY ({dossier.whatCognalyzeKnows.candidateReported.length})
+                </div>
+                {dossier.whatCognalyzeKnows.candidateReported.map((c, i) => (
+                  <div key={i} style={{ fontSize: 12, color: "#fde68a", marginBottom: 4, lineHeight: 1.4 }}>
+                    • {c}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  EVIDENCE NOT FOUND ({dossier.whatCognalyzeKnows.unverified.length})
+                </div>
+                {dossier.whatCognalyzeKnows.unverified.map((u, i) => (
+                  <div key={i} style={{ fontSize: 12, color: "#94a3b8", marginBottom: 4, lineHeight: 1.4 }}>
+                    — {u}
+                  </div>
+                ))}
+              </div>
+
+              {dossier.whatCognalyzeKnows.conflicting.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#fb7185", marginBottom: 6 }}>
+                    CONFLICTING DISCREPANCIES ({dossier.whatCognalyzeKnows.conflicting.length})
+                  </div>
+                  {dossier.whatCognalyzeKnows.conflicting.map((cf, i) => (
+                    <div key={i} style={{ fontSize: 12, color: "#fda4af", marginBottom: 4, lineHeight: 1.4 }}>
+                      ⚠️ {cf}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {conflicts.length === 0 ? (
-              <div style={{ padding: 24, borderRadius: 10, background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", color: "#6ee7b7", fontSize: 13, textAlign: "center" }}>
-                ✓ No contradictions or panelist disagreements detected for this candidate.
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {conflicts.map(c => (
-                  <div
-                    key={c.id}
-                    style={{
-                      padding: "18px 22px",
-                      borderRadius: 12,
-                      background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(239, 68, 68, 0.35)"
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "rgba(239,68,68,0.2)", color: "#f87171", fontWeight: 800 }}>
-                        {c.conflictType.toUpperCase().replace(/_/g, " ")} • {c.severity} SEVERITY
-                      </span>
-                      <span style={{ fontSize: 11, color: "#94a3b8" }}>Competency: {c.requirementName}</span>
+            {/* Right: Candidate Claim Ledger */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 20 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px", color: "#f8fafc" }}>
+                Candidate Claim Ledger
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {dossier.claimLedger.map(item => (
+                  <div key={item.claimId} style={{ background: "#0f172a", padding: 12, borderRadius: 8, border: "1px solid #1e293b" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, fontWeight: 600 }}>
+                      <span style={{ color: "#f8fafc" }}>{item.claimText}</span>
+                      <span style={{ fontSize: 10, color: "#818cf8" }}>{item.status}</span>
                     </div>
-
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12, marginBottom: 12 }}>
-                      <div style={{ padding: 10, borderRadius: 8, background: "rgba(255,255,255,0.04)" }}>
-                        <strong style={{ color: "#38bdf8" }}>Statement A:</strong>
-                        <div style={{ color: "#cbd5e1", marginTop: 2 }}>{c.statementA}</div>
-                      </div>
-                      <div style={{ padding: 10, borderRadius: 8, background: "rgba(255,255,255,0.04)" }}>
-                        <strong style={{ color: "#f87171" }}>Statement B:</strong>
-                        <div style={{ color: "#cbd5e1", marginTop: 2 }}>{c.statementB}</div>
-                      </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
+                      Source: {item.source} ({item.provenance})
                     </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 10 }}>
-                      <span style={{ fontSize: 12, color: "#fbbf24" }}>
-                        🔁 Loopback Action: {c.suggestedAction}
-                      </span>
-                      {c.targetedVerificationTask && (
-                        <button
-                          onClick={() => {
-                            setActiveTask(c.targetedVerificationTask!);
-                            setActiveTab("work_sample");
-                          }}
-                          style={{ padding: "6px 14px", borderRadius: 6, background: "linear-gradient(135deg, #ef4444, #dc2626)", border: "none", color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
-                        >
-                          Execute Loopback Probe ➔
-                        </button>
-                      )}
+                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+                      Corroboration: {item.externalCorroboration}
                     </div>
                   </div>
                 ))}
               </div>
-            )}
+            </div>
           </div>
         )}
 
-        {/* ── TAB 6: DECISION JOURNAL & TALENT RECOVERY ── */}
-        {activeTab === "decision" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ marginBottom: 20 }}>
-              <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.2)", color: "#d8b4fe", fontWeight: 800 }}>
-                PHASE 10 & 11 COMMITTEE SYNTHESIS
-              </span>
-              <h3 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "6px 0 2px" }}>
-                Final Decision & Talent Recovery Execution
-              </h3>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                Record definitive committee verdict. &ldquo;Hold&rdquo; loops back into Phase 7 verification. &ldquo;Reject&rdquo; triggers Phase 11 Talent Recovery across other open positions.
-              </div>
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 6: VERIFICATION CENTER (Targeted Recruiter Probes)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "verify" && (
+          <div>
+            <div style={{ marginBottom: 14, fontSize: 13, color: "#94a3b8" }}>
+              Targeted verification questions derived strictly from evidence gaps and role-critical uncertainties. Zero generic trivia questions.
             </div>
 
-            {decisionMessage && (
-              <div style={{ padding: "14px 18px", borderRadius: 10, background: "rgba(99,102,241,0.15)", border: "1px solid rgba(99,102,241,0.3)", color: "#c7d2fe", marginBottom: 20, fontSize: 13, fontWeight: 700 }}>
-                {decisionMessage}
-              </div>
-            )}
-
-            <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", display: "block", marginBottom: 6 }}>
-                COMMITTEE DECISION JOURNAL RATIONALE
-              </label>
-              <textarea
-                rows={3}
-                value={decisionRationale}
-                onChange={e => setDecisionRationale(e.target.value)}
-                placeholder="Document evidence-based justification for this verdict..."
-                style={{ width: "100%", padding: "10px 14px", borderRadius: 8, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.12)", color: "white", fontSize: 13 }}
-              />
-            </div>
-
-            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 28 }}>
-              <button
-                onClick={() => handleSubmitVerdict("Hire")}
-                style={{
-                  padding: "12px 24px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  border: "none",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(16,185,129,0.3)"
-                }}
-              >
-                🏆 Record Verdict: HIRE (Enter 30/60/90 Loop)
-              </button>
-
-              <button
-                onClick={() => handleSubmitVerdict("Hold")}
-                style={{
-                  padding: "12px 24px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  border: "none",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(245,158,11,0.3)"
-                }}
-              >
-                ⏳ Record Verdict: HOLD (Loop to Phase 7 Verification)
-              </button>
-
-              <button
-                onClick={() => handleSubmitVerdict("Reject")}
-                style={{
-                  padding: "12px 24px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
-                  border: "none",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(239,68,68,0.3)"
-                }}
-              >
-                ❌ Record Verdict: REJECT (Trigger Talent Recovery)
-              </button>
-            </div>
-
-            {/* PHASE 12 & 13 HIRE BRANCH */}
-            {decisionVerdict === "Hire" && (
-              <div style={{ marginTop: 24, padding: "22px", borderRadius: 14, background: "rgba(16, 185, 129, 0.12)", border: "1px solid rgba(16, 185, 129, 0.35)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 18 }}>🏆</span>
-                    <h4 style={{ fontSize: 16, fontWeight: 900, color: "#6ee7b7", margin: 0 }}>
-                      HIRE BRANCH: 30/60/90 Retention Outcome & Learning Loop
-                    </h4>
-                  </div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: 0, maxWidth: 700, lineHeight: 1.5 }}>
-                    Candidate successfully extended an offer! Now enrolled into empirical Day 30 Onboarding, Day 60 Autonomy, and Day 90 Business Outcome milestones to feed retention learnings back into future Role DNAs.
-                  </p>
-                </div>
-
-                <Link
-                  href="/recruiter/quality-of-hire"
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              {dossier.verificationTasks.map((task, idx) => (
+                <div
+                  key={task.taskId}
                   style={{
-                    padding: "10px 20px",
-                    borderRadius: 8,
-                    background: "linear-gradient(135deg, #10b981, #059669)",
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    boxShadow: "0 4px 15px rgba(16,185,129,0.3)"
+                    background: "#111827",
+                    borderRadius: 12,
+                    border: "1px solid #1f2937",
+                    padding: 18
                   }}
                 >
-                  Enter 30/60/90 Quality-of-Hire Loop ➔
-                </Link>
-              </div>
-            )}
-
-            {/* PHASE 7/10 HOLD LOOPBACK BRANCH */}
-            {decisionVerdict === "Hold" && (
-              <div style={{ marginTop: 24, padding: "22px", borderRadius: 14, background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.35)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 18 }}>⏳</span>
-                    <h4 style={{ fontSize: 16, fontWeight: 900, color: "#fde68a", margin: 0 }}>
-                      HOLD BRANCH: More Evidence via Targeted Verification Loopback
-                    </h4>
-                  </div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", margin: 0, maxWidth: 700, lineHeight: 1.5 }}>
-                    Committee requires empirical proof on critical gaps before rendering final judgment. An automated Phase 7 verification mini-task has been scoped specifically to the candidate&apos;s highest-uncertainty requirement.
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => setActiveTab("work_sample")}
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: 8,
-                    background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                    border: "none",
-                    color: "white",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    boxShadow: "0 4px 15px rgba(245,158,11,0.3)"
-                  }}
-                >
-                  Open Targeted Verification Challenge ➔
-                </button>
-              </div>
-            )}
-
-            {/* PHASE 11 TALENT RECOVERY RESULTS */}
-            {talentRecovery && (
-              <div style={{ marginTop: 24, padding: "20px", borderRadius: 14, background: "rgba(99, 102, 241, 0.1)", border: "1px solid rgba(99, 102, 241, 0.3)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 18 }}>♻️</span>
-                  <div>
-                    <h4 style={{ fontSize: 15, fontWeight: 800, color: "white", margin: 0 }}>
-                      Phase 11 Talent Recovery: Alternative Open Role Matches ({talentRecovery.eligibleAlternativeRolesCount})
-                    </h4>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                      Cross-matching rejected candidate&apos;s verified Candidate DNA against other open Role DNAs
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#f8fafc" }}>
+                      Item {idx + 1}: Verify {task.claimOrGap} Depth
                     </div>
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {talentRecovery.recoveredMatches.map((rec, idx) => (
-                    <div
-                      key={rec.targetRoleId}
+                    <span
                       style={{
-                        padding: "14px 18px",
-                        borderRadius: 10,
-                        background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 16
+                        fontSize: 10,
+                        fontWeight: 800,
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        background: task.priority === "HIGH" ? "rgba(244,63,94,0.15)" : "rgba(245,158,11,0.15)",
+                        color: task.priority === "HIGH" ? "#fb7185" : "#fbbf24"
                       }}
                     >
-                      <div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                          <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(16,185,129,0.2)", color: "#6ee7b7", fontWeight: 800 }}>
-                            {rec.compatibilityScore}% COMPATIBILITY
-                          </span>
-                          <strong style={{ fontSize: 14, color: "white" }}>{rec.targetRoleTitle}</strong>
-                          <span style={{ fontSize: 11, color: "#94a3b8" }}>({rec.department})</span>
-                        </div>
-                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", margin: "0 0 4px" }}>
-                          {rec.recommendationNarrative}
-                        </p>
-                        <div style={{ fontSize: 11, color: "#38bdf8" }}>
-                          Transferred Skills: {rec.strongSkillsTransferred.join(", ")}
-                        </div>
-                      </div>
+                      {task.priority} PRIORITY
+                    </span>
+                  </div>
 
-                      <button
-                        onClick={() => alert(`Transferred ${talentRecovery.candidateName} to ${rec.targetRoleTitle} pipeline!`)}
-                        style={{
-                          padding: "8px 14px",
-                          borderRadius: 6,
-                          background: "linear-gradient(135deg, #6366f1, #a855f7)",
-                          border: "none",
-                          color: "white",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        Route Candidate ➔
-                      </button>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, background: "#0b0f17", padding: 12, borderRadius: 8, marginBottom: 10, fontSize: 12 }}>
+                    <div>
+                      <span style={{ color: "#64748b" }}>Existing Evidence:</span>{" "}
+                      <span style={{ color: "#cbd5e1" }}>{task.existingEvidence}</span>
                     </div>
+                    <div>
+                      <span style={{ color: "#fbbf24" }}>What is Missing:</span>{" "}
+                      <span style={{ color: "#fde68a" }}>{task.missingEvidence}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "rgba(99,102,241,0.08)", borderLeft: "3px solid #6366f1", padding: 10, borderRadius: "0 6px 6px 0", fontSize: 13, color: "#e2e8f0" }}>
+                    <strong>Suggested Interview Probe:</strong> {task.suggestedProbeQuestion}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            TAB 7: DECIDE & AUDIT TRAIL (Human Decision Action)
+        ───────────────────────────────────────────────────────────── */}
+        {activeTab === "decide" && (
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 20 }}>
+            {/* Left: Recruiter Decision Workspace */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 22 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px", color: "#f8fafc" }}>
+                Record Hiring Decision
+              </h3>
+
+              {decisionSuccess && (
+                <div style={{ padding: "10px 14px", borderRadius: 6, background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#34d399", fontSize: 13, marginBottom: 16 }}>
+                  {decisionSuccess}
+                </div>
+              )}
+
+              {/* System Evidence Recommendation Box */}
+              <div style={{
+                marginBottom: 16,
+                padding: "12px 14px",
+                borderRadius: 8,
+                background: "rgba(56,189,248,0.08)",
+                border: "1px solid rgba(56,189,248,0.25)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center"
+              }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Evidence-Based System Recommendation
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                    {(dossier.whatCognalyzeKnows?.verified?.length || 0) >= 3 && (dossier.whatCognalyzeKnows?.conflicting?.length || 0) === 0
+                      ? "Advance to Technical Interview"
+                      : ((dossier.whatCognalyzeKnows?.conflicting?.length || 0) > 0 || (dossier.needsAttention?.length || 0) > 0)
+                      ? "Request Verification / Address Active Conflicts"
+                      : "Hold — Insufficient Direct Implementation Evidence"}
+                  </div>
+                </div>
+                <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: isOverride ? "#f43f5e" : "#94a3b8", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={isOverride}
+                    onChange={(e) => setIsOverride(e.target.checked)}
+                  />
+                  <span style={{ fontWeight: 700 }}>Override Recommendation</span>
+                </label>
+              </div>
+
+              {/* Conditional Recruiter Override Warning & Reason Input */}
+              {isOverride && (
+                <div style={{
+                  marginBottom: 16,
+                  padding: "14px",
+                  borderRadius: 8,
+                  background: "rgba(244,63,94,0.1)",
+                  border: "1px solid rgba(244,63,94,0.35)"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#fb7185", fontWeight: 700, fontSize: 13, marginBottom: 6 }}>
+                    <span>⚠️ Recruiter Override Active (Section 37)</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#fca5a5", marginBottom: 8, lineHeight: 1.4 }}>
+                    Cognalyze requires a documented rationale whenever a human decision diverges from the verified evidence trail. This reason is immutably logged for auditability and calibration.
+                  </div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#f87171", marginBottom: 4, textTransform: "uppercase" }}>
+                    Mandatory Override Reason *
+                  </label>
+                  <textarea
+                    rows={2}
+                    placeholder="e.g. Strong verified domain experience not fully captured in submitted code repository..."
+                    value={overrideReason}
+                    onChange={(e) => setOverrideReason(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "#0b0f19",
+                      color: "#f8fafc",
+                      border: "1px solid rgba(244,63,94,0.4)",
+                      padding: 8,
+                      borderRadius: 6,
+                      fontSize: 12,
+                      outline: "none"
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Action / Verdict */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>
+                  Recruiter Action / Verdict:
+                </label>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {(["Advance", "Request Verification", "Hold", "Not Proceeding", "Hire"] as const).map(v => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => {
+                        setDecisionVerdict(v);
+                        if (v === "Advance") setDecisionStage("Technical Interview");
+                        if (v === "Request Verification") setDecisionStage("Verification");
+                        if (v === "Hold") setDecisionStage("Hold - Gathering Evidence");
+                        if (v === "Not Proceeding") setDecisionStage("Rejected");
+                        if (v === "Hire") setDecisionStage("Hired");
+                      }}
+                      style={{
+                        padding: "8px 14px",
+                        borderRadius: 6,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        background: decisionVerdict === v ? "#6366f1" : "#1e293b",
+                        color: decisionVerdict === v ? "#fff" : "#cbd5e1",
+                        border: "1px solid #334155"
+                      }}
+                    >
+                      {v}
+                    </button>
                   ))}
                 </div>
               </div>
-            )}
+
+              {/* Target Stage */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>
+                  Transition to Stage:
+                </label>
+                <select
+                  value={decisionStage}
+                  onChange={(e) => setDecisionStage(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "#1e293b",
+                    color: "#f8fafc",
+                    border: "1px solid #334155",
+                    padding: "8px 12px",
+                    borderRadius: 6,
+                    fontSize: 13
+                  }}
+                >
+                  {dossier.allowedStages.map(st => (
+                    <option key={st} value={st}>{st}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Supporting Evidence Selection */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>
+                  Select Supporting Evidence to Cite in Decision Record:
+                </label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 180, overflowY: "auto", background: "#0f172a", padding: 10, borderRadius: 6, border: "1px solid #1e293b" }}>
+                  {dossier.requirementsMatch.map(m => (
+                    <label key={m.requirementId} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#cbd5e1", cursor: "pointer" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedEvidenceIds.includes(m.requirementId)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedEvidenceIds(prev => [...prev, m.requirementId]);
+                          } else {
+                            setSelectedEvidenceIds(prev => prev.filter(id => id !== m.requirementId));
+                          }
+                        }}
+                      />
+                      <span>{m.requirementName} ({m.evidenceState})</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Recruiter Rationale Note */}
+              <div style={{ marginBottom: 18 }}>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#94a3b8", marginBottom: 6 }}>
+                  Recruiter Rationale Note:
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="State the evidence-based rationale for this decision..."
+                  value={recruiterNote}
+                  onChange={(e) => setRecruiterNote(e.target.value)}
+                  style={{
+                    width: "100%",
+                    background: "#0f172a",
+                    color: "#f8fafc",
+                    border: "1px solid #334155",
+                    padding: 10,
+                    borderRadius: 6,
+                    fontSize: 12,
+                    lineHeight: 1.5,
+                    outline: "none"
+                  }}
+                />
+              </div>
+
+              <button
+                onClick={handleSaveDecision}
+                disabled={savingDecision}
+                style={{
+                  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                  color: "#fff",
+                  border: "none",
+                  padding: "10px 20px",
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: savingDecision ? "not-allowed" : "pointer"
+                }}
+              >
+                {savingDecision ? "Recording Decision..." : "Record & Transition Candidate →"}
+              </button>
+            </div>
+
+            {/* Right: Immutable Decision History */}
+            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: 22 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 14px", color: "#f8fafc" }}>
+                Immutable Decision History
+              </h3>
+
+              {dossier.decisionJournal ? (
+                <div style={{ background: "#0f172a", padding: 14, borderRadius: 8, border: "1px solid #1e293b", marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ fontWeight: 700, color: "#34d399" }}>Latest Action: {dossier.decisionJournal.verdict}</span>
+                    <span style={{ color: "#64748b" }}>{new Date(dossier.decisionJournal.decidedAt).toLocaleDateString()}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", lineHeight: 1.4 }}>
+                    “{dossier.decisionJournal.rationale || "No human note recorded."}”
+                  </div>
+                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>
+                    Decided by: {dossier.decisionJournal.decidedBy} • {dossier.decisionJournal.citedEvidenceIds.length} cited items
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "#64748b", fontStyle: "italic", marginBottom: 12 }}>
+                  No prior decisions recorded for this candidate yet.
+                </div>
+              )}
+
+              <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+                Cognalyze maintains an append-only audit trail linking human decisions to the exact snapshot of candidate evidence and role version available at deliberation time.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            PROGRESSIVE DISCLOSURE: [Why?] AUDIT DRAWER (Section 52)
+        ───────────────────────────────────────────────────────────── */}
+        {activeWhyMatch && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.75)",
+              backdropFilter: "blur(4px)",
+              display: "flex",
+              justifyContent: "flex-end",
+              zIndex: 100
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 620,
+                height: "100%",
+                background: "#0d131f",
+                borderLeft: "1px solid #1f2937",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+              }}
+            >
+              <div style={{ padding: "20px 24px", borderBottom: "1px solid #1f2937", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", letterSpacing: "0.5px" }}>
+                    TRACEABLE AUDIT CHAIN
+                  </div>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: "2px 0 0", color: "#f8fafc" }}>
+                    Why: {activeWhyMatch.requirementName} ({activeWhyMatch.evidenceState})
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setActiveWhyMatch(null)}
+                  style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 20, cursor: "pointer" }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ background: "#111827", padding: 14, borderRadius: 8, border: "1px solid #1f2937" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>1. ROLE REQUIREMENT</div>
+                  <div style={{ fontSize: 13, color: "#f8fafc", marginTop: 4 }}>
+                    {activeWhyMatch.whyAuditChain.roleRequirement}
+                  </div>
+                </div>
+
+                <div style={{ background: "#111827", padding: 14, borderRadius: 8, border: "1px solid #1f2937" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>2. CANDIDATE EVIDENCE LOCATED</div>
+                  <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 4, fontStyle: "italic" }}>
+                    “{activeWhyMatch.whyAuditChain.candidateEvidence}”
+                  </div>
+                  <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 4 }}>
+                    Provenance: {activeWhyMatch.whyAuditChain.sourceProvenance}
+                  </div>
+                </div>
+
+                <div style={{ background: "#111827", padding: 14, borderRadius: 8, border: "1px solid #1f2937" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>3. ASSESSMENT LOGIC</div>
+                  <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 4 }}>
+                    {activeWhyMatch.whyAuditChain.assessmentRule}
+                  </div>
+                </div>
+
+                <div style={{ background: "#111827", padding: 14, borderRadius: 8, border: "1px solid #1f2937" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>4. IDENTIFIED LIMITATIONS / GAPS</div>
+                  <div style={{ fontSize: 13, color: "#fbbf24", marginTop: 4 }}>
+                    {activeWhyMatch.whyAuditChain.limitations}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────
+            CANDIDATE COMPARISON MODAL (Section 24)
+        ───────────────────────────────────────────────────────────── */}
+        {showCompareModal && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.85)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 110,
+              padding: 24
+            }}
+          >
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 1200,
+                maxHeight: "90vh",
+                background: "#0d131f",
+                borderRadius: 14,
+                border: "1px solid #1f2937",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden"
+              }}
+            >
+              <div style={{ padding: "18px 24px", borderBottom: "1px solid #1f2937", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                    Side-by-Side Candidate Evidence Comparison
+                  </h3>
+                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                    Comparing verifiable evidence against confirmed role requirements without arbitrary scores.
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCompareModal(false)}
+                  style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 22, cursor: "pointer" }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ flex: 1, overflow: "auto", padding: 24 }}>
+                {compareLoading ? (
+                  <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
+                    Generating evidence comparison matrix...
+                  </div>
+                ) : comparisonData ? (
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#111827", borderBottom: "2px solid #1f2937" }}>
+                        <th style={{ padding: "14px 16px", width: 280, color: "#94a3b8" }}>
+                          Role Requirement
+                        </th>
+                        {comparisonData.candidates.map((c: any) => (
+                          <th key={c.id} style={{ padding: "14px 16px", color: "#f8fafc", minWidth: 220 }}>
+                            <div style={{ fontSize: 14, fontWeight: 700 }}>{c.name}</div>
+                            <div style={{ fontSize: 11, color: "#818cf8", marginTop: 2 }}>
+                              Stage: {c.currentStage}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comparisonData.requirementRows.map((row: any) => (
+                        <tr key={row.requirementId} style={{ borderBottom: "1px solid #1e293b" }}>
+                          <td style={{ padding: "14px 16px", verticalAlign: "top", background: "#0b0f17" }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                              {row.tier}
+                            </span>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                              {row.requirementName}
+                            </div>
+                          </td>
+
+                          {row.candidates.map((cell: any) => (
+                            <td key={cell.candidateId} style={{ padding: "14px 16px", verticalAlign: "top" }}>
+                              <div style={{ marginBottom: 4 }}>
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 800,
+                                    padding: "2px 6px",
+                                    borderRadius: 4,
+                                    background: cell.evidenceState.includes("SUPPORTED") ? "rgba(16,185,129,0.15)" : "rgba(100,116,139,0.15)",
+                                    color: cell.evidenceState.includes("SUPPORTED") ? "#34d399" : "#94a3b8"
+                                  }}
+                                >
+                                  {cell.evidenceState}
+                                </span>
+                              </div>
+                              <div style={{ fontSize: 11, color: "#cbd5e1", lineHeight: 1.4, background: "#080d1a", padding: "6px 8px", borderRadius: 4 }}>
+                                “{cell.candidateEvidence}”
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : null}
+              </div>
+            </div>
           </div>
         )}
 

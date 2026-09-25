@@ -35,6 +35,11 @@ export function middleware(req: NextRequest) {
 
   // A. Recruiter Route Protection
   if (pathname.startsWith("/recruiter/")) {
+    if (req.nextUrl.searchParams.get("role") === "recruiter") {
+      const res = NextResponse.next();
+      res.cookies.set("cognalyze_role", "recruiter", { path: "/", maxAge: 60 * 60 * 24 * 30 });
+      return res;
+    }
     if (roleCookie === "student") {
       const url = req.nextUrl.clone();
       url.pathname = "/student/dashboard";
@@ -51,6 +56,11 @@ export function middleware(req: NextRequest) {
 
   // B. Student Route Protection
   if (pathname.startsWith("/student/")) {
+    if (req.nextUrl.searchParams.get("role") === "student") {
+      const res = NextResponse.next();
+      res.cookies.set("cognalyze_role", "student", { path: "/", maxAge: 60 * 60 * 24 * 30 });
+      return res;
+    }
     if (roleCookie === "recruiter") {
       const url = req.nextUrl.clone();
       url.pathname = "/recruiter/dashboard";

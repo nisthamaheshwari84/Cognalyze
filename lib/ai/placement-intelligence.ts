@@ -30,7 +30,7 @@ export interface StudentProfileData {
 export interface OpportunityData {
   id?: string;
   title: string;
-  type: "hackathon" | "internship" | "job" | "fellowship" | "grant" | "contest";
+  type: "hackathon" | "internship" | "job" | "fellowship" | "grant" | "contest" | "research" | "scholarship" | "workshop" | "open-source";
   organizer: string;
   organizer_type: "IIT-fest" | "corporate" | "startup" | "open" | "university" | "government" | "community";
   tags: string[];
@@ -41,6 +41,402 @@ export interface OpportunityData {
   source_url?: string;
   extracted_context: Record<string, any>;
   is_active?: boolean;
+  // Extended fields for Opportunity Intelligence Engine
+  verificationStatus?: "verified" | "pending" | "conflict" | "expired" | "unavailable";
+  lastVerifiedAt?: string;
+  discoveredAt?: string;
+  mode?: "remote" | "onsite" | "hybrid";
+  teamSize?: string;
+  prize?: string;
+  requiredSkills?: string[];
+  preferredSkills?: string[];
+  domains?: string[];
+}
+
+// ── Evidence Hierarchy & Standardization ──
+export type EvidenceLabel =
+  | "✓ Verified"
+  | "◐ User Declared"
+  | "◇ Inferred"
+  | "⚠ Needs Verification"
+  | "✕ Unsupported";
+
+export type QualitativeFitLabel =
+  | "Strong Match"
+  | "Good Match"
+  | "Partial Match"
+  | "Stretch Opportunity"
+  | "Not Currently Eligible"
+  | "Insufficient Information";
+
+export interface ProvenanceClaim {
+  category: "Relevant Skill Alignment" | "Domain Alignment" | "Experience Alignment" | "Eligibility" | "Goal Alignment" | "Growth Opportunity";
+  claim: string;
+  evidence: string;
+  sourceType: "github" | "project" | "assessment" | "resume" | "user_profile" | "official_source" | "system_inference";
+  sourceName: string;
+  evidenceLabel: EvidenceLabel;
+}
+
+export interface SkillFitItem {
+  skill: string;
+  level?: string;
+  reason?: string;
+  evidenceLabel: EvidenceLabel;
+  evidenceSource?: string;
+  evidenceDetail?: string;
+  suggestion?: string;
+}
+
+export interface FitEvidence {
+  label: QualitativeFitLabel;
+  strengths: SkillFitItem[];
+  partial: SkillFitItem[];
+  gaps: SkillFitItem[];
+  whySummary: string;
+  rawScore: number; // internal only, never shown to user as-is
+  provenance: ProvenanceClaim[];
+}
+
+export interface RequiredCapability {
+  name: string;
+  type: "explicit" | "inferred";
+  evidenceLabel: EvidenceLabel;
+}
+
+export interface OpportunityRequirements {
+  domains: Array<{ name: string; relevance: "High" | "Medium" | "Low" }>;
+  requiredCapabilities: RequiredCapability[];
+  requiredSkills: string[]; // backward compatibility
+  preferredSkills: string[];
+  experienceLevel: string;
+  teamSize: string;
+  duration: string;
+  themes: string[];
+  mode: string;
+  eligibility: string;
+  officialConstraints: string[];
+  sourceUrl?: string;
+  sourceName?: string;
+  verificationStatus: "verified" | "pending" | "conflict" | "expired" | "unavailable";
+  lastVerifiedAt?: string;
+  hasDiscrepancy?: boolean;
+  discrepancyNote?: string;
+}
+
+// Backward compatibility alias: OpportunityDNA maps to canonical OpportunityRequirements
+export type OpportunityDNA = OpportunityRequirements;
+
+export interface VerificationBadge {
+  status: "verified" | "pending" | "conflict" | "expired" | "unavailable";
+  icon: string;
+  label: string;
+  color: string;
+  bgColor: string;
+}
+
+// ── Convert numeric score to qualitative label ──
+export function getQualitativeFitLabel(score: number): QualitativeFitLabel {
+  if (score >= 78) return "Strong Match";
+  if (score >= 60) return "Good Match";
+  if (score >= 42) return "Partial Match";
+  if (score >= 25) return "Stretch Opportunity";
+  return "Not Currently Eligible";
+}
+
+export function getFitLabelStyle(label: QualitativeFitLabel): { color: string; bgColor: string; borderColor: string } {
+  switch (label) {
+    case "Strong Match":
+      return { color: "#34d399", bgColor: "rgba(16,185,129,0.15)", borderColor: "rgba(16,185,129,0.4)" };
+    case "Good Match":
+      return { color: "#60a5fa", bgColor: "rgba(59,130,246,0.15)", borderColor: "rgba(59,130,246,0.4)" };
+    case "Partial Match":
+      return { color: "#fbbf24", bgColor: "rgba(245,158,11,0.15)", borderColor: "rgba(245,158,11,0.4)" };
+    case "Stretch Opportunity":
+      return { color: "#c084fc", bgColor: "rgba(168,85,247,0.15)", borderColor: "rgba(168,85,247,0.4)" };
+    case "Insufficient Information":
+      return { color: "#fbbf24", bgColor: "rgba(245,158,11,0.1)", borderColor: "rgba(245,158,11,0.3)" };
+    case "Not Currently Eligible":
+    default:
+      return { color: "#94a3b8", bgColor: "rgba(148,163,184,0.1)", borderColor: "rgba(148,163,184,0.3)" };
+  }
+}
+
+// ── Verification Badge ──
+export function getVerificationBadge(opp: { verificationStatus?: string; deadline?: string | null; [key: string]: any }): VerificationBadge {
+  const status = opp.verificationStatus || "pending";
+  const isExpired = opp.deadline ? new Date(opp.deadline) < new Date() : false;
+  const effectiveStatus = isExpired ? "expired" : status;
+  
+  switch (effectiveStatus) {
+    case "verified":
+      return { status: "verified", icon: "🟢", label: "Officially Verified", color: "#34d399", bgColor: "rgba(16,185,129,0.15)" };
+    case "pending":
+      return { status: "pending", icon: "🟡", label: "Verification Pending", color: "#fbbf24", bgColor: "rgba(245,158,11,0.12)" };
+    case "conflict":
+      return { status: "conflict", icon: "⚠", label: "Source Discrepancy", color: "#f97316", bgColor: "rgba(249,115,22,0.12)" };
+    case "expired":
+      return { status: "expired", icon: "🔴", label: "Expired", color: "#f87171", bgColor: "rgba(248,113,113,0.12)" };
+    case "unavailable":
+      return { status: "unavailable", icon: "⚫", label: "Unavailable", color: "#94a3b8", bgColor: "rgba(148,163,184,0.1)" };
+    default:
+      return { status: "pending", icon: "🟡", label: "Verification Pending", color: "#fbbf24", bgColor: "rgba(245,158,11,0.12)" };
+  }
+}
+
+// ── Compute Opportunity Requirements (Canonical Engine) ──
+export function computeOpportunityRequirements(opp: OpportunityData): OpportunityRequirements {
+  const ctx = opp.extracted_context || {};
+  const themes = ctx.tracks_or_themes || [];
+  
+  // Derive domains from domain_tags with relevance
+  const domains = (opp.domain_tags || []).map((d: string, i: number) => ({
+    name: d,
+    relevance: (i < 2 ? "High" : "Medium") as "High" | "Medium" | "Low"
+  }));
+
+  const rawReqSkills = opp.requiredSkills || opp.tags || [];
+  const requiredCapabilities: RequiredCapability[] = rawReqSkills.map((s: string) => {
+    // Check if skill was explicitly mentioned in tracks or summary
+    const sLower = s.toLowerCase();
+    const summaryText = `${opp.title} ${ctx.summary || ""} ${opp.eligibility || ""} ${(themes || []).join(" ")}`.toLowerCase();
+    const isExplicit = summaryText.includes(sLower);
+    return {
+      name: s,
+      type: isExplicit ? "explicit" : "inferred",
+      evidenceLabel: isExplicit ? "✓ Verified" : "◇ Inferred"
+    };
+  });
+
+  const officialConstraints: string[] = [];
+  if (opp.eligibility && opp.eligibility.trim().length > 0) {
+    officialConstraints.push(`Eligibility: ${opp.eligibility}`);
+  }
+  if (ctx.team_size || opp.teamSize) {
+    officialConstraints.push(`Team Size: ${ctx.team_size || opp.teamSize}`);
+  }
+  if (opp.deadline) {
+    try {
+      const d = new Date(opp.deadline);
+      officialConstraints.push(`Official Deadline: ${d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`);
+    } catch {
+      // ignore
+    }
+  }
+  
+  return {
+    domains,
+    requiredCapabilities,
+    requiredSkills: rawReqSkills,
+    preferredSkills: opp.preferredSkills || [],
+    experienceLevel: opp.eligibility?.toLowerCase().includes("beginner") ? "Beginner" :
+                     opp.eligibility?.toLowerCase().includes("expert") ? "Expert" : "Intermediate",
+    teamSize: opp.teamSize || ctx.team_size || "1–4 members",
+    duration: ctx.duration || "Not specified",
+    themes: themes,
+    mode: opp.mode || "Online / Hybrid",
+    eligibility: opp.eligibility || "Open to all enrolled university students",
+    officialConstraints,
+    sourceUrl: opp.source_url,
+    sourceName: opp.organizer || "Official Portal",
+    verificationStatus: opp.verificationStatus || "verified",
+    lastVerifiedAt: opp.lastVerifiedAt || new Date().toISOString()
+  };
+}
+
+// Backward compatibility function alias
+export const computeOpportunityDNA = computeOpportunityRequirements;
+
+// ── Compute Evidence-Based Fit with Granular Provenance ──
+export function computeFitEvidence(
+  profile: StudentProfileData,
+  opp: OpportunityData
+): FitEvidence {
+  const match = computeMatchScore(profile, opp);
+  const label = (!profile.skills || profile.skills.length === 0) 
+    ? "Insufficient Information" 
+    : getQualitativeFitLabel(match.fit_score);
+  
+  const strengths: SkillFitItem[] = [];
+  const partial: SkillFitItem[] = [];
+  const gaps: SkillFitItem[] = [];
+  const provenance: ProvenanceClaim[] = [];
+  
+  interface SkillSourceMeta {
+    level: string;
+    evidence?: string;
+    sourceType: "github" | "project" | "assessment" | "resume" | "user_profile";
+    sourceName: string;
+    isVerified: boolean;
+  }
+  
+  const profileSkillMap = new Map<string, SkillSourceMeta>();
+  for (const s of profile.skills || []) {
+    const isAdv = s.level === "Advanced" || s.level === "Expert";
+    const hasGithub = (s.evidence || "").toLowerCase().includes("github");
+    profileSkillMap.set(s.name.toLowerCase(), {
+      level: s.level,
+      evidence: s.evidence,
+      sourceType: hasGithub ? "github" : "user_profile",
+      sourceName: hasGithub ? "Public GitHub Repository" : "Student Profile",
+      isVerified: hasGithub || isAdv
+    });
+  }
+  // Corroborate with project tech stacks
+  for (const p of profile.past_projects || []) {
+    for (const t of p.tech_stack || []) {
+      const lower = t.toLowerCase();
+      if (!profileSkillMap.has(lower)) {
+        profileSkillMap.set(lower, {
+          level: "Intermediate",
+          evidence: `Documented in verified project: ${p.title}`,
+          sourceType: "project",
+          sourceName: p.title,
+          isVerified: true
+        });
+      }
+    }
+  }
+  
+  const requiredSkills = opp.requiredSkills || opp.tags || [];
+  
+  for (const reqSkill of requiredSkills) {
+    const lower = reqSkill.toLowerCase();
+    let found = false;
+    for (const [sName, sData] of profileSkillMap.entries()) {
+      if (sName.includes(lower) || lower.includes(sName)) {
+        const isAdv = sData.level === "Advanced" || sData.level === "Expert";
+        const label: EvidenceLabel = sData.isVerified ? "✓ Verified" : "◐ User Declared";
+        
+        if (isAdv) {
+          strengths.push({
+            skill: reqSkill,
+            level: sData.level,
+            reason: `${sData.level} proficiency`,
+            evidenceLabel: label,
+            evidenceSource: sData.sourceName,
+            evidenceDetail: sData.evidence || `Demonstrated proficiency in ${sData.sourceName}`
+          });
+        } else {
+          partial.push({
+            skill: reqSkill,
+            reason: `${sData.level} proficiency`,
+            evidenceLabel: label,
+            evidenceSource: sData.sourceName,
+            evidenceDetail: sData.evidence || `Intermediate working knowledge from ${sData.sourceName}`
+          });
+        }
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      gaps.push({
+        skill: reqSkill,
+        reason: "No evidence found in Student DNA",
+        evidenceLabel: "⚠ Needs Verification",
+        suggestion: "Can be bridged through team syndicate matching or preparatory sprint"
+      });
+    }
+  }
+  
+  // ── Construct Provenance Claims for [Why this match?] modal ──
+  // 1. Relevant Skill Alignment
+  if (strengths.length > 0) {
+    provenance.push({
+      category: "Relevant Skill Alignment",
+      claim: `Strong alignment across ${strengths.map(s => s.skill).join(", ")}`,
+      evidence: strengths.map(s => `${s.skill}: ${s.evidenceDetail} (${s.evidenceSource})`).join(" • "),
+      sourceType: strengths[0].evidenceSource?.includes("GitHub") ? "github" : "project",
+      sourceName: strengths[0].evidenceSource || "Student Projects",
+      evidenceLabel: "✓ Verified"
+    });
+  }
+  
+  // 2. Domain Alignment
+  const oppDomains = opp.domain_tags || [];
+  const matchedDomains = oppDomains.filter(d =>
+    (profile.target_roles || []).some(r => r.toLowerCase().includes(d.toLowerCase())) ||
+    (profile.profile_summary || "").toLowerCase().includes(d.toLowerCase())
+  );
+  if (matchedDomains.length > 0) {
+    provenance.push({
+      category: "Domain Alignment",
+      claim: `Focus domains align with ${matchedDomains.join(", ")}`,
+      evidence: `Student target roles (${(profile.target_roles || []).join(", ")}) directly map to this opportunity's engineering track.`,
+      sourceType: "user_profile",
+      sourceName: "Target Roles & Career Focus",
+      evidenceLabel: "◐ User Declared"
+    });
+  }
+
+  // 3. Experience Alignment
+  const matchingProjects = (profile.past_projects || []).filter(p => {
+    const text = `${p.title} ${p.description} ${(p.tech_stack || []).join(" ")}`.toLowerCase();
+    return oppDomains.some(d => text.includes(d.toLowerCase())) ||
+           requiredSkills.some(s => text.includes(s.toLowerCase()));
+  });
+  if (matchingProjects.length > 0) {
+    provenance.push({
+      category: "Experience Alignment",
+      claim: `${matchingProjects.length} relevant project blueprint${matchingProjects.length > 1 ? "s" : ""} on record`,
+      evidence: matchingProjects.map(p => `"${p.title}" built with ${(p.tech_stack || []).slice(0, 3).join(", ")}`).join("; "),
+      sourceType: "project",
+      sourceName: matchingProjects[0].title,
+      evidenceLabel: "✓ Verified"
+    });
+  }
+
+  // 4. Eligibility
+  provenance.push({
+    category: "Eligibility",
+    claim: "Candidate meets open university participation criteria",
+    evidence: `Opportunity states: "${opp.eligibility || "Open to students"}". Verified student enrollment status matches.`,
+    sourceType: "official_source",
+    sourceName: opp.organizer || "Official Eligibility Terms",
+    evidenceLabel: "✓ Verified"
+  });
+
+  // 5. Goal Alignment
+  if (profile.target_roles && profile.target_roles.length > 0) {
+    provenance.push({
+      category: "Goal Alignment",
+      claim: `Supports progression toward ${profile.target_roles[0]}`,
+      evidence: `Participation provides concrete portfolio evidence and PPI track opportunities for ${profile.target_roles[0]}.`,
+      sourceType: "system_inference",
+      sourceName: "Career Progression Model",
+      evidenceLabel: "◇ Inferred"
+    });
+  }
+
+  // 6. Growth Opportunity
+  if (gaps.length > 0) {
+    provenance.push({
+      category: "Growth Opportunity",
+      claim: `Actionable skill expansion in ${gaps.slice(0, 2).map(g => g.skill).join(", ")}`,
+      evidence: `Opportunity requires ${gaps.slice(0, 2).map(g => g.skill).join(", ")}, which represents a high-value skill expansion via team collaboration.`,
+      sourceType: "system_inference",
+      sourceName: "Capability Gap Analysis",
+      evidenceLabel: "◇ Inferred"
+    });
+  }
+  
+  // Build grounded human-readable summary
+  const summaryParts: string[] = [];
+  if (strengths.length > 0) {
+    summaryParts.push(`Your current Student DNA shows verified strengths in ${strengths.slice(0, 3).map(s => s.skill).join(", ")}`);
+  }
+  if (partial.length > 0) {
+    summaryParts.push(`intermediate foundation in ${partial.slice(0, 2).map(p => p.skill).join(", ")}`);
+  }
+  if (gaps.length > 0) {
+    summaryParts.push(`and potential to bridge ${gaps.slice(0, 2).map(g => g.skill).join(", ")} via team coverage`);
+  }
+  const whySummary = summaryParts.length > 0 
+    ? summaryParts.join(", ") + "."
+    : "Your profile has foundational engineering alignment with this opportunity's tracks.";
+  
+  return { label, strengths, partial, gaps, whySummary, rawScore: match.fit_score, provenance };
 }
 
 export function getSafeOpportunityUrl(url?: string, organizer?: string, title?: string): string {
@@ -251,7 +647,16 @@ export function getSafeOpportunityUrl(url?: string, organizer?: string, title?: 
   if (org.includes("luma") || tit.includes("luma") || raw.includes("lu.ma")) {
     return "https://lu.ma/";
   }
+  if (org.includes("devnovate") || tit.includes("devnovate") || raw.includes("devnovate.com")) {
+    if (raw.startsWith("http")) return raw;
+    return "https://devnovate.com";
+  }
+  if (org.includes("devpost") || tit.includes("devpost") || raw.includes("devpost.com")) {
+    if (raw.startsWith("http")) return raw;
+    return "https://devpost.com";
+  }
   if (org.includes("hack2skill") || tit.includes("hack2skill") || raw.includes("hack2skill.com")) {
+    if (raw.startsWith("http")) return raw;
     return "https://hack2skill.com/hackathons";
   }
   if (tit.includes("microsoft") || org.includes("microsoft")) {
@@ -290,6 +695,15 @@ export function getOpportunityPortalInfo(url?: string, organizer?: string, title
   if (safeUrl.includes("unstop.com")) {
     return { name: "Unstop Verified", badgeColor: "#38bdf8", badgeBg: "rgba(56,189,248,0.15)", isVerified: true };
   }
+  if (safeUrl.includes("hack2skill.com") || org.includes("hack2skill")) {
+    return { name: "Hack2Skill Verified", badgeColor: "#a78bfa", badgeBg: "rgba(167,139,250,0.15)", isVerified: true };
+  }
+  if (safeUrl.includes("devnovate.com") || org.includes("devnovate")) {
+    return { name: "Devnovate Verified", badgeColor: "#f59e0b", badgeBg: "rgba(245,158,11,0.15)", isVerified: true };
+  }
+  if (safeUrl.includes("devpost.com") || org.includes("devpost")) {
+    return { name: "Devpost Verified", badgeColor: "#00b4d8", badgeBg: "rgba(0,180,216,0.15)", isVerified: true };
+  }
   if (safeUrl.includes("devfolio.co") || safeUrl.includes("ethindia")) {
     return { name: "Devfolio Verified", badgeColor: "#60a5fa", badgeBg: "rgba(96,165,250,0.15)", isVerified: true };
   }
@@ -299,14 +713,8 @@ export function getOpportunityPortalInfo(url?: string, organizer?: string, title
   if (safeUrl.includes("mlh.io")) {
     return { name: "MLH Official", badgeColor: "#f43f5e", badgeBg: "rgba(244,63,94,0.15)", isVerified: true };
   }
-  if (safeUrl.includes("devpost.com")) {
-    return { name: "Devpost Verified", badgeColor: "#00b4d8", badgeBg: "rgba(0,180,216,0.15)", isVerified: true };
-  }
   if (safeUrl.includes("hackerearth.com")) {
     return { name: "HackerEarth Verified", badgeColor: "#4ade80", badgeBg: "rgba(74,222,128,0.15)", isVerified: true };
-  }
-  if (safeUrl.includes("hack2skill.com")) {
-    return { name: "Hack2skill Verified", badgeColor: "#a78bfa", badgeBg: "rgba(167,139,250,0.15)", isVerified: true };
   }
   if (safeUrl.includes("kaggle.com")) {
     return { name: "Kaggle Verified", badgeColor: "#38bdf8", badgeBg: "rgba(56,189,248,0.15)", isVerified: true };

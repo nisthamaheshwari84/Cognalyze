@@ -5,6 +5,7 @@ import {
   updateCareerIntent, 
   getStudentEvidence 
 } from "@/lib/intelligence/student-intelligence";
+import { runEvidenceEngine } from "@/lib/intelligence/evidence-engine";
 
 export async function GET(req: Request) {
   try {
@@ -22,11 +23,14 @@ export async function GET(req: Request) {
       getStudentEvidence(candidateId)
     ]);
 
+    const evidenceEngine = runEvidenceEngine(candidateId);
+
     return NextResponse.json({
       success: true,
       dna,
       intelligence,
-      evidence
+      evidence,
+      evidenceEngine
     });
   } catch (error: any) {
     console.error("GET /api/student/dna error:", error);

@@ -144,7 +144,7 @@ export async function getNotifications(studentId: string, limit = 50): Promise<{
       .limit(limit);
 
     if (data && !error && data.length > 0) {
-      const notifications = data.map((d: any) => ({
+      const notifications: NotificationItem[] = data.map((d: any) => ({
         id: d.id,
         student_id: d.student_id,
         source_feature: d.source_feature,
@@ -156,7 +156,7 @@ export async function getNotifications(studentId: string, limit = 50): Promise<{
         is_read: !!d.is_read,
         created_at: d.created_at
       }));
-      const unread_count = notifications.filter(n => !n.is_read).length;
+      const unread_count = notifications.filter((n: NotificationItem) => !n.is_read).length;
       return { notifications, unread_count };
     }
   } catch {

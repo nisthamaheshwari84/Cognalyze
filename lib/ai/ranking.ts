@@ -9,12 +9,6 @@ export interface RankResult {
   reasoning: string;
 }
 
-// Disallowed consulting agencies from JD
-const SERVICE_COMPANIES = [
-  "tcs", "tata consultancy", "infosys", "wipro", "accenture", 
-  "cognizant", "capgemini", "hcl", "tech mahindra", "l&t"
-];
-
 // Tech release years to catch time-travelers
 const TECH_RELEASE_YEARS: Record<string, number> = {
   "react": 2013,
@@ -42,32 +36,32 @@ export function scoreCandidateLocal(cand: RedrobCandidate, targetYoe: number = 7
     if (candSkills.includes(skill)) skillMatchCount++;
   });
   const skillScore = (skillMatchCount / coreJdSkills.length) * 100;
-  score += skillScore * 0.30; // 30% weight
+  score += skillScore * 0.35; // 35% weight
 
   // 2. Experience Gaussian Match (5-9 YoE target)
   const actualYoe = cand.profile?.years_of_experience ?? 5;
   const experienceScore = calculateExperienceScore(actualYoe, targetYoe);
-  score += experienceScore * 0.20; // 20% weight
+  score += experienceScore * 0.25; // 25% weight
 
-  // 3. Company Type Disqualifier & Prestige Tiers
-  let companyScore = 60; // baseline
-  const pastCompanies = cand.career_history.map(c => c.company.toLowerCase());
+  // 3. Career Progression & Tenure Signal (truthful history, no employer prestige bias)
+  const totalMonths = cand.career_history.reduce((sum, c) => sum + (c.duration_months || 0), 0);
+  const avgTenure = cand.career_history.length > 0 ? totalMonths / cand.career_history.length : 0;
   
-  // Check for service-only history (deal breaker)
-  const onlyServices = pastCompanies.length > 0 && pastCompanies.every(c => 
-    SERVICE_COMPANIES.some(sc => c.includes(sc))
-  );
-  if (onlyServices) {
-    companyScore = 10;
-    reasons.push("disqualified service company background");
-  } else {
-    // Check for Tier 1 / product history
-    const hasProductHistory = cand.career_history.some(c => 
-      c.company_size === "10001+" || c.company_size === "5001-10000"
-    );
-    if (hasProductHistory) companyScore = 95;
+  // Calculate promotions as progression across multiple roles within the same company
+  const companyCounts = new Map<string, number>();
+  for (const item of cand.career_history) {
+    const key = (item.company || "").toLowerCase();
+    companyCounts.set(key, (companyCounts.get(key) || 0) + 1);
   }
-  score += companyScore * 0.15; // 15% weight
+  let promotionsCount = 0;
+  for (const count of companyCounts.values()) {
+    if (count > 1) promotionsCount += count - 1;
+  }
+
+  const trajectoryScore = calculateTrajectoryScore(avgTenure, promotionsCount);
+  score += trajectoryScore * 0.15; // 15% weight
+
+
 
   // 4. Behavioral & Telemetry Modifier
   const behavioral = calculateBehavioralFromSignals(cand.redrob_signals);

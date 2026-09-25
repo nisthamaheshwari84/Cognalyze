@@ -6,3 +6,5 @@
 export * from "./resume-parser";
 export * from "./jd-extractor";
 export * from "./scoring-engine";
+export * from "./student-intelligence";
+export * from "./evidence-engine";

@@ -17,8 +17,9 @@ import { computeRoleCandidateMatch, generateMinimumProofPlan, MatchEngineResult,
 import { WorkSampleMiniTask, WorkSampleEvaluationResult } from "./ai/work-sample";
 import { CandidateInterviewHistory } from "./ai/interview-memory";
 import { DetectedConflict } from "./ai/conflict-detector";
-import { HireOutcomeRecord, generateSampleHireRecords } from "./ai/quality-of-hire";
+import { HireOutcomeRecord } from "./ai/quality-of-hire";
 import { getApplicationsStore } from "./placement-store";
+import { CandidateScreeningDossier, RecruiterCorrection } from "./screening/candidate-screening-engine";
 
 export interface MultiSourceCandidateProfile {
   id: string;
@@ -67,8 +68,14 @@ export interface MultiSourceCandidateProfile {
     rationale: string;
     holdLoopCount: number;
     recoveredRoleId?: string;
+    citedEvidenceIds?: string[];
   };
+
+  // Feature 2 Evidence-Grounded Screening Dossier
+  screeningDossier?: CandidateScreeningDossier;
+  recruiterCorrections?: RecruiterCorrection[];
 }
+
 
 export interface RecruiterActionItem {
   id: string;
@@ -325,7 +332,7 @@ const STORE_FILE = path.join(STORE_DIR, "recruiter-store.json");
 // Global storage containers initialized with defaults
 let rolesStore: RoleDNA[] = [...initialRoles];
 let candidatesStore: MultiSourceCandidateProfile[] = [...initialCandidates];
-let hireRecordsStore: HireOutcomeRecord[] = generateSampleHireRecords();
+let hireRecordsStore: HireOutcomeRecord[] = [];
 
 function loadStoreFromDisk() {
   try {
@@ -450,6 +457,57 @@ export async function updateCandidateStage(
   }
   persistStoreToDisk();
   return cand;
+}
+
+export async function saveCandidateDossier(
+  candidateId: string,
+  dossier: CandidateScreeningDossier
+): Promise<MultiSourceCandidateProfile | null> {
+  const cand = candidatesStore.find(c => c.id === candidateId);
+  if (!cand) return null;
+  cand.screeningDossier = dossier;
+  persistStoreToDisk();
+  return cand;
+}
+
+export async function addCandidateCorrection(
+  candidateId: string,
+  correction: RecruiterCorrection
+): Promise<MultiSourceCandidateProfile | null> {
+  const cand = candidatesStore.find(c => c.id === candidateId);
+  if (!cand) return null;
+  if (!cand.recruiterCorrections) {
+    cand.recruiterCorrections = [];
+  }
+  cand.recruiterCorrections.push(correction);
+  if (cand.screeningDossier) {
+    const item = cand.screeningDossier.assessments.find(a => a.requirementId === correction.requirementId);
+    if (item) {
+      item.evidenceState = correction.correctedState;
+      item.assessmentExplanation = `[Recruiter Correction]: Updated to ${correction.correctedState}. Reason: ${correction.reason}`;
+    }
+  }
+  persistStoreToDisk();
+  return cand;
+}
+
+export async function getRoleCandidateMetrics(roleId: string): Promise<{
+  totalApplicants: number;
+  analyzedCount: number;
+  needsAttentionCount: number;
+}> {
+  const pool = await getAllCandidates();
+  const roleCandidates = pool.filter(c => c.appliedRoleId === roleId);
+  const totalApplicants = roleCandidates.length;
+  const analyzedCount = roleCandidates.filter(c => !!c.screeningDossier).length;
+  const needsAttentionCount = roleCandidates.filter(c => {
+    if (!c.screeningDossier) return false;
+    return (
+      c.screeningDossier.coverageCounts.needsReviewCount > 0 ||
+      c.screeningDossier.coverageCounts.conflictingCount > 0
+    );
+  }).length;
+  return { totalApplicants, analyzedCount, needsAttentionCount };
 }
 
 export async function getActionQueue(): Promise<RecruiterActionItem[]> {

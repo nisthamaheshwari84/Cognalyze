@@ -20,34 +20,89 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { challengeId, candidateArchitecture, databaseChoice, cachingStrategy, bottleneckStrategy } = body;
+    const {
+      challengeId,
+      candidateArchitecture,
+      databaseChoice,
+      cachingStrategy,
+      bottleneckStrategy,
+      clarifications = [],
+      canvasGraph = { nodes: [], edges: [] },
+      chaosDefense = "",
+      hintsUsed = false,
+      track = "product_mid"
+    } = body;
 
     const challenge =
       SEED_SYSTEM_DESIGN_CHALLENGES.find(c => c.id === challengeId) || SEED_SYSTEM_DESIGN_CHALLENGES[0];
 
+    const graphSummary = canvasGraph.nodes && canvasGraph.nodes.length > 0
+      ? `Nodes: ${canvasGraph.nodes.map((n: any) => `${n.label} [role: ${n.annotation || 'unspecified'}]`).join(', ')}. Edges: ${canvasGraph.edges?.map((e: any) => `${e.from} -> ${e.to} (${e.protocol || 'connected'})`).join(', ') || 'None'}`
+      : 'Visual Canvas not used';
+
+    const clarificationSummary = clarifications && clarifications.length > 0
+      ? clarifications.map((c: any) => `Q: ${c.question} -> A: ${c.answer}`).join('\n')
+      : 'No clarifying questions asked';
+
     const prompt = `You are a Principal Systems Architect and Bar-Raiser at a Tier-1 Product Company (Amazon / Razorpay / Google).
-Evaluate the candidate's proposed system design for:
+Evaluate the candidate's interactive system design interview session for:
 Problem: "${challenge.title}"
-Scale: "${challenge.scale_metrics}"
-Requirements: ${JSON.stringify(challenge.functional_requirements)}
+Scale Target: "${challenge.scale_metrics}"
+Functional Requirements: ${JSON.stringify(challenge.functional_requirements)}
 Benchmark Architecture: ${JSON.stringify(challenge.ideal_solution)}
 
-Candidate's Submission:
-- Architectural Components & Flow: "${candidateArchitecture || 'N/A'}"
-- Database Choice & Justification: "${databaseChoice || 'N/A'}"
-- Caching Strategy: "${cachingStrategy || 'N/A'}"
-- Bottleneck & Outage Handling: "${bottleneckStrategy || 'N/A'}"
+Session Context:
+- Clarifying Questions Asked:
+${clarificationSummary}
 
-Return STRICT JSON only:
+- Candidate Visual Architecture Graph:
+${graphSummary}
+
+- Candidate Architectural Spec:
+1. Flow & Gateway: "${candidateArchitecture || 'N/A'}"
+2. Storage & Sharding: "${databaseChoice || 'N/A'}"
+3. Caching & Eviction: "${cachingStrategy || 'N/A'}"
+4. Failure Handling & Outages: "${bottleneckStrategy || 'N/A'}"
+
+- Chaos Surge Response:
+"${chaosDefense || 'No explicit chaos response provided'}"
+
+- Hints / Blueprint Used: ${hintsUsed ? 'Yes (Guidance provided)' : 'No (Independent demonstration)'}
+- Target Track: ${track}
+
+Evaluate candidate strictly on evidence, not unsupported claims. Return STRICT JSON only:
 {
-  "scalabilityScore": number between 40 and 98,
+  "scalabilityScore": number between 45 and 96,
   "verdict": "L5 Senior Hire" | "L4 SDE-2 Hire" | "L3 SDE-1 Pass" | "Needs Redesign",
-  "dataModelingScore": number between 0 and 100,
-  "faultToleranceScore": number between 0 and 100,
-  "strengths": ["string", "string"],
-  "architecturalBottlenecks": ["string", "string"],
-  "principalAdvice": "2-3 sentences of actionable architectural critique",
-  "optimalComponentDiagram": ["Component 1", "Component 2", "Component 3"]
+  "dataModelingScore": number between 40 and 98,
+  "faultToleranceScore": number between 40 and 98,
+  "evidenceStatus": "${hintsUsed ? 'Demonstrated with Guidance' : 'Independently Demonstrated'}",
+  "demonstrated": [
+    "Specific architectural decision candidate demonstrated with reasoning",
+    "Another demonstrated strength"
+  ],
+  "developing": [
+    "Specific vulnerability or unproven claim",
+    "Another area needing work"
+  ],
+  "architecturalBottlenecks": [
+    "Bottleneck 1 identified in design",
+    "Bottleneck 2 identified under scale/failure"
+  ],
+  "whyItMatters": "2-3 sentences explaining the production impact of the identified bottleneck for this company track.",
+  "principalAdvice": "Actionable feedback from a Principal Architect.",
+  "nextBestAction": {
+    "title": "Name of recommended drill (e.g. 15-Minute Failure-Recovery Drill)",
+    "duration": "15 mins",
+    "type": "drill" | "architecture_review" | "sharding_lab",
+    "description": "Short description of what the candidate should practice next."
+  },
+  "transferTest": {
+    "challengeId": "sd-5",
+    "title": "Flash Sale & Inventory Reservation",
+    "reason": "Test whether candidate can apply similar atomic concurrency controls under extreme read/write bursts."
+  },
+  "strengths": ["string", "string"]
 }`;
 
     let evalResult: any = null;
@@ -60,7 +115,7 @@ Return STRICT JSON only:
           model: "openai/gpt-oss-120b",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
-          max_tokens: 900
+          max_tokens: 1100
         })
       });
 
@@ -73,21 +128,50 @@ Return STRICT JSON only:
     }
 
     if (!evalResult || !evalResult.scalabilityScore) {
+      const isRateLimiter = challenge.id === "sd-1";
       evalResult = {
-        scalabilityScore: 82,
-        verdict: "L4 SDE-2 Hire",
-        dataModelingScore: 84,
-        faultToleranceScore: 80,
-        strengths: [
-          "Appropriate use of Redis in-memory storage for high-frequency counter access",
-          "Clear separation between API Gateway and backend stateful datastores"
+        scalabilityScore: hintsUsed ? 76 : 84,
+        verdict: hintsUsed ? "L4 SDE-2 (Guided)" : "L4 SDE-2 Hire",
+        dataModelingScore: 82,
+        faultToleranceScore: chaosDefense.length > 20 ? 82 : 68,
+        evidenceStatus: hintsUsed ? "Demonstrated with Guidance" : "Independently Demonstrated",
+        demonstrated: [
+          isRateLimiter
+            ? "Requirement clarification established scope (API Key with IP fallback, sub-5ms SLA)"
+            : "Clean separation of stateless gateway from stateful storage layers",
+          isRateLimiter
+            ? "In-memory Redis atomic sliding window counter reasoning to prevent concurrency race conditions"
+            : "Appropriate caching layer decoupling reads from persistent database"
+        ],
+        developing: [
+          chaosDefense.length > 20
+            ? "Multi-region active-active replication lag bounds during cross-datacenter failover"
+            : "Failure recovery when primary cache cluster crashes under peak surge",
+          "Explicit fallback circuit-breaking bounds on the API Gateway"
         ],
         architecturalBottlenecks: [
-          "Ensure Redis operations use Lua scripts to prevent read-modify-write race conditions under high concurrency",
-          "Specify fail-open vs fail-closed policy during cache partition outages"
+          "Synchronous dependency on Redis cluster creates a single point of failure if local fallback is omitted",
+          "Thundering herd risk if cache keys expire simultaneously during high load"
         ],
+        whyItMatters: "Your target track expects candidates to reason about resilience and partial failures, not only happy-path functional throughput.",
         principalAdvice: challenge.ideal_solution.tradeoffs,
-        optimalComponentDiagram: challenge.ideal_solution.components
+        nextBestAction: {
+          title: "15-Minute Failure-Recovery & Circuit Breaker Drill",
+          duration: "15 mins",
+          type: "drill",
+          description: "Simulate a complete Redis partition with 500k req/s and implement tiered fail-open policies."
+        },
+        transferTest: {
+          challengeId: isRateLimiter ? "sd-5" : "sd-3",
+          title: isRateLimiter ? "High-Concurrency Flash Sale" : "Real-Time Chat & Instant Messaging",
+          reason: isRateLimiter
+            ? "Transfer your atomic counter reasoning to high-surge inventory decrements with zero overselling."
+            : "Transfer caching and connection management to stateful bidirectional WebSocket connections."
+        },
+        strengths: [
+          "Atomic operations prevents race conditions",
+          "Separation of concerns across layers"
+        ]
       };
     }
 

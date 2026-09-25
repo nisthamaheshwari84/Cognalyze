@@ -30,24 +30,158 @@ export interface TieredRequirement {
   acceptableProofTypes: ("production_code" | "architecture_spec" | "github_commit" | "live_work_sample" | "verified_interview")[];
 }
 
+export interface StructuredRoleRequirement {
+  id: string;
+  name: string;
+  category: "required" | "preferred" | "experience" | "education" | "responsibility" | "other";
+  evidenceQuote: string;
+  source: "job_description" | "recruiter_added";
+  needsConfirmation?: boolean;
+  ambiguityReason?: string;
+  conflictEvidence?: {
+    statementA: string;
+    statementB: string;
+    reason: string;
+  };
+  startChar?: number;
+  endChar?: number;
+
+  // Semantic Role DNA Intelligence fields
+  canonicalName?: string;
+  semanticCategory?: import("@/lib/roles/types").SemanticRequirementCategory;
+  subtype?: string;
+  rationale?: string;
+  evidenceSignals?: string[];
+  verificationStrategy?: string[];
+  confidence?: number;
+  ambiguityStatus?: import("@/lib/roles/types").AmbiguityStatus;
+  relatedCapabilities?: { name: string; confidence: number; explanation: string }[];
+
+  // Enhanced fields
+  requirementType?: import("@/lib/roles/types").RequirementType;
+  importance?: import("@/lib/roles/types").ImportanceLevel;
+  evidenceExpectation?: import("@/lib/roles/types").EvidenceExpectation;
+  acceptableOptions?: string[];
+  minimumExperienceYears?: number;
+}
+
 export interface RoleDNA {
   id: string;
   title: string;
   department: string;
   seniority: "Junior" | "Mid-Level" | "Senior" | "Staff" | "Principal";
   targetHires: number;
+  workMode?: "Remote" | "Hybrid" | "On-site";
+  location?: string;
   businessOutcomes: BusinessOutcome[];
   tieredRequirements: TieredRequirement[];
+  structuredRequirements?: StructuredRoleRequirement[];
+  roleDna?: import("@/lib/roles/types").RoleDNAStructure;
   uncertaintyThreshold: number; // e.g. 0.20: If >20% uncertainty on Critical/Important, trigger Minimum Proof
   status: "active" | "draft" | "filled";
   createdAt: string;
   updatedAt: string;
+  version?: number;
+  jdRaw?: string;
+  spineRequirements?: import("@/lib/roles/types").JdRequirement[];
+  reviewLens?: import("@/lib/roles/types").JdReviewLensResult;
   calibrationNotes?: string[];
   learningLoopRefinements?: {
     date: string;
     adjustedRequirement: string;
     reason: string;
   }[];
+}
+
+/**
+ * Compiles tiered requirements with normalized weights in the background
+ * from structured requirements without exposing AI weights or calibration to the recruiter.
+ */
+export function compileTieredRequirementsFromStructured(
+  structured: StructuredRoleRequirement[]
+): TieredRequirement[] {
+  if (!structured || structured.length === 0) {
+    return [
+      {
+        id: "req-default-1",
+        name: "General Engineering Fundamentals",
+        tier: "Critical",
+        category: "Technical",
+        description: "Verified core programming and problem solving fundamentals",
+        weightPct: 100,
+        verificationMethod: "work_sample",
+        dealBreakerIfMissing: true,
+        acceptableProofTypes: ["production_code", "github_commit"]
+      }
+    ];
+  }
+
+  // Filter out noise or duplicates
+  const valid = structured.filter(s => s.name && s.name.trim());
+  const requiredItems = valid.filter(s =>
+    s.semanticCategory === "MUST_HAVE" ||
+    (!s.semanticCategory && (s.category === "required" || s.category === "experience" || s.category === "education")) ||
+    (s.category === "required" && s.semanticCategory !== "RESPONSIBILITY") ||
+    (s.category === "experience" && s.semanticCategory !== "RESPONSIBILITY") ||
+    (s.category === "education" && s.semanticCategory !== "RESPONSIBILITY")
+  );
+  const preferredItems = valid.filter(s =>
+    s.semanticCategory === "PREFERRED" ||
+    (!s.semanticCategory && (s.category === "preferred" || s.category === "other")) ||
+    (s.category === "preferred" && s.semanticCategory !== "EVIDENCE_SIGNAL") ||
+    (s.category === "other" && s.semanticCategory !== "EVIDENCE_SIGNAL")
+  );
+
+  const compiled: TieredRequirement[] = [];
+
+  // Allocate 70% weight to Required / Experience / Education
+  if (requiredItems.length > 0) {
+    const totalRequiredWeight = preferredItems.length > 0 ? 70 : 100;
+    const base = Math.floor(totalRequiredWeight / requiredItems.length);
+    let rem = totalRequiredWeight - base * requiredItems.length;
+
+    requiredItems.forEach((item, idx) => {
+      const extra = rem > 0 ? 1 : 0;
+      if (rem > 0) rem--;
+      const isCritical = idx === 0 || item.category === "required" || item.semanticCategory === "MUST_HAVE";
+      compiled.push({
+        id: item.id || `req-str-${idx + 1}`,
+        name: item.canonicalName || item.name,
+        tier: isCritical ? "Critical" : "Important",
+        category: item.category === "experience" ? "Domain" : "Technical",
+        description: item.evidenceQuote || `Verified requirement: ${item.canonicalName || item.name}`,
+        weightPct: base + extra,
+        verificationMethod: idx === 0 ? "work_sample" : "code_execution",
+        dealBreakerIfMissing: item.category === "required" || item.semanticCategory === "MUST_HAVE",
+        acceptableProofTypes: ["production_code", "github_commit", "live_work_sample"]
+      });
+    });
+  }
+
+  // Allocate 30% weight to Preferred / Other
+  if (preferredItems.length > 0) {
+    const totalPreferredWeight = requiredItems.length > 0 ? 30 : 100;
+    const base = Math.floor(totalPreferredWeight / preferredItems.length);
+    let rem = totalPreferredWeight - base * preferredItems.length;
+
+    preferredItems.forEach((item, idx) => {
+      const extra = rem > 0 ? 1 : 0;
+      if (rem > 0) rem--;
+      compiled.push({
+        id: item.id || `req-str-pref-${idx + 1}`,
+        name: item.canonicalName || item.name,
+        tier: idx === 0 ? "Preferred" : "Trainable",
+        category: "Technical",
+        description: item.evidenceQuote || `Preferred capability: ${item.canonicalName || item.name}`,
+        weightPct: base + extra,
+        verificationMethod: "targeted_interview",
+        dealBreakerIfMissing: false,
+        acceptableProofTypes: ["verified_interview", "github_commit"]
+      });
+    });
+  }
+
+  return normalizeRoleDnaWeights(compiled);
 }
 
 /**

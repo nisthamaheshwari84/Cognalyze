@@ -1,11 +1,62 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [session, setSession] = useState<{
+    loading: boolean;
+    authenticated: boolean;
+    user?: any;
+    studentProfile?: any;
+    recruiterProfile?: any;
+  }>({ loading: true, authenticated: false });
+
+  useEffect(() => {
+    let isMounted = true;
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setSession({
+              loading: false,
+              authenticated: !!data.authenticated,
+              user: data.user,
+              studentProfile: data.studentProfile,
+              recruiterProfile: data.recruiterProfile
+            });
+          }
+        } else {
+          if (isMounted) setSession({ loading: false, authenticated: false });
+        }
+      } catch {
+        if (isMounted) setSession({ loading: false, authenticated: false });
+      }
+    }
+    checkSession();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      setSession({ loading: false, authenticated: false });
+      router.refresh();
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   const handleSelect = async (section: "student" | "recruiter" | "post") => {
     setLoadingSection(section);
@@ -95,6 +146,186 @@ export default function Home() {
           pointerEvents: "none"
         }}
       />
+
+      {/* Top Navbar with Branding & Sign In / Sign Up */}
+      <header
+        style={{
+          width: "100%",
+          maxWidth: "1160px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "14px 22px",
+          marginBottom: "32px",
+          borderRadius: "16px",
+          background: "rgba(14, 19, 31, 0.75)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          position: "relative",
+          zIndex: 20
+        }}
+      >
+        {/* Brand */}
+        <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 10 }}>
+          <div
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 900,
+              color: "white",
+              fontSize: 16,
+              boxShadow: "0 0 16px rgba(99,102,241,0.4)"
+            }}
+          >
+            ⚡
+          </div>
+          <div>
+            <span style={{ fontSize: 17, fontWeight: 900, color: "white", letterSpacing: "-0.5px" }}>
+              COGNALYZE
+            </span>
+            <span
+              style={{
+                fontSize: 10,
+                marginLeft: 8,
+                padding: "2px 7px",
+                borderRadius: 4,
+                fontWeight: 800,
+                background: "rgba(99,102,241,0.18)",
+                color: "#a5b4fc",
+                border: "1px solid rgba(99,102,241,0.35)"
+              }}
+            >
+              INTELLIGENCE
+            </span>
+          </div>
+        </Link>
+
+        {/* Links & Auth Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <Link
+            href="/student/collaboration"
+            style={{
+              textDecoration: "none",
+              color: "rgba(255,255,255,0.7)",
+              fontSize: 13,
+              fontWeight: 600,
+              padding: "6px 12px",
+              borderRadius: 8,
+              transition: "all 0.15s ease"
+            }}
+          >
+            Collaboration Feed
+          </Link>
+          <Link
+            href="/post"
+            style={{
+              textDecoration: "none",
+              color: "rgba(255,255,255,0.7)",
+              fontSize: 13,
+              fontWeight: 600,
+              padding: "6px 12px",
+              borderRadius: 8,
+              transition: "all 0.15s ease"
+            }}
+          >
+            Network
+          </Link>
+
+          {session.authenticated && session.user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "5px 12px",
+                  borderRadius: 20,
+                  background: "rgba(255, 255, 255, 0.06)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)"
+                }}
+              >
+                <div
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: "50%",
+                    background: "#6366f1",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 11,
+                    fontWeight: 700
+                  }}
+                >
+                  {(session.studentProfile?.fullName?.[0] || session.recruiterProfile?.fullName?.[0] || session.user.email?.[0] || "U").toUpperCase()}
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#e2e8f0" }}>
+                  {session.studentProfile?.fullName || session.recruiterProfile?.fullName || session.user.email?.split("@")[0]}
+                </span>
+              </div>
+
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 9,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: loggingOut ? "not-allowed" : "pointer",
+                  background: "rgba(239, 68, 68, 0.12)",
+                  border: "1px solid rgba(239, 68, 68, 0.28)",
+                  color: "#fca5a5"
+                }}
+              >
+                {loggingOut ? "..." : "Sign Out"}
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: 8 }}>
+              <Link
+                id="landing-sign-in"
+                href="/login"
+                style={{
+                  textDecoration: "none",
+                  padding: "7px 16px",
+                  borderRadius: 9,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "#ffffff"
+                }}
+              >
+                Sign In
+              </Link>
+              <Link
+                id="landing-sign-up"
+                href="/signup"
+                style={{
+                  textDecoration: "none",
+                  padding: "7px 18px",
+                  borderRadius: 9,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  background: "linear-gradient(135deg, #6366f1, #06b6d4)",
+                  border: "1px solid rgba(99, 102, 241, 0.4)",
+                  color: "#ffffff",
+                  boxShadow: "0 0 16px rgba(99, 102, 241, 0.35)"
+                }}
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
+        </div>
+      </header>
 
       {/* Main Container */}
       <div
@@ -408,6 +639,65 @@ export default function Home() {
               <span>{loadingSection === "post" ? "Opening Post..." : "Open Post"}</span>
               <span>→</span>
             </button>
+          </div>
+        </div>
+
+        {/* Account Quick Access Bar */}
+        <div
+          style={{
+            marginTop: "36px",
+            padding: "16px 24px",
+            borderRadius: "16px",
+            background: "rgba(255, 255, 255, 0.03)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "16px"
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "20px" }}>🔐</span>
+            <div>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "#f8fafc" }}>
+                Authentication & Accounts
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255, 255, 255, 0.55)" }}>
+                Sign in to sync your verified DNA, coding history, and recruiter candidate pipeline.
+              </div>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Link
+              href="/login"
+              style={{
+                textDecoration: "none",
+                padding: "8px 16px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 700,
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#e2e8f0"
+              }}
+            >
+              Sign In to Existing Account
+            </Link>
+            <Link
+              href="/signup"
+              style={{
+                textDecoration: "none",
+                padding: "8px 18px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: 700,
+                background: "linear-gradient(135deg, #4f46e5, #06b6d4)",
+                color: "#ffffff"
+              }}
+            >
+              Create Account →
+            </Link>
           </div>
         </div>
       </div>

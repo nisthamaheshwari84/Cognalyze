@@ -1,88 +1,41 @@
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
+import { analyzeResumeIntelligence } from "@/lib/ai/resume-intelligence-engine";
+
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
     const { resume, jd } = await req.json();
 
-    const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{
-          role: "user",
-          content: `Create a brutally honest, actionable 6-month career roadmap for this candidate to get this role.
-
-RULES:
-- Be real. If they're not ready, say so and tell them what to do.
-- No motivation fluff. Specific actions only.
-- Include real resources (courses, projects, platforms)
-- Time estimates should be realistic
-
-JOB DESCRIPTION:
-${jd}
-
-RESUME:
-${resume}
-
-Return ONLY this JSON:
-{
-  "ready_to_apply": true,
-  "honest_take": "You're close but need to plug 2 gaps before applying or you'll get filtered.",
-  "months": [
-    {
-      "month": "Month 1-2",
-      "focus": "Close the MLOps gap",
-      "actions": [
-        "Complete FastAI course (2 weeks, free)",
-        "Deploy one model to AWS with monitoring",
-        "Add this to GitHub with proper documentation"
-      ],
-      "milestone": "Have a production ML project with monitoring you can talk about"
-    },
-    {
-      "month": "Month 3-4",
-      "focus": "Build cross-team experience",
-      "actions": [
-        "Contribute to an open source ML project",
-        "Write 2 technical blog posts about your work",
-        "Get 1 recommendation from a senior engineer"
-      ],
-      "milestone": "Can demonstrate collaboration beyond solo work"
-    },
-    {
-      "month": "Month 5-6",
-      "focus": "Apply and interview prep",
-      "actions": [
-        "Apply to this role and similar ones",
-        "Do 10 mock interviews (Pramp, Interviewing.io)",
-        "Prep 5 STAR stories from your experience"
-      ],
-      "milestone": "Ready to pass FAANG-level interviews"
+    if (!resume || typeof resume !== "string" || !resume.trim()) {
+      return NextResponse.json({ error: "Resume text is required." }, { status: 400 });
     }
-  ],
-  "apply_now_anyway": "Yes — even imperfect candidates get interviews. Apply while you work on gaps."
-}`
-        }],
-        max_tokens: 2500,
-        temperature: 0.3,
-        response_format: { type: "json_object" }
-      })
+
+    const report = await analyzeResumeIntelligence(resume, jd || "");
+    const roadmap = report.roadmap;
+
+    const months = roadmap.milestones.map((m) => ({
+      month: m.phase,
+      focus: m.title,
+      actions: [
+        m.action,
+        `Concrete Deliverable: ${m.concreteDeliverableArtifact}`,
+        `Evidence Generated: ${m.evidenceGenerated}`,
+      ],
+      milestone: m.concreteDeliverableArtifact,
+      target_requirement: m.targetGapRequirement,
+      realistic_effort: m.realisticEffort,
+    }));
+
+    return NextResponse.json({
+      ready_to_apply: roadmap.readyToApplyStatus === "READY_TO_APPLY" || roadmap.readyToApplyStatus === "APPLY_WITH_GAPS",
+      ready_to_apply_status: roadmap.readyToApplyStatus,
+      honest_take: roadmap.readyToApplyReason,
+      months,
+      report, // Complete canonical report
     });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || "Groq API returned an error");
-    const rawText = data.choices?.[0]?.message?.content || "";
-    const cleanText = rawText.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/```json\s*/gi, "").replace(/```\s*/g, "").trim();
-    const json = cleanText.match(/\{[\s\S]*\}/)?.[0];
-    if (!json) throw new Error("Parse failed - no valid JSON in model response");
-    return NextResponse.json(JSON.parse(json));
-
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[API /api/roadmap] Error:", error);
+    return NextResponse.json({ error: error.message || "Failed to generate roadmap." }, { status: 500 });
   }
 }

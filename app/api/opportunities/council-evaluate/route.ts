@@ -7,16 +7,31 @@ export interface AgentCritique {
   agent_name: string;
   agent_role: string;
   agent_avatar: string;
-  score: number;
   verdict: string;
-  critique: string;
-  tactical_advice: string;
+  fact: string;
+  inference: string;
+  concern: string;
+  recommendation: string;
+  critique?: string; // backward compat
+  tactical_advice?: string; // backward compat
+  score?: number; // internal reference
+}
+
+export interface CouncilConsensus {
+  strongest_evidence: string;
+  major_concern: string;
+  technical_risk: string;
+  research_gap: string;
+  differentiation_concern: string;
+  recommended_change: string;
 }
 
 export interface CouncilEvaluation {
-  overall_verdict: "🔥 100% WORTH IT (BUILD THIS IMMEDIATELY)" | "⚠️ WORTH IT WITH CRITICAL PIVOTS" | "❌ NOT WORTH IT (PIVOT TO ALTERNATIVE)";
-  consensus_score: number;
+  overall_verdict: "🔥 HIGH CONVICTION (BUILD IMMEDIATELY)" | "⚠️ VIABLE WITH CRITICAL PIVOTS" | "❌ UNVIABLE (PIVOT TO ALTERNATIVE)";
+  consensus_score?: number;
   executive_summary: string;
+  consensus: CouncilConsensus;
+  validated_problem: string;
   unfair_moat: string;
   fatal_pitfalls: string[];
   tactical_sprint_plan: Array<{ phase: string; hours: string; deliverable: string }>;
@@ -28,7 +43,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const {
       problem_statement,
-      project_title = "Untitled Real-World Solution",
+      project_title = "Untitled Solution",
       tech_stack = [],
       opportunity_title = "National Hackathon / Corporate Challenge",
       domain = "Engineering & Applied AI"
@@ -41,111 +56,140 @@ export async function POST(req: Request) {
       );
     }
 
-    const prompt = `You are the Council of 6 Elite AI Reviewers assembled to evaluate a hackathon problem statement and project proposal.
-The team wants to know: "IS THIS WORTH IT OR NOT?" ("worth it h ki nhh") to build in a high-stakes hackathon like SIH, ETHIndia, Flipkart GRiD, or Google/Meta buildathon.
+    const prompt = `You are an Evidence-Based Council of 6 AI Analytical Review Agents evaluating a technical problem statement and project proposal.
+The team needs an honest, evidence-first evaluation: "IS THIS WORTH BUILDING OR NOT?" for ${opportunity_title}.
 
-PROPOSAL DETAILS:
+STRICT PRINCIPLES:
+1. ZERO FABRICATED FACTS OR FAKE PERSONAS. These are transparent AI analytical roles, not simulated people.
+2. DISTINGUISH FACT, INFERENCE, CONCERN, AND RECOMMENDATION explicitly for every agent.
+   - FACT: What is directly stated in official requirements or observed real-world technical realities.
+   - INFERENCE: System deduction based on known architecture patterns. Never disguise inference as fact.
+   - CONCERN: Genuine risks, unsupported assumptions, missing evidence, or latency/data traps.
+   - RECOMMENDATION: Specific action to fix or de-risk the proposal.
+3. AVOID ARBITRARY SCORES. Focus on qualitative consensus, evidence strength, and structural viability.
+4. UNKNOWN = UNKNOWN. If quantitative market data or user statistics are unavailable, state: "Insufficient empirical evidence" instead of inventing numbers.
+
+PROPOSAL UNDER EVALUATION:
 - Target Opportunity: ${opportunity_title}
 - Domain: ${domain}
 - Project Title: ${project_title}
-- Tech Stack: ${Array.isArray(tech_stack) ? tech_stack.join(", ") : tech_stack || "Full Stack + AI"}
+- Proposed Stack: ${Array.isArray(tech_stack) ? tech_stack.join(", ") : tech_stack || "Full Stack"}
 - Problem Statement:
 "${problem_statement}"
 
-Run a rigorous, unfiltered, multi-perspective debate with exactly these 5 specialized agents + 1 Synthesis Director:
+EVALUATE USING THE 6 SPECIALIZED ROLES:
+1. Problem Researcher: Examines problem authenticity, observed user pain points, and empirical depth vs toy wrapper ideas.
+2. User Advocate: Examines target user impact, realistic workflow adoption, and live presentation clarity.
+3. Technical Architect: Evaluates systems feasibility, 36h sprint scope, latency, API dependencies, state management, and failure modes.
+4. Innovation Analyst: Identifies existing alternatives (open source tools, commercial apps) and pinpointing what actual gap remains unsolved.
+5. Impact & Viability Analyst: Analyzes measurable utility, operational viability, and whether the solution creates real value.
+6. Hackathon Judge: Evaluates official challenge rubric alignment, technical rigor, and defensibility during live evaluation.
 
-1. AGENT 1: FAANG Executive Bar Raiser (Recruiter Perspective)
-   - agent_name: "Alex Vance (Staff Director, ex-Google/Meta)"
-   - Focus: Does this solve an authentic L5 problem that will make FAANG recruiters interview the candidate on the spot, or is it a trivial wrapper/toy app?
-
-2. AGENT 2: Hackathon Grand Jury Chief (Winning Pitch & Moat)
-   - agent_name: "Elena Rostova (Lead Judge, ETHGlobal & National SIH)"
-   - Focus: Will this win 1st place on Demo Day? Evaluates 3-minute pitch impact, live wow factor, and what prevents judges from dismissing it as unoriginal.
-
-3. AGENT 3: Principal Systems Architect (Feasibility & Concurrency)
-   - agent_name: "Marcus Chen (Distinguished Cloud Architect)"
-   - Focus: 36-hour feasibility vs real-world scale. Can it survive concurrency spikes, API latency, cold starts, and data consistency?
-
-4. AGENT 4: Venture Capitalist & Product Strategist (Market Pain & TAM)
-   - agent_name: "Siddharth Mehta (Early-Stage DeepTech Partner)"
-   - Focus: Real-world problem validity, actual user pain points, TAM, monetization, and why existing alternatives fail.
-
-5. AGENT 5: Cybersecurity & Edge-Case Red Team Auditor
-   - agent_name: "Dr. Sarah Jenkins (Lead Security & Threat Intelligence)"
-   - Focus: Attack vectors, prompt injection, data privacy, offline failure modes, and adversarial vulnerabilities.
-
-6. DIRECTOR: Council Synthesis Director (Final Verdict Engine)
-   - Synthesizes all scores and arguments into the final verdict.
-
-CRITICAL SCORING & CREDIBILITY RULES:
-1. SCORE HONESTLY — If the problem is trivial (e.g., basic CRUD, thin wrapper, yet-another todo/chatbot), at least 3 agents MUST score BELOW 45 and the overall_verdict MUST be "❌ NOT WORTH IT (PIVOT TO ALTERNATIVE)".
-2. SCORE VARIANCE IS MANDATORY — Agents MUST genuinely disagree when warranted. At least 2 of the 5 agents must have scores differing by 15+ points. Identical or near-identical scores (all within 5 points) are FORBIDDEN.
-3. EVIDENCE GROUNDING — Each agent's critique MUST quote or reference at least one specific phrase, concept, or technical detail from the problem statement. No vague praise like "great idea" without citing what specifically is great.
-4. DISSENT SYNTHESIS — The Synthesis Director MUST identify and address the strongest disagreement between agents in the executive_summary. If all agents agree, the Director must explicitly state why unanimous agreement is warranted for this specific problem.
-5. CONSENSUS SCORE — Must be the genuine mathematical average of all 5 agent scores, not an inflated number. If scores are [35, 42, 78, 65, 50], consensus is 54, NOT 75.
-
-Return strictly valid JSON in this exact structure (replace all placeholder values with REAL scores and analysis):
+Return strictly valid JSON in this exact structure:
 {
-  "overall_verdict": "<one of: 🔥 100% WORTH IT (BUILD THIS IMMEDIATELY) | ⚠️ WORTH IT WITH CRITICAL PIVOTS | ❌ NOT WORTH IT (PIVOT TO ALTERNATIVE)>",
-  "consensus_score": 0,
-  "executive_summary": "2-3 sentences synthesizing the council debate, citing the strongest disagreement between agents",
-  "unfair_moat": "The #1 feature that would make this unbeatable, or 'None — this needs a complete rethink' if the project is weak",
-  "fatal_pitfalls": ["Pitfall 1 citing specific project detail", "Pitfall 2", "Pitfall 3"],
+  "overall_verdict": "<one of: 🔥 HIGH CONVICTION (BUILD IMMEDIATELY) | ⚠️ VIABLE WITH CRITICAL PIVOTS | ❌ UNVIABLE (PIVOT TO ALTERNATIVE)>",
+  "consensus_score": 85,
+  "executive_summary": "Synthesized executive evaluation citing the key trade-offs discovered across the council.",
+  "consensus": {
+    "strongest_evidence": "The strongest factual basis supporting this problem direction.",
+    "major_concern": "The single most significant vulnerability or blocker identified.",
+    "technical_risk": "Specific architecture, API, or data risk.",
+    "research_gap": "What empirical data or user validation is currently missing.",
+    "differentiation_concern": "How existing solutions already solve part of this problem.",
+    "recommended_change": "Direct strategic or architectural pivot required before building."
+  },
+  "validated_problem": "A refined, tightened, defensible statement of the authentic problem to solve.",
+  "unfair_moat": "Defensible architectural or workflow moat.",
+  "fatal_pitfalls": ["Pitfall 1 referencing specific technical aspect", "Pitfall 2", "Pitfall 3"],
   "tactical_sprint_plan": [
-    { "phase": "Phase name", "hours": "0-12h", "deliverable": "Concrete deliverable" },
-    { "phase": "Phase name", "hours": "12-24h", "deliverable": "Concrete deliverable" },
-    { "phase": "Phase name", "hours": "24-36h", "deliverable": "Concrete deliverable" }
+    { "phase": "Core Architecture & Data Ingestion", "hours": "0-12h", "deliverable": "Working ingestion pipeline & verified contracts" },
+    { "phase": "Algorithm / Agent Processing", "hours": "12-24h", "deliverable": "Working logic with real mock inputs & error boundaries" },
+    { "phase": "Demo Polish & Proof of Concept", "hours": "24-36h", "deliverable": "Interactive scenario showing before/after value" }
   ],
   "agents": [
     {
-      "agent_id": "recruiter",
-      "agent_name": "Alex Vance (Staff Director, ex-Google/Meta)",
-      "agent_role": "FAANG Bar Raiser & Talent Director",
-      "agent_avatar": "👨‍💼",
-      "score": 0,
-      "verdict": "VERDICT TEXT",
-      "critique": "Critique citing specific problem statement details",
-      "tactical_advice": "Specific actionable advice"
+      "agent_id": "problem_researcher",
+      "agent_name": "Problem Researcher",
+      "agent_role": "Problem Authenticity & Depth Analyst",
+      "agent_avatar": "🔬",
+      "verdict": "Validated Pain Point",
+      "fact": "Factual statement grounded in the proposal or opportunity",
+      "inference": "Logical inference deduced from domain constraints",
+      "concern": "Key concern regarding depth or assumptions",
+      "recommendation": "Concrete tactical advice",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 80
     },
     {
-      "agent_id": "jury",
-      "agent_name": "Elena Rostova (Lead Judge, ETHGlobal & SIH)",
-      "agent_role": "Hackathon Grand Jury Chief",
-      "agent_avatar": "🏛️",
-      "score": 0,
-      "verdict": "VERDICT TEXT",
-      "critique": "Critique citing specific problem statement details",
-      "tactical_advice": "Specific actionable advice"
+      "agent_id": "user_advocate",
+      "agent_name": "User Advocate",
+      "agent_role": "User Experience & Workflow Adoption Specialist",
+      "agent_avatar": "👤",
+      "verdict": "High User Utility",
+      "fact": "Factual target user workflow observation",
+      "inference": "Likely user reaction during demonstration",
+      "concern": "Workflow friction or cognitive load risk",
+      "recommendation": "Simplified demo interaction pattern",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 75
     },
     {
-      "agent_id": "architect",
-      "agent_name": "Marcus Chen (Distinguished Cloud Architect)",
-      "agent_role": "Principal Systems Architect",
-      "agent_avatar": "🛠️",
-      "score": 0,
-      "verdict": "VERDICT TEXT",
-      "critique": "Critique citing specific problem statement details",
-      "tactical_advice": "Specific actionable advice"
+      "agent_id": "technical_architect",
+      "agent_name": "Technical Architect",
+      "agent_role": "Systems Design & Feasibility Analyst",
+      "agent_avatar": "🏗",
+      "verdict": "Feasible with Strict Scope",
+      "fact": "Technical requirements of the proposed stack",
+      "inference": "Expected bottlenecks or async latency issues",
+      "concern": "Scope explosion within a 36-hour hackathon",
+      "recommendation": "MVP boundaries and recommended database/service pattern",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 78
     },
     {
-      "agent_id": "vc",
-      "agent_name": "Siddharth Mehta (Early-Stage DeepTech Partner)",
-      "agent_role": "Venture Capitalist & Product Strategist",
-      "agent_avatar": "💡",
-      "score": 0,
-      "verdict": "VERDICT TEXT",
-      "critique": "Critique citing specific problem statement details",
-      "tactical_advice": "Specific actionable advice"
+      "agent_id": "innovation_analyst",
+      "agent_name": "Innovation Analyst",
+      "agent_role": "Market Gap & Differentiation Strategist",
+      "agent_avatar": "📊",
+      "verdict": "Clear Differentiation",
+      "fact": "Existing public products or libraries solving related issues",
+      "inference": "Why existing tools leave this specific gap open",
+      "concern": "Risk of looking like a generic clone without distinct positioning",
+      "recommendation": "Specific moat to emphasize to judges",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 82
     },
     {
-      "agent_id": "security",
-      "agent_name": "Dr. Sarah Jenkins (Lead Security & Threat Intelligence)",
-      "agent_role": "Cybersecurity & Edge-Case Red Team Auditor",
+      "agent_id": "viability_analyst",
+      "agent_name": "Impact & Viability Analyst",
+      "agent_role": "Operational Viability & Real-World Outcome Evaluator",
+      "agent_avatar": "⚡",
+      "verdict": "Viable Proof of Value",
+      "fact": "Operational requirements for real-world deployment",
+      "inference": "Real-world scalability beyond hackathon stage",
+      "concern": "Missing domain constraints or compliance hurdles",
+      "recommendation": "Measurable benchmark metric to prove in demo",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 80
+    },
+    {
+      "agent_id": "hackathon_judge",
+      "agent_name": "Hackathon Judge",
+      "agent_role": "Rubric Alignment & Podium Evaluator",
       "agent_avatar": "⚖️",
-      "score": 0,
-      "verdict": "VERDICT TEXT",
-      "critique": "Critique citing specific problem statement details",
-      "tactical_advice": "Specific actionable advice"
+      "verdict": "Podium Contender",
+      "fact": "Official judging rubric and track priorities",
+      "inference": "How judges will evaluate the live demo in first 2 minutes",
+      "concern": "Abstract concept risk without tangible proof-of-work",
+      "recommendation": "Script the demo around one concrete before/after transformation",
+      "critique": "Synthesized summary critique",
+      "tactical_advice": "Immediate next step",
+      "score": 84
     }
   ]
 }`;
@@ -183,7 +227,7 @@ Return strictly valid JSON in this exact structure (replace all placeholder valu
         if (agentScores.length >= 3) {
           const realAvg = Math.round(agentScores.reduce((a, b) => a + b, 0) / agentScores.length);
           // If the LLM inflated the consensus_score more than 10 points above the real average, correct it
-          if (parsed.consensus_score > realAvg + 10) {
+          if (typeof parsed.consensus_score === "number" && parsed.consensus_score > realAvg + 10) {
             parsed.consensus_score = realAvg;
           }
         }

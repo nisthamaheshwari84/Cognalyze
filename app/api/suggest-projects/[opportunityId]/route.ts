@@ -183,33 +183,46 @@ Return JSON:
 
     // ── STAGE 3: Self-Critique & Refinement (6 raw → 5 curated) ──
     console.log(`[suggest-projects] Running Stage 3 self-critique & refinement...`);
-    const stage3Prompt = `You are a Senior Judge & Venture Reviewer performing the FINAL quality gate.
-Critique and refine these raw ideas into final, production-ready hackathon/interview project blueprints.
+    const stage3Prompt = `You are a Principal Solutions Architect & Senior Hackathon Judge performing the research-first evaluation gate.
+Refine the candidate ideas into evidence-grounded problem blueprints.
 
-STRICT FILTERING RULES:
-1. REJECT any project that could be described as "yet another X wrapper" or "basic Y with AI"
-2. REJECT any project whose problem statement doesn't name a specific industry pain point
-3. If two projects share similar core approaches, KEEP only the stronger one and REPLACE the weaker with a genuinely different concept
-4. Every project must have a clear, defensible technical moat and realistic 36-hour build plan
-5. Output exactly 5 curated projects from the 6 raw ideas (drop the weakest)
+RESEARCH-FIRST & EVIDENCE RULES:
+1. REJECT toy wrappers, generic dashboards, or thin AI chatbot concepts.
+2. EVERY problem statement MUST articulate:
+   - Specific target user
+   - Concrete observed friction/pain
+   - Why existing solutions/open-source tools are insufficient
+   - Concrete technical architecture
+3. ZERO FABRICATED STATISTICS: Do NOT invent fake percentages like "affects 87% of users". If quantitative metrics are unverified, describe the qualitative bottleneck.
+4. GROUND IN STUDENT DNA: Explicitly derive "why_it_fits_you" from the student's actual declared and verified skills:
+   - Aligned verified skills
+   - Capabilities that must be built or bridged
 
 RAW IDEAS:
 ${JSON.stringify(stage2Output.raw_ideas || [], null, 2)}
 
-STUDENT STACK:
-${profile.skills.map(s => s.name).join(", ")}
+STUDENT VERIFIED STACK:
+${profile.skills.map(s => `${s.name} (${s.level})`).join(", ")}
 
 Produce the final curated blueprints. Return ONLY this JSON:
 {
   "projects": [
     {
       "id": "proj-1",
-      "title": "Clear Name",
-      "tagline": "One sentence punchy elevator pitch",
-      "problem_statement": "The exact painful problem being solved — must name a specific industry, regulation, or bottleneck",
+      "title": "Clear Technical Blueprint Name",
+      "tagline": "One sentence punchy technical value proposition",
+      "problem_statement": "The exact painful problem being solved — names a specific industry, regulation, or infrastructure bottleneck",
+      "target_user": "Specific real-world stakeholder or operator",
+      "observed_pain": "Documented bottleneck or failure mode in current workflows",
+      "existing_gap": "Why existing tools or standard SaaS fail to resolve this",
+      "why_it_fits_you": {
+        "aligned_skills": ["TypeScript", "Python"],
+        "required_capabilities": ["Distributed Locking"],
+        "explanation": "Directly leverages your Python and backend project experience, while expanding into distributed state management."
+      },
       "architecture": "Architecture and data flow overview",
-      "tech_stack": ["React", "Next.js", "Python", "FastAPI"],
-      "winning_moat": "Why this beats 99% of submissions",
+      "tech_stack": ["Next.js", "TypeScript", "Python", "FastAPI", "PostgreSQL"],
+      "winning_moat": "Why this beats standard submissions",
       "mvp_timeline": [
         {"hours": "0-12h", "task": "Core pipeline setup and schema design"},
         {"hours": "12-24h", "task": "AI agent loop and API integrations"},

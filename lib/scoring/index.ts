@@ -33,56 +33,73 @@ export function calculateExperienceScore(actualYoe: number, targetYoe: number): 
 }
 
 export function calculateTrajectoryScore(avgTenureMonths: number, promotionsCount: number): number {
-  // Avg_Tenure_Score: Max points for 24-48 months average tenure. Penalize <12 months.
-  let tenureScore = 0;
-  if (avgTenureMonths >= 24) {
-    tenureScore = 40; // Max points for stable tenure
-  } else if (avgTenureMonths >= 12) {
-    tenureScore = 20 + ((avgTenureMonths - 12) / 12) * 20; // 20-40 points
-  } else {
-    tenureScore = (avgTenureMonths / 12) * 20; // 0-20 points (penalized for job hopping)
+  // Objective career progression signal based on verified tenure and internal advancement
+  const tenureSignal = Math.min(50, Math.round((avgTenureMonths / 24) * 50));
+  const promoSignal = Math.min(50, promotionsCount * 25);
+  return Math.min(100, tenureSignal + promoSignal);
+}
+
+export interface CareerTenureMetrics {
+  averageTenureMonths: number;
+  promotionsCount: number;
+  totalRolesCount: number;
+}
+
+export function calculateTenureMetrics(
+  roles: Array<{ durationMonths: number; isPromotion?: boolean }>
+): CareerTenureMetrics {
+  if (roles.length === 0) {
+    return { averageTenureMonths: 0, promotionsCount: 0, totalRolesCount: 0 };
   }
-
-  // Promotion_Velocity_Score: Points for moving up within the same company
-  const promoScore = Math.min(60, promotionsCount * 20); // 3 promos maxes it out
-  
-  return Math.min(100, Math.round(tenureScore + promoScore));
+  const totalMonths = roles.reduce((sum, r) => sum + (r.durationMonths || 0), 0);
+  const promotionsCount = roles.filter(r => r.isPromotion).length;
+  return {
+    averageTenureMonths: Math.round(totalMonths / roles.length),
+    promotionsCount,
+    totalRolesCount: roles.length
+  };
 }
 
-export function calculateCompanyQualityScore(tier: 1 | 2 | 3 | 4): number {
-  const lookup = { 1: 100, 2: 75, 3: 50, 4: 30 };
-  return lookup[tier] || 30;
+/**
+ * @deprecated Truth Contract T7: Prestige tiers and institutional elitism are purged.
+ * Evaluation is grounded strictly in demonstrable skill and verified artifacts, not employer brand.
+ */
+export function calculateCompanyQualityScore(_tier: 1 | 2 | 3 | 4): number {
+  // Neutralized: no penalty based on employer prestige or company brand
+  return 100;
 }
 
-export function calculateEducationQualityScore(tier: 1 | 2 | 3 | 4, isRelevantDegree: boolean): number {
-  const lookup = { 1: 100, 2: 75, 3: 50, 4: 30 };
-  const base = lookup[tier] || 30;
-  return isRelevantDegree ? base : base * 0.7; // 30% penalty for irrelevant degree
+/**
+ * @deprecated Truth Contract T7: Degree discipline/prestige penalties are purged.
+ * Capability is evaluated through verified work samples and technical assessments.
+ */
+export function calculateEducationQualityScore(_tier: 1 | 2 | 3 | 4, _isRelevantDegree: boolean): number {
+  // Neutralized: no penalty based on university pedigree or degree title
+  return 100;
 }
 
-// Fraud & Integrity Penalties
+// Objective Factual Integrity Observations (replaces arbitrary fraud scores)
 export function calculateIntegrityPenalties(
   skillDensityPercent: number, 
   fakeSkillsCount: number, 
   unexplainedGapsMonths: number
 ): { totalPenalty: number; flags: string[] } {
-  let penalty = 0;
   const flags: string[] = [];
 
-  if (skillDensityPercent > 15) {
-    penalty += 20;
-    flags.push(`High keyword density (${skillDensityPercent}%). Possible stuffing.`);
+  if (skillDensityPercent > 20) {
+    flags.push(`High keyword density (${skillDensityPercent}%). Verification through source artifacts recommended.`);
   }
 
   if (fakeSkillsCount > 0) {
-    penalty += (fakeSkillsCount * 10);
-    flags.push(`${fakeSkillsCount} skills claimed with zero context in experience bullets.`);
+    flags.push(`${fakeSkillsCount} skills claimed without supporting context or artifacts in experience.`);
   }
 
   if (unexplainedGapsMonths > 12) {
-    penalty += 15;
-    flags.push(`Unexplained employment gap of ${unexplainedGapsMonths} months.`);
+    flags.push(`Career gap of ${unexplainedGapsMonths} months noted; assess capability via recent work samples.`);
   }
 
-  return { totalPenalty: Math.min(100, penalty), flags };
+  // Factual count of flags rather than magic points
+  const totalPenalty = Math.min(100, flags.length * 15);
+  return { totalPenalty, flags };
 }
+

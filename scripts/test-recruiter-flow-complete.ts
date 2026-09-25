@@ -382,18 +382,26 @@ async function runCompleteRecruiterFlowTest() {
   // ─────────────────────────────────────────────────────────────
   console.log("\n▶ PHASE 12: 30/60/90 Quality-of-Hire Learning Loop & Honest Gating Threshold");
   
-  // 1. Test "Insufficient Data" state (< 3 records)
-  const insufficientRecords = [generateSampleHireRecords()[0]];
+  // 1. Test "Insufficient Data" state (< 20 records)
+  const insufficientRecords = generateSampleHireRecords(); // 3 records
   const insufficientAnalytics = computeQualityOfHireAnalytics(insufficientRecords, roles);
-  assert(insufficientAnalytics.status === "insufficient_data", `Gating verified: Status is 'insufficient_data' when records < 3 (${insufficientAnalytics.currentRecordsCount}/3)`);
+  assert(insufficientAnalytics.status === "insufficient_data", `Gating verified: Status is 'insufficient_data' when records < 20 (${insufficientAnalytics.currentRecordsCount}/20)`);
   console.log(`  ✓ Insufficient Data State verified: "${insufficientAnalytics.message}"`);
 
-  // 2. Test "Threshold Met" state (>= 3 records)
-  const fullRecords = generateSampleHireRecords();
-  const metAnalytics = computeQualityOfHireAnalytics(fullRecords, roles);
+  // 2. Test "Threshold Met" state (>= 20 records)
+  const cohort20Records = Array.from({ length: 20 }, (_, idx) => {
+    const base = generateSampleHireRecords()[idx % 3];
+    return {
+      ...base,
+      hireId: `hire-test-${idx + 1}`,
+      candidateId: `cand-test-${idx + 1}`
+    };
+  });
+  const metAnalytics = computeQualityOfHireAnalytics(cohort20Records, roles);
   assert(metAnalytics.status === "threshold_met", `Threshold Met verified: Status is 'threshold_met' with ${metAnalytics.currentRecordsCount} records`);
   assert(Boolean(metAnalytics.metrics?.average90DayPerformance), `Average 90-day performance: ${metAnalytics.metrics?.average90DayPerformance}%`);
   assert(Boolean(metAnalytics.metrics?.workSampleCorrelation), `Work sample correlation advantage: +${metAnalytics.metrics?.workSampleCorrelation.deltaPct}%`);
+
 
   // ─────────────────────────────────────────────────────────────
   // PHASE 13: Improve Future Role / Screening Engine

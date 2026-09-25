@@ -1,0 +1,81 @@
+[
+  {
+    "id": "f68d2612-7f5a-43a7-ae11-4fa945287faf",
+    "candidate_id": "cand-api-test-01",
+    "role_id": "role-backend-test-01",
+    "source": "resume",
+    "claim": "Resume-documented experience & skills",
+    "raw_data": {
+      "text_length": 63,
+      "sections_found": {
+        "skills_lines": 0,
+        "experience_blocks": 0,
+        "project_blocks": 0,
+        "education_lines": 0
+      }
+    },
+    "normalized_facts": {
+      "skills_claimed": [],
+      "projects": [],
+      "companies": [],
+      "documented_experience_years": 0
+    },
+    "extracted_summary": "No records or evidence were returned from this source.",
+    "status": "unknown",
+    "status_reason": "No records or evidence were returned from this source",
+    "role_relevance": "Resume-documented experience & skills",
+    "fetched_at": "2026-09-22T04:23:14.062Z"
+  },
+  {
+    "id": "b3f3d2f8-936c-48b9-b5fc-4818adaee4f2",
+    "candidate_id": "cand-api-test-01",
+    "role_id": "role-backend-test-01",
+    "source": "github",
+    "claim": "Git repository activity & language proficiency",
+    "raw_data": {
+      "status": 403,
+      "statusText": "",
+      "body": "{\"message\":\"API rate limit exceeded for 49.36.185.184. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)\",\"documentation_url\":\"https://docs.github.com/rest/overview/resources-in-the-rest-api#rate-limiting\"}\n"
+    },
+    "normalized_facts": null,
+    "extracted_summary": "No records or evidence returned from source (github).",
+    "status": "unknown",
+    "status_reason": "Available evidence does not currently confirm this claim. Source (github) returned no data.",
+    "role_relevance": "Git repository activity & language proficiency",
+    "fetched_at": "2026-09-22T04:23:14.062Z"
+  },
+  {
+    "id": "0c2a254a-a9a8-401c-a2f2-2cea3f4f7ac2",
+    "candidate_id": "cand-api-test-01",
+    "role_id": "role-backend-test-01",
+    "source": "codeforces",
+    "claim": "Competitive programming and algorithmic problem solving",
+    "raw_data": {
+      "handle": "tourist",
+      "rating": 3307,
+      "maxRating": 4009,
+      "rank": "legendary grandmaster",
+      "contestCount": 307,
+      "submissions_sample_size": 674
+    },
+    "normalized_facts": {
+      "handle": "tourist",
+      "current_rating": 3307,
+      "max_rating": 4009,
+      "rank": "legendary grandmaster",
+      "contest_count": 307,
+      "total_solved": 674,
+      "solved_by_difficulty": {
+        "<1200": 170,
+        "1200-1599": 88,
+        "1600-1999": 109,
+        "2000+": 307
+      }
+    },
+    "extracted_summary": "The user \"tourist\" has a current rating of 3307, a maximum rating of 4009, holds the rank of legendary grandmaster, has participated in 307 contests, solved 674 problems in total, with 170 solved under 1200 rating, 88 between 1200-1599, 109 between 1600-1999, and 307 at 2000+.",
+    "status": "established",
+    "status_reason": "Tourist’s Codeforces profile shows a current rating of 3307, max rating 4009, legendary grandmaster rank, 307 contests, and 674 solved problems, confirming strong competitive programming and algorithmic problem‑solving activity.",
+    "role_relevance": "Competitive programming and algorithmic problem solving",
+    "fetched_at": "2026-09-22T04:23:14.062Z"
+  }
+]

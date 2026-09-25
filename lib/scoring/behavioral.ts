@@ -68,7 +68,10 @@ export function calculateBehavioralScores(inputs: BehavioralInputs): BehavioralO
   };
 }
 
-export function calculateBehavioralFromSignals(signals?: RedrobSignals): BehavioralOutputs {
+export function calculateBehavioralFromSignals(
+  signals?: RedrobSignals,
+  referenceDate?: Date | string
+): BehavioralOutputs {
   if (!signals) {
     return {
       hireabilityScore: 70,
@@ -78,8 +81,9 @@ export function calculateBehavioralFromSignals(signals?: RedrobSignals): Behavio
     };
   }
 
+  const now = referenceDate ? new Date(referenceDate) : new Date();
   const safeSignals = {
-    last_active_date: signals.last_active_date || "2026-06-27",
+    last_active_date: signals.last_active_date || now.toISOString().split("T")[0],
     verified_email: signals.verified_email ?? true,
     verified_phone: signals.verified_phone ?? true,
     linkedin_connected: signals.linkedin_connected ?? true,
@@ -95,9 +99,8 @@ export function calculateBehavioralFromSignals(signals?: RedrobSignals): Behavio
     endorsements_received: signals.endorsements_received ?? 10
   };
 
-  // Map last active date to an activity score (0-100)
+  // Map last active date to an activity score (0-100) using dynamic reference
   const lastActive = new Date(safeSignals.last_active_date);
-  const now = new Date("2026-06-27"); // Anchor to modern date from metadata
   const diffDays = Math.max(0, Math.ceil((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24)));
   
   let activityFrequencyScore = 10;
@@ -119,10 +122,11 @@ export function calculateBehavioralFromSignals(signals?: RedrobSignals): Behavio
     interviewCompletionRate: safeSignals.interview_completion_rate,
     offerAcceptanceRate: safeSignals.offer_acceptance_rate,
     activityFrequencyScore,
-    profileQualityScore: 80, // default good layout profile
+    profileQualityScore: 80,
     noticePeriodDays: safeSignals.notice_period_days,
     relocationFlexibility: safeSignals.relocation_flexibility,
     githubActivityScore: githubScore,
     verificationScore
   });
 }
+

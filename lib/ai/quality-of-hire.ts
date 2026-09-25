@@ -79,7 +79,10 @@ export interface FutureRoleRecommendation {
   expectedYieldImprovement: string;
 }
 
-const MINIMUM_RECORDS_THRESHOLD = 3;
+import { formatLearningLoopStatus } from "@/lib/copy/language";
+
+export const MINIMUM_RECORDS_THRESHOLD = 20;
+
 
 /**
  * Computes Quality of Hire analysis and Phase 13 Feedback Loop
@@ -89,14 +92,15 @@ export function computeQualityOfHireAnalytics(
   openRoles: RoleDNA[] = []
 ): QualityOfHireAnalytics {
   const completed90DayRecords = records.filter(r => r.day90Milestone !== undefined);
+  const gateStatus = formatLearningLoopStatus(completed90DayRecords.length, MINIMUM_RECORDS_THRESHOLD);
 
-  // Gating check: honestly refuse to hallucinate predictive telemetry with insufficient data
-  if (completed90DayRecords.length < MINIMUM_RECORDS_THRESHOLD) {
+  // Gating check: honestly refuse to infer predictive patterns with insufficient data (ADR-003)
+  if (gateStatus.isGated) {
     return {
       status: "insufficient_data",
       currentRecordsCount: completed90DayRecords.length,
       minimumThreshold: MINIMUM_RECORDS_THRESHOLD,
-      message: `Quality-of-Hire learning loop requires at least ${MINIMUM_RECORDS_THRESHOLD} completed 90-day outcome records to derive statistically valid hiring correlations. Currently ${completed90DayRecords.length} recorded.`
+      message: `${gateStatus.message} ${gateStatus.caveat}`
     };
   }
 
@@ -120,7 +124,7 @@ export function computeQualityOfHireAnalytics(
 
   const avgWithout = withoutWorkSample.length > 0
     ? Math.round(withoutWorkSample.reduce((a, b) => a + (b.day90Milestone?.overall90DayPerformance || 0), 0) / withoutWorkSample.length)
-    : Math.max(45, average90Day - 25);
+    : average90Day;
 
   const delta = avgWith - avgWithout;
 
@@ -128,6 +132,7 @@ export function computeQualityOfHireAnalytics(
   const recommendations: FutureRoleRecommendation[] = [];
 
   for (const role of openRoles) {
+
     recommendations.push({
       roleId: role.id,
       roleTitle: role.title,

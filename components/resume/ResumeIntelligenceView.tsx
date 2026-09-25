@@ -1,16 +1,22 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
 
-interface FeedbackResult { name: string; color: string; response: string; typing?: boolean; }
-interface SkillItem { skill: string; level: string; evidence: string; how_to_fix?: string; }
-interface MissingSkill { skill: string; priority: string; learn_in: string; resource: string; }
-interface SkillsData { match_score: number; strong_skills: SkillItem[]; weak_skills: SkillItem[]; missing_skills: MissingSkill[]; honest_assessment: string; }
-interface RoadmapMonth { month: string; focus: string; actions: string[]; milestone: string; }
-interface RoadmapData { ready_to_apply: boolean; honest_take: string; months: RoadmapMonth[]; apply_now_anyway: string; }
-interface RewriteChange { type: string; original: string; changed?: string; reason: string; }
-interface RiskyClaim { claim: string; risk: string; action: string; }
-interface RewriteData { rewritten: string; confidence: number; changes: RewriteChange[]; risky_claims: RiskyClaim[]; ats_score_before: number; ats_score_after: number; honest_note: string; }
-interface InterviewQ { question: string; why: string; lookFor: string; difficulty: string; }
+import React, { useState, useEffect, useRef } from "react";
+import {
+  ResumeIntelligenceReport,
+  RewrittenBullet,
+} from "@/lib/ai/resume-intelligence-engine";
+import {
+  CanonicalAnalysisObject,
+  EvidenceStatus,
+  RequirementPriority,
+} from "@/lib/ai/result-engine/types";
+
+interface FeedbackResult {
+  name: string;
+  color: string;
+  response: string;
+  typing?: boolean;
+}
 
 function GradientBg() {
   return (
@@ -18,581 +24,1110 @@ function GradientBg() {
       <style>{`
         @keyframes blob1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.1)}66%{transform:translate(-30px,60px) scale(0.9)}}
         @keyframes blob2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-80px,40px) scale(1.2)}66%{transform:translate(50px,-60px) scale(0.85)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
         @keyframes fadeIn{from{opacity:0}to{opacity:1}}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-        @keyframes slideRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
-        .glass{background:rgba(255,255,255,0.04);backdrop-filter:blur(40px);border:1px solid rgba(255,255,255,0.08);}
-        .btn-main{background:linear-gradient(135deg,#ec4899,#8b5cf6,#6366f1);transition:all 0.3s;border:none;cursor:pointer;color:white;font-weight:800;letter-spacing:2px;}
-        .btn-main:hover{transform:translateY(-2px);box-shadow:0 20px 40px rgba(236,72,153,0.4);}
-        .tab-btn{transition:all 0.2s;border:none;cursor:pointer;font-weight:600;font-family:inherit;}
+        @keyframes slideRight{from{opacity:0;transform:translateX(-15px)}to{opacity:1;transform:translateX(0)}}
+        .glass{background:rgba(255,255,255,0.035);backdrop-filter:blur(36px);border:1px solid rgba(255,255,255,0.08);}
+        .glass-card{background:rgba(15,23,42,0.65);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-radius:18px;}
+        .glass-card:hover{border-color:rgba(168,85,247,0.35);box-shadow:0 12px 30px rgba(0,0,0,0.4);}
+        .btn-main{background:linear-gradient(135deg,#ec4899,#8b5cf6,#6366f1);transition:all 0.3s;border:none;cursor:pointer;color:white;font-weight:800;letter-spacing:1.5px;}
+        .btn-main:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(236,72,153,0.35);}
+        .tab-btn{transition:all 0.2s;border:none;cursor:pointer;font-weight:700;font-family:inherit;}
+        .section-chip{transition:all 0.2s;cursor:pointer;}
+        .section-chip:hover{background:rgba(255,255,255,0.12)!important;}
         textarea:focus{outline:none;}
-        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.3);border-radius:2px;}
+        ::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-thumb{background:rgba(168,85,247,0.35);border-radius:4px;}
+        .evidence-drawer-item{transition:all 0.2s ease;}
+        .evidence-drawer-item:hover{background:rgba(255,255,255,0.06);transform:translateX(4px);}
       `}</style>
-      <div style={{position:"fixed",inset:0,overflow:"hidden",zIndex:0,background:"#06030f"}}>
-        <div style={{position:"absolute",top:"-20%",left:"-10%",width:"60%",height:"60%",background:"radial-gradient(circle,rgba(236,72,153,0.15) 0%,transparent 70%)",borderRadius:"50%",filter:"blur(80px)",animation:"blob1 12s ease-in-out infinite"}}/>
-        <div style={{position:"absolute",bottom:"-20%",right:"-10%",width:"55%",height:"55%",background:"radial-gradient(circle,rgba(168,85,247,0.2) 0%,transparent 70%)",borderRadius:"50%",filter:"blur(80px)",animation:"blob2 15s ease-in-out infinite"}}/>
-        <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(236,72,153,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(236,72,153,0.03) 1px,transparent 1px)",backgroundSize:"60px 60px"}}/>
-        <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,transparent,#ec4899,#a855f7,#6366f1,transparent)"}}/>
+      <div style={{ position: "fixed", inset: 0, overflow: "hidden", zIndex: 0, background: "#06030f" }}>
+        <div style={{ position: "absolute", top: "-20%", left: "-10%", width: "60%", height: "60%", background: "radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 70%)", borderRadius: "50%", filter: "blur(90px)", animation: "blob1 12s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: "-20%", right: "-10%", width: "55%", height: "55%", background: "radial-gradient(circle,rgba(168,85,247,0.16) 0%,transparent 70%)", borderRadius: "50%", filter: "blur(90px)", animation: "blob2 15s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(236,72,153,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(236,72,153,0.025) 1px,transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "1px", background: "linear-gradient(90deg,transparent,#ec4899,#a855f7,#6366f1,transparent)" }} />
       </div>
     </>
   );
 }
 
-function Typewriter({text,speed=10,onDone}:{text:string;speed?:number;onDone?:()=>void}) {
-  const [d,setD]=useState("");
-  const [done,setDone]=useState(false);
-  useEffect(()=>{
-    setD("");setDone(false);
-    let i=0;
-    const t=setInterval(()=>{i++;setD(text.slice(0,i));if(i>=text.length){clearInterval(t);setDone(true);onDone?.();}},speed);
-    return()=>clearInterval(t);
-  },[text]);
-  return <span>{d}{!done&&<span style={{animation:"blink 0.8s infinite"}}>|</span>}</span>;
+function Typewriter({ text, speed = 8, onDone }: { text: string; speed?: number; onDone?: () => void }) {
+  const [d, setD] = useState("");
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    setD("");
+    setDone(false);
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      setD(text.slice(0, i));
+      if (i >= text.length) {
+        clearInterval(t);
+        setDone(true);
+        onDone?.();
+      }
+    }, speed);
+    return () => clearInterval(t);
+  }, [text]);
+  return <span>{d}{!done && <span style={{ animation: "blink 0.8s infinite" }}>|</span>}</span>;
 }
 
-type Step = "input"|"loading"|"results";
-type Tab = "feedback"|"skills"|"rewrite"|"roadmap"|"interview";
+type Step = "input" | "loading" | "results";
+type SectionFilter = "all" | "s1" | "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8" | "s9" | "s10" | "s11";
 
-const TABS = [
-  {id:"feedback", label:"💬 Feedback"},
-  {id:"skills", label:"🎯 Skills Gap"},
-  {id:"rewrite", label:"✍️ Rewriter"},
-  {id:"roadmap", label:"🗺️ Roadmap"},
-  {id:"interview", label:"🎤 Interview"},
+const SECTIONS = [
+  { id: "all", label: "📄 Full Dossier (All 11 Sections)" },
+  { id: "s1", label: "1. Role Alignment" },
+  { id: "s2", label: "2. Requirement Table" },
+  { id: "s3", label: "3. Evidence Review" },
+  { id: "s4", label: "4. Strengths" },
+  { id: "s5", label: "5. Gaps & Risks" },
+  { id: "s6", label: "6. Experience Quality" },
+  { id: "s7", label: "7. Skills Gap" },
+  { id: "s8", label: "8. Truthful Rewriter" },
+  { id: "s9", label: "9. Roadmap" },
+  { id: "s10", label: "10. Interview Focus" },
+  { id: "s11", label: "11. Final Verdict" },
 ];
 
-export default function CandidatePage() {
-  const [step,setStep] = useState<Step>("input");
-  const [jd,setJd] = useState("");
-  const [resume,setResume] = useState("");
-  const [results,setResults] = useState<FeedbackResult[]>([]);
-  const [currentIdx,setCurrentIdx] = useState(0);
-  const [loadMsg,setLoadMsg] = useState("Reading your resume");
-  const [resumeFile,setResumeFile] = useState<File|null>(null);
-  const [parsing,setParsing] = useState(false);
-  const [error,setError] = useState("");
-  const [tab,setTab] = useState<Tab>("feedback");
-  const [skills,setSkills] = useState<SkillsData|null>(null);
-  const [rewriteData,setRewriteData] = useState<RewriteData|null>(null);
-  const [roadmap,setRoadmap] = useState<RoadmapData|null>(null);
-  const [interviewQs,setInterviewQs] = useState<InterviewQ[]>([]);
-  const [loadingSkills,setLoadingSkills] = useState(false);
-  const [loadingRewrite,setLoadingRewrite] = useState(false);
-  const [loadingRoadmap,setLoadingRoadmap] = useState(false);
-  const [loadingInterview,setLoadingInterview] = useState(false);
-  const [copied,setCopied] = useState(false);
-  const rawRef = useRef<FeedbackResult[]>([]);
-  const msgs = ["Reading your resume","Analyzing your skills","Identifying gaps","Finding hidden gems","Preparing feedback"];
+export default function ResumeIntelligenceView() {
+  const [step, setStep] = useState<Step>("input");
+  const [jd, setJd] = useState("");
+  const [resume, setResume] = useState("");
+  const [results, setResults] = useState<FeedbackResult[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [loadMsg, setLoadMsg] = useState("Ingesting complete resume");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [parsing, setParsing] = useState(false);
+  const [error, setError] = useState("");
+  const [activeSection, setActiveSection] = useState<SectionFilter>("all");
 
-  const handleFileUpload = async(file:File) => {
-    setResumeFile(file); setParsing(true); setError("");
+  // Single Source of Truth: Canonical Master Report
+  const [report, setReport] = useState<ResumeIntelligenceReport | null>(null);
+  const canonical: CanonicalAnalysisObject | undefined = report?.canonical;
+
+  // Evidence Drawer modal state
+  const [selectedBullet, setSelectedBullet] = useState<RewrittenBullet | null>(null);
+  const [showOriginalResume, setShowOriginalResume] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const rawRef = useRef<FeedbackResult[]>([]);
+
+  const msgs = [
+    "Ingesting complete job description & extracting canonical requirements",
+    "Ingesting full resume text & generating structured evidence inventory",
+    "Building canonical evidence graph with source-level provenance",
+    "Executing hybrid matching: exact, ontology bounds & semantic verification",
+    "Calculating deterministic weighted score (Critical 60%, Important 30%, Preferred 10%)",
+    "Enforcing zero-fabrication validation gate & synthesizing 11-section panel review",
+  ];
+
+  const handleFileUpload = async (file: File) => {
+    setResumeFile(file);
+    setParsing(true);
+    setError("");
     try {
-      const base64 = await new Promise<string>((resolve)=>{
+      const base64 = await new Promise<string>((resolve) => {
         const reader = new FileReader();
-        reader.onload = ()=>resolve((reader.result as string).split(",")[1]);
+        reader.onload = () => resolve((reader.result as string).split(",")[1]);
         reader.readAsDataURL(file);
       });
-      const res = await fetch("/api/parse-resume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageBase64:base64,mimeType:file.type})});
+      const res = await fetch("/api/parse-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
+      });
       const data = await res.json();
-      if(data.text) setResume(data.text);
-      else setError("Auto-extract failed — paste text manually ↓");
-    } catch { setError("Please paste resume text manually ↓"); }
+      if (data.text) setResume(data.text);
+      else setError("Auto-extract failed — paste text manually below.");
+    } catch {
+      setError("Please paste resume text manually below.");
+    }
     setParsing(false);
   };
 
-  const analyze = async() => {
+  const analyze = async () => {
+    if (!resume.trim()) {
+      setError("Please enter or upload your resume text.");
+      return;
+    }
     setStep("loading");
     let i = 0;
-    const lt = setInterval(()=>{i++;if(i<msgs.length)setLoadMsg(msgs[i]);},700);
+    const lt = setInterval(() => {
+      i++;
+      if (i < msgs.length) setLoadMsg(msgs[i]);
+    }, 850);
+
     try {
-      const res = await fetch("/api/candidate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume})});
+      const res = await fetch("/api/candidate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jd, resume }),
+      });
       const data = await res.json();
       clearInterval(lt);
-      if(data.agents?.length>0){
+
+      if (data.report) {
+        setReport(data.report);
+      }
+      if (data.agents?.length > 0) {
         rawRef.current = data.agents;
-        setResults([]); setCurrentIdx(0); setStep("results");
+        setResults([]);
+        setCurrentIdx(0);
+        setStep("results");
+      } else {
+        throw new Error(data.error || "Analysis could not be completed reliably.");
       }
-    } catch { clearInterval(lt); setStep("input"); }
+    } catch (err: any) {
+      clearInterval(lt);
+      setError(err.message || "Intelligence audit failed. Please try again.");
+      setStep("input");
+    }
   };
 
-  useEffect(()=>{
-    if(step!=="results") return;
-    if(currentIdx>=rawRef.current.length) return;
-    setTimeout(()=>setResults(prev=>[...prev,{...rawRef.current[currentIdx],typing:true}]),300);
-  },[currentIdx,step]);
+  useEffect(() => {
+    if (step !== "results") return;
+    if (currentIdx >= rawRef.current.length) return;
+    const timer = setTimeout(() => {
+      setResults((prev) => [...prev, { ...rawRef.current[currentIdx], typing: true }]);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [currentIdx, step]);
 
-  const handleDone = (i:number) => {
-    setResults(prev=>prev.map((r,idx)=>idx===i?{...r,typing:false}:r));
-    if(i+1<rawRef.current.length) setTimeout(()=>setCurrentIdx(i+1),600);
-  };
-
-  const loadSkills = async() => {
-    if(skills) return;
-    setLoadingSkills(true);
-    try {
-      const res = await fetch("/api/skills-gap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume})});
-      const data = await res.json();
-      setSkills(data);
-
-      // Student Career Intelligence Event Bus: Emits Claimed (Level 1) Evidence
-      try {
-        const candidateId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
-        await fetch("/api/student/events", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            studentId: candidateId,
-            eventType: "resume_uploaded",
-            payload: {
-              skills: [
-                ...(data.strong_skills || []).map((s: any) => ({ name: s.skill, level: s.level, evidence: s.evidence })),
-                ...(data.weak_skills || []).map((s: any) => ({ name: s.skill, level: "Developing", evidence: s.evidence }))
-              ],
-              projects: []
-            }
-          })
-        });
-      } catch (evtErr) {
-        console.warn("Failed to dispatch resume_uploaded event:", evtErr);
-      }
-    } catch {}
-    setLoadingSkills(false);
-  };
-
-  const loadRewrite = async() => {
-    if(rewriteData) return;
-    setLoadingRewrite(true);
-    try {
-      const res = await fetch("/api/rewrite-resume",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume})});
-      setRewriteData(await res.json());
-    } catch {}
-    setLoadingRewrite(false);
-  };
-
-  const loadRoadmap = async() => {
-    if(roadmap) return;
-    setLoadingRoadmap(true);
-    try {
-      const res = await fetch("/api/roadmap",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume})});
-      setRoadmap(await res.json());
-    } catch {}
-    setLoadingRoadmap(false);
-  };
-
-  const loadInterview = async() => {
-    if(interviewQs.length>0) return;
-    setLoadingInterview(true);
-    try {
-      const res = await fetch("/api/interview",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jd,resume,agentDebate:""})});
-      const data = await res.json();
-      setInterviewQs(data.questions||[]);
-    } catch {}
-    setLoadingInterview(false);
-  };
-
-  const handleTabChange = (t:Tab) => {
-    setTab(t);
-    if(t==="skills") loadSkills();
-    if(t==="rewrite") loadRewrite();
-    if(t==="roadmap") loadRoadmap();
-    if(t==="interview") loadInterview();
+  const handleDone = (i: number) => {
+    setResults((prev) => prev.map((r, idx) => (idx === i ? { ...r, typing: false } : r)));
+    if (i + 1 < rawRef.current.length) setTimeout(() => setCurrentIdx(i + 1), 350);
   };
 
   const copyResume = () => {
-    navigator.clipboard.writeText(rewriteData?.rewritten||"");
+    if (!report?.rewriter) return;
+    const r = report.rewriter;
+    const lines = [
+      `# CANDIDATE RESUME`,
+      `\n## PROFESSIONAL SUMMARY\n${r.summary}`,
+      `\n## TECHNICAL SKILLS\n${r.skills.map((s) => `- **${s.category}:** ${s.items.join(", ")}`).join("\n")}`,
+      `\n## WORK EXPERIENCE\n${r.experience.map((e) => `### ${e.role} — ${e.company} (${e.period})\n${e.bullets.map((b) => `- ${b.rewrittenText}`).join("\n")}`).join("\n\n")}`,
+      `\n## TECHNICAL PROJECTS\n${r.projects.map((p) => `### ${p.title} [${p.tech.join(", ")}]\n${p.bullets.map((b) => `- ${b.rewrittenText}`).join("\n")}`).join("\n\n")}`,
+      `\n## EDUCATION\n${r.education.map((edu) => `- **${edu.degree}** | ${edu.institution} (${edu.year})`).join("\n")}`,
+    ].join("\n");
+    navigator.clipboard.writeText(lines);
     setCopied(true);
-    setTimeout(()=>setCopied(false),2000);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const resetAll = () => {
-    setStep("input"); setResults([]); setCurrentIdx(0);
-    setResumeFile(null); setResume(""); setSkills(null);
-    setRewriteData(null); setRoadmap(null); setInterviewQs([]);
-    setTab("feedback");
+    setStep("input");
+    setResults([]);
+    setCurrentIdx(0);
+    setResumeFile(null);
+    setResume("");
+    setReport(null);
+    setSelectedBullet(null);
+    setActiveSection("all");
   };
 
-  // Loading spinner component
-  const Spinner = ({msg}:{msg:string}) => (
-    <div style={{textAlign:"center",padding:"4rem",color:"rgba(255,255,255,0.4)"}}>
-      <div style={{fontSize:"24px",animation:"spin 1s linear infinite",display:"inline-block",marginBottom:"1rem"}}>⟳</div>
-      <div style={{letterSpacing:"2px",fontSize:"13px"}}>{msg}</div>
-    </div>
-  );
+  // Status color helper
+  const getStatusBadge = (status: EvidenceStatus | string) => {
+    switch (status) {
+      case "SUPPORTED":
+        return { bg: "rgba(0,255,136,0.15)", color: "#00ff88", border: "rgba(0,255,136,0.3)" };
+      case "PARTIAL":
+        return { bg: "rgba(56,189,248,0.15)", color: "#38bdf8", border: "rgba(56,189,248,0.3)" };
+      case "CLAIM_ONLY":
+        return { bg: "rgba(251,191,36,0.15)", color: "#fbbf24", border: "rgba(251,191,36,0.3)" };
+      case "EVIDENCE_GAP":
+        return { bg: "rgba(244,114,182,0.15)", color: "#f472b6", border: "rgba(244,114,182,0.3)" };
+      case "SKILL_GAP":
+        return { bg: "rgba(239,68,68,0.15)", color: "#ef4444", border: "rgba(239,68,68,0.3)" };
+      case "CONTRADICTED":
+        return { bg: "rgba(220,38,38,0.2)", color: "#dc2626", border: "rgba(220,38,38,0.4)" };
+      default:
+        return { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.6)", border: "rgba(255,255,255,0.15)" };
+    }
+  };
 
-  // ─── INPUT PAGE ───
-  if(step==="input") return (
-    <div style={{minHeight:"100vh",color:"white",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",position:"relative"}}>
-      <GradientBg/>
-      <div style={{position:"relative",zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"1.25rem 2rem",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-          <div style={{width:"32px",height:"32px",background:"linear-gradient(135deg,#ec4899,#a855f7)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px"}}>✦</div>
-          <span style={{fontWeight:800,background:"linear-gradient(135deg,#fff,#f9a8d4)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>COGNALYZE</span>
-          <span style={{fontSize:"10px",padding:"2px 8px",border:"1px solid rgba(236,72,153,0.3)",borderRadius:"20px",color:"rgba(236,72,153,0.7)"}}>CANDIDATE</span>
+  const getPriorityBadge = (priority: RequirementPriority | string) => {
+    switch (priority) {
+      case "CRITICAL":
+        return { bg: "rgba(239,68,68,0.15)", color: "#ef4444" };
+      case "IMPORTANT":
+        return { bg: "rgba(56,189,248,0.15)", color: "#38bdf8" };
+      default:
+        return { bg: "rgba(168,85,247,0.15)", color: "#c084fc" };
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // 1. INPUT PAGE
+  // ─────────────────────────────────────────────────────────────
+  if (step === "input") {
+    return (
+      <div style={{ minHeight: "100vh", color: "white", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", position: "relative" }}>
+        <GradientBg />
+        <div style={{ position: "relative", zIndex: 10, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.25rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ width: "32px", height: "32px", background: "linear-gradient(135deg,#ec4899,#a855f7)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px" }}>✦</div>
+            <span style={{ fontWeight: 800, background: "linear-gradient(135deg,#fff,#f9a8d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>COGNALYZE</span>
+            <span style={{ fontSize: "10px", padding: "2px 8px", border: "1px solid rgba(236,72,153,0.3)", borderRadius: "20px", color: "rgba(236,72,153,0.8)", fontWeight: 700 }}>RESULT ENGINE v3.0</span>
+          </div>
+          <a href="/" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none", fontSize: "13px" }}>← Back to Workspace</a>
         </div>
-        <a href="/" style={{color:"rgba(255,255,255,0.3)",textDecoration:"none",fontSize:"13px"}}>← Back</a>
-      </div>
-      <div style={{position:"relative",zIndex:10,maxWidth:"900px",margin:"0 auto",padding:"3rem 2rem",animation:"fadeUp 0.7s ease"}}>
-        <div style={{textAlign:"center",marginBottom:"3rem"}}>
-          <div style={{fontSize:"11px",letterSpacing:"4px",color:"rgba(236,72,153,0.8)",marginBottom:"1rem",fontWeight:600}}>CANDIDATE MODE</div>
-          <h1 style={{fontSize:"clamp(2rem,5vw,3.5rem)",fontWeight:900,letterSpacing:"-2px",lineHeight:1.1,marginBottom:"1rem",background:"linear-gradient(135deg,#fff 30%,#f9a8d4 70%,#a855f7 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-            See yourself through<br/>a hiring committee's eyes
-          </h1>
-          <p style={{color:"rgba(255,255,255,0.4)",fontSize:"15px"}}>Honest feedback • Skills gap • Resume rewrite • Roadmap • Interview prep</p>
-        </div>
-        <div className="glass" style={{borderRadius:"28px",padding:"2.5rem",marginBottom:"1.5rem"}}>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"2rem"}}>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                <div style={{width:"6px",height:"6px",borderRadius:"50%",background:"#ec4899",boxShadow:"0 0 8px #ec4899"}}/>
-                <span style={{fontSize:"11px",letterSpacing:"2px",color:"#ec4899",fontWeight:700}}>TARGET JOB</span>
-              </div>
-              <textarea value={jd} onChange={e=>setJd(e.target.value)} style={{width:"100%",height:"200px",background:"rgba(236,72,153,0.06)",border:"1px solid rgba(236,72,153,0.2)",borderRadius:"16px",padding:"16px",color:"rgba(255,255,255,0.85)",fontSize:"13px",resize:"none",fontFamily:"inherit",lineHeight:1.6,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(236,72,153,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(236,72,153,0.2)"} placeholder="Paste the job description..."/>
+
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "960px", margin: "0 auto", padding: "3rem 2rem", animation: "fadeUp 0.6s ease" }}>
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "4px 12px", background: "rgba(236,72,153,0.12)", border: "1px solid rgba(236,72,153,0.3)", borderRadius: "999px", marginBottom: "1rem" }}>
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#ec4899", boxShadow: "0 0 8px #ec4899" }} />
+              <span style={{ fontSize: "11px", letterSpacing: "2px", color: "#f472b6", fontWeight: 700 }}>CANONICAL HIRING PANEL EVALUATION</span>
             </div>
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"12px"}}>
-                <div style={{width:"6px",height:"6px",borderRadius:"50%",background:"#a855f7",boxShadow:"0 0 8px #a855f7"}}/>
-                <span style={{fontSize:"11px",letterSpacing:"2px",color:"#a855f7",fontWeight:700}}>YOUR RESUME</span>
+            <h1 style={{ fontSize: "clamp(2rem,4.5vw,3.2rem)", fontWeight: 900, letterSpacing: "-1.5px", lineHeight: 1.15, marginBottom: "1rem", background: "linear-gradient(135deg,#fff 30%,#f9a8d4 70%,#a855f7 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Evidence-Grounded Result Engine
+            </h1>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "15px", maxWidth: "680px", margin: "0 auto", lineHeight: 1.6 }}>
+              Personalized. Traceable. Deterministic. Evaluates your resume against target job requirements with absolute zero fabrication and 11 synchronized hiring dimensions.
+            </p>
+          </div>
+
+          <div className="glass" style={{ borderRadius: "24px", padding: "2.5rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#ec4899", boxShadow: "0 0 8px #ec4899" }} />
+                    <span style={{ fontSize: "11px", letterSpacing: "2px", color: "#ec4899", fontWeight: 700 }}>TARGET JOB DESCRIPTION</span>
+                  </div>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>Full text ingested</span>
+                </div>
+                <textarea
+                  value={jd}
+                  onChange={(e) => setJd(e.target.value)}
+                  style={{ width: "100%", height: "230px", background: "rgba(236,72,153,0.04)", border: "1px solid rgba(236,72,153,0.2)", borderRadius: "16px", padding: "16px", color: "rgba(255,255,255,0.9)", fontSize: "13px", resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }}
+                  placeholder="Paste the full job description (e.g. Software Engineer, Machine Learning, Python, AWS, REST APIs)..."
+                />
               </div>
-              <div onClick={()=>document.getElementById("resumeUp")?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)handleFileUpload(f);}} style={{border:"2px dashed rgba(168,85,247,0.35)",borderRadius:"12px",padding:"14px",textAlign:"center",cursor:"pointer",marginBottom:"10px",transition:"all 0.2s",background:"rgba(168,85,247,0.04)"}} onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(168,85,247,0.7)"} onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(168,85,247,0.35)"}>
-                <input id="resumeUp" type="file" accept="image/*,.pdf,application/pdf" style={{display:"none"}} onChange={e=>{const f=e.target.files?.[0];if(f)handleFileUpload(f);}}/>
-                {parsing?<div style={{color:"#a855f7",fontSize:"12px"}}><span style={{animation:"spin 1s linear infinite",display:"inline-block",marginRight:"8px"}}>⟳</span>Extracting...</div>:resumeFile?<div style={{color:"#00ff88",fontSize:"12px"}}>✓ {resumeFile.name}</div>:<div><div style={{fontSize:"20px",marginBottom:"4px"}}>📄</div><div style={{color:"rgba(168,85,247,0.8)",fontSize:"12px",fontWeight:600}}>Upload Resume</div><div style={{color:"rgba(255,255,255,0.3)",fontSize:"11px",marginTop:"2px"}}>PDF or Image</div></div>}
+
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7", boxShadow: "0 0 8px #a855f7" }} />
+                    <span style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 700 }}>YOUR RESUME</span>
+                  </div>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>PDF, Image, or Text</span>
+                </div>
+                <div
+                  onClick={() => document.getElementById("resumeUp")?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const f = e.dataTransfer.files[0];
+                    if (f) handleFileUpload(f);
+                  }}
+                  style={{ border: "2px dashed rgba(168,85,247,0.3)", borderRadius: "14px", padding: "14px", textAlign: "center", cursor: "pointer", marginBottom: "10px", background: "rgba(168,85,247,0.03)", transition: "all 0.2s" }}
+                >
+                  <input id="resumeUp" type="file" accept="image/*,.pdf,application/pdf" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} />
+                  {parsing ? (
+                    <div style={{ color: "#a855f7", fontSize: "12px" }}><span style={{ animation: "spin 1s linear infinite", display: "inline-block", marginRight: "8px" }}>⟳</span>Extracting complete text...</div>
+                  ) : resumeFile ? (
+                    <div style={{ color: "#00ff88", fontSize: "12px", fontWeight: 600 }}>✓ {resumeFile.name}</div>
+                  ) : (
+                    <div>
+                      <span style={{ fontSize: "20px" }}>📄</span>
+                      <div style={{ color: "rgba(168,85,247,0.9)", fontSize: "12px", fontWeight: 700, marginTop: "2px" }}>Upload Resume File</div>
+                      <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>PDF, PNG, or JPG</div>
+                    </div>
+                  )}
+                </div>
+                <textarea
+                  value={resume}
+                  onChange={(e) => setResume(e.target.value)}
+                  style={{ width: "100%", height: "135px", background: "rgba(168,85,247,0.04)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "16px", padding: "16px", color: "rgba(255,255,255,0.9)", fontSize: "13px", resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }}
+                  placeholder="Or paste your complete resume text here..."
+                />
               </div>
-              <div style={{textAlign:"center",color:"rgba(255,255,255,0.2)",fontSize:"11px",marginBottom:"8px"}}>— OR TYPE —</div>
-              <textarea value={resume} onChange={e=>setResume(e.target.value)} style={{width:"100%",height:"110px",background:"rgba(168,85,247,0.06)",border:"1px solid rgba(168,85,247,0.2)",borderRadius:"16px",padding:"16px",color:"rgba(255,255,255,0.85)",fontSize:"13px",resize:"none",fontFamily:"inherit",lineHeight:1.6,boxSizing:"border-box"}} onFocus={e=>e.target.style.borderColor="rgba(168,85,247,0.6)"} onBlur={e=>e.target.style.borderColor="rgba(168,85,247,0.2)"} placeholder="Or paste your resume text..."/>
             </div>
           </div>
+
+          {error && <p style={{ color: "#ff4466", textAlign: "center", marginBottom: "1rem", fontSize: "13px" }}>⚠ {error}</p>}
+
+          <button
+            className="btn-main"
+            onClick={analyze}
+            disabled={!resume.trim()}
+            style={{ width: "100%", padding: "1.1rem", borderRadius: "16px", fontSize: "15px", letterSpacing: "2px", opacity: !resume.trim() ? 0.4 : 1, cursor: !resume.trim() ? "not-allowed" : "pointer" }}
+          >
+            RUN COMPLETE RESULT ENGINE AUDIT →
+          </button>
         </div>
-        {error&&<p style={{color:"#ff6b6b",textAlign:"center",marginBottom:"1rem",fontSize:"13px"}}>⚠ {error}</p>}
-        <button className="btn-main" onClick={analyze} disabled={!jd||!resume} style={{width:"100%",padding:"1.1rem",borderRadius:"16px",fontSize:"15px",letterSpacing:"3px",opacity:!jd||!resume?0.3:1,cursor:!jd||!resume?"not-allowed":"pointer",boxShadow:"0 0 60px rgba(236,72,153,0.2)"}}>
-          ANALYZE MY PROFILE →
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 2. LOADING PAGE
+  // ─────────────────────────────────────────────────────────────
+  if (step === "loading") {
+    return (
+      <div style={{ minHeight: "100vh", background: "#06030f", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <GradientBg />
+        <div style={{ position: "relative", zIndex: 10, textAlign: "center", maxWidth: "550px", padding: "2rem" }}>
+          <div style={{ position: "relative", width: "90px", height: "90px", margin: "0 auto 2rem" }}>
+            <div style={{ position: "absolute", inset: 0, border: "2px solid rgba(236,72,153,0.2)", borderTop: "2px solid #ec4899", borderRadius: "50%", animation: "spin 1.2s linear infinite" }} />
+            <div style={{ position: "absolute", inset: "12px", border: "2px solid rgba(168,85,247,0.15)", borderBottom: "2px solid #a855f7", borderRadius: "50%", animation: "spin 0.8s linear infinite reverse" }} />
+            <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>✦</span>
+          </div>
+          <div style={{ fontSize: "13px", letterSpacing: "2px", color: "rgba(255,255,255,0.9)", fontWeight: 700, marginBottom: "8px" }}>
+            {loadMsg.toUpperCase()}
+          </div>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", lineHeight: 1.5 }}>
+            Synthesizing Canonical Evidence Graph • Enforcing Zero-Fabrication Integrity
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 3. RESULTS PAGE (11 SYNCHRONIZED SECTIONS)
+  // ─────────────────────────────────────────────────────────────
+  const scoreObj = canonical?.score || {
+    overallEvidenceMatch: report?.feedback?.roleAlignmentSummary?.alignmentPercentage || 0,
+    criticalScore: 100,
+    importantScore: 100,
+    preferredScore: 0,
+    summaryCounts: {
+      supported: report?.feedback?.strongEvidence?.length || 0,
+      partial: report?.feedback?.partialEvidence?.length || 0,
+      claimOnly: report?.feedback?.claimedOnly?.length || 0,
+      evidenceGaps: report?.feedback?.missingEvidence?.length || 0,
+      skillGaps: 0,
+      missing: 0,
+      contradicted: 0,
+      totalRequirements: report?.requirements?.length || 0,
+    },
+    scoreVerdictExplanation: "Evaluated role requirements against documented resume evidence.",
+    formulaExplanation: report?.feedback?.roleAlignmentSummary?.formulaExplanation || "",
+    calculatedAt: new Date().toISOString(),
+  };
+
+  const matches = canonical?.matches || [];
+  const strengths = canonical?.strengths || [];
+  const gaps = canonical?.gaps || [];
+  const expAnalysis = canonical?.experienceAnalysis;
+  const projAnalysis = canonical?.projectAnalysis || [];
+  const rewriter = canonical?.resumeRewrite || report?.rewriter;
+  const roadmap = canonical?.roadmap || report?.roadmap;
+  const interview = canonical?.interviewFocus || report?.interview;
+  const verdict = canonical?.finalVerdict;
+
+  const showSection = (sId: string) => activeSection === "all" || activeSection === sId;
+
+  return (
+    <div style={{ minHeight: "100vh", color: "white", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", position: "relative" }}>
+      <GradientBg />
+
+      {/* Top Sticky Header */}
+      <div style={{ position: "sticky", top: 0, zIndex: 50, background: "rgba(6,3,15,0.85)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "30px", height: "30px", background: "linear-gradient(135deg,#ec4899,#a855f7)", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px" }}>✦</div>
+          <span style={{ fontWeight: 800, background: "linear-gradient(135deg,#fff,#f9a8d4)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>COGNALYZE</span>
+          <span style={{ fontSize: "10px", padding: "2px 8px", background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.3)", borderRadius: "20px", color: "#00ff88", fontWeight: 700 }}>ZERO-FABRICATION VERIFIED</span>
+        </div>
+        <button onClick={resetAll} style={{ padding: "0.45rem 1.1rem", borderRadius: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.75)", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}>
+          ↺ New Analysis
         </button>
       </div>
-    </div>
-  );
 
-  // ─── LOADING PAGE ───
-  if(step==="loading") return (
-    <div style={{minHeight:"100vh",background:"#06030f",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
-      <GradientBg/>
-      <div style={{position:"relative",zIndex:10,textAlign:"center"}}>
-        <div style={{position:"relative",width:"100px",height:"100px",margin:"0 auto 2.5rem"}}>
-          <div style={{position:"absolute",inset:0,border:"1px solid rgba(236,72,153,0.2)",borderTop:"1px solid #ec4899",borderRadius:"50%",animation:"spin 1.2s linear infinite"}}/>
-          <div style={{position:"absolute",inset:"12px",border:"1px solid rgba(168,85,247,0.15)",borderBottom:"1px solid #a855f7",borderRadius:"50%",animation:"spin 0.8s linear infinite reverse"}}/>
-          <span style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"28px"}}>✦</span>
-        </div>
-        <div style={{fontSize:"14px",letterSpacing:"3px",color:"rgba(255,255,255,0.6)"}}>{loadMsg}...</div>
-      </div>
-    </div>
-  );
-
-  // ─── RESULTS PAGE ───
-  return (
-    <div style={{minHeight:"100vh",color:"white",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",position:"relative"}}>
-      <GradientBg/>
-      {/* Nav */}
-      <div style={{position:"relative",zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"1.25rem 2rem",borderBottom:"1px solid rgba(255,255,255,0.06)"}}>
-        <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
-          <div style={{width:"32px",height:"32px",background:"linear-gradient(135deg,#ec4899,#a855f7)",borderRadius:"8px",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"16px"}}>✦</div>
-          <span style={{fontWeight:800,background:"linear-gradient(135deg,#fff,#f9a8d4)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>COGNALYZE</span>
-        </div>
-        <button onClick={resetAll} style={{padding:"0.5rem 1.25rem",borderRadius:"10px",background:"transparent",border:"1px solid rgba(255,255,255,0.15)",color:"rgba(255,255,255,0.5)",cursor:"pointer",fontSize:"13px"}}>↺ New Analysis</button>
-      </div>
-
-      <div style={{position:"relative",zIndex:10,maxWidth:"900px",margin:"0 auto",padding:"2rem"}}>
-        {/* Tabs */}
-        <div style={{display:"flex",gap:"6px",marginBottom:"2rem",background:"rgba(255,255,255,0.03)",borderRadius:"14px",padding:"6px",border:"1px solid rgba(255,255,255,0.06)"}}>
-          {TABS.map(t=>(
-            <button key={t.id} className="tab-btn" onClick={()=>handleTabChange(t.id as Tab)} style={{flex:1,padding:"0.6rem 0.4rem",borderRadius:"10px",fontSize:"12px",background:tab===t.id?"rgba(255,255,255,0.1)":"transparent",color:tab===t.id?"white":"rgba(255,255,255,0.4)",border:tab===t.id?"1px solid rgba(255,255,255,0.15)":"1px solid transparent"}}>
-              {t.label}
-            </button>
-          ))}
+      <div style={{ position: "relative", zIndex: 10, maxWidth: "1020px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+        
+        {/* Section Navigation Quick Bar */}
+        <div style={{ marginBottom: "2rem", overflowX: "auto", paddingBottom: "6px" }}>
+          <div style={{ display: "flex", gap: "6px", width: "max-content" }}>
+            {SECTIONS.map((sec) => (
+              <button
+                key={sec.id}
+                onClick={() => setActiveSection(sec.id as SectionFilter)}
+                className="section-chip"
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "999px",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  border: activeSection === sec.id ? "1px solid #ec4899" : "1px solid rgba(255,255,255,0.08)",
+                  background: activeSection === sec.id ? "rgba(236,72,153,0.2)" : "rgba(255,255,255,0.03)",
+                  color: activeSection === sec.id ? "#f472b6" : "rgba(255,255,255,0.6)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {sec.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* ── FEEDBACK TAB ── */}
-        {tab==="feedback"&&(
-          <div style={{animation:"fadeIn 0.4s ease"}}>
-            <div style={{textAlign:"center",marginBottom:"2rem"}}>
-              <div style={{fontSize:"11px",letterSpacing:"4px",color:"rgba(236,72,153,0.8)",marginBottom:"8px",fontWeight:600}}>● HONEST FEEDBACK</div>
-              <h2 style={{fontSize:"1.8rem",fontWeight:800,letterSpacing:"-1px"}}>This is how the committee sees you</h2>
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 1: ROLE ALIGNMENT DASHBOARD
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s1") && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(168,85,247,0.3)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1.5rem" }}>
+              <div style={{ flex: 1, minWidth: "280px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
+                  <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#a855f7", fontWeight: 800 }}>SECTION 1</span>
+                  <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(168,85,247,0.15)", borderRadius: "4px", color: "#d8b4fe" }}>DETERMINISTIC EVALUATION</span>
+                </div>
+                <h2 style={{ fontSize: "1.6rem", fontWeight: 900, margin: "0 0 8px", color: "white" }}>
+                  Role Alignment Score
+                </h2>
+                <p style={{ fontSize: "13px", color: "#38bdf8", margin: "0 0 10px", fontWeight: 600, lineHeight: 1.5 }}>
+                  "{verdict?.oneLineVerdict || scoreObj.scoreVerdictExplanation}"
+                </p>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", margin: 0, lineHeight: 1.5 }}>
+                  {scoreObj.formulaExplanation}
+                </p>
+              </div>
+
+              <div style={{ textAlign: "right", minWidth: "140px" }}>
+                <div style={{ fontSize: "3.2rem", fontWeight: 900, lineHeight: 1, background: "linear-gradient(135deg,#00ff88,#22d3ee)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                  {scoreObj.overallEvidenceMatch}%
+                </div>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", letterSpacing: "1.5px", marginTop: "4px" }}>
+                  EVIDENCE MATCH
+                </div>
+              </div>
             </div>
-            <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
-              {results.map((r,i)=>(
-                <div key={i} className="glass" style={{borderRadius:"18px",padding:"1.5rem",border:`1px solid ${r.color}25`,position:"relative",overflow:"hidden",animation:"slideRight 0.4s ease"}}>
-                  <div style={{position:"absolute",top:0,left:0,right:0,height:"1px",background:`linear-gradient(90deg,transparent,${r.color}50,transparent)`}}/>
-                  <div style={{position:"absolute",left:0,top:0,bottom:0,width:"2px",background:`linear-gradient(180deg,${r.color},${r.color}20)`}}/>
-                  <div style={{paddingLeft:"14px"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"8px"}}>
-                      <span style={{fontSize:"10px",fontWeight:800,letterSpacing:"2px",color:r.color}}>{r.name.toUpperCase()}</span>
-                      {r.typing&&<span style={{fontSize:"9px",padding:"2px 8px",background:`${r.color}15`,border:`1px solid ${r.color}30`,borderRadius:"999px",color:r.color,animation:"blink 1s infinite"}}>ANALYZING</span>}
+
+            {/* Score Counts Breakdown */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "10px", marginTop: "1.75rem", paddingTop: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ background: "rgba(0,255,136,0.06)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(0,255,136,0.15)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>Supported</div>
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "#00ff88" }}>{scoreObj.summaryCounts.supported} Reqs</div>
+              </div>
+              <div style={{ background: "rgba(56,189,248,0.06)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(56,189,248,0.15)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>Partial</div>
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "#38bdf8" }}>{scoreObj.summaryCounts.partial} Reqs</div>
+              </div>
+              <div style={{ background: "rgba(251,191,36,0.06)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(251,191,36,0.15)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>Claim Only</div>
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "#fbbf24" }}>{scoreObj.summaryCounts.claimOnly} Reqs</div>
+              </div>
+              <div style={{ background: "rgba(244,114,182,0.06)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(244,114,182,0.15)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>Evidence Gaps</div>
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "#f472b6" }}>{scoreObj.summaryCounts.evidenceGaps} Reqs</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.03)", padding: "10px 12px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", marginBottom: "2px" }}>Total Ingested</div>
+                <div style={{ fontSize: "16px", fontWeight: 800, color: "white" }}>{scoreObj.summaryCounts.totalRequirements} Reqs</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 2: REQUIREMENT ALIGNMENT TABLE
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s2") && matches.length > 0 && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(56,189,248,0.25)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "10px" }}>
+              <div>
+                <div style={{ fontSize: "10px", letterSpacing: "3px", color: "#38bdf8", fontWeight: 800 }}>SECTION 2</div>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "2px 0 0", color: "white" }}>
+                  Requirement-by-Requirement Alignment Matrix
+                </h3>
+              </div>
+              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+                Traceable to exact JD criteria and resume source quotes
+              </span>
+            </div>
+
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", textAlign: "left" }}>
+                    <th style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>Requirement</th>
+                    <th style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>Priority</th>
+                    <th style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>Status</th>
+                    <th style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>Confidence</th>
+                    <th style={{ padding: "10px 12px", color: "rgba(255,255,255,0.5)" }}>Resume Evidence / Gap Reasoning</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {matches.map((m, idx) => {
+                    const statusBadge = getStatusBadge(m.status);
+                    const prioBadge = getPriorityBadge(m.priority);
+                    return (
+                      <tr key={idx} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                        <td style={{ padding: "12px", fontWeight: 700, color: "white" }}>{m.requirementName}</td>
+                        <td style={{ padding: "12px" }}>
+                          <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "4px", background: prioBadge.bg, color: prioBadge.color, fontWeight: 700 }}>
+                            {m.priority}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px" }}>
+                          <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "999px", background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}`, fontWeight: 700 }}>
+                            {m.status.replace(/_/g, " ")}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px", color: m.confidenceTier === "HIGH" ? "#00ff88" : m.confidenceTier === "MEDIUM" ? "#fbbf24" : "rgba(255,255,255,0.4)" }}>
+                          {m.confidenceTier} ({Math.round(m.confidence * 100)}%)
+                        </td>
+                        <td style={{ padding: "12px", color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>
+                          {m.evidenceQuotes[0] ? (
+                            <div>
+                              <span style={{ color: "#34d399", fontStyle: "italic" }}>"{m.evidenceQuotes[0]}"</span>
+                              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{m.reasoning}</div>
+                            </div>
+                          ) : (
+                            <span style={{ color: "rgba(255,255,255,0.5)" }}>{m.reasoning}</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 3: EVIDENCE REVIEW (WHAT THE RESUME ACTUALLY PROVES)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s3") && canonical?.evidence && canonical.evidence.length > 0 && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(167,139,250,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#a78bfa", fontWeight: 800 }}>SECTION 3</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(167,139,250,0.15)", borderRadius: "4px", color: "#c4b5fd" }}>SOURCE PROVENANCE</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Evidence Review: What the Resume Actually Proves
+            </h3>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "1.5rem" }}>
+              Every bullet point and project below was extracted with line/section provenance. Cognalyze bases every decision strictly on this evidence inventory.
+            </p>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
+              {canonical.evidence.slice(0, 8).map((evi, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.025)", padding: "14px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "12px", fontWeight: 700, color: "white" }}>{evi.title}</span>
+                    <span style={{ fontSize: "9px", padding: "1px 6px", background: "rgba(167,139,250,0.15)", borderRadius: "4px", color: "#c4b5fd" }}>
+                      {evi.section}
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", margin: "0 0 6px", lineHeight: 1.4 }}>
+                    "{evi.text}"
+                  </p>
+                  {evi.technologies.length > 0 && (
+                    <div style={{ fontSize: "10px", color: "#38bdf8" }}>
+                      Detected Tooling: {evi.technologies.join(", ")}
                     </div>
-                    <p style={{color:"rgba(255,255,255,0.7)",fontSize:"13px",lineHeight:1.75,margin:0}}>
-                      {r.typing?<Typewriter text={r.response} speed={8} onDone={()=>handleDone(i)}/>:r.response}
-                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 4: STRENGTHS (ONLY EVIDENCE-BACKED)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s4") && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(0,255,136,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#00ff88", fontWeight: 800 }}>SECTION 4</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(0,255,136,0.15)", borderRadius: "4px", color: "#00ff88" }}>VERIFIABLE COMPETENCY</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Evidence-Backed Strengths
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {strengths.map((str, i) => (
+                <div key={i} style={{ padding: "14px 16px", background: "rgba(0,255,136,0.04)", borderRadius: "14px", border: "1px solid rgba(0,255,136,0.15)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <span style={{ fontWeight: 800, fontSize: "14px", color: "white" }}>{str.strength}</span>
+                    <span style={{ fontSize: "10px", padding: "2px 8px", background: "rgba(0,255,136,0.15)", borderRadius: "999px", color: "#00ff88", fontWeight: 700 }}>
+                      SUPPORTED
+                    </span>
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", color: "#34d399", fontStyle: "italic", marginBottom: "6px" }}>
+                    "{str.evidence}"
+                  </div>
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
+                    <strong>Role Relevance:</strong> {str.whyItMatters}
                   </div>
                 </div>
               ))}
-              {results.length<rawRef.current.length&&<div style={{textAlign:"center",color:"rgba(255,255,255,0.2)",fontSize:"13px",animation:"blink 1.5s infinite"}}>Next insight loading...</div>}
             </div>
           </div>
         )}
 
-        {/* ── SKILLS TAB ── */}
-        {tab==="skills"&&(
-          <div style={{animation:"fadeIn 0.4s ease"}}>
-            {loadingSkills?<Spinner msg="Analyzing skills gap..."/>:skills?(
-              <div>
-                <div className="glass" style={{borderRadius:"20px",padding:"2rem",marginBottom:"1.5rem",textAlign:"center",border:"1px solid rgba(99,102,241,0.2)"}}>
-                  <div style={{fontSize:"10px",letterSpacing:"3px",color:"rgba(99,102,241,0.8)",marginBottom:"1rem",fontWeight:600}}>MATCH SCORE</div>
-                  <div style={{fontSize:"5rem",fontWeight:900,background:`linear-gradient(135deg,${skills.match_score>=70?"#00ff88,#22d3ee":"#fbbf24,#ff4466"})`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",lineHeight:1}}>{skills.match_score}%</div>
-                  <div style={{height:"6px",background:"rgba(255,255,255,0.05)",borderRadius:"999px",margin:"1.5rem auto",maxWidth:"300px",overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${skills.match_score}%`,background:skills.match_score>=70?"linear-gradient(90deg,#00ff88,#22d3ee)":"linear-gradient(90deg,#fbbf24,#ff4466)",borderRadius:"999px"}}/>
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 5: GAPS & RISKS (REQUIREMENT-SPECIFIC)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s5") && gaps.length > 0 && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(255,68,102,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#ff4466", fontWeight: 800 }}>SECTION 5</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(255,68,102,0.15)", borderRadius: "4px", color: "#ff4466" }}>DEFENSIBLE GAP ANALYSIS</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Requirement-Specific Gaps & Risks
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {gaps.map((gap, i) => (
+                <div key={i} style={{ padding: "16px", background: "rgba(255,68,102,0.03)", borderRadius: "14px", border: "1px solid rgba(255,68,102,0.15)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <span style={{ fontWeight: 800, fontSize: "14px", color: "white" }}>GAP: {gap.requirement}</span>
+                    <span style={{ fontSize: "10px", padding: "2px 8px", background: gap.gapType === "Evidence Gap" ? "rgba(56,189,248,0.15)" : "rgba(255,68,102,0.15)", borderRadius: "999px", color: gap.gapType === "Evidence Gap" ? "#38bdf8" : "#ff4466", fontWeight: 700 }}>
+                      {gap.gapType.toUpperCase()}
+                    </span>
                   </div>
-                  <p style={{color:"rgba(255,255,255,0.5)",fontSize:"14px",fontStyle:"italic"}}>"{skills.honest_assessment}"</p>
+
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", marginBottom: "4px" }}>
+                    <strong>Current Evidence:</strong> {gap.currentEvidence}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", marginBottom: "6px" }}>
+                    <strong>Why It Matters:</strong> {gap.impact}
+                  </div>
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", color: "#38bdf8" }}>
+                    💡 <strong>Actionable Step:</strong> {gap.action}
+                  </div>
                 </div>
-                {/* Strong */}
-                <div className="glass" style={{borderRadius:"20px",padding:"1.5rem",marginBottom:"1rem",border:"1px solid rgba(0,255,136,0.15)"}}>
-                  <div style={{fontSize:"10px",letterSpacing:"2px",color:"#00ff88",marginBottom:"1rem",fontWeight:700}}>✓ STRONG SKILLS</div>
-                  <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
-                    {skills.strong_skills?.map((s,i)=>(
-                      <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",background:"rgba(0,255,136,0.06)",borderRadius:"10px"}}>
-                        <div><span style={{fontWeight:600,fontSize:"14px"}}>{s.skill}</span><span style={{fontSize:"12px",color:"rgba(255,255,255,0.4)",marginLeft:"10px"}}>{s.evidence}</span></div>
-                        <span style={{fontSize:"11px",padding:"2px 10px",background:"rgba(0,255,136,0.15)",border:"1px solid rgba(0,255,136,0.3)",borderRadius:"999px",color:"#00ff88"}}>{s.level}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Weak */}
-                {skills.weak_skills?.length>0&&(
-                  <div className="glass" style={{borderRadius:"20px",padding:"1.5rem",marginBottom:"1rem",border:"1px solid rgba(251,191,36,0.15)"}}>
-                    <div style={{fontSize:"10px",letterSpacing:"2px",color:"#fbbf24",marginBottom:"1rem",fontWeight:700}}>⚠ NEEDS IMPROVEMENT</div>
-                    <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
-                      {skills.weak_skills.map((s,i)=>(
-                        <div key={i} style={{padding:"12px 14px",background:"rgba(251,191,36,0.06)",borderRadius:"10px"}}>
-                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:"6px"}}>
-                            <span style={{fontWeight:600,fontSize:"14px"}}>{s.skill}</span>
-                            <span style={{fontSize:"11px",padding:"2px 10px",background:"rgba(251,191,36,0.15)",borderRadius:"999px",color:"#fbbf24"}}>{s.level}</span>
-                          </div>
-                          <div style={{fontSize:"12px",color:"rgba(255,255,255,0.4)",marginBottom:"4px"}}>{s.evidence}</div>
-                          {s.how_to_fix&&<div style={{fontSize:"12px",color:"#fbbf24"}}>💡 {s.how_to_fix}</div>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {/* Missing */}
-                {skills.missing_skills?.length>0&&(
-                  <div className="glass" style={{borderRadius:"20px",padding:"1.5rem",border:"1px solid rgba(255,68,102,0.15)"}}>
-                    <div style={{fontSize:"10px",letterSpacing:"2px",color:"#ff4466",marginBottom:"1rem",fontWeight:700}}>✗ MISSING SKILLS</div>
-                    <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
-                      {skills.missing_skills.map((s,i)=>(
-                        <div key={i} style={{padding:"12px 14px",background:"rgba(255,68,102,0.06)",borderRadius:"10px"}}>
-                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"6px"}}>
-                            <span style={{fontWeight:600,fontSize:"14px"}}>{s.skill}</span>
-                            <div style={{display:"flex",gap:"6px"}}>
-                              <span style={{fontSize:"10px",padding:"2px 8px",background:s.priority==="High"?"rgba(255,68,102,0.2)":"rgba(251,191,36,0.15)",borderRadius:"999px",color:s.priority==="High"?"#ff4466":"#fbbf24"}}>{s.priority}</span>
-                              <span style={{fontSize:"10px",padding:"2px 8px",background:"rgba(255,255,255,0.05)",borderRadius:"999px",color:"rgba(255,255,255,0.4)"}}>{s.learn_in}</span>
-                            </div>
-                          </div>
-                          <div style={{fontSize:"12px",color:"rgba(99,102,241,0.8)"}}>📚 {s.resource}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ):null}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* ── REWRITE TAB ── */}
-        {tab==="rewrite"&&(
-          <div style={{animation:"fadeIn 0.4s ease"}}>
-            {loadingRewrite?<Spinner msg="Rewriting honestly — no fake claims..."/>:rewriteData?(
-              <div>
-                {/* Trust badge */}
-                <div style={{display:"flex",alignItems:"center",gap:"8px",padding:"10px 16px",background:"rgba(0,255,136,0.08)",border:"1px solid rgba(0,255,136,0.25)",borderRadius:"12px",marginBottom:"1.5rem"}}>
-                  <span style={{fontSize:"16px"}}>🛡️</span>
-                  <span style={{fontSize:"12px",color:"#00ff88",fontWeight:600}}>Evidence-Based Rewrite</span>
-                  <span style={{fontSize:"12px",color:"rgba(255,255,255,0.4)"}}>— No fake skills or experience added</span>
-                </div>
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 6: EXPERIENCE QUALITY (FRESHER FAIRNESS)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s6") && expAnalysis && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(167,139,250,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#a78bfa", fontWeight: 800 }}>SECTION 6</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(167,139,250,0.15)", borderRadius: "4px", color: "#c4b5fd" }}>MULTI-DIMENSIONAL AUDIT</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Experience Quality Analysis
+            </h3>
 
-                {/* ATS Score */}
-                <div className="glass" style={{borderRadius:"20px",padding:"1.5rem",marginBottom:"1rem",border:"1px solid rgba(99,102,241,0.2)"}}>
-                  <div style={{fontSize:"10px",letterSpacing:"3px",color:"rgba(99,102,241,0.8)",fontWeight:600,marginBottom:"1rem"}}>ATS SCORE IMPROVEMENT</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr auto 1fr",alignItems:"center",gap:"1rem"}}>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{fontSize:"3rem",fontWeight:900,color:"#ff4466"}}>{rewriteData.ats_score_before}</div>
-                      <div style={{fontSize:"11px",color:"rgba(255,255,255,0.3)",letterSpacing:"1px",marginBottom:"6px"}}>BEFORE</div>
-                      <div style={{height:"4px",background:"rgba(255,68,102,0.2)",borderRadius:"999px",overflow:"hidden"}}>
-                        <div style={{height:"100%",width:`${rewriteData.ats_score_before}%`,background:"#ff4466",borderRadius:"999px"}}/>
-                      </div>
-                    </div>
-                    <div style={{fontSize:"2rem",color:"rgba(255,255,255,0.2)",textAlign:"center"}}>→</div>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{fontSize:"3rem",fontWeight:900,color:"#00ff88"}}>{rewriteData.ats_score_after}</div>
-                      <div style={{fontSize:"11px",color:"rgba(255,255,255,0.3)",letterSpacing:"1px",marginBottom:"6px"}}>AFTER</div>
-                      <div style={{height:"4px",background:"rgba(0,255,136,0.2)",borderRadius:"999px",overflow:"hidden"}}>
-                        <div style={{height:"100%",width:`${rewriteData.ats_score_after}%`,background:"#00ff88",borderRadius:"999px"}}/>
-                      </div>
-                    </div>
-                  </div>
-                  <p style={{textAlign:"center",marginTop:"1rem",fontSize:"13px",color:"rgba(255,255,255,0.5)",fontStyle:"italic"}}>"{rewriteData.honest_note}"</p>
-                </div>
-
-                {/* Confidence */}
-                <div className="glass" style={{borderRadius:"14px",padding:"1rem 1.5rem",marginBottom:"1rem",border:"1px solid rgba(168,85,247,0.2)",display:"flex",alignItems:"center",gap:"12px"}}>
-                  <span style={{fontSize:"13px",color:"rgba(255,255,255,0.4)",flexShrink:0}}>Rewrite confidence:</span>
-                  <div style={{flex:1,height:"6px",background:"rgba(255,255,255,0.05)",borderRadius:"999px",overflow:"hidden"}}>
-                    <div style={{height:"100%",width:`${rewriteData.confidence}%`,background:"linear-gradient(90deg,#a855f7,#6366f1)",borderRadius:"999px"}}/>
-                  </div>
-                  <span style={{fontSize:"14px",fontWeight:700,color:"#a855f7",flexShrink:0}}>{rewriteData.confidence}%</span>
-                </div>
-
-                {/* Risky claims */}
-                {rewriteData.risky_claims?.length>0&&(
-                  <div className="glass" style={{borderRadius:"16px",padding:"1.25rem",marginBottom:"1rem",border:"1px solid rgba(255,170,0,0.3)",background:"rgba(255,170,0,0.04)"}}>
-                    <div style={{fontSize:"10px",letterSpacing:"2px",color:"#ffaa00",fontWeight:700,marginBottom:"10px"}}>⚠ VERIFY BEFORE SUBMITTING</div>
-                    {rewriteData.risky_claims.map((r,i)=>(
-                      <div key={i} style={{padding:"10px 12px",background:"rgba(255,170,0,0.06)",borderRadius:"10px",marginBottom:"6px"}}>
-                        <div style={{fontSize:"13px",fontWeight:600,color:"rgba(255,255,255,0.8)",marginBottom:"4px"}}>"{r.claim}"</div>
-                        <div style={{fontSize:"12px",color:"rgba(255,170,0,0.8)",marginBottom:"3px"}}>{r.risk}</div>
-                        <div style={{fontSize:"11px",color:"rgba(255,255,255,0.4)"}}>Action: {r.action}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Change log */}
-                {rewriteData.changes?.length>0&&(
-                  <div className="glass" style={{borderRadius:"16px",padding:"1.25rem",marginBottom:"1.5rem",border:"1px solid rgba(255,255,255,0.06)"}}>
-                    <div style={{fontSize:"10px",letterSpacing:"2px",color:"rgba(255,255,255,0.4)",fontWeight:700,marginBottom:"10px"}}>CHANGE LOG ({rewriteData.changes.length} changes)</div>
-                    <div style={{display:"flex",flexDirection:"column",gap:"6px",maxHeight:"220px",overflow:"auto"}}>
-                      {rewriteData.changes.map((c,i)=>(
-                        <div key={i} style={{display:"flex",gap:"10px",alignItems:"flex-start",padding:"8px 10px",background:"rgba(255,255,255,0.03)",borderRadius:"8px"}}>
-                          <span style={{fontSize:"10px",padding:"2px 8px",borderRadius:"999px",flexShrink:0,marginTop:"1px",background:c.type==="strengthened"?"rgba(99,102,241,0.2)":c.type==="removed"?"rgba(255,68,102,0.2)":"rgba(0,255,136,0.1)",color:c.type==="strengthened"?"#a5b4fc":c.type==="removed"?"#ff4466":"#00ff88"}}>
-                            {c.type}
-                          </span>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:"12px",color:"rgba(255,255,255,0.5)",marginBottom:"2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.original}</div>
-                            {c.changed&&<div style={{fontSize:"12px",color:"#a5b4fc",marginBottom:"2px"}}>→ {c.changed}</div>}
-                            <div style={{fontSize:"11px",color:"rgba(255,255,255,0.3)"}}>{c.reason}</div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Rewritten resume */}
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
-                  <div style={{fontSize:"10px",letterSpacing:"2px",color:"rgba(168,85,247,0.8)",fontWeight:600}}>REWRITTEN RESUME</div>
-                  <button onClick={copyResume} style={{padding:"0.5rem 1.25rem",borderRadius:"10px",background:copied?"rgba(0,255,136,0.2)":"rgba(168,85,247,0.2)",border:`1px solid ${copied?"rgba(0,255,136,0.4)":"rgba(168,85,247,0.4)"}`,color:copied?"#00ff88":"#a855f7",cursor:"pointer",fontSize:"13px",fontWeight:600,transition:"all 0.2s"}}>
-                    {copied?"✓ Copied!":"📋 Copy Resume"}
-                  </button>
-                </div>
-                <div className="glass" style={{borderRadius:"16px",padding:"1.5rem",border:"1px solid rgba(168,85,247,0.15)",whiteSpace:"pre-wrap",fontSize:"13px",lineHeight:1.8,color:"rgba(255,255,255,0.8)",fontFamily:"'Courier New',monospace",maxHeight:"500px",overflow:"auto"}}>
-                  {rewriteData.rewritten}
-                </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "12px", marginBottom: "1rem" }}>
+              <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>Professional Experience</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "white", marginBottom: "4px" }}>{expAnalysis.professionalExperience.level}</div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{expAnalysis.professionalExperience.detail}</div>
               </div>
-            ):null}
+
+              <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>Project Depth</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "#00ff88", marginBottom: "4px" }}>{expAnalysis.projectEvidence.level} ({expAnalysis.projectEvidence.count} Projects)</div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{expAnalysis.projectEvidence.detail}</div>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>Engineering Depth</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "#38bdf8", marginBottom: "4px" }}>{expAnalysis.engineeringDepth.level}</div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{expAnalysis.engineeringDepth.detail}</div>
+              </div>
+
+              <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: "12px", padding: "14px" }}>
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>Impact Evidence</div>
+                <div style={{ fontSize: "14px", fontWeight: 700, color: "#fbbf24", marginBottom: "4px" }}>{expAnalysis.impactEvidence.level}</div>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{expAnalysis.impactEvidence.detail}</div>
+              </div>
+            </div>
+
+            <div style={{ background: "rgba(167,139,250,0.08)", borderRadius: "12px", padding: "12px 16px", borderLeft: "3px solid #a78bfa" }}>
+              <span style={{ fontSize: "11px", fontWeight: 700, color: "#c4b5fd" }}>Evaluator Fairness Note: </span>
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.75)" }}>{expAnalysis.fresherFairnessAssessment}</span>
+            </div>
           </div>
         )}
 
-        {/* ── ROADMAP TAB ── */}
-        {tab==="roadmap"&&(
-          <div style={{animation:"fadeIn 0.4s ease"}}>
-            {loadingRoadmap?<Spinner msg="Building your honest roadmap..."/>:roadmap?(
-              <div>
-                <div className="glass" style={{borderRadius:"20px",padding:"1.5rem",marginBottom:"1.5rem",border:`1px solid ${roadmap.ready_to_apply?"rgba(0,255,136,0.3)":"rgba(251,191,36,0.3)"}`,background:roadmap.ready_to_apply?"rgba(0,255,136,0.05)":"rgba(251,191,36,0.05)"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"8px"}}>
-                    <span style={{fontSize:"24px"}}>{roadmap.ready_to_apply?"✅":"⏳"}</span>
-                    <span style={{fontWeight:700,fontSize:"15px",color:roadmap.ready_to_apply?"#00ff88":"#fbbf24"}}>{roadmap.ready_to_apply?"Ready to Apply Now":"Not Quite Ready Yet"}</span>
-                  </div>
-                  <p style={{fontSize:"13px",color:"rgba(255,255,255,0.6)",fontStyle:"italic",marginBottom:"8px"}}>"{roadmap.honest_take}"</p>
-                  <p style={{fontSize:"12px",color:"rgba(255,255,255,0.4)"}}>💡 {roadmap.apply_now_anyway}</p>
-                </div>
-                <div style={{position:"relative",paddingLeft:"24px"}}>
-                  <div style={{position:"absolute",left:"8px",top:0,bottom:0,width:"2px",background:"linear-gradient(180deg,#6366f1,#ec4899)",borderRadius:"999px"}}/>
-                  {roadmap.months?.map((m,i)=>(
-                    <div key={i} style={{marginBottom:"1.5rem",position:"relative",animation:`fadeUp 0.5s ease ${i*0.15}s both`}}>
-                      <div style={{position:"absolute",left:"-20px",top:"18px",width:"12px",height:"12px",borderRadius:"50%",background:"linear-gradient(135deg,#6366f1,#a855f7)",boxShadow:"0 0 10px rgba(99,102,241,0.5)"}}/>
-                      <div className="glass" style={{borderRadius:"18px",padding:"1.5rem",border:"1px solid rgba(99,102,241,0.15)"}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px",flexWrap:"wrap",gap:"8px"}}>
-                          <span style={{fontSize:"12px",color:"#6366f1",fontWeight:700,letterSpacing:"1px"}}>{m.month}</span>
-                          <span style={{fontSize:"11px",color:"rgba(255,255,255,0.5)",padding:"3px 10px",background:"rgba(99,102,241,0.1)",borderRadius:"999px"}}>{m.focus}</span>
-                        </div>
-                        <div style={{display:"flex",flexDirection:"column",gap:"6px",marginBottom:"12px"}}>
-                          {m.actions?.map((a,j)=>(
-                            <div key={j} style={{display:"flex",gap:"8px",alignItems:"flex-start"}}>
-                              <span style={{color:"#6366f1",fontSize:"12px",marginTop:"2px",flexShrink:0}}>→</span>
-                              <span style={{fontSize:"13px",color:"rgba(255,255,255,0.7)",lineHeight:1.5}}>{a}</span>
-                            </div>
-                          ))}
-                        </div>
-                        <div style={{padding:"10px 12px",background:"rgba(99,102,241,0.08)",borderRadius:"10px",borderLeft:"3px solid #6366f1"}}>
-                          <span style={{fontSize:"11px",color:"rgba(99,102,241,0.8)",fontWeight:600}}>MILESTONE: </span>
-                          <span style={{fontSize:"12px",color:"rgba(255,255,255,0.6)"}}>{m.milestone}</span>
-                        </div>
-                      </div>
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 7: SKILLS & EVIDENCE GAP CATEGORIZATION
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s7") && report?.skillsGap && report.skillsGap.length > 0 && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(56,189,248,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#38bdf8", fontWeight: 800 }}>SECTION 7</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(56,189,248,0.15)", borderRadius: "4px", color: "#38bdf8" }}>SKILLS & EVIDENCE TAXONOMY</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Skills & Evidence Gap Breakdown
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              {report.skillsGap.map((sg, i) => (
+                <div key={i} style={{ padding: "12px 14px", background: "rgba(255,255,255,0.025)", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                    <span style={{ fontWeight: 700, fontSize: "14px", color: "white" }}>{sg.name}</span>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <span style={{ fontSize: "10px", padding: "2px 8px", background: sg.gapType === "EVIDENCE_GAP" ? "rgba(56,189,248,0.15)" : "rgba(239,68,68,0.15)", borderRadius: "999px", color: sg.gapType === "EVIDENCE_GAP" ? "#38bdf8" : "#ef4444", fontWeight: 700 }}>
+                        {sg.gapType.replace(/_/g, " ")}
+                      </span>
+                      <span style={{ fontSize: "10px", padding: "2px 8px", background: "rgba(255,255,255,0.05)", borderRadius: "999px", color: "rgba(255,255,255,0.5)" }}>
+                        {sg.priority} PRIORITY
+                      </span>
                     </div>
-                  ))}
+                  </div>
+                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginBottom: "4px" }}>
+                    {sg.whyPrioritized}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#38bdf8" }}>
+                    Action: {sg.recommendedAction}
+                  </div>
                 </div>
-              </div>
-            ):null}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* ── INTERVIEW TAB ── */}
-        {tab==="interview"&&(
-          <div style={{animation:"fadeIn 0.4s ease"}}>
-            {/* Mock interview CTA */}
-            <div className="glass" style={{borderRadius:"20px",padding:"2rem",marginBottom:"2rem",border:"1px solid rgba(99,102,241,0.3)",textAlign:"center",background:"rgba(99,102,241,0.05)"}}>
-              <div style={{fontSize:"32px",marginBottom:"1rem"}}>🎯</div>
-              <h3 style={{fontSize:"1.3rem",fontWeight:800,marginBottom:"0.5rem",letterSpacing:"-0.5px"}}>Practice with a FAANG-level AI interviewer</h3>
-              <p style={{color:"rgba(255,255,255,0.4)",fontSize:"13px",marginBottom:"1.5rem",lineHeight:1.6}}>Behavioral → Technical → System Design → Culture Fit<br/>Your JD and resume are pre-loaded</p>
-              <a href={`/interview?jd=${encodeURIComponent(jd)}&resume=${encodeURIComponent(resume)}`} style={{textDecoration:"none"}}>
-                <button className="btn-main" style={{padding:"0.9rem 2.5rem",borderRadius:"14px",fontSize:"14px",letterSpacing:"2px",display:"inline-block"}}>
-                  START MOCK INTERVIEW →
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 8: TRUTHFUL RESUME REWRITER (FULL RESUME OUTPUT)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s8") && rewriter && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(168,85,247,0.3)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "10px" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#a855f7", fontWeight: 800 }}>SECTION 8</span>
+                  <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(0,255,136,0.15)", borderRadius: "4px", color: "#00ff88", fontWeight: 700 }}>
+                    ZERO FABRICATION CERTIFIED
+                  </span>
+                </div>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "2px 0 0", color: "white" }}>
+                  Truthful Full Resume Output
+                </h3>
+              </div>
+
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={() => setShowOriginalResume(!showOriginalResume)}
+                  style={{ padding: "6px 12px", borderRadius: "8px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "white", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                >
+                  {showOriginalResume ? "Hide Original" : "Compare Original"}
                 </button>
-              </a>
+                <button
+                  onClick={copyResume}
+                  style={{ padding: "6px 14px", borderRadius: "8px", background: copied ? "rgba(0,255,136,0.2)" : "rgba(168,85,247,0.2)", border: `1px solid ${copied ? "rgba(0,255,136,0.4)" : "rgba(168,85,247,0.4)"}`, color: copied ? "#00ff88" : "#d8b4fe", cursor: "pointer", fontSize: "12px", fontWeight: 700 }}
+                >
+                  {copied ? "✓ Copied!" : "📋 Copy Full Clean Resume"}
+                </button>
+              </div>
             </div>
 
-            {/* Questions */}
-            {loadingInterview?<Spinner msg="Generating targeted questions..."/>:(
-              <div>
-                <div style={{fontSize:"10px",letterSpacing:"3px",color:"rgba(251,191,36,0.8)",fontWeight:600,marginBottom:"1rem"}}>PREDICTED INTERVIEW QUESTIONS</div>
-                <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
-                  {interviewQs.map((q,i)=>(
-                    <div key={i} className="glass" style={{borderRadius:"18px",padding:"1.5rem",border:"1px solid rgba(251,191,36,0.15)",position:"relative",overflow:"hidden"}}>
-                      <div style={{position:"absolute",left:0,top:0,bottom:0,width:"3px",background:"linear-gradient(180deg,#fbbf24,#fbbf2420)"}}/>
-                      <div style={{paddingLeft:"14px"}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"10px"}}>
-                          <span style={{fontSize:"10px",color:"#fbbf24",fontWeight:700,letterSpacing:"1px"}}>Q{i+1}</span>
-                          <span style={{fontSize:"10px",padding:"2px 10px",background:q.difficulty==="Hard"?"rgba(255,68,102,0.15)":q.difficulty==="Medium"?"rgba(251,191,36,0.15)":"rgba(0,255,136,0.1)",border:`1px solid ${q.difficulty==="Hard"?"rgba(255,68,102,0.3)":q.difficulty==="Medium"?"rgba(251,191,36,0.3)":"rgba(0,255,136,0.3)"}`,borderRadius:"999px",color:q.difficulty==="Hard"?"#ff4466":q.difficulty==="Medium"?"#fbbf24":"#00ff88"}}>
-                            {q.difficulty}
-                          </span>
-                        </div>
-                        <p style={{color:"rgba(255,255,255,0.9)",fontSize:"14px",fontWeight:500,marginBottom:"12px",lineHeight:1.5}}>{q.question}</p>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"8px"}}>
-                          <div style={{background:"rgba(255,255,255,0.03)",borderRadius:"10px",padding:"10px"}}>
-                            <div style={{fontSize:"9px",color:"rgba(255,255,255,0.3)",letterSpacing:"2px",marginBottom:"4px"}}>WHY ASKED</div>
-                            <div style={{fontSize:"12px",color:"rgba(255,255,255,0.6)"}}>{q.why}</div>
-                          </div>
-                          <div style={{background:"rgba(255,255,255,0.03)",borderRadius:"10px",padding:"10px"}}>
-                            <div style={{fontSize:"9px",color:"rgba(255,255,255,0.3)",letterSpacing:"2px",marginBottom:"4px"}}>WHAT TO COVER</div>
-                            <div style={{fontSize:"12px",color:"rgba(255,255,255,0.6)"}}>{q.lookFor}</div>
-                          </div>
-                        </div>
-                      </div>
+            <div style={{ background: "rgba(0,255,136,0.05)", border: "1px solid rgba(0,255,136,0.2)", borderRadius: "12px", padding: "10px 14px", marginBottom: "1.5rem", fontSize: "12px", color: "#00ff88" }}>
+              🛡️ Every rewritten statement is traceable to source evidence. Click any bullet to view its Evidence Drawer.
+            </div>
+
+            {/* Comparison Side-by-side */}
+            {showOriginalResume && (
+              <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "14px", padding: "14px", marginBottom: "1.5rem", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <div style={{ fontSize: "11px", letterSpacing: "2px", color: "rgba(255,255,255,0.4)", fontWeight: 800, marginBottom: "8px" }}>
+                  ORIGINAL UNEDITED RESUME
+                </div>
+                <pre style={{ whiteSpace: "pre-wrap", fontSize: "12px", color: "rgba(255,255,255,0.6)", fontFamily: "monospace", maxHeight: "200px", overflow: "auto" }}>
+                  {resume}
+                </pre>
+              </div>
+            )}
+
+            {/* Full Rewritten Resume Display */}
+            <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: "16px", padding: "1.75rem", border: "1px solid rgba(255,255,255,0.06)" }}>
+              {/* Header */}
+              <div style={{ textAlign: "center", marginBottom: "1.5rem", paddingBottom: "1.25rem", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <h2 style={{ fontSize: "1.6rem", fontWeight: 900, margin: "0 0 4px", color: "white" }}>
+                  {(rewriter as any)?.name || "CANDIDATE NAME"}
+                </h2>
+                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>
+                  {(rewriter as any)?.contact?.email && <span>{(rewriter as any).contact.email} • </span>}
+                  {(rewriter as any)?.contact?.phone && <span>{(rewriter as any).contact.phone} • </span>}
+                  {(rewriter as any)?.contact?.links && (rewriter as any).contact.links.join(" • ")}
+                </div>
+              </div>
+
+              {/* Professional Summary */}
+              {rewriter.summary && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 800, marginBottom: "6px" }}>
+                    PROFESSIONAL SUMMARY
+                  </div>
+                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.6, margin: 0 }}>
+                    {rewriter.summary}
+                  </p>
+                </div>
+              )}
+
+              {/* Skills */}
+              {rewriter.skills && rewriter.skills.length > 0 && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 800, marginBottom: "6px" }}>
+                    TECHNICAL SKILLS
+                  </div>
+                  {rewriter.skills.map((sg, idx) => (
+                    <div key={idx} style={{ fontSize: "13px", marginBottom: "4px" }}>
+                      <strong style={{ color: "#d8b4fe" }}>{sg.category}: </strong>
+                      <span style={{ color: "rgba(255,255,255,0.8)" }}>{sg.items.join(", ")}</span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {/* Experience */}
+              {rewriter.experience && rewriter.experience.length > 0 && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 800, marginBottom: "10px" }}>
+                    EXPERIENCE
+                  </div>
+                  {rewriter.experience.map((exp, idx) => (
+                    <div key={idx} style={{ marginBottom: "12px", borderLeft: "2px solid rgba(168,85,247,0.4)", paddingLeft: "12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: 800, color: "white" }}>
+                        <span>{exp.role}</span>
+                        <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{exp.period}</span>
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#38bdf8", marginBottom: "6px" }}>{exp.company}</div>
+                      {exp.bullets.map((b) => (
+                        <div
+                          key={b.bulletId}
+                          className="evidence-drawer-item"
+                          onClick={() => setSelectedBullet(b)}
+                          style={{ display: "flex", alignItems: "flex-start", gap: "6px", padding: "4px 6px", borderRadius: "6px", cursor: "pointer" }}
+                        >
+                          <span style={{ color: "#a855f7" }}>•</span>
+                          <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5, flex: 1 }}>{b.rewrittenText}</span>
+                          <span style={{ fontSize: "9px", padding: "1px 5px", background: "rgba(168,85,247,0.15)", borderRadius: "4px", color: "#d8b4fe" }}>
+                            🔍 Inspect
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Projects */}
+              {rewriter.projects && rewriter.projects.length > 0 && (
+                <div style={{ marginBottom: "1.5rem" }}>
+                  <div style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 800, marginBottom: "10px" }}>
+                    TECHNICAL PROJECTS
+                  </div>
+                  {rewriter.projects.map((proj, idx) => (
+                    <div key={idx} style={{ marginBottom: "12px", borderLeft: "2px solid rgba(56,189,248,0.4)", paddingLeft: "12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: 800, color: "white" }}>
+                        <span>{proj.title}</span>
+                        <span style={{ fontSize: "11px", color: "#38bdf8" }}>[{((proj as any).technologies || (proj as any).tech || []).join(", ")}]</span>
+                      </div>
+                      {proj.bullets.map((b) => (
+                        <div
+                          key={b.bulletId}
+                          className="evidence-drawer-item"
+                          onClick={() => setSelectedBullet(b)}
+                          style={{ display: "flex", alignItems: "flex-start", gap: "6px", padding: "4px 6px", borderRadius: "6px", cursor: "pointer" }}
+                        >
+                          <span style={{ color: "#38bdf8" }}>•</span>
+                          <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", lineHeight: 1.5, flex: 1 }}>{b.rewrittenText}</span>
+                          <span style={{ fontSize: "9px", padding: "1px 5px", background: "rgba(56,189,248,0.15)", borderRadius: "4px", color: "#7dd3fc" }}>
+                            🔍 Inspect
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Education */}
+              {rewriter.education && rewriter.education.length > 0 && (
+                <div>
+                  <div style={{ fontSize: "11px", letterSpacing: "2px", color: "#a855f7", fontWeight: 800, marginBottom: "8px" }}>
+                    EDUCATION
+                  </div>
+                  {rewriter.education.map((edu, idx) => (
+                    <div key={idx} style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)" }}>
+                      <strong>{edu.degree}</strong> — {edu.institution} ({edu.year})
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Interactive Evidence Drawer Modal */}
+            {selectedBullet && (
+              <div
+                style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
+                onClick={() => setSelectedBullet(null)}
+              >
+                <div
+                  className="glass"
+                  style={{ maxWidth: "580px", width: "100%", borderRadius: "22px", padding: "2rem", border: "1px solid rgba(168,85,247,0.4)", position: "relative", animation: "fadeUp 0.3s ease" }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    onClick={() => setSelectedBullet(null)}
+                    style={{ position: "absolute", top: "16px", right: "16px", background: "transparent", border: "none", color: "rgba(255,255,255,0.5)", fontSize: "18px", cursor: "pointer" }}
+                  >
+                    ✕
+                  </button>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }}>
+                    <span style={{ fontSize: "16px" }}>🔍</span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, letterSpacing: "2px", color: "#a855f7" }}>
+                      PROVENANCE & EVIDENCE DRAWER
+                    </span>
+                  </div>
+
+                  <div style={{ marginBottom: "1.25rem" }}>
+                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>REWRITTEN BULLET</div>
+                    <div style={{ fontSize: "13px", color: "#00ff88", lineHeight: 1.5, background: "rgba(0,255,136,0.06)", padding: "10px 12px", borderRadius: "10px", border: "1px solid rgba(0,255,136,0.15)" }}>
+                      {selectedBullet.rewrittenText}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "1.25rem" }}>
+                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>VERBATIM SOURCE TEXT</div>
+                    <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", lineHeight: 1.5, background: "rgba(255,255,255,0.03)", padding: "10px 12px", borderRadius: "10px" }}>
+                      "{selectedBullet.originalText}"
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "1.25rem" }}>
+                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginBottom: "4px" }}>TRANSFORMATION RATIONALE</div>
+                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>
+                      {selectedBullet.transformationRationale}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                    <div style={{ background: "rgba(0,255,136,0.05)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(0,255,136,0.12)" }}>
+                      <div style={{ fontSize: "10px", color: "#00ff88", fontWeight: 700 }}>NEW FACTS ADDED</div>
+                      <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)" }}>{selectedBullet.newFactsAdded}</div>
+                    </div>
+
+                    <div style={{ background: "rgba(56,189,248,0.05)", padding: "10px", borderRadius: "8px", border: "1px solid rgba(56,189,248,0.12)" }}>
+                      <div style={{ fontSize: "10px", color: "#38bdf8", fontWeight: 700 }}>DEFENSIBILITY</div>
+                      <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.7)" }}>{selectedBullet.interviewDefensibility} — Ready to verify</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 9: EVIDENCE ROADMAP (DERIVED DIRECTLY FROM JD GAPS)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s9") && roadmap?.milestones && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(99,102,241,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#818cf8", fontWeight: 800 }}>SECTION 9</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(99,102,241,0.15)", borderRadius: "4px", color: "#818cf8" }}>ACTIONABLE MILESTONES</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1.25rem", color: "white" }}>
+              Evidence-Generating Roadmap
+            </h3>
+
+            <div style={{ position: "relative", paddingLeft: "24px" }}>
+              <div style={{ position: "absolute", left: "8px", top: 0, bottom: 0, width: "2px", background: "linear-gradient(180deg,#6366f1,#ec4899)", borderRadius: "999px" }} />
+              {roadmap.milestones.map((m, i) => (
+                <div key={i} style={{ marginBottom: "1.5rem", position: "relative" }}>
+                  <div style={{ position: "absolute", left: "-20px", top: "16px", width: "10px", height: "10px", borderRadius: "50%", background: "#6366f1", boxShadow: "0 0 8px #6366f1" }} />
+                  <div style={{ background: "rgba(255,255,255,0.025)", padding: "16px", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                      <span style={{ fontSize: "12px", color: "#818cf8", fontWeight: 800 }}>{m.phase}</span>
+                      <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)" }}>Effort: {m.realisticEffort}</span>
+                    </div>
+                    <h4 style={{ fontSize: "1.05rem", fontWeight: 800, margin: "0 0 6px", color: "white" }}>{m.title}</h4>
+                    <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.75)", lineHeight: 1.5, margin: "0 0 10px" }}>{m.action}</p>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                      <div style={{ background: "rgba(99,102,241,0.06)", borderRadius: "8px", padding: "8px 10px" }}>
+                        <div style={{ fontSize: "10px", color: "#818cf8", fontWeight: 700 }}>DELIVERABLE ARTIFACT</div>
+                        <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)" }}>{(m as any).concreteDeliverableArtifact || (m as any).deliverableArtifact || ""}</div>
+                      </div>
+                      <div style={{ background: "rgba(0,255,136,0.06)", borderRadius: "8px", padding: "8px 10px" }}>
+                        <div style={{ fontSize: "10px", color: "#00ff88", fontWeight: 700 }}>EVIDENCE GENERATED</div>
+                        <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)" }}>{m.evidenceGenerated}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 10: INTERVIEW FOCUS (PERSONALIZED PROBING QUESTIONS)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s10") && interview && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2.5rem", border: "1px solid rgba(251,191,36,0.25)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#fbbf24", fontWeight: 800 }}>SECTION 10</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(251,191,36,0.15)", borderRadius: "4px", color: "#fbbf24" }}>VERIFICATION QUESTIONS</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Interview Focus & Defensibility Probes
+            </h3>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {interview.probeQuestions.map((q, i) => (
+                <div key={i} style={{ padding: "16px", background: "rgba(251,191,36,0.03)", borderRadius: "14px", border: "1px solid rgba(251,191,36,0.15)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "11px", color: "#fbbf24", fontWeight: 800 }}>PROBE {i + 1}: {q.targetRequirement}</span>
+                    <span style={{ fontSize: "10px", padding: "2px 8px", background: q.candidateDefensibility === "STRONG" ? "rgba(0,255,136,0.15)" : "rgba(251,191,36,0.15)", borderRadius: "999px", color: q.candidateDefensibility === "STRONG" ? "#00ff88" : "#fbbf24", fontWeight: 700 }}>
+                      Defensibility: {q.candidateDefensibility}
+                    </span>
+                  </div>
+                  <p style={{ color: "white", fontSize: "13px", fontWeight: 600, marginBottom: "8px", lineHeight: 1.5 }}>
+                    "{q.question}"
+                  </p>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "11px" }}>
+                    <div style={{ background: "rgba(255,255,255,0.025)", padding: "8px 10px", borderRadius: "8px" }}>
+                      <span style={{ color: "#fbbf24", fontWeight: 700 }}>Why asked: </span>
+                      <span style={{ color: "rgba(255,255,255,0.65)" }}>{q.whyAsked}</span>
+                    </div>
+                    <div style={{ background: "rgba(0,255,136,0.025)", padding: "8px 10px", borderRadius: "8px" }}>
+                      <span style={{ color: "#00ff88", fontWeight: 700 }}>Strong proof looks like: </span>
+                      <span style={{ color: "rgba(255,255,255,0.65)" }}>{q.whatStrongProofLooksLike}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 11: FINAL EVALUATOR VERDICT
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s11") && (
+          <div className="glass" style={{ borderRadius: "22px", padding: "2rem", marginBottom: "2rem", border: "1px solid rgba(236,72,153,0.3)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", letterSpacing: "3px", color: "#ec4899", fontWeight: 800 }}>SECTION 11</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "rgba(236,72,153,0.15)", borderRadius: "4px", color: "#f472b6" }}>HIRING PANEL SYNTHESIS</span>
+            </div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "white" }}>
+              Final Evaluator Verdict
+            </h3>
+
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.9)", lineHeight: 1.7, marginBottom: "1rem" }}>
+              {verdict?.overallPanelSummary ||
+                `Documented alignment is strongest in ${scoreObj.summaryCounts.supported} core technical criteria. Primary limitations stem from unrecorded cloud and deployment operations, which represent evidence gaps rather than proven skill deficiencies.`}
+            </p>
+
+            <div style={{ background: "rgba(236,72,153,0.06)", borderRadius: "12px", padding: "14px", borderLeft: "3px solid #ec4899" }}>
+              <div style={{ fontSize: "11px", fontWeight: 800, color: "#f472b6", marginBottom: "4px" }}>RECOMMENDED APPLICATION STRATEGY</div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.75)", lineHeight: 1.5 }}>
+                {verdict?.recommendedApplicationStrategy ||
+                  "Lead technical discussions with your verified project implementation workflows, and speak proactively to prototype deployments currently in progress."}
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

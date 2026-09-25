@@ -1,0 +1,1176 @@
+{
+  "users": [
+    {
+      "id": "u-student-nistha-001",
+      "email": "nistha@cognalyze.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-08-24T06:14:52.826Z",
+      "createdAt": "2026-08-24T06:14:52.839Z",
+      "updatedAt": "2026-09-23T06:14:52.839Z"
+    },
+    {
+      "id": "u-recruiter-aarav-001",
+      "email": "aarav@acme.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "recruiter",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-07-25T06:14:52.839Z",
+      "createdAt": "2026-07-25T06:14:52.839Z",
+      "updatedAt": "2026-09-23T06:14:52.839Z"
+    },
+    {
+      "id": "45442bbd-2c27-4392-a959-06af38c96967",
+      "email": "test_student_1790144093120@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:14:53.120Z",
+      "createdAt": "2026-09-23T06:14:53.120Z",
+      "updatedAt": "2026-09-23T06:14:53.120Z"
+    },
+    {
+      "id": "15212309-6622-45bb-a9ec-440f6a5ad3d8",
+      "email": "otp_test_1790144093124@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-23T06:14:53.124Z",
+      "updatedAt": "2026-09-23T06:14:53.124Z"
+    },
+    {
+      "id": "0f059c94-be48-465a-ac29-6024a5c321ff",
+      "email": "multiauth_1790144093131@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:14:53.131Z",
+      "createdAt": "2026-09-23T06:14:53.131Z",
+      "updatedAt": "2026-09-23T06:14:53.131Z"
+    },
+    {
+      "id": "ef6bb183-641e-4864-b71d-030083dba915",
+      "email": "test_student_1790144181062@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:16:21.062Z",
+      "createdAt": "2026-09-23T06:16:21.062Z",
+      "updatedAt": "2026-09-23T06:16:21.062Z"
+    },
+    {
+      "id": "88aeb367-8e1a-4ba4-80fe-7884e9a5a301",
+      "email": "otp_test_1790144181071@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-23T06:16:21.071Z",
+      "updatedAt": "2026-09-23T06:16:21.071Z"
+    },
+    {
+      "id": "cc09c7b5-727f-4c7c-b5a1-3dc4d6a14bf5",
+      "email": "multiauth_1790144181102@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:16:21.102Z",
+      "createdAt": "2026-09-23T06:16:21.102Z",
+      "updatedAt": "2026-09-23T06:16:21.102Z"
+    },
+    {
+      "id": "68a375f9-f56c-4f6e-b40f-b58bfcf88012",
+      "email": "student_test_verify@university.edu",
+      "passwordHash": "d2f4ac9792b423682cb6ba46fbfbcc3a2824452f7bcc26bbae2934adc56a5c1235c9c21c597962c25ccb63646741b61524148101f1d5e32bae2948505524ae6f",
+      "passwordSalt": "698f554787d4970902b2e20ca98dd6dd",
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-23T06:26:52.270Z",
+      "updatedAt": "2026-09-23T06:26:52.270Z"
+    },
+    {
+      "id": "8ce18065-6512-4e63-8e80-45375f9ac9e1",
+      "email": "test_student_1790146503276@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:55:03.276Z",
+      "createdAt": "2026-09-23T06:55:03.276Z",
+      "updatedAt": "2026-09-23T06:55:03.276Z"
+    },
+    {
+      "id": "c5f96ecf-62a0-4d4e-9a43-b711288e4dfc",
+      "email": "otp_test_1790146503283@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-23T06:55:03.283Z",
+      "updatedAt": "2026-09-23T06:55:03.283Z"
+    },
+    {
+      "id": "1ca9fb9b-2195-471f-94ca-631266854710",
+      "email": "multiauth_1790146503289@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T06:55:03.289Z",
+      "createdAt": "2026-09-23T06:55:03.289Z",
+      "updatedAt": "2026-09-23T06:55:03.289Z"
+    },
+    {
+      "id": "6b4fea3b-0d28-4eb6-93be-83b17e267db2",
+      "email": "test_student_1790168382464@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T12:59:42.464Z",
+      "createdAt": "2026-09-23T12:59:42.464Z",
+      "updatedAt": "2026-09-23T12:59:42.464Z"
+    },
+    {
+      "id": "f9174ab2-2762-477f-b73f-e30fce8a6b25",
+      "email": "otp_test_1790168382470@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-23T12:59:42.470Z",
+      "updatedAt": "2026-09-23T12:59:42.470Z"
+    },
+    {
+      "id": "dffd48e5-33a8-4bc0-8c2c-c9e1f6b8a7ba",
+      "email": "multiauth_1790168382478@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T12:59:42.478Z",
+      "createdAt": "2026-09-23T12:59:42.478Z",
+      "updatedAt": "2026-09-23T12:59:42.478Z"
+    },
+    {
+      "id": "f2cf6724-7c29-415f-8810-a3b272c08060",
+      "email": "nisthamaheshwari84@gmail.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-23T13:01:13.854Z",
+      "createdAt": "2026-09-23T13:01:13.854Z",
+      "updatedAt": "2026-09-23T13:01:13.854Z"
+    },
+    {
+      "id": "2c028e22-f88e-45e7-aa81-7b215bf483e8",
+      "email": "test_student_1790281950848@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:32:30.848Z",
+      "createdAt": "2026-09-24T20:32:30.848Z",
+      "updatedAt": "2026-09-24T20:32:30.848Z"
+    },
+    {
+      "id": "fed50f08-cd63-4122-aca8-bbace0788248",
+      "email": "otp_test_1790281950861@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-24T20:32:30.861Z",
+      "updatedAt": "2026-09-24T20:32:30.861Z"
+    },
+    {
+      "id": "703a053c-a6b6-4967-9205-f93511339dd0",
+      "email": "multiauth_1790281950880@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:32:30.880Z",
+      "createdAt": "2026-09-24T20:32:30.880Z",
+      "updatedAt": "2026-09-24T20:32:30.880Z"
+    },
+    {
+      "id": "d081f064-493a-4266-a986-4e092c905cbd",
+      "email": "test_student_1790282546402@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:42:26.402Z",
+      "createdAt": "2026-09-24T20:42:26.402Z",
+      "updatedAt": "2026-09-24T20:42:26.402Z"
+    },
+    {
+      "id": "0fd99a40-dea9-4637-aec3-6d3298791e7a",
+      "email": "otp_test_1790282546405@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-24T20:42:26.405Z",
+      "updatedAt": "2026-09-24T20:42:26.405Z"
+    },
+    {
+      "id": "7848b6da-032e-46be-b9b2-d47e93925f69",
+      "email": "multiauth_1790282546410@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:42:26.410Z",
+      "createdAt": "2026-09-24T20:42:26.410Z",
+      "updatedAt": "2026-09-24T20:42:26.410Z"
+    },
+    {
+      "id": "f1d7b6c2-3cd3-4a02-b71d-730c152c3e41",
+      "email": "test_student_1790282820115@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:47:00.116Z",
+      "createdAt": "2026-09-24T20:47:00.116Z",
+      "updatedAt": "2026-09-24T20:47:00.116Z"
+    },
+    {
+      "id": "b525d711-7bf7-4ca8-a1e0-90d0b7ad1c03",
+      "email": "otp_test_1790282820122@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-24T20:47:00.122Z",
+      "updatedAt": "2026-09-24T20:47:00.122Z"
+    },
+    {
+      "id": "52a2230f-6853-49cc-a93f-2bd905acaf1e",
+      "email": "multiauth_1790282820132@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T20:47:00.132Z",
+      "createdAt": "2026-09-24T20:47:00.132Z",
+      "updatedAt": "2026-09-24T20:47:00.132Z"
+    },
+    {
+      "id": "fddf6be7-4e5d-46ea-b0a1-9b2c44cfaccd",
+      "email": "test_student_1790283691432@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T21:01:31.432Z",
+      "createdAt": "2026-09-24T21:01:31.432Z",
+      "updatedAt": "2026-09-24T21:01:31.432Z"
+    },
+    {
+      "id": "f4cf539d-8a25-4ead-8eed-5fe05760d030",
+      "email": "otp_test_1790283691435@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-24T21:01:31.435Z",
+      "updatedAt": "2026-09-24T21:01:31.435Z"
+    },
+    {
+      "id": "a1b5170d-ec75-402c-8f70-da883bf039a6",
+      "email": "multiauth_1790283691460@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T21:01:31.460Z",
+      "createdAt": "2026-09-24T21:01:31.460Z",
+      "updatedAt": "2026-09-24T21:01:31.460Z"
+    },
+    {
+      "id": "ba1e0972-cf99-4ab0-8af9-51d4b9ff3c24",
+      "email": "test_student_1790283942399@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T21:05:42.399Z",
+      "createdAt": "2026-09-24T21:05:42.399Z",
+      "updatedAt": "2026-09-24T21:05:42.399Z"
+    },
+    {
+      "id": "8f387603-6985-450f-801b-b257b714f4a9",
+      "email": "otp_test_1790283942401@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "emailVerifiedAt": null,
+      "createdAt": "2026-09-24T21:05:42.401Z",
+      "updatedAt": "2026-09-24T21:05:42.401Z"
+    },
+    {
+      "id": "9f27a855-c8a1-4e73-a0aa-3ac853c71478",
+      "email": "multiauth_1790283942408@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "emailVerifiedAt": "2026-09-24T21:05:42.408Z",
+      "createdAt": "2026-09-24T21:05:42.408Z",
+      "updatedAt": "2026-09-24T21:05:42.408Z"
+    }
+  ],
+  "studentProfiles": [
+    {
+      "id": "sp-student-nistha-001",
+      "userId": "u-student-nistha-001",
+      "username": "nistha",
+      "fullName": "Nistha Maheshwari",
+      "college": "BMS College of Engineering",
+      "degree": "B.Tech Computer Science & AI",
+      "graduationYear": "2026",
+      "primaryInterests": [
+        "Distributed Systems",
+        "AI/ML",
+        "Backend Engineering"
+      ],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-08-24T06:14:52.839Z",
+      "updatedAt": "2026-09-23T06:14:52.839Z"
+    },
+    {
+      "id": "eb3acdce-ffec-4a82-9183-ba6b08d72369",
+      "userId": "45442bbd-2c27-4392-a959-06af38c96967",
+      "username": "engineer-1790144093121",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-23T06:14:53.121Z",
+      "createdAt": "2026-09-23T06:14:53.121Z",
+      "updatedAt": "2026-09-23T06:14:53.121Z"
+    },
+    {
+      "id": "76959559-2180-465f-ad59-315e07a6a46a",
+      "userId": "ef6bb183-641e-4864-b71d-030083dba915",
+      "username": "engineer-1790144181068",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-23T06:16:21.069Z",
+      "createdAt": "2026-09-23T06:16:21.066Z",
+      "updatedAt": "2026-09-23T06:16:21.069Z"
+    },
+    {
+      "id": "59160207-2a57-4610-8af8-c5c797f2b01d",
+      "userId": "68a375f9-f56c-4f6e-b40f-b58bfcf88012",
+      "username": "nistha_ai_2026",
+      "fullName": "Nistha Maheshwari",
+      "college": "BMS College of Engineering",
+      "degree": "B.Tech CS & AI",
+      "graduationYear": "20262026",
+      "primaryInterests": [
+        "Distributed Systems",
+        "Backend Engineering"
+      ],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-09-23T06:41:22.429Z",
+      "updatedAt": "2026-09-23T06:41:22.429Z"
+    },
+    {
+      "id": "99fc3916-b069-4385-abe9-0b387fbb4a17",
+      "userId": "8ce18065-6512-4e63-8e80-45375f9ac9e1",
+      "username": "engineer-1790146503278",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-23T06:55:03.279Z",
+      "createdAt": "2026-09-23T06:55:03.277Z",
+      "updatedAt": "2026-09-23T06:55:03.279Z"
+    },
+    {
+      "id": "df0f53ba-675c-49b0-a3d8-1952485aee72",
+      "userId": "6b4fea3b-0d28-4eb6-93be-83b17e267db2",
+      "username": "engineer-1790168382468",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-23T12:59:42.468Z",
+      "createdAt": "2026-09-23T12:59:42.467Z",
+      "updatedAt": "2026-09-23T12:59:42.468Z"
+    },
+    {
+      "id": "3537865f-1fe7-4768-9913-2b2d93f53492",
+      "userId": "f2cf6724-7c29-415f-8810-a3b272c08060",
+      "username": "nistha-ai",
+      "fullName": "Nistha",
+      "college": "cffyh",
+      "degree": "she",
+      "graduationYear": "2026",
+      "primaryInterests": [
+        "Distributed Systems",
+        "Backend Engineering"
+      ],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-09-23T13:01:36.287Z",
+      "updatedAt": "2026-09-23T13:01:36.287Z"
+    },
+    {
+      "id": "036c25ec-7ebe-42bf-8ba8-b5d7f828d12d",
+      "userId": "2c028e22-f88e-45e7-aa81-7b215bf483e8",
+      "username": "engineer-1790281950859",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-24T20:32:30.859Z",
+      "createdAt": "2026-09-24T20:32:30.855Z",
+      "updatedAt": "2026-09-24T20:32:30.859Z"
+    },
+    {
+      "id": "a27f0255-50e6-429f-ad6e-5cd52f6b6702",
+      "userId": "d081f064-493a-4266-a986-4e092c905cbd",
+      "username": "engineer-1790282546403",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-24T20:42:26.403Z",
+      "createdAt": "2026-09-24T20:42:26.403Z",
+      "updatedAt": "2026-09-24T20:42:26.403Z"
+    },
+    {
+      "id": "93e7be61-991c-4f4d-ac30-e150a044805d",
+      "userId": "f1d7b6c2-3cd3-4a02-b71d-730c152c3e41",
+      "username": "engineer-1790282820118",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-24T20:47:00.118Z",
+      "createdAt": "2026-09-24T20:47:00.118Z",
+      "updatedAt": "2026-09-24T20:47:00.118Z"
+    },
+    {
+      "id": "3938ce35-37ef-4216-adff-1d7bf35d2520",
+      "userId": "fddf6be7-4e5d-46ea-b0a1-9b2c44cfaccd",
+      "username": "engineer-1790283691433",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-24T21:01:31.434Z",
+      "createdAt": "2026-09-24T21:01:31.433Z",
+      "updatedAt": "2026-09-24T21:01:31.434Z"
+    },
+    {
+      "id": "d2933b05-c9a6-40ec-8b9b-86a9e37c271f",
+      "userId": "ba1e0972-cf99-4ab0-8af9-51d4b9ff3c24",
+      "username": "engineer-1790283942399",
+      "fullName": "Test Builder",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "graduationYear": "",
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-09-24T21:05:42.400Z",
+      "createdAt": "2026-09-24T21:05:42.399Z",
+      "updatedAt": "2026-09-24T21:05:42.400Z"
+    }
+  ],
+  "recruiterProfiles": [
+    {
+      "id": "rp-recruiter-aarav-001",
+      "userId": "u-recruiter-aarav-001",
+      "organizationId": "org-acme-tech-001",
+      "fullName": "Aarav Sharma",
+      "designation": "Technical Recruiter",
+      "workEmail": "aarav@acme.com",
+      "status": "ACTIVE",
+      "createdAt": "2026-07-25T06:14:52.839Z",
+      "updatedAt": "2026-09-23T06:14:52.839Z"
+    }
+  ],
+  "organizations": [
+    {
+      "id": "org-acme-tech-001",
+      "name": "Acme Technologies",
+      "domain": "acme.com",
+      "website": "https://acme.com",
+      "industry": "Enterprise Cloud Infrastructure",
+      "companySize": "250-500",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-07-25T06:14:52.839Z",
+      "createdAt": "2026-07-25T06:14:52.839Z",
+      "updatedAt": "2026-09-23T06:14:52.839Z"
+    },
+    {
+      "id": "d22cde71-5001-4374-bdfe-79c504b34ade",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-23T06:14:53.123Z",
+      "createdAt": "2026-09-23T06:14:53.123Z",
+      "updatedAt": "2026-09-23T06:14:53.123Z"
+    },
+    {
+      "id": "d48c756c-eb11-4f5c-9d27-d12896095e55",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-23T06:16:21.070Z",
+      "createdAt": "2026-09-23T06:16:21.070Z",
+      "updatedAt": "2026-09-23T06:16:21.070Z"
+    },
+    {
+      "id": "3974d5c9-09b7-4b7c-b309-2f5285d90385",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-23T06:55:03.282Z",
+      "createdAt": "2026-09-23T06:55:03.282Z",
+      "updatedAt": "2026-09-23T06:55:03.282Z"
+    },
+    {
+      "id": "5d8a17b0-2769-4f20-9fc3-37e9bde73ce1",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-23T12:59:42.469Z",
+      "createdAt": "2026-09-23T12:59:42.469Z",
+      "updatedAt": "2026-09-23T12:59:42.469Z"
+    },
+    {
+      "id": "6c1875bc-1338-4a1b-ab1b-6233ebda7761",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-24T20:32:30.860Z",
+      "createdAt": "2026-09-24T20:32:30.860Z",
+      "updatedAt": "2026-09-24T20:32:30.860Z"
+    },
+    {
+      "id": "b4fa052a-0cbf-42b6-8cb8-40817067fab1",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-24T20:42:26.404Z",
+      "createdAt": "2026-09-24T20:42:26.404Z",
+      "updatedAt": "2026-09-24T20:42:26.404Z"
+    },
+    {
+      "id": "0ad59131-d12c-445c-b69d-c6440d22bbcc",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-24T20:47:00.121Z",
+      "createdAt": "2026-09-24T20:47:00.121Z",
+      "updatedAt": "2026-09-24T20:47:00.121Z"
+    },
+    {
+      "id": "fe1c6c99-3e39-4d4c-9728-5f895d52cec4",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-24T21:01:31.434Z",
+      "createdAt": "2026-09-24T21:01:31.434Z",
+      "updatedAt": "2026-09-24T21:01:31.434Z"
+    },
+    {
+      "id": "243ab56e-39a3-4f7d-a19c-08706e119667",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-09-24T21:05:42.400Z",
+      "createdAt": "2026-09-24T21:05:42.400Z",
+      "updatedAt": "2026-09-24T21:05:42.400Z"
+    }
+  ],
+  "connectedAccounts": [
+    {
+      "id": "ca-nistha-github",
+      "userId": "u-student-nistha-001",
+      "provider": "github",
+      "providerUserId": "nistha-dev",
+      "providerEmail": "nistha@cognalyze.com",
+      "connectedAt": "2026-08-29T06:14:52.839Z",
+      "verifiedAt": "2026-08-29T06:14:52.839Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "f40f44fc-d9a4-4ccd-ae19-d229254bb09c",
+      "userId": "0f059c94-be48-465a-ac29-6024a5c321ff",
+      "provider": "github",
+      "providerUserId": "gh_1790144093132",
+      "providerEmail": "multiauth_1790144093131@example.com",
+      "connectedAt": "2026-09-23T06:14:53.133Z",
+      "verifiedAt": "2026-09-23T06:14:53.133Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "16932e3a-f68b-490e-bb62-e2e02e9bc678",
+      "userId": "0f059c94-be48-465a-ac29-6024a5c321ff",
+      "provider": "linkedin",
+      "providerUserId": "li_1790144093134",
+      "providerEmail": "multiauth_1790144093131@example.com",
+      "connectedAt": "2026-09-23T06:14:53.134Z",
+      "verifiedAt": "2026-09-23T06:14:53.134Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "b7b6cdcb-466e-4a83-8b48-99eaf0e34595",
+      "userId": "cc09c7b5-727f-4c7c-b5a1-3dc4d6a14bf5",
+      "provider": "github",
+      "providerUserId": "gh_1790144181103",
+      "providerEmail": "multiauth_1790144181102@example.com",
+      "connectedAt": "2026-09-23T06:16:21.103Z",
+      "verifiedAt": "2026-09-23T06:16:21.103Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "8438f200-42cc-4576-b4dc-834de788752f",
+      "userId": "cc09c7b5-727f-4c7c-b5a1-3dc4d6a14bf5",
+      "provider": "linkedin",
+      "providerUserId": "li_1790144181104",
+      "providerEmail": "multiauth_1790144181102@example.com",
+      "connectedAt": "2026-09-23T06:16:21.104Z",
+      "verifiedAt": "2026-09-23T06:16:21.104Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "c55b999c-e4fb-4871-9cee-54f569794d6e",
+      "userId": "1ca9fb9b-2195-471f-94ca-631266854710",
+      "provider": "github",
+      "providerUserId": "gh_1790146503291",
+      "providerEmail": "multiauth_1790146503289@example.com",
+      "connectedAt": "2026-09-23T06:55:03.291Z",
+      "verifiedAt": "2026-09-23T06:55:03.291Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "612833dd-8a57-4a4f-8cc6-3ee3ba233414",
+      "userId": "1ca9fb9b-2195-471f-94ca-631266854710",
+      "provider": "linkedin",
+      "providerUserId": "li_1790146503291",
+      "providerEmail": "multiauth_1790146503289@example.com",
+      "connectedAt": "2026-09-23T06:55:03.291Z",
+      "verifiedAt": "2026-09-23T06:55:03.291Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "89e3dade-5e5e-41dc-95bd-53cd55b2fbe1",
+      "userId": "dffd48e5-33a8-4bc0-8c2c-c9e1f6b8a7ba",
+      "provider": "github",
+      "providerUserId": "gh_1790168382479",
+      "providerEmail": "multiauth_1790168382478@example.com",
+      "connectedAt": "2026-09-23T12:59:42.479Z",
+      "verifiedAt": "2026-09-23T12:59:42.479Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "5d413fdb-ad1a-434a-ac34-abd94491ed73",
+      "userId": "dffd48e5-33a8-4bc0-8c2c-c9e1f6b8a7ba",
+      "provider": "linkedin",
+      "providerUserId": "li_1790168382479",
+      "providerEmail": "multiauth_1790168382478@example.com",
+      "connectedAt": "2026-09-23T12:59:42.479Z",
+      "verifiedAt": "2026-09-23T12:59:42.479Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "e4eb3edb-38de-46ad-be80-955befa18143",
+      "userId": "f2cf6724-7c29-415f-8810-a3b272c08060",
+      "provider": "github",
+      "providerUserId": "github_usr_xvhq2l8",
+      "providerEmail": "nisthamaheshwari84@gmail.com",
+      "connectedAt": "2026-09-23T13:01:13.855Z",
+      "verifiedAt": "2026-09-23T13:01:13.855Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "c552e8c7-9437-4682-b4ae-640c20826694",
+      "userId": "f2cf6724-7c29-415f-8810-a3b272c08060",
+      "provider": "github",
+      "providerUserId": "github_usr_eux6oy7",
+      "providerEmail": "nisthamaheshwari84@gmail.com",
+      "connectedAt": "2026-09-23T13:10:18.511Z",
+      "verifiedAt": "2026-09-23T13:10:18.511Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "e3553ff4-d0ba-4964-ae98-fae56cd7dd63",
+      "userId": "703a053c-a6b6-4967-9205-f93511339dd0",
+      "provider": "github",
+      "providerUserId": "gh_1790281950881",
+      "providerEmail": "multiauth_1790281950880@example.com",
+      "connectedAt": "2026-09-24T20:32:30.881Z",
+      "verifiedAt": "2026-09-24T20:32:30.881Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "34380012-9b2a-41f7-94f8-637ef174225c",
+      "userId": "703a053c-a6b6-4967-9205-f93511339dd0",
+      "provider": "linkedin",
+      "providerUserId": "li_1790281950882",
+      "providerEmail": "multiauth_1790281950880@example.com",
+      "connectedAt": "2026-09-24T20:32:30.882Z",
+      "verifiedAt": "2026-09-24T20:32:30.882Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "8d64a9c9-8d3b-4976-99e9-b701c693b281",
+      "userId": "7848b6da-032e-46be-b9b2-d47e93925f69",
+      "provider": "github",
+      "providerUserId": "gh_1790282546411",
+      "providerEmail": "multiauth_1790282546410@example.com",
+      "connectedAt": "2026-09-24T20:42:26.411Z",
+      "verifiedAt": "2026-09-24T20:42:26.411Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "3fbd6c9a-a2e9-46b0-a272-efe9718e9880",
+      "userId": "7848b6da-032e-46be-b9b2-d47e93925f69",
+      "provider": "linkedin",
+      "providerUserId": "li_1790282546411",
+      "providerEmail": "multiauth_1790282546410@example.com",
+      "connectedAt": "2026-09-24T20:42:26.411Z",
+      "verifiedAt": "2026-09-24T20:42:26.411Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "28a343ac-bd1b-4ea0-a5d5-690d87d8c8cb",
+      "userId": "52a2230f-6853-49cc-a93f-2bd905acaf1e",
+      "provider": "github",
+      "providerUserId": "gh_1790282820133",
+      "providerEmail": "multiauth_1790282820132@example.com",
+      "connectedAt": "2026-09-24T20:47:00.133Z",
+      "verifiedAt": "2026-09-24T20:47:00.133Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "337a7fc9-33ba-4346-96eb-1fc98ee2b4fc",
+      "userId": "52a2230f-6853-49cc-a93f-2bd905acaf1e",
+      "provider": "linkedin",
+      "providerUserId": "li_1790282820133",
+      "providerEmail": "multiauth_1790282820132@example.com",
+      "connectedAt": "2026-09-24T20:47:00.133Z",
+      "verifiedAt": "2026-09-24T20:47:00.133Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "df9813fe-4ed5-4ccc-a4e5-bbed96d4cfdd",
+      "userId": "a1b5170d-ec75-402c-8f70-da883bf039a6",
+      "provider": "github",
+      "providerUserId": "gh_1790283691466",
+      "providerEmail": "multiauth_1790283691460@example.com",
+      "connectedAt": "2026-09-24T21:01:31.466Z",
+      "verifiedAt": "2026-09-24T21:01:31.466Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "3dfd44e4-7039-428b-ad07-db713eecbab5",
+      "userId": "a1b5170d-ec75-402c-8f70-da883bf039a6",
+      "provider": "linkedin",
+      "providerUserId": "li_1790283691466",
+      "providerEmail": "multiauth_1790283691460@example.com",
+      "connectedAt": "2026-09-24T21:01:31.466Z",
+      "verifiedAt": "2026-09-24T21:01:31.466Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    },
+    {
+      "id": "915def20-7512-47fb-9843-35cc2c1ea0a9",
+      "userId": "9f27a855-c8a1-4e73-a0aa-3ac853c71478",
+      "provider": "github",
+      "providerUserId": "gh_1790283942408",
+      "providerEmail": "multiauth_1790283942408@example.com",
+      "connectedAt": "2026-09-24T21:05:42.408Z",
+      "verifiedAt": "2026-09-24T21:05:42.408Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "51255c13-08b6-4e23-8d3f-f8320c1c2a15",
+      "userId": "9f27a855-c8a1-4e73-a0aa-3ac853c71478",
+      "provider": "linkedin",
+      "providerUserId": "li_1790283942408",
+      "providerEmail": "multiauth_1790283942408@example.com",
+      "connectedAt": "2026-09-24T21:05:42.408Z",
+      "verifiedAt": "2026-09-24T21:05:42.408Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "commitHistoryRetrieved": false,
+        "evidenceAnalyzed": false
+      }
+    }
+  ],
+  "emailVerifications": [
+    {
+      "id": "fdb53085-ae01-4fa6-a593-7bd52d35668d",
+      "userId": "15212309-6622-45bb-a9ec-440f6a5ad3d8",
+      "email": "otp_test_1790144093124@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-23T06:29:53.125Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-23T06:14:53.125Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-23T06:14:53.125Z"
+    },
+    {
+      "id": "2eb5c4e9-ae97-42cd-af17-3eb2ffa37588",
+      "userId": "88aeb367-8e1a-4ba4-80fe-7884e9a5a301",
+      "email": "otp_test_1790144181071@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-23T06:31:21.074Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-23T06:16:21.074Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-23T06:16:21.074Z"
+    },
+    {
+      "id": "95cf2a08-9a49-48f3-bc48-12dbb86b5600",
+      "userId": "68a375f9-f56c-4f6e-b40f-b58bfcf88012",
+      "email": "student_test_verify@university.edu",
+      "codeHash": "089e0f721e0c760e76b9ba91b8a5d9425e0392be2a35aa157b32e32af7d80796",
+      "expiresAt": "2026-09-23T06:41:52.294Z",
+      "attemptCount": 1,
+      "lastSentAt": "2026-09-23T06:26:52.294Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-23T06:26:52.294Z"
+    },
+    {
+      "id": "84cc76ff-daf6-464e-955f-e2dc833b0817",
+      "userId": "c5f96ecf-62a0-4d4e-9a43-b711288e4dfc",
+      "email": "otp_test_1790146503283@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-23T07:10:03.283Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-23T06:55:03.283Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-23T06:55:03.283Z"
+    },
+    {
+      "id": "ac897685-7d25-4a67-9359-ad3ec02fb376",
+      "userId": "f9174ab2-2762-477f-b73f-e30fce8a6b25",
+      "email": "otp_test_1790168382470@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-23T13:14:42.471Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-23T12:59:42.471Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-23T12:59:42.471Z"
+    },
+    {
+      "id": "9705a8ef-f4f5-4e3a-950a-914e17a861b0",
+      "userId": "fed50f08-cd63-4122-aca8-bbace0788248",
+      "email": "otp_test_1790281950861@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-24T20:47:30.866Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-24T20:32:30.866Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-24T20:32:30.866Z"
+    },
+    {
+      "id": "ff929a40-3a1a-42c2-bcb6-dc0be63d6209",
+      "userId": "0fd99a40-dea9-4637-aec3-6d3298791e7a",
+      "email": "otp_test_1790282546405@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-24T20:57:26.405Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-24T20:42:26.405Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-24T20:42:26.405Z"
+    },
+    {
+      "id": "8036914f-4b20-4180-b2a4-e059103427c1",
+      "userId": "b525d711-7bf7-4ca8-a1e0-90d0b7ad1c03",
+      "email": "otp_test_1790282820122@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-24T21:02:00.123Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-24T20:47:00.123Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-24T20:47:00.123Z"
+    },
+    {
+      "id": "960661ec-2c4f-4b37-b4db-bbf88bde7f02",
+      "userId": "f4cf539d-8a25-4ead-8eed-5fe05760d030",
+      "email": "otp_test_1790283691435@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-24T21:16:31.436Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-24T21:01:31.436Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-24T21:01:31.436Z"
+    },
+    {
+      "id": "c9ece01f-e4c7-4950-a880-d35bbe6d092d",
+      "userId": "8f387603-6985-450f-801b-b257b714f4a9",
+      "email": "otp_test_1790283942401@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-09-24T21:20:42.403Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-09-24T21:05:42.403Z",
+      "verifiedAt": null,
+      "createdAt": "2026-09-24T21:05:42.403Z"
+    }
+  ],
+  "usernameHistory": [
+    {
+      "id": "f40cb152-1ac3-44d2-b847-90cb60e5e083",
+      "studentProfileId": "eb3acdce-ffec-4a82-9183-ba6b08d72369",
+      "oldUsername": "builder-1790144093121",
+      "newUsername": "engineer-1790144093121",
+      "changedAt": "2026-09-23T06:14:53.121Z"
+    },
+    {
+      "id": "4e36ae5b-2685-45b3-95b7-baf75b011cde",
+      "studentProfileId": "76959559-2180-465f-ad59-315e07a6a46a",
+      "oldUsername": "builder-1790144181066",
+      "newUsername": "engineer-1790144181068",
+      "changedAt": "2026-09-23T06:16:21.069Z"
+    },
+    {
+      "id": "2ed10581-f5db-4321-9f5f-b1cbc284f9ff",
+      "studentProfileId": "99fc3916-b069-4385-abe9-0b387fbb4a17",
+      "oldUsername": "builder-1790146503277",
+      "newUsername": "engineer-1790146503278",
+      "changedAt": "2026-09-23T06:55:03.279Z"
+    },
+    {
+      "id": "066eacb8-7e40-40bf-b57d-6f8fb385a3ba",
+      "studentProfileId": "df0f53ba-675c-49b0-a3d8-1952485aee72",
+      "oldUsername": "builder-1790168382467",
+      "newUsername": "engineer-1790168382468",
+      "changedAt": "2026-09-23T12:59:42.468Z"
+    },
+    {
+      "id": "10ca7718-beaa-40ef-8974-6fe44366193e",
+      "studentProfileId": "036c25ec-7ebe-42bf-8ba8-b5d7f828d12d",
+      "oldUsername": "builder-1790281950854",
+      "newUsername": "engineer-1790281950859",
+      "changedAt": "2026-09-24T20:32:30.859Z"
+    },
+    {
+      "id": "09a75bf0-15b7-4838-94c1-efaf2cd09755",
+      "studentProfileId": "a27f0255-50e6-429f-ad6e-5cd52f6b6702",
+      "oldUsername": "builder-1790282546403",
+      "newUsername": "engineer-1790282546403",
+      "changedAt": "2026-09-24T20:42:26.403Z"
+    },
+    {
+      "id": "d3d5887b-b985-48dc-8e6c-b734e3ab7a5c",
+      "studentProfileId": "93e7be61-991c-4f4d-ac30-e150a044805d",
+      "oldUsername": "builder-1790282820117",
+      "newUsername": "engineer-1790282820118",
+      "changedAt": "2026-09-24T20:47:00.118Z"
+    },
+    {
+      "id": "da5b46a0-5902-4a63-a4b9-588ad1c134c7",
+      "studentProfileId": "3938ce35-37ef-4216-adff-1d7bf35d2520",
+      "oldUsername": "builder-1790283691433",
+      "newUsername": "engineer-1790283691433",
+      "changedAt": "2026-09-24T21:01:31.434Z"
+    },
+    {
+      "id": "651f718a-dbc9-4f95-81f3-b991c3df12c7",
+      "studentProfileId": "d2933b05-c9a6-40ec-8b9b-86a9e37c271f",
+      "oldUsername": "builder-1790283942399",
+      "newUsername": "engineer-1790283942399",
+      "changedAt": "2026-09-24T21:05:42.400Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "225949fe-849a-4e80-b952-9e31c3b4d3bd",
+      "userId": "68a375f9-f56c-4f6e-b40f-b58bfcf88012",
+      "token": "75045213c9005c0ccb402146f0e5781889eb8898dea16bb128f8f9e31a0b77e9",
+      "accountType": "student",
+      "expiresAt": "2026-10-23T06:26:52.301Z",
+      "createdAt": "2026-09-23T06:26:52.302Z"
+    }
+  ]
+}

@@ -1,108 +1,89 @@
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
+import { analyzeResumeIntelligence } from "@/lib/ai/resume-intelligence-engine";
 
-const AGENTS = [
-  {
-    name: "Strengths Analysis", color: "#00ff88",
-    prompt: `You are a career coach analyzing a resume. Identify the candidate's GENUINE strengths for this specific role.
-
-RULES:
-- ONLY use information explicitly stated in the resume
-- NEVER invent skills, certifications, or achievements
-- Every bullet must reference specific evidence
-- All analysis must be formatted as concise bullet points that explain your reasoning thoroughly
-
-FORMAT (exactly like this):
-- [Strength Title]: [Exact quote or reference from resume] → [Why this is valuable for THIS role]
-- [Strength Title]: [Evidence] → [Role relevance]
-
-If evidence is weak, say: "Insufficient evidence — further verification needed"`
-  },
-  {
-    name: "Gaps & Risks", color: "#ff4466",
-    prompt: `You are a critical recruiter finding real gaps in this candidate's profile.
-
-RULES:
-- Only flag gaps that are actually missing from the resume
-- Compare against the job requirements specifically
-- Never assume negative things not evidenced in the resume
-- All analysis must be formatted as concise bullet points that explain your reasoning thoroughly
-
-FORMAT:
-- [Gap/Risk]: [What is missing or insufficient] → [Impact on role performance] → [Suggested action: X]
-- [Gap/Risk]: [Evidence of weakness] → [Concern] → [Recommended fix]`
-  },
-  {
-    name: "Experience Quality", color: "#a78bfa",
-    prompt: `Evaluate the QUALITY of their work experience — not just years, but impact and depth.
-
-RULES:
-- Rate each experience for impact (High/Medium/Low) based on evidence
-- Look for metrics, outcomes, and scope of work
-- If metrics are missing, flag it
-- All analysis must be formatted as concise bullet points that explain your reasoning thoroughly
-
-FORMAT:
-- [Company/Role]: Impact level: [High/Medium/Low] → [Evidence of impact] → [What's missing to strengthen this]
-- [Project/Achievement]: Depth: [Strong/Moderate/Surface] → [Why] → [Improvement suggestion]`
-  },
-  {
-    name: "Market Position", color: "#fbbf24",
-    prompt: `Compare this candidate to market standards for this role level.
-
-RULES:
-- Be specific about where they stand vs industry expectations
-- Base ONLY on resume evidence
-- Give percentile estimates with reasoning
-- All analysis must be formatted as concise bullet points that explain your reasoning thoroughly
-
-FORMAT:
-- [Skill Area]: Market position: [Top 10%/Top 25%/Average/Below Average] → [Evidence] → [What would put them higher]
-- Overall market readiness: [Ready Now/6 months away/12+ months away] → [Key reason]`
-  },
-  {
-    name: "Interview Predictions", color: "#38bdf8",
-    prompt: `Predict the HARDEST interview questions this specific candidate will face based on their resume gaps and claims.
-
-RULES:
-- Questions must probe specific weaknesses or claims in THEIR resume
-- Not generic questions — specific to this candidate
-- Provide exact advice based on their background
-- All analysis must be formatted as concise bullet points that explain your reasoning thoroughly
-
-FORMAT:
-- Q: "[Specific question targeting their resume]" → Why asked: [specific gap it probes] → How to answer: [advice specific to their background]
-- Q: "[Another targeted question]" → Why asked: [reason] → Advice: [specific to them]`
-  },
-];
-
-async function callGroq(prompt: string, jd: string, resume: string): Promise<string> {
-  const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      messages: [{ role: "user", content: `${prompt}\n\nJOB:\n${jd?.slice(0, 400)}\n\nRESUME:\n${resume?.slice(0, 800)}` }],
-      max_tokens: 450,
-      temperature: 0.5
-    })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error?.message);
-  return data.choices[0].message.content;
-}
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
     const { jd, resume } = await req.json();
-    const agents = await Promise.all(
-      AGENTS.map(async (agent) => {
-        const response = await callGroq(agent.prompt, jd, resume);
-        return { name: agent.name, color: agent.color, response };
-      })
-    );
-    return NextResponse.json({ agents });
+
+    if (!resume || typeof resume !== "string" || !resume.trim()) {
+      return NextResponse.json({ error: "Resume text is required." }, { status: 400 });
+    }
+
+    // Run unified evidence-grounded intelligence audit on FULL resume and FULL JD
+    const report = await analyzeResumeIntelligence(resume, jd || "");
+
+    // Format legacy agents array for backward compatibility, but grounded in real evidence
+    const strengthsBullets = report.feedback.strongEvidence.length > 0
+      ? report.feedback.strongEvidence.map(
+          (m) => `- ${m.requirementName}: ${m.evidenceSourceQuotes[0] || "Documented project experience"} → Directly fulfills ${m.importance.toLowerCase()} role requirement. ${m.reasoning}`
+        ).join("\n")
+      : "- Core Technical Experience: Documented in resume → Demonstrates hands-on capability for target technical workflows.";
+
+    const gapsBullets = [
+      ...report.feedback.missingEvidence.map(
+        (m) => `- [${m.gapType === "EVIDENCE_GAP" ? "Evidence Gap" : "Skill Gap"} - ${m.requirementName}]: No direct supporting evidence found in resume → ${m.reasoning} → Recommended fix: ${m.actionableRecommendation}`
+      ),
+      ...report.feedback.partialEvidence.map(
+        (m) => `- [Partial Evidence - ${m.requirementName}]: Claimed or partially supported without full production proof → ${m.reasoning} → Recommended fix: ${m.actionableRecommendation}`
+      ),
+    ].slice(0, 5).join("\n") || "- Scope Alignment: Review alignment with preferred cloud deployment tooling.";
+
+    const exp = report.feedback.experienceQuality;
+    const expBullets = [
+      `- Professional Experience: Level [${exp.professionalExperience.level}] → ${exp.professionalExperience.detail}`,
+      `- Project Evidence: [${exp.projectEvidence.count} projects identified, ${exp.projectEvidence.level} depth] → ${exp.projectEvidence.detail}`,
+      `- Engineering Depth: Level [${exp.engineeringDepth.level}] → ${exp.engineeringDepth.detail}`,
+      `- Impact & Observability: Level [${exp.impactEvidence.level}] → ${exp.impactEvidence.detail}`,
+      `- Candidate Profile Context: ${exp.fresherFriendlyAssessment}`,
+    ].join("\n");
+
+    const market = report.feedback.marketPosition;
+    const marketBullets = [
+      `- Market Benchmark Status: [${market.benchmarkStatus === "BENCHMARK_UNAVAILABLE" ? "Benchmark Unavailable" : "Cohort Comparison"}] → ${market.explanation}`,
+      `- Verified Evidence Profile: ${market.evidenceProfileSummary}`,
+      `- Rigorous Comparison Standard: ${market.requiredCohortForPercentile}`,
+    ].join("\n");
+
+    const interviewBullets = report.interview.probeQuestions.slice(0, 4).map(
+      (q) => `Q: "${q.question}" → Why asked: [${q.whyAsked}] → What strong evidence looks like: [${q.whatStrongProofLooksLike}]`
+    ).join("\n");
+
+    const agents = [
+      {
+        name: "Strengths Analysis",
+        color: "#00ff88",
+        response: strengthsBullets,
+      },
+      {
+        name: "Gaps & Risks",
+        color: "#ff4466",
+        response: gapsBullets,
+      },
+      {
+        name: "Experience Quality",
+        color: "#a78bfa",
+        response: expBullets,
+      },
+      {
+        name: "Market Position",
+        color: "#fbbf24",
+        response: marketBullets,
+      },
+      {
+        name: "Interview Focus",
+        color: "#38bdf8",
+        response: interviewBullets,
+      },
+    ];
+
+    return NextResponse.json({
+      agents,
+      report, // Complete canonical evidence report
+    });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    console.error("[API /api/candidate] Error:", e);
+    return NextResponse.json({ error: e.message || "Failed to analyze candidate resume." }, { status: 500 });
   }
 }

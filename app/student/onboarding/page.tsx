@@ -1,307 +1,453 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-
-interface Message {
-  id: string;
-  role: "assistant" | "user";
-  content: string;
-  timestamp: string;
-}
-
-const ONBOARDING_QUESTIONS = [
-  {
-    key: "intro",
-    prompt: "👋 Welcome to Cognalyze Placement Intelligence! Let's get your profile set up so we can match you with the top hackathons, paid internships, and fellowships.\n\nTo start: What's your name, your college, year of graduation, and major?"
-  },
-  {
-    key: "skills",
-    prompt: "Great! What is your core technical stack? List languages, frameworks, databases, or tools you're most confident with (e.g. React, Next.js, Node.js, Python, PyTorch, PostgreSQL)."
-  },
-  {
-    key: "projects",
-    prompt: "Tell me about your best 1-2 projects or hackathon builds. What did you build, what stack was used, and what was the hardest part or outcome?"
-  },
-  {
-    key: "targets",
-    prompt: "What are your target roles and dream opportunities? (e.g., SDE Intern, AI Engineer, Full Stack Developer, Smart India Hackathon, Flipkart GRiD, YC startups)"
-  },
-  {
-    key: "availability",
-    prompt: "What is your availability right now? (e.g. Immediate part-time, Summer 2026/2027 full-time, 15-20 hours/week during college semester)"
-  }
-];
+import { useRouter } from "next/navigation";
 
 export default function StudentOnboardingPage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "m-0",
-      role: "assistant",
-      content: ONBOARDING_QUESTIONS[0].prompt,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    }
+
+  // Multi-step flow: 1: Details -> 2: Username -> 3: Complete
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // Step 1 State: Profile Details
+  const [fullName, setFullName] = useState("");
+  const [college, setCollege] = useState("");
+  const [degree, setDegree] = useState("");
+  const [graduationYear, setGraduationYear] = useState("2026");
+  const [primaryInterests, setPrimaryInterests] = useState<string[]>([
+    "Distributed Systems",
+    "Backend Engineering"
   ]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [input, setInput] = useState("");
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [isSynthesizing, setIsSynthesizing] = useState(false);
-  const [profilePreview, setProfilePreview] = useState<any>(null);
-  const [candidateId, setCandidateId] = useState("student-demo");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [interestInput, setInterestInput] = useState("");
 
+  // Step 2 State: Username Selection & Debounce
+  const [username, setUsername] = useState("");
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<{
+    available: boolean;
+    normalized?: string;
+    reason?: string;
+    suggestions?: string[];
+  } | null>(null);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Pre-load session info
   useEffect(() => {
-    // Generate or retrieve persistent student candidate id
-    const stored = localStorage.getItem("cognalyze_student_id");
-    if (stored) {
-      setCandidateId(stored);
-    } else {
-      const generated = "stud_" + Math.random().toString(36).substring(2, 9);
-      localStorage.setItem("cognalyze_student_id", generated);
-      setCandidateId(generated);
-    }
-  }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isSynthesizing]);
-
-  const handleSend = async () => {
-    const text = input.trim();
-    if (!text || isSynthesizing) return;
-
-    const userMsg: Message = {
-      id: "user-" + Date.now(),
-      role: "user",
-      content: text,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    };
-
-    const nextAnswers = {
-      ...answers,
-      [ONBOARDING_QUESTIONS[currentStep].key]: text
-    };
-    setAnswers(nextAnswers);
-    setMessages(prev => [...prev, userMsg]);
-    setInput("");
-
-    const nextStep = currentStep + 1;
-    if (nextStep < ONBOARDING_QUESTIONS.length) {
-      setCurrentStep(nextStep);
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev,
-          {
-            id: "asst-" + Date.now(),
-            role: "assistant",
-            content: ONBOARDING_QUESTIONS[nextStep].prompt,
-            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-          }
-        ]);
-      }, 500);
-    } else {
-      // Completed all questions — synthesize profile
-      setCurrentStep(nextStep);
-      setIsSynthesizing(true);
-      setMessages(prev => [
-        ...prev,
-        {
-          id: "synth-" + Date.now(),
-          role: "assistant",
-          content: "⚡ Analyzing your responses and synthesizing your Placement Intelligence Profile with Groq AI...",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        }
-      ]);
-
+    async function loadSession() {
       try {
-        const res = await fetch("/api/student/onboarding", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            candidateId,
-            answers: nextAnswers
-          })
-        });
-
+        const res = await fetch("/api/auth/session");
         const data = await res.json();
-        if (data.profile) {
-          setProfilePreview(data.profile);
-          setMessages(prev => [
-            ...prev,
-            {
-              id: "done-" + Date.now(),
-              role: "assistant",
-              content: `🎉 Profile synthesized successfully!\n\nSummary: ${data.profile.profile_summary}\n\nTop Skills: ${(data.profile.skills || []).map((s: any) => s.name).join(", ")}\n\nYou are now ready to view matched hackathons and internships.`,
-              timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-            }
-          ]);
+        if (data.authenticated && data.studentProfile) {
+          // If profile already exists, proceed to dashboard
+          router.push("/student/dashboard");
         }
-      } catch (err: any) {
-        console.error("Onboarding error:", err);
-      } finally {
-        setIsSynthesizing(false);
+      } catch (err) {
+        console.error("Session load error:", err);
       }
+    }
+    loadSession();
+  }, [router]);
+
+  // Debounced username availability checker
+  useEffect(() => {
+    if (!username.trim()) {
+      setUsernameStatus(null);
+      return;
+    }
+
+    setCheckingUsername(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/auth/username-check?username=${encodeURIComponent(username.trim())}`);
+        const data = await res.json();
+        setUsernameStatus(data);
+      } catch (err) {
+        console.error("Username check error:", err);
+      } finally {
+        setCheckingUsername(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [username]);
+
+  const handleAddInterest = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && interestInput.trim()) {
+      e.preventDefault();
+      if (!primaryInterests.includes(interestInput.trim())) {
+        setPrimaryInterests([...primaryInterests, interestInput.trim()]);
+      }
+      setInterestInput("");
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
+  const handleRemoveInterest = (item: string) => {
+    setPrimaryInterests(primaryInterests.filter((i) => i !== item));
+  };
+
+  const handleStep1Submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName.trim()) {
+      setError("Please provide your full name.");
+      return;
+    }
+    setError(null);
+    // Suggest initial username based on full name if empty
+    if (!username) {
+      const suggested = fullName.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
+      setUsername(suggested);
+    }
+    setStep(2);
+  };
+
+  const handleFinalSubmit = async () => {
+    if (!usernameStatus?.available) {
+      setError("Please choose a valid and available username.");
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/student/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          username: usernameStatus.normalized || username,
+          college,
+          degree,
+          graduationYear,
+          primaryInterests
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create profile.");
+
+      setStep(3);
+    } catch (err: any) {
+      setError(err.message || "Failed to save profile.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#06030f", color: "#f3f4f6", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,3,15,0.8)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#6366f1,#a855f7)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900 }}>⚡</div>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.5 }}>COGNALYZE</div>
-            <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 700, letterSpacing: 1.5 }}>STUDENT ONBOARDING</div>
-          </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/student" style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", textDecoration: "none", padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
-            Skip to Dashboard →
+    <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden font-sans">
+      {/* Background Grid */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)
+          `,
+          backgroundSize: "64px 64px"
+        }}
+      />
+
+      <div className="w-full max-w-lg relative z-10 space-y-8">
+        {/* Brand */}
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-block font-semibold text-lg tracking-tight text-white mb-1">
+            Cognalyze
           </Link>
-        </div>
-      </div>
 
-      {/* Main Grid */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1.5rem", display: "grid", gridTemplateColumns: "1fr 380px", gap: "2rem", height: "calc(100vh - 80px)" }}>
-        
-        {/* Chat Section */}
-        <div style={{ display: "flex", flexDirection: "column", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, overflow: "hidden" }}>
-          {/* Progress Bar */}
-          <div style={{ padding: "0.85rem 1.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(255,255,255,0.01)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
-              Step {Math.min(currentStep + 1, ONBOARDING_QUESTIONS.length)} of {ONBOARDING_QUESTIONS.length}
-            </span>
-            <div style={{ width: 140, height: 6, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden" }}>
-              <div style={{ width: `${Math.min(100, ((currentStep + 1) / ONBOARDING_QUESTIONS.length) * 100)}%`, height: "100%", background: "linear-gradient(90deg,#6366f1,#a855f7)", transition: "width 0.4s ease" }} />
-            </div>
-          </div>
+          {step === 1 && (
+            <>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                Let&apos;s build your Cognalyze profile
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Tell us about your background to help us surface the right opportunities.
+              </p>
+            </>
+          )}
 
-          {/* Messages Stream */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {messages.map(m => {
-              const isUser = m.role === "user";
-              return (
-                <div key={m.id} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", gap: 10 }}>
-                  {!isUser && (
-                    <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, flexShrink: 0, marginTop: 2 }}>
-                      🤖
-                    </div>
-                  )}
-                  <div style={{ maxWidth: "80%", padding: "0.9rem 1.25rem", borderRadius: isUser ? "18px 18px 4px 18px" : "18px 18px 18px 4px", background: isUser ? "linear-gradient(135deg,#4f46e5,#6366f1)" : "rgba(255,255,255,0.05)", border: isUser ? "none" : "1px solid rgba(255,255,255,0.08)", fontSize: 14, lineHeight: 1.6, whiteSpace: "pre-wrap", color: isUser ? "#ffffff" : "#e2e8f0" }}>
-                    {m.content}
-                    <div style={{ fontSize: 10, opacity: 0.4, marginTop: 6, textAlign: isUser ? "right" : "left" }}>{m.timestamp}</div>
-                  </div>
-                </div>
-              );
-            })}
-            {isSynthesizing && (
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <div style={{ width: 30, height: 30, borderRadius: "50%", background: "linear-gradient(135deg,#6366f1,#8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>⚡</div>
-                <div style={{ padding: "0.75rem 1.25rem", borderRadius: 18, background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", color: "#a5b4fc", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#6366f1", animation: "pulse 1s infinite" }}></span>
-                  Parsing skills, projects & alignment with LLM...
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+          {step === 2 && (
+            <>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                Choose your Cognalyze username
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400">
+                This will be your permanent public identity on Cognalyze.
+              </p>
+            </>
+          )}
 
-          {/* Input Bar */}
-          <div style={{ padding: "1rem 1.5rem", borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,3,15,0.6)" }}>
-            {currentStep < ONBOARDING_QUESTIONS.length ? (
-              <div style={{ display: "flex", gap: 10 }}>
-                <textarea
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type your response here... (Press Enter to send)"
-                  rows={2}
-                  style={{ flex: 1, padding: "0.85rem 1.15rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, color: "white", fontSize: 13, outline: "none", resize: "none" }}
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim() || isSynthesizing}
-                  style={{ padding: "0 1.5rem", background: input.trim() ? "linear-gradient(135deg,#6366f1,#a855f7)" : "rgba(255,255,255,0.06)", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 13, cursor: input.trim() ? "pointer" : "not-allowed", transition: "all 0.2s" }}
-                >
-                  Send ➔
-                </button>
+          {step === 3 && (
+            <>
+              <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mx-auto mb-2">
+                ✓
               </div>
-            ) : (
-              <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
-                <button
-                  onClick={() => router.push("/student")}
-                  style={{ padding: "0.85rem 2.2rem", background: "linear-gradient(135deg,#00ff88,#10b981)", color: "#06030f", border: "none", borderRadius: 14, fontWeight: 800, fontSize: 14, cursor: "pointer", boxShadow: "0 0 25px rgba(0,255,136,0.3)" }}
-                >
-                  Go to Student Dashboard 🚀
-                </button>
-              </div>
-            )}
-          </div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+                Your Cognalyze identity is ready
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-400">
+                Identity created and verified.
+              </p>
+            </>
+          )}
         </div>
 
-        {/* Live Profile Extraction Preview Sidebar */}
-        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem", overflowY: "auto" }}>
-          <div>
-            <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, letterSpacing: 1.5, marginBottom: 4 }}>REAL-TIME INTELLIGENCE</div>
-            <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>Placement Profile</h3>
-          </div>
-
-          {profilePreview ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <div style={{ padding: "1rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 12 }}>
-                <div style={{ fontSize: 11, color: "#a5b4fc", fontWeight: 600, marginBottom: 4 }}>PROFILE SUMMARY</div>
-                <div style={{ fontSize: 13, color: "#f3f4f6", lineHeight: 1.5 }}>{profilePreview.profile_summary}</div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>IDENTIFIED SKILLS</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {(profilePreview.skills || []).map((s: any, idx: number) => (
-                    <span key={idx} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "#38bdf8" }}>
-                      {s.name} <span style={{ opacity: 0.5, fontSize: 10 }}>({s.level})</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700, letterSpacing: 1, marginBottom: 8 }}>TARGET ROLES</div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {(profilePreview.target_roles || []).map((r: string, idx: number) => (
-                    <span key={idx} style={{ fontSize: 11, padding: "3px 9px", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.25)", borderRadius: 8, color: "#34d399" }}>
-                      🎯 {r}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ padding: "0.85rem", background: "rgba(255,255,255,0.03)", borderRadius: 10, fontSize: 12, display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>Risk Appetite:</span>
-                <span style={{ color: "#fbbf24", fontWeight: 700 }}>{profilePreview.risk_appetite}</span>
-              </div>
-            </div>
-          ) : (
-            <div style={{ textAlign: "center", padding: "3rem 1rem", color: "rgba(255,255,255,0.3)" }}>
-              <div style={{ fontSize: 36, marginBottom: 12 }}>🧬</div>
-              <div style={{ fontSize: 13, fontWeight: 600 }}>Profile synthesizing in progress</div>
-              <div style={{ fontSize: 11, marginTop: 4 }}>Answer the questions on the left to generate your DNA match vectors.</div>
+        {/* Card */}
+        <div className="rounded-xl border border-white/10 bg-[#0e131f] p-6 sm:p-8 shadow-2xl space-y-6">
+          {error && (
+            <div className="p-3.5 rounded-lg bg-red-950/50 border border-red-800/60 text-xs text-red-300 leading-relaxed">
+              {error}
             </div>
           )}
 
-          <div style={{ marginTop: "auto", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.05)", fontSize: 11, color: "rgba(255,255,255,0.3)" }}>
-            🔒 Stored securely in Supabase with student-isolated Row Level Security.
-          </div>
-        </div>
+          {/* STEP 1: Details */}
+          {step === 1 && (
+            <form onSubmit={handleStep1Submit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Full name
+                </label>
+                <input
+                  id="onboarding-fullname"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Nistha Maheshwari"
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
 
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  College / University
+                </label>
+                <input
+                  id="onboarding-college"
+                  type="text"
+                  value={college}
+                  onChange={(e) => setCollege(e.target.value)}
+                  placeholder="BMS College of Engineering"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                    Degree & Major
+                  </label>
+                  <input
+                    id="onboarding-degree"
+                    type="text"
+                    value={degree}
+                    onChange={(e) => setDegree(e.target.value)}
+                    placeholder="B.Tech CS & AI"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                    Graduation year
+                  </label>
+                  <input
+                    id="onboarding-gradyear"
+                    type="text"
+                    value={graduationYear}
+                    onChange={(e) => setGraduationYear(e.target.value)}
+                    placeholder="2026"
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Primary technical interests
+                </label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {primaryInterests.map((interest) => (
+                    <span
+                      key={interest}
+                      className="px-2.5 py-1 rounded-md text-xs bg-indigo-950/60 border border-indigo-800/40 text-indigo-300 flex items-center gap-1.5"
+                    >
+                      <span>{interest}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveInterest(interest)}
+                        className="text-indigo-400 hover:text-white"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  type="text"
+                  value={interestInput}
+                  onChange={(e) => setInterestInput(e.target.value)}
+                  onKeyDown={handleAddInterest}
+                  placeholder="Type an interest and press Enter (e.g. Distributed Systems, GenAI)"
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <button
+                id="onboarding-step1-continue"
+                type="submit"
+                className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer"
+              >
+                Continue to Username Selection →
+              </button>
+            </form>
+          )}
+
+          {/* STEP 2: Username Picker */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  Username
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-slate-500 font-mono text-sm">
+                    @
+                  </span>
+                  <input
+                    id="onboarding-username-input"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().trim())}
+                    placeholder="nistha"
+                    autoFocus
+                    className="w-full pl-8 pr-10 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white font-mono text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  />
+                  {checkingUsername && (
+                    <span className="absolute right-3.5 top-3 text-[10px] text-slate-400 font-mono">
+                      Checking...
+                    </span>
+                  )}
+                </div>
+
+                {/* Availability Feedback Strip */}
+                {usernameStatus && !checkingUsername && (
+                  <div className="mt-2 text-xs">
+                    {usernameStatus.available ? (
+                      <div className="p-2.5 rounded-lg bg-emerald-950/40 border border-emerald-800/40 text-emerald-300 flex items-center gap-2">
+                        <span className="font-bold">✓</span>
+                        <span>@{usernameStatus.normalized} is available</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-800/40 text-red-300 flex items-center gap-2">
+                          <span className="font-bold">✕</span>
+                          <span>{usernameStatus.reason || "Username is not available."}</span>
+                        </div>
+
+                        {usernameStatus.suggestions && usernameStatus.suggestions.length > 0 && (
+                          <div className="text-[11px] text-slate-400 space-y-1">
+                            <span>Suggestions:</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {usernameStatus.suggestions.map((sug) => (
+                                <button
+                                  key={sug}
+                                  type="button"
+                                  onClick={() => setUsername(sug)}
+                                  className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-indigo-300 border border-white/10 font-mono text-[11px] cursor-pointer"
+                                >
+                                  @{sug}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Public URL Preview */}
+              <div className="p-3.5 rounded-lg bg-[#0a0d16] border border-white/5 space-y-1 text-xs font-mono">
+                <span className="text-slate-500 block uppercase text-[10px]">Your public Cognalyze profile</span>
+                <span className="text-slate-300">
+                  cognalyze.com/@{usernameStatus?.normalized || username || "your-username"}
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="py-2.5 px-4 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors cursor-pointer"
+                >
+                  Back
+                </button>
+                <button
+                  id="onboarding-username-submit"
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  disabled={loading || !usernameStatus?.available}
+                  className="flex-1 py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {loading ? "Creating identity..." : "Continue"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Ready */}
+          {step === 3 && (
+            <div className="space-y-6">
+              <div className="p-5 rounded-lg bg-[#141b2b] border border-white/5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-[#1a2235] border border-white/10 flex items-center justify-center text-slate-100 font-semibold text-sm">
+                    {fullName.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">{fullName}</h3>
+                    <span className="text-xs font-mono text-indigo-400">@{username}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-slate-300 border-t border-white/5 pt-3">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">College:</span>
+                    <span>{college || "Not specified"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Degree:</span>
+                    <span>{degree || "Computer Science"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Status:</span>
+                    <span className="text-emerald-400 font-mono">Identity Verified</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3.5 rounded-lg bg-indigo-950/30 border border-indigo-500/20 text-xs text-slate-300">
+                <span className="text-indigo-300 font-semibold block mb-0.5">Next step: Progressive Profile</span>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Connect your GitHub repositories to start building verifiable technical evidence for hiring teams.
+                </p>
+              </div>
+
+              <button
+                id="onboarding-complete-btn"
+                type="button"
+                onClick={() => router.push("/student/dashboard")}
+                className="w-full py-3 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+              >
+                Continue to your profile →
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

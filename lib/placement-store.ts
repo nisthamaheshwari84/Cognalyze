@@ -1,5 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { StudentProfileData, OpportunityData, getSafeOpportunityUrl, getOpportunityPortalInfo } from "@/lib/ai/placement-intelligence";
+import { getCachedAggregatedHackathons, getLastAggregatorSyncTimestamp, fetchLiveAggregatorHackathons } from "@/lib/ai/hackathon-aggregator";
+import comprehensiveOpportunities from "@/data/comprehensive-opportunities.json";
 export type { StudentProfileData, OpportunityData };
 export { getSafeOpportunityUrl, getOpportunityPortalInfo };
 
@@ -5772,6 +5774,28 @@ export function setLastRadarScanTimestamp(isoDate: string): void {
   lastRadarScanAt = isoDate;
 }
 
+// ── Multi-Platform Hackathon Sync Tracking (Unstop, Hack2Skill, Devnovate, Devpost) ──
+let lastHackathonSyncAt: string | null = null;
+
+export function getLastHackathonSyncTimestamp(): string {
+  return lastHackathonSyncAt || getLastAggregatorSyncTimestamp();
+}
+
+export function setLastHackathonSyncTimestamp(isoDate: string): void {
+  lastHackathonSyncAt = isoDate;
+}
+
+export async function syncAggregatedHackathons(): Promise<{ count: number; synced_at: string }> {
+  const live = await fetchLiveAggregatorHackathons();
+  lastHackathonSyncAt = new Date().toISOString();
+  for (const opp of live) {
+    if (opp.id) {
+      inMemoryOpportunities.set(opp.id, opp);
+    }
+  }
+  return { count: live.length, synced_at: lastHackathonSyncAt };
+}
+
 export async function getStudentProfile(candidateId: string): Promise<StudentProfileData | null> {
   // 1. Check in-memory cache first
   const mem = inMemoryProfiles.get(candidateId);
@@ -5794,7 +5818,8 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
         target_companies_or_events: data.target_companies_or_events || [],
         availability: data.availability || "",
         risk_appetite: data.risk_appetite || "Moderate",
-        profile_summary: data.profile_summary || ""
+        profile_summary: data.profile_summary || "",
+        experience_level: data.experience_level || "1-3yr"
       };
       inMemoryProfiles.set(candidateId, p);
       return p;
@@ -5842,15 +5867,63 @@ export async function upsertStudentProfile(profile: StudentProfileData): Promise
   return profile;
 }
 
+export const saveStudentProfile = upsertStudentProfile;
+
+
+function getOpportunityDeduplicationKey(opp: OpportunityData): string {
+  const t = (opp.title || "").toLowerCase().trim();
+  if (t.includes("smart india hackathon") || t.includes("sih 202")) {
+    return "event:sih-2026";
+  }
+  if (t.includes("ethindia")) return "event:ethindia-2026";
+  if (t.includes("hackverse")) return "event:hackverse";
+  if (t.includes("hackthisfall") || t.includes("hack this fall")) return "event:hackthisfall";
+
+  // Collapse college fests by festival name
+  const festMatch = t.match(/\b(techfest|tryst|shaastra|techkriti|kshitij|cognizance|techniche|technex|elan|fluxus|apogee|quark|atmos|pragyan|engineer|technozion|megathon|esya|invictus|moksha)\b/);
+  if (festMatch) {
+    return `event:college-fest:${festMatch[1]}`;
+  }
+
+  const cleanTitle = t
+    .replace(/\b(202\d|2k2\d|v\d+(\.\d+)?|\d+\.0|edition|season\s*\d+|national|global|annual|international|flagship|hackathon|challenge|sprint|round)\b/g, "")
+    .replace(/[—–\-:()]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const cleanOrg = (opp.organizer || "")
+    .toLowerCase()
+    .replace(/\b(via unstop|via devpost|via devfolio|via lu\.ma|foundation|community|student technical council|engineering)\b/g, "")
+    .replace(/[^a-z0-9]/g, "")
+    .trim();
+
+  return `event:${cleanOrg}:${cleanTitle.slice(0, 30)}`;
+}
 
 export async function getAllOpportunities(): Promise<OpportunityData[]> {
-  // 1. Initialize map with all seed & in-memory opportunities
+  // 1. Initialize map with all seed, aggregated multi-platform & in-memory opportunities
   const combinedMap = new Map<string, OpportunityData>();
   for (const opp of INITIAL_SEED_OPPORTUNITIES) {
     const sanitized = { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) };
     if (sanitized.id) combinedMap.set(sanitized.id, sanitized);
     if (sanitized.title) combinedMap.set(`title:${sanitized.title.toLowerCase().trim()}`, sanitized);
   }
+
+  // Merge live & past multi-platform hackathons (Unstop, Hack2Skill, Devnovate, Devpost)
+  const aggregated = getCachedAggregatedHackathons();
+  for (const opp of aggregated) {
+    const sanitized = { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) };
+    if (sanitized.id) combinedMap.set(sanitized.id, sanitized);
+    if (sanitized.title) combinedMap.set(`title:${sanitized.title.toLowerCase().trim()}`, sanitized);
+  }
+
+  // Merge comprehensive catalog of verified opportunities across India & globally
+  for (const opp of (comprehensiveOpportunities as unknown as OpportunityData[])) {
+    const sanitized = { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) };
+    if (sanitized.id) combinedMap.set(sanitized.id, sanitized);
+    if (sanitized.title) combinedMap.set(`title:${sanitized.title.toLowerCase().trim()}`, sanitized);
+  }
+
   for (const [id, opp] of inMemoryOpportunities.entries()) {
     combinedMap.set(id, { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) });
   }
@@ -5886,11 +5959,19 @@ export async function getAllOpportunities(): Promise<OpportunityData[]> {
     // Fall back to memory
   }
 
-  // Return unique opportunities
+  // Return unique opportunities through fuzzy event deduplication
   const unique = new Map<string, OpportunityData>();
   for (const [k, v] of combinedMap.entries()) {
     if (k.startsWith("title:")) continue;
-    unique.set(v.title || v.id || k, v);
+    const dedupKey = getOpportunityDeduplicationKey(v);
+    if (!unique.has(dedupKey)) {
+      unique.set(dedupKey, v);
+    } else {
+      const existing = unique.get(dedupKey)!;
+      const mergedTags = new Set([...(existing.tags || []), ...(v.tags || [])]);
+      existing.tags = Array.from(mergedTags);
+      if (!existing.deadline && v.deadline) existing.deadline = v.deadline;
+    }
   }
   return Array.from(unique.values());
 }
@@ -5940,18 +6021,18 @@ export async function saveRecommendations(
 ): Promise<void> {
   inMemoryRecommendations.set(candidateId, recs);
 
-  // Try Supabase if student profile UUID exists
-  try {
-    const { data: profile } = await supabase
-      .from("student_profiles")
-      .select("id")
-      .eq("candidate_id", candidateId)
-      .maybeSingle();
+  // Background async sync for top 10 recommendations with UUID
+  (async () => {
+    try {
+      const { data: profile } = await supabase
+        .from("student_profiles")
+        .select("id")
+        .eq("candidate_id", candidateId)
+        .maybeSingle();
 
-    if (profile?.id) {
-      for (const r of recs) {
-        // If opportunity_id is a valid UUID, upsert
-        if (r.opportunity_id.match(/^[0-9a-fA-F-]{36}$/)) {
+      if (profile?.id) {
+        const topUuidRecs = recs.slice(0, 10).filter(r => r.opportunity_id.match(/^[0-9a-fA-F-]{36}$/));
+        for (const r of topUuidRecs) {
           await supabase
             .from("recommendations")
             .upsert(
@@ -5966,14 +6047,58 @@ export async function saveRecommendations(
             );
         }
       }
+    } catch {
+      // Background sync fallback
     }
-  } catch (err) {
-    // Fallback handled via memory
-  }
+  })();
+}
+
+export function getCachedRecommendations(candidateId: string): any[] | null {
+  return inMemoryRecommendations.get(candidateId) || null;
 }
 
 export async function getOpportunityById(id: string): Promise<OpportunityData | null> {
-  // 1. Try Supabase
+  // 1. Direct match from seed or in-memory
+  const mem = inMemoryOpportunities.get(id);
+  if (mem) {
+    return {
+      ...mem,
+      source_url: getSafeOpportunityUrl(mem.source_url, mem.organizer, mem.title)
+    };
+  }
+
+  const seedMatch = INITIAL_SEED_OPPORTUNITIES.find(
+    o => o.id === id || o.title.toLowerCase().trim() === id.toLowerCase().trim()
+  );
+  if (seedMatch) {
+    return {
+      ...seedMatch,
+      source_url: getSafeOpportunityUrl(seedMatch.source_url, seedMatch.organizer, seedMatch.title)
+    };
+  }
+
+  const aggregated = getCachedAggregatedHackathons();
+  const aggMatch = aggregated.find(
+    o => o.id === id || o.title.toLowerCase().trim() === id.toLowerCase().trim()
+  );
+  if (aggMatch) {
+    return {
+      ...aggMatch,
+      source_url: getSafeOpportunityUrl(aggMatch.source_url, aggMatch.organizer, aggMatch.title)
+    };
+  }
+
+  const compMatch = (comprehensiveOpportunities as unknown as OpportunityData[]).find(
+    o => o.id === id || o.title.toLowerCase().trim() === id.toLowerCase().trim()
+  );
+  if (compMatch) {
+    return {
+      ...compMatch,
+      source_url: getSafeOpportunityUrl(compMatch.source_url, compMatch.organizer, compMatch.title)
+    };
+  }
+
+  // 2. Try Supabase
   try {
     const { data, error } = await supabase
       .from("opportunities")
@@ -6002,14 +6127,6 @@ export async function getOpportunityById(id: string): Promise<OpportunityData | 
     // fallback
   }
 
-  // 2. Memory
-  const mem = inMemoryOpportunities.get(id);
-  if (mem) {
-    return {
-      ...mem,
-      source_url: getSafeOpportunityUrl(mem.source_url, mem.organizer, mem.title)
-    };
-  }
   return null;
 }
 

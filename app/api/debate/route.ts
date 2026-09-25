@@ -1,43 +1,7 @@
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
-
-const AGENTS = [
-  {
-    name: "Champion", color: "#00ff88",
-    instruction: `You are a Champion Technical Recruiter who finds hire signals in candidates.
-STRICT RULE: Focus only on candidate achievements and positive signals from their resume.
-Verdict: Decide either "Strong Hire", "Hire", or "Lean Hire".
-Format: 4 specific bullet points with direct quotes/facts. End with Verdict: [Your Verdict] and Score: XX/100`
-  },
-  {
-    name: "Skeptic", color: "#ff4466",
-    instruction: `You are a risk-averse Hiring Manager who highlights red flags, gaps, and timeline inconsistencies.
-STRICT RULE: Identify gaps, career jumps, and missing skills.
-Verdict: Decide either "Lean Reject" or "Strong Reject".
-Format: 4 specific bullet points detailing concerns. End with Verdict: [Your Verdict] and Score: XX/100`
-  },
-  {
-    name: "Futurist", color: "#a78bfa",
-    instruction: `You are an Engineering Director evaluating long-term technical growth and scale potential.
-STRICT RULE: Judge if this person can scale into a Staff AI Architect.
-Verdict: Decide one of the 5 FAANG scale options.
-Format: 4 bullet points on potential and velocity. End with Verdict: [Your Verdict] and Score: XX/100`
-  },
-  {
-    name: "Pattern Breaker", color: "#fbbf24",
-    instruction: `You are a recruiter searching for non-obvious strengths (diversity of background, self-directed side projects, rapid learning).
-STRICT RULE: Identify hidden gems.
-Verdict: Decide one of the 5 FAANG scale options.
-Format: 4 bullet points. End with Verdict: [Your Verdict] and Score: XX/100`
-  },
-  {
-    name: "Culture Oracle", color: "#38bdf8",
-    instruction: `You are a People Partner assessing collaboration skills, tenure stability, and team fit indicators.
-STRICT RULE: Flag job hoppers or indicators of ego/abrasiveness.
-Verdict: Decide one of the 5 FAANG scale options.
-Format: 4 bullet points. End with Verdict: [Your Verdict] and Score: XX/100`
-  }
-];
+import { ingestCandidateResume } from "@/lib/ingestion/single-candidate";
+import { processJdIntake } from "@/lib/roles/jd-intake";
+import { generateCritiqueLenses } from "@/lib/ai/debate-lenses";
 
 export async function POST(req: Request) {
   try {
@@ -45,59 +9,66 @@ export async function POST(req: Request) {
     const jdClean = (jd || "").trim();
     const resumeClean = (resume || "").trim();
 
-    if (jdClean.length < 80 || resumeClean.length < 80) {
-      const insufficient = AGENTS.map(agent => ({
-        name: agent.name,
-        color: agent.color,
-        response: `• Insufficient data to evaluate\n• Minimum 80 characters required\nVerdict: Strong Reject\nScore: 0/100`
-      }));
-      return NextResponse.json({ agents: insufficient, error: "insufficient_data" });
+    if (resumeClean.length < 50) {
+      return NextResponse.json({
+        error: "insufficient_data",
+        message: "Resume text must contain at least 50 characters to evaluate evidence.",
+      }, { status: 400 });
     }
 
-    const agents = await Promise.all(
-      AGENTS.map(async (agent) => {
-        try {
-          const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
-            body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
-              messages: [{
-                role: "user",
-                content: `${agent.instruction}
+    // 1. Process JD Requirements
+    const jdIntake = processJdIntake(jdClean);
 
-JOB DESCRIPTION:
-${jdClean.slice(0, 800)}
+    // 2. Ingest Candidate & Verify Verbatim Quotes
+    const candidate = ingestCandidateResume(resumeClean, {
+      roleRequirements: jdIntake.requirements,
+    });
 
-CANDIDATE RESUME:
-${resumeClean.slice(0, 1200)}
+    // 3. Run Debate Committee Critique Lenses (PART 7)
+    const report = generateCritiqueLenses({
+      candidateId: candidate.candidateId,
+      evidenceItems: candidate.evidenceItems,
+      claims: candidate.claims,
+      assessments: candidate.assessments || {},
+    });
 
-Give your honest, brutally candid assessment. Focus on direct quotes and real signals.`
-              }],
-              max_tokens: 400,
-              temperature: 0.3
-            })
-          });
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error?.message);
-          let responseText = data.choices?.[0]?.message?.content || "";
-          // Strip closed think blocks
-          responseText = responseText.replace(/<think>[\s\S]*?<\/think>/gi, "");
-          responseText = responseText.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "");
-          // Strip unclosed think blocks
-          responseText = responseText.replace(/<think>[\s\S]*$/gi, "");
-          responseText = responseText.replace(/<thinking>[\s\S]*$/gi, "");
-          // Strip any stray tags
-          responseText = responseText.replace(/<\/?think(?:ing)?>/gi, "").trim();
-          return { name: agent.name, color: agent.color, response: responseText };
-        } catch {
-          return { name: agent.name, color: agent.color, response: `• Analysis timeout or API error\nVerdict: Lean Reject\nScore: 50/100` };
-        }
-      })
-    );
+    // Map into lenses for frontend rendering (retaining backward compatible shape with zero scores)
+    const formattedAgents = [
+      {
+        name: "Strongest Evidence Lens",
+        color: "#00ff88",
+        response: report.observations
+          .filter((o) => o.lens === "strongest_evidence")
+          .map((o) => `• [${o.title}]: "${o.verbatimQuoteSnippet}" → ${o.consideration} (${o.actionRecommendation})`)
+          .join("\n") || "• No qualifying T2+ code artifacts verified in available document.",
+      },
+      {
+        name: "Unsupported Claims Lens",
+        color: "#ffaa00",
+        response: report.observations
+          .filter((o) => o.lens === "unsupported_claims")
+          .map((o) => `• [${o.title}]: "${o.verbatimQuoteSnippet}" → ${o.consideration} (${o.actionRecommendation})`)
+          .join("\n") || "• No ungrounded self-reported claims identified.",
+      },
+      {
+        name: "Unresolved Risks Lens",
+        color: "#a78bfa",
+        response: report.observations
+          .filter((o) => o.lens === "unresolved_risks")
+          .map((o) => `• [${o.title}] → ${o.consideration} (${o.actionRecommendation})`)
+          .join("\n") || "• All core role requirements have established evidence.",
+      },
+    ];
 
-    return NextResponse.json({ agents });
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    return NextResponse.json({
+      success: true,
+      agents: formattedAgents,
+      critiqueReport: report,
+    });
+  } catch (err: any) {
+    return NextResponse.json({
+      success: false,
+      error: err.message,
+    }, { status: 500 });
   }
 }

@@ -1,0 +1,749 @@
+{
+  "roles": {
+    "91366d69-e759-47ed-bfbf-269b932753b5": {
+      "id": "91366d69-e759-47ed-bfbf-269b932753b5",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T11:58:06.714Z"
+    },
+    "41262f61-4e6e-4611-8628-9e10dabe3ed4": {
+      "id": "41262f61-4e6e-4611-8628-9e10dabe3ed4",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T11:58:06.723Z"
+    },
+    "bc045508-a635-41be-b1d6-aa5708568ca9": {
+      "id": "bc045508-a635-41be-b1d6-aa5708568ca9",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-23T11:58:06.730Z"
+    },
+    "623dc718-a463-4988-b6fe-ee379a449e7a": {
+      "id": "623dc718-a463-4988-b6fe-ee379a449e7a",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:01:36.108Z"
+    },
+    "bbcf22db-4fdd-4074-9064-28f609ba25a1": {
+      "id": "bbcf22db-4fdd-4074-9064-28f609ba25a1",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:01:36.130Z"
+    },
+    "77db96e0-c0f3-41e7-a265-50ff255207e5": {
+      "id": "77db96e0-c0f3-41e7-a265-50ff255207e5",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-23T12:01:36.143Z"
+    },
+    "1da8edd1-6074-43ca-a919-3e7160b03d34": {
+      "id": "1da8edd1-6074-43ca-a919-3e7160b03d34",
+      "recruiter_id": "rec_enterprise_demo",
+      "title": "Founding AI & Systems Engineer",
+      "description": "Build high-throughput distributed model inference pipelines and edge compute nodes. Competitive compensation and equity.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Distributed Systems",
+        "Rust"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-23T12:02:05.598Z"
+    },
+    "fdd2141e-a7d1-4868-ac81-8c9baf2007ad": {
+      "id": "fdd2141e-a7d1-4868-ac81-8c9baf2007ad",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:46:59.961Z"
+    },
+    "ee725b77-e5c7-4818-a0c8-566bfe8097f6": {
+      "id": "ee725b77-e5c7-4818-a0c8-566bfe8097f6",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:47:00.008Z"
+    },
+    "c9386f61-cfaf-42ef-9694-ebb004c2e731": {
+      "id": "c9386f61-cfaf-42ef-9694-ebb004c2e731",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-23T12:47:00.014Z"
+    },
+    "4c2f42ae-8c6c-4c81-93f6-61d1c7ddf6ed": {
+      "id": "4c2f42ae-8c6c-4c81-93f6-61d1c7ddf6ed",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:59:43.222Z"
+    },
+    "814bbe10-f039-43d8-97b0-d1f6a4f189e2": {
+      "id": "814bbe10-f039-43d8-97b0-d1f6a4f189e2",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-23T12:59:43.277Z"
+    },
+    "3ee6cc91-f025-4e43-81cf-4fa0863b9421": {
+      "id": "3ee6cc91-f025-4e43-81cf-4fa0863b9421",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-23T12:59:43.320Z"
+    },
+    "eeec9bfe-cc77-4ae4-9d0f-d77c139a0a8f": {
+      "id": "eeec9bfe-cc77-4ae4-9d0f-d77c139a0a8f",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:32:31.610Z"
+    },
+    "45609e63-b204-45d4-9ac4-9efc6d428e09": {
+      "id": "45609e63-b204-45d4-9ac4-9efc6d428e09",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:32:32.803Z"
+    },
+    "cfb2ac5a-bf00-4447-93c3-dc2dab83a1e9": {
+      "id": "cfb2ac5a-bf00-4447-93c3-dc2dab83a1e9",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T20:32:32.839Z"
+    },
+    "5a6b52da-f9fc-4d9a-9310-8e4cb1ec9c33": {
+      "id": "5a6b52da-f9fc-4d9a-9310-8e4cb1ec9c33",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:42:26.624Z"
+    },
+    "57ef0e20-438d-4831-884f-f925d0dcee08": {
+      "id": "57ef0e20-438d-4831-884f-f925d0dcee08",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:42:26.656Z"
+    },
+    "2424d66a-74e1-486d-997c-fdc5dc9e5580": {
+      "id": "2424d66a-74e1-486d-997c-fdc5dc9e5580",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T20:42:26.691Z"
+    },
+    "771e39ab-222b-465f-b8a3-c982e3a46995": {
+      "id": "771e39ab-222b-465f-b8a3-c982e3a46995",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:47:00.467Z"
+    },
+    "39b268fc-5490-44da-91ce-53d75b1a48b1": {
+      "id": "39b268fc-5490-44da-91ce-53d75b1a48b1",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T20:47:00.513Z"
+    },
+    "ea73eee7-6571-4b18-90b3-91a4893d5b3e": {
+      "id": "ea73eee7-6571-4b18-90b3-91a4893d5b3e",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T20:47:00.534Z"
+    },
+    "77104aa1-3ee2-44a6-bf11-8fa09a221af5": {
+      "id": "77104aa1-3ee2-44a6-bf11-8fa09a221af5",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:01:31.574Z"
+    },
+    "d61407b6-f5c5-439f-a433-895c63045ede": {
+      "id": "d61407b6-f5c5-439f-a433-895c63045ede",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:01:31.612Z"
+    },
+    "f63d2085-578a-4a62-b6d5-294b4587b6f4": {
+      "id": "f63d2085-578a-4a62-b6d5-294b4587b6f4",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T21:01:31.631Z"
+    },
+    "0c989021-b69d-444d-a3d6-1dc92b484795": {
+      "id": "0c989021-b69d-444d-a3d6-1dc92b484795",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:05:42.603Z"
+    },
+    "3a0d63e6-8292-412a-a91e-889773c0f8b4": {
+      "id": "3a0d63e6-8292-412a-a91e-889773c0f8b4",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:05:42.613Z"
+    },
+    "a8ecae69-ab71-49d8-a1af-7f6f385b9279": {
+      "id": "a8ecae69-ab71-49d8-a1af-7f6f385b9279",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T21:05:42.637Z"
+    },
+    "2bd516b7-ff4c-482f-94ca-027b9bdd1262": {
+      "id": "2bd516b7-ff4c-482f-94ca-027b9bdd1262",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Lead AI Platform Engineer",
+      "description": "Architect high-performance inference pipelines.",
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Kubernetes"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:18:38.953Z"
+    },
+    "d8885836-7010-4248-b68b-86afe45b4e8c": {
+      "id": "d8885836-7010-4248-b68b-86afe45b4e8c",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Fullstack Product Engineer",
+      "description": "Join our founding team building collaborative tools.",
+      "required_skills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "feed_type": "collaboration",
+      "status": "open",
+      "created_at": "2026-09-24T21:18:39.012Z"
+    },
+    "3082dfea-afbd-4dbd-907a-c9b3cf52e5f7": {
+      "id": "3082dfea-afbd-4dbd-907a-c9b3cf52e5f7",
+      "recruiter_id": "recruiter_test_101",
+      "title": "Frontend Architect",
+      "description": "Lead UI architecture.",
+      "required_skills": [
+        "React",
+        "CSS Modules"
+      ],
+      "feed_type": "collaboration",
+      "status": "closed",
+      "created_at": "2026-09-24T21:18:39.036Z"
+    }
+  },
+  "applications": {
+    "41262f61-4e6e-4611-8628-9e10dabe3ed4:student_dna_verified_202": {
+      "id": "10e2b382-6cc1-4e3c-abe8-93eb1f031d6c",
+      "role_id": "41262f61-4e6e-4611-8628-9e10dabe3ed4",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-23T11:58:06.726Z"
+    },
+    "bbcf22db-4fdd-4074-9064-28f609ba25a1:student_dna_verified_202": {
+      "id": "100abaaf-92f9-4086-b0a2-fedd64cdabc8",
+      "role_id": "bbcf22db-4fdd-4074-9064-28f609ba25a1",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-23T12:01:36.137Z"
+    },
+    "1da8edd1-6074-43ca-a919-3e7160b03d34:student_verified_demo": {
+      "id": "9240521c-9cc6-48fb-936b-4e0e99810c43",
+      "role_id": "1da8edd1-6074-43ca-a919-3e7160b03d34",
+      "student_id": "student_verified_demo",
+      "resume_id": "resume_verified_01",
+      "github_url": "https://github.com/rust-hacker",
+      "dna_snapshot": {
+        "candidate_id": "student_verified_demo",
+        "skills": [
+          {
+            "name": "Rust",
+            "level": "Expert"
+          },
+          {
+            "name": "Distributed Systems",
+            "level": "Advanced"
+          }
+        ],
+        "radar": {
+          "system_design": 95,
+          "algorithms": 92
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_verified_demo_01",
+      "applied_at": "2026-09-23T12:44:52.011Z"
+    },
+    "ee725b77-e5c7-4818-a0c8-566bfe8097f6:student_dna_verified_202": {
+      "id": "9525743f-58ae-4003-8b83-3110d0b7129c",
+      "role_id": "ee725b77-e5c7-4818-a0c8-566bfe8097f6",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-23T12:47:00.011Z"
+    },
+    "814bbe10-f039-43d8-97b0-d1f6a4f189e2:student_dna_verified_202": {
+      "id": "608cd04a-bbd4-499f-9fe6-fa1d11530e6b",
+      "role_id": "814bbe10-f039-43d8-97b0-d1f6a4f189e2",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-23T12:59:43.313Z"
+    },
+    "45609e63-b204-45d4-9ac4-9efc6d428e09:student_dna_verified_202": {
+      "id": "e963040e-1f14-48c5-a54e-2d90f0e8a88b",
+      "role_id": "45609e63-b204-45d4-9ac4-9efc6d428e09",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T20:32:32.833Z"
+    },
+    "57ef0e20-438d-4831-884f-f925d0dcee08:student_dna_verified_202": {
+      "id": "d227d646-0747-4c09-98e3-b94867c98ede",
+      "role_id": "57ef0e20-438d-4831-884f-f925d0dcee08",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T20:42:26.683Z"
+    },
+    "39b268fc-5490-44da-91ce-53d75b1a48b1:student_dna_verified_202": {
+      "id": "0743a8ef-ebb0-4d09-a975-6dab6e1936d5",
+      "role_id": "39b268fc-5490-44da-91ce-53d75b1a48b1",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T20:47:00.529Z"
+    },
+    "d61407b6-f5c5-439f-a433-895c63045ede:student_dna_verified_202": {
+      "id": "d31ce686-8033-4bf9-9f98-e96dbff00f69",
+      "role_id": "d61407b6-f5c5-439f-a433-895c63045ede",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T21:01:31.624Z"
+    },
+    "3a0d63e6-8292-412a-a91e-889773c0f8b4:student_dna_verified_202": {
+      "id": "1e28b89f-d94a-405d-83f5-61b0d05a2c2b",
+      "role_id": "3a0d63e6-8292-412a-a91e-889773c0f8b4",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T21:05:42.632Z"
+    },
+    "d8885836-7010-4248-b68b-86afe45b4e8c:student_dna_verified_202": {
+      "id": "7f40d05b-3003-4f47-bf9a-1cd01a75f385",
+      "role_id": "d8885836-7010-4248-b68b-86afe45b4e8c",
+      "student_id": "student_dna_verified_202",
+      "resume_id": "resume_student_dna_verified_202_primary",
+      "github_url": "https://github.com/janedoe/real-project",
+      "dna_snapshot": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "dna_snapshot_source_analysis_id": "analysis_student_dna_verified_202_01",
+      "applied_at": "2026-09-24T21:18:39.031Z"
+    }
+  },
+  "resumes": {
+    "resume_student_dna_verified_202_primary": {
+      "id": "resume_student_dna_verified_202_primary",
+      "candidate_id": "student_dna_verified_202",
+      "title": "Software Engineer Resume",
+      "resume_text": "Fullstack Developer with React, TypeScript, and Node.js."
+    },
+    "resume_student_foreign_404_primary": {
+      "id": "resume_student_foreign_404_primary",
+      "candidate_id": "student_foreign_404",
+      "title": "Software Engineer Resume",
+      "resume_text": "Fullstack Developer with React, TypeScript, and Node.js."
+    },
+    "resume_verified_01": {
+      "id": "resume_verified_01",
+      "candidate_id": "student_verified_demo",
+      "title": "Software Engineer Resume",
+      "resume_text": "Fullstack Developer with React, TypeScript, and Node.js."
+    }
+  },
+  "analyses": {
+    "analysis_student_dna_verified_202_01": {
+      "id": "analysis_student_dna_verified_202_01",
+      "candidate_id": "student_dna_verified_202",
+      "dna_data": {
+        "candidate_id": "student_dna_verified_202",
+        "skills": [
+          {
+            "name": "React",
+            "level": "Expert",
+            "verified_on_github": true
+          }
+        ],
+        "radar": {
+          "technical_depth": 92,
+          "problem_solving": 88
+        }
+      },
+      "created_at": "2026-09-24T21:18:38.940Z"
+    },
+    "analysis_student_foreign_404_01": {
+      "id": "analysis_student_foreign_404_01",
+      "candidate_id": "student_foreign_404",
+      "dna_data": {
+        "candidate_id": "student_foreign_404",
+        "skills": []
+      },
+      "created_at": "2026-09-24T21:18:38.941Z"
+    },
+    "analysis_student_verified_demo_01": {
+      "id": "analysis_student_verified_demo_01",
+      "candidate_id": "student_verified_demo",
+      "dna_data": {
+        "candidate_id": "student_verified_demo",
+        "skills": [
+          {
+            "name": "Rust",
+            "level": "Expert"
+          },
+          {
+            "name": "Distributed Systems",
+            "level": "Advanced"
+          }
+        ],
+        "radar": {
+          "system_design": 95,
+          "algorithms": 92
+        }
+      },
+      "created_at": "2026-09-23T12:44:43.437Z"
+    }
+  }
+}

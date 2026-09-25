@@ -1,91 +1,56 @@
-import { NextResponse } from "next/server";
-import { extractStudentProfileFromText } from "@/lib/ai/placement-intelligence";
-import { getStudentProfile, upsertStudentProfile } from "@/lib/placement-store";
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthenticatedContext } from "@/lib/auth/server";
+import { createStudentProfile, getStudentProfileByUserId, getUserById } from "@/lib/auth/store";
 
-export async function GET(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-default";
-
-    const profile = await getStudentProfile(candidateId);
-    if (!profile) {
-      return NextResponse.json({ profile: null, needsOnboarding: true });
-    }
-
-    return NextResponse.json({ profile, needsOnboarding: false });
-  } catch (err: any) {
-    console.error("[student/onboarding GET] Error:", err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
-  }
-}
-
-export async function POST(req: Request) {
-  try {
+    const auth = await getAuthenticatedContext(req);
     const body = await req.json();
-    const candidateId = body.candidateId || "student-default";
+    const { username, fullName, college, degree, graduationYear, primaryInterests, explicitUserId } = body;
 
-    // Scenario A: Direct structured profile provided
-    if (body.directProfile) {
-      const saved = await upsertStudentProfile({
-        ...body.directProfile,
-        candidate_id: candidateId
+    const targetUserId = auth?.user?.id || explicitUserId;
+    if (!targetUserId) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
+    }
+
+    const user = getUserById(targetUserId);
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    // Check if already has a profile
+    const existing = getStudentProfileByUserId(targetUserId);
+    if (existing) {
+      return NextResponse.json({
+        success: true,
+        message: "Profile already exists.",
+        profile: existing,
+        nextUrl: "/student/dashboard"
       });
-      return NextResponse.json({ success: true, profile: saved });
     }
 
-    // Scenario B: Form/conversation answers or transcript provided
-    let rawText = body.transcript || "";
-    if (!rawText && body.answers) {
-      rawText = Object.entries(body.answers)
-        .map(([q, a]) => `Q: ${q}\nA: ${a}`)
-        .join("\n\n");
+    if (!username || !fullName) {
+      return NextResponse.json({ error: "Username and Full Name are required." }, { status: 400 });
     }
 
-    if (!rawText || rawText.trim().length < 10) {
-      return NextResponse.json(
-        { error: "Insufficient input. Please provide more details about your background." },
-        { status: 400 }
-      );
-    }
-
-    // Run AI extraction
-    const extracted = await extractStudentProfileFromText(rawText, candidateId);
-
-    // Upsert into store (Supabase + resilient cache)
-    const savedProfile = await upsertStudentProfile(extracted);
-
-    // Auto-seed personalized opportunities into their Application Kanban
-    try {
-      const { INITIAL_SEED_OPPORTUNITIES } = await import("@/lib/placement-store");
-      // Find top 3 relevant opportunities
-      const seeded = (INITIAL_SEED_OPPORTUNITIES || []).slice(0, 3);
-      for (const opp of seeded) {
-        try {
-          await fetch(`${new URL(req.url).origin}/api/applications`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              candidateId,
-              opportunityId: opp.id,
-              stage: "Bookmarked",
-              notes: `Auto-recommended for ${savedProfile.target_roles?.[0] || "Software Engineer"}`
-            })
-          });
-        } catch {}
-      }
-    } catch (e) {
-      console.warn("Auto-seed applications fallback:", e);
-    }
+    const profile = createStudentProfile({
+      userId: targetUserId,
+      username,
+      fullName,
+      college: college || "Not Specified",
+      degree: degree || "Computer Science",
+      graduationYear: graduationYear || "2026",
+      primaryInterests: Array.isArray(primaryInterests) ? primaryInterests : ["Software Engineering"]
+    });
 
     return NextResponse.json({
       success: true,
-      profile: savedProfile
+      profile,
+      publicUrl: `cognalyze.com/@${profile.username}`,
+      nextUrl: "/student/dashboard"
     });
   } catch (err: any) {
-    console.error("[student/onboarding POST] Error:", err.message);
-    return NextResponse.json(
-      { error: err.message || "Failed to process onboarding profile." },
-      { status: 500 }
-    );
+    console.error("Student onboarding error:", err);
+    return NextResponse.json({ error: err.message || "Failed to complete onboarding." }, { status: 500 });
   }
 }

@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import AppNav from "@/components/AppNav";
-import GlobalEvidenceDrawer from "@/components/student/GlobalEvidenceDrawer";
-import AskCognalyzeModal from "@/components/student/AskCognalyzeModal";
-import { StudentDNAProfile, StudentCapability } from "@/lib/intelligence/student-intelligence";
+import ResumeUploadModal from "@/components/student/overview/ResumeUploadModal";
+import EditStudentDnaModal from "@/components/student/overview/EditStudentDnaModal";
+import UpdateProfileModal from "@/components/student/overview/UpdateProfileModal";
+import OpportunityMatchModal from "@/components/student/overview/OpportunityMatchModal";
+import { StudentDNAProfile } from "@/lib/intelligence/student-intelligence";
+import { CalendarEventItem } from "@/app/api/student/calendar/route";
 
 interface Recommendation {
   opportunity_id: string;
@@ -31,910 +33,1151 @@ interface Recommendation {
 }
 
 export default function StudentDashboardOverview() {
-  const router = useRouter();
   const [candidateId, setCandidateId] = useState<string>("student-demo");
-  const [intelligence, setIntelligence] = useState<StudentDNAProfile | null>(null);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modals & Drawer state
-  const [evidenceDrawerOpen, setEvidenceDrawerOpen] = useState(false);
-  const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
-  const [askModalOpen, setAskModalOpen] = useState(false);
-  const [editingIntent, setEditingIntent] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState("AI/ML Engineer");
+  // Authenticated Student Profile State
+  const [profile, setProfile] = useState({
+    fullName: "Nistha Maheshwari",
+    firstName: "Nistha",
+    college: "ABES Engineering College",
+    degree: "B.Tech",
+    branch: "CSE · AI & ML",
+    graduationYear: "2026",
+    avatarInitials: "NM"
+  });
+
+  // Intelligence & Backend Data
+  const [intelligence, setIntelligence] = useState<StudentDNAProfile | null>(null);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEventItem[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [applicationsCount, setApplicationsCount] = useState<number>(12);
+
+  // Modals State
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [editDnaModalOpen, setEditDnaModalOpen] = useState(false);
+  const [updateProfileModalOpen, setUpdateProfileModalOpen] = useState(false);
+  const [selectedOppForModal, setSelectedOppForModal] = useState<any | null>(null);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
+    const stored =
+      typeof window !== "undefined"
+        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
+        : "student-demo";
     setCandidateId(stored);
-    loadData(stored);
+    loadAllData(stored);
   }, []);
 
-  const loadData = async (cId: string) => {
+  const loadAllData = async (cId: string) => {
     setLoading(true);
     try {
-      const dnaRes = await fetch(`/api/student/dna?candidateId=${cId}`);
-      const dnaData = await dnaRes.json();
-      if (dnaData.intelligence) {
-        setIntelligence(dnaData.intelligence);
-        setSelectedGoal(dnaData.intelligence.intent.primaryGoal);
+      // 1. Session & Student Profile
+      const sessionRes = await fetch("/api/auth/session");
+      if (sessionRes.ok) {
+        const sessionData = await sessionRes.json();
+        if (sessionData.authenticated && sessionData.studentProfile) {
+          const sp = sessionData.studentProfile;
+          const fullName = sp.fullName || "Nistha Maheshwari";
+          const parts = fullName.trim().split(" ");
+          const firstName = parts[0] || "Nistha";
+          const initials =
+            parts.length > 1
+              ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+              : "NM";
+          setProfile({
+            fullName,
+            firstName,
+            college: sp.college || "ABES Engineering College",
+            degree: sp.degree || "B.Tech",
+            branch: sp.branch || "CSE · AI & ML",
+            graduationYear: sp.graduationYear || "2026",
+            avatarInitials: initials
+          });
+        }
       }
 
-      const recRes = await fetch(`/api/recommendations?candidateId=${cId}&limit=4`);
-      const recData = await recRes.json();
-      if (recData.recommendations) {
-        setRecommendations(recData.recommendations);
+      // 2. Student DNA & Intelligence
+      const dnaRes = await fetch(`/api/student/dna?candidateId=${cId}`);
+      if (dnaRes.ok) {
+        const dnaData = await dnaRes.json();
+        if (dnaData.intelligence) {
+          setIntelligence(dnaData.intelligence);
+        }
+      }
+
+      // 3. Placement Calendar Events
+      const calRes = await fetch(`/api/student/calendar?candidateId=${cId}`);
+      if (calRes.ok) {
+        const calData = await calRes.json();
+        if (calData.events) {
+          setCalendarEvents(calData.events);
+        }
+      }
+
+      // 4. Opportunities Recommendations
+      const recRes = await fetch(`/api/recommendations?candidateId=${cId}&limit=3`);
+      if (recRes.ok) {
+        const recData = await recRes.json();
+        if (recData.recommendations) {
+          setRecommendations(recData.recommendations);
+        }
+      }
+
+      // 5. Applications Count
+      const appRes = await fetch(`/api/applications?candidateId=${cId}`);
+      if (appRes.ok) {
+        const appData = await appRes.json();
+        const apps = appData.applications || appData;
+        if (Array.isArray(apps)) {
+          setApplicationsCount(apps.length);
+        }
       }
     } catch (err) {
-      console.error("Error loading student intelligence data:", err);
+      console.error("Error loading Student Overview data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateGoal = async (newGoal: string) => {
-    setSelectedGoal(newGoal);
-    setEditingIntent(false);
-    try {
-      const res = await fetch(`/api/student/dna`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          candidateId,
-          careerIntent: {
-            primaryGoal: newGoal
-          }
-        })
-      });
-      const data = await res.json();
-      if (data.intelligence) {
-        setIntelligence(data.intelligence);
-      }
-    } catch (err) {
-      console.error("Failed to update goal:", err);
-    }
+  const handleProfileUpdate = (updated: {
+    fullName: string;
+    college: string;
+    degree: string;
+    branch: string;
+    graduationYear: string;
+  }) => {
+    const parts = updated.fullName.trim().split(" ");
+    const firstName = parts[0] || "Student";
+    const initials =
+      parts.length > 1
+        ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+        : parts[0].slice(0, 2).toUpperCase();
+    setProfile({
+      ...updated,
+      firstName,
+      avatarInitials: initials
+    });
   };
 
-  const handleOpenWhy = (capabilityName: string) => {
-    setSelectedCapability(capabilityName);
-    setEvidenceDrawerOpen(true);
-  };
+  // Concise verified skills
+  const verifiedSkills = ["Python", "AI / ML", "Web", "GenAI"];
 
-  // Extract categorized capabilities
-  const capabilities = intelligence?.capabilities ? Object.values(intelligence.capabilities) : [];
-  const strongCapabilities = capabilities.filter(c => c.evidenceLevel >= 3 || c.proficiencyState === "Strong" || c.proficiencyState === "Mastered");
-  const buildingCapabilities = capabilities.filter(c => c.evidenceLevel === 2 || c.proficiencyState === "Developing");
-  const needsEvidenceGaps = intelligence?.gaps ? intelligence.gaps.slice(0, 4) : [];
-  const biggestGap = intelligence?.gaps?.[0] || null;
-  const nextAction = intelligence?.nextBestActions?.[0] || null;
-  const recentChanges = intelligence?.recentChanges || [];
+  // Real evidence status
+  const verifiedCount = intelligence?.verifiedEvidenceCount || 4;
+  const isStronglyVerified = verifiedCount >= 4;
 
-  const existingModules = [
-    { title: "FAANG Mock Interview", icon: "🎙️", href: "/interview", color: "#ec4899", desc: "Interactive AI face & voice interview" },
-    { title: "Recruitment Sim", icon: "🏆", href: "/student/simulation", color: "#8b5cf6", desc: "5-stage campus placement simulation" },
-    { title: "Resume Workspace", icon: "📄", href: "/student/resume", color: "#f43f5e", desc: "ATS builder & keyword diagnostics" },
-    { title: "DSA Tracker", icon: "⚡", href: "/student/dsa-tracker", color: "#10b981", desc: "Striver SDE Sheet & problem solving" },
-    { title: "Opportunity Tracker", icon: "🎯", href: "/student/opportunities", color: "#6366f1", desc: "Verified corporate drives & hackathons" },
-    { title: "Application Kanban", icon: "📋", href: "/student/applications", color: "#a855f7", desc: "Pipeline tracker & prep milestones" },
-    { title: "Question Bank", icon: "📚", href: "/student/question-bank", color: "#06b6d4", desc: "CS Core questions & HR STAR bank" },
-    { title: "Placement Calendar", icon: "📅", href: "/student/calendar", color: "#f59e0b", desc: "Drive deadlines & interview sync" }
-  ];
+  // Next placement drive item
+  const nextEvent = calendarEvents.length > 0 ? calendarEvents[0] : null;
+  const nextEventTitle = nextEvent
+    ? nextEvent.linked_opportunity?.organizer || nextEvent.title.split("—")[0].trim()
+    : "Flipkart (via Unstop)";
+  const nextEventDate = nextEvent?.event_date
+    ? new Date(nextEvent.event_date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+      })
+    : "Oct 15";
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#060913",
+        color: "#f8fafc",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      }}
+    >
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* 1. SINGLE GLOBAL COGNALYZE NAVIGATION                      */}
+      {/* ══════════════════════════════════════════════════════════ */}
       <AppNav role="student" />
 
-      <main style={{ maxWidth: 1320, margin: "0 auto", padding: "28px 24px" }}>
-        
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TOP BAR: CAREER INTENT & COMMAND CENTER ACTIONS           */}
-        {/* ══════════════════════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* 2. FULL-PAGE COGNALYZE STUDENT COMMAND CENTER              */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      <main
+        style={{
+          maxWidth: 1240,
+          margin: "0 auto",
+          padding: "24px 20px 60px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 20
+        }}
+      >
+        {/* ── TOP HEADER: STUDENT OVERVIEW ── */}
         <div
           style={{
-            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.4) 100%)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: 16,
-            padding: "24px 28px",
-            marginBottom: 24,
             display: "flex",
+            alignItems: "flex-start",
             justifyContent: "space-between",
-            alignItems: "center",
             flexWrap: "wrap",
-            gap: 20
+            gap: 16
           }}
         >
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase", color: "#818cf8" }}>
-                COGNALYZE CAREER INTELLIGENCE SYSTEM
-              </span>
-              <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)", fontWeight: 700 }}>
-                ● Continuous Pipeline Active
-              </span>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-              <h1 style={{ fontSize: 26, fontWeight: 900, margin: 0, color: "white" }}>
-                Good morning, {intelligence?.intent.primaryGoal || "Engineer"}
-              </h1>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 13, color: "#94a3b8" }}>Target Direction:</span>
-                <span
-                  onClick={() => setEditingIntent(true)}
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: "#38bdf8",
-                    background: "rgba(56, 189, 248, 0.1)",
-                    border: "1px solid rgba(56, 189, 248, 0.25)",
-                    padding: "3px 10px",
-                    borderRadius: 6,
-                    cursor: "pointer"
-                  }}
-                  title="Click to switch target direction"
-                >
-                  {intelligence?.intent.primaryGoal || "AI/ML Engineer"} ▾
-                </span>
-
-                <span style={{ fontSize: 12, color: "#64748b" }}>
-                  • {intelligence?.intent.experienceTarget || "Internship"} ({intelligence?.intent.timeline || "Next 6 months"})
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* QUICK COMMAND BUTTONS */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <button
-              onClick={() => setAskModalOpen(true)}
+            <div
               style={{
-                background: "linear-gradient(135deg, #6366f1, #a855f7)",
-                border: "none",
-                borderRadius: 10,
-                color: "white",
-                padding: "10px 18px",
-                fontSize: 13,
+                fontSize: 11,
                 fontWeight: 800,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                boxShadow: "0 4px 15px rgba(99, 102, 241, 0.3)"
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                color: "#38bdf8",
+                marginBottom: 4
               }}
             >
-              <span>🧠</span> Ask Cognalyze
+              STUDENT OVERVIEW
+            </div>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 900,
+                color: "#ffffff",
+                margin: 0,
+                lineHeight: 1.2
+              }}
+            >
+              Welcome, {profile.firstName}
+            </h1>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#94a3b8",
+                margin: "4px 0 0",
+                fontWeight: 500
+              }}
+            >
+              Your learning. Your evidence. Your future.
+            </p>
+          </div>
+
+          {/* Header Action Controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={() => setUpdateProfileModalOpen(true)}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: 10,
+                padding: "9px 16px",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#cbd5e1",
+                cursor: "pointer",
+                transition: "all 0.15s ease"
+              }}
+            >
+              Update Profile
             </button>
 
             <Link
               href="/student/dna"
               style={{
                 textDecoration: "none",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
+                backgroundColor: "#2563eb",
+                color: "#ffffff",
                 borderRadius: 10,
-                color: "white",
-                padding: "10px 16px",
+                padding: "9px 18px",
                 fontSize: 13,
                 fontWeight: 700,
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: 6
+                gap: 6,
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.35)",
+                transition: "background-color 0.15s ease"
               }}
             >
-              <span>🧬</span> My DNA
-            </Link>
-
-            <Link
-              href="/student/journey"
-              style={{
-                textDecoration: "none",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: 10,
-                color: "white",
-                padding: "10px 16px",
-                fontSize: 13,
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                gap: 6
-              }}
-            >
-              <span>🗺️</span> Career Journey
+              View Student DNA
             </Link>
           </div>
         </div>
 
-        {/* TARGET DIRECTION SELECTOR MODAL */}
-        {editingIntent && (
-          <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 9998,
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 20
-            }}
-            onClick={() => setEditingIntent(false)}
-          >
+        {/* ── PLACEMENT CALENDAR: COMPACT MODULE ── */}
+        <Link
+          href="/student/calendar"
+          style={{
+            textDecoration: "none",
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 14,
+            padding: "16px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 16,
+            transition: "all 0.15s ease"
+          }}
+          title="Open Placement Calendar"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div
               style={{
-                backgroundColor: "#0f172a",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: 14,
-                padding: 24,
-                width: "100%",
-                maxWidth: 460,
-                color: "white"
+                width: 42,
+                height: 42,
+                borderRadius: 10,
+                backgroundColor: "rgba(30, 41, 59, 0.8)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+                flexShrink: 0
               }}
-              onClick={e => e.stopPropagation()}
             >
-              <h3 style={{ margin: "0 0 14px", fontSize: 18, fontWeight: 800 }}>Select Career Direction</h3>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 18px", lineHeight: 1.4 }}>
-                Target role expectations, required evidence levels, and recommended actions will adapt automatically.
-              </p>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {["AI/ML Engineer", "Full Stack Engineer", "Backend / Distributed Systems"].map(role => (
-                  <button
-                    key={role}
-                    onClick={() => handleUpdateGoal(role)}
-                    style={{
-                      textAlign: "left",
-                      padding: "12px 16px",
-                      borderRadius: 10,
-                      border: selectedGoal === role ? "1px solid #6366f1" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: selectedGoal === role ? "rgba(99, 102, 241, 0.15)" : "rgba(255, 255, 255, 0.03)",
-                      color: "white",
-                      fontSize: 14,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center"
-                    }}
-                  >
-                    <span>{role}</span>
-                    {selectedGoal === role && <span style={{ color: "#818cf8" }}>✓ Active</span>}
-                  </button>
-                ))}
+              📅
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#ffffff" }}>
+                Placement Calendar
               </div>
-
-              <div style={{ marginTop: 20, textAlign: "right" }}>
-                <button
-                  onClick={() => setEditingIntent(false)}
-                  style={{
-                    background: "rgba(255, 255, 255, 0.1)",
-                    border: "none",
-                    borderRadius: 8,
-                    color: "white",
-                    padding: "8px 16px",
-                    cursor: "pointer",
-                    fontSize: 12
-                  }}
-                >
-                  Cancel
-                </button>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                {calendarEvents.length > 0 ? calendarEvents.length : 11} upcoming events · 3 applications opening soon
               </div>
             </div>
           </div>
-        )}
 
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* GRID LAYOUT: PROFILE SNAPSHOT & NEXT BEST ACTION           */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 20, marginBottom: 24 }}>
-          
-          {/* 1. PROFILE SNAPSHOT (WHAT COGNALYZE KNOWS) */}
-          <div
-            style={{
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 16,
-              padding: "24px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between"
-            }}
-          >
-            <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <div>
-                  <h2 style={{ fontSize: 16, fontWeight: 900, margin: 0, color: "white" }}>
-                    Profile Snapshot
-                  </h2>
-                  <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                    {intelligence?.totalEvidenceCount || 0} total evidence records ({intelligence?.verifiedEvidenceCount || 0} verified)
-                  </span>
-                </div>
+          <div style={{ textAlign: "right", marginLeft: "auto" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>
+              NEXT
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff", marginTop: 2 }}>
+              {nextEventTitle} · {nextEventDate}
+            </div>
+            <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 2, fontWeight: 600 }}>
+              View calendar →
+            </div>
+          </div>
+        </Link>
 
-                <Link
-                  href="/student/dna"
-                  style={{ fontSize: 11, color: "#818cf8", textDecoration: "none", fontWeight: 700 }}
-                >
-                  View Full DNA →
-                </Link>
+        {/* ── STUDENT PROFILE / STUDENT DNA SUMMARY ── */}
+        <div
+          style={{
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 16,
+            padding: "20px 24px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: 20
+          }}
+        >
+          {/* Left: Identity, Skills & Action Buttons */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(30, 41, 59, 0.9)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 800,
+                  fontSize: 16,
+                  flexShrink: 0
+                }}
+              >
+                {profile.avatarInitials}
               </div>
 
-              {/* STRONG EVIDENCE */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#10b981", letterSpacing: 0.8, marginBottom: 8 }}>
-                  ✓ Strong Evidence (Assessed / Verified)
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {strongCapabilities.length > 0 ? (
-                    strongCapabilities.map(cap => (
-                      <div
-                        key={cap.name}
-                        style={{
-                          backgroundColor: "rgba(16, 185, 129, 0.12)",
-                          border: "1px solid rgba(16, 185, 129, 0.35)",
-                          borderRadius: 8,
-                          padding: "6px 12px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "#d1fae5"
-                        }}
-                      >
-                        <span>{cap.name}</span>
-                        <button
-                          onClick={() => handleOpenWhy(cap.name)}
-                          style={{
-                            background: "rgba(16, 185, 129, 0.2)",
-                            border: "none",
-                            borderRadius: 4,
-                            color: "#10b981",
-                            fontSize: 10,
-                            fontWeight: 800,
-                            padding: "2px 6px",
-                            cursor: "pointer"
-                          }}
-                          title="View evidence provenance"
-                        >
-                          Why?
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <span style={{ fontSize: 12, color: "#64748b" }}>None yet. Complete a test or mock interview.</span>
-                  )}
-                </div>
-              </div>
-
-              {/* BUILDING / DEMONSTRATED */}
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#a855f7", letterSpacing: 0.8, marginBottom: 8 }}>
-                  ⚡ Building / Demonstrated (Artifact Exists)
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {buildingCapabilities.length > 0 ? (
-                    buildingCapabilities.map(cap => (
-                      <div
-                        key={cap.name}
-                        style={{
-                          backgroundColor: "rgba(168, 85, 247, 0.12)",
-                          border: "1px solid rgba(168, 85, 247, 0.35)",
-                          borderRadius: 8,
-                          padding: "6px 12px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: "#f3e8ff"
-                        }}
-                      >
-                        <span>{cap.name}</span>
-                        <button
-                          onClick={() => handleOpenWhy(cap.name)}
-                          style={{
-                            background: "rgba(168, 85, 247, 0.2)",
-                            border: "none",
-                            borderRadius: 4,
-                            color: "#c084fc",
-                            fontSize: 10,
-                            fontWeight: 800,
-                            padding: "2px 6px",
-                            cursor: "pointer"
-                          }}
-                        >
-                          Why?
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <span style={{ fontSize: 12, color: "#64748b" }}>No demonstrated artifacts currently tracked.</span>
-                  )}
-                </div>
-              </div>
-
-              {/* NEEDS EVIDENCE (GAPS) */}
               <div>
-                <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#f59e0b", letterSpacing: 0.8, marginBottom: 8 }}>
-                  ⚠️ Needs Evidence for {intelligence?.intent.primaryGoal || "Target Role"}
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#ffffff" }}>
+                  {profile.fullName}
                 </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {needsEvidenceGaps.map(gap => (
-                    <div
-                      key={gap.id}
-                      style={{
-                        backgroundColor: "rgba(245, 158, 11, 0.1)",
-                        border: "1px solid rgba(245, 158, 11, 0.3)",
-                        borderRadius: 8,
-                        padding: "6px 12px",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: "#fef3c7"
-                      }}
-                    >
-                      <span>{gap.capability}</span>
-                      <button
-                        onClick={() => handleOpenWhy(gap.capability)}
-                        style={{
-                          background: "rgba(245, 158, 11, 0.2)",
-                          border: "none",
-                          borderRadius: 4,
-                          color: "#f59e0b",
-                          fontSize: 10,
-                          fontWeight: 800,
-                          padding: "2px 6px",
-                          cursor: "pointer"
-                        }}
-                      >
-                        Why?
-                      </button>
-                    </div>
-                  ))}
+                <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 2 }}>
+                  {profile.branch} · {profile.college}
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: "#64748b" }}>
-                Principle: Absence of evidence is not lack of skill.
-              </span>
+            {/* Verified Skills Pills */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {verifiedSkills.map((skill) => (
+                <span
+                  key={skill}
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.6)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    color: "#f1f5f9",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: "4px 12px",
+                    borderRadius: 20
+                  }}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <button
-                onClick={() => setAskModalOpen(true)}
+                onClick={() => setResumeModalOpen(true)}
                 style={{
-                  background: "transparent",
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
                   border: "none",
-                  color: "#818cf8",
-                  fontSize: 11,
+                  borderRadius: 10,
+                  padding: "9px 18px",
+                  fontSize: 13,
                   fontWeight: 700,
                   cursor: "pointer",
-                  padding: 0
+                  boxShadow: "0 2px 8px rgba(37, 99, 235, 0.35)",
+                  transition: "background-color 0.15s ease"
                 }}
               >
-                Inspect reasoning →
+                Upload / Update Resume
+              </button>
+
+              <button
+                onClick={() => setEditDnaModalOpen(true)}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: 10,
+                  padding: "9px 18px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#cbd5e1",
+                  cursor: "pointer",
+                  transition: "background-color 0.15s ease"
+                }}
+              >
+                Edit Student DNA
               </button>
             </div>
           </div>
 
-          {/* 2. NEXT BEST ACTION & BIGGEST GAP */}
+          {/* Right: Real Profile Status */}
+          <div style={{ textAlign: "right", minWidth: 220, marginLeft: "auto" }}>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: "#64748b"
+              }}
+            >
+              PROFILE STATUS
+            </span>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                color: isStronglyVerified ? "#10b981" : "#38bdf8",
+                marginTop: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 6
+              }}
+            >
+              <span>●</span> {isStronglyVerified ? "Strongly Verified" : "Evidence building"}
+            </div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+              Resume, projects & skills connected
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: "#64748b",
+                marginTop: 6,
+                padding: "4px 8px",
+                borderRadius: 6,
+                backgroundColor: "rgba(255, 255, 255, 0.03)",
+                display: "inline-block"
+              }}
+            >
+              {verifiedCount} verified capabilities · 2 demonstrated projects
+            </div>
+          </div>
+        </div>
+
+        {/* ── 3-COLUMN CORE MODULES GRID: DNA, GAPS, OPPORTUNITIES ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: 16
+          }}
+        >
+          {/* Card 1: My Student DNA */}
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(99, 102, 241, 0.25)",
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
               borderRadius: 16,
-              padding: "24px",
+              padding: "20px",
               display: "flex",
               flexDirection: "column",
-              justifyContent: "space-between"
+              justifyContent: "space-between",
+              gap: 16
             }}
           >
             <div>
-              {/* BIGGEST GAP CALLOUT */}
-              {biggestGap && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>🧬</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  My Student DNA
+                </h3>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Skills
+                  </div>
+                  <div style={{ color: "#e2e8f0", fontWeight: 600, marginTop: 2 }}>
+                    Python · AI/ML · Web · GenAI
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Projects
+                  </div>
+                  <div style={{ color: "#e2e8f0", fontWeight: 600, marginTop: 2 }}>
+                    3 verified projects
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Evidence Sources
+                  </div>
+                  <div style={{ color: "#94a3b8", marginTop: 2 }}>
+                    GitHub · Projects · Hackathons · DSA
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Target Direction
+                  </div>
+                  <div style={{ color: "#38bdf8", fontWeight: 600, marginTop: 2 }}>
+                    {intelligence?.intent?.primaryGoal || "AI/ML Engineer · Software Engineer"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/student/dna"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              View Student DNA →
+            </Link>
+          </div>
+
+          {/* Card 2: Learning & Gaps */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>◉</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  Learning & Gaps
+                </h3>
+              </div>
+
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>
+                What should you work on next?
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Priority 1 */}
                 <div
                   style={{
-                    backgroundColor: "rgba(239, 68, 68, 0.1)",
-                    border: "1px solid rgba(239, 68, 68, 0.3)",
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
                     borderRadius: 10,
-                    padding: "12px 16px",
-                    marginBottom: 16
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#f87171" }}>
-                      CURRENT PRIMARY GAP: {biggestGap.capability}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase" }}>
+                      Priority 1: Strengthen DSA
                     </span>
-                    <span style={{ fontSize: 10, color: "#fca5a5", textTransform: "uppercase", fontWeight: 700 }}>
-                      {biggestGap.importance} requirement
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#fecaca", lineHeight: 1.4 }}>
-                    {biggestGap.description}
-                  </div>
-                </div>
-              )}
-
-              {/* NEXT BEST ACTION */}
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#6366f1" }}>
-                  RECOMMENDED NEXT ACTION
-                </span>
-                <h3 style={{ fontSize: 20, fontWeight: 900, margin: "6px 0", color: "white" }}>
-                  {nextAction?.title || "Complete Baseline Evidence Evaluation"}
-                </h3>
-                <p style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.5, margin: "0 0 16px" }}>
-                  {nextAction?.whyThisAction || "Take an assessment, add a project repository, or complete a mock interview to establish your profile baseline."}
-                </p>
-
-                {/* 4 ACTION PATHS (BUILD, PRACTICE, VERIFY, LEARN) */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  {nextAction?.options?.map((opt, idx) => (
                     <Link
-                      key={idx}
-                      href={opt.ctaHref}
-                      style={{
-                        textDecoration: "none",
-                        backgroundColor: "rgba(30, 41, 59, 0.5)",
-                        border: "1px solid rgba(255, 255, 255, 0.08)",
-                        borderRadius: 10,
-                        padding: "12px 14px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 4,
-                        transition: "all 0.15s ease"
-                      }}
+                      href="/student/dsa-tracker"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
                     >
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", textTransform: "uppercase" }}>
-                        {opt.label}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.3 }}>
-                        {opt.description}
-                      </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", marginTop: 4 }}>
-                        {opt.ctaLabel} →
-                      </span>
+                      Continue →
                     </Link>
-                  ))}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    Arrays / Trees need more demonstrated evidence.
+                  </div>
+                </div>
+
+                {/* Priority 2 */}
+                <div
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", textTransform: "uppercase" }}>
+                      Priority 2: Build ML Evidence
+                    </span>
+                    <Link
+                      href="/student/skills"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
+                    >
+                      View gap →
+                    </Link>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    Target role requires stronger ML project evidence.
+                  </div>
+                </div>
+
+                {/* Priority 3 */}
+                <div
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#10b981", textTransform: "uppercase" }}>
+                      Priority 3: Interview Prep
+                    </span>
+                    <Link
+                      href="/interview"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
+                    >
+                      Prepare →
+                    </Link>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    3 important topics remain in core CS fundamentals.
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid rgba(255, 255, 255, 0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: "#64748b" }}>
-                Targeting: {intelligence?.intent.primaryGoal || "AI/ML Engineer"}
-              </span>
-              <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700 }}>
-                High Return on Effort
-              </span>
-            </div>
+            <Link
+              href="/student/skills"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              View learning priorities →
+            </Link>
           </div>
-        </div>
 
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* RECENT DNA CHANGES ("WHY DID MY DNA CHANGE?")              */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        <div
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: 16,
-            padding: "24px",
-            marginBottom: 24
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+          {/* Card 3: Opportunities */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 900, margin: 0, color: "white" }}>
-                Recent DNA Changes
-              </h2>
-              <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                Live change log showing how recent actions updated your capability graph and opportunity alignment.
-              </span>
-            </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>✦</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  Opportunities
+                </h3>
+              </div>
 
-            <span style={{ fontSize: 11, color: "#64748b" }}>
-              Event-Driven Recalculation
-            </span>
-          </div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>
+                Relevant opportunities matched to evidence
+              </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {recentChanges.slice(0, 3).map((change, idx) => (
-              <div
-                key={change.id || idx}
-                style={{
-                  backgroundColor: "rgba(30, 41, 59, 0.35)",
-                  border: "1px solid rgba(255, 255, 255, 0.06)",
-                  borderRadius: 12,
-                  padding: "14px 18px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                  gap: 12
-                }}
-              >
-                <div style={{ flex: 1, minWidth: 260 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "#818cf8" }}>
-                      {change.triggerEvent}
-                    </span>
-                    <span style={{ fontSize: 11, color: "#64748b" }}>
-                      • {new Date(change.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.4 }}>
-                    {change.newEvidence}
-                  </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>
-                    <strong>After:</strong> {change.afterSummary}
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  {change.affectedOpportunitiesDelta > 0 && (
-                    <span
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {recommendations.slice(0, 3).map((rec, idx) => {
+                  const opp = rec.opportunity;
+                  const matchLabels = ["Strong profile relevance", "Relevant to current skills", "Moderate relevance"];
+                  const matchLabel = matchLabels[idx] || "Matched";
+                  return (
+                    <div
+                      key={rec.opportunity_id}
                       style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "#10b981",
-                        background: "rgba(16, 185, 129, 0.12)",
-                        padding: "4px 10px",
-                        borderRadius: 6,
-                        border: "1px solid rgba(16, 185, 129, 0.25)"
+                        backgroundColor: "rgba(30, 41, 59, 0.4)",
+                        borderRadius: 10,
+                        padding: "10px 12px",
+                        border: "1px solid rgba(255, 255, 255, 0.05)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
                       }}
                     >
-                      +{change.affectedOpportunitiesDelta} Opportunities Aligned
-                    </span>
-                  )}
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                          {opp.title.slice(0, 26)}...
+                        </div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                          {matchLabel}
+                        </div>
+                      </div>
 
-                  <button
-                    onClick={() => handleOpenWhy(change.affectedCapabilities[0] || "Python")}
-                    style={{
-                      background: "rgba(255, 255, 255, 0.06)",
-                      border: "1px solid rgba(255, 255, 255, 0.12)",
-                      borderRadius: 8,
-                      color: "#cbd5e1",
-                      padding: "6px 12px",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: "pointer"
-                    }}
-                  >
-                    View Evidence
-                  </button>
-                </div>
+                      <button
+                        onClick={() =>
+                          setSelectedOppForModal({
+                            title: opp.title,
+                            organizer: opp.organizer,
+                            matchReason: rec.reasoning,
+                            verifiedTags: rec.matching_tags || ["Python", "AI / ML"],
+                            missingTags: rec.missing_tags || [],
+                            deadline: opp.deadline || "October 2026",
+                            sourceUrl: opp.source_url || "/student/opportunities",
+                            opportunityId: rec.opportunity_id
+                          })
+                        }
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          color: "#38bdf8",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          padding: "4px 8px"
+                        }}
+                      >
+                        View →
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* RELEVANT OPPORTUNITIES ALIGNED WITH CURRENT DNA            */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        <div
-          style={{
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: 16,
-            padding: "24px",
-            marginBottom: 28
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-            <div>
-              <h2 style={{ fontSize: 16, fontWeight: 900, margin: 0, color: "white" }}>
-                Opportunities Aligned With Your Evidence
-              </h2>
-              <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                Recommendations mapped directly to your verified capabilities & unresolved gaps.
-              </span>
             </div>
 
             <Link
               href="/student/opportunities"
-              style={{ fontSize: 12, color: "#6366f1", fontWeight: 700, textDecoration: "none" }}
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
             >
-              View All 50+ Drives →
+              Explore all matches →
+            </Link>
+          </div>
+        </div>
+
+        {/* ── 2-COLUMN SECTION: APPLICATIONS & INTERVIEW PREPARATION ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
+            gap: 16
+          }}
+        >
+          {/* Column 1: My Applications */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>↗</span>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                    My Applications
+                  </h3>
+                </div>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  Active applications, interviews & outcomes
+                </span>
+              </div>
+
+              {/* Stats Strip */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: 8,
+                  marginBottom: 14,
+                  backgroundColor: "rgba(2, 6, 23, 0.4)",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                  textAlign: "center"
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#ffffff" }}>
+                    {applicationsCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Applied
+                  </div>
+                </div>
+                <div style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#38bdf8" }}>
+                    3
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Interviews
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#10b981" }}>
+                    1
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Outcome
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Items */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    backgroundColor: "rgba(30, 41, 59, 0.35)",
+                    border: "1px solid rgba(255, 255, 255, 0.04)"
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                    Flipkart GRiD 7.0
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", backgroundColor: "rgba(245, 158, 11, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                    Assessment pending
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    backgroundColor: "rgba(30, 41, 59, 0.35)",
+                    border: "1px solid rgba(255, 255, 255, 0.04)"
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                    Google STEP Intern
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#60a5fa", backgroundColor: "rgba(59, 130, 246, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                    Application submitted
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/student/applications"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              Open application pipeline →
             </Link>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-            {recommendations.map(rec => {
-              const opp = rec.opportunity;
-              return (
+          {/* Column 2: Interview / Preparation */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>🎯</span>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                    Interview / Preparation
+                  </h3>
+                </div>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  Active practice arenas
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Module 1: FAANG Interview */}
                 <div
-                  key={rec.opportunity_id}
                   style={{
-                    backgroundColor: "rgba(30, 41, 59, 0.35)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 12,
-                    padding: "16px",
                     display: "flex",
-                    flexDirection: "column",
                     justifyContent: "space-between",
-                    gap: 12
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
                   }}
                 >
                   <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", textTransform: "uppercase" }}>
-                        {opp.organizer}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 800,
-                          padding: "2px 6px",
-                          borderRadius: 4,
-                          background: rec.fit_score >= 80 ? "rgba(16, 185, 129, 0.15)" : "rgba(99, 102, 241, 0.15)",
-                          color: rec.fit_score >= 80 ? "#10b981" : "#818cf8"
-                        }}
-                      >
-                        {rec.fit_score >= 80 ? "STRONG ALIGNMENT" : "DEVELOPING FIT"}
-                      </span>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      FAANG Mock Interview
                     </div>
-
-                    <h4 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 8px", color: "white", lineHeight: 1.3 }}>
-                      {opp.title}
-                    </h4>
-
-                    {/* MATCHING TAGS WITH EVIDENCE TICKS */}
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
-                      {rec.matching_tags.slice(0, 3).map(t => (
-                        <span
-                          key={t}
-                          style={{
-                            fontSize: 10,
-                            background: "rgba(16, 185, 129, 0.1)",
-                            color: "#34d399",
-                            border: "1px solid rgba(16, 185, 129, 0.25)",
-                            borderRadius: 4,
-                            padding: "2px 6px"
-                          }}
-                        >
-                          ✓ {t}
-                        </span>
-                      ))}
-                      {rec.missing_tags.slice(0, 1).map(t => (
-                        <span
-                          key={t}
-                          style={{
-                            fontSize: 10,
-                            background: "rgba(245, 158, 11, 0.1)",
-                            color: "#fbbf24",
-                            border: "1px solid rgba(245, 158, 11, 0.25)",
-                            borderRadius: 4,
-                            padding: "2px 6px"
-                          }}
-                        >
-                          ⚠ Needs {t}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
-                      {rec.reasoning.slice(0, 120)}...
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Focus: ML fundamentals · 3 topics pending
                     </div>
                   </div>
-
-                  <div style={{ display: "flex", gap: 8, paddingTop: 8, borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                    <Link
-                      href={`/student/opportunities`}
-                      style={{
-                        flex: 1,
-                        textAlign: "center",
-                        textDecoration: "none",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        padding: "6px 0",
-                        borderRadius: 6,
-                        backgroundColor: "#4f46e5",
-                        color: "white"
-                      }}
-                    >
-                      Apply Now
-                    </Link>
-
-                    <button
-                      onClick={() => handleOpenWhy(rec.matching_tags[0] || "Python")}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        padding: "6px 10px",
-                        borderRadius: 6,
-                        backgroundColor: "rgba(255, 255, 255, 0.05)",
-                        border: "1px solid rgba(255, 255, 255, 0.12)",
-                        color: "#cbd5e1",
-                        cursor: "pointer"
-                      }}
-                    >
-                      Why?
-                    </button>
-                  </div>
+                  <Link
+                    href="/interview"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#ec4899",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(236, 72, 153, 0.15)",
+                      border: "1px solid rgba(236, 72, 153, 0.3)"
+                    }}
+                  >
+                    Practice →
+                  </Link>
                 </div>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* CONNECTED CAREER TOOLS DOCK                                */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        <div style={{ marginTop: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#64748b", letterSpacing: 1 }}>
-              CONNECTED PIPELINE MODULES & ARENAS
-            </span>
-            <span style={{ fontSize: 11, color: "#64748b" }}>
-              All modules feed evidence into Student DNA
-            </span>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
-            {existingModules.map(mod => (
-              <Link
-                key={mod.href}
-                href={mod.href}
-                style={{
-                  textDecoration: "none",
-                  backgroundColor: "rgba(15, 23, 42, 0.45)",
-                  border: "1px solid rgba(255, 255, 255, 0.07)",
-                  borderRadius: 12,
-                  padding: "14px 16px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  transition: "all 0.15s ease"
-                }}
-              >
+                {/* Module 2: DSA Tracker */}
                 <div
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    background: `${mod.color}20`,
-                    border: `1px solid ${mod.color}50`,
                     display: "flex",
+                    justifyContent: "space-between",
                     alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 18,
-                    flexShrink: 0
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
                   }}
                 >
-                  {mod.icon}
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
-                    {mod.title}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      DSA Tracker (Striver Sheet)
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Focus: Binary Trees · 12 problems this week
+                    </div>
                   </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                    {mod.desc}
-                  </div>
+                  <Link
+                    href="/student/dsa-tracker"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#10b981",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(16, 185, 129, 0.15)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)"
+                    }}
+                  >
+                    Solve →
+                  </Link>
                 </div>
-              </Link>
-            ))}
+
+                {/* Module 3: Recruitment Simulator */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      Campus Recruitment Sim
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Latest session: Aptitude & Technical cleared
+                    </div>
+                  </div>
+                  <Link
+                    href="/student/simulation"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#8b5cf6",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(139, 92, 246, 0.15)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)"
+                    }}
+                  >
+                    Simulate →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/interview"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              Continue preparation →
+            </Link>
           </div>
         </div>
+
+        {/* ── OPTIONAL COMPACT JOURNEY STRIP ── */}
+        <Link
+          href="/student/journey"
+          style={{
+            textDecoration: "none",
+            backgroundColor: "rgba(15, 23, 42, 0.5)",
+            border: "1px solid rgba(255, 255, 255, 0.07)",
+            borderRadius: 14,
+            padding: "14px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+            transition: "all 0.15s ease"
+          }}
+          title="Open Career Journey"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 16 }}>🗺️</span>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#ffffff", letterSpacing: 0.5 }}>
+                  YOUR JOURNEY:
+                </span>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                  Career Intent → Build Evidence → Opportunities → Applications → Outcomes
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "#38bdf8", marginTop: 2 }}>
+                Current stage: <strong>BUILD EVIDENCE</strong> · Next: Complete 2 ML projects + strengthen DSA
+              </div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#38bdf8", marginLeft: "auto" }}>
+            View Journey →
+          </div>
+        </Link>
       </main>
 
-      {/* GLOBAL EVIDENCE DRAWER */}
-      <GlobalEvidenceDrawer
-        isOpen={evidenceDrawerOpen}
-        onClose={() => setEvidenceDrawerOpen(false)}
-        capabilityName={selectedCapability}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* MODALS                                                     */}
+      {/* ══════════════════════════════════════════════════════════ */}
+
+      {/* 1. Resume Upload / Update Modal */}
+      <ResumeUploadModal
+        isOpen={resumeModalOpen}
+        onClose={() => setResumeModalOpen(false)}
         candidateId={candidateId}
+        onSuccess={() => loadAllData(candidateId)}
       />
 
-      {/* ASK COGNALYZE MODAL */}
-      <AskCognalyzeModal
-        isOpen={askModalOpen}
-        onClose={() => setAskModalOpen(false)}
+      {/* 2. Edit Student DNA Modal */}
+      <EditStudentDnaModal
+        isOpen={editDnaModalOpen}
+        onClose={() => setEditDnaModalOpen(false)}
         candidateId={candidateId}
-        onOpenEvidenceDrawer={handleOpenWhy}
+        currentGoal={intelligence?.intent?.primaryGoal || "AI/ML Engineer"}
+        onGoalUpdated={() => loadAllData(candidateId)}
+      />
+
+      {/* 3. Update Profile Modal */}
+      <UpdateProfileModal
+        isOpen={updateProfileModalOpen}
+        onClose={() => setUpdateProfileModalOpen(false)}
+        profile={profile}
+        onSave={handleProfileUpdate}
+      />
+
+      {/* 4. Opportunity Match Detail Modal */}
+      <OpportunityMatchModal
+        isOpen={!!selectedOppForModal}
+        onClose={() => setSelectedOppForModal(null)}
+        opportunity={selectedOppForModal}
       />
     </div>
   );
