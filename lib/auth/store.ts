@@ -80,8 +80,32 @@ const initialData: AuthStoreData = {
       username: "nistha",
       fullName: "Nistha Maheshwari",
       college: "BMS College of Engineering",
-      degree: "B.Tech Computer Science & AI",
+      degree: "B.Tech",
+      branch: "Computer Science & AI",
       graduationYear: "2026",
+      skills: [
+        { name: "Python", level: "Advanced" },
+        { name: "PostgreSQL", level: "Intermediate" },
+        { name: "Next.js", level: "Advanced" },
+      ],
+      projects: [
+        {
+          title: "Automated Recovery Bot",
+          description: "Distributed recovery pipeline built with Python and PostgreSQL",
+          techStack: ["Python", "PostgreSQL", "Docker"],
+        },
+      ],
+      experience: [],
+      achievements: [],
+      certifications: [],
+      careerGoals: {
+        targetRoles: ["Backend Engineer", "Distributed Systems Engineer"],
+        preferredDomains: ["Fintech", "Developer Tools"],
+        targetCompanies: ["Stripe", "Datadog"],
+        preferredLocations: ["Bangalore", "Remote"],
+      },
+      profileCompleted: true,
+      profileCompletionPercentage: 100,
       primaryInterests: ["Distributed Systems", "AI/ML", "Backend Engineering"],
       profileStatus: "IDENTITY_VERIFIED",
       privacySetting: "PUBLIC",
@@ -185,10 +209,12 @@ loadStoreFromDisk();
 
 export function createUser(data: {
   email: string;
+  fullName?: string;
   passwordHash: string | null;
   passwordSalt: string | null;
   accountType: "student" | "recruiter";
   status?: "EMAIL_PENDING" | "ORGANIZATION_PENDING" | "ACTIVE";
+  profileCompleted?: boolean;
 }): User {
   const normalizedEmail = data.email.toLowerCase().trim();
   const existing = store.users.find(u => u.email === normalizedEmail);
@@ -200,10 +226,12 @@ export function createUser(data: {
   const user: User = {
     id: crypto.randomUUID(),
     email: normalizedEmail,
+    fullName: data.fullName ? data.fullName.trim() : undefined,
     passwordHash: data.passwordHash,
     passwordSalt: data.passwordSalt,
     accountType: data.accountType,
     status: data.status || "EMAIL_PENDING",
+    profileCompleted: data.profileCompleted || false,
     emailVerifiedAt: data.status === "ACTIVE" ? now : null,
     createdAt: now,
     updatedAt: now
@@ -279,9 +307,29 @@ export function createStudentProfile(data: {
   userId: string;
   username: string;
   fullName: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
   college?: string;
   degree?: string;
+  branch?: string;
+  year?: string;
   graduationYear?: string;
+  cgpa?: string;
+  coursework?: string[];
+  skills?: any[];
+  projects?: any[];
+  experience?: any[];
+  achievements?: any[];
+  certifications?: any[];
+  careerGoals?: any;
+  resumeUrl?: string;
+  resumeFileName?: string;
+  profileCompleted?: boolean;
+  profileCompletionPercentage?: number;
   primaryInterests?: string[];
 }): StudentProfile {
   const user = getUserById(data.userId);
@@ -305,11 +353,36 @@ export function createStudentProfile(data: {
     userId: data.userId,
     username: availability.normalized,
     fullName: data.fullName.trim(),
+    email: data.email || user.email,
+    phone: data.phone || "",
+    location: data.location || "",
+    linkedinUrl: data.linkedinUrl || "",
+    githubUrl: data.githubUrl || "",
+    portfolioUrl: data.portfolioUrl || "",
     college: (data.college || "").trim(),
     degree: (data.degree || "").trim(),
+    branch: (data.branch || "").trim(),
+    year: (data.year || "").trim(),
     graduationYear: (data.graduationYear || "").trim(),
+    cgpa: (data.cgpa || "").trim(),
+    coursework: data.coursework || [],
+    skills: data.skills || [],
+    projects: data.projects || [],
+    experience: data.experience || [],
+    achievements: data.achievements || [],
+    certifications: data.certifications || [],
+    careerGoals: data.careerGoals || {
+      targetRoles: [],
+      preferredDomains: [],
+      targetCompanies: [],
+      preferredLocations: []
+    },
+    resumeUrl: data.resumeUrl,
+    resumeFileName: data.resumeFileName,
+    profileCompleted: data.profileCompleted || false,
+    profileCompletionPercentage: data.profileCompletionPercentage || 0,
     primaryInterests: data.primaryInterests || [],
-    profileStatus: "IDENTITY_VERIFIED",
+    profileStatus: data.profileCompleted ? "IDENTITY_VERIFIED" : "PARTIAL",
     privacySetting: "PUBLIC",
     lastUsernameChangeAt: null,
     createdAt: now,
@@ -317,6 +390,9 @@ export function createStudentProfile(data: {
   };
 
   store.studentProfiles.push(profile);
+  if (data.profileCompleted) {
+    updateUser(data.userId, { profileCompleted: true });
+  }
   persistStoreToDisk();
   return profile;
 }
@@ -342,8 +418,85 @@ export function updateStudentProfile(
   if (!profile) return null;
 
   Object.assign(profile, updates, { updatedAt: new Date().toISOString() });
+  if (updates.profileCompleted !== undefined) {
+    updateUser(profile.userId, { profileCompleted: updates.profileCompleted });
+  }
   persistStoreToDisk();
   return profile;
+}
+
+export function upsertStudentProfileByUserId(
+  userId: string,
+  data: Partial<StudentProfile>
+): StudentProfile {
+  const existing = store.studentProfiles.find(p => p.userId === userId);
+  const now = new Date().toISOString();
+
+  if (existing) {
+    Object.assign(existing, data, { updatedAt: now });
+    if (data.profileCompleted !== undefined) {
+      updateUser(userId, { profileCompleted: data.profileCompleted });
+    }
+    persistStoreToDisk();
+    return existing;
+  }
+
+  // Create new profile for this user
+  const user = getUserById(userId);
+  if (!user) throw new Error("User does not exist.");
+
+  const fallbackUsername = (data.fullName || user.email.split("@")[0])
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "")
+    .slice(0, 12) + "_" + userId.slice(-4);
+
+  const newProfile: StudentProfile = {
+    id: crypto.randomUUID(),
+    userId,
+    username: data.username || fallbackUsername,
+    fullName: data.fullName || user.fullName || "Candidate",
+    email: data.email || user.email,
+    phone: data.phone || "",
+    location: data.location || "",
+    linkedinUrl: data.linkedinUrl || "",
+    githubUrl: data.githubUrl || "",
+    portfolioUrl: data.portfolioUrl || "",
+    college: data.college || "",
+    degree: data.degree || "",
+    branch: data.branch || "",
+    year: data.year || "",
+    graduationYear: data.graduationYear || "",
+    cgpa: data.cgpa || "",
+    coursework: data.coursework || [],
+    skills: data.skills || [],
+    projects: data.projects || [],
+    experience: data.experience || [],
+    achievements: data.achievements || [],
+    certifications: data.certifications || [],
+    careerGoals: data.careerGoals || {
+      targetRoles: [],
+      preferredDomains: [],
+      targetCompanies: [],
+      preferredLocations: []
+    },
+    resumeUrl: data.resumeUrl,
+    resumeFileName: data.resumeFileName,
+    profileCompleted: data.profileCompleted || false,
+    profileCompletionPercentage: data.profileCompletionPercentage || 0,
+    primaryInterests: data.primaryInterests || [],
+    profileStatus: data.profileCompleted ? "IDENTITY_VERIFIED" : "PARTIAL",
+    privacySetting: "PUBLIC",
+    lastUsernameChangeAt: null,
+    createdAt: now,
+    updatedAt: now
+  };
+
+  store.studentProfiles.push(newProfile);
+  if (data.profileCompleted) {
+    updateUser(userId, { profileCompleted: true });
+  }
+  persistStoreToDisk();
+  return newProfile;
 }
 
 export function changeUsername(studentProfileId: string, newRawUsername: string): {
@@ -692,7 +845,7 @@ export function getPublicProfileByUsername(username: string): PublicStudentProfi
     college: profile.college,
     degree: profile.degree,
     graduationYear: profile.graduationYear,
-    primaryInterests: profile.primaryInterests,
+    primaryInterests: profile.primaryInterests || [],
     connectedAccounts: {
       github: hasGithub,
       linkedin: hasLinkedin

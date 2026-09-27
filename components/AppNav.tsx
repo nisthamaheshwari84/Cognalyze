@@ -51,6 +51,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
               studentProfile: data.studentProfile,
               recruiterProfile: data.recruiterProfile,
             });
+            if (data.authenticated && data.user?.id && typeof window !== "undefined") {
+              localStorage.setItem("cognalyze_student_id", data.user.id);
+            }
           }
         } else {
           if (isMounted) setSession({ loading: false, authenticated: false });
@@ -90,6 +93,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cognalyze_student_id");
+      }
       await fetch("/api/auth/logout", { method: "POST" });
       setSession({ loading: false, authenticated: false });
       router.push("/login");
@@ -145,7 +151,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
       category: "Interview & Assessment Simulators",
       items: [
         { href: "/interview", label: "FAANG Mock Interview Studio", icon: "🎙️", badge: "Proctored" },
-        { href: "/secure-interview", label: "Secure Proctored Assessment", icon: "🛡️" },
+        { href: "/interview?secure=true", label: "Secure Proctored Assessment", icon: "🛡️" },
         { href: "/student/mentor", label: "Socratic AI Mentor", icon: "💬" },
         { href: "/student/gd-practice", label: "Group Discussion Arena", icon: "👥" },
         { href: "/student/interview-prep/history", label: "Past Dossiers & Feedback", icon: "🕒" },
@@ -220,6 +226,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
   const displayName =
     session.studentProfile?.fullName ||
     session.recruiterProfile?.fullName ||
+    session.user?.fullName ||
     session.user?.email?.split("@")[0] ||
     "User";
 

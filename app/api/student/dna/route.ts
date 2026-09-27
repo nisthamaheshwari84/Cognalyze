@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getStudentDNA, setTeamMatchOptIn, invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { 
   getStudentIntelligenceProfile, 
@@ -6,11 +6,30 @@ import {
   getStudentEvidence 
 } from "@/lib/intelligence/student-intelligence";
 import { runEvidenceEngine } from "@/lib/intelligence/evidence-engine";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const paramCandidateId = searchParams.get("candidateId");
+
+    // If user is an authenticated student, STRICTLY scope to their own user id
+    let candidateId = paramCandidateId;
+    if (auth && auth.user && auth.user.accountType === "student") {
+      candidateId = auth.user.id;
+    } else if (!candidateId) {
+      if (auth && auth.user) {
+        candidateId = auth.user.id;
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: "Unauthorized. Please sign in.",
+          authenticated: false,
+        }, { status: 401 });
+      }
+    }
+
     const refresh = searchParams.get("refresh") === "true";
 
     if (refresh) {
@@ -27,6 +46,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       success: true,
+      candidateId,
       dna,
       intelligence,
       evidence,
@@ -38,11 +58,15 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const body = await req.json();
+    let candidateId = body.candidateId || "student-demo";
+    if (auth && auth.user && auth.user.accountType === "student") {
+      candidateId = auth.user.id;
+    }
     const { 
-      candidateId = "student-demo", 
       teamMatchOptIn,
       careerIntent
     } = body;

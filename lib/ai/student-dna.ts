@@ -162,7 +162,48 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
 
   // 1. Fetch Student Profile
   const rawProfile = await getStudentProfile(candidateId);
-  const profile = rawProfile || DEMO_STUDENT_PROFILE;
+  const profile = rawProfile || (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE : null);
+
+  if (!profile) {
+    const emptyDNA: StudentDNA = {
+      candidate_id: candidateId,
+      skills: [],
+      project_count_by_domain: {},
+      projects: [],
+      hackathon_history: [],
+      ps_interactions_summary: {
+        shown_count: 0,
+        viewed_count: 0,
+        saved_count: 0,
+        rejected_count: 0,
+        applied_count: 0,
+        selected_count: 0,
+      },
+      collaboration_history: [],
+      preferred_tech_stack: [],
+      target_roles: [],
+      target_domains: [],
+      availability: "",
+      risk_appetite: "Moderate",
+      profile_summary: "",
+      team_match_opt_in: false,
+      github_enrichment: {
+        provided: false,
+        username: null,
+        verified: false,
+        reposCount: 0,
+        topLanguages: [],
+        recentActivityMonths: 0,
+        verifiedProjects: [],
+        unverifiedClaims: [],
+        summary: "",
+        notes: "",
+      },
+      updated_at: new Date().toISOString(),
+    };
+    inMemoryDNA.set(candidateId, emptyDNA);
+    return emptyDNA;
+  }
 
   // 2. Extract GitHub handle from profile summary, projects or candidate id
   let githubHandle: string | undefined;
@@ -180,24 +221,46 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
     githubHandle = extractGitHubUsername(profile.profile_summary) || undefined;
   }
 
-  // Default demo fallback handle if candidate is demo
+  // Default demo fallback handle ONLY if candidate is explicitly student-demo
   if (!githubHandle && candidateId === "student-demo") {
     githubHandle = "nisthamaheshwari85";
   }
 
   // 3. GitHub Verification & Enrichment (Reusing Resume Screening verifier)
   const resumeEvidence = `${profile.profile_summary} ${(profile.skills || []).map(s => s.name).join(" ")} ${(profile.past_projects || []).map(p => `${p.title}: ${p.description}`).join(" ")}`;
-  const githubEnrichment = await verifyGitHubProfile(githubHandle, resumeEvidence);
+  const githubEnrichment = githubHandle 
+    ? await verifyGitHubProfile(githubHandle, resumeEvidence)
+    : {
+        provided: false,
+        username: null,
+        verified: false,
+        reposCount: 0,
+        topLanguages: [],
+        recentActivityMonths: 0,
+        verifiedProjects: [],
+        unverifiedClaims: [],
+        summary: "",
+        notes: "",
+      };
 
   // 4. Map skills with verified GitHub language overlap & exact proficiency weights
   const verifiedLangs = new Set((githubEnrichment.topLanguages || []).map(l => l.toLowerCase()));
   const dnaSkills: DNASkill[] = (profile.skills || []).map(s => {
     const isVerified = verifiedLangs.has(s.name.toLowerCase());
     const weight = calculateProficiencyWeight(s.level, isVerified);
+    
+    // Ground skill evidence in candidate's actual projects
+    const matchingProjs = (profile.past_projects || []).filter(p => 
+      (p.tech_stack || []).some(t => t.toLowerCase() === s.name.toLowerCase())
+    );
+    let projectEvidence = matchingProjs.length > 0
+      ? `Used in ${matchingProjs.length} project${matchingProjs.length > 1 ? "s" : ""}: ${matchingProjs.map(p => p.title).join(", ")}`
+      : undefined;
+
     return {
       name: s.name,
       level: s.level,
-      evidence: s.evidence || (isVerified ? `Verified via GitHub public activity (${githubEnrichment.username})` : undefined),
+      evidence: s.evidence || projectEvidence || (isVerified ? `Verified via GitHub public activity (${githubEnrichment.username})` : undefined),
       verified_on_github: isVerified,
       proficiency_weight: weight
     };

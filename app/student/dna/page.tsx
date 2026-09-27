@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import {
-  runEvidenceEngine,
+import type {
   EvidenceEngineOutput,
   StudentCapabilityItem,
   KeyEvidenceItem,
@@ -27,28 +26,26 @@ export default function StudentDNAPage() {
   const [selectedEvidence, setSelectedEvidence] = useState<KeyEvidenceItem | null>(null);
 
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
-        : "student-demo";
-    setCandidateId(stored);
-    loadData(stored);
+    loadData();
   }, []);
 
-  const loadData = async (cId: string) => {
+  const loadData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/student/dna?candidateId=${cId}`);
+      const res = await fetch("/api/student/dna");
+      if (res.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
       const data = await res.json();
+      if (data.candidateId) {
+        setCandidateId(data.candidateId);
+      }
       if (data.evidenceEngine) {
         setEngineData(data.evidenceEngine);
-      } else {
-        // Fallback to local engine generator
-        setEngineData(runEvidenceEngine(cId));
       }
     } catch (err) {
       console.error("Failed to load DNA engine data:", err);
-      setEngineData(runEvidenceEngine(cId));
     } finally {
       setLoading(false);
     }
@@ -120,7 +117,25 @@ export default function StudentDNAPage() {
     }
   };
 
-  const data = engineData || runEvidenceEngine(candidateId);
+  const data: EvidenceEngineOutput = engineData || {
+    studentId: candidateId,
+    identity: {
+      name: "Candidate",
+      degreeBranch: "Computer Science",
+      role: "Candidate",
+      currentStage: "Preparation",
+      careerDirection: "Software Engineering",
+      interests: [],
+    },
+    capabilities: [],
+    keyEvidence: [],
+    gaps: [],
+    trajectories: [],
+    nextActions: [],
+    evidenceMismatches: [],
+    temporalTrajectories: [],
+    generatedAt: new Date().toISOString(),
+  };
 
   return (
     <div
@@ -314,75 +329,112 @@ export default function StudentDNAPage() {
             </p>
           </div>
 
-          <div
-            style={{
-              backgroundColor: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
-              overflow: "hidden",
-            }}
-          >
-            {data.capabilities.map((cap, idx, arr) => {
-              const badge = getStateStyle(cap.state);
+          {data.capabilities.length === 0 ? (
+            <div
+              style={{
+                padding: "36px 20px",
+                textAlign: "center",
+                backgroundColor: "rgba(15, 23, 42, 0.4)",
+                borderRadius: 14,
+                border: "1px dashed rgba(255, 255, 255, 0.12)",
+              }}
+            >
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", marginBottom: 6 }}>
+                No capabilities recorded yet
+              </div>
+              <p style={{ fontSize: 13, color: "#94a3b8", maxWidth: 440, margin: "0 auto 16px" }}>
+                Add your technical skills and project implementations to generate your verified capability profile.
+              </p>
+              <Link
+                href="/student/profile"
+                style={{
+                  display: "inline-block",
+                  padding: "8px 18px",
+                  borderRadius: 8,
+                  background: "rgba(56, 189, 248, 0.15)",
+                  border: "1px solid rgba(56, 189, 248, 0.35)",
+                  color: "#38bdf8",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                + Add Skills & Projects
+              </Link>
+            </div>
+          ) : (
+            <div
+              style={{
+                backgroundColor: "rgba(15, 23, 42, 0.6)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: 14,
+                overflow: "hidden",
+              }}
+            >
+              {data.capabilities.map((cap, idx, arr) => {
+                const badge = getStateStyle(cap.state);
 
-              return (
-                <div
-                  key={cap.id}
-                  onClick={() => setSelectedCap(cap)}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "16px 20px",
-                    borderBottom: idx < arr.length - 1 ? "1px solid rgba(255, 255, 255, 0.05)" : "none",
-                    cursor: "pointer",
-                    transition: "background 0.15s ease",
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.03)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  title="Click to view Level 2 deep dive"
-                >
-                  <div style={{ flex: "1 1 240px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: "#ffffff" }}>
-                        {cap.name}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#64748b" }}>
-                        • {cap.freshness}
-                      </span>
+                return (
+                  <div
+                    key={cap.id}
+                    onClick={() => setSelectedCap(cap)}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "16px 20px",
+                      borderBottom: idx < arr.length - 1 ? "1px solid rgba(255, 255, 255, 0.05)" : "none",
+                      cursor: "pointer",
+                      transition: "background 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.03)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                    title="Click to view Level 2 deep dive"
+                  >
+                    <div style={{ flex: "1 1 240px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: "#ffffff" }}>
+                          {cap.name}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#64748b" }}>
+                          • {cap.freshness}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                        {cap.summary}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-                      {cap.summary}
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          padding: "4px 10px",
+                          borderRadius: 6,
+                          color: badge.color,
+                          backgroundColor: badge.bg,
+                          border: `1px solid ${badge.border}`,
+                          minWidth: 120,
+                          textAlign: "center",
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        {cap.state}
+                      </span>
+
+                      <span style={{ fontSize: 12, color: "#64748b" }}>→</span>
                     </div>
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 800,
-                        padding: "4px 10px",
-                        borderRadius: 6,
-                        color: badge.color,
-                        backgroundColor: badge.bg,
-                        border: `1px solid ${badge.border}`,
-                        minWidth: 120,
-                        textAlign: "center",
-                        letterSpacing: 0.5,
-                      }}
-                    >
-                      {cap.state}
-                    </span>
-
-                    <span style={{ fontSize: 12, color: "#64748b" }}>→</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ fontSize: 11, color: "#64748b", marginTop: 8, textAlign: "right" }}>
-            Click any capability to inspect Level 2 evidence, projects, interviews, and confidence.
-          </div>
+                );
+              })}
+            </div>
+          )}
+          {data.capabilities.length > 0 && (
+            <div style={{ fontSize: 11, color: "#64748b", marginTop: 8, textAlign: "right" }}>
+              Click any capability to inspect Level 2 evidence, projects, interviews, and confidence.
+            </div>
+          )}
         </section>
 
         {/* ══════════════════════════════════════════════════════════ */}
@@ -398,80 +450,115 @@ export default function StudentDNAPage() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
-            {data.keyEvidence.map((ev) => {
-              const badge = getEvidenceStateBadge(ev.verificationState);
+          {data.keyEvidence.length === 0 ? (
+            <div
+              style={{
+                padding: "36px 20px",
+                textAlign: "center",
+                backgroundColor: "rgba(15, 23, 42, 0.4)",
+                borderRadius: 14,
+                border: "1px dashed rgba(255, 255, 255, 0.12)",
+              }}
+            >
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#e2e8f0", marginBottom: 6 }}>
+                No project evidence yet
+              </div>
+              <p style={{ fontSize: 13, color: "#94a3b8", maxWidth: 440, margin: "0 auto 16px" }}>
+                Cognalyze operates on verified proof. Link your code repositories, live applications, or technical projects.
+              </p>
+              <Link
+                href="/student/profile"
+                style={{
+                  display: "inline-block",
+                  padding: "8px 18px",
+                  borderRadius: 8,
+                  background: "rgba(16, 185, 129, 0.15)",
+                  border: "1px solid rgba(16, 185, 129, 0.35)",
+                  color: "#10b981",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                }}
+              >
+                + Add a Project
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12 }}>
+              {data.keyEvidence.map((ev) => {
+                const badge = getEvidenceStateBadge(ev.verificationState);
 
-              return (
-                <div
-                  key={ev.id}
-                  onClick={() => setSelectedEvidence(ev)}
-                  style={{
-                    backgroundColor: "rgba(15, 23, 42, 0.6)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 12,
-                    padding: "16px 18px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    cursor: "pointer",
-                    transition: "transform 0.15s ease, border-color 0.15s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.4)";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
-                    e.currentTarget.style.transform = "none";
-                  }}
-                  title="Click to view Level 3 origin inspection"
-                >
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
-                      <h3 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "#ffffff" }}>
-                        {ev.title}
-                      </h3>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 800,
-                          padding: "2px 6px",
-                          borderRadius: 4,
-                          color: badge.color,
-                          backgroundColor: badge.bg,
-                          border: `1px solid ${badge.border}`,
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {ev.verificationState}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.4 }}>
-                      {ev.source}
-                    </div>
-                  </div>
-
+                return (
                   <div
+                    key={ev.id}
+                    onClick={() => setSelectedEvidence(ev)}
                     style={{
+                      backgroundColor: "rgba(15, 23, 42, 0.6)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: 12,
+                      padding: "16px 18px",
                       display: "flex",
+                      flexDirection: "column",
                       justifyContent: "space-between",
-                      alignItems: "center",
-                      fontSize: 11,
-                      color: "#64748b",
-                      paddingTop: 8,
-                      borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+                      gap: 12,
+                      cursor: "pointer",
+                      transition: "transform 0.15s ease, border-color 0.15s ease",
                     }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(56, 189, 248, 0.4)";
+                      e.currentTarget.style.transform = "translateY(-2px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.08)";
+                      e.currentTarget.style.transform = "none";
+                    }}
+                    title="Click to view Level 3 origin inspection"
                   >
-                    <span>{ev.relevantCapability}</span>
-                    <span style={{ color: "#38bdf8", fontWeight: 700 }}>Inspect Proof →</span>
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 6 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "#ffffff" }}>
+                          {ev.title}
+                        </h3>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            padding: "2px 6px",
+                            borderRadius: 4,
+                            color: badge.color,
+                            backgroundColor: badge.bg,
+                            border: `1px solid ${badge.border}`,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {ev.verificationState}
+                        </span>
+                      </div>
+
+                      <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.4 }}>
+                        {ev.source}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: 11,
+                        color: "#64748b",
+                        paddingTop: 8,
+                        borderTop: "1px solid rgba(255, 255, 255, 0.05)",
+                      }}
+                    >
+                      <span>{ev.relevantCapability}</span>
+                      <span style={{ color: "#38bdf8", fontWeight: 700 }}>Inspect Proof →</span>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* ══════════════════════════════════════════════════════════ */}

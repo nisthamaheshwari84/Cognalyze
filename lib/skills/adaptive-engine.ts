@@ -180,8 +180,52 @@ const IN_MEMORY_PROFILES: Record<string, StudentAdaptiveProfile> = {
   }
 };
 
+export function registerStudentAdaptiveProfile(profile: Partial<StudentAdaptiveProfile> & { id: string }): StudentAdaptiveProfile {
+  const existing = IN_MEMORY_PROFILES[profile.id] || {
+    id: profile.id,
+    name: profile.name || "Candidate",
+    strongAreas: [],
+    weakAreas: [],
+    recentWeaknessKey: "",
+    verifiedClaims: [],
+    previousAttempts: []
+  };
+
+  const updated: StudentAdaptiveProfile = {
+    ...existing,
+    ...profile,
+    name: profile.name || existing.name,
+    strongAreas: profile.strongAreas || existing.strongAreas,
+    weakAreas: profile.weakAreas || existing.weakAreas,
+    verifiedClaims: profile.verifiedClaims || existing.verifiedClaims,
+    previousAttempts: profile.previousAttempts || existing.previousAttempts,
+  };
+
+  IN_MEMORY_PROFILES[profile.id] = updated;
+  return updated;
+}
+
 export function getStudentProfile(candidateId: string): StudentAdaptiveProfile {
-  return IN_MEMORY_PROFILES[candidateId] || IN_MEMORY_PROFILES["student-demo"];
+  if (IN_MEMORY_PROFILES[candidateId]) {
+    return IN_MEMORY_PROFILES[candidateId];
+  }
+
+  if (candidateId === "student-demo") {
+    return IN_MEMORY_PROFILES["student-demo"];
+  }
+
+  // Safe default for uninitialized candidate without cross-contamination or leaking mock data
+  const defaultCandidate: StudentAdaptiveProfile = {
+    id: candidateId,
+    name: "Candidate",
+    strongAreas: ["Core Problem Solving"],
+    weakAreas: ["System Depth"],
+    recentWeaknessKey: "",
+    verifiedClaims: [],
+    previousAttempts: []
+  };
+  IN_MEMORY_PROFILES[candidateId] = defaultCandidate;
+  return defaultCandidate;
 }
 
 export function recordStudentWeakness(candidateId: string, domain: string, weaknessKey: string, score: number, gap: string) {

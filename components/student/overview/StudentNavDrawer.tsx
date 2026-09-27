@@ -14,8 +14,8 @@ interface StudentNavDrawerProps {
 export default function StudentNavDrawer({
   isOpen,
   onClose,
-  studentName = "Nistha Maheshwari",
-  avatarInitials = "NM"
+  studentName = "Student",
+  avatarInitials = "ST"
 }: StudentNavDrawerProps) {
   const pathname = usePathname();
 

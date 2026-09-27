@@ -147,6 +147,8 @@ export interface EvidenceEngineOutput {
   generatedAt: string;
 }
 
+import { getStudentProfileByUserId } from "../auth/store";
+
 // ══════════════════════════════════════════════════════════════════════
 // MULTI-SOURCE EVALUATION CORE
 // ══════════════════════════════════════════════════════════════════════
@@ -157,6 +159,274 @@ export interface EvidenceEngineOutput {
  */
 export function runEvidenceEngine(studentId: string = "student-demo"): EvidenceEngineOutput {
   const rawEvidence = getStudentEvidence(studentId);
+
+  // If candidate is a real authenticated user (not "student-demo"), construct purely from their actual data
+  if (studentId !== "student-demo") {
+    const profile = getStudentProfileByUserId(studentId);
+    const now = new Date().toISOString();
+
+    if (!profile) {
+      return {
+        studentId,
+        identity: {
+          name: "Candidate",
+          degreeBranch: "Student",
+          role: "Software Engineering",
+          currentStage: "Building Student DNA",
+          careerDirection: "Software Engineering",
+          interests: [],
+        },
+        capabilities: [],
+        keyEvidence: [],
+        gaps: [
+          {
+            id: "gap-onboard",
+            capability: "Student DNA",
+            gapType: "INSUFFICIENT EVIDENCE",
+            summary: "Profile incomplete",
+            explanation: "Complete your Student DNA to record your skills and projects.",
+            neutralDetail: "No data submitted yet.",
+          },
+        ],
+        trajectories: [],
+        nextActions: [
+          {
+            id: "act-onboard",
+            step: 1,
+            action: "Complete Student DNA",
+            reason: "Build your personalized profile and evidence graph.",
+            ctaLabel: "Start Onboarding",
+            ctaHref: "/student/onboarding",
+          },
+        ],
+        evidenceMismatches: [],
+        temporalTrajectories: [],
+        generatedAt: now,
+      };
+    }
+
+    // 1. Identity from real profile
+    const identity: StudentIdentity = {
+      name: profile.fullName || "Candidate",
+      degreeBranch: [profile.degree, profile.branch].filter(Boolean).join(" • ") || "Engineering Candidate",
+      role: profile.careerGoals?.targetRoles?.[0] || "Software Engineer",
+      currentStage: profile.profileCompleted ? "Active Candidate" : "Building Student DNA",
+      careerDirection:
+        profile.careerGoals?.targetRoles?.join(", ") ||
+        profile.careerGoals?.preferredDomains?.join(", ") ||
+        "Software Engineering",
+      interests:
+        profile.primaryInterests && profile.primaryInterests.length > 0
+          ? profile.primaryInterests
+          : profile.careerGoals?.preferredDomains || [],
+    };
+
+    // 2. Capabilities derived from real skills & projects
+    const capabilities: StudentCapabilityItem[] = (profile.skills || []).map((s: any, idx: number) => {
+      const skillName = typeof s === "string" ? s : s.name;
+      const skillLevel = typeof s === "string" ? "Intermediate" : (s.level || "Intermediate");
+      const matchingProjects = (profile.projects || []).filter((p: any) => {
+        const stack: string[] = Array.isArray(p.techStack)
+          ? p.techStack
+          : Array.isArray(p.technologies)
+          ? p.technologies
+          : Array.isArray(p.tech_stack)
+          ? p.tech_stack
+          : [];
+        return stack.some(
+          (t) =>
+            t.toLowerCase().includes(skillName.toLowerCase()) ||
+            skillName.toLowerCase().includes(t.toLowerCase())
+        );
+      });
+
+      const state: CapabilityState =
+        matchingProjects.length > 0
+          ? skillLevel === "Advanced" || skillLevel === "Expert"
+            ? "VERIFIED"
+            : "DEMONSTRATED"
+          : s.evidence
+          ? "DEMONSTRATED"
+          : "DEVELOPING";
+
+      const summary =
+        matchingProjects.length > 0
+          ? `Used in project${matchingProjects.length > 1 ? "s" : ""}: ${matchingProjects
+              .map((p: any) => p.name || p.title)
+              .join(", ")}.`
+          : s.evidence
+          ? s.evidence
+          : `Skill self-reported (${skillLevel}). Project or assessment demonstration pending.`;
+
+      return {
+        id: `cap-${idx}-${skillName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+        name: skillName,
+        state,
+        summary,
+        sourcesBreakdown: {
+          projects: matchingProjects.length,
+          dsaProblems: 0,
+          interviews: 0,
+          githubActivity: !!profile.githubUrl,
+        },
+        freshness: matchingProjects.length > 0 ? "Project verified" : "Claimed",
+        confidence: matchingProjects.length > 0 ? "HIGH" : s.evidence ? "MEDIUM" : "LOW",
+      };
+    });
+
+    // 3. Key Evidence from real projects
+    const keyEvidence: KeyEvidenceItem[] = (profile.projects || []).map((p: any, idx: number) => {
+      const projName = p.name || p.title || `Project ${idx + 1}`;
+      const techList: string[] = Array.isArray(p.techStack)
+        ? p.techStack
+        : Array.isArray(p.technologies)
+        ? p.technologies
+        : Array.isArray(p.tech_stack)
+        ? p.tech_stack
+        : [];
+      const hasUrl = !!(p.githubUrl || p.github_url || p.liveUrl || p.live_url);
+
+      return {
+        id: `ev-proj-${idx}`,
+        title: projName,
+        source: (p.githubUrl || p.github_url)
+          ? "GitHub Repository"
+          : (p.liveUrl || p.live_url)
+          ? "Live Deployment"
+          : "Student Project Portfolio",
+        sourceType: "project" as const,
+        timestamp: p.duration || "Recorded",
+        evidenceType: "Project Implementation",
+        verificationState: hasUrl ? ("VERIFIED" as const) : ("DEMONSTRATED" as const),
+        relevantCapability: techList[0] || "Software Engineering",
+        originalActivity:
+          p.contributions || p.description || p.problemSolved || "Project implementation and architecture.",
+        whyRelevant: techList.length > 0
+          ? `Directly demonstrates implementation of ${techList.join(", ")}.`
+          : "Substantiates candidate problem-solving and software construction ability.",
+      };
+    });
+
+    // 4. Gaps derived from real missing data or unverified claims
+    const gaps: StudentGapItem[] = [];
+    // Skills with zero matching projects
+    const unverifiedSkills = (profile.skills || []).filter((s: any) => {
+      const skillName = typeof s === "string" ? s : s.name;
+      const matchingProjects = (profile.projects || []).filter((p: any) => {
+        const stack: string[] = Array.isArray(p.techStack)
+          ? p.techStack
+          : Array.isArray(p.technologies)
+          ? p.technologies
+          : Array.isArray(p.tech_stack)
+          ? p.tech_stack
+          : [];
+        return stack.some(
+          (t) =>
+            t.toLowerCase().includes(skillName.toLowerCase()) ||
+            skillName.toLowerCase().includes(t.toLowerCase())
+        );
+      });
+      return matchingProjects.length === 0 && !s.evidence;
+    });
+
+    for (const s of unverifiedSkills.slice(0, 3)) {
+      const skillName = typeof s === "string" ? s : s.name;
+      gaps.push({
+        id: `gap-${skillName.toLowerCase().replace(/[^a-z0-9]/g, "-")}`,
+        capability: skillName,
+        gapType: "INSUFFICIENT EVIDENCE",
+        summary: "Needs project demonstration or code artifact.",
+        explanation: `You listed ${skillName}, but have not yet linked a project using it.`,
+        neutralDetail: "Self-reported claim pending project or interview verification.",
+      });
+    }
+
+    if ((profile.projects || []).length === 0) {
+      gaps.push({
+        id: "gap-projects",
+        capability: "Project Portfolio",
+        gapType: "INSUFFICIENT EVIDENCE",
+        summary: "No project evidence recorded yet.",
+        explanation: "Add at least one project to substantiate your technical skills with verifiable code.",
+        neutralDetail: "Demonstrated code is the primary foundation for Student DNA verification.",
+      });
+    }
+
+    if ((profile.skills || []).length === 0) {
+      gaps.push({
+        id: "gap-skills",
+        capability: "Technical Skills",
+        gapType: "INSUFFICIENT EVIDENCE",
+        summary: "No technical skills recorded.",
+        explanation: "Add your programming languages, frameworks, and tools in your profile.",
+        neutralDetail: "No claims recorded.",
+      });
+    }
+
+    // 5. Trajectories
+    const trajectories: TrajectoryItem[] = [];
+    if ((profile.projects || []).length > 0) {
+      trajectories.push({
+        id: "traj-projects",
+        capability: "Projects",
+        trend: "UP",
+        trendSymbol: "↑",
+        lastDemonstrated: "Profile updated",
+        freshnessLabel: "Fresh evidence",
+        context: `${profile.projects.length} project${profile.projects.length > 1 ? "s" : ""} recorded in Student DNA portfolio.`,
+      });
+    }
+
+    // 6. Next Actions
+    const nextActions: NextActionItem[] = [];
+    if ((profile.projects || []).length === 0) {
+      nextActions.push({
+        id: "act-proj",
+        step: 1,
+        action: "Add your first technical project",
+        reason: "Provide concrete proof for your skills",
+        ctaLabel: "Add Project",
+        ctaHref: "/student/profile",
+      });
+    }
+
+    if (!profile.profileCompleted) {
+      nextActions.push({
+        id: "act-dna",
+        step: nextActions.length + 1,
+        action: "Complete Student DNA",
+        reason: "Fill in all 9 sections to unlock full career intelligence",
+        ctaLabel: "Continue Profile",
+        ctaHref: "/student/onboarding",
+      });
+    } else {
+      nextActions.push({
+        id: "act-interview",
+        step: nextActions.length + 1,
+        action: "Practice Technical Mock Interview",
+        reason: "Convert stated skills into demonstrated interview defense",
+        ctaLabel: "Launch Mock Round",
+        ctaHref: "/interview",
+      });
+    }
+
+    return {
+      studentId,
+      identity,
+      capabilities,
+      keyEvidence,
+      gaps,
+      trajectories,
+      nextActions,
+      evidenceMismatches: [],
+      temporalTrajectories: [],
+      generatedAt: now,
+    };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // DEMO DATASET ONLY (EXPLICITLY FOR candidateId === "student-demo")
+  // ══════════════════════════════════════════════════════════════════════
   const { records: careerMemories, patterns: memoryPatterns } = getCareerMemory(studentId);
 
   // 1. IDENTITY

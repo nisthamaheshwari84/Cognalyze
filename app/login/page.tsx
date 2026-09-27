@@ -38,6 +38,10 @@ export default function LoginPage() {
         throw new Error(data.error || "Failed to sign in.");
       }
 
+      if (data.user?.id && typeof window !== "undefined") {
+        localStorage.setItem("cognalyze_student_id", data.user.id);
+      }
+
       router.push(data.nextUrl || "/");
     } catch (err: any) {
       setError(err.message || "An error occurred during sign in.");
@@ -50,10 +54,15 @@ export default function LoginPage() {
     setError(null);
     setOauthLoading(provider);
 
+    if (!email.trim()) {
+      setError(`Please enter your email address to sign in with ${provider === "github" ? "GitHub" : "LinkedIn"}.`);
+      setOauthLoading(null);
+      return;
+    }
+
     try {
-      // Simulate OAuth flow with a verified candidate email
       const providerUserId = `${provider}_usr_${Math.random().toString(36).substring(2, 9)}`;
-      const providerEmail = email.trim() || "nistha@cognalyze.com";
+      const providerEmail = email.trim().toLowerCase();
 
       const res = await fetch("/api/auth/oauth", {
         method: "POST",
@@ -79,6 +88,9 @@ export default function LoginPage() {
           providerEmail: data.providerEmail
         });
       } else {
+        if (data.user?.id && typeof window !== "undefined") {
+          localStorage.setItem("cognalyze_student_id", data.user.id);
+        }
         router.push(data.nextUrl || "/");
       }
     } catch (err: any) {

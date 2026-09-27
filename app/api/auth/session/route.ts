@@ -13,8 +13,10 @@ export async function GET(req: NextRequest) {
       user: {
         id: auth.user.id,
         email: auth.user.email,
+        fullName: auth.user.fullName || auth.studentProfile?.fullName || auth.recruiterProfile?.fullName,
         accountType: auth.user.accountType,
         status: auth.user.status,
+        profileCompleted: auth.user.profileCompleted || !!auth.studentProfile?.profileCompleted,
         emailVerifiedAt: auth.user.emailVerifiedAt
       },
       studentProfile: auth.studentProfile,

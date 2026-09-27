@@ -33,175 +33,95 @@ export default function EvidenceHubPage() {
   const [whyModalData, setWhyModalData] = useState<CapabilityWhyExplanation | null>(null);
   const [activeTab, setActiveTab] = useState<"graph" | "claims" | "skills">("graph");
 
+  const [evidenceNodes, setEvidenceNodes] = useState<EvidenceNode[]>([]);
+  const [resumeClaims, setResumeClaims] = useState<any[]>([]);
+
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
-        : "student-demo";
-    setCandidateId(stored);
-    const profile = getStudentIntelligenceProfile(stored);
-    setIntelligence(profile);
+    async function loadStudentEvidence() {
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        const sess = await sessRes.json();
+        const cId = (sess.authenticated && sess.user?.id) ? sess.user.id : "student-demo";
+        setCandidateId(cId);
+
+        const profile = getStudentIntelligenceProfile(cId);
+        setIntelligence(profile);
+
+        const dnaRes = await fetch("/api/student/dna");
+        if (dnaRes.ok) {
+          const dnaData = await dnaRes.json();
+          if (dnaData.dna) {
+            const dynamicNodes: EvidenceNode[] = [];
+            const claims: any[] = [];
+
+            // 1. Projects
+            (dnaData.dna.projects || []).forEach((p: any, idx: number) => {
+              dynamicNodes.push({
+                id: `node-proj-${idx}`,
+                label: p.title || `Project ${idx + 1}`,
+                type: "project",
+                status: p.github_verified ? "Verified" : "Demonstrated",
+                coverage: "High",
+                verified: !!p.github_verified,
+                connections: [],
+                details: p.description || `Built with ${(p.tech_stack || []).join(", ")}.`,
+                provenance: p.github_url || "Student Project Portfolio",
+                date: "Recorded"
+              });
+
+              claims.push({
+                claim: `Built ${p.title} with ${(p.tech_stack || []).join(", ")}`,
+                source: "Project Portfolio",
+                status: p.github_verified ? "Verified" : "Demonstrated",
+                evidence: p.description || "Project implementation recorded.",
+                gap: p.github_url ? "None. Verifiable repository linked." : "Repository link pending.",
+                verdict: p.github_verified ? "Claim Fully Verified" : "Claim Demonstrated"
+              });
+            });
+
+            // 2. Skills
+            (dnaData.dna.skills || []).forEach((s: any, idx: number) => {
+              dynamicNodes.push({
+                id: `node-skill-${idx}`,
+                label: s.name,
+                type: "skill",
+                status: s.evidence ? "Demonstrated" : "Developing",
+                coverage: s.evidence ? "High" : "Medium",
+                verified: !!s.verified_on_github,
+                connections: [],
+                details: s.evidence || `Skill declared at ${s.level} proficiency. Project implementation pending.`,
+                provenance: s.verified_on_github ? "GitHub Activity Sync" : "Student Profile",
+                date: "Declared"
+              });
+            });
+
+            // 3. GitHub
+            if (dnaData.dna.github_enrichment?.username) {
+              dynamicNodes.push({
+                id: "node-gh",
+                label: `GitHub: ${dnaData.dna.github_enrichment.username}`,
+                type: "github",
+                status: "Verified",
+                coverage: "High",
+                verified: true,
+                connections: [],
+                details: `${dnaData.dna.github_enrichment.repoCount || 0} public repositories. Top languages: ${(dnaData.dna.github_enrichment.topLanguages || []).join(", ")}`,
+                provenance: "GitHub API Sync v3",
+                date: "Real-time sync"
+              });
+            }
+
+            setEvidenceNodes(dynamicNodes);
+            setResumeClaims(claims);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load evidence:", err);
+      }
+    }
+    loadStudentEvidence();
   }, []);
-
-  // Connected Evidence Graph Nodes
-  const evidenceNodes: EvidenceNode[] = [
-    {
-      id: "node-dsa",
-      label: "DSA & Problem Solving",
-      type: "skill",
-      status: "Demonstrated",
-      coverage: "High",
-      verified: true,
-      connections: ["node-leetcode", "node-oa1", "node-alex-int"],
-      details: "187 problems solved across arrays, sliding window, binary search. Defended O(N) complexity in mock assessment.",
-      provenance: "LeetCode + OA Simulation + Alex FAANG Mock",
-      date: "2 days ago"
-    },
-    {
-      id: "node-sd",
-      label: "System Design",
-      type: "skill",
-      status: "Developing",
-      coverage: "Medium",
-      verified: false,
-      connections: ["node-proj1", "node-alex-int"],
-      details: "Requirement clarification and service breakdown demonstrated. Caching trade-offs and DB failure recovery need further verification.",
-      provenance: "System Design Arena Session #4",
-      date: "Yesterday"
-    },
-    {
-      id: "node-sql",
-      label: "SQL & Relational DBs",
-      type: "skill",
-      status: "Verified",
-      coverage: "High",
-      verified: true,
-      connections: ["node-oa1", "node-proj1"],
-      details: "Indexes, transactions, and complex joins verified through automated query execution tests.",
-      provenance: "Assessment Arena + PostgreSQL Project Repo",
-      date: "3 days ago"
-    },
-    {
-      id: "node-comm",
-      label: "Communication & Articulation",
-      type: "skill",
-      status: "Demonstrated",
-      coverage: "Medium",
-      verified: true,
-      connections: ["node-alex-int"],
-      details: "Structured technical explanation observed in live voice interview without excessive filler words.",
-      provenance: "AI Voice Mock Interview #2",
-      date: "1 day ago"
-    },
-    {
-      id: "node-behav",
-      label: "Behavioral & Ownership",
-      type: "skill",
-      status: "Developing",
-      coverage: "Low",
-      verified: false,
-      connections: ["node-proj1"],
-      details: "STAR formatted explanation recorded, but cross-checks show team size claim requires corroboration.",
-      provenance: "HR Behavioral Practice",
-      date: "4 days ago"
-    },
-    {
-      id: "node-proj1",
-      label: "Cognalyze Intelligence Platform",
-      type: "project",
-      status: "Demonstrated",
-      coverage: "High",
-      verified: true,
-      connections: ["node-gh1", "node-sd", "node-sql"],
-      details: "Full-stack Next.js application with TypeScript, PostgreSQL, and autonomous AI proctoring engines.",
-      provenance: "GitHub Repo: github.com/student/cognalyze",
-      date: "Sep 2026"
-    },
-    {
-      id: "node-gh1",
-      label: "GitHub: nistha-dev",
-      type: "github",
-      status: "Verified",
-      coverage: "High",
-      verified: true,
-      connections: ["node-proj1", "node-dsa"],
-      details: "128 public commits, 14 pull requests merged, active commit streak verified across 3 repos.",
-      provenance: "GitHub API Sync v3",
-      date: "Real-time sync"
-    },
-    {
-      id: "node-leetcode",
-      label: "LeetCode Profile Verified",
-      type: "assessment",
-      status: "Verified",
-      coverage: "High",
-      verified: true,
-      connections: ["node-dsa"],
-      details: "187 Solved (43 Medium, 8 Hard), 72% acceptance rate on pattern-tagged problems.",
-      provenance: "LeetCode Verified Profile Sync",
-      date: "3 days ago"
-    },
-    {
-      id: "node-alex-int",
-      label: "FAANG Mock with Alex",
-      type: "interview",
-      status: "Demonstrated",
-      coverage: "High",
-      verified: true,
-      connections: ["node-dsa", "node-sd", "node-comm"],
-      details: "12-turn adaptive technical interview. Successfully defended sliding window and API scaling constraints.",
-      provenance: "Session #8294 — Verified Audio & Code Transcript",
-      date: "Yesterday"
-    },
-    {
-      id: "node-oa1",
-      label: "TCS / FAANG Online Assessment",
-      type: "assessment",
-      status: "Verified",
-      coverage: "High",
-      verified: true,
-      connections: ["node-dsa", "node-sql"],
-      details: "Timed 75-minute assessment: 2/2 coding problems passed 100% test cases. SQL optimization query scored 94%.",
-      provenance: "Assessment Arena Automated Proctor",
-      date: "5 days ago"
-    }
-  ];
-
-  // Resume Claims Verification Table (CLAIM != EVIDENCE)
-  const resumeClaims = [
-    {
-      claim: "Built scalable REST API with Redis caching serving 10k users",
-      source: "Resume — Project Section",
-      status: "Demonstrated",
-      evidence: "Verified GitHub repository exists with Express + Redis code. Defended cache eviction policies during live mock.",
-      gap: "Load test or production telemetry not independently demonstrated. Inferred: Moderate concurrency handling.",
-      verdict: "Claim Substantially Supported"
-    },
-    {
-      claim: "Strong in Data Structures and Algorithms (LeetCode 180+)",
-      source: "Resume — Skills Section",
-      status: "Verified",
-      evidence: "LeetCode profile corroborated: 187 problems solved, 43 Medium. Timed assessment passed with O(N) runtime.",
-      gap: "None. Direct observation matched claimed metric.",
-      verdict: "Claim Fully Verified"
-    },
-    {
-      claim: "Led backend engineering team of 5 developers for college hackathon",
-      source: "Resume — Leadership Section",
-      status: "Developing",
-      evidence: "Hackathon project repository shows 68% of commits authored by candidate. Git blame confirms architecture ownership.",
-      gap: "Cross-checks in behavioral interview noted ambiguity in sprint delegation vs independent execution.",
-      verdict: "Needs Verification in Next Behavioral Turn"
-    },
-    {
-      claim: "Expert in Distributed Systems & Microservices",
-      source: "Resume — Skills Section",
-      status: "Gap",
-      evidence: "System Design session showed strong single-server API design, but struggled to explain Kafka consumer group rebalancing under partition.",
-      gap: "Discrepancy: Advanced claim not backed by failure-mode recovery demonstration.",
-      verdict: "Claim Contradicted by Observational Evidence"
-    }
-  ];
 
   const getStatusBadge = (status: EpistemicStatus) => {
     switch (status) {
@@ -344,6 +264,17 @@ export default function EvidenceHubPage() {
             </div>
 
             {/* VISUAL GRAPH CANVAS / CARD MATRIX */}
+            {filteredNodes.length === 0 ? (
+              <div style={{ padding: "48px 24px", textAlign: "center", background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px dashed rgba(255,255,255,0.12)" }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0", marginBottom: 6 }}>No evidence nodes recorded yet</div>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", maxWidth: 440, margin: "0 auto 16px" }}>
+                  Add your skills and projects in your profile to generate your connected evidence graph.
+                </p>
+                <Link href="/student/profile" style={{ display: "inline-block", padding: "8px 18px", borderRadius: 8, background: "#176B5B", color: "white", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+                  + Add Skills & Projects
+                </Link>
+              </div>
+            ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 14 }}>
               {filteredNodes.map(node => {
                 const badge = getStatusBadge(node.status);
@@ -407,6 +338,7 @@ export default function EvidenceHubPage() {
                 );
               })}
             </div>
+            )}
           </div>
         )}
 
@@ -426,7 +358,18 @@ export default function EvidenceHubPage() {
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {resumeClaims.map((item, idx) => {
+              {resumeClaims.length === 0 ? (
+                <div style={{ padding: "48px 24px", textAlign: "center", background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px dashed rgba(255,255,255,0.12)" }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#e2e8f0", marginBottom: 6 }}>No resume claims recorded yet</div>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", maxWidth: 440, margin: "0 auto 16px" }}>
+                    Build your Student DNA by adding your projects and skills to generate verifiable claim-to-evidence records.
+                  </p>
+                  <Link href="/student/profile" style={{ display: "inline-block", padding: "8px 18px", borderRadius: 8, background: "#176B5B", color: "white", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+                    + Complete Student Profile
+                  </Link>
+                </div>
+              ) : (
+                resumeClaims.map((item, idx) => {
                 const badge = getStatusBadge(item.status as any);
                 return (
                   <div
@@ -493,7 +436,8 @@ export default function EvidenceHubPage() {
                     </div>
                   </div>
                 );
-              })}
+              })
+            )}
             </div>
           </div>
         )}

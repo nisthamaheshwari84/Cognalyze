@@ -51,6 +51,10 @@ export default function StudentSignupPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create student account.");
 
+      if (data.user?.id && typeof window !== "undefined") {
+        localStorage.setItem("cognalyze_student_id", data.user.id);
+      }
+
       router.push(data.nextUrl || "/verify-email?role=student");
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
@@ -218,7 +222,7 @@ export default function StudentSignupPage() {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Nistha Maheshwari"
+                  placeholder="e.g. Rahul Sharma"
                   required
                   className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
                 />
@@ -233,7 +237,7 @@ export default function StudentSignupPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nistha@gmail.com"
+                  placeholder="e.g. rahul@example.com"
                   required
                   className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
                 />

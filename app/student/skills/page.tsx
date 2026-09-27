@@ -7,6 +7,7 @@ import {
   generateSessionBrief,
   getDomainStatus,
   getStudentProfile,
+  registerStudentAdaptiveProfile,
   getDailyAdaptivePlan,
   getDomainReadiness,
   SessionBrief
@@ -32,13 +33,51 @@ export default function SkillPracticeHubPage() {
 
   // Contextual Session Brief Modal state
   const [activeBrief, setActiveBrief] = useState<SessionBrief | null>(null);
-  const [briefTargetHref, setBriefTargetHref] = useState<string>("/student/skills/cs-interview");
+  const [briefTargetHref, setBriefTargetHref] = useState<string>("");
   const [isBriefOpen, setIsBriefOpen] = useState(false);
+  const [userProfileName, setUserProfileName] = useState<string>("");
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    fetchTracksAndDomains(stored);
+    async function initUser() {
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        const sess = await sessRes.json();
+        if (sess.authenticated && sess.user?.id) {
+          setCandidateId(sess.user.id);
+          const name = sess.studentProfile?.fullName || sess.user.fullName || "My Profile";
+          setUserProfileName(name);
+
+          if (typeof window !== "undefined") {
+            localStorage.setItem("cognalyze_student_id", sess.user.id);
+          }
+
+          if (sess.studentProfile) {
+            const strong = (sess.studentProfile.skills || [])
+              .filter((s: any) => s.level === "Advanced" || s.level === "Expert")
+              .map((s: any) => s.name || s);
+            const weak = (sess.studentProfile.skills || [])
+              .filter((s: any) => s.level === "Beginner")
+              .map((s: any) => s.name || s);
+            const claims = (sess.studentProfile.projects || []).map((p: any) => `Built ${p.title || p.name || "Project"}`);
+
+            registerStudentAdaptiveProfile({
+              id: sess.user.id,
+              name,
+              strongAreas: strong.length > 0 ? strong : ["Core Problem Solving"],
+              weakAreas: weak.length > 0 ? weak : ["System Depth"],
+              verifiedClaims: claims,
+            });
+          }
+
+          fetchTracksAndDomains(sess.user.id);
+          return;
+        }
+      } catch (e) {
+        // Fallback
+      }
+      fetchTracksAndDomains("student-demo");
+    }
+    initUser();
   }, []);
 
   const fetchTracksAndDomains = async (cId: string) => {
@@ -247,9 +286,14 @@ export default function SkillPracticeHubPage() {
                   outline: "none"
                 }}
               >
-                <option value="student-demo" style={{ background: "#0f172a", color: "white" }}>Nistha (Demo)</option>
-                <option value="student_a" style={{ background: "#0f172a", color: "white" }}>Student A (Strong SQL, Weak DSA)</option>
-                <option value="student_b" style={{ background: "#0f172a", color: "white" }}>Student B (Strong DSA, Weak SQL)</option>
+                {userProfileName && (
+                  <option value={candidateId} style={{ background: "#0f172a", color: "white" }}>
+                    {userProfileName} (My DNA)
+                  </option>
+                )}
+                <option value="student-demo" style={{ background: "#0f172a", color: "white" }}>Standard Benchmark</option>
+                <option value="student_a" style={{ background: "#0f172a", color: "white" }}>Benchmark A (SQL Focus)</option>
+                <option value="student_b" style={{ background: "#0f172a", color: "white" }}>Benchmark B (DSA Focus)</option>
               </select>
             </div>
           </div>

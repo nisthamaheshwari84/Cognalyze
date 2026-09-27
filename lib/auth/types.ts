@@ -44,26 +44,112 @@ export type EvidenceProvenanceStatus =
 export interface User {
   id: string; // Permanent Immutable UUID
   email: string; // Normalized lowercase
+  fullName?: string;
   passwordHash: string | null;
   passwordSalt: string | null;
   accountType: AccountType;
   status: UserStatus;
+  profileCompleted?: boolean;
   emailVerifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
+export interface StudentSkill {
+  name: string;
+  level: "Beginner" | "Intermediate" | "Advanced" | "Expert";
+  yearsOfExperience?: number;
+  evidenceSource?: string;
+  evidence?: string;
+}
+
+export interface StudentProject {
+  id?: string;
+  title: string;
+  description: string;
+  problemSolved?: string;
+  techStack: string[];
+  role?: string;
+  contributions?: string;
+  githubUrl?: string;
+  liveUrl?: string;
+  duration?: string;
+}
+
+export interface StudentExperience {
+  id?: string;
+  organization: string;
+  role: string;
+  duration: string;
+  type?: "Internship" | "Freelance" | "Part-time" | "Research" | "Open Source" | "Volunteer" | "Other";
+  responsibilities?: string;
+  achievements?: string;
+  technologies: string[];
+  evidence?: string;
+}
+
+export interface StudentAchievement {
+  id?: string;
+  title: string;
+  type: string;
+  description?: string;
+  date?: string;
+  proofUrl?: string;
+}
+
+export interface StudentCertification {
+  id?: string;
+  title: string;
+  issuer: string;
+  date?: string;
+  credentialUrl?: string;
+}
+
+export interface StudentCareerGoals {
+  targetRoles: string[];
+  preferredDomains: string[];
+  targetCompanies: string[];
+  preferredLocations: string[];
+  careerGoals?: string;
+}
+
 export interface StudentProfile {
   id: string; // Permanent Immutable UUID (student_profile_id)
   userId: string; // Foreign key to User.id
-  username: string; // Normalized lowercase public handle (e.g. "nistha")
+  username: string; // Normalized lowercase public handle
   fullName: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
+  
+  // Education
   college: string;
   degree: string;
+  branch: string;
+  year?: string;
   graduationYear: string;
-  primaryInterests: string[];
+  cgpa?: string;
+  coursework?: string[];
+
+  // 9-Section Comprehensive Student Data
+  skills: StudentSkill[];
+  projects: StudentProject[];
+  experience: StudentExperience[];
+  achievements: StudentAchievement[];
+  certifications: StudentCertification[];
+  careerGoals: StudentCareerGoals;
+  resumeUrl?: string;
+  resumeFileName?: string;
+  resumeUploadedAt?: string;
+
+  profileCompleted: boolean;
+  profileCompletionPercentage?: number;
   profileStatus: ProfileStatus;
   privacySetting: PrivacySetting;
+  primaryInterests?: string[];
   lastUsernameChangeAt: string | null;
   createdAt: string;
   updatedAt: string;

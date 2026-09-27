@@ -5828,8 +5828,12 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
     // Fall back to memory
   }
 
-  // 3. Fallback to default demo profile so opportunities/suggestions never fail
-  return inMemoryProfiles.get("student-demo") || DEMO_STUDENT_PROFILE;
+  // 3. Never return demo profile for non-demo candidates
+  if (candidateId === "student-demo") {
+    return inMemoryProfiles.get("student-demo") || DEMO_STUDENT_PROFILE;
+  }
+
+  return inMemoryProfiles.get(candidateId) || null;
 }
 
 export async function upsertStudentProfile(profile: StudentProfileData): Promise<StudentProfileData> {

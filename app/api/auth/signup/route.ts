@@ -10,7 +10,8 @@ import {
   getUserByEmail,
   createEmailVerification,
   createRecruiterProfile,
-  createSession
+  createSession,
+  upsertStudentProfileByUserId
 } from "@/lib/auth/store";
 
 export async function POST(req: NextRequest) {
@@ -68,10 +69,12 @@ export async function POST(req: NextRequest) {
     const { hash, salt } = hashPassword(password);
     const user = createUser({
       email,
+      fullName: fullName.trim(),
       passwordHash: hash,
       passwordSalt: salt,
       accountType,
-      status: "EMAIL_PENDING"
+      status: "EMAIL_PENDING",
+      profileCompleted: false
     });
 
     // 5. Generate 6-digit Verification Code
@@ -79,13 +82,21 @@ export async function POST(req: NextRequest) {
     const codeHash = hashCode(verificationCode);
     createEmailVerification(user.id, user.email, codeHash);
 
-    // 6. Create Recruiter Profile if recruiter
+    // 6. Create Profile based on account type
     if (accountType === "recruiter") {
       createRecruiterProfile({
         userId: user.id,
         fullName: fullName.trim(),
         designation: (designation || "Hiring Manager").trim(),
         workEmail: user.email
+      });
+    } else if (accountType === "student") {
+      // Create empty isolated student profile strictly bound to this user's ID
+      upsertStudentProfileByUserId(user.id, {
+        fullName: fullName.trim(),
+        email: user.email,
+        profileCompleted: false,
+        profileCompletionPercentage: 0
       });
     }
 
@@ -95,6 +106,14 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({
       success: true,
       userId: user.id,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        accountType: user.accountType,
+        status: user.status,
+        profileCompleted: false
+      },
       accountType: user.accountType,
       email: user.email,
       status: user.status,
