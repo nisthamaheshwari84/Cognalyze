@@ -18,10 +18,16 @@ export async function POST(req: Request) {
 
   const { messages, jd, resume, qNumber = 0, githubData, linkedinAnalysis } = body;
 
-  // No JD/resume yet — first load
-  if (!jd || !resume) {
+  const defaultJd = "Full-Stack Software Engineer (General SWE at FAANG level). Core skills: Algorithms, Data Structures, System Design, React/Next.js, Node.js/Python, and scalable cloud architecture.";
+  const defaultResume = "Candidate Software Engineer applying for SWE roles. Experience in computer science, full-stack development, distributed systems, and collaborative engineering.";
+
+  const effectiveJd = (jd && String(jd).trim().length > 0) ? jd : defaultJd;
+  const effectiveResume = (resume && String(resume).trim().length > 0) ? resume : defaultResume;
+
+  // First greeting only when conversation has zero messages and qNumber is 0
+  if ((!messages || messages.length === 0) && qNumber === 0) {
     return NextResponse.json({
-      message: "Hello! I'm Alex. Could you tell me a bit about yourself and what brings you to this interview today?",
+      message: "Hello! I'm Alex, Staff Engineer. Welcome to today's interview! To kick things off, could you tell me a bit about yourself and what you've been working on recently?",
     });
   }
 
@@ -73,10 +79,10 @@ Interview angles from LinkedIn: ${l.interviewAngles?.join(" | ")}
     const systemPrompt = `You are Alex, a Staff Engineer at Google with 12 years of FAANG experience. You are conducting a real technical interview. You are direct, sharp, and thorough — exactly like a real FAANG interviewer.
 
 JOB DESCRIPTION:
-${jd}
+${effectiveJd}
 
 CANDIDATE RESUME:
-${resume}
+${effectiveResume}
 ${profileContext}
 
 INTERVIEW RULES:
