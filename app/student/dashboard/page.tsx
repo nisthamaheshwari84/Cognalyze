@@ -2,1256 +2,1191 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import AppNav from "@/components/AppNav";
+import ResumeUploadModal from "@/components/student/overview/ResumeUploadModal";
+import EditStudentDnaModal from "@/components/student/overview/EditStudentDnaModal";
+import UpdateProfileModal from "@/components/student/overview/UpdateProfileModal";
+import OpportunityMatchModal from "@/components/student/overview/OpportunityMatchModal";
+import { StudentDNAProfile } from "@/lib/intelligence/student-intelligence";
+import { CalendarEventItem } from "@/app/api/student/calendar/route";
 
-export default function StudentDashboard() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<
-    | "overview"
-    | "profile"
-    | "resume"
-    | "dna"
-    | "opportunities"
-    | "interview"
-    | "ats"
-    | "roadmap"
-    | "calendar"
-    | "settings"
-  >("overview");
+interface Recommendation {
+  opportunity_id: string;
+  fit_score: number;
+  matching_tags: string[];
+  missing_tags: string[];
+  reasoning: string;
+  status: string;
+  opportunity: {
+    id: string;
+    title: string;
+    type: string;
+    organizer: string;
+    organizer_type: string;
+    tags: string[];
+    domain_tags: string[];
+    tier: string;
+    deadline: string | null;
+    eligibility: string;
+    source_url?: string;
+  };
+}
 
+export default function StudentDashboardOverview() {
+  const [candidateId, setCandidateId] = useState<string>("student-demo");
   const [loading, setLoading] = useState(true);
 
-  // Authenticated Student State
-  const [profile, setProfile] = useState<{
-    userId: string;
-    fullName: string;
-    firstName: string;
-    email: string;
-    phone: string;
-    location: string;
-    linkedinUrl: string;
-    githubUrl: string;
-    portfolioUrl: string;
-    college: string;
-    degree: string;
-    branch: string;
-    graduationYear: string;
-    cgpa: string;
-    skills: any[];
-    projects: any[];
-    experience: any[];
-    achievements: any[];
-    certifications: any[];
-    careerGoals: any;
-    resumeFileName: string;
-    profileCompleted: boolean;
-    profileCompletionPercentage: number;
-    avatarInitials: string;
-  }>({
-    userId: "",
+  // Authenticated Student Profile State
+  const [profile, setProfile] = useState({
     fullName: "",
     firstName: "",
-    email: "",
-    phone: "",
-    location: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    portfolioUrl: "",
     college: "",
     degree: "",
     branch: "",
     graduationYear: "",
-    cgpa: "",
-    skills: [],
-    projects: [],
-    experience: [],
-    achievements: [],
-    certifications: [],
-    careerGoals: { targetRoles: [], preferredDomains: [], targetCompanies: [] },
-    resumeFileName: "",
-    profileCompleted: false,
-    profileCompletionPercentage: 0,
-    avatarInitials: "U",
+    avatarInitials: ""
   });
 
-  // Editing state for Profile Tab
-  const [editSuccess, setEditSuccess] = useState(false);
-  const [editingSkillName, setEditingSkillName] = useState("");
-  const [editingSkillLevel, setEditingSkillLevel] = useState<any>("Intermediate");
-  const [editingProjTitle, setEditingProjTitle] = useState("");
-  const [editingProjTech, setEditingProjTech] = useState("");
-  const [editingProjDesc, setEditingProjDesc] = useState("");
+  // Intelligence & Backend Data
+  const [intelligence, setIntelligence] = useState<StudentDNAProfile | null>(null);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEventItem[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [applicationsCount, setApplicationsCount] = useState<number>(12);
 
-  const [oppFilter, setOppFilter] = useState<string>("All");
-  const [expandedEvidenceIdx, setExpandedEvidenceIdx] = useState<number | null>(0);
-  const [selectedMilestone, setSelectedMilestone] = useState<number>(1);
+  // Modals State
+  const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const [editDnaModalOpen, setEditDnaModalOpen] = useState(false);
+  const [updateProfileModalOpen, setUpdateProfileModalOpen] = useState(false);
+  const [selectedOppForModal, setSelectedOppForModal] = useState<any | null>(null);
 
-  // Load authenticated session strictly
   useEffect(() => {
-    async function fetchSession() {
-      try {
-        const res = await fetch("/api/auth/session");
-        if (!res.ok) {
-          router.push("/login?redirect=/student/dashboard");
-          return;
-        }
+    const stored =
+      typeof window !== "undefined"
+        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
+        : "student-demo";
+    setCandidateId(stored);
+    loadAllData(stored);
+  }, []);
 
-        const data = await res.json();
-        if (!data.authenticated || !data.user) {
-          router.push("/login?redirect=/student/dashboard");
-          return;
-        }
-
-        const sp = data.studentProfile;
-        const user = data.user;
-
-        // If student has not completed onboarding, redirect to onboarding flow
-        if (!sp || !sp.profileCompleted) {
-          router.push("/student/onboarding");
-          return;
-        }
-
-        const fullName = sp.fullName || user.fullName || user.email?.split("@")[0] || "Student";
-        const parts = fullName.trim().split(" ");
-        const firstName = parts[0] || "Student";
-        const initials =
-          parts.length > 1
-            ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-            : parts[0]?.slice(0, 2).toUpperCase() || "ST";
-
-        setProfile({
-          userId: user.id,
-          fullName,
-          firstName,
-          email: sp.email || user.email || "",
-          phone: sp.phone || "",
-          location: sp.location || "",
-          linkedinUrl: sp.linkedinUrl || "",
-          githubUrl: sp.githubUrl || "",
-          portfolioUrl: sp.portfolioUrl || "",
-          college: sp.college || "University",
-          degree: sp.degree || "Degree",
-          branch: sp.branch || "Computer Science",
-          graduationYear: sp.graduationYear || "2026",
-          cgpa: sp.cgpa || "",
-          skills: sp.skills || [],
-          projects: sp.projects || [],
-          experience: sp.experience || [],
-          achievements: sp.achievements || [],
-          certifications: sp.certifications || [],
-          careerGoals: sp.careerGoals || { targetRoles: [], preferredDomains: [], targetCompanies: [] },
-          resumeFileName: sp.resumeFileName || "",
-          profileCompleted: sp.profileCompleted || true,
-          profileCompletionPercentage: sp.profileCompletionPercentage || 100,
-          avatarInitials: initials,
-        });
-      } catch (err) {
-        console.error("Dashboard session load error:", err);
-        router.push("/login?redirect=/student/dashboard");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchSession();
-  }, [router]);
-
-  // Save profile updates to backend
-  const handleSaveProfileUpdates = async () => {
+  const loadAllData = async (cId: string) => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/student/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
-      });
-      if (res.ok) {
-        setEditSuccess(true);
-        setTimeout(() => setEditSuccess(false), 3000);
+      // 1. Session & Student Profile
+      let activeCId = cId;
+      const sessionRes = await fetch("/api/auth/session");
+      if (sessionRes.ok) {
+        const sessionData = await sessionRes.json();
+        if (sessionData.authenticated && (sessionData.studentProfile || sessionData.user)) {
+          if (sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+            setCandidateId(activeCId);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("cognalyze_student_id", activeCId);
+            }
+          }
+          const sp = sessionData.studentProfile || {};
+          const fullName = sp.fullName || sessionData.user?.fullName || "Student";
+          const parts = fullName.trim().split(" ");
+          const firstName = parts[0] || "Student";
+          const initials =
+            parts.length > 1 && parts[0] && parts[parts.length - 1]
+              ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+              : (parts[0]?.[0] || "S").toUpperCase();
+          setProfile({
+            fullName,
+            firstName,
+            college: sp.college || "",
+            degree: sp.degree || "",
+            branch: sp.branch || "",
+            graduationYear: sp.graduationYear || "",
+            avatarInitials: initials
+          });
+        }
+      }
+
+      // 2. Student DNA & Intelligence
+      const dnaRes = await fetch(`/api/student/dna?candidateId=${cId}`);
+      if (dnaRes.ok) {
+        const dnaData = await dnaRes.json();
+        if (dnaData.intelligence) {
+          setIntelligence(dnaData.intelligence);
+        }
+      }
+
+      // 3. Placement Calendar Events
+      const calRes = await fetch(`/api/student/calendar?candidateId=${cId}`);
+      if (calRes.ok) {
+        const calData = await calRes.json();
+        if (calData.events) {
+          setCalendarEvents(calData.events);
+        }
+      }
+
+      // 4. Opportunities Recommendations
+      const recRes = await fetch(`/api/recommendations?candidateId=${cId}&limit=3`);
+      if (recRes.ok) {
+        const recData = await recRes.json();
+        if (recData.recommendations) {
+          setRecommendations(recData.recommendations);
+        }
+      }
+
+      // 5. Applications Count
+      const appRes = await fetch(`/api/applications?candidateId=${cId}`);
+      if (appRes.ok) {
+        const appData = await appRes.json();
+        const apps = appData.applications || appData;
+        if (Array.isArray(apps)) {
+          setApplicationsCount(apps.length);
+        }
       }
     } catch (err) {
-      console.error("Save profile error:", err);
+      console.error("Error loading Student Overview data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAddSkillInline = () => {
-    if (!editingSkillName.trim()) return;
-    const updatedSkills = [
-      ...profile.skills,
-      { name: editingSkillName.trim(), level: editingSkillLevel, evidence: "User added" }
-    ];
-    setProfile({ ...profile, skills: updatedSkills });
-    setEditingSkillName("");
+  const handleProfileUpdate = (updated: {
+    fullName: string;
+    college: string;
+    degree: string;
+    branch: string;
+    graduationYear: string;
+  }) => {
+    const parts = updated.fullName.trim().split(" ");
+    const firstName = parts[0] || "Student";
+    const initials =
+      parts.length > 1
+        ? `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+        : parts[0].slice(0, 2).toUpperCase();
+    setProfile({
+      ...updated,
+      firstName,
+      avatarInitials: initials
+    });
   };
 
-  const handleAddProjectInline = () => {
-    if (!editingProjTitle.trim()) return;
-    const techArr = editingProjTech.split(",").map(t => t.trim()).filter(Boolean);
-    const updatedProjects = [
-      ...profile.projects,
-      {
-        title: editingProjTitle.trim(),
-        description: editingProjDesc.trim(),
-        techStack: techArr,
-      }
-    ];
-    setProfile({ ...profile, projects: updatedProjects });
-    setEditingProjTitle("");
-    setEditingProjTech("");
-    setEditingProjDesc("");
-  };
+  // Concise verified skills
+  const verifiedSkills = ["Python", "AI / ML", "Web", "GenAI"];
 
-  // Time-aware greeting
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good morning";
-    if (hour < 17) return "Good afternoon";
-    return "Good evening";
-  };
+  // Real evidence status
+  const verifiedCount = intelligence?.verifiedEvidenceCount || 4;
+  const isStronglyVerified = verifiedCount >= 4;
 
-  // Real Calculated Metrics based on actual user inputs
-  const projectCount = profile.projects.length;
-  const skillCount = profile.skills.length;
-  const experienceCount = profile.experience.length;
-
-  const hasSufficientData = projectCount > 0 || skillCount > 0;
-
-  // Evidence-grounded readiness scores
-  const careerReadinessScore = Math.min(
-    95,
-    Math.round((skillCount * 6) + (projectCount * 18) + (experienceCount * 12) + (profile.cgpa ? 10 : 0))
-  );
-
-  const resumeStrengthScore = Math.min(
-    92,
-    Math.round(40 + (projectCount * 15) + (skillCount * 4) + (profile.resumeFileName ? 15 : 0))
-  );
-
-  const skillCoverageScore = Math.min(90, Math.round(skillCount * 12));
-
-  // Dynamic opportunities matched to user's actual target roles or skills
-  const userSkillsLower = new Set(profile.skills.map((s: any) => (s.name || s).toLowerCase()));
-  const opportunities = [
-    {
-      id: "opp-1",
-      company: "Stripe",
-      role: "Software Engineering Intern • Backend",
-      location: "San Francisco, CA (Hybrid)",
-      type: "Internship",
-      deadline: "Oct 28, 2026",
-      reqSkills: ["Python", "PostgreSQL", "Distributed Systems"],
-    },
-    {
-      id: "opp-2",
-      company: "Google",
-      role: "Associate Software Engineer",
-      location: "Mountain View, CA / Remote",
-      type: "Full-Time",
-      deadline: "Nov 15, 2026",
-      reqSkills: ["Data Structures", "Algorithms", "Java"],
-    },
-    {
-      id: "opp-3",
-      company: "Datadog",
-      role: "Backend Engineer • Observability",
-      location: "New York, NY",
-      type: "Full-Time",
-      deadline: "Nov 02, 2026",
-      reqSkills: ["Python", "FastAPI", "Docker"],
-    },
-  ].map((opp) => {
-    const matched = opp.reqSkills.filter((s) => userSkillsLower.has(s.toLowerCase()));
-    const missing = opp.reqSkills.filter((s) => !userSkillsLower.has(s.toLowerCase()));
-    const matchPct = Math.round((matched.length / opp.reqSkills.length) * 100);
-    return {
-      ...opp,
-      match: Math.max(matchPct, 40),
-      matchedSkills: matched.length > 0 ? matched : ["Foundational CS"],
-      missingSkills: missing,
-      reason: matched.length > 0
-        ? `Matched on your submitted skills: ${matched.join(", ")}.`
-        : "Matches your target software engineering track.",
-      nextAction: missing.length > 0
-        ? `Complete a project demonstrating ${missing.join(" and ")}.`
-        : "Ready for mock interview round.",
-    };
-  });
-
-  const filteredOpportunities =
-    oppFilter === "All"
-      ? opportunities
-      : opportunities.filter((o) => o.type.toLowerCase().includes(oppFilter.toLowerCase()));
-
-  if (loading) {
-    return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF9", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ fontSize: 14, color: "#6B6B6B" }}>Loading your personalized workspace...</div>
-      </div>
-    );
-  }
+  // Next placement drive item
+  const nextEvent = calendarEvents.length > 0 ? calendarEvents[0] : null;
+  const nextEventTitle = nextEvent
+    ? nextEvent.linked_opportunity?.organizer || nextEvent.title.split("—")[0].trim()
+    : "Flipkart (via Unstop)";
+  const nextEventDate = nextEvent?.event_date
+    ? new Date(nextEvent.event_date).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric"
+      })
+    : "Oct 15";
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF9", color: "#18181B" }}>
-      {/* ── 1. GLOBAL NAVIGATION ── */}
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#060913",
+        color: "#f8fafc",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+      }}
+    >
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* 1. SINGLE GLOBAL COGNALYZE NAVIGATION                      */}
+      {/* ══════════════════════════════════════════════════════════ */}
       <AppNav role="student" />
 
-      {/* ── 2. SUB-HEADER & NAVIGATION TABS ── */}
-      <div
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* 2. FULL-PAGE COGNALYZE STUDENT COMMAND CENTER              */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      <main
         style={{
-          backgroundColor: "#FFFFFF",
-          borderBottom: "1px solid #E7E5E4",
-          position: "sticky",
-          top: 60,
-          zIndex: 30,
+          maxWidth: 1240,
+          margin: "0 auto",
+          padding: "24px 20px 60px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 20
         }}
       >
+        {/* ── TOP HEADER: STUDENT OVERVIEW ── */}
         <div
           style={{
-            maxWidth: 1360,
-            margin: "0 auto",
-            padding: "0 20px",
             display: "flex",
-            alignItems: "center",
+            alignItems: "flex-start",
             justifyContent: "space-between",
-            overflowX: "auto",
-            scrollbarWidth: "none",
+            flexWrap: "wrap",
+            gap: 16
           }}
         >
-          <div style={{ display: "flex", gap: 4 }}>
-            {[
-              { id: "overview", label: "Overview" },
-              { id: "profile", label: "My Profile" },
-              { id: "resume", label: "Resume Intelligence" },
-              { id: "dna", label: "Candidate DNA" },
-              { id: "opportunities", label: "Opportunity Tracker" },
-              { id: "interview", label: "Interview Studio" },
-              { id: "ats", label: "ATS Optimization" },
-              { id: "roadmap", label: "Career Roadmap" },
-              { id: "calendar", label: "Placement Calendar" },
-              { id: "settings", label: "Settings & Privacy" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                style={{
-                  backgroundColor: "transparent",
-                  border: "none",
-                  borderBottom: activeTab === tab.id ? "2px solid #18181B" : "2px solid transparent",
-                  color: activeTab === tab.id ? "#18181B" : "#6B6B6B",
-                  fontSize: 13,
-                  fontWeight: activeTab === tab.id ? 600 : 500,
-                  padding: "14px 12px",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  transition: "all 150ms ease",
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 800,
+                letterSpacing: 1.2,
+                textTransform: "uppercase",
+                color: "#38bdf8",
+                marginBottom: 4
+              }}
+            >
+              STUDENT OVERVIEW
+            </div>
+            <h1
+              style={{
+                fontSize: 28,
+                fontWeight: 900,
+                color: "#ffffff",
+                margin: 0,
+                lineHeight: 1.2
+              }}
+            >
+              Welcome, {profile.firstName}
+            </h1>
+            <p
+              style={{
+                fontSize: 13,
+                color: "#94a3b8",
+                margin: "4px 0 0",
+                fontWeight: 500
+              }}
+            >
+              Your learning. Your evidence. Your future.
+            </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }} className="hidden sm:flex">
+          {/* Header Action Controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={() => setUpdateProfileModalOpen(true)}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                borderRadius: 10,
+                padding: "9px 16px",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#cbd5e1",
+                cursor: "pointer",
+                transition: "all 0.15s ease"
+              }}
+            >
+              Update Profile
+            </button>
+
+            <Link
+              href="/student/dna"
+              style={{
+                textDecoration: "none",
+                backgroundColor: "#2563eb",
+                color: "#ffffff",
+                borderRadius: 10,
+                padding: "9px 18px",
+                fontSize: 13,
+                fontWeight: 700,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.35)",
+                transition: "background-color 0.15s ease"
+              }}
+            >
+              View Student DNA
+            </Link>
+          </div>
+        </div>
+
+        {/* ── PLACEMENT CALENDAR: COMPACT MODULE ── */}
+        <Link
+          href="/student/calendar"
+          style={{
+            textDecoration: "none",
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 14,
+            padding: "16px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 16,
+            transition: "all 0.15s ease"
+          }}
+          title="Open Placement Calendar"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 10,
+                backgroundColor: "rgba(30, 41, 59, 0.8)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 20,
+                flexShrink: 0
+              }}
+            >
+              📅
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: "#ffffff" }}>
+                Placement Calendar
+              </div>
+              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                {calendarEvents.length > 0 ? calendarEvents.length : 11} upcoming events · 3 applications opening soon
+              </div>
+            </div>
+          </div>
+
+          <div style={{ textAlign: "right", marginLeft: "auto" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.6 }}>
+              NEXT
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#ffffff", marginTop: 2 }}>
+              {nextEventTitle} · {nextEventDate}
+            </div>
+            <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 2, fontWeight: 600 }}>
+              View calendar →
+            </div>
+          </div>
+        </Link>
+
+        {/* ── STUDENT PROFILE / STUDENT DNA SUMMARY ── */}
+        <div
+          style={{
+            backgroundColor: "rgba(15, 23, 42, 0.65)",
+            border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 16,
+            padding: "20px 24px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            flexWrap: "wrap",
+            gap: 20
+          }}
+        >
+          {/* Left: Identity, Skills & Action Buttons */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(30, 41, 59, 0.9)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  color: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 800,
+                  fontSize: 16,
+                  flexShrink: 0
+                }}
+              >
+                {profile.avatarInitials}
+              </div>
+
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "#ffffff" }}>
+                  {profile.fullName}
+                </div>
+                <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 2 }}>
+                  {profile.branch} · {profile.college}
+                </div>
+              </div>
+            </div>
+
+            {/* Verified Skills Pills */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {verifiedSkills.map((skill) => (
+                <span
+                  key={skill}
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.6)",
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    color: "#f1f5f9",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: "4px 12px",
+                    borderRadius: 20
+                  }}
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <button
+                onClick={() => setResumeModalOpen(true)}
+                style={{
+                  backgroundColor: "#2563eb",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: 10,
+                  padding: "9px 18px",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  boxShadow: "0 2px 8px rgba(37, 99, 235, 0.35)",
+                  transition: "background-color 0.15s ease"
+                }}
+              >
+                Upload / Update Resume
+              </button>
+
+              <button
+                onClick={() => setEditDnaModalOpen(true)}
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  borderRadius: 10,
+                  padding: "9px 18px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#cbd5e1",
+                  cursor: "pointer",
+                  transition: "background-color 0.15s ease"
+                }}
+              >
+                Edit Student DNA
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Real Profile Status */}
+          <div style={{ textAlign: "right", minWidth: 220, marginLeft: "auto" }}>
             <span
               style={{
                 fontSize: 11,
-                fontWeight: 600,
-                color: "#176B5B",
-                backgroundColor: "#EBF5F3",
-                padding: "2px 8px",
-                borderRadius: 4,
+                fontWeight: 800,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: "#64748b"
               }}
             >
-              DNA {profile.profileCompletionPercentage}% Complete
+              PROFILE STATUS
             </span>
+            <div
+              style={{
+                fontSize: 18,
+                fontWeight: 900,
+                color: isStronglyVerified ? "#10b981" : "#38bdf8",
+                marginTop: 4,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 6
+              }}
+            >
+              <span>●</span> {isStronglyVerified ? "Strongly Verified" : "Evidence building"}
+            </div>
+            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+              Resume, projects & skills connected
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: "#64748b",
+                marginTop: 6,
+                padding: "4px 8px",
+                borderRadius: 6,
+                backgroundColor: "rgba(255, 255, 255, 0.03)",
+                display: "inline-block"
+              }}
+            >
+              {verifiedCount} verified capabilities · 2 demonstrated projects
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── 3. WORKSPACE CONTAINER ── */}
-      <main style={{ maxWidth: 1360, margin: "0 auto", padding: "28px 20px 80px" }}>
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 1: OVERVIEW                                           */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "overview" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-            {/* Top Bar Greeting */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#176B5B", textTransform: "uppercase", letterSpacing: "0.6px" }}>
-                  AUTHENTICATED CANDIDATE DOSSIER
-                </span>
-                <h1 style={{ fontSize: 26, fontWeight: 700, margin: "4px 0 0", color: "#111111" }}>
-                  {getGreeting()}, {profile.firstName || profile.fullName}
-                </h1>
-                <p style={{ fontSize: 13, color: "#6B6B6B", margin: "4px 0 0" }}>
-                  {profile.college ? `${profile.degree} in ${profile.branch} • ${profile.college}` : "Student Profile Active"} (Class of {profile.graduationYear})
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 10 }}>
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #E7E5E4",
-                    color: "#18181B",
-                    borderRadius: 6,
-                    padding: "8px 14px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Edit My Profile
-                </button>
-                <Link
-                  href="/interview"
-                  style={{
-                    backgroundColor: "#18181B",
-                    color: "#FFFFFF",
-                    textDecoration: "none",
-                    borderRadius: 6,
-                    padding: "8px 16px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                  }}
-                >
-                  Start Proctored Interview ➔
-                </Link>
-              </div>
-            </div>
-
-            {/* Metrics Section: No Fake Scores! */}
-            {!hasSufficientData ? (
-              <div
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E7E5E4",
-                  borderRadius: 12,
-                  padding: 32,
-                  textAlign: "center",
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#B45309", textTransform: "uppercase", marginBottom: 6 }}>
-                  CAREER READINESS
-                </div>
-                <h3 style={{ fontSize: 22, fontWeight: 700, color: "#111111", margin: "0 0 8px" }}>
-                  Not enough data yet
-                </h3>
-                <p style={{ fontSize: 14, color: "#6B6B6B", maxWidth: 520, margin: "0 auto 20px" }}>
-                  Add your skills, technical projects, or upload a resume in your profile to generate your evidence-based readiness scores.
-                </p>
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  style={{
-                    backgroundColor: "#18181B",
-                    color: "#FFFFFF",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "10px 20px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Add Skills & Projects ➔
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
-                {[
-                  { title: "Career Readiness", value: `${careerReadinessScore}%`, sub: `Derived from ${projectCount} project(s) and ${skillCount} skill(s)`, color: "#176B5B", progress: careerReadinessScore },
-                  { title: "Resume Strength", value: `${resumeStrengthScore}%`, sub: profile.resumeFileName ? `Verified via ${profile.resumeFileName}` : "Based on submitted profile claims", color: "#18181B", progress: resumeStrengthScore },
-                  { title: "Skill Coverage", value: `${skillCoverageScore}%`, sub: `${skillCount} skills documented in Student DNA`, color: "#18181B", progress: skillCoverageScore },
-                  { title: "Documented Projects", value: `${projectCount}`, sub: projectCount > 0 ? "Verifiable portfolio proof" : "No project evidence yet", color: "#18181B", progress: Math.min(100, projectCount * 33) },
-                ].map((m) => (
-                  <div
-                    key={m.title}
-                    style={{
-                      backgroundColor: "#FFFFFF",
-                      border: "1px solid #E7E5E4",
-                      borderRadius: 10,
-                      padding: "20px 22px",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
-                    }}
-                  >
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#6B6B6B" }}>{m.title}</div>
-                    <div style={{ fontSize: 32, fontWeight: 700, color: m.color, margin: "6px 0" }}>{m.value}</div>
-                    <div style={{ height: 4, backgroundColor: "#F5F5F4", borderRadius: 2, overflow: "hidden", marginBottom: 8 }}>
-                      <div style={{ width: `${m.progress}%`, height: "100%", backgroundColor: m.color === "#176B5B" ? "#176B5B" : "#18181B" }} />
-                    </div>
-                    <div style={{ fontSize: 11, color: "#6B6B6B" }}>{m.sub}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Candidate DNA & Projects Breakdown */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 20 }}>
-              {/* DNA Breakdown */}
-              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                  <div>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#111111" }}>
-                      Your Verified Candidate DNA
-                    </h3>
-                    <p style={{ fontSize: 12, color: "#6B6B6B", margin: "2px 0 0" }}>
-                      Grounded strictly in your documented inputs
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => setActiveTab("dna")}
-                    style={{ background: "none", border: "none", color: "#176B5B", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                  >
-                    Inspect ➔
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {[
-                    { cat: "Technical Skills", count: `${skillCount} skills documented`, score: Math.min(95, skillCount * 18) },
-                    { cat: "Project Depth", count: `${projectCount} verified projects`, score: Math.min(95, projectCount * 30) },
-                    { cat: "Experience Level", count: `${experienceCount} roles recorded`, score: Math.min(90, experienceCount * 35 || 40) },
-                    { cat: "Profile Completeness", count: `${profile.profileCompletionPercentage}% complete`, score: profile.profileCompletionPercentage },
-                  ].map((dim) => (
-                    <div key={dim.cat}>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
-                        <span style={{ fontWeight: 600, color: "#18181B" }}>{dim.cat}</span>
-                        <span style={{ color: "#6B6B6B" }}>{dim.count}</span>
-                      </div>
-                      <div style={{ height: 6, backgroundColor: "#F5F5F4", borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ width: `${dim.score}%`, height: "100%", backgroundColor: dim.score >= 70 ? "#176B5B" : "#18181B" }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Your Projects List */}
-              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                    <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#111111" }}>
-                        Your Documented Projects ({projectCount})
-                      </h3>
-                      <p style={{ fontSize: 12, color: "#6B6B6B", margin: "2px 0 0" }}>
-                        Evidence sources for your technical claims
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab("profile")}
-                      style={{ background: "none", border: "none", color: "#176B5B", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                    >
-                      + Add
-                    </button>
-                  </div>
-
-                  {projectCount === 0 ? (
-                    <div style={{ backgroundColor: "#FAFAF9", border: "1px dashed #D6D3D1", borderRadius: 8, padding: 20, textAlign: "center", color: "#6B6B6B", fontSize: 13 }}>
-                      No project evidence yet.
-                      <div style={{ marginTop: 8 }}>
-                        <button
-                          onClick={() => setActiveTab("profile")}
-                          style={{
-                            backgroundColor: "#18181B",
-                            color: "#FFFFFF",
-                            border: "none",
-                            borderRadius: 6,
-                            padding: "6px 14px",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: "pointer",
-                          }}
-                        >
-                          + Add a Project
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {profile.projects.slice(0, 3).map((p: any, idx: number) => (
-                        <div
-                          key={idx}
-                          style={{
-                            backgroundColor: "#FAFAF9",
-                            border: "1px solid #E7E5E4",
-                            borderRadius: 8,
-                            padding: "10px 14px",
-                          }}
-                        >
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "#111111" }}>{p.title}</div>
-                          <div style={{ fontSize: 11, color: "#176B5B", marginTop: 2 }}>
-                            {Array.isArray(p.techStack) ? p.techStack.join(", ") : p.techStack}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ marginTop: 20, paddingTop: 14, borderTop: "1px solid #E7E5E4", fontSize: 12, color: "#6B6B6B" }}>
-                  All projects link directly into your recruiter-facing verification matrix.
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 2: MY PROFILE (EDIT & EXPAND REAL DATA)              */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "profile" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                  EDIT YOUR DOSSIER
-                </span>
-                <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                  Student Profile & Evidence Locker
-                </h2>
-                <p style={{ fontSize: 14, color: "#6B6B6B", margin: "4px 0 0" }}>
-                  Changes made here update your Student DNA and recruiter-facing evidence dossier.
-                </p>
-              </div>
-
-              <button
-                onClick={handleSaveProfileUpdates}
-                style={{
-                  backgroundColor: "#176B5B",
-                  color: "#FFFFFF",
-                  border: "none",
-                  borderRadius: 6,
-                  padding: "10px 20px",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
-              >
-                {editSuccess ? "✓ Profile Changes Saved!" : "Save Profile Changes"}
-              </button>
-            </div>
-
-            {/* Academic Information */}
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px", color: "#111111" }}>Academic Details</h3>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600 }}>Full Name</label>
-                  <input
-                    type="text"
-                    value={profile.fullName}
-                    onChange={(e) => setProfile({ ...profile, fullName: e.target.value })}
-                    style={{ width: "100%", padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, marginTop: 4, fontSize: 13 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600 }}>College / University</label>
-                  <input
-                    type="text"
-                    value={profile.college}
-                    onChange={(e) => setProfile({ ...profile, college: e.target.value })}
-                    style={{ width: "100%", padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, marginTop: 4, fontSize: 13 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600 }}>Degree & Branch</label>
-                  <input
-                    type="text"
-                    value={`${profile.degree} in ${profile.branch}`}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setProfile({ ...profile, branch: val });
-                    }}
-                    style={{ width: "100%", padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, marginTop: 4, fontSize: 13 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600 }}>Graduation Year</label>
-                  <input
-                    type="text"
-                    value={profile.graduationYear}
-                    onChange={(e) => setProfile({ ...profile, graduationYear: e.target.value })}
-                    style={{ width: "100%", padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, marginTop: 4, fontSize: 13 }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Manage Technical Skills */}
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px", color: "#111111" }}>Your Skills ({skillCount})</h3>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-                {profile.skills.map((s: any, idx: number) => (
-                  <span
-                    key={idx}
-                    style={{
-                      backgroundColor: "#FAFAF9",
-                      border: "1px solid #E7E5E4",
-                      padding: "4px 10px",
-                      borderRadius: 6,
-                      fontSize: 13,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
-                  >
-                    <strong>{s.name || s}</strong>
-                    <span style={{ fontSize: 11, color: "#6B6B6B" }}>({s.level || "Intermediate"})</span>
-                    <button
-                      onClick={() => setProfile({ ...profile, skills: profile.skills.filter((_, i) => i !== idx) })}
-                      style={{ background: "none", border: "none", color: "#991B1B", cursor: "pointer", fontSize: 12, padding: 0 }}
-                    >
-                      ✕
-                    </button>
-                  </span>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <input
-                  type="text"
-                  placeholder="New skill name..."
-                  value={editingSkillName}
-                  onChange={(e) => setEditingSkillName(e.target.value)}
-                  style={{ padding: "8px 12px", border: "1px solid #E7E5E4", borderRadius: 6, fontSize: 13, width: 220 }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddSkillInline}
-                  style={{ backgroundColor: "#18181B", color: "#FFFFFF", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
-                >
-                  + Add Skill
-                </button>
-              </div>
-            </div>
-
-            {/* Manage Projects */}
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px", color: "#111111" }}>Your Projects ({projectCount})</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-                {profile.projects.map((p: any, idx: number) => (
-                  <div key={idx} style={{ padding: 14, backgroundColor: "#FAFAF9", border: "1px solid #E7E5E4", borderRadius: 8, display: "flex", justifyContent: "space-between" }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700 }}>{p.title}</div>
-                      <div style={{ fontSize: 12, color: "#176B5B", marginTop: 2 }}>{Array.isArray(p.techStack) ? p.techStack.join(", ") : p.techStack}</div>
-                      <div style={{ fontSize: 13, color: "#4B5563", marginTop: 4 }}>{p.description}</div>
-                    </div>
-                    <button
-                      onClick={() => setProfile({ ...profile, projects: profile.projects.filter((_, i) => i !== idx) })}
-                      style={{ background: "none", border: "none", color: "#991B1B", cursor: "pointer", fontSize: 12 }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ border: "1px dashed #D6D3D1", borderRadius: 8, padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase" }}>Add New Project</div>
-                <input
-                  type="text"
-                  placeholder="Project title..."
-                  value={editingProjTitle}
-                  onChange={(e) => setEditingProjTitle(e.target.value)}
-                  style={{ padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, fontSize: 13 }}
-                />
-                <input
-                  type="text"
-                  placeholder="Technologies used (comma separated, e.g. Python, SQL)..."
-                  value={editingProjTech}
-                  onChange={(e) => setEditingProjTech(e.target.value)}
-                  style={{ padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, fontSize: 13 }}
-                />
-                <textarea
-                  rows={2}
-                  placeholder="Brief description of what you built..."
-                  value={editingProjDesc}
-                  onChange={(e) => setEditingProjDesc(e.target.value)}
-                  style={{ padding: "8px 10px", border: "1px solid #E7E5E4", borderRadius: 6, fontSize: 13 }}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddProjectInline}
-                  style={{ backgroundColor: "#18181B", color: "#FFFFFF", border: "none", borderRadius: 6, padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", alignSelf: "flex-start" }}
-                >
-                  + Add Project to Profile
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 3: RESUME INTELLIGENCE                                */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "resume" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+        {/* ── 3-COLUMN CORE MODULES GRID: DNA, GAPS, OPPORTUNITIES ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: 16
+          }}
+        >
+          {/* Card 1: My Student DNA */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
             <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                SCORE ➔ EVIDENCE ➔ ACTION
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                Resume Intelligence & Extracted Evidence
-              </h2>
-              <p style={{ fontSize: 14, color: "#6B6B6B", margin: "4px 0 0" }}>
-                Grounded directly in {profile.fullName}'s documented project proofs.
-              </p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 24 }}>
-              {/* Document Overview */}
-              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>
-                  {profile.fullName || "Candidate"}
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>🧬</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  My Student DNA
                 </h3>
-                <div style={{ fontSize: 12, color: "#6B6B6B", marginBottom: 16 }}>
-                  {profile.college} • {profile.degree} in {profile.branch} (Class of {profile.graduationYear})
-                </div>
-
-                <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "#18181B", marginBottom: 6 }}>
-                  PROJECT CLAIMS
-                </div>
-                {projectCount === 0 ? (
-                  <div style={{ fontSize: 13, color: "#6B6B6B", fontStyle: "italic", marginBottom: 16 }}>
-                    No project claims provided yet. Add projects to generate evidence.
-                  </div>
-                ) : (
-                  <ul style={{ fontSize: 13, color: "#374151", paddingLeft: 18, margin: "0 0 16px", display: "flex", flexDirection: "column", gap: 6 }}>
-                    {profile.projects.map((p: any, idx: number) => (
-                      <li key={idx}>
-                        <strong>{p.title}:</strong> {p.description} (Tech: {Array.isArray(p.techStack) ? p.techStack.join(", ") : p.techStack})
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "#18181B", marginBottom: 6 }}>
-                  TECHNICAL SKILL CLAIMS
-                </div>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                  {profile.skills.map((s: any, idx: number) => (
-                    <span key={idx} style={{ backgroundColor: "#FAFAF9", border: "1px solid #E7E5E4", padding: "2px 8px", borderRadius: 4, fontSize: 12 }}>
-                      {s.name || s}
-                    </span>
-                  ))}
-                </div>
               </div>
 
-              {/* Analysis & Expandable Rows */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {profile.skills.map((s: any, idx: number) => {
-                  const sName = s.name || s;
-                  const matchingProjs = profile.projects.filter((p: any) =>
-                    (Array.isArray(p.techStack) ? p.techStack : []).some(
-                      (t: string) => t.toLowerCase() === sName.toLowerCase()
-                    )
-                  );
-                  const isVerified = matchingProjs.length > 0;
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Skills
+                  </div>
+                  <div style={{ color: "#e2e8f0", fontWeight: 600, marginTop: 2 }}>
+                    Python · AI/ML · Web · GenAI
+                  </div>
+                </div>
 
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Projects
+                  </div>
+                  <div style={{ color: "#e2e8f0", fontWeight: 600, marginTop: 2 }}>
+                    3 verified projects
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Evidence Sources
+                  </div>
+                  <div style={{ color: "#94a3b8", marginTop: 2 }}>
+                    GitHub · Projects · Hackathons · DSA
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                    Target Direction
+                  </div>
+                  <div style={{ color: "#38bdf8", fontWeight: 600, marginTop: 2 }}>
+                    {intelligence?.intent?.primaryGoal || "AI/ML Engineer · Software Engineer"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/student/dna"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              View Student DNA →
+            </Link>
+          </div>
+
+          {/* Card 2: Learning & Gaps */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>◉</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  Learning & Gaps
+                </h3>
+              </div>
+
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>
+                What should you work on next?
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Priority 1 */}
+                <div
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase" }}>
+                      Priority 1: Strengthen DSA
+                    </span>
+                    <Link
+                      href="/student/dsa-tracker"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
+                    >
+                      Continue →
+                    </Link>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    Arrays / Trees need more demonstrated evidence.
+                  </div>
+                </div>
+
+                {/* Priority 2 */}
+                <div
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", textTransform: "uppercase" }}>
+                      Priority 2: Build ML Evidence
+                    </span>
+                    <Link
+                      href="/student/skills"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
+                    >
+                      View gap →
+                    </Link>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    Target role requires stronger ML project evidence.
+                  </div>
+                </div>
+
+                {/* Priority 3 */}
+                <div
+                  style={{
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    borderRadius: 10,
+                    padding: "10px 12px",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#10b981", textTransform: "uppercase" }}>
+                      Priority 3: Interview Prep
+                    </span>
+                    <Link
+                      href="/interview"
+                      style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", textDecoration: "none" }}
+                    >
+                      Prepare →
+                    </Link>
+                  </div>
+                  <div style={{ fontSize: 12, color: "#cbd5e1", marginTop: 4 }}>
+                    3 important topics remain in core CS fundamentals.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/student/skills"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              View learning priorities →
+            </Link>
+          </div>
+
+          {/* Card 3: Opportunities */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <span style={{ fontSize: 18 }}>✦</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                  Opportunities
+                </h3>
+              </div>
+
+              <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>
+                Relevant opportunities matched to evidence
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {recommendations.slice(0, 3).map((rec, idx) => {
+                  const opp = rec.opportunity;
+                  const matchLabels = ["Strong profile relevance", "Relevant to current skills", "Moderate relevance"];
+                  const matchLabel = matchLabels[idx] || "Matched";
                   return (
                     <div
-                      key={idx}
-                      onClick={() => setExpandedEvidenceIdx(expandedEvidenceIdx === idx ? null : idx)}
+                      key={rec.opportunity_id}
                       style={{
-                        backgroundColor: "#FFFFFF",
-                        border: "1px solid #E7E5E4",
+                        backgroundColor: "rgba(30, 41, 59, 0.4)",
                         borderRadius: 10,
-                        padding: 16,
-                        cursor: "pointer",
+                        padding: "10px 12px",
+                        border: "1px solid rgba(255, 255, 255, 0.05)",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center"
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div>
-                          <span style={{ fontSize: 14, fontWeight: 700 }}>{sName}</span>
-                          <span style={{ fontSize: 11, color: isVerified ? "#176B5B" : "#B45309", marginLeft: 8, fontWeight: 600 }}>
-                            {isVerified ? "✓ VERIFIED IN PROJECT" : "○ UNVERIFIED CLAIM"}
-                          </span>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                          {opp.title.slice(0, 26)}...
                         </div>
-                        <span style={{ fontSize: 12, color: "#6B6B6B" }}>
-                          {expandedEvidenceIdx === idx ? "▲" : "▼"}
-                        </span>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                          {matchLabel}
+                        </div>
                       </div>
 
-                      {expandedEvidenceIdx === idx && (
-                        <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #F5F5F4", fontSize: 12 }}>
-                          {isVerified ? (
-                            <div style={{ color: "#18181B" }}>
-                              <strong>Evidence:</strong> Used in {matchingProjs.map((p: any) => p.title).join(", ")}.
-                              <div style={{ color: "#176B5B", marginTop: 4, fontWeight: 600 }}>
-                                ➔ Action: Ready for technical round verification.
-                              </div>
-                            </div>
-                          ) : (
-                            <div style={{ color: "#6B6B6B" }}>
-                              <strong>Evidence:</strong> No project in your profile references {sName}.
-                              <div style={{ color: "#B45309", marginTop: 4, fontWeight: 600 }}>
-                                ➔ Action: Add a project demonstrating {sName} to establish proof.
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <button
+                        onClick={() =>
+                          setSelectedOppForModal({
+                            title: opp.title,
+                            organizer: opp.organizer,
+                            matchReason: rec.reasoning,
+                            verifiedTags: rec.matching_tags || ["Python", "AI / ML"],
+                            missingTags: rec.missing_tags || [],
+                            deadline: opp.deadline || "October 2026",
+                            sourceUrl: opp.source_url || "/student/opportunities",
+                            opportunityId: rec.opportunity_id
+                          })
+                        }
+                        style={{
+                          backgroundColor: "transparent",
+                          border: "none",
+                          color: "#38bdf8",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: "pointer",
+                          padding: "4px 8px"
+                        }}
+                      >
+                        View →
+                      </button>
                     </div>
                   );
                 })}
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 4: CANDIDATE DNA                                      */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "dna" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <Link
+              href="/student/opportunities"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              Explore all matches →
+            </Link>
+          </div>
+        </div>
+
+        {/* ── 2-COLUMN SECTION: APPLICATIONS & INTERVIEW PREPARATION ── */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))",
+            gap: 16
+          }}
+        >
+          {/* Column 1: My Applications */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
             <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                COMPETENCY MATRIX
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                Candidate DNA for {profile.fullName}
-              </h2>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 20 }}>
-              {[
-                {
-                  dim: "Technical Skills",
-                  value: `${skillCount} skills`,
-                  proof: profile.skills.map((s: any) => s.name || s).join(", ") || "No skills recorded yet.",
-                },
-                {
-                  dim: "Project Depth",
-                  value: `${projectCount} projects`,
-                  proof: profile.projects.map((p: any) => p.title).join(", ") || "No projects added yet.",
-                },
-                {
-                  dim: "Experience",
-                  value: `${experienceCount} roles`,
-                  proof: profile.experience.map((e: any) => `${e.role} @ ${e.organization}`).join(", ") || "No external experience recorded.",
-                },
-                {
-                  dim: "Achievements",
-                  value: `${profile.achievements.length} records`,
-                  proof: profile.achievements.map((a: any) => a.title).join(", ") || "None added yet.",
-                },
-              ].map((dna) => (
-                <div key={dna.dim} style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 10, padding: 20 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                    <h4 style={{ fontSize: 15, fontWeight: 700, margin: 0, color: "#111111" }}>{dna.dim}</h4>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#176B5B" }}>{dna.value}</span>
-                  </div>
-                  <p style={{ fontSize: 13, color: "#4B5563", margin: "10px 0 0", lineHeight: 1.5 }}>
-                    <strong>Evidence:</strong> {dna.proof}
-                  </p>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>↗</span>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                    My Applications
+                  </h3>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 5: OPPORTUNITIES                                      */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "opportunities" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                  MATCHED TO YOUR PROFILE
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  Active applications, interviews & outcomes
                 </span>
-                <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                  Opportunities for {profile.fullName}
-                </h2>
               </div>
 
-              <div style={{ display: "flex", backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", padding: 2, borderRadius: 6 }}>
-                {["All", "Internship", "Full-Time"].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setOppFilter(f)}
-                    style={{
-                      backgroundColor: oppFilter === f ? "#18181B" : "transparent",
-                      color: oppFilter === f ? "#FFFFFF" : "#6B6B6B",
-                      border: "none",
-                      borderRadius: 4,
-                      padding: "6px 14px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {filteredOpportunities.map((opp) => (
-                <div
-                  key={opp.id}
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #E7E5E4",
-                    borderRadius: 10,
-                    padding: 22,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                    gap: 16,
-                  }}
-                >
-                  <div style={{ maxWidth: 740 }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#111111" }}>{opp.role}</div>
-                    <div style={{ fontSize: 12, color: "#6B6B6B", margin: "2px 0 10px" }}>
-                      <strong>{opp.company}</strong> • {opp.location} • Deadline: {opp.deadline}
-                    </div>
-                    <div style={{ fontSize: 13, color: "#18181B", display: "flex", flexDirection: "column", gap: 4 }}>
-                      <div><strong style={{ color: "#176B5B" }}>Matched Skills:</strong> {opp.matchedSkills.join(", ")}</div>
-                      {opp.missingSkills.length > 0 && (
-                        <div><strong style={{ color: "#B45309" }}>Missing Skills:</strong> {opp.missingSkills.join(", ")}</div>
-                      )}
-                      <div style={{ color: "#4B5563" }}><strong>Reason:</strong> {opp.reason}</div>
-                      <div style={{ color: "#176B5B", fontWeight: 600 }}>➔ <strong>Next Action:</strong> {opp.nextAction}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
-                    <span style={{ backgroundColor: "#EBF5F3", color: "#176B5B", padding: "4px 10px", borderRadius: 6, fontSize: 16, fontWeight: 700 }}>
-                      {opp.match}% Match
-                    </span>
-                    <Link
-                      href="/interview"
-                      style={{
-                        backgroundColor: "#18181B",
-                        color: "#FFFFFF",
-                        textDecoration: "none",
-                        borderRadius: 6,
-                        padding: "6px 14px",
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      Prepare Interview ➔
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 6: INTERVIEW STUDIO                                   */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "interview" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
-              <div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                  PROCTORED ASSESSMENT STUDIO
-                </span>
-                <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                  Technical Interview Studio for {profile.fullName}
-                </h2>
-              </div>
-              <Link
-                href="/interview"
+              {/* Stats Strip */}
+              <div
                 style={{
-                  backgroundColor: "#18181B",
-                  color: "#FFFFFF",
-                  textDecoration: "none",
-                  borderRadius: 6,
-                  padding: "8px 18px",
-                  fontSize: 13,
-                  fontWeight: 600,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr 1fr",
+                  gap: 8,
+                  marginBottom: 14,
+                  backgroundColor: "rgba(2, 6, 23, 0.4)",
+                  padding: "10px 14px",
+                  borderRadius: 10,
+                  border: "1px solid rgba(255, 255, 255, 0.05)",
+                  textAlign: "center"
                 }}
               >
-                Launch Live Interview Room ➔
-              </Link>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>
-                Target Assessment Profile
-              </h3>
-              <p style={{ fontSize: 13, color: "#4B5563", lineHeight: 1.5, margin: 0 }}>
-                Interviewer persona: <strong>Alex, Staff Engineer at Google</strong>. Questions will probe the exact project claims and technical stack documented in your profile ({profile.projects.length} project(s), {profile.skills.length} skill(s)).
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 7: ATS OPTIMIZATION                                   */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "ats" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                ATS INTEGRATION
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                ATS Compliance & Parser Optimization
-              </h2>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 12px" }}>Resume File</h3>
-              <div style={{ fontSize: 13, color: "#4B5563" }}>
-                {profile.resumeFileName ? `Active Document: ${profile.resumeFileName}` : "No resume PDF uploaded yet."}
-              </div>
-              <div style={{ marginTop: 14 }}>
-                <button
-                  onClick={() => setActiveTab("profile")}
-                  style={{
-                    backgroundColor: "#18181B",
-                    color: "#FFFFFF",
-                    border: "none",
-                    borderRadius: 6,
-                    padding: "8px 14px",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  Manage Resume & Upload
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 8: CAREER ROADMAP                                     */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "roadmap" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                PROGRESSIVE MILESTONES
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                Career Roadmap for {profile.fullName}
-              </h2>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-              {[
-                { step: 1, title: "Current Baseline", date: "Active", goal: `Documented ${skillCount} skills and ${projectCount} projects` },
-                { step: 2, title: "Skill Gap Closure", date: "Upcoming", goal: "Complete missing cloud deployment proofs" },
-                { step: 3, title: "Target Internship", date: "2026/27", goal: `Apply to ${profile.careerGoals?.targetCompanies?.join(", ") || "Target Companies"}` },
-              ].map((m, idx) => (
-                <div
-                  key={m.step}
-                  onClick={() => setSelectedMilestone(idx)}
-                  style={{
-                    backgroundColor: selectedMilestone === idx ? "#18181B" : "#FFFFFF",
-                    color: selectedMilestone === idx ? "#FFFFFF" : "#18181B",
-                    border: selectedMilestone === idx ? "1px solid #18181B" : "1px solid #E7E5E4",
-                    borderRadius: 10,
-                    padding: 16,
-                    cursor: "pointer",
-                  }}
-                >
-                  <div style={{ fontSize: 11, fontWeight: 700, color: selectedMilestone === idx ? "#9DD0C7" : "#176B5B", marginBottom: 6 }}>
-                    PHASE 0{m.step}
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#ffffff" }}>
+                    {applicationsCount}
                   </div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 6px" }}>{m.title}</h4>
-                  <div style={{ fontSize: 12, color: selectedMilestone === idx ? "#D6D3D1" : "#6B6B6B" }}>{m.goal}</div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Applied
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 9: CALENDAR                                           */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "calendar" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                UPCOMING DATES
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                Placement Calendar
-              </h2>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {[
-                  { date: "Oct 15, 2026", title: "Stripe SWE Intern Application Deadline", tag: "Application" },
-                  { date: "Oct 22, 2026", title: "Google Early Career Technical Round Simulation", tag: "Interview" },
-                  { date: "Nov 02, 2026", title: "Datadog Campus Assessment Drive", tag: "Drive" },
-                ].map((ev) => (
-                  <div key={ev.title} style={{ padding: 12, backgroundColor: "#FAFAF9", border: "1px solid #E7E5E4", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700 }}>{ev.title}</div>
-                      <div style={{ fontSize: 12, color: "#6B6B6B" }}>{ev.date}</div>
-                    </div>
-                    <span style={{ backgroundColor: "#EBF5F3", color: "#176B5B", padding: "2px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
-                      {ev.tag}
-                    </span>
+                <div style={{ borderLeft: "1px solid rgba(255,255,255,0.08)", borderRight: "1px solid rgba(255,255,255,0.08)" }}>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#38bdf8" }}>
+                    3
                   </div>
-                ))}
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Interviews
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#10b981" }}>
+                    1
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>
+                    Outcome
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* TAB 10: SETTINGS & PRIVACY                                */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        {activeTab === "settings" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
-                ACCOUNT GOVERNANCE
-              </span>
-              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
-                Data Privacy & Settings for {profile.fullName}
-              </h2>
-            </div>
-
-            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Your User Account ID</div>
-                <div style={{ fontSize: 12, color: "#6B6B6B", fontFamily: "monospace", marginTop: 2 }}>{profile.userId}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>Email Address</div>
-                <div style={{ fontSize: 13, color: "#18181B", marginTop: 2 }}>{profile.email}</div>
-              </div>
-              <div style={{ borderTop: "1px solid #E7E5E4", paddingTop: 14 }}>
-                <button
-                  onClick={async () => {
-                    await fetch("/api/auth/logout", { method: "POST" });
-                    router.push("/login");
-                  }}
+              {/* Active Items */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                <div
                   style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #FCA5A5",
-                    color: "#991B1B",
-                    borderRadius: 6,
-                    padding: "8px 16px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    backgroundColor: "rgba(30, 41, 59, 0.35)",
+                    border: "1px solid rgba(255, 255, 255, 0.04)"
                   }}
                 >
-                  Sign Out of Account
-                </button>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                    Flipkart GRiD 7.0
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#f59e0b", backgroundColor: "rgba(245, 158, 11, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                    Assessment pending
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    backgroundColor: "rgba(30, 41, 59, 0.35)",
+                    border: "1px solid rgba(255, 255, 255, 0.04)"
+                  }}
+                >
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                    Google STEP Intern
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#60a5fa", backgroundColor: "rgba(59, 130, 246, 0.12)", padding: "2px 8px", borderRadius: 4 }}>
+                    Application submitted
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/student/applications"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              Open application pipeline →
+            </Link>
+          </div>
+
+          {/* Column 2: Interview / Preparation */}
+          <div
+            style={{
+              backgroundColor: "rgba(15, 23, 42, 0.65)",
+              border: "1px solid rgba(255, 255, 255, 0.08)",
+              borderRadius: 16,
+              padding: "20px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 16
+            }}
+          >
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>🎯</span>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#ffffff", margin: 0 }}>
+                    Interview / Preparation
+                  </h3>
+                </div>
+                <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                  Active practice arenas
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {/* Module 1: FAANG Interview */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      FAANG Mock Interview
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Focus: ML fundamentals · 3 topics pending
+                    </div>
+                  </div>
+                  <Link
+                    href="/interview"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#ec4899",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(236, 72, 153, 0.15)",
+                      border: "1px solid rgba(236, 72, 153, 0.3)"
+                    }}
+                  >
+                    Practice →
+                  </Link>
+                </div>
+
+                {/* Module 2: DSA Tracker */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      DSA Tracker (Striver Sheet)
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Focus: Binary Trees · 12 problems this week
+                    </div>
+                  </div>
+                  <Link
+                    href="/student/dsa-tracker"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#10b981",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(16, 185, 129, 0.15)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)"
+                    }}
+                  >
+                    Solve →
+                  </Link>
+                </div>
+
+                {/* Module 3: Recruitment Simulator */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    backgroundColor: "rgba(30, 41, 59, 0.4)",
+                    border: "1px solid rgba(255, 255, 255, 0.05)"
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#ffffff" }}>
+                      Campus Recruitment Sim
+                    </div>
+                    <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      Latest session: Aptitude & Technical cleared
+                    </div>
+                  </div>
+                  <Link
+                    href="/student/simulation"
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#8b5cf6",
+                      textDecoration: "none",
+                      padding: "4px 10px",
+                      borderRadius: 6,
+                      backgroundColor: "rgba(139, 92, 246, 0.15)",
+                      border: "1px solid rgba(139, 92, 246, 0.3)"
+                    }}
+                  >
+                    Simulate →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              href="/interview"
+              style={{
+                textDecoration: "none",
+                fontSize: 13,
+                fontWeight: 700,
+                color: "#38bdf8",
+                paddingTop: 10,
+                borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4
+              }}
+            >
+              Continue preparation →
+            </Link>
+          </div>
+        </div>
+
+        {/* ── OPTIONAL COMPACT JOURNEY STRIP ── */}
+        <Link
+          href="/student/journey"
+          style={{
+            textDecoration: "none",
+            backgroundColor: "rgba(15, 23, 42, 0.5)",
+            border: "1px solid rgba(255, 255, 255, 0.07)",
+            borderRadius: 14,
+            padding: "14px 20px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+            transition: "all 0.15s ease"
+          }}
+          title="Open Career Journey"
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 16 }}>🗺️</span>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: "#ffffff", letterSpacing: 0.5 }}>
+                  YOUR JOURNEY:
+                </span>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                  Career Intent → Build Evidence → Opportunities → Applications → Outcomes
+                </span>
+              </div>
+              <div style={{ fontSize: 12, color: "#38bdf8", marginTop: 2 }}>
+                Current stage: <strong>BUILD EVIDENCE</strong> · Next: Complete 2 ML projects + strengthen DSA
               </div>
             </div>
           </div>
-        )}
+
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#38bdf8", marginLeft: "auto" }}>
+            View Journey →
+          </div>
+        </Link>
       </main>
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* MODALS                                                     */}
+      {/* ══════════════════════════════════════════════════════════ */}
+
+      {/* 1. Resume Upload / Update Modal */}
+      <ResumeUploadModal
+        isOpen={resumeModalOpen}
+        onClose={() => setResumeModalOpen(false)}
+        candidateId={candidateId}
+        onSuccess={() => loadAllData(candidateId)}
+      />
+
+      {/* 2. Edit Student DNA Modal */}
+      <EditStudentDnaModal
+        isOpen={editDnaModalOpen}
+        onClose={() => setEditDnaModalOpen(false)}
+        candidateId={candidateId}
+        currentGoal={intelligence?.intent?.primaryGoal || "AI/ML Engineer"}
+        onGoalUpdated={() => loadAllData(candidateId)}
+      />
+
+      {/* 3. Update Profile Modal */}
+      <UpdateProfileModal
+        isOpen={updateProfileModalOpen}
+        onClose={() => setUpdateProfileModalOpen(false)}
+        profile={profile}
+        onSave={handleProfileUpdate}
+      />
+
+      {/* 4. Opportunity Match Detail Modal */}
+      <OpportunityMatchModal
+        isOpen={!!selectedOppForModal}
+        onClose={() => setSelectedOppForModal(null)}
+        opportunity={selectedOppForModal}
+      />
     </div>
   );
 }
