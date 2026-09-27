@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cognalyze • Placement Intelligence & AI Assessment Platform",
-  description: "AI-Powered Placement Intelligence, Algorithmic Opportunities, FAANG Mock GD Arena, and DSA Tracker.",
+  title: "Cognalyze • Evidence-Driven Career & Hiring Intelligence",
+  description: "Turn career data into decisions. Cognalyze brings resumes, opportunities, skills, interviews, and hiring intelligence into one evidence-driven career platform.",
   applicationName: "Cognalyze",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Cognalyze",
   },
   icons: {
@@ -32,11 +32,11 @@ export const metadata: Metadata = {
       { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
     ]
   },
-  keywords: ["Placement Copilot", "FAANG GD Arena", "DSA Tracker", "Campus Placements", "Striver Sheet", "Hackathons"]
+  keywords: ["Hiring Intelligence", "Evidence-Based Hiring", "Candidate DNA", "Resume Intelligence", "ATS Optimization", "Placement Intelligence", "Technical Assessment"]
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6366f1",
+  themeColor: "#FAFAF9",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

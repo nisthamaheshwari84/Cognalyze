@@ -1,865 +1,677 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import {
-  AskCognalyzeAnswer,
-  RediscoveredCandidateMatch,
-  ProgressivePipelineStages,
-  getPiiMinimizedProfile,
-} from "@/lib/recruiter/recruiter-intelligence";
 
-interface ActionItem {
-  id: string;
-  type: string;
-  title: string;
-  candidateId: string;
-  candidateName: string;
-  roleId: string;
-  roleTitle: string;
-  urgency: "Immediate" | "High" | "Normal";
-  dueText: string;
-  actionUrl: string;
-}
+export default function RecruiterDashboard() {
+  const [activeTab, setActiveTab] = useState<
+    | "overview"
+    | "matrix"
+    | "jd"
+    | "decisions"
+    | "questions"
+    | "analytics"
+  >("overview");
 
-interface OpenPosition {
-  id: string;
-  title: string;
-  department: string;
-  seniority: string;
-  targetHires: number;
-  applicantsCount: number;
-  criticalRequirementsCount: number;
-}
-
-interface PipelineCandidate {
-  id: string;
-  name: string;
-  roleTitle: string;
-  sourceType: string;
-  currentStage: string;
-  appliedAt: string;
-}
-
-export default function RecruiterCommandCenterPage() {
-  const [loading, setLoading] = useState(true);
-  const [kpis, setKpis] = useState({
-    activePositions: 3,
-    totalCandidates: 3,
-    pendingActionItems: 3,
-    pendingEvaluations: 1,
-    conflictsCount: 0,
-    decisionRoomCount: 1,
-    completed90DayReviews: 3,
-  });
-  const [actionQueue, setActionQueue] = useState<ActionItem[]>([]);
-  const [openPositions, setOpenPositions] = useState<OpenPosition[]>([]);
-  const [recentCandidates, setRecentCandidates] = useState<PipelineCandidate[]>([]);
-
-  // Section 40: Blind Technical Screening (PII-Minimized Review)
   const [blindMode, setBlindMode] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<any | null>(null);
 
-  // Section 38: Candidate Rediscovery Opportunities
-  const [rediscoveryMatches, setRediscoveryMatches] = useState<RediscoveredCandidateMatch[]>([]);
-  const [loadingRediscovery, setLoadingRediscovery] = useState(false);
+  // Hiring Funnel metrics
+  const funnel = [
+    { label: "Active Roles", value: "4 Open", change: "2 Engineering, 2 Product" },
+    { label: "Total Candidates", value: "184 Ingested", change: "Synced via ATS & Portals" },
+    { label: "Evidence Verified", value: "48 Qualified", change: "26% Verification rate" },
+    { label: "Interview Stage", value: "14 In Process", change: "Socratic Proctored Rounds" },
+    { label: "Final Decision", value: "3 Ready for Offer", change: "Human review certified" },
+  ];
 
-  // Section 39: Recruiter Ask Cognalyze
-  const [askModalOpen, setAskModalOpen] = useState(false);
-  const [askQuery, setAskQuery] = useState("");
-  const [askAnswer, setAskAnswer] = useState<AskCognalyzeAnswer | null>(null);
-  const [askLoading, setAskLoading] = useState(false);
+  // Multi-Candidate Comparison Matrix Data
+  const candidateMatrix = [
+    {
+      id: "cand-1",
+      name: "Alex Rivera",
+      role: "Staff Systems Engineer (L5)",
+      match: 91,
+      mustHaves: ["Python", "Concurrency", "Distributed DB"],
+      evidence: "3 verified repos, 84 commits, 14 merged PRs",
+      gaps: ["AWS Lambda"],
+      experience: "3 YOE backend",
+      projects: "Distributed Task Queue, Multi-Threaded Cache",
+      priority: "High",
+      vibeRisk: "4% (Organic)",
+      fitSummary: "Exceptional system architecture and concurrency knowledge. Commit history reflects authentic multi-month development.",
+      concerns: "Limited public serverless/AWS deployment evidence.",
+    },
+    {
+      id: "cand-2",
+      name: "Priya Sharma",
+      role: "Senior Backend Engineer (L4)",
+      match: 84,
+      mustHaves: ["Python", "Node.js", "Redis"],
+      evidence: "1 verified repo, LeetCode Knight (Rating 2,040)",
+      gaps: ["PostgreSQL Sharding"],
+      experience: "2 YOE full-stack",
+      projects: "Real-time Telemetry Service",
+      priority: "Medium",
+      vibeRisk: "8% (Low)",
+      fitSummary: "Strong algorithmic depth and clean API design. Excellent code structure.",
+      concerns: "Needs verification on large-scale database connection pooling under high load.",
+    },
+    {
+      id: "cand-3",
+      name: "Rohan Mehta",
+      role: "Systems Engineer (L4)",
+      match: 76,
+      mustHaves: ["Python", "React", "Docker"],
+      evidence: "2 repos (single-burst commit timeline)",
+      gaps: ["Distributed Systems", "Concurrency"],
+      experience: "1.5 YOE frontend & node",
+      projects: "Personal Portfolio & Blog CMS",
+      priority: "Hold",
+      vibeRisk: "42% (Moderate)",
+      fitSummary: "Solid front-end engineering foundation. Basic backend knowledge.",
+      concerns: "Single-day commit bursts suggest potential AI boilerplate dump without iterative testing.",
+    },
+  ];
 
-  // Section 11: Dynamic Progressive Screening Funnel
-  const [pipelineFunnel, setPipelineFunnel] = useState<ProgressivePipelineStages>({
-    appliedCount: 1482,
-    initialEligibilityCount: 1476,
-    evidenceQualifiedCount: 716,
-    deepReviewCount: 238,
-    verificationCount: 61,
-    interviewShortlistCount: 15,
-  });
-
-  useEffect(() => {
-    async function loadCommandCenter() {
-      try {
-        const res = await fetch("/api/recruiter/command-center");
-        const data = await res.json();
-        if (data.success && data.commandCenter) {
-          setKpis(data.commandCenter.kpis);
-          setActionQueue(data.commandCenter.actionQueue);
-          setOpenPositions(data.commandCenter.openPositions);
-          setRecentCandidates(data.commandCenter.recentCandidates);
-
-          // Update dynamic funnel based on loaded candidate totals
-          const total = Math.max(data.commandCenter.recentCandidates.length, 3);
-          setPipelineFunnel({
-            appliedCount: total * 494,
-            initialEligibilityCount: Math.round(total * 492),
-            evidenceQualifiedCount: Math.round(total * 238),
-            deepReviewCount: Math.round(total * 79),
-            verificationCount: Math.round(total * 20),
-            interviewShortlistCount: Math.round(total * 5),
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load command center telemetry:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    async function loadRediscovery() {
-      setLoadingRediscovery(true);
-      try {
-        const res = await fetch("/api/recruiter/rediscovery");
-        const data = await res.json();
-        if (data.success && data.matches) {
-          setRediscoveryMatches(data.matches);
-        }
-      } catch (err) {
-        console.warn("Failed to load rediscovery matches:", err);
-      } finally {
-        setLoadingRediscovery(false);
-      }
-    }
-
-    loadCommandCenter();
-    loadRediscovery();
-  }, []);
-
-  const handleAskSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!askQuery.trim()) return;
-
-    setAskLoading(true);
-    try {
-      const res = await fetch("/api/recruiter/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: askQuery.trim() }),
-      });
-      const data = await res.json();
-      if (data.success && data.answer) {
-        setAskAnswer(data.answer);
-      }
-    } catch (err) {
-      console.error("Ask Cognalyze failed:", err);
-    } finally {
-      setAskLoading(false);
-    }
-  };
-
-  const getDisplayName = (name: string, id: string) => {
-    if (!blindMode) return name;
-    return `Candidate #${id.replace(/[^0-9]/g, "").slice(0, 4) || id.slice(-4)}`;
+  const getCandidateName = (cand: any) => {
+    if (!blindMode) return cand.name;
+    return `Candidate #${cand.id.replace(/[^0-9]/g, "").padStart(4, "0")}`;
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        backgroundColor: "#060913",
-        color: "#f8fafc",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
-    >
+    <div style={{ minHeight: "100vh", backgroundColor: "#FAFAF9", color: "#18181B" }}>
+      {/* ── 1. GLOBAL NAVIGATION ── */}
       <AppNav role="recruiter" />
 
-      <main style={{ maxWidth: 1380, margin: "0 auto", padding: "32px 24px 80px" }}>
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* SECTION 50: RECRUITER HOME — "WHAT NEEDS MY ATTENTION?"   */}
-        {/* ══════════════════════════════════════════════════════════ */}
+      {/* ── 2. SUB-HEADER & NAVIGATION TABS ── */}
+      <div
+        style={{
+          backgroundColor: "#FFFFFF",
+          borderBottom: "1px solid #E7E5E4",
+          position: "sticky",
+          top: 60,
+          zIndex: 30,
+        }}
+      >
         <div
           style={{
-            background: "linear-gradient(135deg, rgba(168, 85, 247, 0.16) 0%, rgba(99, 102, 241, 0.10) 50%, rgba(6, 182, 212, 0.06) 100%)",
-            border: "1px solid rgba(168, 85, 247, 0.35)",
-            borderRadius: 20,
-            padding: "28px 32px",
-            marginBottom: 28,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
+            maxWidth: 1360,
+            margin: "0 auto",
+            padding: "0 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            overflowX: "auto",
+            scrollbarWidth: "none",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20 }}>
-            <div style={{ maxWidth: 740 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-                <span
-                  style={{
-                    fontSize: 11,
-                    padding: "3px 10px",
-                    borderRadius: 6,
-                    background: "rgba(168,85,247,0.25)",
-                    color: "#e9d5ff",
-                    fontWeight: 800,
-                    border: "1px solid rgba(168,85,247,0.4)",
-                  }}
-                >
-                  ⚡ RECRUITER HIRING INTELLIGENCE OS
-                </span>
-                <span style={{ fontSize: 11, color: "#10b981", fontWeight: 700 }}>
-                  ● Evidence-Based Progressive Verification
-                </span>
-              </div>
-
-              <h1 style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.4rem)", fontWeight: 900, margin: "0 0 10px", letterSpacing: "-1px" }}>
-                What needs your attention today?
-              </h1>
-
-              <p style={{ fontSize: 14, color: "rgba(255, 255, 255, 0.72)", lineHeight: 1.6, margin: "0 0 20px" }}>
-                Cognalyze investigates multi-source evidence across GitHub, LeetCode, mock interviews, and work samples. You own the final human hiring decision.
-              </p>
-
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <Link
-                  href="/recruiter/roles"
-                  style={{
-                    padding: "10px 18px",
-                    borderRadius: 10,
-                    background: "linear-gradient(135deg, #a855f7, #6366f1)",
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    boxShadow: "0 4px 15px rgba(168,85,247,0.35)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <span>🧬</span> Create Role DNA
-                </Link>
-
-                <Link
-                  href="/recruiter/candidates"
-                  style={{
-                    padding: "10px 18px",
-                    borderRadius: 10,
-                    background: "rgba(255, 255, 255, 0.07)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "white",
-                    textDecoration: "none",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <span>👥</span> Candidate Discovery Pool
-                </Link>
-
-                <button
-                  onClick={() => setAskModalOpen(true)}
-                  style={{
-                    padding: "10px 18px",
-                    borderRadius: 10,
-                    background: "linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(99, 102, 241, 0.2))",
-                    border: "1px solid rgba(56, 189, 248, 0.4)",
-                    color: "white",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <span>🧠</span> Ask Cognalyze
-                </button>
-
-                {/* Section 40: Blind Screening Toggle */}
-                <button
-                  onClick={() => setBlindMode(!blindMode)}
-                  style={{
-                    padding: "10px 16px",
-                    borderRadius: 10,
-                    background: blindMode ? "rgba(168, 85, 247, 0.25)" : "rgba(255, 255, 255, 0.05)",
-                    border: `1px solid ${blindMode ? "rgba(168, 85, 247, 0.5)" : "rgba(255, 255, 255, 0.12)"}`,
-                    color: blindMode ? "#d8b4fe" : "#94a3b8",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <span>{blindMode ? "👁️‍🗨️ Blind Screening (ON)" : "👁️ Blind Screening (OFF)"}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* QUICK ATTENTION KPI CARDS */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, minWidth: 320 }}>
-              <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: "16px" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Requires Review</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#fbbf24", margin: "4px 0 2px" }}>
-                  {kpis.pendingActionItems} Candidates
-                </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Pending recruiter decision</div>
-              </div>
-
-              <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: "16px" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Active Roles</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#818cf8", margin: "4px 0 2px" }}>
-                  {openPositions.length} Open
-                </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Structured Role DNAs</div>
-              </div>
-
-              <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: "16px" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Rediscovery Pool</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#38bdf8", margin: "4px 0 2px" }}>
-                  {rediscoveryMatches.length} Matches
-                </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Previously reviewed talent</div>
-              </div>
-
-              <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: "16px" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Decision Room</div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: "#34d399", margin: "4px 0 2px" }}>
-                  {kpis.decisionRoomCount} Ready
-                </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Final shortlist journal</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════════════════════════════════════════════════════ */}
-        {/* SECTION 11: DYNAMIC PROGRESSIVE SCREENING FUNNEL           */}
-        {/* ══════════════════════════════════════════════════════════ */}
-        <section style={{ marginBottom: 32 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "#e2e8f0", margin: 0 }}>
-              DYNAMIC PROGRESSIVE SCREENING FUNNEL (SECTION 11)
-            </h2>
-            <span style={{ fontSize: 11, color: "#64748b" }}>
-              Live pipeline counts — no hardcoded screening thresholds
-            </span>
-          </div>
-
-          <div
-            style={{
-              background: "rgba(15, 23, 42, 0.6)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
-              padding: "16px 20px",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-              gap: 12,
-              textAlign: "center",
-            }}
-          >
+          <div style={{ display: "flex", gap: 4 }}>
             {[
-              { label: "1. Applied", count: pipelineFunnel.appliedCount, color: "#94a3b8" },
-              { label: "2. Initial Eligibility", count: pipelineFunnel.initialEligibilityCount, color: "#38bdf8" },
-              { label: "3. Evidence Match", count: pipelineFunnel.evidenceQualifiedCount, color: "#818cf8" },
-              { label: "4. Deep Review", count: pipelineFunnel.deepReviewCount, color: "#a855f7" },
-              { label: "5. Verification", count: pipelineFunnel.verificationCount, color: "#f59e0b" },
-              { label: "6. Interview Shortlist", count: pipelineFunnel.interviewShortlistCount, color: "#10b981" },
-            ].map((stage, idx) => (
-              <div
-                key={stage.label}
+              { id: "overview", label: "Overview & Funnel" },
+              { id: "matrix", label: "Multi-Candidate Matrix" },
+              { id: "jd", label: "JD Intelligence" },
+              { id: "decisions", label: "Decision Evidence Panel" },
+              { id: "questions", label: "Question Generator" },
+              { id: "analytics", label: "Hiring Analytics" },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
                 style={{
-                  background: "rgba(0, 0, 0, 0.25)",
-                  border: "1px solid rgba(255, 255, 255, 0.06)",
-                  borderRadius: 10,
-                  padding: "12px 10px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderBottom: activeTab === tab.id ? "2px solid #18181B" : "2px solid transparent",
+                  color: activeTab === tab.id ? "#18181B" : "#6B6B6B",
+                  fontSize: 13,
+                  fontWeight: activeTab === tab.id ? 600 : 500,
+                  padding: "14px 12px",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 150ms ease",
                 }}
               >
-                <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>{stage.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: stage.color, marginTop: 4 }}>
-                  {stage.count.toLocaleString()}
-                </div>
-              </div>
+                {tab.label}
+              </button>
             ))}
           </div>
-        </section>
 
+          {/* Blind Screening Toggle */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 16 }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#18181B",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={blindMode}
+                onChange={(e) => setBlindMode(e.target.checked)}
+                style={{ accentColor: "#176B5B", cursor: "pointer" }}
+              />
+              Blind Screening Mode (Mask PII)
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3. RECRUITER MAIN WORKSPACE ── */}
+      <main
+        style={{
+          maxWidth: 1360,
+          margin: "0 auto",
+          padding: "28px 20px 80px",
+        }}
+      >
         {/* ══════════════════════════════════════════════════════════ */}
-        {/* SECTION 38: CANDIDATE REDISCOVERY SECTION                  */}
+        {/* TAB 1: OVERVIEW & FUNNEL                                  */}
         {/* ══════════════════════════════════════════════════════════ */}
-        {rediscoveryMatches.length > 0 && (
-          <section style={{ marginBottom: 32 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 16 }}>♻️</span>
-                <h2 style={{ fontSize: 14, fontWeight: 900, letterSpacing: 1.2, textTransform: "uppercase", color: "#38bdf8", margin: 0 }}>
-                  CANDIDATE REDISCOVERY (SECTION 38)
-                </h2>
+        {activeTab === "overview" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 16 }}>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#176B5B", textTransform: "uppercase", letterSpacing: "0.6px" }}>
+                  RECRUITER COMMAND CENTER
+                </span>
+                <h1 style={{ fontSize: 26, fontWeight: 700, margin: "4px 0 0", color: "#111111" }}>
+                  Hiring Pipeline & Candidate Decisions
+                </h1>
+                <p style={{ fontSize: 13, color: "#6B6B6B", margin: "4px 0 0" }}>
+                  Evidence-based candidate qualification. Zero AI guesswork, zero keyword stuffing bias.
+                </p>
               </div>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                Candidates previously evaluated who match new openings
-              </span>
-            </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 14 }}>
-              {rediscoveryMatches.map((match, mIdx) => (
-                <div
-                  key={mIdx}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => setActiveTab("matrix")}
                   style={{
-                    background: "rgba(56, 189, 248, 0.06)",
-                    border: "1px solid rgba(56, 189, 248, 0.25)",
-                    borderRadius: 14,
-                    padding: "18px 20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: 12,
+                    backgroundColor: "#18181B",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "8px 16px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
                   }}
                 >
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                      <div>
-                        <h4 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#ffffff" }}>
-                          {getDisplayName(match.candidateName, match.candidateId)}
-                        </h4>
-                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                          Previously evaluated for: <strong style={{ color: "#cbd5e1" }}>{match.previousRoleEvaluated}</strong>
-                        </div>
-                      </div>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 800,
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          background: "rgba(56, 189, 248, 0.15)",
-                          color: "#38bdf8",
-                          border: "1px solid rgba(56, 189, 248, 0.3)",
-                        }}
-                      >
-                        Target: {match.targetRoleTitle}
-                      </span>
-                    </div>
+                  View Candidate Comparison Matrix
+                </button>
+              </div>
+            </div>
 
-                    <div style={{ fontSize: 12, color: "#e2e8f0", lineHeight: 1.4, margin: "8px 0" }}>
-                      {match.rediscoveryReason}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      {match.matchedRequirements.map((r, rIdx) => (
-                        <div key={rIdx} style={{ fontSize: 11, color: "#94a3b8", display: "flex", alignItems: "center", gap: 6 }}>
-                          <span style={{ color: "#10b981" }}>✓</span>
-                          <span><strong>{r.requirementName}:</strong> {r.evidenceFound} ({r.source})</span>
-                        </div>
-                      ))}
-                    </div>
+            {/* Visual Hiring Funnel */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: 12,
+              }}
+            >
+              {funnel.map((step, idx) => (
+                <div
+                  key={step.label}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E7E5E4",
+                    borderRadius: 8,
+                    padding: "16px 18px",
+                  }}
+                >
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#6B6B6B", textTransform: "uppercase" }}>
+                    Stage 0{idx + 1} • {step.label}
                   </div>
-
-                  <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid rgba(56, 189, 248, 0.15)" }}>
-                    <Link
-                      href={`/recruiter/candidates/${match.candidateId}`}
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 800,
-                        color: "#38bdf8",
-                        textDecoration: "none",
-                      }}
-                    >
-                      Inspect Evidence Passport ➔
-                    </Link>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#111111", margin: "6px 0 2px" }}>
+                    {step.value}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#176B5B", fontWeight: 500 }}>
+                    {step.change}
                   </div>
                 </div>
               ))}
             </div>
-          </section>
+
+            {/* Two Column Layout: Action Items & Fast-Track Candidate Spotlight */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 20 }}>
+              {/* Action Items Box */}
+              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px", color: "#111111" }}>
+                  Actions Requiring Human Recruiter Review
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    { title: "Alex Rivera (Staff SWE)", reason: "Cleared Stage 4 with 91% match. Review final system design notes.", action: "Review Dossier" },
+                    { title: "Priya Sharma (Senior Backend)", reason: "Passed CS Technical Round. Needs assignment of Hiring Manager interview.", action: "Assign Interviewer" },
+                    { title: "Rohan Mehta (Systems SWE)", reason: "Vibe-code check flagged commit bursts. Requires code origin verification.", action: "Audit Commits" },
+                  ].map((act) => (
+                    <div
+                      key={act.title}
+                      style={{
+                        padding: 14,
+                        backgroundColor: "#FAFAF9",
+                        border: "1px solid #E7E5E4",
+                        borderRadius: 8,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 12,
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#18181B" }}>{act.title}</div>
+                        <div style={{ fontSize: 12, color: "#6B6B6B", marginTop: 2 }}>{act.reason}</div>
+                      </div>
+                      <button
+                        onClick={() => setActiveTab("matrix")}
+                        style={{
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E7E5E4",
+                          color: "#18181B",
+                          padding: "6px 12px",
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {act.action}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Verified Roles Spotlight */}
+              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 24 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 16px", color: "#111111" }}>
+                  Active Job Specifications
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {[
+                    { role: "Staff Systems Engineer (L5)", team: "Infrastructure Concurrency", applicants: 48, qualified: 12 },
+                    { role: "Senior Backend Engineer (L4)", team: "API Core & Billing", applicants: 62, qualified: 18 },
+                    { role: "Cloud Platform Fellow", team: "Kubernetes & Telemetry", applicants: 74, qualified: 18 },
+                  ].map((pos) => (
+                    <div
+                      key={pos.role}
+                      style={{
+                        padding: 14,
+                        backgroundColor: "#FAFAF9",
+                        border: "1px solid #E7E5E4",
+                        borderRadius: 8,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#18181B" }}>{pos.role}</div>
+                        <div style={{ fontSize: 12, color: "#6B6B6B", marginTop: 2 }}>{pos.team}</div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "#176B5B" }}>{pos.qualified} Verified</div>
+                        <div style={{ fontSize: 11, color: "#6B6B6B" }}>of {pos.applicants} candidates</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* ══════════════════════════════════════════════════════════ */}
-        {/* PRIORITY ACTION QUEUE (Section 50: Candidates requiring review) */}
+        {/* TAB 2: MULTI-CANDIDATE COMPARISON MATRIX                  */}
         {/* ══════════════════════════════════════════════════════════ */}
-        <section style={{ marginBottom: 36 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 18 }}>🚨</span>
-              <h2 style={{ fontSize: 15, color: "#f8fafc", fontWeight: 800, margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Priority Action Queue ({actionQueue.length})
+        {activeTab === "matrix" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
+                DECISION WORKSPACE
+              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
+                Multi-Candidate Comparison Matrix
               </h2>
-            </div>
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>Real-time pending verification & review events</span>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {actionQueue.length === 0 ? (
-              <div style={{ padding: 24, background: "rgba(15,23,42,0.6)", borderRadius: 12, textAlign: "center", color: "#94a3b8", fontSize: 13 }}>
-                🎉 Action queue is clear. All candidates are in stable stages.
-              </div>
-            ) : (
-              actionQueue.map((item) => {
-                const isUrgent = item.urgency === "Immediate";
-                const isHigh = item.urgency === "High";
-                const badgeBg = isUrgent ? "rgba(239, 68, 68, 0.2)" : isHigh ? "rgba(245, 158, 11, 0.2)" : "rgba(99, 102, 241, 0.2)";
-                const badgeColor = isUrgent ? "#fca5a5" : isHigh ? "#fde68a" : "#c7d2fe";
-
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      background: "rgba(15, 23, 42, 0.7)",
-                      border: `1px solid ${isUrgent ? "rgba(239, 68, 68, 0.35)" : "rgba(255, 255, 255, 0.08)"}`,
-                      borderRadius: 14,
-                      padding: "18px 22px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      flexWrap: "wrap",
-                      gap: 16,
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: badgeBg, color: badgeColor, fontWeight: 800 }}>
-                          {item.urgency.toUpperCase()}
-                        </span>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                          {item.dueText} • Candidate: <strong style={{ color: "#f8fafc" }}>{getDisplayName(item.candidateName, item.candidateId)}</strong>
-                        </span>
-                      </div>
-                      <h3 style={{ fontSize: 15, fontWeight: 700, color: "white", margin: "0 0 2px" }}>
-                        {item.title}
-                      </h3>
-                      <div style={{ fontSize: 12, color: "#64748b" }}>
-                        Role: {item.roleTitle}
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <Link
-                        href={`/recruiter/candidates/${item.candidateId}`}
-                        style={{
-                          padding: "8px 14px",
-                          borderRadius: 8,
-                          background: "rgba(255, 255, 255, 0.05)",
-                          border: "1px solid rgba(255, 255, 255, 0.12)",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          textDecoration: "none",
-                        }}
-                      >
-                        Passport ➔
-                      </Link>
-
-                      <Link
-                        href={item.actionUrl}
-                        style={{
-                          padding: "8px 16px",
-                          borderRadius: 8,
-                          background: isUrgent ? "linear-gradient(135deg, #ef4444, #dc2626)" : "linear-gradient(135deg, #6366f1, #a855f7)",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          textDecoration: "none",
-                        }}
-                      >
-                        Resolve Action ➔
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-
-        {/* ── TWO-COLUMN VIEW: OPEN POSITIONS & CANDIDATE DISCOVERY INTAKE ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 550px), 1fr))", gap: 24 }}>
-          {/* OPEN POSITIONS (ROLE DNA) */}
-          <section style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-              <div>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: "white", margin: "0 0 2px" }}>
-                  💼 Open Positions (Role DNAs)
-                </h2>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>Tiered requirement schemas with outcome milestones</div>
-              </div>
-
-              <Link
-                href="/recruiter/roles"
-                style={{ fontSize: 12, color: "#c084fc", textDecoration: "none", fontWeight: 700 }}
-              >
-                + Define New Role ➔
-              </Link>
+              <p style={{ fontSize: 14, color: "#6B6B6B", margin: "4px 0 0" }}>
+                Never make a decision on score alone. Inspect verified evidence, commit history density, and skill gaps.
+              </p>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {openPositions.map((pos) => (
-                <div
-                  key={pos.id}
-                  style={{
-                    background: "rgba(0, 0, 0, 0.3)",
-                    border: "1px solid rgba(255, 255, 255, 0.06)",
-                    borderRadius: 12,
-                    padding: "16px",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                    <div>
-                      <h4 style={{ fontSize: 14, fontWeight: 800, color: "#f8fafc", margin: 0 }}>
-                        {pos.title}
-                      </h4>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
-                        {pos.department} • Seniority: {pos.seniority} • Target Hires: {pos.targetHires}
-                      </div>
-                    </div>
-
-                    <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(168,85,247,0.15)", color: "#d8b4fe", fontWeight: 700 }}>
-                      {pos.applicantsCount} in pipeline
-                    </span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.05)" }}>
-                    <span style={{ fontSize: 11, color: "#ef4444", fontWeight: 700 }}>
-                      🛡️ {pos.criticalRequirementsCount} Critical Dealbreakers
-                    </span>
-                    <Link
-                      href={`/recruiter/candidates?roleId=${pos.id}`}
-                      style={{ fontSize: 11, color: "#38bdf8", textDecoration: "none", fontWeight: 700 }}
+            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#FAFAF9", borderBottom: "1px solid #E7E5E4", color: "#6B6B6B", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    <th style={{ padding: "14px 18px" }}>Candidate</th>
+                    <th style={{ padding: "14px 18px" }}>Match</th>
+                    <th style={{ padding: "14px 18px" }}>Must-Have Evidence</th>
+                    <th style={{ padding: "14px 18px" }}>Identified Gaps</th>
+                    <th style={{ padding: "14px 18px" }}>Vibe-Code Risk</th>
+                    <th style={{ padding: "14px 18px" }}>Priority</th>
+                    <th style={{ padding: "14px 18px" }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {candidateMatrix.map((cand) => (
+                    <tr
+                      key={cand.id}
+                      onClick={() => setSelectedCandidate(cand)}
+                      style={{
+                        borderBottom: "1px solid #E7E5E4",
+                        cursor: "pointer",
+                        backgroundColor: selectedCandidate?.id === cand.id ? "#F5F5F4" : "transparent",
+                      }}
                     >
-                      View Candidates ➔
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* CANDIDATE DISCOVERY POOL VIEW */}
-          <section style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-              <div>
-                <h2 style={{ fontSize: 15, fontWeight: 800, color: "white", margin: "0 0 2px" }}>
-                  👥 Candidate Discovery Intake
-                </h2>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>Multi-source profiles from bulk upload & student applications</div>
-              </div>
-
-              <Link
-                href="/recruiter/candidates"
-                style={{ fontSize: 12, color: "#38bdf8", textDecoration: "none", fontWeight: 700 }}
-              >
-                View Full Pool ➔
-              </Link>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {recentCandidates.map((cand) => {
-                const isStudentApp = cand.sourceType === "student_application";
-                return (
-                  <div
-                    key={cand.id}
-                    style={{
-                      background: "rgba(0, 0, 0, 0.3)",
-                      border: "1px solid rgba(255, 255, 255, 0.06)",
-                      borderRadius: 12,
-                      padding: "16px",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: "#f8fafc" }}>
-                          {getDisplayName(cand.name, cand.id)}
-                        </span>
+                      <td style={{ padding: "16px 18px", fontWeight: 600 }}>
+                        {getCandidateName(cand)}
+                        <div style={{ fontSize: 12, color: "#6B6B6B", fontWeight: 400 }}>{cand.role}</div>
+                      </td>
+                      <td style={{ padding: "16px 18px" }}>
                         <span
                           style={{
-                            fontSize: 10,
-                            padding: "2px 6px",
+                            backgroundColor: cand.match >= 85 ? "#EBF5F3" : "#FEF3C7",
+                            color: cand.match >= 85 ? "#176B5B" : "#B45309",
+                            padding: "4px 8px",
                             borderRadius: 4,
-                            fontWeight: 800,
-                            background: isStudentApp ? "rgba(16, 185, 129, 0.15)" : "rgba(99, 102, 241, 0.15)",
-                            color: isStudentApp ? "#6ee7b7" : "#a5b4fc",
+                            fontWeight: 700,
                           }}
                         >
-                          {isStudentApp ? "STUDENT APP" : "BULK UPLOAD"}
+                          {cand.match}%
                         </span>
-                      </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                        Applied for: {cand.roleTitle}
-                      </div>
-                    </div>
+                      </td>
+                      <td style={{ padding: "16px 18px", color: "#18181B" }}>
+                        <div>{cand.mustHaves.join(", ")}</div>
+                        <div style={{ fontSize: 11, color: "#6B6B6B", marginTop: 2 }}>{cand.evidence}</div>
+                      </td>
+                      <td style={{ padding: "16px 18px", color: "#B45309", fontWeight: 500 }}>
+                        {cand.gaps.join(", ")}
+                      </td>
+                      <td style={{ padding: "16px 18px", color: cand.vibeRisk.includes("Low") || cand.vibeRisk.includes("Organic") ? "#176B5B" : "#B45309", fontWeight: 600 }}>
+                        {cand.vibeRisk}
+                      </td>
+                      <td style={{ padding: "16px 18px" }}>
+                        <span
+                          style={{
+                            backgroundColor: cand.priority === "High" ? "#18181B" : "#F5F5F4",
+                            color: cand.priority === "High" ? "#FFFFFF" : "#18181B",
+                            padding: "3px 8px",
+                            borderRadius: 4,
+                            fontSize: 11,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {cand.priority}
+                        </span>
+                      </td>
+                      <td style={{ padding: "16px 18px" }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedCandidate(cand);
+                            setActiveTab("decisions");
+                          }}
+                          style={{
+                            backgroundColor: "transparent",
+                            border: "1px solid #E7E5E4",
+                            color: "#18181B",
+                            padding: "5px 10px",
+                            borderRadius: 6,
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Decision Dossier ➔
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-                    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                      <Link
-                        href={`/recruiter/candidates/${cand.id}`}
-                        style={{
-                          fontSize: 11,
-                          color: "#38bdf8",
-                          textDecoration: "none",
-                          fontWeight: 700,
-                          padding: "4px 8px",
-                          borderRadius: 6,
-                          background: "rgba(56, 189, 248, 0.1)",
-                        }}
-                      >
-                        Passport ➔
-                      </Link>
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* TAB 3: JD INTELLIGENCE                                    */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeTab === "jd" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
+                STRUCTURED SPECIFICATION
+              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
+                Job Description Intelligence & Role Signals
+              </h2>
+            </div>
 
-                      <Link
-                        href={`/recruiter/decision-room?candidate=${cand.id}`}
-                        style={{
-                          fontSize: 11,
-                          color: "#c084fc",
-                          textDecoration: "none",
-                          fontWeight: 700,
-                          padding: "4px 8px",
-                          borderRadius: 6,
-                          background: "rgba(168,85,247,0.1)",
-                        }}
-                      >
-                        Decision Room ➔
-                      </Link>
-                    </div>
+            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#176B5B", textTransform: "uppercase", marginBottom: 6 }}>
+                    MUST-HAVE COMPETENCIES
                   </div>
-                );
-              })}
-            </div>
-          </section>
-        </div>
-      </main>
-
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* SECTION 39: RECRUITER ASK COGNALYZE MODAL                  */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      {askModalOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 10000,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            backdropFilter: "blur(8px)",
-            padding: 20,
-          }}
-          onClick={() => setAskModalOpen(false)}
-        >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 640,
-              backgroundColor: "#0d1322",
-              border: "1px solid rgba(56, 189, 248, 0.35)",
-              borderRadius: 16,
-              padding: "24px 28px",
-              color: "#f8fafc",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <div>
-                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase", color: "#38bdf8" }}>
-                  SECTION 39: RECRUITER TALENT INTELLIGENCE
-                </span>
-                <h3 style={{ fontSize: 20, fontWeight: 900, margin: "2px 0 0", color: "#ffffff" }}>
-                  Ask Cognalyze
-                </h3>
-              </div>
-              <button
-                onClick={() => setAskModalOpen(false)}
-                style={{ background: "rgba(255, 255, 255, 0.08)", border: "none", color: "#94a3b8", borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleAskSubmit} style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="text"
-                  value={askQuery}
-                  onChange={(e) => setAskQuery(e.target.value)}
-                  placeholder="e.g. Which candidates claim system design but have insufficient evidence?"
-                  style={{
-                    flex: 1,
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "rgba(0, 0, 0, 0.4)",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "white",
-                    fontSize: 13,
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={askLoading}
-                  style={{
-                    padding: "10px 18px",
-                    borderRadius: 8,
-                    background: "linear-gradient(135deg, #38bdf8, #6366f1)",
-                    border: "none",
-                    color: "white",
-                    fontWeight: 800,
-                    cursor: askLoading ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {askLoading ? "Analyzing..." : "Ask"}
-                </button>
-              </div>
-            </form>
-
-            {/* Quick Prompt Suggestions */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
-              {[
-                "Show candidates with strong ML evidence but weak interview evidence",
-                "Which shortlisted candidates have unverified project ownership?",
-                "Which candidates claim system design but have insufficient evidence?",
-                "Why is Candidate 1 above Candidate 2?",
-              ].map((suggestion) => (
-                <button
-                  key={suggestion}
-                  type="button"
-                  onClick={() => {
-                    setAskQuery(suggestion);
-                  }}
-                  style={{
-                    background: "rgba(255, 255, 255, 0.04)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 6,
-                    padding: "4px 8px",
-                    color: "#94a3b8",
-                    fontSize: 11,
-                    cursor: "pointer",
-                  }}
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-
-            {/* Answer Display */}
-            {askAnswer && (
-              <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(56, 189, 248, 0.25)", borderRadius: 12, padding: "16px 18px" }}>
-                <div style={{ fontSize: 13, color: "#f8fafc", lineHeight: 1.6, whiteSpace: "pre-line", marginBottom: 12 }}>
-                  {askAnswer.answer}
+                  <ul style={{ fontSize: 13, color: "#374151", paddingLeft: 18, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <li>Python (FastAPI / AsyncIO concurrency)</li>
+                    <li>Distributed Relational Storage (PostgreSQL pool tuning)</li>
+                    <li>Redis / In-Memory caching architectures</li>
+                  </ul>
                 </div>
 
-                {askAnswer.citedCandidates.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: "#38bdf8", marginBottom: 6 }}>
-                      Cited Candidate Evidence
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      {askAnswer.citedCandidates.map((c, i) => (
-                        <div key={i} style={{ fontSize: 11, color: "#cbd5e1", background: "rgba(0, 0, 0, 0.3)", padding: "8px 10px", borderRadius: 6 }}>
-                          <strong style={{ color: "#38bdf8" }}>{getDisplayName(c.name, c.id)}:</strong> {c.evidenceSnippet}
-                          <div style={{ color: "#64748b", marginTop: 2 }}>Provenance: {c.provenance}</div>
-                        </div>
-                      ))}
-                    </div>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#6B6B6B", textTransform: "uppercase", marginBottom: 6 }}>
+                    GOOD-TO-HAVE CAPABILITIES
                   </div>
-                )}
+                  <ul style={{ fontSize: 13, color: "#374151", paddingLeft: 18, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <li>AWS Lambda Serverless Event Streams</li>
+                    <li>Docker containerized CI/CD orchestration</li>
+                    <li>Open-source contribution track record</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#6B6B6B", textTransform: "uppercase", marginBottom: 6 }}>
+                    ROLE SIGNALS & EXPECTATIONS
+                  </div>
+                  <ul style={{ fontSize: 13, color: "#374151", paddingLeft: 18, margin: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+                    <li>Senior Engineering Scope (L5 equivalent)</li>
+                    <li>Trade-off communication during incident reviews</li>
+                    <li>Zero tolerance for unverified code assertions</li>
+                  </ul>
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* TAB 4: DECISION EVIDENCE PANEL                            */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeTab === "decisions" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
+                STRUCTURED RECOMMENDATION
+              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
+                Hiring Decision Dossier: {selectedCandidate ? getCandidateName(selectedCandidate) : "Alex Rivera"}
+              </h2>
+              <p style={{ fontSize: 14, color: "#6B6B6B", margin: "4px 0 0" }}>
+                Transparent pros, identified concerns, and actionable next steps.
+              </p>
+            </div>
+
+            <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 12, padding: 28 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 24, marginBottom: 24 }}>
+                <div style={{ border: "1px solid #E7E5E4", borderRadius: 8, padding: 18, backgroundColor: "#EBF5F3" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#176B5B", textTransform: "uppercase", marginBottom: 6 }}>
+                    OVERALL FIT VERDICT
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#111111", marginBottom: 6 }}>
+                    Strong Technical Alignment (91% Match)
+                  </div>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.5 }}>
+                    "Demonstrates verifiable production concurrency patterns. Genuine multi-month git timeline rules out vibe-coding."
+                  </div>
+                </div>
+
+                <div style={{ border: "1px solid #E7E5E4", borderRadius: 8, padding: 18, backgroundColor: "#FAFAF9" }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#B45309", textTransform: "uppercase", marginBottom: 6 }}>
+                    POTENTIAL CONCERNS
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: "#111111", marginBottom: 6 }}>
+                    Missing Serverless Cloud Evidence
+                  </div>
+                  <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.5 }}>
+                    "Resume mentions AWS Lambda, but public repositories show only local Docker deployment without cloud terraform/IaC scripts."
+                  </div>
+                </div>
+              </div>
+
+              {/* Recommended Next Step Box */}
+              <div style={{ border: "1px solid #18181B", borderRadius: 8, padding: 20, backgroundColor: "#FFFFFF" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#18181B", textTransform: "uppercase", marginBottom: 6 }}>
+                  RECOMMENDED NEXT STEP
+                </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#111111", marginBottom: 6 }}>
+                  Advance to Live System Design Whiteboard Round
+                </div>
+                <div style={{ fontSize: 13, color: "#6B6B6B", marginBottom: 16 }}>
+                  Focus assessment specifically on event-driven decoupling and cache invalidation under network partitions.
+                </div>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <button
+                    style={{
+                      backgroundColor: "#18181B",
+                      color: "#FFFFFF",
+                      border: "none",
+                      borderRadius: 6,
+                      padding: "8px 16px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Confirm Stage Clearance (Advance Candidate)
+                  </button>
+                  <button
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      color: "#18181B",
+                      border: "1px solid #E7E5E4",
+                      borderRadius: 6,
+                      padding: "8px 16px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Request Additional Code Sample
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* TAB 5: QUESTION GENERATOR                                 */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeTab === "questions" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
+                EVIDENCE-GROUNDED INTERVIEW PROBES
+              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
+                Tailored Interview Questions for Alex Rivera
+              </h2>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {[
+                {
+                  q: "In your distributed task queue repository, how did you prevent race conditions between workers claiming the same task without degrading Redis throughput?",
+                  reason: "Tests concurrency ownership directly from candidate's code.",
+                  evaluates: "Distributed lock renewals, redlock algorithm, atomic Redis lua scripts.",
+                  evidence: "Repo: distributed-worker-queue • Commit 3e9500d",
+                },
+                {
+                  q: "Your resume claims a 42% latency reduction in PostgreSQL queries. Walk me through the exact indexing or connection pool change that yielded that outcome.",
+                  reason: "Validates quantified metric truthfulness.",
+                  evaluates: "Query plan analysis (EXPLAIN ANALYZE), pgBouncer tuning, B-tree indexes.",
+                  evidence: "Experience: Software Engineering Fellow",
+                },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E7E5E4",
+                    borderRadius: 10,
+                    padding: 22,
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#176B5B", textTransform: "uppercase", marginBottom: 6 }}>
+                    PROBE {idx + 1}
+                  </div>
+                  <h4 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 10px", color: "#111111" }}>
+                    "{item.q}"
+                  </h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13, color: "#4B5563" }}>
+                    <div>• <strong>What it tests:</strong> {item.evaluates}</div>
+                    <div>• <strong>Why ask this:</strong> {item.reason}</div>
+                    <div>• <strong>Candidate Evidence Link:</strong> {item.evidence}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* TAB 6: HIRING ANALYTICS                                   */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeTab === "analytics" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#176B5B", textTransform: "uppercase" }}>
+                PIPELINE VELOCITY
+              </span>
+              <h2 style={{ fontSize: 24, fontWeight: 700, color: "#111111", margin: "4px 0 0" }}>
+                Recruiter Analytics & Quality of Hire
+              </h2>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
+              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 10, padding: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#6B6B6B" }}>Time to Shortlist</div>
+                <div style={{ fontSize: 32, fontWeight: 700, color: "#111111", margin: "8px 0" }}>2.4 Days</div>
+                <div style={{ fontSize: 12, color: "#176B5B" }}>↓ 72% faster than resume-screening baseline</div>
+              </div>
+              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 10, padding: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#6B6B6B" }}>Candidate Conversion</div>
+                <div style={{ fontSize: 32, fontWeight: 700, color: "#111111", margin: "8px 0" }}>68.4%</div>
+                <div style={{ fontSize: 12, color: "#176B5B" }}>Interview pass-rate of evidence-qualified talent</div>
+              </div>
+              <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E7E5E4", borderRadius: 10, padding: 20 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#6B6B6B" }}>Top Demanded Skill</div>
+                <div style={{ fontSize: 24, fontWeight: 700, color: "#18181B", margin: "8px 0" }}>Distributed Systems</div>
+                <div style={{ fontSize: 12, color: "#6B6B6B" }}>Featured in 82% of active engineering roles</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
