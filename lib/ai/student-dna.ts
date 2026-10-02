@@ -221,10 +221,7 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
     githubHandle = extractGitHubUsername(profile.profile_summary) || undefined;
   }
 
-  // Default demo fallback handle ONLY if candidate is explicitly student-demo
-  if (!githubHandle && candidateId === "student-demo") {
-    githubHandle = "nisthamaheshwari85";
-  }
+  // No hardcoded username fallback
 
   // 3. GitHub Verification & Enrichment (Reusing Resume Screening verifier)
   const resumeEvidence = `${profile.profile_summary} ${(profile.skills || []).map(s => s.name).join(" ")} ${(profile.past_projects || []).map(p => `${p.title}: ${p.description}`).join(" ")}`;

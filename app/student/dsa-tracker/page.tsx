@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import AppNav from "@/components/AppNav";
 
 interface DsaTopic {
   id: string;
@@ -43,17 +44,18 @@ function formatInline(text: string) {
   const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} style={{ color: "white" }}>{part.slice(2, -2)}</strong>;
+      return <strong key={i} style={{ color: "#17191C" }}>{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith("`") && part.endsWith("`")) {
       return (
         <code
           key={i}
           style={{
-            padding: "2px 5px",
-            background: "rgba(255,255,255,0.1)",
+            padding: "2px 6px",
+            background: "#EFF4FE",
+            border: "1px solid #D2E0FB",
             borderRadius: 4,
-            color: "#fbbf24",
+            color: "#162A43",
             fontFamily: "monospace",
             fontSize: 12
           }}
@@ -81,12 +83,12 @@ function MarkdownView({ content }: { content: string }) {
             key={`code-${idx}`}
             style={{
               padding: "12px 14px",
-              background: "rgba(0,0,0,0.5)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "#0D1929",
+              border: "1px solid #162A43",
               borderRadius: 8,
               overflowX: "auto",
               fontSize: 12,
-              color: "#a5b4fc",
+              color: "#93C5FD",
               fontFamily: "monospace",
               margin: "10px 0"
             }}
@@ -109,25 +111,25 @@ function MarkdownView({ content }: { content: string }) {
 
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={idx} style={{ fontSize: 17, fontWeight: 800, color: "white", margin: "16px 0 8px" }}>
+        <h2 key={idx} style={{ fontSize: 16, fontWeight: 700, color: "#17191C", margin: "16px 0 8px" }}>
           {line.slice(3)}
         </h2>
       );
     } else if (line.startsWith("### ")) {
       elements.push(
-        <h3 key={idx} style={{ fontSize: 14, fontWeight: 700, color: "#38bdf8", margin: "14px 0 6px" }}>
+        <h3 key={idx} style={{ fontSize: 14, fontWeight: 700, color: "#162A43", margin: "14px 0 6px" }}>
           {line.slice(4)}
         </h3>
       );
     } else if (line.startsWith("- ") || line.startsWith("* ")) {
       elements.push(
-        <li key={idx} style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", marginLeft: 20, marginBottom: 4 }}>
+        <li key={idx} style={{ fontSize: 13, color: "#344054", marginLeft: 20, marginBottom: 4 }}>
           {formatInline(line.slice(2))}
         </li>
       );
     } else if (line.trim().length > 0) {
       elements.push(
-        <p key={idx} style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.6, margin: "6px 0" }}>
+        <p key={idx} style={{ fontSize: 13, color: "#344054", lineHeight: 1.6, margin: "6px 0" }}>
           {formatInline(line)}
         </p>
       );
@@ -696,19 +698,24 @@ function DsaTrackerContent() {
   const renderProblemCard = (prob: DsaProblem) => {
     const isTimerActive = activeTimerId === prob.id;
     const isNotesOpen = editingNotesId === prob.id;
-    const diffColor = prob.difficulty === "easy" ? "#00ff88" : prob.difficulty === "medium" ? "#fbbf24" : "#ff4466";
     const status = prob.progress?.status || "unsolved";
+
+    const diffBadge = prob.difficulty === "easy" 
+      ? { bg: "#EAF4EE", color: "#2E7D5B", border: "#C8E4D3", label: "🟢 Easy" }
+      : prob.difficulty === "medium"
+      ? { bg: "#FEF7ED", color: "#B7791F", border: "#F8D8A7", label: "🟡 Medium" }
+      : { bg: "#FDF2F2", color: "#C24141", border: "#F8C8C8", label: "🔴 Hard" };
 
     return (
       <div
         key={prob.id}
         style={{
-          background: "rgba(255, 255, 255, 0.03)",
-          border: isTimerActive ? "1px solid rgba(99, 102, 241, 0.6)" : "1px solid rgba(255, 255, 255, 0.07)",
-          borderRadius: 14,
+          background: "#FFFFFF",
+          border: isTimerActive ? "1.5px solid #356AE6" : "1px solid #E4E1DA",
+          borderRadius: 10,
           padding: "1rem 1.25rem",
-          transition: "border-color 0.2s, background 0.2s",
-          boxShadow: isTimerActive ? "0 0 20px rgba(99, 102, 241, 0.15)" : "none"
+          transition: "border-color 0.2s, box-shadow 0.2s",
+          boxShadow: isTimerActive ? "0 4px 12px rgba(53, 106, 230, 0.12)" : "0 1px 3px rgba(16,24,40,0.04)"
         }}
       >
         {/* Top meta row */}
@@ -718,37 +725,37 @@ function DsaTrackerContent() {
               style={{
                 fontSize: 11,
                 padding: "2px 8px",
-                borderRadius: 6,
-                fontWeight: 800,
+                borderRadius: 5,
+                fontWeight: 700,
                 textTransform: "capitalize",
-                background: `${diffColor}18`,
-                color: diffColor,
-                border: `1px solid ${diffColor}35`
+                background: diffBadge.bg,
+                color: diffBadge.color,
+                border: `1px solid ${diffBadge.border}`
               }}
             >
-              {prob.difficulty === "easy" ? "🟢 Easy" : prob.difficulty === "medium" ? "🟡 Medium" : "🔴 Hard"}
+              {diffBadge.label}
             </span>
 
             {prob.subtopic_title && (
-              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "rgba(255, 255, 255, 0.06)", color: "rgba(255, 255, 255, 0.75)", fontWeight: 600 }}>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#F6F5F1", color: "#667085", border: "1px solid #E4E1DA", fontWeight: 600 }}>
                 {prob.subtopic_title}
               </span>
             )}
 
             {prob.time_complexity && (
-              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 6, background: "rgba(0, 255, 136, 0.08)", color: "#00ff88", border: "1px solid rgba(0, 255, 136, 0.2)" }}>
+              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 5, background: "#EFF4FE", color: "#162A43", border: "1px solid #D2E0FB", fontWeight: 600 }}>
                 ⏱️ {prob.time_complexity}
               </span>
             )}
 
             {prob.space_complexity && (
-              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 6, background: "rgba(168, 85, 247, 0.08)", color: "#c084fc", border: "1px solid rgba(168, 85, 247, 0.2)" }}>
+              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 5, background: "#EFF4FE", color: "#162A43", border: "1px solid #D2E0FB", fontWeight: 600 }}>
                 💾 {prob.space_complexity}
               </span>
             )}
 
             {prob.progress?.next_review_date && (
-              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "rgba(251, 191, 36, 0.12)", color: "#fbbf24", border: "1px solid rgba(251, 191, 36, 0.3)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#FEF7ED", color: "#B7791F", border: "1px solid #F8D8A7", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
                 🔁 Due: {prob.progress.next_review_date} (Box {prob.progress.review_count || 0})
               </span>
             )}
@@ -759,13 +766,13 @@ function DsaTrackerContent() {
             <button
               onClick={() => setModalProblem(prob)}
               style={{
-                background: "rgba(99, 102, 241, 0.15)",
-                border: "1px solid rgba(99, 102, 241, 0.35)",
-                borderRadius: 8,
-                color: "#a5b4fc",
+                background: "#EFF4FE",
+                border: "1px solid #D2E0FB",
+                borderRadius: 7,
+                color: "#356AE6",
                 padding: "4px 10px",
                 fontSize: 11,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",
@@ -781,14 +788,14 @@ function DsaTrackerContent() {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  color: "#38bdf8",
+                  color: "#162A43",
                   fontSize: 11,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   textDecoration: "none",
                   padding: "4px 9px",
-                  borderRadius: 8,
-                  background: "rgba(56, 189, 248, 0.1)",
-                  border: "1px solid rgba(56, 189, 248, 0.25)",
+                  borderRadius: 7,
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 4
@@ -804,14 +811,14 @@ function DsaTrackerContent() {
                 target="_blank"
                 rel="noreferrer"
                 style={{
-                  color: "#f59e0b",
+                  color: "#162A43",
                   fontSize: 11,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   textDecoration: "none",
                   padding: "4px 9px",
-                  borderRadius: 8,
-                  background: "rgba(245, 158, 11, 0.1)",
-                  border: "1px solid rgba(245, 158, 11, 0.25)",
+                  borderRadius: 7,
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 4
@@ -829,18 +836,18 @@ function DsaTrackerContent() {
             onClick={() => setModalProblem(prob)}
             style={{
               fontSize: 15,
-              fontWeight: 800,
-              color: "white",
+              fontWeight: 700,
+              color: "#17191C",
               margin: "0 0 4px",
               cursor: "pointer",
               transition: "color 0.15s"
             }}
-            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#818cf8")}
-            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "white")}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = "#356AE6")}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = "#17191C")}
           >
             {prob.title}
           </h4>
-          <p style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.6)", margin: 0, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 12, color: "#667085", margin: 0, lineHeight: 1.5 }}>
             {prob.description}
           </p>
         </div>
@@ -848,7 +855,7 @@ function DsaTrackerContent() {
         {/* Company Tags */}
         {prob.companies && prob.companies.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.4)", fontWeight: 700, letterSpacing: 0.5 }}>
+            <span style={{ fontSize: 10, color: "#98A2B3", fontWeight: 700, letterSpacing: 0.5 }}>
               ASKED IN:
             </span>
             {prob.companies.map(comp => (
@@ -856,9 +863,9 @@ function DsaTrackerContent() {
                 key={comp}
                 onClick={() => setSelectedCompany(selectedCompany === comp ? "all" : comp)}
                 style={{
-                  background: selectedCompany === comp ? "rgba(56, 189, 248, 0.25)" : "rgba(255, 255, 255, 0.04)",
-                  border: selectedCompany === comp ? "1px solid rgba(56, 189, 248, 0.6)" : "1px solid rgba(255, 255, 255, 0.08)",
-                  color: selectedCompany === comp ? "#38bdf8" : "rgba(255, 255, 255, 0.7)",
+                  background: selectedCompany === comp ? "#EFF4FE" : "#F6F5F1",
+                  border: selectedCompany === comp ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                  color: selectedCompany === comp ? "#356AE6" : "#667085",
                   padding: "2px 8px",
                   borderRadius: 999,
                   fontSize: 11,
@@ -873,7 +880,7 @@ function DsaTrackerContent() {
         )}
 
         {/* Control Bar: Timer, Status buttons, Notes */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, borderTop: "1px solid rgba(255, 255, 255, 0.05)", paddingTop: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, borderTop: "1px solid #E4E1DA", paddingTop: 10 }}>
           {/* Timer & Time Spent */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {isTimerActive ? (
@@ -886,16 +893,16 @@ function DsaTrackerContent() {
                   alignItems: "center",
                   gap: 6,
                   padding: "5px 12px",
-                  borderRadius: 8,
-                  background: "rgba(239, 68, 68, 0.15)",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
-                  color: "#f87171",
+                  borderRadius: 7,
+                  background: "#FDF2F2",
+                  border: "1px solid #F8C8C8",
+                  color: "#C24141",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
-                <span style={{ width: 8, height: 8, borderRadius: 999, background: "#ef4444" }} />
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: "#C24141" }} />
                 Stop & Save ({formatTime(timerSeconds)})
               </button>
             ) : (
@@ -909,10 +916,10 @@ function DsaTrackerContent() {
                   alignItems: "center",
                   gap: 5,
                   padding: "5px 12px",
-                  borderRadius: 8,
-                  background: "rgba(255, 255, 255, 0.05)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  color: "rgba(255, 255, 255, 0.75)",
+                  borderRadius: 7,
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#17191C",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer"
@@ -923,7 +930,7 @@ function DsaTrackerContent() {
             )}
 
             {prob.progress?.time_spent_seconds && prob.progress.time_spent_seconds > 0 ? (
-              <span style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.45)" }}>
+              <span style={{ fontSize: 11, color: "#98A2B3" }}>
                 Total: {formatTime(prob.progress.time_spent_seconds)}
               </span>
             ) : null}
@@ -942,10 +949,10 @@ function DsaTrackerContent() {
               }}
               style={{
                 padding: "5px 11px",
-                borderRadius: 8,
-                background: prob.progress?.notes ? "rgba(168, 85, 247, 0.15)" : "rgba(255, 255, 255, 0.04)",
-                border: prob.progress?.notes ? "1px solid rgba(168, 85, 247, 0.35)" : "1px solid rgba(255, 255, 255, 0.08)",
-                color: prob.progress?.notes ? "#c084fc" : "rgba(255, 255, 255, 0.6)",
+                borderRadius: 7,
+                background: prob.progress?.notes ? "#EFF4FE" : "#F6F5F1",
+                border: prob.progress?.notes ? "1px solid #D2E0FB" : "1px solid #E4E1DA",
+                color: prob.progress?.notes ? "#356AE6" : "#667085",
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -969,10 +976,10 @@ function DsaTrackerContent() {
               }}
               style={{
                 padding: "5px 11px",
-                borderRadius: 8,
-                background: prob.progress?.next_review_date ? "rgba(251, 191, 36, 0.15)" : "rgba(255, 255, 255, 0.04)",
-                border: prob.progress?.next_review_date ? "1px solid rgba(251, 191, 36, 0.4)" : "1px solid rgba(255, 255, 255, 0.08)",
-                color: prob.progress?.next_review_date ? "#fbbf24" : "rgba(255, 255, 255, 0.7)",
+                borderRadius: 7,
+                background: prob.progress?.next_review_date ? "#FEF7ED" : "#F6F5F1",
+                border: prob.progress?.next_review_date ? "1px solid #F8D8A7" : "1px solid #E4E1DA",
+                color: prob.progress?.next_review_date ? "#B7791F" : "#667085",
                 fontSize: 11,
                 fontWeight: 600,
                 cursor: "pointer",
@@ -988,7 +995,12 @@ function DsaTrackerContent() {
             <div style={{ display: "flex", gap: 4 }}>
               {(["unsolved", "attempted", "solved"] as const).map(st => {
                 const isCur = status === st;
-                const col = st === "solved" ? "#00ff88" : st === "attempted" ? "#fbbf24" : "rgba(255, 255, 255, 0.4)";
+                const badgeStyle = st === "solved"
+                  ? { activeBg: "#EAF4EE", activeBorder: "#C8E4D3", activeColor: "#2E7D5B", label: "✓ Solved" }
+                  : st === "attempted"
+                  ? { activeBg: "#FEF7ED", activeBorder: "#F8D8A7", activeColor: "#B7791F", label: "⏳ In Prog" }
+                  : { activeBg: "#F6F5F1", activeBorder: "#E4E1DA", activeColor: "#667085", label: "○ Reset" };
+
                 return (
                   <button
                     key={st}
@@ -997,15 +1009,15 @@ function DsaTrackerContent() {
                       padding: "5px 11px",
                       borderRadius: 7,
                       fontSize: 11,
-                      fontWeight: isCur ? 800 : 500,
-                      border: isCur ? `1px solid ${col}` : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: isCur ? `${col}25` : "transparent",
-                      color: isCur ? col : "rgba(255, 255, 255, 0.5)",
+                      fontWeight: isCur ? 700 : 500,
+                      border: isCur ? `1px solid ${badgeStyle.activeBorder}` : "1px solid #E4E1DA",
+                      background: isCur ? badgeStyle.activeBg : "#FFFFFF",
+                      color: isCur ? badgeStyle.activeColor : "#667085",
                       cursor: "pointer",
                       textTransform: "capitalize"
                     }}
                   >
-                    {st === "solved" ? "✓ Solved" : st === "attempted" ? "⏳ In Prog" : "○ Reset"}
+                    {badgeStyle.label}
                   </button>
                 );
               })}
@@ -1015,8 +1027,8 @@ function DsaTrackerContent() {
 
         {/* Private Notes Drawer */}
         {isNotesOpen && (
-          <div style={{ marginTop: 12, padding: 12, background: "rgba(0, 0, 0, 0.3)", borderRadius: 10, border: "1px solid rgba(168, 85, 247, 0.25)" }}>
-            <div style={{ fontSize: 11, color: "#c084fc", fontWeight: 700, marginBottom: 6 }}>
+          <div style={{ marginTop: 12, padding: 12, background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+            <div style={{ fontSize: 11, color: "#162A43", fontWeight: 700, marginBottom: 6 }}>
               Personal Intuition & Edge Cases (Private)
             </div>
             <textarea
@@ -1026,10 +1038,10 @@ function DsaTrackerContent() {
               rows={3}
               style={{
                 width: "100%",
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                borderRadius: 8,
-                color: "white",
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 6,
+                color: "#17191C",
                 fontSize: 12,
                 padding: "8px 10px",
                 fontFamily: "inherit",
@@ -1040,13 +1052,13 @@ function DsaTrackerContent() {
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
               <button
                 onClick={() => setEditingNotesId(null)}
-                style={{ padding: "4px 10px", borderRadius: 6, background: "transparent", border: "1px solid rgba(255, 255, 255, 0.1)", color: "rgba(255, 255, 255, 0.6)", fontSize: 11, cursor: "pointer" }}
+                style={{ padding: "4px 10px", borderRadius: 6, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#667085", fontSize: 11, cursor: "pointer" }}
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleSaveNotes(prob.id)}
-                style={{ padding: "4px 12px", borderRadius: 6, background: "#6366f1", border: "none", color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                style={{ padding: "4px 12px", borderRadius: 6, background: "#356AE6", border: "none", color: "white", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
               >
                 Save Notes
               </button>
@@ -1060,20 +1072,17 @@ function DsaTrackerContent() {
   const totalSolved = problems.filter(p => p.progress?.status === "solved").length;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#090d16", color: "#f8fafc", fontFamily: "var(--font-geist-sans), sans-serif", paddingBottom: "5rem" }}>
-      {/* Glow Ambient Gradients */}
-      <div style={{ position: "fixed", top: 0, left: "20%", width: "600px", height: "400px", background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "fixed", bottom: 0, right: "10%", width: "500px", height: "400px", background: "radial-gradient(circle, rgba(168,85,247,0.07) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-
-      {/* TOP NAVIGATION BAR */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(9, 13, 22, 0.85)", backdropFilter: "blur(16px)", padding: "0.8rem 1.5rem" }}>
+    <div style={{ minHeight: "100vh", background: "#F6F5F1", color: "#17191C", fontFamily: "var(--font-geist-sans), sans-serif", paddingBottom: "5rem" }}>
+      <AppNav role="student" />
+      {/* SUB TOOLBAR NAVIGATION */}
+      <nav style={{ position: "sticky", top: 56, zIndex: 30, borderBottom: "1px solid #E4E1DA", background: "#FFFFFF", padding: "0.8rem 1.5rem" }}>
         <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Link href="/student" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "white" }}>
-              <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg, #6366f1, #a855f7)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16 }}>⚡</div>
-              <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.5px" }}>Cognalyze</span>
+            <Link href="/student" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", color: "#162A43" }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: "#162A43", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16 }}>⚡</div>
+              <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.5px", color: "#162A43" }}>Cognalyze</span>
             </Link>
-            <span style={{ fontSize: 11, padding: "2px 8px", background: "rgba(99,102,241,0.18)", border: "1px solid rgba(99,102,241,0.35)", borderRadius: 6, color: "#818cf8", fontWeight: 700 }}>DSA TRACKER</span>
+            <span style={{ fontSize: 11, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 5, color: "#356AE6", fontWeight: 700 }}>DSA TRACKER</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
@@ -1084,17 +1093,17 @@ function DsaTrackerContent() {
               { href: "/student/practice-interview", label: "🎙️ Mock Interview" },
               { href: "/student/gd-practice", label: "👥 GD Arena" },
               { href: "/student/applications", label: "📋 Pipeline" },
-              { href: "/student/community", label: "💡 Question Bank" },
+              { href: "/question-bank", label: "💡 Question Bank" },
               { href: "/student/onboarding", label: "🚀 Dossier" }
             ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
                 <button
                   style={{
                     padding: "6px 13px",
-                    borderRadius: 9,
-                    border: item.active ? "1px solid rgba(99,102,241,0.5)" : "1px solid rgba(255,255,255,0.06)",
-                    background: item.active ? "rgba(99,102,241,0.18)" : "transparent",
-                    color: item.active ? "#ffffff" : "rgba(255,255,255,0.6)",
+                    borderRadius: 7,
+                    border: item.active ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                    background: item.active ? "#EFF4FE" : "#FFFFFF",
+                    color: item.active ? "#356AE6" : "#667085",
                     cursor: "pointer",
                     fontSize: 12,
                     fontWeight: item.active ? 700 : 500
@@ -1112,37 +1121,38 @@ function DsaTrackerContent() {
       <main style={{ position: "relative", zIndex: 10, maxWidth: 1240, margin: "0 auto", padding: "2rem 1.5rem" }}>
         {/* HERO METRICS & OVERVIEW */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14, marginBottom: "1.75rem" }}>
-          <div style={{ padding: "1.2rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Total Solved</div>
-            <div style={{ fontSize: "2rem", fontWeight: 900, color: "#00ff88" }}>{totalSolved} <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>/ {problems.length}</span></div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{Math.round((totalSolved / Math.max(1, problems.length)) * 100)}% Curriculum Cleared</div>
+          <div style={{ padding: "1.2rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>Total Solved</div>
+            <div style={{ fontSize: "2rem", fontWeight: 800, color: "#2E7D5B" }}>{totalSolved} <span style={{ fontSize: 13, color: "#98A2B3" }}>/ {problems.length}</span></div>
+            <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>{Math.round((totalSolved / Math.max(1, problems.length)) * 100)}% Curriculum Cleared</div>
           </div>
 
           <div
             onClick={() => setActiveTab("spaced_review")}
             style={{
               padding: "1.2rem",
-              background: dueProblems.length > 0 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
-              border: dueProblems.length > 0 ? "1px solid rgba(251,191,36,0.3)" : "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 16,
+              background: dueProblems.length > 0 ? "#FEF7ED" : "#FFFFFF",
+              border: dueProblems.length > 0 ? "1px solid #F8D8A7" : "1px solid #E4E1DA",
+              borderRadius: 10,
               cursor: "pointer",
-              transition: "transform 0.15s"
+              transition: "transform 0.15s",
+              boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
             }}
           >
-            <div style={{ fontSize: 11, color: dueProblems.length > 0 ? "#fbbf24" : "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            <div style={{ fontSize: 11, color: dueProblems.length > 0 ? "#B7791F" : "#667085", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>
               Due For Review 🔁
             </div>
-            <div style={{ fontSize: "2rem", fontWeight: 900, color: dueProblems.length > 0 ? "#fbbf24" : "#94a3b8" }}>{dueProblems.length}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <div style={{ fontSize: "2rem", fontWeight: 800, color: dueProblems.length > 0 ? "#B7791F" : "#667085" }}>{dueProblems.length}</div>
+            <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>
               {dueProblems.length > 0 ? "Spaced repetition intervals due today" : "All reviews up to date"}
             </div>
           </div>
 
-          <div style={{ padding: "1.2rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Daily Goal (Phase 5b)</div>
+          <div style={{ padding: "1.2rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>Daily Goal (Phase 5b)</div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ fontSize: "2rem", fontWeight: 900, color: "#818cf8" }}>
-                {goalData?.daily_target || 2} <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>probs/day</span>
+              <div style={{ fontSize: "2rem", fontWeight: 800, color: "#162A43" }}>
+                {goalData?.daily_target || 2} <span style={{ fontSize: 12, color: "#98A2B3" }}>probs/day</span>
               </div>
               <div style={{ display: "flex", gap: 4 }}>
                 {[1, 2, 3, 5].map(t => (
@@ -1154,9 +1164,9 @@ function DsaTrackerContent() {
                       borderRadius: 6,
                       fontSize: 10,
                       fontWeight: 700,
-                      border: goalData?.daily_target === t ? "1px solid #818cf8" : "1px solid rgba(255,255,255,0.1)",
-                      background: goalData?.daily_target === t ? "rgba(99,102,241,0.25)" : "transparent",
-                      color: goalData?.daily_target === t ? "#c7d2fe" : "rgba(255,255,255,0.5)",
+                      border: goalData?.daily_target === t ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                      background: goalData?.daily_target === t ? "#EFF4FE" : "#FFFFFF",
+                      color: goalData?.daily_target === t ? "#356AE6" : "#667085",
                       cursor: "pointer"
                     }}
                   >
@@ -1165,40 +1175,40 @@ function DsaTrackerContent() {
                 ))}
               </div>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>
               7d Reflection: {goalData?.last_7_days_completion_pct || 0}% ({goalData?.total_solved_7_days || 0} solved)
             </div>
           </div>
 
-          <div style={{ padding: "1.2rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Milestones Unlocked</div>
-            <div style={{ fontSize: "2rem", fontWeight: 900, color: "#ec4899" }}>
-              {badges.filter(b => b.is_earned).length} <span style={{ fontSize: 13, color: "rgba(255,255,255,0.3)" }}>/ {badges.length}</span>
+          <div style={{ padding: "1.2rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>Milestones Unlocked</div>
+            <div style={{ fontSize: "2rem", fontWeight: 800, color: "#356AE6" }}>
+              {badges.filter(b => b.is_earned).length} <span style={{ fontSize: 13, color: "#98A2B3" }}>/ {badges.length}</span>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Verified milestone badges earned</div>
+            <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>Verified milestone badges earned</div>
           </div>
         </div>
 
         {/* OPPORTUNITY SPECIFIC READINESS BANNER (Phase 2c & 3c) */}
         {opportunityReadiness && (
-          <div style={{ padding: "1.25rem 1.5rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 16, marginBottom: "1.5rem" }}>
+          <div style={{ padding: "1.25rem 1.5rem", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 10, marginBottom: "1.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, padding: "2px 8px", background: "rgba(99,102,241,0.3)", borderRadius: 999, color: "#a5b4fc", fontWeight: 700 }}>
+                  <span style={{ fontSize: 11, padding: "2px 8px", background: "#FFFFFF", border: "1px solid #D2E0FB", borderRadius: 999, color: "#356AE6", fontWeight: 700 }}>
                     🎯 TARGET OPPORTUNITY PROBLEM SET
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 700 }}>{opportunityReadiness.opportunity_title}</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>{opportunityReadiness.opportunity_title}</span>
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>
+                <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.5 }}>
                   {opportunityReadiness.disclaimer}
                 </div>
               </div>
-              <div style={{ textAlign: "center", padding: "0.5rem 1.25rem", background: "rgba(0,0,0,0.3)", borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)" }}>
-                <div style={{ fontSize: "1.8rem", fontWeight: 900, color: opportunityReadiness.readiness_percentage >= 70 ? "#00ff88" : "#fbbf24" }}>
+              <div style={{ textAlign: "center", padding: "0.5rem 1.25rem", background: "#FFFFFF", borderRadius: 10, border: "1px solid #D2E0FB" }}>
+                <div style={{ fontSize: "1.8rem", fontWeight: 900, color: opportunityReadiness.readiness_percentage >= 70 ? "#2E7D5B" : "#B7791F" }}>
                   {opportunityReadiness.readiness_percentage}%
                 </div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>COVERAGE</div>
+                <div style={{ fontSize: 10, color: "#98A2B3", letterSpacing: 1 }}>COVERAGE</div>
               </div>
             </div>
           </div>
@@ -1208,12 +1218,12 @@ function DsaTrackerContent() {
         {suggestions.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: "1.5rem" }}>
             {suggestions.map((sugg, i) => (
-              <div key={i} style={{ padding: "1rem 1.25rem", background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.25)", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+              <div key={i} style={{ padding: "1rem 1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <div style={{ fontSize: 22 }}>💡</div>
                   <div>
-                    <div style={{ fontSize: 11, color: "#c084fc", fontWeight: 700, letterSpacing: 1 }}>DIFFICULTY ADAPTIVE NUDGE</div>
-                    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>{sugg.message}</div>
+                    <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, letterSpacing: 0.5 }}>DIFFICULTY ADAPTIVE NUDGE</div>
+                    <div style={{ fontSize: 13, color: "#17191C", marginTop: 2 }}>{sugg.message}</div>
                   </div>
                 </div>
                 {sugg.next_problem && (
@@ -1222,7 +1232,7 @@ function DsaTrackerContent() {
                       setSelectedTopic(sugg.topic_id);
                       setSearchQuery(sugg.next_problem!.title);
                     }}
-                    style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(168,85,247,0.25)", border: "1px solid rgba(168,85,247,0.4)", color: "#e9d5ff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    style={{ padding: "6px 14px", borderRadius: 7, background: "#356AE6", border: "none", color: "#FFFFFF", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                   >
                     Try {sugg.next_problem.title} →
                   </button>
@@ -1234,17 +1244,17 @@ function DsaTrackerContent() {
 
         {/* CONSISTENCY VS CRAMMING NOTE (Phase 3b) */}
         {analytics?.cramming_analysis?.is_cramming && analytics.cramming_analysis.note && (
-          <div style={{ padding: "1rem 1.25rem", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.25)", borderRadius: 14, display: "flex", alignItems: "center", gap: 12, marginBottom: "1.5rem" }}>
+          <div style={{ padding: "1rem 1.25rem", background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 10, display: "flex", alignItems: "center", gap: 12, marginBottom: "1.5rem" }}>
             <div style={{ fontSize: 20 }}>🧠</div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
-              <strong style={{ color: "#38bdf8" }}>Learning Science Insight: </strong>
+            <div style={{ fontSize: 12, color: "#17191C", lineHeight: 1.5 }}>
+              <strong style={{ color: "#B7791F" }}>Learning Science Insight: </strong>
               {analytics.cramming_analysis.note}
             </div>
           </div>
         )}
 
         {/* NAVIGATION TABS */}
-        <div style={{ display: "flex", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "0.75rem", marginBottom: "1.5rem", overflowX: "auto" }}>
+        <div style={{ display: "flex", gap: 8, borderBottom: "1px solid #E4E1DA", paddingBottom: "0.75rem", marginBottom: "1.5rem", overflowX: "auto" }}>
           {[
             { key: "problems", label: "📚 Problem Bank" },
             { key: "spaced_review", label: `🔁 Review Deck (${dueProblems.length})` },
@@ -1257,10 +1267,10 @@ function DsaTrackerContent() {
               onClick={() => setActiveTab(tab.key as any)}
               style={{
                 padding: "8px 16px",
-                borderRadius: 10,
-                border: activeTab === tab.key ? "1px solid rgba(99,102,241,0.5)" : "1px solid rgba(255,255,255,0.05)",
-                background: activeTab === tab.key ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.02)",
-                color: activeTab === tab.key ? "#ffffff" : "rgba(255,255,255,0.55)",
+                borderRadius: 7,
+                border: activeTab === tab.key ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                background: activeTab === tab.key ? "#EFF4FE" : "#FFFFFF",
+                color: activeTab === tab.key ? "#356AE6" : "#667085",
                 fontSize: 13,
                 fontWeight: activeTab === tab.key ? 700 : 500,
                 cursor: "pointer",
@@ -1282,13 +1292,13 @@ function DsaTrackerContent() {
                 placeholder="Search problem, company, topic..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                style={{ flex: "1 1 200px", padding: "9px 14px", borderRadius: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 13 }}
+                style={{ flex: "1 1 200px", padding: "9px 14px", borderRadius: 8, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 13 }}
               />
 
               <select
                 value={selectedTopic}
                 onChange={e => setSelectedTopic(e.target.value)}
-                style={{ padding: "9px 12px", borderRadius: 10, background: "#131b2e", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 13 }}
+                style={{ padding: "9px 12px", borderRadius: 8, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 13 }}
               >
                 <option value="all">All Topics ({topics.length})</option>
                 {topics.map(t => (
@@ -1299,7 +1309,7 @@ function DsaTrackerContent() {
               <select
                 value={selectedDifficulty}
                 onChange={e => setSelectedDifficulty(e.target.value)}
-                style={{ padding: "9px 12px", borderRadius: 10, background: "#131b2e", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 13 }}
+                style={{ padding: "9px 12px", borderRadius: 8, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 13 }}
               >
                 <option value="all">All Difficulties</option>
                 <option value="easy">🟢 Easy</option>
@@ -1310,7 +1320,7 @@ function DsaTrackerContent() {
               <select
                 value={selectedCompany}
                 onChange={e => setSelectedCompany(e.target.value)}
-                style={{ padding: "9px 12px", borderRadius: 10, background: "#131b2e", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 13 }}
+                style={{ padding: "9px 12px", borderRadius: 8, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 13 }}
               >
                 <option value="all">🏢 All Companies ({allCompanies.length})</option>
                 {allCompanies.map((c: string) => (
@@ -1321,7 +1331,7 @@ function DsaTrackerContent() {
               <select
                 value={selectedStatus}
                 onChange={e => setSelectedStatus(e.target.value)}
-                style={{ padding: "9px 12px", borderRadius: 10, background: "#131b2e", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 13 }}
+                style={{ padding: "9px 12px", borderRadius: 8, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 13 }}
               >
                 <option value="all">All Statuses</option>
                 <option value="due_review">🔔 Due for Review ({dueProblems.length})</option>
@@ -1335,10 +1345,10 @@ function DsaTrackerContent() {
                 onClick={() => setGroupByStep(!groupByStep)}
                 style={{
                   padding: "9px 13px",
-                  borderRadius: 10,
-                  background: groupByStep ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.05)",
-                  border: groupByStep ? "1px solid rgba(99,102,241,0.5)" : "1px solid rgba(255,255,255,0.1)",
-                  color: groupByStep ? "#a5b4fc" : "rgba(255,255,255,0.7)",
+                  borderRadius: 8,
+                  background: groupByStep ? "#EFF4FE" : "#FFFFFF",
+                  border: groupByStep ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                  color: groupByStep ? "#356AE6" : "#667085",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer"
@@ -1355,14 +1365,13 @@ function DsaTrackerContent() {
                   alignItems: "center",
                   gap: 6,
                   padding: "9px 14px",
-                  borderRadius: 10,
-                  background: isGeneratingAi ? "rgba(168,85,247,0.2)" : "linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25))",
-                  border: "1px solid rgba(168,85,247,0.5)",
-                  color: "#e9d5ff",
+                  borderRadius: 8,
+                  background: isGeneratingAi ? "#98A2B3" : "#162A43",
+                  border: "1px solid #162A43",
+                  color: "#FFFFFF",
                   fontSize: 12,
                   fontWeight: 700,
-                  cursor: isGeneratingAi ? "not-allowed" : "pointer",
-                  boxShadow: "0 2px 10px rgba(168,85,247,0.15)"
+                  cursor: isGeneratingAi ? "not-allowed" : "pointer"
                 }}
                 title="Use Groq AI to synthesize and expand interview questions in this sheet"
               >
@@ -1376,14 +1385,13 @@ function DsaTrackerContent() {
                   alignItems: "center",
                   gap: 6,
                   padding: "9px 14px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, rgba(14,165,233,0.25), rgba(59,130,246,0.25))",
-                  border: "1px solid rgba(56,189,248,0.5)",
-                  color: "#bae6fd",
+                  borderRadius: 8,
+                  background: "#356AE6",
+                  border: "none",
+                  color: "#FFFFFF",
                   fontSize: 12,
                   fontWeight: 700,
-                  cursor: "pointer",
-                  boxShadow: "0 2px 10px rgba(56,189,248,0.15)"
+                  cursor: "pointer"
                 }}
                 title="Add your own custom problem or question link"
               >
@@ -1393,7 +1401,7 @@ function DsaTrackerContent() {
               {(selectedTopic !== "all" || selectedDifficulty !== "all" || selectedStatus !== "all" || selectedCompany !== "all" || searchQuery) && (
                 <button
                   onClick={() => { setSelectedTopic("all"); setSelectedDifficulty("all"); setSelectedStatus("all"); setSelectedCompany("all"); setSearchQuery(""); }}
-                  style={{ padding: "9px 14px", borderRadius: 10, background: "rgba(255,68,102,0.1)", border: "1px solid rgba(255,68,102,0.3)", color: "#ff4466", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+                  style={{ padding: "9px 14px", borderRadius: 8, background: "#FDF2F2", border: "1px solid #F8C8C8", color: "#C24141", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                 >
                   Reset Filters
                 </button>
@@ -1404,17 +1412,16 @@ function DsaTrackerContent() {
             {actionNotice && (
               <div style={{
                 padding: "12px 16px",
-                background: "linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(56, 189, 248, 0.15))",
-                border: "1px solid rgba(0, 255, 136, 0.4)",
-                borderRadius: 14,
-                color: "#a7f3d0",
+                background: "#EAF4EE",
+                border: "1px solid #C8E4D3",
+                borderRadius: 8,
+                color: "#2E7D5B",
                 fontSize: 13,
                 fontWeight: 600,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 16,
-                boxShadow: "0 4px 18px rgba(0, 255, 136, 0.12)"
+                marginBottom: 16
               }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 18 }}>🚀</span>
@@ -1422,7 +1429,7 @@ function DsaTrackerContent() {
                 </div>
                 <button
                   onClick={() => setActionNotice(null)}
-                  style={{ background: "transparent", border: "none", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 16, padding: "2px 6px" }}
+                  style={{ background: "transparent", border: "none", color: "#667085", cursor: "pointer", fontSize: 16, padding: "2px 6px" }}
                 >
                   ✕
                 </button>
@@ -1431,16 +1438,16 @@ function DsaTrackerContent() {
 
             {/* Active Review Reminders Due Banner */}
             {dueProblems.length > 0 && (
-              <div style={{ padding: "1.1rem 1.4rem", background: "linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06))", border: "1px solid rgba(251,191,36,0.35)", borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: "1.5rem" }}>
+              <div style={{ padding: "1.1rem 1.4rem", background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: "1.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(251,191,36,0.2)", border: "1px solid rgba(251,191,36,0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 8, background: "#FFFFFF", border: "1px solid #F8D8A7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
                     🔔
                   </div>
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "#fbbf24" }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#B7791F" }}>
                       {dueProblems.length} Spaced Review Reminder{dueProblems.length > 1 ? "s" : ""} Due Today!
                     </div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>
+                    <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
                       {dueProblems.slice(0, 2).map(p => p.title).join(", ")}{dueProblems.length > 2 ? ` and ${dueProblems.length - 2} more` : ""} — Review today to advance retention interval.
                     </div>
                   </div>
@@ -1448,13 +1455,13 @@ function DsaTrackerContent() {
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
                     onClick={() => setSelectedStatus("due_review")}
-                    style={{ padding: "7px 14px", borderRadius: 8, background: "rgba(251,191,36,0.18)", border: "1px solid rgba(251,191,36,0.4)", color: "#fef08a", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    style={{ padding: "7px 14px", borderRadius: 7, background: "#FFFFFF", border: "1px solid #F8D8A7", color: "#B7791F", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                   >
                     Filter in Bank
                   </button>
                   <button
                     onClick={() => setActiveTab("spaced_review")}
-                    style={{ padding: "7px 16px", borderRadius: 8, background: "#fbbf24", border: "none", color: "#090d16", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
+                    style={{ padding: "7px 16px", borderRadius: 7, background: "#B7791F", border: "none", color: "#FFFFFF", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
                   >
                     Open Review Deck ({dueProblems.length}) →
                   </button>
@@ -1463,10 +1470,10 @@ function DsaTrackerContent() {
             )}
 
             {/* Results count */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, fontSize: 12, color: "#667085" }}>
               <span>Showing <strong>{filteredProblems.length}</strong> problems</span>
               {selectedCompany !== "all" && (
-                <span>Filtered by company: <strong style={{ color: "#38bdf8" }}>{selectedCompany}</strong></span>
+                <span>Filtered by company: <strong style={{ color: "#356AE6" }}>{selectedCompany}</strong></span>
               )}
             </div>
 
@@ -1478,19 +1485,19 @@ function DsaTrackerContent() {
                   const stepPct = Math.round((stepSolved / Math.max(1, grp.items.length)) * 100);
 
                   return (
-                    <div key={grp.step} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 16, padding: "1.25rem" }}>
+                    <div key={grp.step} style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.25rem", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                       {/* Step Header */}
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ padding: "4px 10px", borderRadius: 8, background: "linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25))", border: "1px solid rgba(99,102,241,0.4)", color: "#c7d2fe", fontSize: 12, fontWeight: 800 }}>
+                          <span style={{ padding: "4px 10px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontSize: 12, fontWeight: 700 }}>
                             Striver A2Z
                           </span>
-                          <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: 0 }}>{grp.step}</h3>
+                          <h3 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: 0 }}>{grp.step}</h3>
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#667085" }}>
                           <span>{stepSolved}/{grp.items.length} Solved ({stepPct}%)</span>
-                          <div style={{ width: 80, height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 999, overflow: "hidden" }}>
-                            <div style={{ width: `${stepPct}%`, height: "100%", background: "#00ff88", borderRadius: 999 }} />
+                          <div style={{ width: 80, height: 6, background: "#E4E1DA", borderRadius: 999, overflow: "hidden" }}>
+                            <div style={{ width: `${stepPct}%`, height: "100%", background: "#2E7D5B", borderRadius: 999 }} />
                           </div>
                           <button
                             onClick={() => {
@@ -1503,10 +1510,10 @@ function DsaTrackerContent() {
                               alignItems: "center",
                               gap: 6,
                               padding: "4px 11px",
-                              borderRadius: 8,
-                              background: activeGenStep === grp.step ? "rgba(168,85,247,0.3)" : "rgba(168,85,247,0.15)",
-                              border: "1px solid rgba(168,85,247,0.4)",
-                              color: "#d8b4fe",
+                              borderRadius: 6,
+                              background: "#EFF4FE",
+                              border: "1px solid #D2E0FB",
+                              color: "#356AE6",
                               fontSize: 11,
                               fontWeight: 700,
                               cursor: isGeneratingAi ? "not-allowed" : "pointer",
@@ -1534,7 +1541,7 @@ function DsaTrackerContent() {
             )}
 
             {filteredProblems.length === 0 && (
-              <div style={{ textAlign: "center", padding: "3rem", color: "rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px dashed rgba(255,255,255,0.08)" }}>
+              <div style={{ textAlign: "center", padding: "3rem", color: "#667085", background: "#FFFFFF", borderRadius: 10, border: "1px dashed #E4E1DA" }}>
                 No problems match your search or filter criteria. Try resetting your filters.
               </div>
             )}
@@ -1550,8 +1557,8 @@ function DsaTrackerContent() {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0,0,0,0.85)",
-              backdropFilter: "blur(8px)",
+              background: "rgba(16, 26, 43, 0.45)",
+              backdropFilter: "blur(4px)",
               zIndex: 999,
               display: "flex",
               alignItems: "center",
@@ -1567,11 +1574,11 @@ function DsaTrackerContent() {
                 maxWidth: 780,
                 maxHeight: "88vh",
                 overflowY: "auto",
-                background: "#0d1322",
-                border: "1px solid rgba(99,102,241,0.3)",
-                borderRadius: 20,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
                 padding: "2rem",
-                boxShadow: "0 25px 60px -15px rgba(0,0,0,0.9)",
+                boxShadow: "0 20px 40px rgba(16, 26, 43, 0.15)",
                 position: "relative"
               }}
             >
@@ -1582,14 +1589,14 @@ function DsaTrackerContent() {
                   position: "absolute",
                   top: 18,
                   right: 18,
-                  background: "rgba(255,255,255,0.07)",
-                  border: "none",
-                  color: "white",
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
                   width: 32,
                   height: 32,
-                  borderRadius: 8,
+                  borderRadius: 6,
                   cursor: "pointer",
-                  fontSize: 16,
+                  fontSize: 14,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center"
@@ -1601,12 +1608,12 @@ function DsaTrackerContent() {
               {/* Step & Subtopic Tags */}
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
                 {modalProblem.step_title && (
-                  <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 6, background: "rgba(99,102,241,0.18)", color: "#a5b4fc", fontWeight: 700 }}>
+                  <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 700 }}>
                     {modalProblem.step_title}
                   </span>
                 )}
                 {modalProblem.subtopic_title && (
-                  <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 6, background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>
+                  <span style={{ fontSize: 11, padding: "2px 9px", borderRadius: 5, background: "#F6F5F1", color: "#667085", border: "1px solid #E4E1DA", fontWeight: 600 }}>
                     {modalProblem.subtopic_title}
                   </span>
                 )}
@@ -1614,10 +1621,11 @@ function DsaTrackerContent() {
                   style={{
                     fontSize: 11,
                     padding: "2px 8px",
-                    borderRadius: 999,
-                    background: modalProblem.difficulty === "easy" ? "rgba(0,255,136,0.15)" : modalProblem.difficulty === "medium" ? "rgba(251,191,36,0.15)" : "rgba(255,68,102,0.15)",
-                    color: modalProblem.difficulty === "easy" ? "#00ff88" : modalProblem.difficulty === "medium" ? "#fbbf24" : "#ff4466",
-                    fontWeight: 800,
+                    borderRadius: 5,
+                    background: modalProblem.difficulty === "easy" ? "#EAF4EE" : modalProblem.difficulty === "medium" ? "#FEF7ED" : "#FDF2F2",
+                    color: modalProblem.difficulty === "easy" ? "#2E7D5B" : modalProblem.difficulty === "medium" ? "#B7791F" : "#C24141",
+                    border: `1px solid ${modalProblem.difficulty === "easy" ? "#C8E4D3" : modalProblem.difficulty === "medium" ? "#F8D8A7" : "#F8C8C8"}`,
+                    fontWeight: 700,
                     textTransform: "capitalize"
                   }}
                 >
@@ -1626,14 +1634,14 @@ function DsaTrackerContent() {
               </div>
 
               {/* Problem Title */}
-              <h1 style={{ fontSize: 22, fontWeight: 900, color: "white", margin: "0 0 12px" }}>
+              <h1 style={{ fontSize: 22, fontWeight: 800, color: "#17191C", margin: "0 0 12px" }}>
                 {modalProblem.title}
               </h1>
 
               {/* Target Companies Badges */}
               {modalProblem.companies && modalProblem.companies.length > 0 && (
-                <div style={{ marginBottom: 18, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.07)" }}>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginBottom: 8, fontWeight: 700 }}>
+                <div style={{ marginBottom: 18, padding: "12px 14px", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 11, color: "#667085", marginBottom: 8, fontWeight: 700 }}>
                     🏢 FREQUENTLY ASKED IN TECHNICAL ROUNDS:
                   </div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -1644,10 +1652,10 @@ function DsaTrackerContent() {
                           fontSize: 12,
                           padding: "3px 10px",
                           borderRadius: 999,
-                          background: "rgba(56,189,248,0.15)",
-                          border: "1px solid rgba(56,189,248,0.3)",
-                          color: "#7dd3fc",
-                          fontWeight: 700
+                          background: "#EFF4FE",
+                          border: "1px solid #D2E0FB",
+                          color: "#356AE6",
+                          fontWeight: 600
                         }}
                       >
                         {comp}
@@ -1661,12 +1669,12 @@ function DsaTrackerContent() {
               {(modalProblem.time_complexity || modalProblem.space_complexity) && (
                 <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
                   {modalProblem.time_complexity && (
-                    <div style={{ padding: "6px 12px", background: "rgba(0,255,136,0.08)", border: "1px solid rgba(0,255,136,0.2)", borderRadius: 8, fontSize: 12, color: "#00ff88", fontWeight: 700 }}>
+                    <div style={{ padding: "6px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 6, fontSize: 12, color: "#162A43", fontWeight: 600 }}>
                       ⏱️ Time Target: {modalProblem.time_complexity}
                     </div>
                   )}
                   {modalProblem.space_complexity && (
-                    <div style={{ padding: "6px 12px", background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 8, fontSize: 12, color: "#c084fc", fontWeight: 700 }}>
+                    <div style={{ padding: "6px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 6, fontSize: 12, color: "#162A43", fontWeight: 600 }}>
                       💾 Space Target: {modalProblem.space_complexity}
                     </div>
                   )}
@@ -1674,14 +1682,14 @@ function DsaTrackerContent() {
               )}
 
               {/* Spaced Review Reminder Bar in Modal */}
-              <div style={{ marginBottom: 18, padding: "12px 16px", background: "rgba(251, 191, 36, 0.08)", borderRadius: 12, border: "1px solid rgba(251, 191, 36, 0.3)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ marginBottom: 18, padding: "12px 16px", background: "#FEF7ED", borderRadius: 8, border: "1px solid #F8D8A7", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 20 }}>🔔</span>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "#fbbf24" }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#B7791F" }}>
                       Spaced Repetition Review Schedule
                     </div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+                    <div style={{ fontSize: 11, color: "#667085" }}>
                       {modalProblem.progress?.next_review_date
                         ? `Next review scheduled for ${modalProblem.progress.next_review_date} (Box ${modalProblem.progress.review_count || 0})`
                         : "No review reminder scheduled yet. Set a reminder to retain this problem."}
@@ -1701,11 +1709,11 @@ function DsaTrackerContent() {
                     }}
                     style={{
                       padding: "6px 14px",
-                      borderRadius: 8,
-                      background: "#fbbf24",
-                      color: "#090d16",
+                      borderRadius: 6,
+                      background: "#B7791F",
+                      color: "#FFFFFF",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       border: "none",
                       cursor: "pointer"
                     }}
@@ -1720,12 +1728,12 @@ function DsaTrackerContent() {
                       rel="noreferrer"
                       style={{
                         padding: "6px 12px",
-                        borderRadius: 8,
-                        background: "rgba(255,255,255,0.06)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "white",
+                        borderRadius: 6,
+                        background: "#FFFFFF",
+                        border: "1px solid #F8D8A7",
+                        color: "#B7791F",
                         fontSize: 11,
-                        fontWeight: 700,
+                        fontWeight: 600,
                         textDecoration: "none",
                         display: "inline-flex",
                         alignItems: "center",
@@ -1739,12 +1747,12 @@ function DsaTrackerContent() {
               </div>
 
               {/* Rendered Problem Statement Markdown */}
-              <div style={{ marginBottom: 24, borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16 }}>
+              <div style={{ marginBottom: 24, borderTop: "1px solid #E4E1DA", paddingTop: 16 }}>
                 <MarkdownView content={modalProblem.markdown_details || modalProblem.description} />
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16, justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", borderTop: "1px solid #E4E1DA", paddingTop: 16, justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", gap: 8 }}>
                   <a
                     href={modalProblem.problem_url}
@@ -1752,9 +1760,9 @@ function DsaTrackerContent() {
                     rel="noreferrer"
                     style={{
                       padding: "9px 18px",
-                      borderRadius: 10,
-                      background: "#6366f1",
-                      color: "white",
+                      borderRadius: 7,
+                      background: "#356AE6",
+                      color: "#FFFFFF",
                       fontSize: 13,
                       fontWeight: 700,
                       textDecoration: "none",
@@ -1772,12 +1780,12 @@ function DsaTrackerContent() {
                       rel="noreferrer"
                       style={{
                         padding: "9px 16px",
-                        borderRadius: 10,
-                        background: "rgba(251,191,36,0.12)",
-                        border: "1px solid rgba(251,191,36,0.3)",
-                        color: "#fbbf24",
+                        borderRadius: 7,
+                        background: "#F6F5F1",
+                        border: "1px solid #E4E1DA",
+                        color: "#162A43",
                         fontSize: 13,
-                        fontWeight: 700,
+                        fontWeight: 600,
                         textDecoration: "none",
                         display: "inline-flex",
                         alignItems: "center",
@@ -1792,7 +1800,12 @@ function DsaTrackerContent() {
                 <div style={{ display: "flex", gap: 6 }}>
                   {(["unsolved", "attempted", "solved"] as const).map(st => {
                     const isCurrent = modalProblem.progress.status === st;
-                    const color = st === "solved" ? "#00ff88" : st === "attempted" ? "#fbbf24" : "rgba(255,255,255,0.5)";
+                    const stStyle = st === "solved"
+                      ? { bg: "#EAF4EE", border: "#C8E4D3", color: "#2E7D5B", label: "✓ Solved" }
+                      : st === "attempted"
+                      ? { bg: "#FEF7ED", border: "#F8D8A7", color: "#B7791F", label: "⏳ In Prog" }
+                      : { bg: "#F6F5F1", border: "#E4E1DA", color: "#667085", label: "○ Reset" };
+
                     return (
                       <button
                         key={st}
@@ -1805,17 +1818,17 @@ function DsaTrackerContent() {
                         }}
                         style={{
                           padding: "8px 14px",
-                          borderRadius: 8,
+                          borderRadius: 6,
                           fontSize: 12,
-                          fontWeight: isCurrent ? 800 : 500,
-                          border: isCurrent ? `1px solid ${color}` : "1px solid rgba(255,255,255,0.1)",
-                          background: isCurrent ? `${color}25` : "transparent",
-                          color: isCurrent ? color : "rgba(255,255,255,0.5)",
+                          fontWeight: isCurrent ? 700 : 500,
+                          border: isCurrent ? `1px solid ${stStyle.border}` : "1px solid #E4E1DA",
+                          background: isCurrent ? stStyle.bg : "#FFFFFF",
+                          color: isCurrent ? stStyle.color : "#667085",
                           cursor: "pointer",
                           textTransform: "capitalize"
                         }}
                       >
-                        {st === "solved" ? "✓ Solved" : st}
+                        {stStyle.label}
                       </button>
                     );
                   })}
@@ -1834,8 +1847,8 @@ function DsaTrackerContent() {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0,0,0,0.8)",
-              backdropFilter: "blur(6px)",
+              background: "rgba(16, 26, 43, 0.45)",
+              backdropFilter: "blur(4px)",
               zIndex: 1000,
               display: "flex",
               alignItems: "center",
@@ -1849,11 +1862,11 @@ function DsaTrackerContent() {
               style={{
                 width: "100%",
                 maxWidth: 520,
-                background: "#0d1322",
-                border: "1px solid rgba(251, 191, 36, 0.4)",
-                borderRadius: 18,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
                 padding: "1.75rem",
-                boxShadow: "0 25px 60px -15px rgba(0,0,0,0.9)",
+                boxShadow: "0 20px 40px rgba(16, 26, 43, 0.15)",
                 position: "relative"
               }}
             >
@@ -1863,12 +1876,12 @@ function DsaTrackerContent() {
                   position: "absolute",
                   top: 16,
                   right: 16,
-                  background: "rgba(255,255,255,0.08)",
-                  border: "none",
-                  color: "white",
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
                   width: 30,
                   height: 30,
-                  borderRadius: 8,
+                  borderRadius: 6,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -1879,37 +1892,37 @@ function DsaTrackerContent() {
               </button>
 
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
                   🔔
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 17, fontWeight: 800, color: "white", margin: 0 }}>
+                  <h3 style={{ fontSize: 17, fontWeight: 800, color: "#17191C", margin: 0 }}>
                     Schedule Review Reminder
                   </h3>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ fontSize: 12, color: "#667085" }}>
                     Spaced repetition interval & calendar notification
                   </div>
                 </div>
               </div>
 
-              <div style={{ padding: "10px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 18 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#f8fafc" }}>
+              <div style={{ padding: "10px 14px", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 18 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#17191C" }}>
                   {reminderModalProblem.title}
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
                   {reminderModalProblem.step_title || "Striver A2Z Sheet"} • {reminderModalProblem.difficulty.toUpperCase()}
                 </div>
               </div>
 
               {reminderSuccessMsg && (
-                <div style={{ padding: "10px 14px", background: "rgba(0, 255, 136, 0.12)", border: "1px solid rgba(0, 255, 136, 0.3)", borderRadius: 10, color: "#00ff88", fontSize: 12, fontWeight: 700, marginBottom: 16 }}>
+                <div style={{ padding: "10px 14px", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, color: "#2E7D5B", fontSize: 12, fontWeight: 700, marginBottom: 16 }}>
                   ✓ {reminderSuccessMsg}
                 </div>
               )}
 
               {/* Quick Preset Intervals */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 8, letterSpacing: 0.5 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 8, letterSpacing: 0.5 }}>
                   QUICK PRESET SCHEDULE:
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 90px), 1fr))", gap: 8 }}>
@@ -1928,10 +1941,10 @@ function DsaTrackerContent() {
                         onClick={() => setReminderDate(ds)}
                         style={{
                           padding: "8px 6px",
-                          borderRadius: 8,
-                          background: isSel ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.04)",
-                          border: isSel ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.08)",
-                          color: isSel ? "#fbbf24" : "rgba(255,255,255,0.8)",
+                          borderRadius: 6,
+                          background: isSel ? "#EFF4FE" : "#FFFFFF",
+                          border: isSel ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                          color: isSel ? "#356AE6" : "#667085",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer"
@@ -1946,7 +1959,7 @@ function DsaTrackerContent() {
 
               {/* Custom Date Input */}
               <div style={{ marginBottom: 18 }}>
-                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>
+                <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6 }}>
                   OR PICK CUSTOM REMINDER DATE:
                 </label>
                 <input
@@ -1956,10 +1969,10 @@ function DsaTrackerContent() {
                   style={{
                     width: "100%",
                     padding: "10px 12px",
-                    borderRadius: 10,
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    color: "white",
+                    borderRadius: 6,
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    color: "#17191C",
                     fontSize: 13,
                     boxSizing: "border-box"
                   }}
@@ -1973,9 +1986,9 @@ function DsaTrackerContent() {
                   id="syncCal"
                   checked={syncWithCalendar}
                   onChange={e => setSyncWithCalendar(e.target.checked)}
-                  style={{ accentColor: "#fbbf24", cursor: "pointer" }}
+                  style={{ accentColor: "#356AE6", cursor: "pointer" }}
                 />
-                <label htmlFor="syncCal" style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", cursor: "pointer" }}>
+                <label htmlFor="syncCal" style={{ fontSize: 12, color: "#667085", cursor: "pointer" }}>
                   Also sync to my <strong>Placement Season Calendar</strong> (/student/calendar)
                 </label>
               </div>
@@ -1988,12 +2001,12 @@ function DsaTrackerContent() {
                   rel="noreferrer"
                   style={{
                     padding: "9px 14px",
-                    borderRadius: 10,
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    color: "white",
+                    borderRadius: 7,
+                    background: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    color: "#162A43",
                     fontSize: 12,
-                    fontWeight: 700,
+                    fontWeight: 600,
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
@@ -2007,12 +2020,12 @@ function DsaTrackerContent() {
                   onClick={() => handleSaveReminder(reminderModalProblem, reminderDate)}
                   style={{
                     padding: "9px 18px",
-                    borderRadius: 10,
-                    background: "#fbbf24",
+                    borderRadius: 7,
+                    background: "#356AE6",
                     border: "none",
-                    color: "#090d16",
+                    color: "#FFFFFF",
                     fontSize: 12,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
@@ -2032,8 +2045,8 @@ function DsaTrackerContent() {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0,0,0,0.85)",
-              backdropFilter: "blur(8px)",
+              background: "rgba(16, 26, 43, 0.45)",
+              backdropFilter: "blur(4px)",
               zIndex: 1000,
               display: "flex",
               alignItems: "center",
@@ -2045,16 +2058,16 @@ function DsaTrackerContent() {
             <div
               onClick={e => e.stopPropagation()}
               style={{
-                background: "#0d1527",
-                border: "1px solid rgba(56, 189, 248, 0.3)",
-                borderRadius: 20,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
                 width: "100%",
                 maxWidth: 620,
                 maxHeight: "90vh",
                 overflowY: "auto",
                 padding: "2rem",
                 position: "relative",
-                boxShadow: "0 25px 60px rgba(0,0,0,0.8), 0 0 30px rgba(56, 189, 248, 0.15)"
+                boxShadow: "0 20px 40px rgba(16, 26, 43, 0.15)"
               }}
             >
               <button
@@ -2063,12 +2076,12 @@ function DsaTrackerContent() {
                   position: "absolute",
                   top: 18,
                   right: 18,
-                  background: "rgba(255,255,255,0.08)",
-                  border: "none",
-                  color: "white",
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
                   width: 32,
                   height: 32,
-                  borderRadius: "50%",
+                  borderRadius: 6,
                   cursor: "pointer",
                   fontSize: 14,
                   display: "flex",
@@ -2080,14 +2093,14 @@ function DsaTrackerContent() {
               </button>
 
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                <div style={{ width: 42, height: 42, borderRadius: 12, background: "rgba(56, 189, 248, 0.15)", border: "1px solid rgba(56, 189, 248, 0.4)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 8, background: "#EFF4FE", border: "1px solid #D2E0FB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
                   ➕
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: "white", margin: 0 }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, color: "#17191C", margin: 0 }}>
                     Add Custom DSA Problem
                   </h3>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ fontSize: 12, color: "#667085" }}>
                     Expand your practice library with custom interview questions
                   </div>
                 </div>
@@ -2095,7 +2108,7 @@ function DsaTrackerContent() {
 
               <form onSubmit={handleCustomAddSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                     Problem Title *
                   </label>
                   <input
@@ -2107,10 +2120,10 @@ function DsaTrackerContent() {
                     style={{
                       width: "100%",
                       padding: "10px 14px",
-                      borderRadius: 10,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "white",
+                      borderRadius: 6,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
                       fontSize: 13,
                       boxSizing: "border-box"
                     }}
@@ -2119,7 +2132,7 @@ function DsaTrackerContent() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                       Striver Step Category *
                     </label>
                     <select
@@ -2135,10 +2148,10 @@ function DsaTrackerContent() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        borderRadius: 10,
-                        background: "#131b2e",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "white",
+                        borderRadius: 6,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
                         fontSize: 12,
                         boxSizing: "border-box"
                       }}
@@ -2152,7 +2165,7 @@ function DsaTrackerContent() {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                       Difficulty *
                     </label>
                     <select
@@ -2161,10 +2174,10 @@ function DsaTrackerContent() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        borderRadius: 10,
-                        background: "#131b2e",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "white",
+                        borderRadius: 6,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
                         fontSize: 12,
                         boxSizing: "border-box"
                       }}
@@ -2178,7 +2191,7 @@ function DsaTrackerContent() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                       Company Tags (Comma separated)
                     </label>
                     <input
@@ -2189,10 +2202,10 @@ function DsaTrackerContent() {
                       style={{
                         width: "100%",
                         padding: "10px 14px",
-                        borderRadius: 10,
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "white",
+                        borderRadius: 6,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
                         fontSize: 13,
                         boxSizing: "border-box"
                       }}
@@ -2200,7 +2213,7 @@ function DsaTrackerContent() {
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                       Target Time Complexity
                     </label>
                     <input
@@ -2211,10 +2224,10 @@ function DsaTrackerContent() {
                       style={{
                         width: "100%",
                         padding: "10px 14px",
-                        borderRadius: 10,
-                        background: "rgba(255,255,255,0.05)",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        color: "white",
+                        borderRadius: 6,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
                         fontSize: 13,
                         boxSizing: "border-box"
                       }}
@@ -2223,7 +2236,7 @@ function DsaTrackerContent() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                     Practice / LeetCode URL
                   </label>
                   <input
@@ -2234,10 +2247,10 @@ function DsaTrackerContent() {
                     style={{
                       width: "100%",
                       padding: "10px 14px",
-                      borderRadius: 10,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "white",
+                      borderRadius: 6,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
                       fontSize: 13,
                       boxSizing: "border-box"
                     }}
@@ -2245,7 +2258,7 @@ function DsaTrackerContent() {
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
                     Markdown Problem Statement & Intuition
                   </label>
                   <textarea
@@ -2255,10 +2268,10 @@ function DsaTrackerContent() {
                     style={{
                       width: "100%",
                       padding: "10px 14px",
-                      borderRadius: 10,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "white",
+                      borderRadius: 6,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
                       fontSize: 12,
                       fontFamily: "monospace",
                       boxSizing: "border-box",
@@ -2273,10 +2286,10 @@ function DsaTrackerContent() {
                     onClick={() => setShowCustomAddModal(false)}
                     style={{
                       padding: "10px 18px",
-                      borderRadius: 10,
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.7)",
+                      borderRadius: 7,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#667085",
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer"
@@ -2288,14 +2301,13 @@ function DsaTrackerContent() {
                     type="submit"
                     style={{
                       padding: "10px 22px",
-                      borderRadius: 10,
-                      background: "linear-gradient(135deg, #0ea5e9, #3b82f6)",
+                      borderRadius: 7,
+                      background: "#356AE6",
                       border: "none",
-                      color: "white",
+                      color: "#FFFFFF",
                       fontSize: 13,
                       fontWeight: 700,
-                      cursor: "pointer",
-                      boxShadow: "0 4px 15px rgba(14, 165, 233, 0.4)"
+                      cursor: "pointer"
                     }}
                   >
                     Add to Striver Tracker
@@ -2309,9 +2321,9 @@ function DsaTrackerContent() {
         {/* ─── TAB 2: SPACED REPETITION REVIEW DECK (Phase 1a) ─── */}
         {activeTab === "spaced_review" && (
           <div style={{ maxWidth: 800, margin: "0 auto" }}>
-            <div style={{ padding: "1.5rem", background: "rgba(251,191,36,0.05)", border: "1px solid rgba(251,191,36,0.2)", borderRadius: 16, marginBottom: "1.5rem" }}>
-              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#fbbf24", margin: "0 0 6px" }}>Spaced Repetition Review Deck</h2>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: 0, lineHeight: 1.5 }}>
+            <div style={{ padding: "1.5rem", background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 10, marginBottom: "1.5rem" }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#B7791F", margin: "0 0 6px" }}>Spaced Repetition Review Deck</h2>
+              <p style={{ fontSize: 13, color: "#667085", margin: 0, lineHeight: 1.5 }}>
                 Problems automatically enter your review schedule when solved. Confirmed retention expands the interval (3 → 7 → 14 → 30 days). If forgotten, the interval resets to 3 days to protect long-term recall.
               </p>
             </div>
@@ -2319,25 +2331,25 @@ function DsaTrackerContent() {
             {dueProblems.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {dueProblems.map(prob => (
-                  <div key={prob.id} style={{ padding: "1.5rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
+                  <div key={prob.id} style={{ padding: "1.5rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, padding: "2px 8px", background: "rgba(251,191,36,0.15)", color: "#fbbf24", borderRadius: 6, fontWeight: 700 }}>
+                      <span style={{ fontSize: 11, padding: "2px 8px", background: "#FEF7ED", color: "#B7791F", border: "1px solid #F8D8A7", borderRadius: 5, fontWeight: 700 }}>
                         Review #{prob.progress.review_count + 1} Due
                       </span>
-                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>
+                      <span style={{ fontSize: 12, color: "#98A2B3" }}>
                         Scheduled: {prob.progress.next_review_date}
                       </span>
                     </div>
 
                     <h3 style={{ fontSize: 17, fontWeight: 800, margin: "0 0 8px" }}>
-                      <a href={prob.problem_url} target="_blank" rel="noreferrer" style={{ color: "white", textDecoration: "none" }}>
+                      <a href={prob.problem_url} target="_blank" rel="noreferrer" style={{ color: "#17191C", textDecoration: "none" }}>
                         {prob.title} ↗
                       </a>
                     </h3>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>{prob.description}</p>
+                    <p style={{ fontSize: 13, color: "#667085", marginBottom: 12 }}>{prob.description}</p>
 
                     {prob.progress.notes && (
-                      <div style={{ padding: "10px 12px", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 8, fontSize: 12, color: "rgba(255,255,255,0.8)", marginBottom: 16 }}>
+                      <div style={{ padding: "10px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 6, fontSize: 12, color: "#162A43", marginBottom: 16 }}>
                         <strong>Your Saved Note:</strong> {prob.progress.notes}
                       </div>
                     )}
@@ -2345,13 +2357,13 @@ function DsaTrackerContent() {
                     <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
                       <button
                         onClick={() => handleReviewAction(prob.id, "forgot")}
-                        style={{ padding: "8px 16px", borderRadius: 8, background: "rgba(255,68,102,0.12)", border: "1px solid rgba(255,68,102,0.3)", color: "#ff4466", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                        style={{ padding: "8px 16px", borderRadius: 7, background: "#FDF2F2", border: "1px solid #F8C8C8", color: "#C24141", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                       >
                         🔁 Forgot (Reset to 3 days)
                       </button>
                       <button
                         onClick={() => handleReviewAction(prob.id, "retained")}
-                        style={{ padding: "8px 18px", borderRadius: 8, background: "rgba(0,255,136,0.15)", border: "1px solid rgba(0,255,136,0.4)", color: "#00ff88", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                        style={{ padding: "8px 18px", borderRadius: 7, background: "#EAF4EE", border: "1px solid #C8E4D3", color: "#2E7D5B", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                       >
                         ✅ Retained (+Advance interval)
                       </button>
@@ -2360,10 +2372,10 @@ function DsaTrackerContent() {
                 ))}
               </div>
             ) : (
-              <div style={{ textAlign: "center", padding: "4rem 2rem", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px dashed rgba(255,255,255,0.1)" }}>
+              <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#FFFFFF", borderRadius: 10, border: "1px dashed #E4E1DA" }}>
                 <div style={{ fontSize: 32, marginBottom: 10 }}>🎉</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "white", marginBottom: 6 }}>All Caught Up on Reviews!</div>
-                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>No problems are due today. Solve new problems in the Problem Bank to populate your review intervals.</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>All Caught Up on Reviews!</div>
+                <div style={{ fontSize: 13, color: "#667085" }}>No problems are due today. Solve new problems in the Problem Bank to populate your review intervals.</div>
               </div>
             )}
           </div>
@@ -2375,25 +2387,25 @@ function DsaTrackerContent() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
               {analytics?.heatmap?.map((item: any) => {
                 const pct = item.completion_pct;
-                const heatColor = pct >= 70 ? "#00ff88" : pct >= 35 ? "#38bdf8" : pct > 0 ? "#fbbf24" : "rgba(255,255,255,0.2)";
+                const heatColor = pct >= 70 ? "#2E7D5B" : pct >= 35 ? "#356AE6" : pct > 0 ? "#B7791F" : "#98A2B3";
 
                 return (
                   <div
                     key={item.topic.id}
                     onClick={() => { setSelectedTopic(item.topic.id); setActiveTab("problems"); }}
-                    style={{ padding: "1.25rem", background: "rgba(255,255,255,0.03)", border: `1px solid ${heatColor}30`, borderRadius: 16, cursor: "pointer", transition: "transform 0.15s" }}
+                    style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, cursor: "pointer", transition: "transform 0.15s", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}
                   >
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontWeight: 800, fontSize: 15, color: "white" }}>{item.topic.name}</span>
+                      <span style={{ fontWeight: 800, fontSize: 15, color: "#17191C" }}>{item.topic.name}</span>
                       <span style={{ fontSize: 14, fontWeight: 900, color: heatColor }}>{pct}%</span>
                     </div>
 
                     {/* Progress bar */}
-                    <div style={{ height: 6, background: "rgba(255,255,255,0.07)", borderRadius: 999, overflow: "hidden", marginBottom: 12 }}>
+                    <div style={{ height: 6, background: "#E4E1DA", borderRadius: 999, overflow: "hidden", marginBottom: 12 }}>
                       <div style={{ width: `${pct}%`, height: "100%", background: heatColor, borderRadius: 999 }} />
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#667085" }}>
                       <span>Cleared: {item.solved}/{item.total}</span>
                       <span>🟢 {item.easy} | 🟡 {item.medium} | 🔴 {item.hard}</span>
                     </div>
@@ -2408,12 +2420,12 @@ function DsaTrackerContent() {
         {activeTab === "social" && (
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 20 }}>
             {/* Friend Progress Comparison (Phase 4a) */}
-            <div style={{ padding: "1.5rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18 }}>
+            <div style={{ padding: "1.5rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 11, padding: "2px 7px", background: "rgba(99,102,241,0.2)", borderRadius: 6, color: "#818cf8", fontWeight: 700 }}>OPT-IN MUTUAL</span>
-                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>Friend Progress Comparison</h3>
+                <span style={{ fontSize: 11, padding: "2px 7px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 5, color: "#356AE6", fontWeight: 700 }}>OPT-IN MUTUAL</span>
+                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#17191C" }}>Friend Progress Comparison</h3>
               </div>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 16 }}>
+              <p style={{ fontSize: 12, color: "#667085", lineHeight: 1.5, marginBottom: 16 }}>
                 Progress is 100% private by default. To compare solve counts and topic strengths, exchange an invite code. Both students must explicitly connect before stats are shared.
               </p>
 
@@ -2421,12 +2433,12 @@ function DsaTrackerContent() {
               <div style={{ marginBottom: 16 }}>
                 <button
                   onClick={handleCreateInviteCode}
-                  style={{ width: "100%", padding: "10px", borderRadius: 8, background: "rgba(99,102,241,0.2)", border: "1px solid rgba(99,102,241,0.4)", color: "#c7d2fe", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ width: "100%", padding: "10px", borderRadius: 7, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
                   ⚡ Generate My Friend Invite Code
                 </button>
                 {inviteCode && (
-                  <div style={{ marginTop: 8, padding: "8px 12px", background: "rgba(0,255,136,0.1)", border: "1px solid rgba(0,255,136,0.25)", borderRadius: 8, textAlign: "center", fontSize: 13, fontWeight: 700, color: "#00ff88" }}>
+                  <div style={{ marginTop: 8, padding: "8px 12px", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 7, textAlign: "center", fontSize: 13, fontWeight: 700, color: "#2E7D5B" }}>
                     Share Code: {inviteCode}
                   </div>
                 )}
@@ -2439,56 +2451,56 @@ function DsaTrackerContent() {
                   placeholder="Enter peer's code (e.g. COG-5145)"
                   value={friendCodeInput}
                   onChange={e => setFriendCodeInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px 12px", borderRadius: 8, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: 12 }}
+                  style={{ flex: 1, padding: "8px 12px", borderRadius: 6, background: "#FFFFFF", border: "1px solid #E4E1DA", color: "#17191C", fontSize: 12 }}
                 />
                 <button
                   onClick={handleAcceptInviteCode}
-                  style={{ padding: "8px 14px", borderRadius: 8, background: "#6366f1", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  style={{ padding: "8px 14px", borderRadius: 6, background: "#356AE6", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                 >
                   Connect
                 </button>
               </div>
-              {friendSuccessMsg && <div style={{ fontSize: 12, color: "#00ff88", marginBottom: 14 }}>{friendSuccessMsg}</div>}
+              {friendSuccessMsg && <div style={{ fontSize: 12, color: "#2E7D5B", marginBottom: 14 }}>{friendSuccessMsg}</div>}
 
               {/* Friends list */}
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 8 }}>Connected Friends ({friendsList.length})</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#667085", marginBottom: 8 }}>Connected Friends ({friendsList.length})</div>
                 {friendsList.map(f => (
-                  <div key={f.friend_student_id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600 }}>{f.display_name}</span>
-                    <span style={{ fontSize: 12, color: "#00ff88", fontWeight: 700 }}>{f.solved_count} solved</span>
+                  <div key={f.friend_student_id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", background: "#F6F5F1", borderRadius: 6, marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "#17191C" }}>{f.display_name}</span>
+                    <span style={{ fontSize: 12, color: "#2E7D5B", fontWeight: 700 }}>{f.solved_count} solved</span>
                   </div>
                 ))}
-                {friendsList.length === 0 && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>No connected friends yet.</div>}
+                {friendsList.length === 0 && <div style={{ fontSize: 12, color: "#98A2B3" }}>No connected friends yet.</div>}
               </div>
             </div>
 
             {/* College Leaderboard (Phase 4b) */}
-            <div style={{ padding: "1.5rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 18 }}>
+            <div style={{ padding: "1.5rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>College Leaderboard</h3>
-                <span style={{ fontSize: 11, padding: "2px 7px", background: isOptedIn ? "rgba(0,255,136,0.15)" : "rgba(255,255,255,0.1)", borderRadius: 6, color: isOptedIn ? "#00ff88" : "rgba(255,255,255,0.4)", fontWeight: 700 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#17191C" }}>College Leaderboard</h3>
+                <span style={{ fontSize: 11, padding: "2px 7px", background: isOptedIn ? "#EAF4EE" : "#F6F5F1", border: `1px solid ${isOptedIn ? "#C8E4D3" : "#E4E1DA"}`, borderRadius: 5, color: isOptedIn ? "#2E7D5B" : "#667085", fontWeight: 700 }}>
                   {isOptedIn ? "OPTED-IN" : "OPTED-OUT (DEFAULT)"}
                 </span>
               </div>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.5, marginBottom: 14 }}>
+              <p style={{ fontSize: 12, color: "#667085", lineHeight: 1.5, marginBottom: 14 }}>
                 Anonymized handle only. Never exposes your real name. Defaults to opted-out for student privacy.
               </p>
 
               {/* Opt-in toggle */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 10, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 12px", background: "#F6F5F1", borderRadius: 8, marginBottom: 16 }}>
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 600 }}>Show on College Leaderboard</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>Handle: {displayHandle || "Coder#0421"}</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: "#17191C" }}>Show on College Leaderboard</div>
+                  <div style={{ fontSize: 11, color: "#667085" }}>Handle: {displayHandle || "Coder#0421"}</div>
                 </div>
                 <button
                   onClick={handleToggleLeaderboard}
                   style={{
                     padding: "6px 14px",
-                    borderRadius: 8,
-                    border: isOptedIn ? "1px solid rgba(255,68,102,0.4)" : "1px solid rgba(0,255,136,0.4)",
-                    background: isOptedIn ? "rgba(255,68,102,0.12)" : "rgba(0,255,136,0.15)",
-                    color: isOptedIn ? "#ff4466" : "#00ff88",
+                    borderRadius: 6,
+                    border: isOptedIn ? "1px solid #F8C8C8" : "1px solid #C8E4D3",
+                    background: isOptedIn ? "#FDF2F2" : "#EAF4EE",
+                    color: isOptedIn ? "#C24141" : "#2E7D5B",
                     fontSize: 11,
                     fontWeight: 700,
                     cursor: "pointer"
@@ -2508,20 +2520,20 @@ function DsaTrackerContent() {
                       alignItems: "center",
                       justifyContent: "space-between",
                       padding: "8px 12px",
-                      borderRadius: 8,
-                      background: entry.display_handle === displayHandle ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.02)",
-                      border: entry.display_handle === displayHandle ? "1px solid rgba(99,102,241,0.35)" : "1px solid transparent"
+                      borderRadius: 6,
+                      background: entry.display_handle === displayHandle ? "#EFF4FE" : "#FFFFFF",
+                      border: entry.display_handle === displayHandle ? "1px solid #356AE6" : "1px solid #E4E1DA"
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ width: 22, fontWeight: 900, color: entry.rank === 1 ? "#fbbf24" : entry.rank === 2 ? "#94a3b8" : entry.rank === 3 ? "#92400e" : "rgba(255,255,255,0.4)", fontSize: 12 }}>
+                      <span style={{ width: 22, fontWeight: 800, color: entry.rank === 1 ? "#B7791F" : entry.rank === 2 ? "#667085" : entry.rank === 3 ? "#92400E" : "#98A2B3", fontSize: 12 }}>
                         #{entry.rank}
                       </span>
-                      <span style={{ fontSize: 13, fontWeight: 600 }}>{entry.display_handle}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: "#17191C" }}>{entry.display_handle}</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 11, color: "#fbbf24" }}>🔥 {entry.streak_days}d</span>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: "#00ff88" }}>{entry.solved_count}</span>
+                      <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 600 }}>🔥 {entry.streak_days}d</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: "#2E7D5B" }}>{entry.solved_count}</span>
                     </div>
                   </div>
                 ))}
@@ -2539,28 +2551,29 @@ function DsaTrackerContent() {
                   key={b.type}
                   style={{
                     padding: "1.5rem",
-                    borderRadius: 16,
-                    background: b.is_earned ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.01)",
-                    border: b.is_earned ? "1px solid rgba(236,72,153,0.3)" : "1px solid rgba(255,255,255,0.05)",
-                    opacity: b.is_earned ? 1 : 0.45,
-                    filter: b.is_earned ? "none" : "grayscale(80%)",
-                    transition: "all 0.2s"
+                    borderRadius: 10,
+                    background: "#FFFFFF",
+                    border: b.is_earned ? "1.5px solid #356AE6" : "1px solid #E4E1DA",
+                    opacity: b.is_earned ? 1 : 0.6,
+                    filter: b.is_earned ? "none" : "grayscale(60%)",
+                    transition: "all 0.2s",
+                    boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
                     <div style={{ fontSize: 32 }}>{b.icon}</div>
                     <div>
-                      <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "white" }}>{b.title}</h4>
-                      <span style={{ fontSize: 11, color: b.is_earned ? "#00ff88" : "rgba(255,255,255,0.4)", fontWeight: 700 }}>
+                      <h4 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#17191C" }}>{b.title}</h4>
+                      <span style={{ fontSize: 11, color: b.is_earned ? "#2E7D5B" : "#98A2B3", fontWeight: 700 }}>
                         {b.is_earned ? "✓ UNLOCKED" : "LOCKED"}
                       </span>
                     </div>
                   </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, margin: 0 }}>
+                  <p style={{ fontSize: 12, color: "#667085", lineHeight: 1.5, margin: 0 }}>
                     {b.description}
                   </p>
                   {b.earned_at && (
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 8 }}>
+                    <div style={{ fontSize: 10, color: "#98A2B3", marginTop: 8 }}>
                       Earned: {new Date(b.earned_at).toLocaleDateString()}
                     </div>
                   )}
@@ -2576,7 +2589,7 @@ function DsaTrackerContent() {
 
 export default function DsaTrackerPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#090d16", color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading DSA Practice Tracker...</div>}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F6F5F1", color: "#17191C", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading DSA Practice Tracker...</div>}>
       <DsaTrackerContent />
     </Suspense>
   );

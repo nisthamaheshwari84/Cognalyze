@@ -28,8 +28,8 @@ async function runPwaValidation() {
     assert(manifest.short_name === "Cognalyze", "Manifest short_name is Cognalyze");
     assert(manifest.display === "standalone", "Manifest display mode is standalone");
     assert(manifest.start_url === "/student", "Manifest start_url is /student");
-    assert(manifest.theme_color === "#6366f1", "Manifest theme_color is #6366f1");
-    assert(manifest.background_color === "#090d16", "Manifest background_color is #090d16");
+    assert(manifest.theme_color === "#162A43", "Manifest theme_color is #162A43");
+    assert(manifest.background_color === "#F6F5F1", "Manifest background_color is #F6F5F1");
     assert(manifest.icons && manifest.icons.length >= 4, `Manifest specifies ${manifest.icons?.length} icon variants`);
     assert(manifest.shortcuts && manifest.shortcuts.length === 4, `Manifest includes 4 app launcher shortcuts`);
   }

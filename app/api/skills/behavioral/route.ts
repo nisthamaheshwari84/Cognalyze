@@ -1,22 +1,200 @@
+/**
+ * app/api/skills/behavioral/route.ts
+ * Redesigned Behavioral & Corporate HR Arena API.
+ * "HIDE THE COMPLEXITY, NOT THE INTELLIGENCE."
+ * 
+ * Supports:
+ * 1. GET:
+ *    - mode="home": Home gateway data (quick practice, weak spot drill, simple progress).
+ *    - mode="learn_scenarios": Interactive micro-learning scenarios (30-120s A vs B choices).
+ *    - mode="practice_question": Fresh question using anti-repetition engine.
+ *    - mode="interview_set": Fresh multi-question mock interview sequence.
+ *    - mode="progress": Candidate progress summary (getting better at, work on next).
+ *    - mode="bank": Searchable question bank.
+ *    - id="...": Single question lookup.
+ * 2. POST:
+ *    - action="evaluate" (or default): "ONE THING TO IMPROVE" evidence-based evaluation.
+ *    - action="coach": Targeted draft diagnostic ("What is missing", "You said", "Try").
+ *    - action="interview_turn": Multi-turn conversational interview with adaptive follow-ups.
+ *    - action="interview_finish": Grounded end-of-interview report with excerpts.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
-import { skillHubStore, SEED_BEHAVIORAL_QUESTIONS } from "@/lib/skill-hub-store";
+import {
+  BEHAVIORAL_COMPETENCY_GUIDES,
+  EXPANDED_BEHAVIORAL_QUESTION_BANK,
+  evaluateBehavioralAnswerLocally,
+  generateBehavioralInterviewSession,
+  getCandidateBehavioralScorecard,
+  BehavioralQuestionFull,
+  MICRO_LEARN_SCENARIOS,
+  SIMPLE_CORE_QUESTIONS,
+  evaluateSingleImprovement,
+  evaluateCoachDraft,
+  getNextCandidateQuestion,
+  getSimpleCandidateProgress,
+  generateGroundedInterviewReview,
+  generateInterviewAdaptiveFollowUp
+} from "@/lib/skills/behavioral-curriculum";
+import {
+  recordCandidateAttempt,
+  getStudentBehavioralProgress,
+  updateStudentBehavioralStatus
+} from "@/lib/skills/candidate-history";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const trackType = searchParams.get("trackType") || "all";
+    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const mode = searchParams.get("mode") || "home";
+    const questionId = searchParams.get("id");
+    const trackType = searchParams.get("trackType");
+    const competency = searchParams.get("competency");
+    const difficulty = searchParams.get("difficulty");
+    const search = searchParams.get("search");
 
-    const questions = skillHubStore.getBehavioralQuestions(trackType);
+    // 1. Single Question Lookup
+    if (questionId) {
+      const question =
+        EXPANDED_BEHAVIORAL_QUESTION_BANK.find(q => q.id === questionId) ||
+        EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
+      return NextResponse.json({
+        success: true,
+        question
+      });
+    }
+
+    // 2. Home Gateway Screen Data (Requirement 20)
+    if (mode === "home") {
+      const progress = getSimpleCandidateProgress(candidateId);
+      const quickQuestion = getNextCandidateQuestion(candidateId, "practice");
+      return NextResponse.json({
+        success: true,
+        candidateId,
+        progress,
+        quickQuestion,
+        weakSpot: progress.workOnNext
+      });
+    }
+
+    // 3. Micro-Learning Scenarios (Requirement 3, 23)
+    if (mode === "learn_scenarios") {
+      return NextResponse.json({
+        success: true,
+        scenarios: MICRO_LEARN_SCENARIOS,
+        total: MICRO_LEARN_SCENARIOS.length
+      });
+    }
+
+    // 4. Fresh Practice Question (Anti-Repetition Engine, Requirement 10)
+    if (mode === "practice_question") {
+      const excludeParam = searchParams.get("exclude");
+      const excludeIds = excludeParam ? excludeParam.split(",") : [];
+      const question = getNextCandidateQuestion(candidateId, "practice", {
+        competencyId: competency || undefined,
+        excludeIds
+      });
+      return NextResponse.json({
+        success: true,
+        question
+      });
+    }
+
+    // 5. Candidate Simple Progress Summary (Requirement 16, 18)
+    if (mode === "progress") {
+      const progress = getSimpleCandidateProgress(candidateId);
+      return NextResponse.json({
+        success: true,
+        progress
+      });
+    }
+
+    // 6. Multi-Question Interview Set (Requirement 9, 13)
+    if (mode === "interview_set") {
+      const track = (trackType === "service_hr" ? "service_hr" : "faang_star") as any;
+      const count = parseInt(searchParams.get("count") || "3", 10);
+      const session = generateBehavioralInterviewSession(candidateId, track, count);
+      return NextResponse.json({
+        success: true,
+        ...session
+      });
+    }
+
+    // 7. Full 12-Competency Curriculum (Preserved for backwards compatibility)
+    if (mode === "curriculum") {
+      const userProgress = getStudentBehavioralProgress(candidateId);
+      const scorecard = getCandidateBehavioralScorecard(candidateId);
+
+      const enrichedGuides = BEHAVIORAL_COMPETENCY_GUIDES.map(guide => {
+        const prog = userProgress[guide.id];
+        const sc = scorecard.find(s => s.competencyId === guide.id);
+        return {
+          ...guide,
+          status: prog?.status || (sc ? sc.status.toLowerCase() : "not_started"),
+          score: prog?.lastScore || sc?.averageScore || 0,
+          attempts: prog?.attempts || sc?.attemptsCount || 0
+        };
+      });
+
+      return NextResponse.json({
+        success: true,
+        curriculum: enrichedGuides,
+        scorecard,
+        totalCompetencies: enrichedGuides.length
+      });
+    }
+
+    // 8. Competencies Scorecard (Preserved for backwards compatibility)
+    if (mode === "competencies") {
+      const scorecard = getCandidateBehavioralScorecard(candidateId);
+      return NextResponse.json({
+        success: true,
+        candidateId,
+        scorecard
+      });
+    }
+
+    // 9. Searchable Question Bank (Requirement 10, 11)
+    let list = [...EXPANDED_BEHAVIORAL_QUESTION_BANK];
+
+    if (trackType && trackType !== "all") {
+      list = list.filter(q => q.track_type === trackType || q.track_type === "universal");
+    }
+
+    if (competency && competency !== "all") {
+      list = list.filter(q => q.competency_id === competency);
+    }
+
+    if (difficulty && difficulty !== "all") {
+      list = list.filter(q => q.difficulty.toLowerCase() === difficulty.toLowerCase());
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(item =>
+        item.title.toLowerCase().includes(q) ||
+        item.question.toLowerCase().includes(q) ||
+        item.company_tag.toLowerCase().includes(q) ||
+        (item.principle && item.principle.toLowerCase().includes(q))
+      );
+    }
+
+    const competencyCounts: Record<string, number> = {};
+    for (const q of EXPANDED_BEHAVIORAL_QUESTION_BANK) {
+      competencyCounts[q.competency_id] = (competencyCounts[q.competency_id] || 0) + 1;
+    }
+
     return NextResponse.json({
       success: true,
-      trackType,
-      count: questions.length,
-      questions
+      totalCount: EXPANDED_BEHAVIORAL_QUESTION_BANK.length,
+      filteredCount: list.length,
+      competencyCounts,
+      questions: list
     });
   } catch (err: any) {
-    console.error("Error fetching behavioral questions:", err);
+    console.error("Error in Behavioral GET API:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
@@ -24,94 +202,140 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { questionId, candidateResponse } = body;
+    const {
+      action = "evaluate",
+      questionId,
+      candidateResponse = "",
+      candidateId = "student-demo",
+      trackSlug = "product_mid",
+      isInterview = false,
+      timeSpentSeconds = 120,
+      evaluationsHistory = []
+    } = body;
 
-    const q =
-      SEED_BEHAVIORAL_QUESTIONS.find(item => item.id === questionId) || SEED_BEHAVIORAL_QUESTIONS[0];
-
-    if (!candidateResponse || candidateResponse.trim().length < 10) {
-      return NextResponse.json(
-        { success: false, error: "Please provide a complete spoken or typed answer." },
-        { status: 400 }
-      );
+    // ── ACTION: COACH DRAFT DIAGNOSIS (Requirement 14) ──
+    if (action === "coach") {
+      const coachDiagnosis = evaluateCoachDraft(candidateResponse);
+      return NextResponse.json({
+        success: true,
+        diagnosis: coachDiagnosis
+      });
     }
 
-    const prompt = `You are a Senior Bar-Raiser and HR Director evaluating a candidate's behavioral answer.
-Track Type: "${q.track_type}"
-Question: "${q.question}"
-Target Leadership Principle / Competency: "${q.principle || 'Corporate Stability & HR Culture'}"
-Context & Filter: "${q.context_tip}"
-STAR Rubric Expectations: ${JSON.stringify(q.star_rubric)}
+    // ── ACTION: INTERVIEW FINISH (Requirement 29) ──
+    if (action === "interview_finish") {
+      const review = generateGroundedInterviewReview(evaluationsHistory);
+      return NextResponse.json({
+        success: true,
+        review
+      });
+    }
 
-Candidate's Response:
-"${candidateResponse}"
+    // ── ACTION: EVALUATE PRACTICE OR INTERVIEW TURN (Requirements 5, 6, 7, 8, 9, 28) ──
+    const question: BehavioralQuestionFull =
+      EXPANDED_BEHAVIORAL_QUESTION_BANK.find(q => q.id === questionId) ||
+      EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
 
-Return STRICT JSON only:
+    const cleanResponse = (candidateResponse || "").trim();
+
+    // 1. Deterministic Local Evaluation (Guarantees zero downtime & exact candidate quotes)
+    const localEval = evaluateSingleImprovement(question, cleanResponse, candidateId);
+
+    let finalEval = { ...localEval };
+
+    // 2. AI Enhancement with strict grounding to candidate's actual words
+    if (!localEval.isShortOrEmpty && cleanResponse.length >= 25) {
+      try {
+        const prompt = `You are Cognalyze's intelligent interview coach.
+Your job is to identify the ONE single most important thing this candidate can improve right now.
+Rules:
+- NEVER fabricate numbers, results, or actions the candidate did not mention.
+- Extract an EXACT quote (substring) from the candidate's answer for evidence.
+- If candidate used "we", point out that interviewers need to see their personal contribution ("I").
+- If candidate missed the result, ask for the outcome.
+- Be encouraging, student-friendly, and concise.
+
+Question: "${question.question}"
+Candidate Answer: "${cleanResponse}"
+
+Respond in STRICT JSON:
 {
-  "starScore": number between 40 and 98,
-  "verdict": "Strong Hire" | "Hire" | "Borderline" | "No Hire",
-  "situationScore": number between 0 and 100,
-  "taskScore": number between 0 and 100,
-  "actionScore": number between 0 and 100,
-  "resultScore": number between 0 and 100,
-  "actionOwnershipCritique": "Did the candidate say 'I' or hide behind 'we'? Note specifics.",
-  "quantifiableImpactFound": boolean,
-  "strengths": ["string", "string"],
-  "improvements": ["string", "string"],
-  "barRaiserFeedback": "2-3 sentences of direct, actionable hiring committee feedback"
+  "whatWorked": "One concrete strength you noticed in their answer",
+  "oneThingToImprove": "The SINGLE highest-impact improvement",
+  "evidenceQuote": "EXACT quote from candidate text illustrating this point",
+  "whyThisMatters": "One clear sentence explaining why interviewers look for this",
+  "tryThis": "One actionable sentence suggesting what to add or rewrite",
+  "adaptiveFollowUp": "A natural follow-up question listening directly to what they said",
+  "score": number between 40 and 95
 }`;
 
-    let evalResult: any = null;
+        const aiRes = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "openai/gpt-oss-120b",
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.2,
+            max_tokens: 500
+          })
+        });
 
-    try {
-      const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "openai/gpt-oss-120b",
-          messages: [{ role: "user", content: prompt }],
-          temperature: 0.3,
-          max_tokens: 800
-        })
-      });
+        const aiData = await aiRes.json();
+        const raw = aiData.choices?.[0]?.message?.content || "{}";
+        const parsed = extractJSON(stripThinkTags(raw));
 
-      const data = await res.json();
-      const raw = data.choices?.[0]?.message?.content || "{}";
-      const clean = stripThinkTags(raw);
-      evalResult = extractJSON(clean);
-    } catch (aiErr) {
-      console.warn("Behavioral evaluation fallback triggered:", aiErr);
+        if (parsed && parsed.whatWorked && parsed.oneThingToImprove) {
+          finalEval = {
+            ...localEval,
+            whatWorked: parsed.whatWorked || localEval.whatWorked,
+            oneThingToImprove: parsed.oneThingToImprove || localEval.oneThingToImprove,
+            evidenceQuote: parsed.evidenceQuote && cleanResponse.includes(parsed.evidenceQuote)
+              ? `"${parsed.evidenceQuote}"`
+              : localEval.evidenceQuote,
+            whyThisMatters: parsed.whyThisMatters || localEval.whyThisMatters,
+            tryThis: parsed.tryThis || localEval.tryThis,
+            adaptiveFollowUp: parsed.adaptiveFollowUp || localEval.adaptiveFollowUp,
+            internalScore: typeof parsed.score === "number" ? parsed.score : localEval.internalScore
+          };
+        }
+      } catch (e) {
+        // Fallback to localEval is fully grounded and immediate
+      }
     }
 
-    if (!evalResult || !evalResult.starScore) {
-      evalResult = {
-        starScore: 84,
-        verdict: "Hire",
-        situationScore: 85,
-        taskScore: 80,
-        actionScore: 88,
-        resultScore: 82,
-        actionOwnershipCritique: "Good personal ownership. You highlighted your specific technical experiments and contribution.",
-        quantifiableImpactFound: true,
-        strengths: [
-          "Demonstrates constructive resolution rather than emotional friction",
-          "Shows enterprise maturity and appreciation of trade-offs"
-        ],
-        improvements: [
-          "Include even more specific measurable impact metrics (e.g. latency reduced by X ms or team velocity boosted by Y%)",
-          "Conclude with the lasting cultural or technical lesson learned"
-        ],
-        barRaiserFeedback: "Strong answer. The candidate demonstrated data-driven persuasion and intellectual humility, which aligns well with enterprise engineering standards."
-      };
-    }
+    // 3. Record candidate attempt to isolated history (Requirement 30)
+    const compStatus = finalEval.internalScore >= 80 ? "mastered" : finalEval.internalScore >= 65 ? "practiced" : "learned";
+    updateStudentBehavioralStatus(candidateId, question.competency_id, compStatus, finalEval.internalScore);
 
+    const attempt = recordCandidateAttempt({
+      candidateId,
+      domain: "behavioral_hr",
+      topic: `${question.title} (${question.competency_id.replace(/_/g, " ").toUpperCase()})`,
+      mode: isInterview ? "interview" : "practice",
+      score: finalEval.internalScore,
+      accuracy: finalEval.internalScore,
+      timeSpentSeconds,
+      questionsAttempted: 1,
+      questionsCorrect: finalEval.internalScore >= 70 ? 1 : 0,
+      questionIds: [question.id],
+      weaknesses: [finalEval.oneThingToImprove],
+      strengths: [finalEval.whatWorked],
+      feedback: `${finalEval.whatWorked} | Focus: ${finalEval.oneThingToImprove}`
+    });
+
+    // 4. Return clean, student-friendly response
     return NextResponse.json({
       success: true,
-      questionId: q.id,
-      evaluation: evalResult
+      attemptId: attempt.id,
+      questionId: question.id,
+      competencyId: question.competency_id,
+      evaluation: finalEval,
+      // For backwards compatibility if old components query verdict or score:
+      score: finalEval.internalScore,
+      verdict: finalEval.internalVerdict
     });
   } catch (err: any) {
-    console.error("Error evaluating behavioral answer:", err);
+    console.error("Error in Behavioral POST evaluation:", err);
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

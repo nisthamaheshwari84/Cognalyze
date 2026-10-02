@@ -49,7 +49,7 @@ export default function InterviewPrepHistoryPage() {
     .slice(0, 5);
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "Inter, sans-serif" }}>
       <AppNav role="student" />
 
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 24px" }}>
@@ -59,16 +59,16 @@ export default function InterviewPrepHistoryPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <Link
                 href="/student/interview-prep"
-                style={{ fontSize: 12, color: "#818cf8", textDecoration: "none", background: "rgba(99,102,241,0.15)", padding: "4px 10px", borderRadius: 6, fontWeight: 700 }}
+                style={{ fontSize: 12, color: "#356AE6", textDecoration: "none", backgroundColor: "#EFF4FE", border: "1px solid #D2E0FB", padding: "4px 10px", borderRadius: 6, fontWeight: 600 }}
               >
                 ← Back to Prep Arenas
               </Link>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>Session History & Evidence Telemetry</span>
+              <span style={{ fontSize: 12, color: "#667085" }}>Session History & Evidence Telemetry</span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: "clamp(1.5rem, 2.5vw, 1.9rem)", fontWeight: 700, margin: 0, color: "#162A43", letterSpacing: "-0.4px" }}>
               📊 Interview & Assessment Prep History
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 650, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "#667085", margin: "8px 0 0", maxWidth: 680, lineHeight: 1.5 }}>
               Track your interview performance, answer depth curves, and areas requiring follow-up focus across mock interviews and proctored arenas.
             </p>
           </div>
@@ -80,12 +80,13 @@ export default function InterviewPrepHistoryPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 padding: "8px 16px",
-                borderRadius: 10,
-                background: "linear-gradient(135deg,#10b981,#059669)",
+                borderRadius: 7,
+                backgroundColor: "#2E7D5B",
                 color: "white",
                 textDecoration: "none",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
+                boxShadow: "0 2px 6px rgba(46, 125, 91, 0.2)"
               }}
             >
               + New Practice Round
@@ -96,12 +97,13 @@ export default function InterviewPrepHistoryPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 padding: "8px 16px",
-                borderRadius: 10,
-                background: "linear-gradient(135deg,#6366f1,#4f46e5)",
+                borderRadius: 7,
+                backgroundColor: "#356AE6",
                 color: "white",
                 textDecoration: "none",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
+                boxShadow: "0 2px 6px rgba(53, 106, 230, 0.2)"
               }}
             >
               + Assessment Arena
@@ -111,38 +113,38 @@ export default function InterviewPrepHistoryPage() {
 
         {/* Overview Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 28 }}>
-          <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ padding: "20px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
               TOTAL COMPLETED SESSIONS
             </div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: "white" }}>{totalSessions}</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <div style={{ fontSize: 32, fontWeight: 700, color: "#162A43" }}>{totalSessions}</div>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>
               Across adaptive mock rounds & timed arenas
             </div>
           </div>
 
-          <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ padding: "20px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
               CUMULATIVE BENCHMARK SCORE
             </div>
-            <div style={{ fontSize: 32, fontWeight: 900, color: avgScore >= 75 ? "#34d399" : avgScore >= 50 ? "#fbbf24" : "#f87171" }}>
-              {avgScore} <span style={{ fontSize: 16, color: "rgba(255,255,255,0.4)" }}>/ 100</span>
+            <div style={{ fontSize: 32, fontWeight: 700, color: avgScore >= 75 ? "#2E7D5B" : avgScore >= 50 ? "#B7791F" : "#C24141" }}>
+              {avgScore} <span style={{ fontSize: 16, color: "#98A2B3" }}>/ 100</span>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>
               Mean evaluation across all questions
             </div>
           </div>
 
-          <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16 }}>
-            <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ padding: "20px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)" }}>
+            <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
               ANSWER DEPTH PROFILE
             </div>
-            <div style={{ display: "flex", gap: 12, alignItems: "baseline", marginTop: 4 }}>
-              <span style={{ fontSize: 20, fontWeight: 900, color: "#34d399" }}>{totalStrong} <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Strong</span></span>
-              <span style={{ fontSize: 20, fontWeight: 900, color: "#fbbf24" }}>{totalAdequate} <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Adequate</span></span>
-              <span style={{ fontSize: 20, fontWeight: 900, color: "#f97316" }}>{totalShallow} <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Shallow</span></span>
+            <div style={{ display: "flex", gap: 14, alignItems: "baseline", marginTop: 4 }}>
+              <span style={{ fontSize: 20, fontWeight: 700, color: "#2E7D5B" }}>{totalStrong} <span style={{ fontSize: 11, color: "#667085" }}>Strong</span></span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: "#B7791F" }}>{totalAdequate} <span style={{ fontSize: 11, color: "#667085" }}>Adequate</span></span>
+              <span style={{ fontSize: 20, fontWeight: 700, color: "#C24141" }}>{totalShallow} <span style={{ fontSize: 11, color: "#667085" }}>Shallow</span></span>
             </div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 6 }}>
               Shallow answers trigger automated deep-probe followups
             </div>
           </div>
@@ -150,18 +152,18 @@ export default function InterviewPrepHistoryPage() {
 
         {/* Weak Topics Warning Banner */}
         {topWeakTopics.length > 0 && (
-          <div style={{ padding: "1rem 1.25rem", background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: 14, marginBottom: 28, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ padding: "14px 18px", backgroundColor: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 10, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#fbbf24", marginBottom: 2 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#B7791F", marginBottom: 2 }}>
                 ⚠️ FREQUENTLY PROBED TOPICS IN PRIOR SESSIONS
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
-                These topics had consecutive shallow answers: {topWeakTopics.map(([t]) => t).join(", ")}. Future rounds will prioritize these.
+              <div style={{ fontSize: 12, color: "#162A43" }}>
+                These topics had consecutive shallow answers: <strong>{topWeakTopics.map(([t]) => t).join(", ")}</strong>. Future rounds will prioritize these.
               </div>
             </div>
             <Link
               href="/student/practice-interview"
-              style={{ padding: "6px 14px", borderRadius: 8, background: "rgba(245,158,11,0.2)", color: "#fbbf24", textDecoration: "none", fontSize: 12, fontWeight: 700 }}
+              style={{ padding: "6px 14px", borderRadius: 7, backgroundColor: "#356AE6", color: "#ffffff", textDecoration: "none", fontSize: 12, fontWeight: 600 }}
             >
               Drill Weak Topics ➔
             </Link>
@@ -176,13 +178,15 @@ export default function InterviewPrepHistoryPage() {
               onClick={() => setSelectedFilter(filter)}
               style={{
                 padding: "6px 14px",
-                borderRadius: 8,
-                border: selectedFilter === filter ? "1px solid #6366f1" : "1px solid rgba(255,255,255,0.08)",
-                background: selectedFilter === filter ? "rgba(99,102,241,0.18)" : "rgba(255,255,255,0.02)",
-                color: selectedFilter === filter ? "white" : "#94a3b8",
+                borderRadius: 7,
+                border: "1px solid",
+                borderColor: selectedFilter === filter ? "#356AE6" : "#E4E1DA",
+                backgroundColor: selectedFilter === filter ? "#356AE6" : "#FFFFFF",
+                color: selectedFilter === filter ? "#ffffff" : "#667085",
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               {filter === "all" ? "All History" : filter === "mock_interview" ? "Mock Interviews" : "Assessment Arenas"}
@@ -192,49 +196,53 @@ export default function InterviewPrepHistoryPage() {
 
         {/* Sessions List */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "4rem 0", color: "#94a3b8", fontSize: 14 }}>
+          <div style={{ textAlign: "center", padding: "4rem 0", color: "#667085", fontSize: 14 }}>
             Loading preparation history...
           </div>
         ) : filteredSessions.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "4rem 2rem", background: "rgba(255,255,255,0.02)", borderRadius: 20, border: "1px solid rgba(255,255,255,0.06)" }}>
+          <div style={{ textAlign: "center", padding: "4rem 2rem", backgroundColor: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)" }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 8px" }}>No Preparation Sessions Recorded Yet</h3>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", maxWidth: 450, margin: "0 auto 20px", lineHeight: 1.5 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px", color: "#162A43" }}>No Preparation Sessions Recorded Yet</h3>
+            <p style={{ fontSize: 13, color: "#667085", maxWidth: 450, margin: "0 auto 20px", lineHeight: 1.5 }}>
               Complete your first adaptive mock interview or proctored technical assessment to establish your preparation trajectory.
             </p>
             <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
               <Link
                 href="/student/practice-interview"
-                style={{ padding: "8px 18px", borderRadius: 10, background: "linear-gradient(135deg,#10b981,#059669)", color: "white", textDecoration: "none", fontSize: 13, fontWeight: 700 }}
+                style={{ padding: "8px 18px", borderRadius: 7, backgroundColor: "#2E7D5B", color: "white", textDecoration: "none", fontSize: 13, fontWeight: 600 }}
               >
                 Start Adaptive Interview
               </Link>
               <Link
                 href="/student/assessment-arena"
-                style={{ padding: "8px 18px", borderRadius: 10, background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "white", textDecoration: "none", fontSize: 13, fontWeight: 700 }}
+                style={{ padding: "8px 18px", borderRadius: 7, backgroundColor: "#356AE6", color: "white", textDecoration: "none", fontSize: 13, fontWeight: 600 }}
               >
                 Launch Assessment Arena
               </Link>
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {filteredSessions.map((session) => {
               const isArena = session.session_type === "assessment_arena";
-              const scoreColor = session.overall_score >= 75 ? "#34d399" : session.overall_score >= 50 ? "#fbbf24" : "#f87171";
+              const scoreBg = session.overall_score >= 75 ? "#EAF4EE" : session.overall_score >= 50 ? "#FEF7ED" : "#FDF2F2";
+              const scoreBorder = session.overall_score >= 75 ? "#C8E4D3" : session.overall_score >= 50 ? "#F8D8A7" : "#F8C8C8";
+              const scoreText = session.overall_score >= 75 ? "#2E7D5B" : session.overall_score >= 50 ? "#B7791F" : "#C24141";
+
               return (
                 <div
                   key={session.id}
                   style={{
-                    padding: "1.25rem 1.5rem",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.07)",
-                    borderRadius: 16,
+                    padding: "16px 20px",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 10,
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                     flexWrap: "wrap",
                     gap: 16,
+                    boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 280 }}>
@@ -242,28 +250,29 @@ export default function InterviewPrepHistoryPage() {
                       <span
                         style={{
                           fontSize: 10,
-                          fontWeight: 800,
+                          fontWeight: 700,
                           textTransform: "uppercase",
                           padding: "2px 8px",
-                          borderRadius: 6,
-                          background: isArena ? "rgba(244,63,94,0.15)" : "rgba(16,185,129,0.15)",
-                          color: isArena ? "#f43f5e" : "#34d399",
+                          borderRadius: 5,
+                          backgroundColor: isArena ? "#FDF2F2" : "#EFF4FE",
+                          color: isArena ? "#C24141" : "#356AE6",
+                          border: `1px solid ${isArena ? "#F8C8C8" : "#D2E0FB"}`
                         }}
                       >
                         {isArena ? "🛡️ Assessment Arena" : "👔 Mock Interview"}
                       </span>
-                      <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: "rgba(255,255,255,0.05)", color: "#a5b4fc", fontWeight: 700 }}>
+                      <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, backgroundColor: "#F6F5F1", color: "#162A43", border: "1px solid #E4E1DA", fontWeight: 600 }}>
                         {session.experience_mode || "Fresher"}
                       </span>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                      <span style={{ fontSize: 11, color: "#667085" }}>
                         {new Date(session.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </span>
                     </div>
 
-                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 4px", color: "white" }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 4px", color: "#162A43" }}>
                       {session.target_role}
                     </h3>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+                    <div style={{ fontSize: 12, color: "#667085", marginBottom: 8 }}>
                       Target: {session.target_company || "FAANG / Tier 1 Standard"}
                     </div>
 
@@ -273,11 +282,12 @@ export default function InterviewPrepHistoryPage() {
                           <span
                             key={i}
                             style={{
-                              fontSize: 10,
+                              fontSize: 11,
                               padding: "2px 8px",
                               borderRadius: 4,
-                              background: "rgba(255,255,255,0.04)",
-                              color: "rgba(255,255,255,0.7)",
+                              backgroundColor: "#F6F5F1",
+                              border: "1px solid #E4E1DA",
+                              color: "#162A43",
                             }}
                           >
                             {topic}
@@ -292,22 +302,22 @@ export default function InterviewPrepHistoryPage() {
                     {/* Answer distribution */}
                     {session.answer_distribution && (
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>
+                        <div style={{ fontSize: 10, color: "#667085", marginBottom: 4, fontWeight: 600 }}>
                           ANSWER QUALITY
                         </div>
                         <div style={{ display: "flex", gap: 6 }}>
-                          <span style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>
+                          <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>
                             {session.answer_distribution.strong || 0} strong
                           </span>
-                          <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: 700 }}>
+                          <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 700 }}>
                             {session.answer_distribution.adequate || 0} adeq
                           </span>
-                          <span style={{ fontSize: 11, color: "#f97316", fontWeight: 700 }}>
+                          <span style={{ fontSize: 11, color: "#C24141", fontWeight: 700 }}>
                             {session.answer_distribution.shallow || 0} shallow
                           </span>
                         </div>
                         {session.security_flags && (session.security_flags.tab_switches > 0 || session.security_flags.face_violations > 0) && (
-                          <div style={{ fontSize: 10, color: "#f87171", marginTop: 4 }}>
+                          <div style={{ fontSize: 10, color: "#C24141", marginTop: 4, fontWeight: 600 }}>
                             ⚠️ {session.security_flags.tab_switches} tab switch(es)
                           </div>
                         )}
@@ -317,21 +327,21 @@ export default function InterviewPrepHistoryPage() {
                     {/* Overall Score */}
                     <div
                       style={{
-                        minWidth: 70,
-                        height: 70,
-                        borderRadius: 16,
-                        background: `rgba(${session.overall_score >= 75 ? "16,185,129" : session.overall_score >= 50 ? "245,158,11" : "239,68,68"},0.12)`,
-                        border: `1.5px solid ${scoreColor}40`,
+                        minWidth: 64,
+                        height: 64,
+                        borderRadius: 10,
+                        backgroundColor: scoreBg,
+                        border: `1px solid ${scoreBorder}`,
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <div style={{ fontSize: 22, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: scoreText, lineHeight: 1 }}>
                         {session.overall_score}
                       </div>
-                      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>/ 100</div>
+                      <div style={{ fontSize: 10, color: "#667085", marginTop: 2 }}>/ 100</div>
                     </div>
                   </div>
                 </div>

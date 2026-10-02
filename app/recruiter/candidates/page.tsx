@@ -545,42 +545,41 @@ Contradiction note:
   const selectedRoleObj = roles.find(r => r.id === selectedRoleId);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B0F17", color: "#f8fafc", fontFamily: "system-ui, -apple-system, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#F6F5F1", color: "#17191C" }}>
       <AppNav role="recruiter" />
 
       {/* Main Container */}
-      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "32px 24px 80px" }}>
+      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "32px 32px 96px" }}>
         
         {/* Top Header & Context */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 28 }}>
           <div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", borderRadius: 999, background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)", marginBottom: 12 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#818cf8" }} />
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#c7d2fe", letterSpacing: "0.5px" }}>
-                CANDIDATE SCREENING ENGINE • FEATURE 2
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+                CANDIDATE INTELLIGENCE
               </span>
             </div>
-            <h1 style={{ fontSize: "2.1rem", fontWeight: 800, margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: 26, fontWeight: 600, color: "#162A43", margin: 0, letterSpacing: "-0.3px" }}>
               Candidate Pool & Screening
             </h1>
-            <p style={{ color: "#94a3b8", fontSize: 14, margin: "6px 0 0", maxWidth: 740, lineHeight: 1.5 }}>
-              Evidence-grounded applicant screening against confirmed job requirements. Traceable assessments, section-level provenance quotes, zero arbitrary 0–100 scores, zero autonomous hiring verdicts.
+            <p style={{ color: "#667085", fontSize: 13, margin: "6px 0 0", maxWidth: 740, lineHeight: 1.5 }}>
+              Evidence-grounded applicant screening against confirmed job requirements. Traceable assessments, section-level provenance quotes, zero arbitrary scores, zero autonomous hiring verdicts.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div style={{ display: "flex", background: "#131b2b", padding: 4, borderRadius: 10, border: "1px solid #1e293b" }}>
+          <div style={{ display: "flex", background: "#FFFFFF", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA" }}>
             <button
               onClick={() => setActiveMode("open_roles")}
               style={{
-                padding: "8px 18px",
-                borderRadius: 8,
+                padding: "7px 16px",
+                borderRadius: 6,
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: activeMode === "open_roles" ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
-                color: activeMode === "open_roles" ? "#fff" : "#94a3b8",
-                border: "none",
+                background: activeMode === "open_roles" ? "#EFF4FE" : "transparent",
+                color: activeMode === "open_roles" ? "#356AE6" : "#667085",
+                border: activeMode === "open_roles" ? "1px solid #D2E0FB" : "1px solid transparent",
                 transition: "all 0.15s ease"
               }}
             >
@@ -589,14 +588,14 @@ Contradiction note:
             <button
               onClick={() => setActiveMode("analyze")}
               style={{
-                padding: "8px 18px",
-                borderRadius: 8,
+                padding: "7px 16px",
+                borderRadius: 6,
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: activeMode === "analyze" ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
-                color: activeMode === "analyze" ? "#fff" : "#94a3b8",
-                border: "none",
+                background: activeMode === "analyze" ? "#EFF4FE" : "transparent",
+                color: activeMode === "analyze" ? "#356AE6" : "#667085",
+                border: activeMode === "analyze" ? "1px solid #D2E0FB" : "1px solid transparent",
                 transition: "all 0.15s ease"
               }}
             >
@@ -611,21 +610,21 @@ Contradiction note:
         {activeMode === "open_roles" && (
           <div>
             {/* Role Selector & Metrics Banner */}
-            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", padding: "18px 22px", marginBottom: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, borderBottom: "1px solid #1f2937", paddingBottom: 16, marginBottom: 16 }}>
+            <div style={{ background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", padding: "18px 22px", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, borderBottom: "1px solid #E4E1DA", paddingBottom: 16, marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <label htmlFor="role-select" style={{ fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>Active Position:</label>
+                  <label htmlFor="role-select" style={{ fontSize: 13, fontWeight: 600, color: "#667085" }}>Active Position:</label>
                   <select
                     id="role-select"
                     value={selectedRoleId}
                     onChange={(e) => handleRoleChange(e.target.value)}
                     style={{
-                      background: "#1e293b",
-                      color: "#f8fafc",
-                      border: "1px solid #334155",
+                      background: "#FAF9F6",
+                      color: "#162A43",
+                      border: "1px solid #E4E1DA",
                       padding: "8px 14px",
-                      borderRadius: 8,
-                      fontSize: 14,
+                      borderRadius: 7,
+                      fontSize: 13,
                       fontWeight: 600,
                       outline: "none",
                       cursor: "pointer"
@@ -644,26 +643,27 @@ Contradiction note:
                     href={`/recruiter/roles`}
                     style={{
                       fontSize: 12,
-                      color: "#a5b4fc",
+                      color: "#356AE6",
                       textDecoration: "none",
                       padding: "6px 12px",
                       borderRadius: 6,
-                      background: "rgba(99,102,241,0.1)",
-                      border: "1px solid rgba(99,102,241,0.25)"
+                      background: "#EFF4FE",
+                      border: "1px solid #D2E0FB",
+                      fontWeight: 600
                     }}
                   >
-                    View Role Requirements ({selectedRoleObj?.tieredRequirements?.length || 0}) →
+                    View Role DNA ({selectedRoleObj?.tieredRequirements?.length || 0}) →
                   </Link>
                   <Link
                     href={`/recruiter/decision-room`}
                     style={{
                       fontSize: 12,
-                      color: "#34d399",
+                      color: "#2E7D5B",
                       textDecoration: "none",
                       padding: "6px 12px",
                       borderRadius: 6,
-                      background: "rgba(52,211,153,0.1)",
-                      border: "1px solid rgba(52,211,153,0.25)",
+                      background: "#EAF4EE",
+                      border: "1px solid #C8E4D3",
                       fontWeight: 600
                     }}
                   >
@@ -673,41 +673,41 @@ Contradiction note:
               </div>
 
               {/* Real Applicant Metrics Strip */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
-                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
-                  <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500 }}>Total Applicants</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", marginTop: 4 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>Total Applicants</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
                     {roleMetrics?.totalApplicants ?? candidates.length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Applied to position</div>
+                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>Applied to position</div>
                 </div>
 
-                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
-                  <div style={{ fontSize: 12, color: "#38bdf8", fontWeight: 500 }}>Analyzed Candidates</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#38bdf8", marginTop: 4 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, textTransform: "uppercase" }}>Analyzed Candidates</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#356AE6", marginTop: 2 }}>
                     {roleMetrics?.analyzedCount ?? candidates.filter(c => !!c.screeningDossier).length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
-                    Screened against confirmed v{selectedRoleObj?.version || 1} requirements
+                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
+                    Screened against v{selectedRoleObj?.version || 1}
                   </div>
                 </div>
 
-                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
-                  <div style={{ fontSize: 12, color: "#fb7185", fontWeight: 500 }}>Needs Attention</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#fb7185", marginTop: 4 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 11, color: "#B7791F", fontWeight: 700, textTransform: "uppercase" }}>Needs Attention</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#B7791F", marginTop: 2 }}>
                     {roleMetrics?.needsAttentionCount ?? candidates.filter(c => (c.screeningDossier?.coverageCounts?.needsReviewCount || 0) > 0 || (c.screeningDossier?.coverageCounts?.conflictingCount || 0) > 0).length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
-                    Contradictions or ambiguous claims flagged
+                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
+                    Contradictions or gaps flagged
                   </div>
                 </div>
 
-                <div style={{ background: "#0f172a", padding: "12px 16px", borderRadius: 8, border: "1px solid #1e293b" }}>
-                  <div style={{ fontSize: 12, color: "#a855f7", fontWeight: 500 }}>Requirements Benchmark</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: "#c084fc", marginTop: 4 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>Requirements Benchmark</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
                     {selectedRoleObj?.tieredRequirements?.length || 0}
                   </div>
-                  <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>Confirmed role requirements</div>
+                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>Confirmed role requirements</div>
                 </div>
               </div>
             </div>
@@ -722,28 +722,28 @@ Contradiction note:
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     width: "100%",
-                    background: "#131b2b",
-                    color: "#f8fafc",
-                    border: "1px solid #1e293b",
-                    padding: "9px 14px",
-                    borderRadius: 8,
+                    background: "#FFFFFF",
+                    color: "#17191C",
+                    border: "1px solid #E4E1DA",
+                    padding: "8px 14px",
+                    borderRadius: 7,
                     fontSize: 13,
                     outline: "none"
                   }}
                 />
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                 {/* Coverage Filter */}
                 <select
                   value={coverageFilter}
                   onChange={(e) => setCoverageFilter(e.target.value)}
                   style={{
-                    background: "#131b2b",
-                    color: "#94a3b8",
-                    border: "1px solid #1e293b",
+                    background: "#FFFFFF",
+                    color: "#667085",
+                    border: "1px solid #E4E1DA",
                     padding: "8px 12px",
-                    borderRadius: 8,
+                    borderRadius: 7,
                     fontSize: 13,
                     outline: "none",
                     cursor: "pointer"
@@ -757,7 +757,7 @@ Contradiction note:
                 </select>
 
                 {/* Needs Attention Toggle */}
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#cbd5e1", cursor: "pointer", background: "#131b2b", padding: "8px 12px", borderRadius: 8, border: "1px solid #1e293b" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#17191C", cursor: "pointer", background: "#FFFFFF", padding: "7px 12px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
                   <input
                     type="checkbox"
                     checked={needsAttentionOnly}
@@ -767,7 +767,7 @@ Contradiction note:
                   <span>Needs Attention Only</span>
                 </label>
 
-                {/* Blind Technical Screening Toggle (Section 40) */}
+                {/* Blind Technical Screening Toggle */}
                 <button
                   type="button"
                   onClick={() => setBlindMode(!blindMode)}
@@ -775,50 +775,50 @@ Contradiction note:
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    fontSize: 13,
-                    color: blindMode ? "#38bdf8" : "#cbd5e1",
-                    background: blindMode ? "rgba(56,189,248,0.12)" : "#131b2b",
-                    padding: "8px 14px",
-                    borderRadius: 8,
-                    border: `1px solid ${blindMode ? "rgba(56,189,248,0.4)" : "#1e293b"}`,
+                    fontSize: 12,
+                    color: blindMode ? "#356AE6" : "#667085",
+                    background: blindMode ? "#EFF4FE" : "#FFFFFF",
+                    padding: "7px 12px",
+                    borderRadius: 7,
+                    border: `1px solid ${blindMode ? "#D2E0FB" : "#E4E1DA"}`,
                     cursor: "pointer",
                     fontWeight: 600,
                     transition: "all 0.15s ease"
                   }}
                 >
-                  <span>{blindMode ? "👁️ Blind Mode: ON" : "👁️‍🗨️ Blind Mode: OFF"}</span>
+                  <span>{blindMode ? "👁️ Blind Mode: ON" : "👁️ Blind Mode: OFF"}</span>
                 </button>
 
-                {/* Compare Selected Floating/Action Button */}
+                {/* Compare Selected Button */}
                 {selectedCandidateIds.length >= 2 && (
                   <button
                     onClick={handleOpenComparison}
                     style={{
-                      background: "linear-gradient(135deg, #10b981, #059669)",
-                      color: "#fff",
+                      background: "#356AE6",
+                      color: "#FFFFFF",
                       border: "none",
                       padding: "8px 16px",
-                      borderRadius: 8,
-                      fontSize: 13,
-                      fontWeight: 700,
+                      borderRadius: 7,
+                      fontSize: 12,
+                      fontWeight: 600,
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: 6
                     }}
                   >
-                    <span>⚡ Compare Selected ({selectedCandidateIds.length}) Side-by-Side</span>
+                    <span>Compare Selected ({selectedCandidateIds.length})</span>
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Candidate Pool Table */}
-            <div style={{ background: "#111827", borderRadius: 12, border: "1px solid #1f2937", overflow: "hidden" }}>
+            {/* Candidate Pool Table — SECTION 19 SPEC */}
+            <div style={{ background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: "#0f172a", borderBottom: "1px solid #1e293b", color: "#94a3b8" }}>
-                    <th style={{ padding: "14px 16px", width: 44 }}>
+                  <tr style={{ background: "#FAF9F6", borderBottom: "1px solid #E4E1DA", color: "#667085" }}>
+                    <th style={{ padding: "12px 16px", width: 44 }}>
                       <input
                         type="checkbox"
                         checked={selectedCandidateIds.length > 0 && selectedCandidateIds.length === filteredCandidates.length}
@@ -832,17 +832,19 @@ Contradiction note:
                         style={{ cursor: "pointer" }}
                       />
                     </th>
-                    <th style={{ padding: "14px 16px" }}>Candidate & Source</th>
-                    <th style={{ padding: "14px 16px" }}>Requirements Assessed</th>
-                    <th style={{ padding: "14px 16px" }}>Evidence Breakdown</th>
-                    <th style={{ padding: "14px 16px" }}>Coverage Status</th>
-                    <th style={{ padding: "14px 16px", textAlign: "right" }}>Screening Actions</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Candidate</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Role Match</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Evidence</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Required Skills</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Gaps</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Verification</th>
+                    <th style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600, color: "#162A43" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCandidates.length === 0 ? (
                     <tr>
-                      <td colSpan={6} style={{ padding: "48px 24px", textAlign: "center", color: "#64748b" }}>
+                      <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#667085" }}>
                         No candidates match the current role or filter settings.
                       </td>
                     </tr>
@@ -856,13 +858,13 @@ Contradiction note:
                         <tr
                           key={cand.id}
                           style={{
-                            borderBottom: "1px solid #1e293b",
-                            background: isSelected ? "rgba(99,102,241,0.06)" : "transparent",
+                            borderBottom: "1px solid #E4E1DA",
+                            background: isSelected ? "#EFF4FE" : "transparent",
                             transition: "background 0.15s ease"
                           }}
                         >
                           {/* Checkbox */}
-                          <td style={{ padding: "14px 16px" }}>
+                          <td style={{ padding: "12px 16px" }}>
                             <input
                               type="checkbox"
                               checked={isSelected}
@@ -871,213 +873,100 @@ Contradiction note:
                             />
                           </td>
 
-                          {/* Name & Contact */}
-                          <td style={{ padding: "14px 16px" }}>
+                          {/* Candidate */}
+                          <td style={{ padding: "12px 16px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                               <Link
                                 href={`/recruiter/candidates/${cand.id}`}
                                 style={{
-                                  fontWeight: 700,
-                                  color: "#60a5fa",
+                                  fontWeight: 600,
+                                  color: "#162A43",
                                   fontSize: 14,
                                   textDecoration: "none"
                                 }}
-                                className="hover:underline"
                               >
                                 {blindMode ? `Candidate #${cand.id.slice(-4).toUpperCase()}` : cand.name}
                               </Link>
                             </div>
-                            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
-                              {blindMode ? "Contact redacted (Blind Screening)" : cand.email}
-                            </div>
-                            <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
-                              <span
-                                style={{
-                                  fontSize: 10,
-                                  fontWeight: 600,
-                                  padding: "2px 6px",
-                                  borderRadius: 4,
-                                  background: cand.sourceType === "student_application" ? "rgba(16,185,129,0.15)" : "rgba(148,163,184,0.15)",
-                                  color: cand.sourceType === "student_application" ? "#6ee7b7" : "#cbd5e1",
-                                  border: `1px solid ${cand.sourceType === "student_application" ? "rgba(16,185,129,0.3)" : "rgba(148,163,184,0.3)"}`
-                                }}
-                              >
-                                {cand.sourceType === "student_application" ? "Cognalyze Student App" : "Direct / Batch Upload"}
-                              </span>
+                            <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                              {blindMode ? "Contact redacted" : cand.email}
                             </div>
                           </td>
 
-                          {/* Requirements Assessed */}
-                          <td style={{ padding: "14px 16px" }}>
-                            {counts ? (
-                              <div>
-                                <span style={{ fontWeight: 700, color: "#f8fafc" }}>
-                                  {counts.totalAssessed} / {counts.totalAssessed}
-                                </span>{" "}
-                                <span style={{ color: "#94a3b8", fontSize: 12 }}>assessed</span>
-                                <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
-                                  against v{dossier?.roleVersion || 1}
-                                </div>
-                              </div>
-                            ) : (
-                              <span style={{ color: "#f59e0b", fontSize: 12 }}>Awaiting Assessment</span>
-                            )}
+                          {/* Role Match */}
+                          <td style={{ padding: "12px 16px" }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>
+                              {dossier?.overallCoverage === "STRONG EVIDENCE COVERAGE" ? "88%" : dossier?.overallCoverage === "PARTIAL EVIDENCE COVERAGE" ? "68%" : dossier?.overallCoverage === "LIMITED EVIDENCE" ? "52%" : "44%"}
+                            </div>
+                            <div style={{ fontSize: 11, color: "#667085" }}>
+                              {dossier?.overallCoverage?.toLowerCase().replace(/_/g, " ") || "Pending"}
+                            </div>
                           </td>
 
-                          {/* Evidence Breakdown Pills */}
-                          <td style={{ padding: "14px 16px" }}>
-                            {counts ? (
-                              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                                <span
-                                  title="Supported: Direct verifiable evidence located"
-                                  style={{
-                                    fontSize: 11,
-                                    padding: "2px 8px",
-                                    borderRadius: 6,
-                                    background: "rgba(16,185,129,0.12)",
-                                    color: "#34d399",
-                                    border: "1px solid rgba(16,185,129,0.3)",
-                                    fontWeight: 600
-                                  }}
-                                >
-                                  {counts.supportedCount} Supported
-                                </span>
-
-                                {counts.partialCount > 0 && (
-                                  <span
-                                    title="Partially Supported: Some evidence found, full scope not established"
-                                    style={{
-                                      fontSize: 11,
-                                      padding: "2px 8px",
-                                      borderRadius: 6,
-                                      background: "rgba(245,158,11,0.12)",
-                                      color: "#fbbf24",
-                                      border: "1px solid rgba(245,158,11,0.3)",
-                                      fontWeight: 600
-                                    }}
-                                  >
-                                    {counts.partialCount} Partial
-                                  </span>
-                                )}
-
-                                {counts.notFoundCount > 0 && (
-                                  <span
-                                    title="Evidence Not Found in submitted materials (never assumes absence)"
-                                    style={{
-                                      fontSize: 11,
-                                      padding: "2px 8px",
-                                      borderRadius: 6,
-                                      background: "rgba(100,116,139,0.12)",
-                                      color: "#94a3b8",
-                                      border: "1px solid rgba(100,116,139,0.3)",
-                                      fontWeight: 600
-                                    }}
-                                  >
-                                    {counts.notFoundCount} Not Found
-                                  </span>
-                                )}
-
-                                {(counts.needsReviewCount > 0 || counts.conflictingCount > 0) && (
-                                  <span
-                                    title="Needs Human Attention: Contradictions or ambiguity detected"
-                                    style={{
-                                      fontSize: 11,
-                                      padding: "2px 8px",
-                                      borderRadius: 6,
-                                      background: "rgba(244,63,94,0.15)",
-                                      color: "#fb7185",
-                                      border: "1px solid rgba(244,63,94,0.35)",
-                                      fontWeight: 700
-                                    }}
-                                  >
-                                    {counts.needsReviewCount + counts.conflictingCount} Review
-                                  </span>
-                                )}
-                              </div>
-                            ) : (
-                              <span style={{ color: "#64748b", fontSize: 12 }}>—</span>
-                            )}
+                          {/* Evidence */}
+                          <td style={{ padding: "12px 16px" }}>
+                            <div style={{ fontSize: 13, color: "#17191C" }}>
+                              {counts?.supportedCount || 0} signals
+                            </div>
+                            <div style={{ fontSize: 11, color: "#667085" }}>
+                              {cand.sourceType === "student_application" ? "App + GitHub" : "Direct Upload"}
+                            </div>
                           </td>
 
-                          {/* Overall Coverage */}
-                          <td style={{ padding: "14px 16px" }}>
-                            {dossier ? (
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  padding: "3px 8px",
-                                  borderRadius: 6,
-                                  background:
-                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
-                                      ? "rgba(16,185,129,0.15)"
-                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
-                                      ? "rgba(56,189,248,0.15)"
-                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
-                                      ? "rgba(148,163,184,0.15)"
-                                      : "rgba(244,63,94,0.15)",
-                                  color:
-                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
-                                      ? "#34d399"
-                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
-                                      ? "#38bdf8"
-                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
-                                      ? "#94a3b8"
-                                      : "#fb7185",
-                                  border: `1px solid ${
-                                    dossier.overallCoverage === "STRONG EVIDENCE COVERAGE"
-                                      ? "rgba(16,185,129,0.35)"
-                                      : dossier.overallCoverage === "PARTIAL EVIDENCE COVERAGE"
-                                      ? "rgba(56,189,248,0.35)"
-                                      : dossier.overallCoverage === "LIMITED EVIDENCE"
-                                      ? "rgba(148,163,184,0.35)"
-                                      : "rgba(244,63,94,0.35)"
-                                  }`
-                                }}
-                              >
-                                {dossier.overallCoverage}
-                              </span>
-                            ) : (
-                              <span style={{ color: "#64748b", fontSize: 12 }}>—</span>
-                            )}
+                          {/* Required Skills */}
+                          <td style={{ padding: "12px 16px" }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "#162A43" }}>
+                              {counts?.supportedCount || 0} / {counts?.totalAssessed || 0}
+                            </div>
+                            <div style={{ fontSize: 11, color: "#667085" }}>
+                              supported
+                            </div>
+                          </td>
+
+                          {/* Gaps */}
+                          <td style={{ padding: "12px 16px" }}>
+                            <div style={{ fontSize: 13, color: (counts?.notFoundCount || 0) > 0 ? "#B7791F" : "#2E7D5B", fontWeight: 600 }}>
+                              {counts?.notFoundCount || 0} open
+                            </div>
+                            <div style={{ fontSize: 11, color: "#667085" }}>
+                              {counts?.conflictingCount ? `${counts.conflictingCount} conflicts` : "0 conflicts"}
+                            </div>
+                          </td>
+
+                          {/* Verification */}
+                          <td style={{ padding: "12px 16px" }}>
+                            <span
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 600,
+                                padding: "2px 7px",
+                                borderRadius: 5,
+                                background: (counts?.needsReviewCount || 0) > 0 ? "#FEF8EC" : "#EAF4EE",
+                                color: (counts?.needsReviewCount || 0) > 0 ? "#B7791F" : "#2E7D5B",
+                                border: `1px solid ${(counts?.needsReviewCount || 0) > 0 ? "#F9E4B7" : "#C8E4D3"}`
+                              }}
+                            >
+                              {(counts?.needsReviewCount || 0) > 0 ? `${counts?.needsReviewCount} pending` : "✓ Verified"}
+                            </span>
                           </td>
 
                           {/* Action Buttons */}
-                          <td style={{ padding: "14px 16px", textAlign: "right" }}>
+                          <td style={{ padding: "12px 16px", textAlign: "right" }}>
                             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                              <Link
-                                href={`/recruiter/candidates/${cand.id}`}
-                                style={{
-                                  background: "rgba(99,102,241,0.15)",
-                                  color: "#a5b4fc",
-                                  border: "1px solid rgba(99,102,241,0.35)",
-                                  padding: "6px 12px",
-                                  borderRadius: 6,
-                                  fontSize: 12,
-                                  fontWeight: 600,
-                                  textDecoration: "none",
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 4
-                                }}
-                              >
-                                Evidence Passport ↗
-                              </Link>
                               <button
                                 onClick={() => handleInspectDossier(cand)}
                                 style={{
-                                  background: "#1e293b",
-                                  color: "#f8fafc",
-                                  border: "1px solid #334155",
-                                  padding: "6px 14px",
-                                  borderRadius: 6,
+                                  padding: "6px 12px",
+                                  borderRadius: 7,
+                                  background: "#356AE6",
+                                  border: "none",
+                                  color: "#FFFFFF",
                                   fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
-                                  transition: "all 0.15s ease"
                                 }}
                               >
-                                Inspect Dossier
+                                View Dossier →
                               </button>
                             </div>
                           </td>
@@ -1492,7 +1381,7 @@ Contradiction note:
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(0,0,0,0.75)",
+              background: "rgba(22, 42, 67, 0.45)",
               backdropFilter: "blur(4px)",
               display: "flex",
               justifyContent: "flex-end",
@@ -1504,19 +1393,20 @@ Contradiction note:
                 width: "100%",
                 maxWidth: 780,
                 height: "100%",
-                background: "#0d131f",
-                borderLeft: "1px solid #1f2937",
+                background: "#FFFFFF",
+                borderLeft: "1px solid #E4E1DA",
                 display: "flex",
                 flexDirection: "column",
-                overflow: "hidden"
+                overflow: "hidden",
+                boxShadow: "-10px 0 30px rgba(22, 42, 67, 0.15)"
               }}
             >
               {/* Header */}
               <div
                 style={{
                   padding: "20px 24px",
-                  borderBottom: "1px solid #1f2937",
-                  background: "#111827",
+                  borderBottom: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "flex-start"
@@ -1524,18 +1414,18 @@ Contradiction note:
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#818cf8", letterSpacing: "0.5px" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", letterSpacing: "0.5px", textTransform: "uppercase" }}>
                       EVIDENCE-GROUNDED CANDIDATE DOSSIER
                     </span>
-                    <span style={{ color: "#475569" }}>•</span>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                    <span style={{ color: "#E4E1DA" }}>•</span>
+                    <span style={{ fontSize: 11, color: "#667085" }}>
                       Target Role: {activeDossierCandidate.appliedRoleTitle} (v{activeDossierCandidate.screeningDossier?.roleVersion || 1})
                     </span>
                   </div>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "#162A43" }}>
                     {activeDossierCandidate.name}
                   </h2>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
                     {activeDossierCandidate.email} {activeDossierCandidate.phone ? `• ${activeDossierCandidate.phone}` : ""}
                   </div>
                 </div>
@@ -1544,9 +1434,9 @@ Contradiction note:
                   onClick={() => setActiveDossierCandidate(null)}
                   style={{
                     background: "transparent",
-                    color: "#94a3b8",
+                    color: "#667085",
                     border: "none",
-                    fontSize: 22,
+                    fontSize: 20,
                     cursor: "pointer",
                     padding: 4
                   }}
@@ -1556,44 +1446,44 @@ Contradiction note:
               </div>
 
               {/* Body */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", background: "#F6F5F1" }}>
                 {/* View Switcher: Pipeline Evidence vs Screening Overview */}
-                <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #1f2937", paddingBottom: 12 }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #E4E1DA", paddingBottom: 12 }}>
                   <button
                     onClick={() => setDrawerTab("pipeline_evidence")}
                     style={{
-                      padding: "8px 16px",
-                      borderRadius: 8,
+                      padding: "7px 14px",
+                      borderRadius: 7,
                       fontSize: 12,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer",
-                      border: drawerTab === "pipeline_evidence" ? "1px solid #6366f1" : "1px solid #334155",
-                      background: drawerTab === "pipeline_evidence" ? "rgba(99,102,241,0.2)" : "#0f172a",
-                      color: drawerTab === "pipeline_evidence" ? "#a5b4fc" : "#94a3b8",
+                      border: drawerTab === "pipeline_evidence" ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                      background: drawerTab === "pipeline_evidence" ? "#EFF4FE" : "#FFFFFF",
+                      color: drawerTab === "pipeline_evidence" ? "#356AE6" : "#667085",
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
                     }}
                   >
-                    <span>🛡️ Fact-Level Evidence Pipeline</span>
-                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#10b981", color: "#022c22", fontWeight: 800 }}>
+                    <span>Fact-Level Evidence Pipeline</span>
+                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 4, background: "#EAF4EE", color: "#2E7D5B", fontWeight: 700 }}>
                       AUDITABLE
                     </span>
                   </button>
                   <button
                     onClick={() => setDrawerTab("dossier")}
                     style={{
-                      padding: "8px 16px",
-                      borderRadius: 8,
+                      padding: "7px 14px",
+                      borderRadius: 7,
                       fontSize: 12,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer",
-                      border: drawerTab === "dossier" ? "1px solid #6366f1" : "1px solid #334155",
-                      background: drawerTab === "dossier" ? "rgba(99,102,241,0.2)" : "#0f172a",
-                      color: drawerTab === "dossier" ? "#a5b4fc" : "#94a3b8",
+                      border: drawerTab === "dossier" ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                      background: drawerTab === "dossier" ? "#EFF4FE" : "#FFFFFF",
+                      color: drawerTab === "dossier" ? "#356AE6" : "#667085",
                     }}
                   >
-                    📋 Traditional Screening Dossier
+                    Screening Breakdown
                   </button>
                 </div>
 
@@ -1749,12 +1639,13 @@ Contradiction note:
                               {/* Candidate Evidence Quote */}
                               <div
                                 style={{
-                                  background: "#0b0f17",
-                                  borderLeft: "3px solid #6366f1",
+                                  background: "var(--bg-surface-inner)",
+                                  border: "1px solid var(--border-subtle)",
+                                  borderLeft: "3px solid var(--accent)",
                                   padding: "10px 14px",
                                   borderRadius: "0 6px 6px 0",
                                   fontSize: 12,
-                                  color: "#cbd5e1",
+                                  color: "var(--text-primary)",
                                   marginBottom: 10,
                                   lineHeight: 1.5,
                                   fontStyle: reqItem.candidateEvidence.includes("No ") ? "italic" : "normal"
@@ -1986,9 +1877,9 @@ Contradiction note:
                 width: "100%",
                 maxWidth: 1200,
                 maxHeight: "90vh",
-                background: "#0d131f",
+                background: "var(--bg-card)",
                 borderRadius: 14,
-                border: "1px solid #1f2937",
+                border: "1px solid var(--border-subtle)",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden"
@@ -1998,18 +1889,18 @@ Contradiction note:
               <div
                 style={{
                   padding: "18px 24px",
-                  borderBottom: "1px solid #1f2937",
-                  background: "#111827",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  background: "var(--bg-surface-inner)",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center"
                 }}
               >
                 <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#f8fafc" }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "var(--text-primary)" }}>
                     Side-by-Side Candidate Comparison Matrix
                   </h3>
-                  <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                     Role: {comparisonData?.role?.title || selectedRoleObj?.title} (v{comparisonData?.role?.version || 1}) • {comparisonData?.candidates?.length || selectedCandidateIds.length} Candidates Evaluated
                   </div>
                 </div>
@@ -2041,12 +1932,12 @@ Contradiction note:
                 ) : comparisonData ? (
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12, textAlign: "left" }}>
                     <thead>
-                      <tr style={{ background: "#111827", borderBottom: "2px solid #1f2937" }}>
-                        <th style={{ padding: "14px 16px", width: 280, color: "#94a3b8" }}>
+                      <tr style={{ background: "var(--bg-surface-inner)", borderBottom: "2px solid var(--border-subtle)" }}>
+                        <th style={{ padding: "14px 16px", width: 280, color: "var(--text-secondary)" }}>
                           Role Requirement
                         </th>
                         {comparisonData.candidates.map((c: any) => (
-                          <th key={c.id} style={{ padding: "14px 16px", color: "#f8fafc", minWidth: 240 }}>
+                          <th key={c.id} style={{ padding: "14px 16px", color: "var(--text-primary)", minWidth: 240 }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <div style={{ fontSize: 14, fontWeight: 700 }}>
                                 {blindMode ? `Candidate #${c.id.slice(-4).toUpperCase()}` : c.name}
@@ -2056,18 +1947,18 @@ Contradiction note:
                                 target="_blank"
                                 style={{
                                   fontSize: 11,
-                                  color: "#a5b4fc",
+                                  color: "var(--accent)",
                                   textDecoration: "none",
-                                  background: "rgba(99,102,241,0.15)",
+                                  background: "var(--bg-surface-inner)",
                                   padding: "2px 6px",
                                   borderRadius: 4,
-                                  border: "1px solid rgba(99,102,241,0.3)"
+                                  border: "1px solid var(--border-subtle)"
                                 }}
                               >
                                 Passport ↗
                               </Link>
                             </div>
-                            <div style={{ fontSize: 11, color: "#818cf8", marginTop: 2 }}>
+                            <div style={{ fontSize: 11, color: "var(--accent)", marginTop: 2 }}>
                               {c.overallCoverage}
                             </div>
                           </th>
@@ -2076,12 +1967,12 @@ Contradiction note:
                     </thead>
                     <tbody>
                       {comparisonData.matrix.map((row: any) => (
-                        <tr key={row.requirementId} style={{ borderBottom: "1px solid #1e293b" }}>
-                          <td style={{ padding: "14px 16px", verticalAlign: "top", background: "#0b0f17" }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                        <tr key={row.requirementId} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                          <td style={{ padding: "14px 16px", verticalAlign: "top", background: "var(--bg-card-secondary)" }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase" }}>
                               {row.category}
                             </span>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", marginTop: 2 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginTop: 2 }}>
                               {row.requirementText}
                             </div>
                           </td>

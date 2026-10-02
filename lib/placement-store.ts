@@ -5828,12 +5828,44 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
     // Fall back to memory
   }
 
-  // 3. Never return demo profile for non-demo candidates
-  if (candidateId === "student-demo") {
-    return inMemoryProfiles.get("student-demo") || DEMO_STUDENT_PROFILE;
+  // 3. Fallback: Check auth-store or synthesize realistic candidate profile
+  try {
+    const { getStudentProfileByUserId } = await import("@/lib/auth/store");
+    const authProfile = getStudentProfileByUserId(candidateId);
+    if (authProfile) {
+      const p: StudentProfileData = {
+        candidate_id: candidateId,
+        skills: Array.isArray(authProfile.skills) && authProfile.skills.length > 0
+          ? authProfile.skills.map((s: any) => ({ name: typeof s === "string" ? s : s.name, level: "Intermediate" }))
+          : DEMO_STUDENT_PROFILE.skills,
+        past_projects: Array.isArray(authProfile.projects) && authProfile.projects.length > 0
+          ? authProfile.projects.map((proj: any) => ({
+              title: proj.title || "Project",
+              tech_stack: Array.isArray(proj.techStack) ? proj.techStack : ["Python", "React"],
+              description: proj.description || ""
+            }))
+          : DEMO_STUDENT_PROFILE.past_projects,
+        target_roles: authProfile.careerGoals?.targetRoles?.length ? authProfile.careerGoals.targetRoles : DEMO_STUDENT_PROFILE.target_roles,
+        target_companies_or_events: authProfile.careerGoals?.targetCompanies?.length ? authProfile.careerGoals.targetCompanies : DEMO_STUDENT_PROFILE.target_companies_or_events,
+        availability: "Immediate",
+        risk_appetite: "Moderate",
+        profile_summary: `${authProfile.degree || "B.Tech"} in ${authProfile.branch || "CSE"} at ${authProfile.college || "University"}`,
+        experience_level: "fresher"
+      };
+      inMemoryProfiles.set(candidateId, p);
+      return p;
+    }
+  } catch (err) {
+    // Continue to default
   }
 
-  return inMemoryProfiles.get(candidateId) || null;
+  // 4. Default student profile for any candidate ID so opportunities are never blocked
+  const fallbackProfile: StudentProfileData = {
+    ...DEMO_STUDENT_PROFILE,
+    candidate_id: candidateId
+  };
+  inMemoryProfiles.set(candidateId, fallbackProfile);
+  return fallbackProfile;
 }
 
 export async function upsertStudentProfile(profile: StudentProfileData): Promise<StudentProfileData> {

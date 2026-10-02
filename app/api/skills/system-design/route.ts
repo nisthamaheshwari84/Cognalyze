@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
 import { skillHubStore, SEED_SYSTEM_DESIGN_CHALLENGES } from "@/lib/skill-hub-store";
+import { recordCandidateAttempt } from "@/lib/skills/candidate-history";
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,7 +31,8 @@ export async function POST(req: NextRequest) {
       canvasGraph = { nodes: [], edges: [] },
       chaosDefense = "",
       hintsUsed = false,
-      track = "product_mid"
+      track = "product_mid",
+      candidateId = "student-demo"
     } = body;
 
     const challenge =
@@ -173,6 +175,26 @@ Evaluate candidate strictly on evidence, not unsupported claims. Return STRICT J
           "Separation of concerns across layers"
         ]
       };
+    }
+
+    try {
+      recordCandidateAttempt({
+        candidateId,
+        domain: "system_design",
+        topic: challenge.title,
+        mode: "interview",
+        score: evalResult.scalabilityScore || 82,
+        accuracy: evalResult.scalabilityScore || 82,
+        timeSpentSeconds: 900,
+        questionsAttempted: 1,
+        questionsCorrect: (evalResult.scalabilityScore || 82) >= 75 ? 1 : 0,
+        questionIds: [challenge.id],
+        weaknesses: evalResult.developing || ["Failure recovery under surge"],
+        strengths: evalResult.demonstrated || ["Clear tier decoupling"],
+        feedback: evalResult.principalAdvice || "System design architecture session completed."
+      });
+    } catch (e) {
+      console.warn("Could not record system design attempt:", e);
     }
 
     return NextResponse.json({

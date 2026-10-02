@@ -97,12 +97,28 @@ Return STRICT JSON only:
       ];
     }
 
-    skillHubStore.addDynamicQuestions(generatedQuestions);
+    // Randomize options so option A is not biased
+    const randomizedQuestions = generatedQuestions.map((q) => {
+      const originalCorrectText = q.options[q.correct_option_index] || q.options[0];
+      const shuffledOptions = [...q.options];
+      for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+      }
+      const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);
+      return {
+        ...q,
+        options: shuffledOptions,
+        correct_option_index: newCorrectIndex >= 0 ? newCorrectIndex : 0
+      };
+    });
+
+    skillHubStore.addDynamicQuestions(randomizedQuestions);
 
     return NextResponse.json({
       success: true,
-      generatedCount: generatedQuestions.length,
-      questions: generatedQuestions
+      generatedCount: randomizedQuestions.length,
+      questions: randomizedQuestions
     });
   } catch (err: any) {
     console.error("Error generating aptitude questions:", err);

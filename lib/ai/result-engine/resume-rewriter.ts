@@ -73,6 +73,13 @@ export function rewriteFullResume(
       const val = validateBulletFidelity(rewritten, b, originalFullResumeText);
       const finalText = val.valid ? rewritten : b; // Fallback to original if validation flagged
 
+      const matchingEv = resume.evidenceItems.find(
+        (e) => e.verbatim_quote === b || e.text === b || b.includes(e.verbatim_quote) || e.verbatim_quote.includes(b)
+      );
+      const evIds = matchingEv
+        ? [matchingEv.evidence_id || matchingEv.canonical_evidence_id || matchingEv.id]
+        : [`ev_exp_${bulletCounter}`];
+
       bullets.push({
         bulletId: `b_exp_${bulletCounter++}`,
         section: 'EXPERIENCE',
@@ -84,14 +91,15 @@ export function rewriteFullResume(
         evidenceStatus: 'SUPPORTED',
         targetRequirement: exp.role,
         interviewDefensibility: 'STRONG',
+        original_evidence_ids: evIds,
       });
     }
 
     if (bullets.length > 0) {
       rewrittenExperience.push({
         role: exp.role,
-        company: exp.company || 'Professional Experience',
-        period: exp.period || 'Documented Tenure',
+        company: exp.company || '',
+        period: exp.period || '',
         location: exp.location,
         bullets,
       });
@@ -107,6 +115,13 @@ export function rewriteFullResume(
       const val = validateBulletFidelity(rewritten, b, originalFullResumeText);
       const finalText = val.valid ? rewritten : b;
 
+      const matchingEv = resume.evidenceItems.find(
+        (e) => e.verbatim_quote === b || e.text === b || b.includes(e.verbatim_quote) || e.verbatim_quote.includes(b)
+      );
+      const evIds = matchingEv
+        ? [matchingEv.evidence_id || matchingEv.canonical_evidence_id || matchingEv.id]
+        : [`ev_proj_${bulletCounter}`];
+
       bullets.push({
         bulletId: `b_proj_${bulletCounter++}`,
         section: 'PROJECTS',
@@ -118,6 +133,7 @@ export function rewriteFullResume(
         evidenceStatus: 'SUPPORTED',
         targetRequirement: proj.technologies[0] || 'Technical Implementation',
         interviewDefensibility: 'STRONG',
+        original_evidence_ids: evIds,
       });
     }
 
@@ -148,6 +164,7 @@ export function rewriteFullResume(
           evidenceStatus: 'SUPPORTED',
           targetRequirement: item.technologies[0] || 'Software Engineering',
           interviewDefensibility: 'STRONG',
+          original_evidence_ids: [item.evidence_id || item.canonical_evidence_id || item.id],
         })),
       });
     }
@@ -163,16 +180,15 @@ export function rewriteFullResume(
         },
       ];
 
-  // 5. Education Section
+  // 5. Education Section (Never inject placeholder institutions or degrees)
   const cleanedEducation = resume.education.length > 0
-    ? resume.education
-    : [
-        {
-          degree: 'Bachelor of Technology in Computer Science or Related Field',
-          institution: 'Accredited University',
-          year: 'Recent / Upcoming Graduate',
-        },
-      ];
+    ? resume.education.map((edu) => ({
+        degree: edu.degree || '',
+        institution: edu.institution || '',
+        year: edu.year || '',
+        details: edu.details,
+      }))
+    : [];
 
   return {
     name: resume.name || 'Candidate Name',

@@ -3,6 +3,36 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  GitPullRequest,
+  Briefcase,
+  Users,
+  ShieldCheck,
+  Video,
+  Compass,
+  Map,
+  Dna,
+  FileCheck,
+  FileText,
+  Settings,
+  HelpCircle,
+  Search,
+  Bell,
+  CheckCircle2,
+  Menu,
+  X,
+  ArrowLeftRight,
+  LogOut,
+  Sparkles,
+  Target,
+  Award,
+  Code2,
+  Moon,
+  MessageSquare,
+  Bot,
+} from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface AppNavProps {
   role?: "student" | "recruiter" | "admin";
@@ -11,24 +41,18 @@ interface AppNavProps {
 interface NavItem {
   href: string;
   label: string;
-  icon: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   badge?: string;
-  description?: string;
-}
-
-interface NavCategory {
-  category: string;
-  icon: string;
-  items: NavItem[];
 }
 
 export default function AppNav({ role = "student" }: AppNavProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerSearch, setDrawerSearch] = useState("");
+  const { isDark, toggleTheme } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [session, setSession] = useState<{
     loading: boolean;
     authenticated: boolean;
@@ -50,7 +74,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
               authenticated: !!data.authenticated,
               user: data.user,
               studentProfile: data.studentProfile,
-              recruiterProfile: data.recruiterProfile
+              recruiterProfile: data.recruiterProfile,
             });
           }
         } else {
@@ -66,27 +90,21 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     };
   }, [pathname]);
 
-  // Handle ESC key to close drawer
+  // Close sidebar on path change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  // Close sidebar on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setDrawerOpen(false);
+      if (e.key === "Escape" && sidebarOpen) {
+        setSidebarOpen(false);
+      }
     };
-    if (drawerOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [drawerOpen]);
-
-  // Close drawer on path change
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [pathname]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [sidebarOpen]);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -102,792 +120,743 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     }
   };
 
-  const studentTopLinks = [
-    { href: "/student/dashboard", label: "Home", icon: "🏠" },
-    { href: "/student/journey", label: "Journey", icon: "🗺️" },
-    { href: "/student/skills", label: "Practice", icon: "⚡" },
-    { href: "/student/interview-prep", label: "Interviews", icon: "🎙️" },
-    { href: "/student/opportunities", label: "Opportunities", icon: "🎯" },
-    { href: "/student/evidence", label: "Evidence", icon: "📊" },
-    { href: "/student/dna", label: "Student DNA", icon: "🧬" }
-  ];
-
-  const recruiterTopLinks = [
-    { href: "/recruiter/pipeline", label: "Pipeline", icon: "⚡" },
-    { href: "/recruiter/roles", label: "Roles", icon: "📋" },
-    { href: "/recruiter/candidates", label: "Candidates", icon: "👥" },
-    { href: "/recruiter/decision-room", label: "Decisions", icon: "⚖️" },
-    { href: "/recruiter/quality-of-hire", label: "Outcomes", icon: "📈" },
-    { href: "/recruiter/organization", label: "Org & Mobility", icon: "🏢" },
-    { href: "/post", label: "Network", icon: "🌐" }
-  ];
-
-  const topLinks = role === "recruiter" ? recruiterTopLinks : studentTopLinks;
-
-  // ══════════════════════════════════════════════════════════════════════
-  // CATEGORIZED FEATURES FOR COLLAPSIBLE DRAWER
-  // ══════════════════════════════════════════════════════════════════════
-
-  const studentFeatureCategories: NavCategory[] = [
-    {
-      category: "Core Career & Intelligence",
-      icon: "🧭",
-      items: [
-        { href: "/student/dashboard", label: "Overview Dashboard", icon: "🏠", badge: "Live" },
-        { href: "/student/journey", label: "Career Journey & Intent", icon: "🗺️" },
-        { href: "/student/dna", label: "Student DNA & Roles", icon: "🧬", badge: "Core" },
-        { href: "/student/evidence", label: "Verified Evidence Portfolio", icon: "📊" },
-        { href: "/student/growth", label: "Growth Radar & Gap Engine", icon: "📈" },
-        { href: "/student/calendar", label: "Placement Calendar & Deadlines", icon: "📅" },
-        { href: "/student/resume", label: "Resume Studio & ATS Score", icon: "📄" },
-        { href: "/student/passport", label: "Placement Passport", icon: "🛂" },
-        { href: "/student/profile", label: "Profile & Verification", icon: "👤" }
-      ]
-    },
-    {
-      category: "Skill Practice Hub & Arenas",
-      icon: "⚡",
-      items: [
-        { href: "/student/skills", label: "Adaptive Skill Practice Hub", icon: "🎯", badge: "Upgraded" },
-        { href: "/student/skills/cs-interview", label: "CS Fundamentals Technical Round", icon: "💻", badge: "Adaptive" },
-        { href: "/student/skills/system-design", label: "System Design Whiteboard Arena", icon: "🏗️", badge: "Canvas" },
-        { href: "/student/skills/behavioral", label: "STAR Behavioral & HR Studio", icon: "🤝" },
-        { href: "/student/skills/communication", label: "Spoken English & Communication", icon: "🎙️" },
-        { href: "/student/skills/aptitude", label: "Mass Aptitude Exam Arena", icon: "🧮" },
-        { href: "/student/skills/patterns", label: "Company Hiring Pattern Banks", icon: "🏛️" },
-        { href: "/student/dsa-tracker", label: "DSA Algorithmic Problem Tracker", icon: "⚡" }
-      ]
-    },
-    {
-      category: "Interview & Assessment Simulators",
-      icon: "🎙️",
-      items: [
-        { href: "/interview", label: "Proctored AI Technical Interview", icon: "🎙️", badge: "Proctored" },
-        { href: "/secure-interview", label: "Secure Proctored Assessment", icon: "🛡️" },
-        { href: "/student/gd-practice", label: "Group Discussion (GD) Arena", icon: "👥" },
-        { href: "/student/mentor", label: "Cognalyze Voice AI Mentor", icon: "🤖" },
-        { href: "/student/assessment-arena", label: "Full Assessment Arena", icon: "🏆" },
-        { href: "/student/simulation", label: "Placement Day Simulation", icon: "🕹️" },
-        { href: "/student/question-bank", label: "Master Question Bank", icon: "📚" },
-        { href: "/student/interview-prep/history", label: "Past Interview Dossiers & History", icon: "🕒" }
-      ]
-    },
-    {
-      category: "Opportunities, Pipeline & Community",
-      icon: "🎯",
-      items: [
-        { href: "/student/opportunities", label: "Verified Jobs & Hackathons", icon: "🎯", badge: "Hot" },
-        { href: "/student/applications", label: "Application Pipeline Tracker", icon: "📝" },
-        { href: "/student/community", label: "Placement Community & Discussion", icon: "💬" },
-        { href: "/student/collaboration", label: "Peer Collaboration & Projects", icon: "🤝" },
-        { href: "/post", label: "Network & Project Showcase", icon: "🌐" }
-      ]
-    }
-  ];
-
-  const recruiterFeatureCategories: NavCategory[] = [
-    {
-      category: "Pipeline & Sourcing",
-      icon: "⚡",
-      items: [
-        { href: "/recruiter/dashboard", label: "Recruiter Overview", icon: "📊" },
-        { href: "/recruiter/pipeline", label: "Candidate Live Pipeline", icon: "⚡", badge: "Live" },
-        { href: "/recruiter/roles", label: "Evidence-Grounded Roles", icon: "📋" },
-        { href: "/recruiter/candidates", label: "Verified Candidate Pool", icon: "👥" },
-        { href: "/recruiter/jobs", label: "Manage Job Openings", icon: "💼" },
-        { href: "/post", label: "Campus Network & Sourcing", icon: "🌐" }
-      ]
-    },
-    {
-      category: "Hiring Intelligence & Governance",
-      icon: "⚖️",
-      items: [
-        { href: "/recruiter/decision-room", label: "Decision Room & AI Council", icon: "⚖️", badge: "Council" },
-        { href: "/recruiter/quality-of-hire", label: "Quality of Hire & Retention", icon: "📈" },
-        { href: "/recruiter/organization", label: "Org Capability & Mobility", icon: "🏢" },
-        { href: "/recruiter/analytics", label: "Hiring Analytics & Funnels", icon: "📉" },
-        { href: "/recruiter/interviews", label: "Proctored Candidate Interviews", icon: "🎙️" }
-      ]
-    }
-  ];
-
-  const categories = role === "recruiter" ? recruiterFeatureCategories : studentFeatureCategories;
-
-  const filteredCategories = categories.map(cat => ({
-    ...cat,
-    items: cat.items.filter(item =>
-      !drawerSearch ||
-      item.label.toLowerCase().includes(drawerSearch.toLowerCase()) ||
-      cat.category.toLowerCase().includes(drawerSearch.toLowerCase())
-    )
-  })).filter(cat => cat.items.length > 0);
-
   const handleSwitchRole = async (targetRole: "student" | "recruiter") => {
     setSwitching(true);
     try {
       await fetch("/api/auth/role", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: targetRole })
+        body: JSON.stringify({ role: targetRole }),
       });
-      if (targetRole === "recruiter") {
-        router.push("/recruiter/dashboard");
-      } else {
-        router.push("/student/dashboard");
-      }
-      router.refresh();
+      window.location.href = targetRole === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard";
     } catch (err) {
       console.error("Failed to switch role:", err);
+      window.location.href = targetRole === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard";
     } finally {
       setSwitching(false);
     }
   };
 
+  // Section 7 Navigation Specifications
+  const recruiterNavItems: NavItem[] = [
+    { href: "/recruiter/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/recruiter/decision-room", label: "Decision Room", icon: GitPullRequest, badge: "Flagship" },
+    { href: "/recruiter/roles", label: "Roles", icon: Briefcase },
+    { href: "/recruiter/candidates", label: "Candidates", icon: Users },
+    { href: "/recruiter/quality-of-hire", label: "Evidence", icon: ShieldCheck },
+    { href: "/recruiter/interviews", label: "Interviews", icon: Video },
+    { href: "/post", label: "Post Feed", icon: MessageSquare },
+    { href: "/student/opportunities", label: "Opportunities", icon: Compass },
+  ];
+
+  const studentNavItems: NavItem[] = [
+    { href: "/student/dashboard", label: "Overview", icon: LayoutDashboard },
+    { href: "/student/journey", label: "Journey", icon: Map },
+    { href: "/student/dna", label: "Student DNA", icon: Dna, badge: "Live" },
+    { href: "/student/opportunities", label: "Opportunities", icon: Compass },
+    { href: "/student/applications", label: "Applications", icon: FileCheck },
+    { href: "/resume", label: "Resume", icon: FileText },
+    { href: "/interview", label: "Interviews", icon: Video },
+    { href: "/skill-practice", label: "Skill Practice Hub", icon: Target },
+    { href: "/recruitment-simulation", label: "Recruitment Simulation", icon: Award },
+    { href: "/dsa-tracker", label: "DSA Tracker", icon: Code2 },
+    { href: "/question-bank", label: "Question Bank", icon: HelpCircle },
+    { href: "/group-discussion", label: "Group Discussion", icon: MessageSquare },
+    { href: "/student/ai-mentor", label: "Cognalyze AI Mentor", icon: Bot, badge: "✦ New" },
+  ];
+
+  const navItems = role === "recruiter" ? recruiterNavItems : studentNavItems;
+
+  const isItemActive = (href: string) => {
+    if (href === "/student/dashboard") {
+      return pathname === "/student/dashboard" || pathname === "/student";
+    }
+    if (href === "/skill-practice") {
+      return (
+        pathname === "/skill-practice" ||
+        pathname.startsWith("/skill-practice/") ||
+        pathname === "/student/skills" ||
+        pathname.startsWith("/student/skills/")
+      );
+    }
+    if (href === "/recruitment-simulation") {
+      return (
+        pathname === "/recruitment-simulation" ||
+        pathname.startsWith("/recruitment-simulation/") ||
+        pathname === "/student/simulation" ||
+        pathname.startsWith("/student/simulation/")
+      );
+    }
+    if (href === "/dsa-tracker") {
+      return (
+        pathname === "/dsa-tracker" ||
+        pathname.startsWith("/dsa-tracker/") ||
+        pathname === "/student/dsa-tracker" ||
+        pathname.startsWith("/student/dsa-tracker/")
+      );
+    }
+    if (href === "/question-bank") {
+      return (
+        pathname === "/question-bank" ||
+        pathname.startsWith("/question-bank/") ||
+        pathname === "/student/question-bank" ||
+        pathname.startsWith("/student/question-bank/")
+      );
+    }
+    if (href === "/group-discussion") {
+      return (
+        pathname === "/group-discussion" ||
+        pathname.startsWith("/group-discussion/") ||
+        pathname === "/student/gd-practice" ||
+        pathname.startsWith("/student/gd-practice/")
+      );
+    }
+    if (href === "/student/ai-mentor") {
+      return (
+        pathname === "/student/ai-mentor" ||
+        pathname.startsWith("/student/ai-mentor/") ||
+        pathname === "/student/mentor" ||
+        pathname.startsWith("/student/mentor/")
+      );
+    }
+    if (href === "/resume") {
+      return (
+        pathname === "/resume" ||
+        pathname.startsWith("/resume/") ||
+        pathname === "/student/resume" ||
+        pathname.startsWith("/student/resume/")
+      );
+    }
+    if (href === "/interview") {
+      return (
+        pathname === "/interview" ||
+        pathname.startsWith("/interview/") ||
+        pathname.startsWith("/secure-interview")
+      );
+    }
+    return (
+      pathname === href ||
+      (href !== "/student/dashboard" &&
+        href !== "/recruiter/dashboard" &&
+        pathname.startsWith(href + "/"))
+    );
+  };
+
+  // Determine current page title
+  const getPageTitle = () => {
+    if (pathname.includes("/skill-practice") || pathname.includes("/student/skills")) {
+      return "Skill Practice Hub";
+    }
+    if (pathname.includes("/recruitment-simulation") || pathname.includes("/student/simulation")) {
+      return "Recruitment Simulation";
+    }
+    if (pathname.includes("/dsa-tracker")) {
+      return "DSA Tracker";
+    }
+    if (pathname.includes("/question-bank") || pathname.includes("/student/question-bank")) {
+      return "Question Bank";
+    }
+    if (pathname.includes("/group-discussion") || pathname.includes("/student/gd-practice")) {
+      return "Group Discussion";
+    }
+    if (pathname.includes("/ai-mentor") || pathname.includes("/student/mentor")) {
+      return "Cognalyze AI Mentor";
+    }
+    const current = navItems.find((item) => isItemActive(item.href));
+    if (current) return current.label;
+    if (pathname.includes("/resume")) return "Resume Studio";
+    if (pathname.includes("/interview") || pathname.includes("/secure-interview")) return "Technical Interview";
+    if (pathname.includes("/dna")) return "Student DNA";
+    if (pathname.includes("/decision-room")) return "Decision Room";
+    return role === "recruiter" ? "Recruiter Intelligence" : "Career Intelligence";
+  };
+
   return (
     <>
+      {/* ======================================================== */}
+      {/* 1. TOP NAVIGATION BAR (Section 8)                        */}
+      {/* ======================================================== */}
       <header
         style={{
           position: "sticky",
           top: 0,
-          zIndex: 50,
-          background: "rgba(10, 15, 29, 0.85)",
-          backdropFilter: "blur(16px)",
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          padding: "10px 20px"
+          zIndex: 40,
+          backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+          borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+          height: 56,
+          display: "flex",
+          alignItems: "center",
+          padding: "0 24px",
+          boxShadow: isDark ? "0 1px 2px rgba(0, 0, 0, 0.3)" : "0 1px 2px rgba(16, 24, 40, 0.03)",
+          transition: "background-color 150ms ease, border-color 150ms ease",
         }}
       >
-        <div
-          style={{
-            maxWidth: 1400,
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 16,
-            flexWrap: "wrap"
-          }}
-        >
-          {/* Top-Left: Hamburger Button ☰ + Brand Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            
-            {/* Top-left ☰ Button */}
+        <div style={{ width: "100%", maxWidth: 1440, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+          {/* Left: Sidebar Trigger + Logo + Page Title */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {/* Sidebar Trigger (Mobile & Desktop) */}
             <button
-              id="top-left-hamburger-btn"
-              onClick={() => setDrawerOpen(!drawerOpen)}
-              title="Open Feature Drawer (☰)"
-              aria-label="Toggle navigation drawer"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
               style={{
-                background: drawerOpen ? "rgba(99, 102, 241, 0.25)" : "rgba(255, 255, 255, 0.06)",
-                border: drawerOpen ? "1px solid rgba(99, 102, 241, 0.5)" : "1px solid rgba(255, 255, 255, 0.12)",
-                color: drawerOpen ? "#a5b4fc" : "#e2e8f0",
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                fontSize: 18,
-                cursor: "pointer",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                transition: "all 0.15s ease",
-                padding: 0
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                background: isDark ? "#142339" : "#F6F5F1",
+                color: isDark ? "#F1F5F9" : "#162A43",
+                cursor: "pointer",
+                transition: "all 150ms ease",
               }}
+              aria-label="Toggle Navigation Sidebar"
+              id="sidebar-toggle-btn"
+              title="Toggle Navigation Sidebar"
             >
-              ☰
+              {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
 
-            {/* Brand / Logo */}
-            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 8 }}>
+            {/* Brand Logo & Mark */}
+            <Link
+              href={role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard"}
+              style={{
+                textDecoration: "none",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
               <div
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 9,
-                  background: role === "recruiter"
-                    ? "linear-gradient(135deg, #a855f7, #6366f1)"
-                    : "linear-gradient(135deg, #6366f1, #06b6d4)",
+                  width: 28,
+                  height: 28,
+                  borderRadius: 6,
+                  backgroundColor: "#162A43",
+                  color: "#FFFFFF",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontWeight: 900,
-                  color: "white",
-                  fontSize: 16,
-                  boxShadow: "0 0 15px rgba(99,102,241,0.3)"
+                  fontWeight: 800,
+                  fontSize: 14,
+                  letterSpacing: "-0.5px",
+                  border: "1px solid rgba(255,255,255,0.15)",
                 }}
               >
-                {role === "recruiter" ? "👔" : "⚡"}
+                C
               </div>
-              <div>
-                <span style={{ fontSize: 16, fontWeight: 900, color: "white", letterSpacing: "-0.5px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    letterSpacing: "-0.3px",
+                    color: isDark ? "#FFFFFF" : "#162A43",
+                  }}
+                >
                   COGNALYZE
                 </span>
                 <span
                   style={{
                     fontSize: 10,
-                    marginLeft: 6,
-                    padding: "2px 6px",
+                    fontWeight: 600,
+                    padding: "1px 5px",
                     borderRadius: 4,
-                    fontWeight: 800,
-                    background: role === "recruiter" ? "rgba(168,85,247,0.2)" : "rgba(99,102,241,0.2)",
-                    color: role === "recruiter" ? "#d8b4fe" : "#818cf8",
-                    border: `1px solid ${role === "recruiter" ? "rgba(168,85,247,0.4)" : "rgba(99,102,241,0.4)"}`
+                    backgroundColor: isDark ? "#142339" : "#F0EFEA",
+                    color: isDark ? "#94A3B8" : "#667085",
+                    border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                    textTransform: "uppercase",
                   }}
                 >
-                  {role === "recruiter" ? "RECRUITER" : "STUDENT"}
+                  {role}
                 </span>
               </div>
             </Link>
+
+            {/* Subtle Divider */}
+            <div style={{ width: 1, height: 16, backgroundColor: isDark ? "#1C3048" : "#E4E1DA" }} className="hidden sm:block" />
+
+            {/* Page Context */}
+            <span
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: isDark ? "#94A3B8" : "#667085",
+              }}
+              className="hidden sm:block"
+            >
+              {getPageTitle()}
+            </span>
           </div>
 
-          {/* Top Quick Navigation Links */}
-          <nav style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-            {topLinks.map(item => {
-              const isActive = pathname === item.href || (item.href !== "/student/dashboard" && pathname.startsWith(item.href + "/"));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    textDecoration: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "7px 12px",
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: isActive ? 700 : 500,
-                    color: isActive ? "white" : "rgba(255, 255, 255, 0.65)",
-                    background: isActive
-                      ? role === "recruiter"
-                        ? "linear-gradient(135deg, rgba(168,85,247,0.3), rgba(99,102,241,0.2))"
-                        : "linear-gradient(135deg, rgba(99,102,241,0.3), rgba(6,182,212,0.2))"
-                      : "transparent",
-                    border: isActive
-                      ? `1px solid ${role === "recruiter" ? "rgba(168,85,247,0.4)" : "rgba(99,102,241,0.4)"}`
-                      : "1px solid transparent",
-                    transition: "all 0.15s ease"
-                  }}
-                >
-                  <span style={{ fontSize: 13 }}>{item.icon}</span>
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Right Tools, Auth & Role Switcher */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            {/* Switch Section Button */}
-            <Link
-              href="/?switch=true"
-              title="Switch Platform Section"
+          {/* Center / Search Input (Section 8 & 29) */}
+          <div style={{ flex: "1 1 auto", maxWidth: 360 }} className="hidden md:block">
+            <div
               style={{
-                textDecoration: "none",
+                position: "relative",
                 display: "flex",
                 alignItems: "center",
-                gap: 5,
-                padding: "6px 11px",
-                borderRadius: 8,
-                fontSize: 11,
-                fontWeight: 700,
-                background: "rgba(99, 102, 241, 0.12)",
-                border: "1px solid rgba(99, 102, 241, 0.3)",
-                color: "#c7d2fe",
-                transition: "all 0.15s ease"
               }}
             >
-              <span>⇄</span>
-              <span>Switch</span>
+              <Search
+                size={14}
+                style={{
+                  position: "absolute",
+                  left: 10,
+                  color: "#98A2B3",
+                  pointerEvents: "none",
+                }}
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search candidates, roles, evidence..."
+                style={{
+                  width: "100%",
+                  height: 32,
+                  paddingLeft: 32,
+                  paddingRight: 10,
+                  fontSize: 12,
+                  borderRadius: 7,
+                  border: `1px solid ${isDark ? "#263D57" : "#E4E1DA"}`,
+                  backgroundColor: isDark ? "#101F34" : "#F6F5F1",
+                  color: isDark ? "#EAF0F8" : "#17191C",
+                  outline: "none",
+                  fontFamily: "inherit",
+                  transition: "all 150ms ease",
+                }}
+                className="focus:border-[#356AE6] focus:ring-1 focus:ring-[#356AE6]"
+              />
+            </div>
+          </div>
+
+          {/* Right Tools: Role Toggle, Notifications, Profile */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Direct Post Feed Button */}
+            <Link
+              href="/post"
+              style={{ textDecoration: "none" }}
+              title="Browse Community Post & Hiring Feed"
+            >
+              <button
+                type="button"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  height: 28,
+                  padding: "0 10px",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  borderRadius: 6,
+                  border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                  backgroundColor: isDark ? "rgba(53, 106, 230, 0.15)" : "#EEF4FD",
+                  color: "#356AE6",
+                  cursor: "pointer",
+                  transition: "all 150ms ease",
+                }}
+                className="hover:bg-[#DCE7FB]"
+              >
+                <span>📢</span>
+                <span>Post Feed</span>
+              </button>
             </Link>
 
-            {/* Quick Role Toggle Button */}
+            {/* Quick Role Switch Button */}
             <button
               onClick={() => handleSwitchRole(role === "recruiter" ? "student" : "recruiter")}
               disabled={switching}
-              title={role === "recruiter" ? "Toggle to Student Mode" : "Toggle to Recruiter Mode"}
               style={{
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: 5,
-                padding: "6px 11px",
-                borderRadius: 8,
+                height: 28,
+                padding: "0 9px",
                 fontSize: 11,
-                fontWeight: 700,
+                fontWeight: 600,
+                borderRadius: 6,
+                border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                backgroundColor: isDark ? "#142339" : "#F6F5F1",
+                color: isDark ? "#F1F5F9" : "#162A43",
                 cursor: switching ? "not-allowed" : "pointer",
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                color: "#cbd5e1",
-                transition: "all 0.15s ease"
+                transition: "all 150ms ease",
               }}
+              title={`Switch to ${role === "recruiter" ? "Student" : "Recruiter"} Workspace`}
             >
-              <span>{switching ? "..." : role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
+              <ArrowLeftRight size={11} color="#667085" />
+              <span>{switching ? "Switching..." : role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
             </button>
 
-            {/* Quick Notification Bell */}
+            {/* Notifications Bell */}
             <Link
               href={role === "recruiter" ? "/recruiter/dashboard" : "/student/calendar"}
               style={{
-                textDecoration: "none",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
                 width: 32,
                 height: 32,
-                borderRadius: 8,
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#94a3b8",
-                fontSize: 13
+                borderRadius: 6,
+                border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                backgroundColor: isDark ? "#142339" : "#FFFFFF",
+                color: isDark ? "#94A3B8" : "#667085",
+                textDecoration: "none",
+                position: "relative",
+                transition: "all 150ms ease",
               }}
+              title="Notifications"
             >
-              🔔
+              <Bell size={14} />
+              <span
+                style={{
+                  position: "absolute",
+                  top: 7,
+                  right: 7,
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  backgroundColor: "#356AE6",
+                }}
+              />
             </Link>
 
-            {/* Vertical Divider */}
-            <div style={{ width: 1, height: 20, background: "rgba(255, 255, 255, 0.12)", margin: "0 2px" }} />
-
-            {/* Authentication Actions */}
-            {session.authenticated && session.user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "4px 9px",
-                    borderRadius: 20,
-                    background: "rgba(255, 255, 255, 0.06)",
-                    border: "1px solid rgba(255, 255, 255, 0.12)"
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: "50%",
-                      background: role === "recruiter" ? "#a855f7" : "#6366f1",
-                      color: "white",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: 11,
-                      fontWeight: 700
-                    }}
-                  >
-                    {(session.studentProfile?.fullName?.[0] || session.recruiterProfile?.fullName?.[0] || session.user.email?.[0] || "U").toUpperCase()}
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "#e2e8f0",
-                      maxWidth: 110,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap"
-                    }}
-                  >
-                    {session.studentProfile?.fullName || session.recruiterProfile?.fullName || session.user.email?.split("@")[0]}
-                  </span>
-                </div>
-
-                <button
-                  id="appnav-sign-out"
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  title="Sign out of your account"
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    padding: "6px 11px",
-                    borderRadius: 8,
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: loggingOut ? "not-allowed" : "pointer",
-                    background: "rgba(239, 68, 68, 0.12)",
-                    border: "1px solid rgba(239, 68, 68, 0.28)",
-                    color: "#fca5a5",
-                    transition: "all 0.15s ease"
-                  }}
-                >
-                  <span>{loggingOut ? "..." : "Sign Out"}</span>
-                </button>
+            {/* Profile Info & Status Badge (Section 8) */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 6, borderLeft: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}` }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: "50%",
+                  backgroundColor: "#162A43",
+                  color: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 600,
+                  fontSize: 11,
+                }}
+              >
+                {role === "recruiter"
+                  ? session.recruiterProfile?.company_name?.[0] || "R"
+                  : session.user?.name?.[0] || "S"}
               </div>
-            ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <Link
-                  id="appnav-sign-in"
-                  href="/login"
-                  style={{
-                    textDecoration: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    padding: "6px 12px",
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: "rgba(255, 255, 255, 0.08)",
-                    border: "1px solid rgba(255, 255, 255, 0.18)",
-                    color: "#ffffff",
-                    transition: "all 0.15s ease"
-                  }}
-                >
-                  <span>Sign In</span>
-                </Link>
 
-                <Link
-                  id="appnav-sign-up"
-                  href="/signup"
-                  style={{
-                    textDecoration: "none",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
-                    padding: "6px 13px",
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    background: "linear-gradient(135deg, #6366f1, #06b6d4)",
-                    border: "1px solid rgba(99, 102, 241, 0.4)",
-                    color: "#ffffff",
-                    boxShadow: "0 0 12px rgba(99, 102, 241, 0.35)",
-                    transition: "all 0.15s ease"
-                  }}
-                >
-                  <span>Sign Up</span>
-                </Link>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }} className="hidden sm:flex">
+                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#17191C" }}>
+                  {role === "recruiter"
+                    ? session.recruiterProfile?.company_name || "Apex Hiring"
+                    : session.user?.name || "Student"}
+                </span>
+                <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
+                  <CheckCircle2 size={9} />
+                  {role === "recruiter" ? "Verified Recruiter" : "Active Profile"}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </header>
 
-      {/* ══════════════════════════════════════════════════════════════
-          COLLAPSIBLE LEFT DRAWER (Top-Left ☰ → Categorized Features)
-          ══════════════════════════════════════════════════════════════ */}
-      
-      {/* Dark Backdrop Blur Overlay */}
-      <div
-        onClick={() => setDrawerOpen(false)}
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 998,
-          backgroundColor: "rgba(0, 0, 0, 0.65)",
-          backdropFilter: "blur(6px)",
-          opacity: drawerOpen ? 1 : 0,
-          pointerEvents: drawerOpen ? "auto" : "none",
-          transition: "opacity 0.25s ease"
-        }}
-      />
-
-      {/* Left Drawer Container */}
-      <aside
-        id="cognalyze-collapsible-drawer"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: 340,
-          maxWidth: "85vw",
-          zIndex: 999,
-          backgroundColor: "#0a0f1d",
-          borderRight: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "10px 0 40px rgba(0, 0, 0, 0.8)",
-          transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1)",
-          display: "flex",
-          flexDirection: "column",
-          color: "#f8fafc"
-        }}
-      >
-        {/* Drawer Header */}
+      {/* ======================================================== */}
+      {/* 2. SIDEBAR NAVIGATION DRAWER / OVERLAY (Section 7)       */}
+      {/* Background: #162A43 (Deep Navy), Outline Lucide Icons   */}
+      {/* ======================================================== */}
+      {sidebarOpen && (
         <div
           style={{
-            padding: "16px 20px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            background: "rgba(15, 23, 42, 0.7)"
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            backgroundColor: "rgba(10, 15, 29, 0.45)",
+            backdropFilter: "blur(4px)",
           }}
+          onClick={() => setSidebarOpen(false)}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                background: role === "recruiter" ? "linear-gradient(135deg,#a855f7,#6366f1)" : "linear-gradient(135deg,#6366f1,#06b6d4)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 900,
-                color: "white",
-                fontSize: 14
-              }}
-            >
-              {role === "recruiter" ? "👔" : "⚡"}
-            </div>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 900, letterSpacing: "-0.3px", color: "white" }}>
-                COGNALYZE
-              </div>
-              <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 700 }}>
-                {role === "recruiter" ? "Recruiter Operating System" : "Student Career Intelligence"}
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setDrawerOpen(false)}
-            title="Close Drawer (Esc)"
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: "50%",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              background: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
-              fontSize: 14,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Real-time Feature Search Input */}
-        <div style={{ padding: "12px 18px", borderBottom: "1px solid rgba(255, 255, 255, 0.06)", background: "rgba(15, 23, 42, 0.3)" }}>
           <div
             style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: 270,
+              maxWidth: "85vw",
+              backgroundColor: isDark ? "#0A1729" : "#162A43",
+              color: "#FFFFFF",
               display: "flex",
-              alignItems: "center",
-              gap: 8,
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              borderRadius: 8,
-              padding: "6px 12px"
+              flexDirection: "column",
+              boxShadow: "4px 0 24px rgba(0, 0, 0, 0.25)",
+              animation: "fadeIn 150ms ease",
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>🔍</span>
-            <input
-              type="text"
-              placeholder="Search all features..."
-              value={drawerSearch}
-              onChange={e => setDrawerSearch(e.target.value)}
+            {/* Sidebar Header */}
+            <div
               style={{
-                background: "transparent",
-                border: "none",
-                outline: "none",
-                color: "white",
-                fontSize: 12,
-                width: "100%"
+                height: 56,
+                padding: "0 20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                borderBottom: isDark ? "1px solid #223750" : "1px solid rgba(255, 255, 255, 0.08)",
               }}
-            />
-            {drawerSearch && (
-              <button
-                onClick={() => setDrawerSearch("")}
-                style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 11, cursor: "pointer" }}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: 6,
+                    backgroundColor: "#356AE6",
+                    color: "#FFFFFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 800,
+                    fontSize: 13,
+                  }}
+                >
+                  C
+                </div>
+                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.3px", color: "white" }}>
+                  COGNALYZE
+                </span>
+              </div>
 
-        {/* Categorized Features Scrollable Body */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px" }}>
-          {filteredCategories.map((group, groupIdx) => (
-            <div key={groupIdx} style={{ marginBottom: 20 }}>
-              {/* Category Title */}
-              <div
+              <button
+                onClick={() => setSidebarOpen(false)}
                 style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  color: "#94a3b8",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.5,
-                  marginBottom: 8,
-                  paddingLeft: 6,
+                  background: "transparent",
+                  border: "none",
+                  color: "#98A2B3",
+                  cursor: "pointer",
+                  padding: 4,
                   display: "flex",
                   alignItems: "center",
-                  gap: 6
+                  justifyContent: "center",
+                }}
+                aria-label="Close Sidebar"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Role Header Indicator */}
+            <div style={{ padding: "16px 20px 8px" }}>
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.8px",
+                  color: "#98A2B3",
+                  textTransform: "uppercase",
                 }}
               >
-                <span>{group.icon}</span>
-                <span>{group.category}</span>
-              </div>
-
-              {/* Category Links */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                {group.items.map(item => {
-                  const isActive = pathname === item.href || (item.href !== "/student/dashboard" && pathname.startsWith(item.href + "/"));
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setDrawerOpen(false)}
-                      style={{
-                        textDecoration: "none",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: isActive ? 700 : 500,
-                        color: isActive ? "white" : "rgba(255, 255, 255, 0.75)",
-                        background: isActive ? "rgba(99, 102, 241, 0.2)" : "transparent",
-                        border: isActive ? "1px solid rgba(99, 102, 241, 0.35)" : "1px solid transparent",
-                        transition: "all 0.15s ease"
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-                        <span style={{ fontSize: 14 }}>{item.icon}</span>
-                        <span>{item.label}</span>
-                      </div>
-
-                      {item.badge && (
-                        <span
-                          style={{
-                            fontSize: 9,
-                            padding: "2px 6px",
-                            borderRadius: 4,
-                            fontWeight: 800,
-                            background:
-                              item.badge === "Live"
-                                ? "rgba(16,185,129,0.2)"
-                                : item.badge === "Upgraded"
-                                ? "rgba(99,102,241,0.25)"
-                                : item.badge === "Adaptive"
-                                ? "rgba(56,189,248,0.2)"
-                                : "rgba(245,158,11,0.2)",
-                            color:
-                              item.badge === "Live"
-                                ? "#34d399"
-                                : item.badge === "Upgraded"
-                                ? "#c7d2fe"
-                                : item.badge === "Adaptive"
-                                ? "#38bdf8"
-                                : "#fbbf24"
-                          }}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
+                {role === "recruiter" ? "RECRUITER WORKSPACE" : "STUDENT WORKSPACE"}
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Drawer Footer: Role Switch & Profile Identity */}
-        <div
-          style={{
-            padding: "14px 18px",
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            background: "rgba(15, 23, 42, 0.85)",
-            display: "flex",
-            flexDirection: "column",
-            gap: 10
-          }}
-        >
-          {/* Quick Switch to Recruiter / Student Mode */}
-          <button
-            onClick={() => {
-              handleSwitchRole(role === "recruiter" ? "student" : "recruiter");
-              setDrawerOpen(false);
-            }}
-            disabled={switching}
-            style={{
-              width: "100%",
-              padding: "9px 12px",
-              borderRadius: 8,
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              background: "rgba(255, 255, 255, 0.05)",
-              color: "white",
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8
-            }}
-          >
-            <span>⇄</span>
-            <span>Switch to {role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
-          </button>
+            {/* Navigation Items (Section 7) - Visual continuity without divider after Interviews */}
+            <div
+              style={{
+                flex: 1,
+                padding: "8px 12px",
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+                scrollbarWidth: "none",
+              }}
+            >
+              {navItems.map((item) => {
+                const isActive = isItemActive(item.href);
+                const IconComponent = item.icon;
 
-          {/* User Signout or Sign In */}
-          {session.authenticated && session.user ? (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                Signed in as <strong style={{ color: "white" }}>{session.user.email?.split("@")[0]}</strong>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      textDecoration: "none",
+                      fontSize: 13,
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? "#F2F6FC" : (isDark ? "#B6C4D6" : "#CBD5E1"),
+                      backgroundColor: isActive ? (isDark ? "rgba(52, 120, 246, 0.14)" : "rgba(255, 255, 255, 0.08)") : "transparent",
+                      borderLeft: isActive ? "3px solid #3478F6" : "3px solid transparent",
+                      transition: "all 150ms ease",
+                    }}
+                    className={isDark ? "hover:bg-[#13243A] hover:text-[#F2F6FC]" : "hover:bg-[rgba(255,255,255,0.05)] hover:text-white"}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <IconComponent size={16} className={isActive ? (isDark ? "text-[#8FB5FF]" : "text-[#356AE6]") : (isDark ? "text-[#91A5BB]" : "text-[#94A3B8]")} />
+                      <span>{item.label}</span>
+                    </div>
+
+                    {item.badge && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: "1px 6px",
+                          borderRadius: 4,
+                          backgroundColor: item.badge.includes("New")
+                            ? isDark
+                              ? "#13243A"
+                              : "#EFF4FE"
+                            : "#356AE6",
+                          color: item.badge.includes("New")
+                            ? isDark
+                              ? "#BFD4FF"
+                              : "#356AE6"
+                            : "#FFFFFF",
+                          border: item.badge.includes("New")
+                            ? isDark
+                              ? "1px solid #2A435F"
+                              : "1px solid #D2E0FB"
+                            : "none",
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Lower Section: Preferences (Dark Mode), Settings & Sign Out */}
+            <div
+              style={{
+                padding: "12px",
+                borderTop: isDark ? "1px solid #223750" : "1px solid rgba(255, 255, 255, 0.08)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 4,
+              }}
+            >
+              {/* Dark Mode Toggle */}
+              <div
+                onClick={toggleTheme}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggleTheme();
+                  }
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "8px 12px",
+                  borderRadius: 7,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: "#CBD5E1",
+                  backgroundColor: "transparent",
+                  transition: "all 150ms ease",
+                  userSelect: "none",
+                }}
+                className="hover:bg-[rgba(255,255,255,0.05)] hover:text-white"
+                title="Toggle Dark Mode"
+                id="sidebar-dark-mode-toggle"
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Moon size={16} className={isDark ? "text-[#356AE6]" : "text-[#94A3B8]"} />
+                  <span>Dark Mode</span>
+                </div>
+
+                {/* Compact Toggle Switch on the right side */}
+                <div
+                  style={{
+                    width: 32,
+                    height: 18,
+                    borderRadius: 9,
+                    backgroundColor: isDark ? "#356AE6" : "rgba(255, 255, 255, 0.2)",
+                    position: "relative",
+                    transition: "background-color 200ms ease",
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "2px",
+                    boxSizing: "border-box",
+                  }}
+                  role="switch"
+                  aria-checked={isDark}
+                  aria-label="Dark mode toggle switch"
+                >
+                  <div
+                    style={{
+                      width: 14,
+                      height: 14,
+                      borderRadius: 7,
+                      backgroundColor: "#FFFFFF",
+                      transform: isDark ? "translateX(14px)" : "translateX(0px)",
+                      transition: "transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.35)",
+                    }}
+                  />
+                </div>
               </div>
+
+              {/* Settings */}
+              <Link
+                href="/student/profile"
+                onClick={() => setSidebarOpen(false)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: 7,
+                  color: "#CBD5E1",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  transition: "all 150ms ease",
+                }}
+                className="hover:bg-[rgba(255,255,255,0.05)] hover:text-white"
+              >
+                <Settings size={16} className="text-[#94A3B8]" />
+                <span>Settings</span>
+              </Link>
+
+              {/* Sign Out */}
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: 7,
+                  color: "#F87171",
+                  fontSize: 13,
+                  fontWeight: 500,
                   background: "transparent",
                   border: "none",
-                  color: "#f87171",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  transition: "all 150ms ease",
                 }}
+                className="hover:bg-[rgba(255,255,255,0.05)]"
               >
-                Sign Out
+                <LogOut size={16} />
+                <span>{loggingOut ? "Signing out..." : "Sign Out"}</span>
               </button>
             </div>
-          ) : (
-            <div style={{ display: "flex", gap: 8 }}>
-              <Link
-                href="/login"
-                onClick={() => setDrawerOpen(false)}
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  padding: "7px 10px",
-                  borderRadius: 6,
-                  background: "rgba(255, 255, 255, 0.08)",
-                  color: "white",
-                  fontSize: 11,
-                  fontWeight: 700
-                }}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setDrawerOpen(false)}
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  textDecoration: "none",
-                  padding: "7px 10px",
-                  borderRadius: 6,
-                  background: "linear-gradient(135deg, #6366f1, #06b6d4)",
-                  color: "white",
-                  fontSize: 11,
-                  fontWeight: 700
-                }}
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
+          </div>
         </div>
-      </aside>
+      )}
     </>
   );
 }

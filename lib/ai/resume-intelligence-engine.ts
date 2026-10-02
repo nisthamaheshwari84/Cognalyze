@@ -30,7 +30,7 @@ export type EvidenceLevel =
 
 export type DefensibilityRating = 'STRONG' | 'MODERATE' | 'WEAK';
 
-export type RequirementImportance = 'CRITICAL' | 'IMPORTANT' | 'PREFERRED';
+export type RequirementImportance = 'CRITICAL' | 'IMPORTANT' | 'PREFERRED' | 'NICE_TO_HAVE';
 
 export interface CandidateEvidenceItem {
   evidenceId: string;
@@ -45,6 +45,13 @@ export interface CandidateEvidenceItem {
   evidenceLevel: EvidenceLevel;
   confidence: number;
   defensibility: DefensibilityRating;
+  sourceType?: string;
+  sourceUrl?: string;
+  observedFact?: string;
+  verificationStatus?: string;
+  supports?: string[];
+  doesNotProve?: string[];
+  checksPerformed?: any[];
 }
 
 export interface RoleRequirement {
@@ -67,6 +74,10 @@ export interface RequirementMatch {
   evidenceSourceQuotes: string[];
   reasoning: string;
   actionableRecommendation: string;
+  verificationStatus?: string;
+  supports?: string[];
+  doesNotProve?: string[];
+  checksPerformed?: any[];
 }
 
 export interface RoleAlignmentSummary {
@@ -159,6 +170,7 @@ export interface RewrittenBullet {
   evidenceStatus: 'SUPPORTED' | 'EVIDENCE_GAP';
   targetRequirement?: string;
   interviewDefensibility: DefensibilityRating;
+  originalEvidenceIds?: string[];
 }
 
 export interface RewrittenResume {
@@ -244,6 +256,8 @@ export interface ResumeIntelligenceReport {
     noFabricationCertified: boolean;
     evidenceItemsCount: number;
     requirementsCount: number;
+    traceabilityStatus?: 'ZERO_FABRICATION_CERTIFIED' | 'TRACEABILITY_AUDIT_INCOMPLETE';
+    auditPassed?: boolean;
   };
   canonical: CanonicalAnalysisObject;
 }
@@ -314,7 +328,7 @@ export async function analyzeResumeIntelligence(
     if (e.technologies.length >= 2) defensibility = 'STRONG';
 
     return {
-      evidenceId: e.id,
+      evidenceId: e.evidence_id || e.id,
       evidenceGroupId: `group_${e.section.toLowerCase()}`,
       section: (['SUMMARY', 'EXPERIENCE', 'PROJECTS', 'SKILLS', 'EDUCATION', 'CERTIFICATIONS'].includes(e.section)
         ? e.section
@@ -327,6 +341,13 @@ export async function analyzeResumeIntelligence(
       evidenceLevel: level,
       confidence: 0.9,
       defensibility,
+      sourceType: e.source_type || 'resume',
+      sourceUrl: e.source_url,
+      observedFact: e.observed_fact,
+      verificationStatus: e.verification_status,
+      supports: e.supports,
+      doesNotProve: e.does_not_prove,
+      checksPerformed: e.checks_performed,
     };
   });
 
@@ -352,6 +373,10 @@ export async function analyzeResumeIntelligence(
       evidenceSourceQuotes: m.evidenceQuotes,
       reasoning: m.reasoning,
       actionableRecommendation: m.actionableRecommendation,
+      verificationStatus: m.verificationStatus,
+      supports: m.supports,
+      doesNotProve: m.doesNotProve,
+      checksPerformed: m.checksPerformed,
     };
   });
 
@@ -472,6 +497,7 @@ export async function analyzeResumeIntelligence(
         evidenceStatus: b.evidenceStatus,
         targetRequirement: b.targetRequirement,
         interviewDefensibility: b.interviewDefensibility,
+        originalEvidenceIds: b.original_evidence_ids || [],
       })),
     })),
     projects: canonical.resumeRewrite.projects.map((p) => ({
@@ -487,6 +513,7 @@ export async function analyzeResumeIntelligence(
         evidenceStatus: b.evidenceStatus,
         targetRequirement: b.targetRequirement,
         interviewDefensibility: b.interviewDefensibility,
+        originalEvidenceIds: b.original_evidence_ids || [],
       })),
     })),
     education: canonical.resumeRewrite.education,
@@ -535,6 +562,8 @@ export async function analyzeResumeIntelligence(
       noFabricationCertified: canonical.validation.zeroFabricationCertified,
       evidenceItemsCount: evidenceItems.length,
       requirementsCount: requirements.length,
+      traceabilityStatus: canonical.validation.traceabilityStatus,
+      auditPassed: canonical.validation.auditPassed,
     },
     canonical,
   };

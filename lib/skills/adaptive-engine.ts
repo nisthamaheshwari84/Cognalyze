@@ -10,7 +10,22 @@
  * Personal interview coach + adaptive assessment engine + realistic hiring simulator.
  */
 
-import { COMPANY_TRACKS, CompanyTrack } from "@/lib/skill-hub-store";
+import {
+  COMPANY_TRACKS,
+  CompanyTrack,
+  SEED_CS_INTERVIEW_QUESTIONS,
+  SEED_BEHAVIORAL_QUESTIONS,
+  SEED_SYSTEM_DESIGN_CHALLENGES
+} from "@/lib/skill-hub-store";
+import {
+  getCandidateDomainSummary,
+  getCandidateSeenQuestionIds,
+  recordCandidateAttempt,
+  getStudentDsaSummary,
+  getStudentDsaFocus,
+  getCandidateAttempts
+} from "@/lib/skills/candidate-history";
+import { getCandidateBehavioralScorecard } from "@/lib/skills/behavioral-curriculum";
 
 export interface SessionBrief {
   trackSlug: "service_mass" | "service_elite" | "product_mid" | "product_faang";
@@ -163,7 +178,7 @@ const IN_MEMORY_PROFILES: Record<string, StudentAdaptiveProfile> = {
   // Default demo candidate
   "student-demo": {
     id: "student-demo",
-    name: "Nistha Maheshwari",
+    name: "Student Candidate",
     strongAreas: ["SQL Queries", "OOP Concepts", "Communication Clarity"],
     weakAreas: ["Sliding-window pattern recognition", "Database write overhead under indexing", "Failure mode recovery in system design"],
     recentWeaknessKey: "sliding_window",
@@ -259,6 +274,25 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
   const isA = candidateId === "student_a";
   const isB = candidateId === "student_b";
 
+  // Check real candidate history summary
+  const normalizedSlug = (domainSlug === "dsa" ? "dsa_coding" : domainSlug) as any;
+  const summary = getCandidateDomainSummary(candidateId);
+  const domainData = summary[normalizedSlug];
+
+  if (!isA && !isB && domainData && domainData.totalAttempts > 0) {
+    const isDemonstrated = domainData.avgScore >= 75;
+    const weak = domainData.weakTopics[0];
+    return {
+      status: isDemonstrated ? "Demonstrated" : "Developing",
+      statusColor: isDemonstrated ? "#34d399" : "#fbbf24",
+      focusToday: weak ? `${weak} Gap Remediation` : "Advanced Problem Scenarios",
+      whyRecommended: `Completed ${domainData.totalAttempts} session(s) with ${domainData.avgScore}% average score. ${weak ? `Identified growth area in ${weak}.` : "Demonstrating consistent proficiency."}`,
+      lastPracticed: "Recently",
+      estimatedMinutes: 25,
+      targetRound: trackSlug === "service_mass" ? "Service Technical Round" : "Product Technical Round"
+    };
+  }
+
   if (domainSlug === "cs_fundamentals") {
     if (isA) {
       return {
@@ -326,12 +360,30 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
   }
 
   if (domainSlug === "dsa_coding" || domainSlug === "dsa") {
+    const dsaFocus = getStudentDsaFocus(candidateId);
+    const dsaSummary = getStudentDsaSummary(candidateId);
+
+    // If candidate has real session activity or is a non-fixture student
+    if (dsaSummary.totalAttempts > 0 || (!isA && !isB)) {
+      const isDemonstrated = dsaSummary.totalSolved >= 5 || dsaSummary.avgScore >= 75;
+      const isMastered = dsaSummary.totalSolved >= 20 && dsaSummary.avgScore >= 85;
+      return {
+        status: isMastered ? "Verified" : isDemonstrated ? "Demonstrated" : "Developing",
+        statusColor: isMastered ? "#34d399" : isDemonstrated ? "#38bdf8" : "#fbbf24",
+        focusToday: `${dsaFocus.topic}: ${dsaFocus.subtopic}`,
+        whyRecommended: dsaFocus.reason,
+        lastPracticed: dsaSummary.totalAttempts > 0 ? "Recently" : "Not yet started",
+        estimatedMinutes: 25,
+        targetRound: trackSlug === "product_faang" ? "FAANG Algorithmic Round" : "DSA Technical Screen"
+      };
+    }
+
     if (isA) {
       return {
         status: "Developing",
         statusColor: "#f87171",
-        focusToday: "Sliding-window pattern recognition (Novel log burst scenario)",
-        whyRecommended: "Previous attempt showed difficulty recognizing sliding-window invariant under time constraint.",
+        focusToday: `${dsaFocus.topic}: ${dsaFocus.subtopic}`,
+        whyRecommended: dsaFocus.reason,
         lastPracticed: "2 days ago",
         estimatedMinutes: 30,
         targetRound: "Product Coding Round"
@@ -350,15 +402,51 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
     return {
       status: "Developing",
       statusColor: "#fbbf24",
-      focusToday: "Sliding-window pattern recognition & O(N) deque derivation",
-      whyRecommended: "Candidate shows strong basic array manipulation, but sliding-window pattern needs live proof.",
-      lastPracticed: "2 days ago",
-      estimatedMinutes: 30,
-      targetRound: "DSA Technical Screen"
+      focusToday: `${dsaFocus.topic}: ${dsaFocus.subtopic}`,
+      whyRecommended: dsaFocus.reason,
+      lastPracticed: "Not yet started",
+      estimatedMinutes: 25,
+      targetRound: "Striver A2Z DSA Sheet"
     };
   }
 
   if (domainSlug === "behavioral_hr") {
+    const behAttempts = getCandidateAttempts(candidateId, "behavioral_hr");
+    const behScorecard = getCandidateBehavioralScorecard(candidateId);
+    const assessed = behScorecard.filter(c => c.status !== "NOT_ASSESSED");
+
+    if (behAttempts.length > 0 || (!isA && !isB)) {
+      if (assessed.length === 0) {
+        return {
+          status: "Developing",
+          statusColor: "#64748b",
+          focusToday: "Core STAR Storytelling & Extreme Ownership Foundations",
+          whyRecommended: "No behavioral rounds completed yet. Build verified evidence in ownership, conflict, and failure.",
+          lastPracticed: "Not yet started",
+          estimatedMinutes: 20,
+          targetRound: trackSlug === "service_mass" ? "HR Service Assessment" : "Amazon Leadership Bar-Raiser"
+        };
+      }
+      const strongCount = behScorecard.filter(c => c.status === "STRONG").length;
+      const progressingCount = behScorecard.filter(c => c.status === "PROGRESSING").length;
+      const avgScore = Math.round(behAttempts.reduce((s, a) => s + (a.score || 0), 0) / behAttempts.length);
+
+      const isStrong = strongCount >= 3 || avgScore >= 80;
+      const isProgressing = progressingCount >= 2 || avgScore >= 65;
+
+      const weakCompetency = behScorecard.find(c => c.status === "DEVELOPING");
+
+      return {
+        status: isStrong ? "Verified" : isProgressing ? "Demonstrated" : "Developing",
+        statusColor: isStrong ? "#34d399" : isProgressing ? "#38bdf8" : "#fbbf24",
+        focusToday: weakCompetency ? `Improve ${weakCompetency.name} with quantifiable metrics` : "Quantifying measurable impact & technical disagreement defense",
+        whyRecommended: weakCompetency ? `Targeted practice on ${weakCompetency.name} based on previous diagnostic gaps.` : "Verify ownership and handling trade-offs when defending architecture.",
+        lastPracticed: behAttempts[0]?.timestamp ? "Recently" : "Not yet started",
+        estimatedMinutes: 20,
+        targetRound: trackSlug === "service_mass" ? "HR Service Assessment" : "Amazon Leadership Bar-Raiser"
+      };
+    }
+
     return {
       status: "Verified",
       statusColor: "#34d399",
@@ -371,18 +459,64 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
   }
 
   if (domainSlug === "communication_english") {
+    const commAttempts = getCandidateAttempts(candidateId, "communication_english");
+    if (commAttempts.length === 0) {
+      return {
+        status: "Developing",
+        statusColor: "#64748b",
+        focusToday: "Self-Introduction Pitch & Project Contribution Articulation",
+        whyRecommended: "No diagnostic recorded yet. Complete 1 practice response or mock interview to establish baseline.",
+        lastPracticed: "Not yet attempted",
+        estimatedMinutes: 10,
+        targetRound: "HR & Technical Client Screening"
+      };
+    }
+    const latest = commAttempts[0];
+    const avg = Math.round(commAttempts.reduce((acc, a) => acc + a.score, 0) / commAttempts.length);
+    const statusLabel: "Demonstrated" | "Developing" = avg >= 75 ? "Demonstrated" : "Developing";
+    const statusColor = avg >= 75 ? "#10b981" : "#fbbf24";
+
     return {
-      status: "Demonstrated",
-      statusColor: "#818cf8",
-      focusToday: "Plain-English technical analogies for non-technical leadership",
-      whyRecommended: "Candidate has good syntax. Focus on eliminating filler words and tailoring abstraction levels.",
-      lastPracticed: "3 days ago",
+      status: statusLabel,
+      statusColor,
+      focusToday: latest.weaknesses[0] ? `Refine: ${latest.weaknesses[0]}` : "Concise Technical Communication",
+      whyRecommended: `Average communication score: ${avg}/100 across ${commAttempts.length} response(s). Last topic: ${latest.topic}.`,
+      lastPracticed: "Recently",
       estimatedMinutes: 15,
-      targetRound: "Client & Managerial Round"
+      targetRound: "HR, Technical Screening & Client Evaluation"
     };
   }
 
-  // Aptitude
+  // Aptitude & Quantitative Reasoning
+  const aptAttempts = getCandidateAttempts(candidateId, "aptitude_reasoning");
+  if (aptAttempts.length > 0 || (!isA && !isB)) {
+    if (aptAttempts.length === 0) {
+      return {
+        status: "Developing",
+        statusColor: "#64748b",
+        focusToday: "Speed gate: Profit/Loss percentages & Time-Speed-Distance under 60s",
+        whyRecommended: "No aptitude attempts recorded yet. Master key fractional shortcuts and LCM unit methods.",
+        lastPracticed: "Not yet started",
+        estimatedMinutes: 20,
+        targetRound: trackSlug === "service_mass" ? "TCS NQT / Infosys Quantitative Gate" : "Online Aptitude Hard Gate"
+      };
+    }
+
+    const avgScore = Math.round(aptAttempts.reduce((s, a) => s + (a.score || 0), 0) / aptAttempts.length);
+    const isReady = avgScore >= 75 && aptAttempts.length >= 2;
+    const weakTopic = aptAttempts[0]?.weaknesses?.[0];
+
+    return {
+      status: isReady ? "Verified" : avgScore >= 60 ? "Demonstrated" : "Developing",
+      statusColor: isReady ? "#34d399" : avgScore >= 60 ? "#38bdf8" : "#fbbf24",
+      focusToday: weakTopic ? `Targeted speed drill: ${weakTopic}` : "Speed gate: Profit/Loss percentages & Time-Speed-Distance under 60s",
+      whyRecommended: weakTopic ? `Recent weakness detected in ${weakTopic}. Focus on fractional equivalents.` : "Maintain speed and accuracy baseline for campus placement eligibility.",
+      lastPracticed: "Recently",
+      estimatedMinutes: 20,
+      targetRound: trackSlug === "service_mass" ? "TCS NQT / Infosys Quantitative Gate" : "Online Aptitude Hard Gate"
+    };
+  }
+
   return {
     status: trackSlug === "service_mass" ? "Developing" : "Verified",
     statusColor: trackSlug === "service_mass" ? "#fbbf24" : "#34d399",
@@ -522,39 +656,28 @@ export function getAdaptiveQuestion(
         };
       }
 
-      if (trackSlug === "service_mass") {
-        return {
-          id: "cs-mass-1",
-          domain: "dbms",
-          topic: "SQL Query & Subqueries",
-          question: "Write an SQL query to find the second highest salary from an Employee table. Walk me through your query logic and how you handle duplicate salary values.",
-          internalIntent: "Evaluate foundational SQL syntax, DISTINCT handling, and subquery / LIMIT offset mechanics under mass interview pressure.",
-          expectedSignals: ["Uses MAX() with subquery or DENSE_RANK()", "Explicitly uses DISTINCT to handle duplicate salaries", "Explains query execution flow"],
-          failureSignals: ["Uses LIMIT 1 OFFSET 1 without DISTINCT", "Syntax errors", "Cannot explain how NULL is returned if no 2nd salary exists"],
-          suggestedFollowUps: [
-            { type: "CHALLENGE", text: "What happens if the table only has 1 employee? What does your query output?" },
-            { type: "TRADE_OFF", text: "Why would you choose DENSE_RANK() over a subquery in production?" }
-          ],
-          depthLevel: "Apply",
-          isFreshUnseen: true
-        };
-      }
+      // Dynamic selection from SEED_CS_INTERVIEW_QUESTIONS avoiding seen questions
+      const seenIds = getCandidateSeenQuestionIds(candidateId, "cs_fundamentals");
+      const domainFilter = trackSlug === "service_mass" ? ["dbms", "oop"] : ["dbms", "os", "networks"];
+      let pool = SEED_CS_INTERVIEW_QUESTIONS.filter(q => domainFilter.includes(q.domain));
+      const unseen = pool.filter(q => !seenIds.has(q.id));
+      const candidatePool = unseen.length > 0 ? unseen : pool;
+      const selectedQ = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_CS_INTERVIEW_QUESTIONS[0];
 
-      // Default Product / Elite CS Turn 0
       return {
-        id: "cs-prod-1",
-        domain: "dbms",
-        topic: "Indexing Architecture & B-Trees",
-        question: "Suppose a high-traffic table with 50 Million rows frequently queries:\n`WHERE status = 'ACTIVE' AND created_at > NOW() - INTERVAL '7 DAYS'`\n\nHow would you index this table, and what write trade-offs does your index introduce during peak insertion bursts?",
-        internalIntent: "Distinguish genuine database indexing understanding from rote memorization of definitions.",
-        expectedSignals: ["Composite index (status, created_at)", "Identifies column cardinality", "Explains B-Tree write overhead and page splits during INSERTs"],
-        failureSignals: ["Suggests single-column index on status", "Cannot explain why B-Trees slow down writes", "Quotes definition without schema reasoning"],
+        id: selectedQ.id,
+        domain: selectedQ.domain,
+        topic: selectedQ.topic,
+        question: selectedQ.question,
+        internalIntent: `Evaluate technical rigor in ${selectedQ.topic} under interview conditions.`,
+        expectedSignals: selectedQ.expected_points,
+        failureSignals: ["Vague answers", "Missing edge-case guards", "Unverified assertions"],
         suggestedFollowUps: [
-          { type: "CHALLENGE", text: "What happens if 95% of rows are 'ACTIVE'? Does the PostgreSQL query planner still use the index?" },
-          { type: "EDGE_CASE", text: "How would you handle index bloat and fragmentation over time?" }
+          { type: "CHALLENGE", text: selectedQ.follow_up || "How would you optimize this under strict memory and latency constraints?" },
+          { type: "TRADE_OFF", text: "What is the fundamental architectural trade-off of this approach?" }
         ],
-        depthLevel: "Defend",
-        isFreshUnseen: true
+        depthLevel: trackSlug === "product_faang" ? "Defend" : "Apply",
+        isFreshUnseen: !seenIds.has(selectedQ.id)
       };
     } else {
       // ADAPTIVE TURN 1 & BEYOND: Interactively branch based on candidate's previous answer! (Section 8)
@@ -626,38 +749,29 @@ export function getAdaptiveQuestion(
   // BEHAVIORAL / HR ADAPTIVE FLOW
   if (domainSlug === "behavioral_hr") {
     if (turnIndex === 0) {
-      if (trackSlug === "service_mass") {
-        return {
-          id: "hr-mass-1",
-          domain: "behavioral_hr",
-          topic: "Relocation & Service Agreement",
-          question: "In our mass campus hiring programme, project allocation may require relocating to Chennai, Hyderabad, or Pune on a 2-year service agreement with rotational client support shifts. How do you feel about relocation and shifts?",
-          internalIntent: "Verify genuine corporate alignment, location flexibility, and commitment without hesitation.",
-          expectedSignals: ["Enthusiastic and clear commitment", "Family support confirmed", "Focuses on career growth"],
-          failureSignals: ["Hesitation", "Demands home city only", "Questions service agreement validity aggressively"],
-          suggestedFollowUps: [
-            { type: "CLARIFY", text: "What if your first project requires rotational night shifts supporting US clients?" }
-          ],
-          depthLevel: "Apply",
-          isFreshUnseen: true
-        };
-      }
+      const isService = trackSlug === "service_mass" || trackSlug === "service_elite";
+      const targetTrackType = isService ? "service_hr" : "faang_star";
+      const seenIds = getCandidateSeenQuestionIds(candidateId, "behavioral_hr");
 
-      // Product / FAANG Behavioral
+      let pool = SEED_BEHAVIORAL_QUESTIONS.filter(q => q.track_type === targetTrackType);
+      const unseen = pool.filter(q => !seenIds.has(q.id));
+      const candidatePool = unseen.length > 0 ? unseen : pool;
+      const selectedQ = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_BEHAVIORAL_QUESTIONS[0];
+
       return {
-        id: "hr-faang-1",
+        id: selectedQ.id,
         domain: "behavioral_hr",
-        topic: "Ownership & Technical Disagreement",
-        question: "Tell me about a time you strongly disagreed with a senior engineer or team lead regarding a technical architecture or design choice. How did you handle the debate?",
-        internalIntent: "Test Amazon principle 'Have Backbone; Disagree and Commit' vs defensive stubbornness.",
-        expectedSignals: ["Data-driven argumentation with prototype/metrics", "Listens to counter-perspective", "Commits fully once decision is made"],
-        failureSignals: ["Avoided conflict or gave in immediately", "Held a grudge or undermined the chosen architecture", "Blamed others"],
+        topic: selectedQ.title || (selectedQ.principle ? `Amazon LP: ${selectedQ.principle}` : "Behavioral Leadership"),
+        question: selectedQ.question,
+        internalIntent: `Evaluate ${selectedQ.principle || selectedQ.title} using the STAR method without vague generalities.`,
+        expectedSignals: [selectedQ.star_rubric.situation, selectedQ.star_rubric.action, selectedQ.star_rubric.result],
+        failureSignals: ["Avoided conflict or gave in immediately", "Held a grudge or blamed others", "Cannot quantify impact"],
         suggestedFollowUps: [
           { type: "CHALLENGE", text: "What specific metric or prototype did you build to prove your point?" },
-          { type: "TRADE_OFF", text: "What did you sacrifice when the team chose the alternative?" }
+          { type: "TRADE_OFF", text: "Looking back, what is one thing you would do differently?" }
         ],
-        depthLevel: "Defend",
-        isFreshUnseen: true
+        depthLevel: isService ? "Apply" : "Defend",
+        isFreshUnseen: !seenIds.has(selectedQ.id)
       };
     } else {
       // Follow-up probing for behavioral (Section 25)
@@ -681,20 +795,25 @@ export function getAdaptiveQuestion(
   // SYSTEM DESIGN ADAPTIVE QUESTION
   if (domainSlug === "system_design") {
     if (turnIndex === 0) {
+      const seenIds = getCandidateSeenQuestionIds(candidateId, "system_design");
+      const unseen = SEED_SYSTEM_DESIGN_CHALLENGES.filter(c => !seenIds.has(c.id));
+      const candidatePool = unseen.length > 0 ? unseen : SEED_SYSTEM_DESIGN_CHALLENGES;
+      const selectedChallenge = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_SYSTEM_DESIGN_CHALLENGES[0];
+
       return {
-        id: "sd-dynamic-baseline",
+        id: selectedChallenge.id,
         domain: "system_design",
-        topic: "High-Scale Distributed Rate Limiter",
-        question: "Design an API Rate Limiter for an enterprise SaaS platform processing 50,000 requests/sec. Walk through your client request path, how rate limits are calculated, and your choice of storage.",
+        topic: selectedChallenge.title,
+        question: `System Design Challenge: ${selectedChallenge.title}\n\n${selectedChallenge.description}\n\nScale Requirements: ${selectedChallenge.scale_metrics}\n\nWalk through your client request path, how data is partitioned, and your choice of storage and caching.`,
         internalIntent: "Evaluate requirement clarification, tier placement, and in-memory storage selection.",
-        expectedSignals: ["API Gateway / Reverse Proxy placement", "Sliding window log or token bucket algorithm", "Redis in-memory store with TTL"],
-        failureSignals: ["Proposes relational database for 50k req/s checks", "No TTL management"],
+        expectedSignals: selectedChallenge.ideal_solution.components,
+        failureSignals: ["Proposes relational database for ultra-high throughput checks", "No TTL management", "Single point of failure"],
         suggestedFollowUps: [
-          { type: "CHALLENGE", text: "What happens if traffic surges 10x during a flash sale?" },
-          { type: "EDGE_CASE", text: "What happens if your Redis primary node crashes?" }
+          { type: "CHALLENGE", text: "What happens if traffic surges 10x during peak hours?" },
+          { type: "EDGE_CASE", text: "What happens if your primary storage or cache node crashes?" }
         ],
         depthLevel: "Apply",
-        isFreshUnseen: true
+        isFreshUnseen: !seenIds.has(selectedChallenge.id)
       };
     } else {
       return {
@@ -889,7 +1008,7 @@ export function generatePostSessionFeedback(
     };
   }
 
-  return {
+  const feedbackPayload: PostSessionFeedback = {
     sessionId: `sess-${Date.now()}`,
     trackName: trackSlug.replace("_", " ").toUpperCase(),
     domainName,
@@ -925,6 +1044,30 @@ export function generatePostSessionFeedback(
       level: isDemonstrated ? "Demonstrated" : "Developing"
     }
   };
+
+  // Automatically persist attempt in candidate history
+  try {
+    const normDomain = (domainSlug === "dsa" ? "dsa_coding" : domainSlug) as any;
+    recordCandidateAttempt({
+      candidateId,
+      domain: normDomain,
+      topic: domainName,
+      mode: "interview",
+      score: avgScore,
+      accuracy: avgScore,
+      timeSpentSeconds: 600,
+      questionsAttempted: evaluations.length || 1,
+      questionsCorrect: isDemonstrated ? evaluations.length || 1 : 0,
+      questionIds: evaluations.map((e, i) => `eval-${domainSlug}-${i}`),
+      weaknesses: avgScore < 80 ? ["Trade-off justification under constraints"] : [],
+      strengths: isDemonstrated ? ["Core domain comprehension", "Structured technical explanation"] : ["Foundational problem comprehension"],
+      feedback: `Interview completed for ${domainName}. Score: ${avgScore}%.`
+    });
+  } catch (histErr) {
+    console.warn("Could not auto-record candidate history:", histErr);
+  }
+
+  return feedbackPayload;
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -947,7 +1090,59 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
   const isA = candidateId === "student_a";
   const isB = candidateId === "student_b";
 
+  const normalizedSlug = (domainSlug === "dsa" ? "dsa_coding" : domainSlug) as any;
+  const summary = getCandidateDomainSummary(candidateId);
+  const domainData = summary[normalizedSlug];
+
+  const domainNames: Record<string, string> = {
+    dsa_coding: "DSA Coding",
+    cs_fundamentals: "CS Fundamentals",
+    system_design: "System Design",
+    behavioral_hr: "Behavioral & HR",
+    communication_english: "Spoken English",
+    aptitude_reasoning: "Aptitude & Reasoning"
+  };
+  const dName = domainNames[normalizedSlug] || "Practice Domain";
+
+  if (!isA && !isB && domainData && domainData.totalAttempts > 0) {
+    const isReady = domainData.avgScore >= 75;
+    const weak = domainData.weakTopics[0];
+    return {
+      domainSlug: normalizedSlug,
+      domainName: dName,
+      status: isReady ? "READY" : "NEEDS_PRACTICE",
+      statusColor: isReady ? "#34d399" : "#fbbf24",
+      reason: `Completed ${domainData.totalAttempts} session(s) with ${domainData.avgScore}% average score. ${weak ? `Identified growth area in ${weak}.` : "Verified core competencies."}`,
+      recommendedMode: isReady ? "interview" : "practice",
+      recommendedModeLabel: isReady ? "🎯 Interview Ready" : "🛠️ Practice Mode",
+      recommendedDrill: `${weak || dName} Targeted Drill`,
+      evidenceSummary: `${domainData.totalAttempts} verified session attempt(s)`
+    };
+  }
+
   if (domainSlug === "dsa_coding" || domainSlug === "dsa") {
+    const dsaFocus = getStudentDsaFocus(candidateId);
+    const dsaSummary = getStudentDsaSummary(candidateId);
+
+    // Dynamic readiness based on actual Striver sheet progression
+    if (dsaSummary.totalAttempts > 0 || (!isA && !isB)) {
+      const isReady = dsaSummary.totalSolved >= 5 || (dsaSummary.totalAttempts >= 3 && dsaSummary.avgScore >= 75);
+      const mode = dsaFocus.recommendedMode === "revision" ? "practice" : dsaFocus.recommendedMode;
+      const modeLabel = mode === "interview" ? "🎯 Interview Ready" : mode === "learn" ? "💡 Learn First" : "🛠️ Practice Mode";
+
+      return {
+        domainSlug: "dsa_coding",
+        domainName: "DSA Coding",
+        status: isReady ? "READY" : "NEEDS_PRACTICE",
+        statusColor: isReady ? "#34d399" : "#fbbf24",
+        reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} Striver problems solved. ${dsaFocus.reason}`,
+        recommendedMode: mode as any,
+        recommendedModeLabel: modeLabel,
+        recommendedDrill: `${dsaFocus.topic} - ${dsaFocus.subtopic}`,
+        evidenceSummary: `${dsaSummary.totalSolved} solved, ${dsaSummary.totalLearned} learned across ${dsaSummary.totalAttempts} session(s)`
+      };
+    }
+
     if (isB) {
       return {
         domainSlug: "dsa_coding",
@@ -966,11 +1161,11 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
       domainName: "DSA Coding",
       status: "NEEDS_PRACTICE",
       statusColor: "#fbbf24",
-      reason: "Previous sessions showed hesitation recognizing the sliding-window invariant under time constraints.",
-      recommendedMode: isA ? "learn" : "practice",
-      recommendedModeLabel: isA ? "💡 Learn First" : "🛠️ Practice Mode",
-      recommendedDrill: "Sliding Window Pattern Recognition Drill",
-      evidenceSummary: "Developing: Invariant recognition needs corroboration"
+      reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} Striver problems solved. Focus on ${dsaFocus.topic} fundamentals.`,
+      recommendedMode: dsaFocus.recommendedMode as any,
+      recommendedModeLabel: dsaFocus.recommendedMode === "learn" ? "💡 Learn First" : "🛠️ Practice Mode",
+      recommendedDrill: `${dsaFocus.topic} Pattern Recognition Drill`,
+      evidenceSummary: `Developing: ${dsaSummary.totalSolved} of ${dsaSummary.totalProblems} Striver sheet problems completed`
     };
   }
 
@@ -1029,17 +1224,66 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
   }
 
   if (domainSlug === "behavioral_hr") {
-    return {
-      domainSlug: "behavioral_hr",
-      domainName: "Behavioral & HR",
-      status: "READY",
-      statusColor: "#34d399",
-      reason: "Demonstrated ownership storytelling and conflict resolution in project scenarios.",
-      recommendedMode: "interview",
-      recommendedModeLabel: "🎯 Interview Ready",
-      recommendedDrill: "Bar-Raiser Executive Culture Calibration",
-      evidenceSummary: "Verified in 2 STAR behavioral rounds"
-    };
+    const behAttempts = getCandidateAttempts(candidateId, "behavioral_hr");
+    const behScorecard = getCandidateBehavioralScorecard(candidateId);
+    const assessed = behScorecard.filter(c => c.status !== "NOT_ASSESSED");
+
+    if (behAttempts.length === 0 && !isB) {
+      return {
+        domainSlug: "behavioral_hr",
+        domainName: "Behavioral & HR",
+        status: "NOT_YET_DEMONSTRATED",
+        statusColor: "#64748b",
+        reason: "No STAR behavioral scenarios evaluated yet. Learn frameworks or practice real scenarios.",
+        recommendedMode: "learn",
+        recommendedModeLabel: "💡 Learn Mode",
+        recommendedDrill: "12-Competency STAR Framework Foundations",
+        evidenceSummary: "Not yet assessed (0 attempts)"
+      };
+    }
+
+    const avgScore = behAttempts.length > 0 
+      ? Math.round(behAttempts.reduce((s, a) => s + (a.score || 0), 0) / behAttempts.length)
+      : 0;
+    const weakComp = behScorecard.find(c => c.status === "DEVELOPING");
+
+    if (avgScore >= 80 && assessed.length >= 3) {
+      return {
+        domainSlug: "behavioral_hr",
+        domainName: "Behavioral & HR",
+        status: "READY",
+        statusColor: "#34d399",
+        reason: `Demonstrated strong STAR ownership across ${assessed.length} evaluated competencies.`,
+        recommendedMode: "interview",
+        recommendedModeLabel: "🎯 Interview Ready",
+        recommendedDrill: "Full Multi-Question Leadership Simulation",
+        evidenceSummary: `Verified in ${behAttempts.length} behavioral submission(s)`
+      };
+    } else if (avgScore >= 60) {
+      return {
+        domainSlug: "behavioral_hr",
+        domainName: "Behavioral & HR",
+        status: "NEEDS_PRACTICE",
+        statusColor: "#fbbf24",
+        reason: weakComp ? `Gap identified in ${weakComp.name}. Needs Socratic coaching on personal ownership.` : "Answers contain good structure but lack quantifiable impact metrics.",
+        recommendedMode: "coach",
+        recommendedModeLabel: "🎓 AI Coach Mode",
+        recommendedDrill: weakComp ? `Socratic Drill: ${weakComp.name}` : "Quantifiable Impact Socratic Calibration",
+        evidenceSummary: `Developing: ${assessed.length} competency evaluated (${avgScore}%)`
+      };
+    } else {
+      return {
+        domainSlug: "behavioral_hr",
+        domainName: "Behavioral & HR",
+        status: "NEEDS_PRACTICE",
+        statusColor: "#f87171",
+        reason: "Previous behavioral submissions lacked sufficient personal action specificity and metrics.",
+        recommendedMode: "practice",
+        recommendedModeLabel: "🛠️ STAR Practice",
+        recommendedDrill: "Blank-Canvas STAR Story Construction",
+        evidenceSummary: `Developing: Score baseline ${avgScore}%`
+      };
+    }
   }
 
   if (domainSlug === "communication_english") {
@@ -1056,18 +1300,41 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
     };
   }
 
+  const aptAttempts = getCandidateAttempts(candidateId, "aptitude_reasoning");
+  if (aptAttempts.length === 0 && !isA && !isB) {
+    return {
+      domainSlug: "aptitude_reasoning",
+      domainName: "Aptitude & Reasoning",
+      status: "NOT_YET_DEMONSTRATED",
+      statusColor: "#64748b",
+      reason: "No aptitude practice or timed tests completed yet. Practice core quantitative topics.",
+      recommendedMode: "practice",
+      recommendedModeLabel: "🛠️ Practice Mode",
+      recommendedDrill: "Percentages & Time-Work Fundamentals",
+      evidenceSummary: "Not yet assessed (0 attempts)"
+    };
+  }
+
+  const avgScore = aptAttempts.length > 0
+    ? Math.round(aptAttempts.reduce((s, a) => s + (a.score || 0), 0) / aptAttempts.length)
+    : 0;
+  const isAptReady = avgScore >= 75;
+  const weakTopic = aptAttempts[0]?.weaknesses?.[0];
+
   return {
     domainSlug: "aptitude_reasoning",
     domainName: "Aptitude & Reasoning",
-    status: isA ? "READY" : "NEEDS_PRACTICE",
-    statusColor: isA ? "#34d399" : "#fbbf24",
-    reason: isA
-      ? "Quantitative aptitude scores exceed 82% threshold across TCS and Infosys patterns."
-      : "Speed reasoning in Permutations and Syllogisms needs timed practice.",
-    recommendedMode: "practice",
-    recommendedModeLabel: "⏱️ Timed Practice",
-    recommendedDrill: "15-Minute Speed Reasoning Circuit",
-    evidenceSummary: "Developing: Speed accuracy under time constraint"
+    status: isAptReady ? "READY" : "NEEDS_PRACTICE",
+    statusColor: isAptReady ? "#34d399" : "#fbbf24",
+    reason: isAptReady
+      ? `Quantitative aptitude scores average ${avgScore}% across placement patterns.`
+      : weakTopic
+        ? `Identified gap in ${weakTopic}. Timed practice recommended.`
+        : "Speed reasoning and calculation accuracy need timed practice.",
+    recommendedMode: isAptReady ? "interview" : "practice",
+    recommendedModeLabel: isAptReady ? "⏱️ Timed Assessment" : "🛠️ Practice Mode",
+    recommendedDrill: weakTopic ? `${weakTopic} Speed Drill` : "15-Minute Speed Reasoning Circuit",
+    evidenceSummary: `Evaluated in ${aptAttempts.length} session(s) (${avgScore}% avg)`
   };
 }
 

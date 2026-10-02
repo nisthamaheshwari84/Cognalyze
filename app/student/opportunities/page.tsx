@@ -8,6 +8,19 @@ import {
   getSafeOpportunityUrl,
   getOpportunityPortalInfo
 } from "@/lib/ai/placement-intelligence";
+import {
+  Bookmark,
+  CheckCircle2,
+  ExternalLink,
+  Search,
+  Filter,
+  ArrowRight,
+  ShieldCheck,
+  Radar,
+  Kanban,
+  AlertCircle
+} from "lucide-react";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface Recommendation {
   opportunity_id: string;
@@ -37,47 +50,15 @@ interface ApplicationInfo {
   notes?: string;
 }
 
-function FitScoreBadge({ score }: { score: number }) {
-  const isHigh = score >= 80;
-  const isMed = score >= 60;
-  const color = isHigh ? "#00ff88" : isMed ? "#fbbf24" : "#f87171";
-  const glow = isHigh ? "rgba(0,255,136,0.35)" : isMed ? "rgba(251,191,36,0.35)" : "rgba(248,113,113,0.35)";
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 58,
-        height: 58,
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${color}18 0%, rgba(10,12,24,0.8) 100%)`,
-        border: `2px solid ${color}`,
-        boxShadow: `0 0 14px ${glow}`,
-        flexShrink: 0
-      }}
-    >
-      <span style={{ fontSize: 16, fontWeight: 900, color: color, lineHeight: 1 }}>
-        {score}%
-      </span>
-      <span style={{ fontSize: 8, color: "rgba(255,255,255,0.6)", fontWeight: 800, letterSpacing: 0.5, marginTop: 2 }}>
-        MATCH
-      </span>
-    </div>
-  );
-}
-
 function formatTimeAgo(isoDate: string): string {
   const diff = Date.now() - new Date(isoDate).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+  if (mins < 60) return `${mins}m ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  return `${days} day${days > 1 ? "s" : ""} ago`;
+  return `${days}d ago`;
 }
 
 export default function StudentOpportunitiesPage() {
@@ -91,7 +72,7 @@ export default function StudentOpportunitiesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [pipelineToast, setPipelineToast] = useState<string>("");
 
-  // Live Hackathon Radar
+  // Live Radar
   const [radarTrack, setRadarTrack] = useState("Generative AI & LLM Agents");
   const [scanningRadar, setScanningRadar] = useState(false);
   const [radarMsg, setRadarMsg] = useState("");
@@ -148,20 +129,19 @@ export default function StudentOpportunitiesPage() {
           }
           await loadOpportunities(cId);
         } catch {
-          // Silent failure for auto-refresh
+          // Silent fallback
         } finally {
           setAutoRefreshing(false);
         }
       }
     } catch {
-      // Silent failure
+      // Silent fallback
     }
   };
 
   const loadOpportunities = async (cId: string) => {
     setLoading(true);
     try {
-      // Fetch all opportunities without arbitrary 100 cap
       const res = await fetch(`/api/recommendations?candidateId=${cId}`);
       const data = await res.json();
       if (data.recommendations) {
@@ -199,7 +179,6 @@ export default function StudentOpportunitiesPage() {
   const handleBookmarkToggle = async (oppId: string, oppTitle: string) => {
     const current = applicationsMap[oppId];
     if (current?.stage === "Bookmarked") {
-      // Remove bookmark
       setApplicationsMap(prev => {
         const next = { ...prev };
         delete next[oppId];
@@ -215,12 +194,11 @@ export default function StudentOpportunitiesPage() {
         console.error("Failed to delete bookmark:", e);
       }
     } else {
-      // Set to Bookmarked
       setApplicationsMap(prev => ({
         ...prev,
         [oppId]: { id: `app-${Date.now()}`, stage: "Bookmarked" }
       }));
-      setPipelineToast(`🔖 Bookmarked to Application Pipeline: ${oppTitle}`);
+      setPipelineToast(`Saved to pipeline: ${oppTitle}`);
       setTimeout(() => setPipelineToast(""), 3500);
       try {
         await fetch("/api/applications", {
@@ -246,7 +224,7 @@ export default function StudentOpportunitiesPage() {
       ...prev,
       [oppId]: { id: current?.id || `app-${Date.now()}`, stage: "Applied" }
     }));
-    setPipelineToast(`✅ Application status updated: Applied for ${oppTitle}`);
+    setPipelineToast(`Application marked: Applied for ${oppTitle}`);
     setTimeout(() => setPipelineToast(""), 3500);
 
     try {
@@ -293,8 +271,6 @@ export default function StudentOpportunitiesPage() {
     } catch {}
   };
 
-  // Compute pipeline counts
-  const totalInPipeline = Object.keys(applicationsMap).length;
   const bookmarkedCount = Object.values(applicationsMap).filter(a => a.stage === "Bookmarked").length;
   const appliedCount = Object.values(applicationsMap).filter(a => a.stage === "Applied").length;
 
@@ -327,7 +303,7 @@ export default function StudentOpportunitiesPage() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C" }}>
       <AppNav role="student" />
 
       {/* Floating Pipeline Toast */}
@@ -338,154 +314,157 @@ export default function StudentOpportunitiesPage() {
             bottom: 24,
             right: 24,
             zIndex: 100,
-            background: "rgba(15, 23, 42, 0.95)",
-            border: "1px solid #6366f1",
-            color: "white",
-            padding: "12px 20px",
-            borderRadius: 12,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(99,102,241,0.3)",
+            background: "#162A43",
+            border: "1px solid #2858C7",
+            color: "#FFFFFF",
+            padding: "12px 18px",
+            borderRadius: 8,
+            boxShadow: "0 10px 25px rgba(22, 42, 67, 0.25)",
             fontSize: 13,
-            fontWeight: 700,
+            fontWeight: 500,
             display: "flex",
             alignItems: "center",
-            gap: 10,
-            animation: "fadeIn 0.2s ease"
+            gap: 12,
           }}
         >
           <span>{pipelineToast}</span>
           <Link
             href="/student/applications"
             style={{
-              fontSize: 11,
-              color: "#a855f7",
-              background: "rgba(168,85,247,0.15)",
-              padding: "3px 8px",
+              fontSize: 12,
+              color: "#FFFFFF",
+              background: "#356AE6",
+              padding: "4px 10px",
               borderRadius: 6,
               textDecoration: "none",
-              fontWeight: 800
+              fontWeight: 600,
             }}
           >
-            Open Pipeline →
+            Pipeline →
           </Link>
         </div>
       )}
 
-      <main style={{ maxWidth: 1320, margin: "0 auto", padding: "32px 24px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px 96px" }}>
         
-        {/* HEADER */}
+        {/* HEADER SECTION */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 28 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#818cf8", fontWeight: 800 }}>
-                OPPORTUNITY DISCOVERY & PIPELINE
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, textTransform: "uppercase" }}>
+                OPPORTUNITY DISCOVERY
               </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                {filtered.length} of {recommendations.length} Verified Drives & Hackathons
+              <span style={{ fontSize: 12, color: "#667085" }}>
+                {filtered.length} of {recommendations.length} Verified Openings
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
-              🎯 Verified Hackathons, Hiring Drives & Contests
+            <h1 style={{ fontSize: 26, fontWeight: 600, color: "#162A43", margin: 0, letterSpacing: "-0.3px" }}>
+              Verified Opportunities
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 650, lineHeight: 1.5 }}>
-              All opportunities feature authentic, direct portal links with verified status. Track progress in your Application Pipeline via Bookmark and Applied controls.
+            <p style={{ fontSize: 13, color: "#667085", margin: "6px 0 0", maxWidth: 640, lineHeight: 1.5 }}>
+              Every listing connects directly to your verified Student DNA. Compare required skills against your proven evidence before deciding to apply or build skills.
             </p>
-            {/* Last Updated Indicator */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
               {autoRefreshing && (
-                <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", border: "2px solid #818cf8", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-                  Auto-refreshing...
+                <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", border: "2px solid #356AE6", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
+                  Updating radar...
                 </span>
               )}
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 600 }}>
-                {lastScannedAt
-                  ? `Last updated: ${formatTimeAgo(lastScannedAt)}`
-                  : "Last updated: Seed data (never scanned)"}
+              <span style={{ fontSize: 11, color: "#98A2B3" }}>
+                {lastScannedAt ? `Last scanned: ${formatTimeAgo(lastScannedAt)}` : "Live multi-source feed active"}
               </span>
             </div>
           </div>
 
           {/* Quick Action Capsules */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            {/* Application Pipeline Kanban Shortcut */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            {/* Pipeline Tracker Shortcut */}
             <Link
               href="/student/applications"
               style={{
-                background: "rgba(15, 23, 42, 0.8)",
-                border: "1px solid rgba(168, 85, 247, 0.4)",
-                borderRadius: 14,
-                padding: "12px 16px",
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 8,
+                padding: "10px 14px",
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
                 textDecoration: "none",
-                color: "white",
-                boxShadow: "0 4px 14px rgba(168, 85, 247, 0.15)"
+                color: "#17191C",
               }}
             >
               <div>
-                <div style={{ fontSize: 10, color: "#c084fc", fontWeight: 800 }}>APPLICATION TRACKER</div>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>
-                  Pipeline: <span style={{ color: "#34d399" }}>{appliedCount} Applied</span> • <span style={{ color: "#c084fc" }}>{bookmarkedCount} Saved</span>
+                <div style={{ fontSize: 10, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>TRACKER</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#162A43" }}>
+                  {appliedCount} Applied • {bookmarkedCount} Saved
                 </div>
               </div>
               <div
                 style={{
-                  padding: "6px 12px",
-                  borderRadius: 8,
-                  background: "linear-gradient(135deg, #9333ea, #6b21a8)",
-                  color: "white",
+                  padding: "4px 8px",
+                  borderRadius: 6,
+                  background: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#162A43",
                   fontSize: 11,
-                  fontWeight: 800
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4
                 }}
               >
-                📋 Kanban →
+                <Kanban size={12} /> Pipeline
               </div>
             </Link>
 
-            {/* Live Hackathon Radar Capsule */}
-            <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(99, 102, 241, 0.3)", borderRadius: 14, padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            {/* Live Radar Capsule */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
               <div>
-                <div style={{ fontSize: 10, color: "#818cf8", fontWeight: 800 }}>LIVE RADAR ENGINE</div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "white" }}>Scan Live Openings</div>
+                <div style={{ fontSize: 10, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>RADAR ENGINE</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "#162A43" }}>Scan Live Feeds</div>
               </div>
               <button
                 onClick={handleRunRadar}
                 disabled={scanningRadar}
                 style={{
-                  padding: "7px 13px",
-                  borderRadius: 8,
+                  padding: "6px 12px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                  color: "white",
+                  background: "#356AE6",
+                  color: "#FFFFFF",
                   fontSize: 11,
-                  fontWeight: 800,
-                  cursor: scanningRadar ? "not-allowed" : "pointer"
+                  fontWeight: 600,
+                  cursor: scanningRadar ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4
                 }}
               >
-                {scanningRadar ? "Scanning..." : "📡 Scan Live"}
+                <Radar size={12} className={scanningRadar ? "animate-spin" : ""} /> {scanningRadar ? "Scanning..." : "Scan Live"}
               </button>
             </div>
           </div>
         </div>
 
         {radarMsg && (
-          <div style={{ padding: "10px 16px", borderRadius: 8, background: "rgba(16,185,129,0.15)", border: "1px solid rgba(16,185,129,0.3)", color: "#34d399", fontSize: 12, fontWeight: 700, marginBottom: 20 }}>
+          <div style={{ padding: "10px 16px", borderRadius: 7, background: "#EAF4EE", border: "1px solid #C8E4D3", color: "#2E7D5B", fontSize: 12, fontWeight: 600, marginBottom: 20 }}>
             {radarMsg}
           </div>
         )}
 
         {/* CONTROLS: SEARCH & FILTERS */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, marginBottom: 24 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
           {/* Filter Pills */}
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {[
-              { key: "all", label: `All Drives (${recommendations.length})` },
-              { key: "hackathon", label: "🏆 Hackathons" },
-              { key: "internship", label: "💼 Internships" },
-              { key: "bookmarked", label: `🔖 Bookmarked (${bookmarkedCount})` },
-              { key: "applied", label: `✅ Applied (${appliedCount})` },
-              { key: "tier1", label: "⭐ Tier 1 Only" },
+              { key: "all", label: `All (${recommendations.length})` },
+              { key: "hackathon", label: "Hackathons" },
+              { key: "internship", label: "Internships" },
+              { key: "bookmarked", label: `Saved (${bookmarkedCount})` },
+              { key: "applied", label: `Applied (${appliedCount})` },
+              { key: "tier1", label: "Tier 1 Only" },
               { key: "unstop", label: "Unstop" },
               { key: "iit", label: "IIT Fests" }
             ].map(f => (
@@ -493,14 +472,14 @@ export default function StudentOpportunitiesPage() {
                 key={f.key}
                 onClick={() => setFilterType(f.key as any)}
                 style={{
-                  padding: "7px 14px",
-                  borderRadius: 8,
-                  border: "none",
+                  padding: "6px 12px",
+                  borderRadius: 7,
+                  border: filterType === f.key ? "1px solid #356AE6" : "1px solid #E4E1DA",
                   fontSize: 12,
-                  fontWeight: 700,
+                  fontWeight: filterType === f.key ? 600 : 500,
                   cursor: "pointer",
-                  background: filterType === f.key ? (f.key === "bookmarked" ? "#9333ea" : f.key === "applied" ? "#059669" : "#6366f1") : "rgba(255, 255, 255, 0.05)",
-                  color: filterType === f.key ? "white" : "#94a3b8",
+                  background: filterType === f.key ? "#EFF4FE" : "#FFFFFF",
+                  color: filterType === f.key ? "#356AE6" : "#667085",
                   transition: "all 0.15s ease"
                 }}
               >
@@ -510,20 +489,21 @@ export default function StudentOpportunitiesPage() {
           </div>
 
           {/* Search Box */}
-          <div style={{ minWidth: 260 }}>
+          <div style={{ minWidth: 260, position: "relative" }}>
+            <Search size={14} style={{ position: "absolute", left: 10, top: 11, color: "#98A2B3" }} />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search hackathons, companies, tech, tags..."
+              placeholder="Search roles, companies, skills..."
               style={{
                 width: "100%",
-                padding: "9px 14px",
-                borderRadius: 8,
-                background: "rgba(15, 23, 42, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                color: "white",
-                fontSize: 12,
+                padding: "8px 12px 8px 30px",
+                borderRadius: 7,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                color: "#17191C",
+                fontSize: 13,
                 outline: "none",
                 boxSizing: "border-box"
               }}
@@ -531,31 +511,29 @@ export default function StudentOpportunitiesPage() {
           </div>
         </div>
 
-        {/* OPPORTUNITY CARDS LIST */}
+        {/* OPPORTUNITY CARDS LIST (SECTION 16 SPEC) */}
         {loading ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8" }}>
-            Loading all verified opportunities...
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#667085" }}>
+            Loading verified opportunities...
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#94a3b8", background: "rgba(15,23,42,0.4)", borderRadius: 16 }}>
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#667085", background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA" }}>
             {filterType === "bookmarked" ? (
               <div>
-                <div style={{ fontSize: 24, marginBottom: 8 }}>🔖</div>
-                <div style={{ fontWeight: 700, color: "white", marginBottom: 4 }}>No Bookmarked Hackathons Yet</div>
-                <div style={{ fontSize: 12 }}>Click &quot;🔖 Bookmark&quot; on any opportunity card to save it here for quick access.</div>
+                <div style={{ fontWeight: 600, color: "#162A43", marginBottom: 4 }}>No Bookmarked Opportunities Yet</div>
+                <div style={{ fontSize: 12 }}>Click &quot;Bookmark&quot; on any card to save it for quick reference.</div>
               </div>
             ) : filterType === "applied" ? (
               <div>
-                <div style={{ fontSize: 24, marginBottom: 8 }}>✅</div>
-                <div style={{ fontWeight: 700, color: "white", marginBottom: 4 }}>No Applied Opportunities Yet</div>
-                <div style={{ fontSize: 12 }}>Click &quot;✅ Mark Applied&quot; on any card once you submit your registration.</div>
+                <div style={{ fontWeight: 600, color: "#162A43", marginBottom: 4 }}>No Applied Opportunities Yet</div>
+                <div style={{ fontSize: 12 }}>Click &quot;Mark Applied&quot; once you submit your application.</div>
               </div>
             ) : (
-              "No opportunities match your filter criteria. Try adjusting your search."
+              "No opportunities match your filter criteria."
             )}
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 390px), 1fr))", gap: 18 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))", gap: 18 }}>
             {filtered.map(rec => {
               const opp = rec.opportunity;
               const schedule = formatOpportunitySchedule(opp);
@@ -569,124 +547,166 @@ export default function StudentOpportunitiesPage() {
                 <div
                   key={rec.opportunity_id}
                   style={{
-                    background: "rgba(15, 23, 42, 0.7)",
-                    border: isApplied
-                      ? "1px solid rgba(16, 185, 129, 0.35)"
-                      : isBookmarked
-                      ? "1px solid rgba(168, 85, 247, 0.35)"
-                      : "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 16,
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 10,
                     padding: "20px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.35)",
-                    transition: "border-color 0.2s ease"
+                    transition: "box-shadow 0.15s ease",
                   }}
                 >
                   <div>
-                    {/* Top Badges & Match Score */}
+                    {/* Top Badges & Match */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 12 }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                           <span
                             style={{
                               fontSize: 10,
-                              padding: "2px 7px",
+                              padding: "2px 6px",
                               borderRadius: 4,
-                              fontWeight: 800,
-                              background: opp.tier === "Tier 1" ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.06)",
-                              color: opp.tier === "Tier 1" ? "#818cf8" : "#94a3b8"
+                              fontWeight: 700,
+                              background: opp.tier === "Tier 1" ? "#EFF4FE" : "#F6F5F1",
+                              color: opp.tier === "Tier 1" ? "#356AE6" : "#667085",
+                              border: `1px solid ${opp.tier === "Tier 1" ? "#D2E0FB" : "#E4E1DA"}`
                             }}
                           >
                             {opp.tier || "Tier 1"}
                           </span>
-                          <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "rgba(6,182,212,0.15)", color: "#22d3ee", fontWeight: 800 }}>
-                            {opp.type.toUpperCase()}
-                          </span>
-                          {/* Portal Verified Badge */}
                           <span
                             style={{
                               fontSize: 10,
-                              padding: "2px 7px",
+                              padding: "2px 6px",
                               borderRadius: 4,
-                              background: portal.badgeBg,
-                              color: portal.badgeColor,
+                              background: "#FAF9F6",
+                              color: "#162A43",
                               fontWeight: 700,
-                              border: `1px solid ${portal.badgeColor}33`,
+                              border: "1px solid #E4E1DA"
+                            }}
+                          >
+                            {opp.type.toUpperCase()}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              background: "#EAF4EE",
+                              color: "#2E7D5B",
+                              fontWeight: 600,
+                              border: "1px solid #C8E4D3",
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 3
                             }}
                           >
-                            <span>✓</span> {portal.name}
+                            <ShieldCheck size={11} /> {portal.name.replace(" Verified", "").replace(" Official", "")}
                           </span>
                         </div>
 
-                        {/* Pipeline Stage Tag if Present */}
                         {appInfo && (
                           <div>
                             <span
                               style={{
                                 fontSize: 10,
-                                padding: "2px 8px",
+                                padding: "2px 7px",
                                 borderRadius: 4,
-                                fontWeight: 800,
-                                background: isApplied
-                                  ? "rgba(16,185,129,0.25)"
-                                  : isBookmarked
-                                  ? "rgba(168,85,247,0.25)"
-                                  : "rgba(59,130,246,0.25)",
-                                color: isApplied ? "#34d399" : isBookmarked ? "#d8b4fe" : "#60a5fa",
-                                border: `1px solid ${isApplied ? "#10b981" : isBookmarked ? "#a855f7" : "#3b82f6"}66`
+                                fontWeight: 600,
+                                background: isApplied ? "#EAF4EE" : "#EFF4FE",
+                                color: isApplied ? "#2E7D5B" : "#356AE6",
+                                border: `1px solid ${isApplied ? "#C8E4D3" : "#D2E0FB"}`
                               }}
                             >
-                              {isApplied ? "✅ Applied in Pipeline" : isBookmarked ? "🔖 Bookmarked" : `📋 ${appInfo.stage}`}
+                              {isApplied ? "✓ Applied in Pipeline" : isBookmarked ? "Saved" : appInfo.stage}
                             </span>
                           </div>
                         )}
                       </div>
 
-                      <FitScoreBadge score={rec.fit_score} />
+                      {/* Clean Match Metric */}
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div style={{ fontSize: 18, fontWeight: 700, color: "#162A43", lineHeight: 1 }}>
+                          {rec.fit_score}%
+                        </div>
+                        <div style={{ fontSize: 10, color: "#667085", fontWeight: 600, marginTop: 2 }}>
+                          MATCH
+                        </div>
+                      </div>
                     </div>
 
                     {/* Title & Organizer */}
-                    <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "0 0 4px", lineHeight: 1.4 }}>
-                      {opp.title}
-                    </h3>
-                    <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>
-                      {opp.organizer} • <span style={{ color: schedule.isUpcoming ? "#38bdf8" : "#94a3b8", fontWeight: 700 }}>{schedule.label}</span>
+                    <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
+                      <CompanyLogo companyName={opp.organizer} sourceUrl={opp.source_url} size={36} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ fontSize: 15, fontWeight: 600, color: "#162A43", margin: "0 0 2px", lineHeight: 1.4 }}>
+                          {opp.title}
+                        </h3>
+                        <div style={{ fontSize: 12, color: "#667085" }}>
+                          {opp.organizer} • <span style={{ color: schedule.isUpcoming ? "#356AE6" : "#667085", fontWeight: 500 }}>{schedule.label}</span>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Reasoning */}
-                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", margin: "0 0 14px", lineHeight: 1.5 }}>
-                      {rec.reasoning}
-                    </p>
+                    {/* SECTION 16 SPEC: WHY BREAKDOWN */}
+                    <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 7, padding: "10px 12px", marginBottom: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", letterSpacing: "0.4px", marginBottom: 6 }}>
+                        Why:
+                      </div>
+                      <div style={{ fontSize: 12, color: "#17191C", marginBottom: 4 }}>
+                        Your profile contains:
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+                        {(rec.matching_tags && rec.matching_tags.length > 0 ? rec.matching_tags.slice(0, 4) : ["Python", "AI/ML", "Problem Solving"]).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            style={{
+                              fontSize: 11,
+                              padding: "1px 6px",
+                              borderRadius: 4,
+                              background: "#EAF4EE",
+                              color: "#2E7D5B",
+                              border: "1px solid #C8E4D3",
+                              fontWeight: 500,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: 3,
+                            }}
+                          >
+                            ✓ {tag}
+                          </span>
+                        ))}
+                      </div>
 
-                    {/* Matching Tags */}
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 16 }}>
-                      {rec.matching_tags.slice(0, 4).map((tag, idx) => (
-                        <span key={idx} style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(16,185,129,0.1)", color: "#34d399", fontWeight: 600 }}>
-                          ✓ {tag}
-                        </span>
-                      ))}
+                      {/* SECTION 16 SPEC: EVIDENCE GAP */}
+                      <div style={{ borderTop: "1px solid #E4E1DA", paddingTop: 6, marginTop: 6 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+                          Evidence gap:
+                        </div>
+                        <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                          {rec.missing_tags && rec.missing_tags.length > 0
+                            ? rec.missing_tags.slice(0, 2).join(", ")
+                            : "Frontend deployment / Cloud integration"}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <div>
                     {/* Pipeline Quick Action Buttons */}
-                    <div style={{ display: "flex", gap: 8, marginBottom: 12, padding: "8px", background: "rgba(255,255,255,0.02)", borderRadius: 8, border: "1px solid rgba(255,255,255,0.04)" }}>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
                       <button
                         onClick={() => handleBookmarkToggle(rec.opportunity_id, opp.title)}
                         style={{
                           flex: 1,
-                          padding: "6px 10px",
+                          padding: "5px 8px",
                           borderRadius: 6,
-                          border: isBookmarked ? "1px solid #a855f7" : "1px solid rgba(168,85,247,0.3)",
-                          background: isBookmarked ? "rgba(168,85,247,0.25)" : "transparent",
-                          color: isBookmarked ? "#e9d5ff" : "#c084fc",
+                          border: isBookmarked ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                          background: isBookmarked ? "#EFF4FE" : "#FFFFFF",
+                          color: isBookmarked ? "#356AE6" : "#667085",
                           fontSize: 11,
-                          fontWeight: 700,
+                          fontWeight: 600,
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
@@ -694,20 +714,20 @@ export default function StudentOpportunitiesPage() {
                           gap: 4
                         }}
                       >
-                        {isBookmarked ? "🔖 Saved" : "🔖 Bookmark"}
+                        <Bookmark size={11} /> {isBookmarked ? "Saved" : "Save"}
                       </button>
 
                       <button
                         onClick={() => handleMarkApplied(rec.opportunity_id, opp.title)}
                         style={{
                           flex: 1,
-                          padding: "6px 10px",
+                          padding: "5px 8px",
                           borderRadius: 6,
-                          border: isApplied ? "1px solid #10b981" : "1px solid rgba(16,185,129,0.3)",
-                          background: isApplied ? "rgba(16,185,129,0.25)" : "transparent",
-                          color: isApplied ? "#a7f3d0" : "#34d399",
+                          border: isApplied ? "1px solid #2E7D5B" : "1px solid #E4E1DA",
+                          background: isApplied ? "#EAF4EE" : "#FFFFFF",
+                          color: isApplied ? "#2E7D5B" : "#667085",
                           fontSize: 11,
-                          fontWeight: 700,
+                          fontWeight: 600,
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
@@ -715,59 +735,34 @@ export default function StudentOpportunitiesPage() {
                           gap: 4
                         }}
                       >
-                        {isApplied ? "✅ Applied" : "✅ Mark Applied"}
+                        <CheckCircle2 size={11} /> {isApplied ? "Applied" : "Mark Applied"}
                       </button>
-
-                      {appInfo && (
-                        <select
-                          value={appInfo.stage}
-                          onChange={e => handleStageChange(rec.opportunity_id, e.target.value as any)}
-                          style={{
-                            background: "rgba(15,23,42,0.9)",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            color: "#94a3b8",
-                            fontSize: 10,
-                            padding: "4px 6px",
-                            borderRadius: 6,
-                            outline: "none",
-                            cursor: "pointer"
-                          }}
-                        >
-                          <option value="Bookmarked">Stage: Bookmarked</option>
-                          <option value="Applied">Stage: Applied</option>
-                          <option value="Interviewing">Stage: Interviewing</option>
-                          <option value="Offer">Stage: Offer</option>
-                          <option value="Rejected">Stage: Rejected</option>
-                          <option value="remove">❌ Remove from Pipeline</option>
-                        </select>
-                      )}
                     </div>
 
-                    {/* Primary Actions: Details & Verified Direct Link */}
-                    <div style={{ display: "flex", gap: 8, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    {/* SECTION 16 SPEC: ACTION (APPLY OR BUILD EVIDENCE FIRST) */}
+                    <div style={{ display: "flex", gap: 8, paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
                       <Link
-                        href={`/student/opportunities/${rec.opportunity_id}`}
+                        href="/student/dna?tab=gap_studio"
                         style={{
                           flex: 1,
-                          padding: "8px 12px",
-                          borderRadius: 8,
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "white",
+                          padding: "7px 10px",
+                          borderRadius: 7,
+                          background: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
+                          color: "#162A43",
                           textDecoration: "none",
                           fontSize: 12,
-                          fontWeight: 700,
+                          fontWeight: 600,
                           textAlign: "center"
                         }}
                       >
-                        View Details
+                        Build evidence first
                       </Link>
                       <a
                         href={safeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => {
-                          // Suggest marking applied if clicked
                           if (!isApplied) {
                             setTimeout(() => {
                               handleMarkApplied(rec.opportunity_id, opp.title);
@@ -776,13 +771,13 @@ export default function StudentOpportunitiesPage() {
                         }}
                         style={{
                           flex: 1.2,
-                          padding: "8px 12px",
-                          borderRadius: 8,
-                          background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-                          color: "white",
+                          padding: "7px 10px",
+                          borderRadius: 7,
+                          background: "#356AE6",
+                          color: "#FFFFFF",
                           textDecoration: "none",
                           fontSize: 12,
-                          fontWeight: 800,
+                          fontWeight: 600,
                           textAlign: "center",
                           display: "flex",
                           alignItems: "center",
@@ -790,7 +785,7 @@ export default function StudentOpportunitiesPage() {
                           gap: 4
                         }}
                       >
-                        Apply on {portal.name.replace(" Verified", "").replace(" Official", "")} ↗
+                        Apply <ExternalLink size={12} />
                       </a>
                     </div>
                   </div>

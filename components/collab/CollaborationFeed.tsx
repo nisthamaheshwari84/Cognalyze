@@ -2,12 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { CollaborationFeedRole } from "@/lib/collab/types";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface CollaborationFeedProps {
   onApplied?: (roleId: string) => void;
 }
 
 export default function CollaborationFeed({ onApplied }: CollaborationFeedProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const [roles, setRoles] = useState<CollaborationFeedRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +23,19 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
+
+  // Design system theme tokens
+  const cardBg = isDark ? "#0E1B2E" : "#FFFFFF";
+  const borderCol = isDark ? "#223750" : "#E4E1DA";
+  const textPrimary = isDark ? "#F2F6FC" : "#17191C";
+  const textSecondary = isDark ? "#B6C4D6" : "#667085";
+  const headingCol = isDark ? "#F2F6FC" : "#162A43";
+  const inputBg = isDark ? "#13243A" : "#FFFFFF";
+  const chipBg = isDark ? "#13243A" : "#F6F5F1";
+  const chipBorder = isDark ? "#223750" : "#E4E1DA";
+  const accent = isDark ? "#3478F6" : "#356AE6";
+  const accentBg = isDark ? "rgba(52, 120, 246, 0.15)" : "#EFF4FE";
+  const accentBorder = isDark ? "rgba(52, 120, 246, 0.3)" : "#D2E0FB";
 
   useEffect(() => {
     loadFeed();
@@ -78,12 +95,6 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
       );
 
       if (onApplied) onApplied(selectedRole.id);
-
-      setTimeout(() => {
-        setApplySuccess(false);
-        setSelectedRole(null);
-        setGithubUrl("");
-      }, 1500);
     } catch (err: any) {
       setApplyError(err.message);
     } finally {
@@ -93,76 +104,78 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-slate-400 space-y-3">
-        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-xs">Loading verified collaboration opportunities...</p>
+      <div style={{ padding: "40px 0", textAlign: "center", color: textSecondary }}>
+        <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
+        <p style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>Loading verified recruiter roles from the network...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6 rounded-xl bg-slate-900/80 border border-slate-800 text-center">
-        <div className="text-rose-400 text-sm font-semibold mb-1">Feed Unavailable</div>
-        <p className="text-xs text-slate-400 mb-4">{error}</p>
-        <button
-          onClick={loadFeed}
-          className="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium transition"
-        >
-          Retry
-        </button>
+      <div style={{ padding: "20px", borderRadius: 10, background: isDark ? "rgba(230,57,70,0.1)" : "#FDF2F2", border: `1px solid ${isDark ? "rgba(230,57,70,0.25)" : "#F8C8C8"}`, color: "#E63946", fontSize: 13 }}>
+        ⚠️ {error}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {/* Collaboration Feed Header */}
-      <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-900/30">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderRadius: 10, background: cardBg, border: `1px solid ${borderCol}`, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
         <div>
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-indigo-300">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ height: 8, width: 8, borderRadius: "50%", background: "#2E7D5B" }} />
+            <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: headingCol }}>
               Recruiter Collaboration Feed
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p style={{ fontSize: 12, color: textSecondary, margin: "4px 0 0" }}>
             Verified open roles from enterprise recruiters. Your Cognalyze DNA is automatically attached upon application.
           </p>
         </div>
-        <span className="px-2.5 py-1 rounded-full bg-indigo-950/80 border border-indigo-800/60 text-indigo-300 text-xs font-semibold">
+        <span style={{ padding: "4px 10px", borderRadius: 5, background: accentBg, border: `1px solid ${accentBorder}`, color: accent, fontSize: 12, fontWeight: 700 }}>
           {roles.length} Open Roles
         </span>
       </div>
 
       {roles.length === 0 ? (
-        <div className="p-12 text-center rounded-xl bg-slate-900/40 border border-dashed border-slate-800 text-slate-400">
-          <span className="text-2xl block mb-2">🤝</span>
-          <p className="text-sm font-medium text-slate-300">No open collaboration roles currently active.</p>
-          <p className="text-xs text-slate-500 mt-1">Check back shortly as recruiters post new verified openings.</p>
+        <div style={{ padding: "48px 24px", textAlign: "center", borderRadius: 10, background: cardBg, border: `1px dashed ${borderCol}`, color: textSecondary }}>
+          <span style={{ fontSize: 32, display: "block", marginBottom: 8 }}>🤝</span>
+          <p style={{ fontSize: 14, fontWeight: 700, color: headingCol, margin: "0 0 4px" }}>No open collaboration roles currently active.</p>
+          <p style={{ fontSize: 12, color: textSecondary, margin: 0 }}>Check back shortly as recruiters post new verified openings.</p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {roles.map((role) => (
             <div
               key={role.id}
-              className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 transition space-y-3"
+              style={{
+                padding: "20px",
+                borderRadius: 10,
+                background: cardBg,
+                border: `1px solid ${borderCol}`,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+                display: "flex",
+                flexDirection: "column",
+                gap: 12,
+              }}
             >
-              <div className="flex items-start justify-between gap-4">
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 }}>
                 <div>
-                  <div className="flex items-center gap-2.5">
-                    <h3 className="text-base font-bold text-white tracking-wide">{role.title}</h3>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-950/60 border border-emerald-800/40 text-emerald-400">
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, color: headingCol, margin: 0 }}>{role.title}</h3>
+                    <span style={{ padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: 800, textTransform: "uppercase", background: isDark ? "rgba(46,125,91,0.2)" : "#EAF4EE", border: `1px solid ${isDark ? "rgba(46,125,91,0.4)" : "#C8E4D3"}`, color: isDark ? "#4ade80" : "#2E7D5B" }}>
                       Open
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p style={{ fontSize: 12, color: textSecondary, margin: "4px 0 0" }}>
                     Posted {new Date(role.created_at).toLocaleDateString()}
                   </p>
                 </div>
 
                 {role.already_applied ? (
-                  <span className="px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-800/50 text-emerald-400 text-xs font-bold flex items-center gap-1.5 shrink-0">
+                  <span style={{ padding: "6px 12px", borderRadius: 7, background: isDark ? "rgba(46,125,91,0.2)" : "#EAF4EE", border: `1px solid ${isDark ? "rgba(46,125,91,0.4)" : "#C8E4D3"}`, color: isDark ? "#4ade80" : "#2E7D5B", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                     <span>✓</span> Applied with DNA
                   </span>
                 ) : (
@@ -172,7 +185,17 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
                       setApplyError(null);
                       setApplySuccess(false);
                     }}
-                    className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md hover:shadow-indigo-500/20 transition shrink-0"
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 7,
+                      background: accent,
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      border: "none",
+                      cursor: "pointer",
+                      flexShrink: 0,
+                    }}
                   >
                     Apply with Auto-DNA
                   </button>
@@ -180,18 +203,26 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
               </div>
 
               {/* Description */}
-              <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-line">
+              <p style={{ fontSize: 13, color: textPrimary, lineHeight: 1.5, margin: 0, whiteSpace: "pre-line" }}>
                 {role.description}
               </p>
 
               {/* Skills */}
               {role.required_skills.length > 0 && (
-                <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                  <span className="text-[10px] uppercase font-bold text-slate-500 mr-1">Skills:</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", paddingTop: 4 }}>
+                  <span style={{ fontSize: 11, textTransform: "uppercase", fontWeight: 700, color: textSecondary, marginRight: 4 }}>Skills:</span>
                   {role.required_skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700/60 text-slate-300 text-[11px]"
+                      style={{
+                        padding: "3px 8px",
+                        borderRadius: 5,
+                        background: chipBg,
+                        border: `1px solid ${chipBorder}`,
+                        color: headingCol,
+                        fontSize: 11,
+                        fontWeight: 600,
+                      }}
                     >
                       {skill}
                     </span>
@@ -205,56 +236,56 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
 
       {/* ── APPLY MODAL ── */}
       {selectedRole && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 space-y-5 text-slate-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(6px)" }}>
+          <div style={{ width: "100%", maxWidth: 520, borderRadius: 12, background: cardBg, border: `1px solid ${borderCol}`, boxShadow: "0 20px 25px -5px rgba(0,0,0,0.3), 0 10px 10px -5px rgba(0,0,0,0.1)", padding: "24px", color: textPrimary, display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: 12, borderBottom: `1px solid ${borderCol}` }}>
               <div>
-                <h3 className="text-base font-bold text-white">Apply to {selectedRole.title}</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Direct Submission to Collaboration Feed</p>
+                <h3 style={{ fontSize: 16, fontWeight: 800, color: headingCol, margin: 0 }}>Apply to {selectedRole.title}</h3>
+                <p style={{ fontSize: 12, color: textSecondary, margin: "2px 0 0" }}>Direct Submission to Collaboration Feed</p>
               </div>
               <button
                 onClick={() => setSelectedRole(null)}
-                className="text-slate-400 hover:text-white text-lg p-1"
+                style={{ background: "none", border: "none", color: textSecondary, fontSize: 18, cursor: "pointer", padding: 4 }}
               >
                 ✕
               </button>
             </div>
 
             {applySuccess ? (
-              <div className="p-6 text-center space-y-2">
-                <div className="text-3xl">🎉</div>
-                <div className="text-sm font-bold text-emerald-400">Application Submitted!</div>
-                <p className="text-xs text-slate-400">
+              <div style={{ padding: "24px", textAlign: "center", display: "flex", flexDirection: "column", gap: 8 }}>
+                <div style={{ fontSize: 32 }}>🎉</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: isDark ? "#4ade80" : "#2E7D5B" }}>Application Submitted!</div>
+                <p style={{ fontSize: 13, color: textSecondary, margin: 0 }}>
                   Your resume, GitHub link, and frozen DNA snapshot were successfully attached.
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleApply} className="space-y-4">
+              <form onSubmit={handleApply} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {applyError && (
-                  <div className="p-3 rounded-lg bg-rose-950/40 border border-rose-800/60 text-xs text-rose-300 leading-relaxed">
+                  <div style={{ padding: "10px 14px", borderRadius: 7, background: isDark ? "rgba(230,57,70,0.1)" : "#FDF2F2", border: `1px solid ${isDark ? "rgba(230,57,70,0.25)" : "#F8C8C8"}`, fontSize: 12, color: "#E63946", lineHeight: 1.4 }}>
                     {applyError}
                   </div>
                 )}
 
                 {/* Auto-DNA Callout Banner */}
-                <div className="p-3.5 rounded-xl bg-gradient-to-r from-indigo-950/60 to-purple-950/40 border border-indigo-800/40 space-y-1">
-                  <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
+                <div style={{ padding: "12px 14px", borderRadius: 8, background: accentBg, border: `1px solid ${accentBorder}`, display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: accent }}>
                     <span>🧬</span> Automatic Cognalyze DNA Attachment
                   </div>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                  <p style={{ fontSize: 11.5, color: textPrimary, lineHeight: 1.5, margin: 0 }}>
                     Your computed DNA radar, skill proficiency proofs, and project verification records are pulled server-side and attached as a frozen snapshot. You do not need to manually upload or re-enter anything.
                   </p>
                 </div>
 
                 {/* Resume Selector */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Select Resume <span className="text-rose-400">*</span>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: headingCol, marginBottom: 6 }}>
+                    Select Resume <span style={{ color: "#E63946" }}>*</span>
                   </label>
                   <select
                     value={resumeId}
                     onChange={(e) => setResumeId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 7, background: inputBg, border: `1px solid ${borderCol}`, fontSize: 13, color: textPrimary, outline: "none", boxSizing: "border-box" }}
                   >
                     <option value="resume_demo_default">Primary Engineering Resume (Verified)</option>
                     <option value="resume_secondary_swe">Full-Stack / Systems Track Resume</option>
@@ -263,38 +294,35 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
 
                 {/* GitHub URL (Optional) */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    GitHub Profile URL <span className="text-slate-500">(Optional)</span>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: headingCol, marginBottom: 6 }}>
+                    GitHub Profile URL <span style={{ color: textSecondary, fontWeight: 500 }}>(Optional)</span>
                   </label>
                   <input
                     type="url"
                     placeholder="https://github.com/username"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 placeholder-slate-600"
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 7, background: inputBg, border: `1px solid ${borderCol}`, fontSize: 13, color: textPrimary, outline: "none", boxSizing: "border-box" }}
                   />
-                  <p className="text-[10px] text-slate-500 mt-1">
+                  <p style={{ fontSize: 11, color: textSecondary, margin: "4px 0 0" }}>
                     Used alongside your DNA for automated commit and repository verification.
                   </p>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 10, paddingTop: 8, borderTop: `1px solid ${borderCol}` }}>
                   <button
                     type="button"
                     onClick={() => setSelectedRole(null)}
-                    className="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white transition"
+                    style={{ padding: "8px 16px", borderRadius: 7, border: `1px solid ${borderCol}`, background: cardBg, color: textSecondary, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={applying}
-                    className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition disabled:opacity-50 flex items-center gap-2"
+                    style={{ padding: "8px 18px", borderRadius: 7, background: accent, color: "white", fontSize: 12, fontWeight: 700, border: "none", cursor: applying ? "not-allowed" : "pointer" }}
                   >
-                    {applying && (
-                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    )}
-                    <span>{applying ? "Attaching DNA & Submitting..." : "Submit Application"}</span>
+                    {applying ? "Attaching DNA & Submitting..." : "Submit Application"}
                   </button>
                 </div>
               </form>

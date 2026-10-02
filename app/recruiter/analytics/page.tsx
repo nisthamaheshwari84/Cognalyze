@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import AppNav from "@/components/AppNav";
+import { BarChart3, TrendingUp, CheckCircle2, AlertTriangle, Layers, ShieldCheck, ArrowRight } from "lucide-react";
 
 export default function RecruiterAnalyticsPage() {
   const [selectedDrive, setSelectedDrive] = useState("Drive 2026-A: Senior Fullstack & Distributed");
@@ -13,49 +14,49 @@ export default function RecruiterAnalyticsPage() {
   ];
 
   const funnelStages = [
-    { name: "Resumes Ingested", count: 148, pct: "100%", color: "#818cf8" },
-    { name: "Parsed & Evaluated", count: 142, pct: "96%", color: "#38bdf8" },
-    { name: "Keyword Stuffers Detected", count: 26, pct: "18% rejected", color: "#f87171" },
-    { name: "Committee Clearances", count: 34, pct: "23%", color: "#fbbf24" },
-    { name: "Direct Offer Recommended", count: 14, pct: "9.5%", color: "#34d399" }
+    { name: "Candidates Ingested", count: 148, pct: "100%", subtext: "Total submitted" },
+    { name: "Evidence Parsed", count: 142, pct: "96%", subtext: "Structure extracted" },
+    { name: "Claims Unverified", count: 26, pct: "18%", subtext: "Insufficient proof" },
+    { name: "Evidence Qualified", count: 34, pct: "23%", subtext: "8+ verified skills" },
+    { name: "Final Review", count: 14, pct: "9.5%", subtext: "Direct interview ready" }
   ];
 
   const scoreBuckets = [
-    { range: "90 - 100% (Exceptional / FAANG Bar-Raiser)", count: 14, pct: 10, color: "#34d399" },
-    { range: "75 - 89% (Solid Hire / Strong Core)", count: 48, pct: 34, color: "#38bdf8" },
-    { range: "60 - 74% (Borderline / 45-Min Screen Needed)", count: 42, pct: 30, color: "#fbbf24" },
-    { range: "Below 60% (Skill Gaps / Rejected)", count: 38, pct: 26, color: "#f87171" }
+    { range: "90 - 100% Match (Tier 1 Evidence)", count: 14, pct: 10, color: "#2E7D5B" },
+    { range: "75 - 89% Match (Strong Core Evidence)", count: 48, pct: 34, color: "#356AE6" },
+    { range: "60 - 74% Match (Partial Verification)", count: 42, pct: 30, color: "#B7791F" },
+    { range: "Below 60% Match (Critical Skill Gaps)", count: 38, pct: 26, color: "#667085" }
   ];
 
   const missingSkillsCohort = [
-    { skill: "Distributed Caching & Invalidation (Redis)", frequency: "68% of candidates missing" },
-    { skill: "Production Kafka Partitioning & Recovery", frequency: "54% of candidates missing" },
-    { skill: "Transaction Isolation Levels (MVCC/ACID)", frequency: "46% of candidates missing" },
-    { skill: "System SPOF & Circuit Breaking", frequency: "39% of candidates missing" }
+    { skill: "Distributed Caching & Invalidation (Redis)", frequency: "68% of candidates missing", count: 101 },
+    { skill: "Production Kafka Partitioning & Recovery", frequency: "54% of candidates missing", count: 80 },
+    { skill: "Transaction Isolation Levels (MVCC/ACID)", frequency: "46% of candidates missing", count: 68 },
+    { skill: "System SPOF & Circuit Breaking", frequency: "39% of candidates missing", count: 58 }
   ];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C" }}>
       <AppNav role="recruiter" />
 
-      <main style={{ maxWidth: 1300, margin: "0 auto", padding: "32px 24px" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px 96px" }}>
         
         {/* HEADER */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(6,182,212,0.2)", color: "#22d3ee", fontWeight: 800 }}>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, textTransform: "uppercase" }}>
                 COHORT TELEMETRY
               </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                148 Total Applications
+              <span style={{ fontSize: 12, color: "#667085" }}>
+                148 Candidates Analyzed
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
-              📈 Hiring Analytics & Funnel Yield
+            <h1 style={{ fontSize: 26, fontWeight: 600, color: "#162A43", margin: 0, letterSpacing: "-0.3px" }}>
+              Hiring Intelligence & Funnel Analytics
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 650, lineHeight: 1.5 }}>
-              Aggregated committee statistics across your talent pool. Track conversion ratios, score distribution, and cohort-wide skill gaps.
+            <p style={{ fontSize: 13, color: "#667085", margin: "6px 0 0", maxWidth: 640, lineHeight: 1.5 }}>
+              Evidence-first conversion analysis across your hiring pipeline. Verified signal density, requirement coverage, and cohort-wide gap telemetry.
             </p>
           </div>
 
@@ -63,14 +64,15 @@ export default function RecruiterAnalyticsPage() {
             value={selectedDrive}
             onChange={e => setSelectedDrive(e.target.value)}
             style={{
-              padding: "10px 14px",
-              borderRadius: 10,
-              background: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "white",
-              fontSize: 12,
-              fontWeight: 700,
-              outline: "none"
+              padding: "8px 14px",
+              borderRadius: 7,
+              background: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              color: "#162A43",
+              fontSize: 13,
+              fontWeight: 600,
+              outline: "none",
+              cursor: "pointer",
             }}
           >
             {drives.map(d => (
@@ -79,34 +81,66 @@ export default function RecruiterAnalyticsPage() {
           </select>
         </div>
 
-        {/* HIRING FUNNEL YIELD */}
-        <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px", marginBottom: 28 }}>
-          <div style={{ fontSize: 12, color: "#818cf8", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16 }}>
-            Cohort Funnel Conversion Stages
+        {/* SECTION 18 STATS SUMMARY CARDS */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 24 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 22px" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase" }}>Evidence Coverage</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "#162A43", marginTop: 4 }}>91%</div>
+            <div style={{ fontSize: 12, color: "#2E7D5B", fontWeight: 500, marginTop: 4 }}>↑ 6% higher than cohort benchmark</div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))", gap: 14 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 22px" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase" }}>Skill Verification</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "#162A43", marginTop: 4 }}>8 / 10</div>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>Required must-have skills verified</div>
+          </div>
+
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 22px" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase" }}>Projects with Evidence</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "#162A43", marginTop: 4 }}>6 / 7</div>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>Repo activity or live deployment verified</div>
+          </div>
+
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 22px" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase" }}>Screening Accuracy</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: "#162A43", marginTop: 4 }}>98.4%</div>
+            <div style={{ fontSize: 12, color: "#2E7D5B", fontWeight: 500, marginTop: 4 }}>Audit trail zero contradiction rate</div>
+          </div>
+        </div>
+
+        {/* HIRING FUNNEL YIELD */}
+        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "22px 24px", marginBottom: 24 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#667085", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Cohort Screening Funnel
+            </div>
+            <div style={{ fontSize: 12, color: "#667085" }}>
+              Progressive evidence filtering
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 190px), 1fr))", gap: 12 }}>
             {funnelStages.map((stage, idx) => (
               <div
                 key={idx}
                 style={{
-                  background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 12,
-                  padding: "16px"
+                  background: "#FAF9F6",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 8,
+                  padding: "14px 16px"
                 }}
               >
-                <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 4 }}>
+                <div style={{ fontSize: 11, color: "#667085", marginBottom: 4, fontWeight: 600 }}>
                   Stage {idx + 1}
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 900, color: stage.color, margin: "2px 0 4px" }}>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", margin: "2px 0 2px" }}>
                   {stage.count}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "white", marginBottom: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "#17191C", marginBottom: 2 }}>
                   {stage.name}
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>
-                  {stage.pct}
+                <div style={{ fontSize: 11, color: "#667085" }}>
+                  {stage.pct} • {stage.subtext}
                 </div>
               </div>
             ))}
@@ -114,23 +148,26 @@ export default function RecruiterAnalyticsPage() {
         </div>
 
         {/* SCORE DISTRIBUTION & SKILL DEFICITS SPLIT */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 480px), 1fr))", gap: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 540px), 1fr))", gap: 20 }}>
           
           {/* Score Distribution */}
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "0 0 16px" }}>
-              Candidate Score Percentiles
-            </h3>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "22px 24px" }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43", marginBottom: 4 }}>
+              Candidate Match Distribution
+            </div>
+            <p style={{ fontSize: 12, color: "#667085", margin: "0 0 18px" }}>
+              Restrained evidence scoring tiers calibrated to role requirement depth.
+            </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {scoreBuckets.map((b, idx) => (
                 <div key={idx}>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.85)", marginBottom: 6 }}>
-                    <span>{b.range}</span>
-                    <strong style={{ color: b.color }}>{b.count} ({b.pct}%)</strong>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "#17191C", marginBottom: 5 }}>
+                    <span style={{ fontWeight: 500 }}>{b.range}</span>
+                    <strong style={{ color: "#162A43" }}>{b.count} ({b.pct}%)</strong>
                   </div>
-                  <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${b.pct}%`, background: b.color, borderRadius: 999 }} />
+                  <div style={{ height: 6, borderRadius: 3, background: "#F6F5F1", overflow: "hidden", border: "1px solid #E4E1DA" }}>
+                    <div style={{ height: "100%", width: `${b.pct}%`, background: b.color, borderRadius: 3 }} />
                   </div>
                 </div>
               ))}
@@ -138,33 +175,32 @@ export default function RecruiterAnalyticsPage() {
           </div>
 
           {/* Missing Skills Cohort-Wide */}
-          <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: "24px" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "0 0 16px" }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "22px 24px" }}>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43", marginBottom: 4 }}>
               Drive-Wide Technical Skill Deficits
-            </h3>
-
-            <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 16px" }}>
-              The most frequent missing competencies identified across this applicant cohort by the AI Committee:
+            </div>
+            <p style={{ fontSize: 12, color: "#667085", margin: "0 0 16px" }}>
+              Most frequent unverified or missing requirements across candidate submissions:
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {missingSkillsCohort.map((s, idx) => (
                 <div
                   key={idx}
                   style={{
-                    padding: "12px 14px",
-                    borderRadius: 10,
-                    background: "rgba(239,68,68,0.08)",
-                    border: "1px solid rgba(239,68,68,0.2)",
+                    padding: "10px 14px",
+                    borderRadius: 7,
+                    background: "#FAF9F6",
+                    border: "1px solid #E4E1DA",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center"
                   }}
                 >
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fca5a5" }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: "#17191C" }}>
                     {s.skill}
                   </span>
-                  <span style={{ fontSize: 11, color: "#f87171", fontWeight: 700 }}>
+                  <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 600, background: "#FEF8EC", border: "1px solid #F9E4B7", padding: "2px 7px", borderRadius: 5 }}>
                     {s.frequency}
                   </span>
                 </div>

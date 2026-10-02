@@ -770,7 +770,7 @@ export default function StudentGDPracticePage() {
   ];
 
   return (
-    <div style={{ height: "100vh", maxHeight: "100vh", width: "100vw", maxWidth: "100vw", background: "#060312", color: "#f3f4f6", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box" }}>
+    <div style={{ height: "100vh", maxHeight: "100vh", width: "100vw", maxWidth: "100vw", background: "#07111F", color: "#F2F6FC", fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)", display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box" }}>
       
       {/* Global Embedded Keyframes for Speaker Equalizer Waveforms */}
       <style>{`
@@ -793,7 +793,7 @@ export default function StudentGDPracticePage() {
       `}</style>
 
       {/* ── TOP NAV / MEETING BAR ── */}
-      <header style={{ height: 50, flexShrink: 0, padding: "0 1rem", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(6,3,18,0.95)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 50, minWidth: 0 }}>
+      <header style={{ height: 50, flexShrink: 0, padding: "0 1rem", borderBottom: "1px solid #223750", background: "rgba(10,22,38,0.95)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 50, minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1, marginRight: 10 }}>
           <button
             onClick={() => {
@@ -1578,8 +1578,8 @@ export default function StudentGDPracticePage() {
 
       {/* ── COMPREHENSIVE FAANG GD ASSESSMENT DOSSIER MODAL ── */}
       {showReportModal && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(6,3,15,0.92)", backdropFilter: "blur(24px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(0.5rem, 2vw, 1.5rem)" }}>
-          <div style={{ maxWidth: 840, width: "100%", maxHeight: "92vh", overflowY: "auto", background: "#0b061d", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 24, padding: "clamp(1rem, 3vw, 2rem)", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.9)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(7,17,31,0.92)", backdropFilter: "blur(24px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "clamp(0.5rem, 2vw, 1.5rem)" }}>
+          <div style={{ maxWidth: 840, width: "100%", maxHeight: "92vh", overflowY: "auto", background: "#0E1B2E", border: "1px solid #223750", borderRadius: 24, padding: "clamp(1rem, 3vw, 2rem)", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.9)" }}>
             
             {/* Modal Header */}
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "1.25rem", marginBottom: "1.5rem" }}>

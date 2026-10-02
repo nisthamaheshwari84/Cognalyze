@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface SearchItem {
   id: string;
@@ -22,8 +23,7 @@ const SEARCH_REGISTRY: SearchItem[] = [
   { id: "dest-resources", title: "Resources & Tool Hub", category: "Destination", href: "/student/resources", icon: "🧰", description: "All interview, technical practice, and career building tools" },
   { id: "dest-profile", title: "My Profile", category: "Destination", href: "/student/profile", icon: "👤", description: "Academic details, resume projects, links, and preferences" },
 
-  // Tools & Prep Modules
-  { id: "tool-mentor", title: "Cognalyze Mentor (Adaptive AI)", category: "Tool", href: "/student/mentor", icon: "🧠", description: "Multilingual adaptive learning, Socratic inquiry, confusion detection & evidence building" },
+  { id: "tool-mentor", title: "Cognalyze AI Mentor", category: "Tool", href: "/student/ai-mentor", icon: "🤖", description: "Personalized learning, DSA practice, interview preparation & career guidance" },
   { id: "tool-interview", title: "FAANG Mock Interview", category: "Tool", href: "/interview", icon: "🎙️", description: "Real-time AI voice & technical interview simulation" },
   { id: "tool-practice-interview", title: "Practice Interview", category: "Tool", href: "/student/practice-interview", icon: "🎤", description: "Targeted opportunity mock interview session" },
   { id: "tool-dsa", title: "DSA Tracker (Striver Sheet)", category: "Tool", href: "/student/dsa-tracker", icon: "⚡", description: "Algorithmic problem sets and SDE sheet progress" },
@@ -51,6 +51,7 @@ export default function GlobalSearchModal({
   onClose: () => void;
 }) {
   const router = useRouter();
+  const { isDark } = useTheme();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -58,8 +59,7 @@ export default function GlobalSearchModal({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        if (isOpen) onClose();
-        else onClose(); // parent handles toggle
+        onClose();
       }
       if (e.key === "Escape" && isOpen) {
         onClose();
@@ -71,13 +71,39 @@ export default function GlobalSearchModal({
 
   if (!isOpen) return null;
 
-  const filtered = query.trim() === ""
+  // Typo alias map for common misspellings
+  const TYPO_MAP: Record<string, string> = {
+    intreview: "interview",
+    intervew: "interview",
+    intrview: "interview",
+    resme: "resume",
+    resum: "resume",
+    cv: "resume",
+    mentr: "mentor",
+    ai: "mentor",
+    recrusion: "dsa",
+    ds: "dsa",
+    algo: "dsa",
+    hackton: "opportunity",
+    opertunity: "opportunity",
+    opport: "opportunity",
+    opp: "opportunity",
+  };
+
+  const rawLower = query.toLowerCase().trim();
+  const normalizedQuery = TYPO_MAP[rawLower] || rawLower;
+  const queryTokens = normalizedQuery.split(/\s+/).filter(Boolean);
+
+  const filtered = queryTokens.length === 0
     ? SEARCH_REGISTRY.slice(0, 8)
-    : SEARCH_REGISTRY.filter(item =>
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.description.toLowerCase().includes(query.toLowerCase()) ||
-        item.category.toLowerCase().includes(query.toLowerCase())
-      );
+    : SEARCH_REGISTRY.filter(item => {
+        const itemText = (item.title + " " + item.description + " " + item.category).toLowerCase();
+        // Match full phrase or any query token
+        return itemText.includes(normalizedQuery) || queryTokens.some(token => itemText.includes(token));
+      });
+
+  const isExactEmpty = queryTokens.length > 0 && filtered.length === 0;
+  const displayItems = isExactEmpty ? SEARCH_REGISTRY.slice(0, 4) : filtered;
 
   const handleSelect = (item: SearchItem) => {
     onClose();
@@ -89,7 +115,7 @@ export default function GlobalSearchModal({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
         backdropFilter: "blur(8px)",
         zIndex: 100,
         display: "flex",
@@ -103,16 +129,17 @@ export default function GlobalSearchModal({
         style={{
           width: "100%",
           maxWidth: 620,
-          background: "#0c081e",
-          border: "1px solid rgba(255, 255, 255, 0.15)",
-          borderRadius: 18,
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8)",
-          overflow: "hidden"
+          background: isDark ? "#0E1B2E" : "#FFFFFF",
+          border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+          borderRadius: 16,
+          boxShadow: isDark ? "0 25px 50px -12px rgba(0, 0, 0, 0.8)" : "0 20px 40px -12px rgba(22, 42, 67, 0.15)",
+          overflow: "hidden",
+          fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)"
         }}
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input */}
-        <div style={{ display: "flex", alignItems: "center", padding: "14px 18px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", padding: "14px 18px", borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, gap: 10 }}>
           <span style={{ fontSize: 18, opacity: 0.6 }}>🔍</span>
           <input
             type="text"
@@ -127,20 +154,26 @@ export default function GlobalSearchModal({
               flex: 1,
               background: "transparent",
               border: "none",
-              color: "white",
+              color: isDark ? "#F2F6FC" : "#17191C",
               fontSize: 14,
               outline: "none"
             }}
           />
-          <kbd style={{ fontSize: 10, padding: "2px 6px", background: "rgba(255, 255, 255, 0.08)", borderRadius: 4, color: "rgba(255, 255, 255, 0.5)", border: "1px solid rgba(255, 255, 255, 0.15)" }}>
+          <kbd style={{ fontSize: 10, padding: "2px 6px", background: isDark ? "rgba(255, 255, 255, 0.08)" : "#F0EFEA", borderRadius: 4, color: isDark ? "#B6C4D6" : "#667085", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
             ESC
           </kbd>
         </div>
 
         {/* Results List */}
         <div style={{ maxHeight: "50vh", overflowY: "auto", padding: "8px" }}>
-          {filtered.length > 0 ? (
-            filtered.map((item, idx) => (
+          {isExactEmpty && (
+            <div style={{ padding: "10px 14px 6px", fontSize: 12, color: isDark ? "#B6C4D6" : "#667085" }}>
+              No exact matches found for &quot;{query}&quot;. Related platform destinations:
+            </div>
+          )}
+
+          {displayItems.length > 0 ? (
+            displayItems.map((item, idx) => (
               <div
                 key={item.id}
                 onClick={() => handleSelect(item)}
@@ -151,8 +184,8 @@ export default function GlobalSearchModal({
                   padding: "10px 14px",
                   borderRadius: 10,
                   cursor: "pointer",
-                  background: idx === selectedIndex ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                  border: idx === selectedIndex ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid transparent",
+                  background: idx === selectedIndex ? (isDark ? "rgba(52, 120, 246, 0.15)" : "#EEF4FD") : "transparent",
+                  border: idx === selectedIndex ? `1px solid ${isDark ? "rgba(52, 120, 246, 0.3)" : "#D1E2FB"}` : "1px solid transparent",
                   transition: "all 0.12s ease"
                 }}
                 onMouseEnter={() => setSelectedIndex(idx)}
@@ -160,29 +193,29 @@ export default function GlobalSearchModal({
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ fontSize: 20 }}>{item.icon}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? "#F2F6FC" : "#17191C" }}>
                       {item.title}
                     </div>
-                    <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.5)", marginTop: 2 }}>
+                    <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
                       {item.description}
                     </div>
                   </div>
                 </div>
 
-                <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "rgba(255, 255, 255, 0.06)", color: "rgba(255, 255, 255, 0.6)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: isDark ? "rgba(255, 255, 255, 0.06)" : "#F0EFEA", color: isDark ? "#B6C4D6" : "#667085", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
                   {item.category}
                 </span>
               </div>
             ))
           ) : (
-            <div style={{ padding: "32px 16px", textAlign: "center", color: "rgba(255, 255, 255, 0.5)", fontSize: 13 }}>
-              No matches found for &quot;{query}&quot;. Try &quot;DSA&quot;, &quot;Interview&quot;, or &quot;Hackathon&quot;.
+            <div style={{ padding: "32px 16px", textAlign: "center", color: isDark ? "#7E8FA6" : "#98A2B3", fontSize: 13 }}>
+              No matches found. Try &quot;DSA&quot;, &quot;Interview&quot;, or &quot;Hackathon&quot;.
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div style={{ padding: "8px 16px", borderTop: "1px solid rgba(255, 255, 255, 0.06)", background: "rgba(0, 0, 0, 0.2)", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, color: "rgba(255, 255, 255, 0.4)" }}>
+        <div style={{ padding: "8px 16px", borderTop: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, background: isDark ? "#13243A" : "#FAF9F6", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 10, color: isDark ? "#7E8FA6" : "#98A2B3" }}>
           <span>Navigation Quick Jump</span>
           <span>Press Enter to select</span>
         </div>

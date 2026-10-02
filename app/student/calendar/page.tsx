@@ -7,55 +7,55 @@ import AppNav from "@/components/AppNav";
 
 const EVENT_TYPE_COLORS: Record<string, { bg: string; text: string; border: string; label: string; dot: string }> = {
   deadline: {
-    bg: "rgba(16, 185, 129, 0.12)",
-    text: "#10b981",
-    border: "rgba(16, 185, 129, 0.3)",
+    bg: "#EAF4EE",
+    text: "#2E7D5B",
+    border: "#C8E4D3",
     label: "Application Deadline",
-    dot: "#10b981"
+    dot: "#2E7D5B"
   },
   assessment: {
-    bg: "rgba(245, 158, 11, 0.12)",
-    text: "#f59e0b",
-    border: "rgba(245, 158, 11, 0.3)",
+    bg: "#FEF7ED",
+    text: "#B7791F",
+    border: "#F8D8A7",
     label: "Online Assessment",
-    dot: "#f59e0b"
+    dot: "#B7791F"
   },
   practice_session: {
-    bg: "rgba(168, 85, 247, 0.12)",
-    text: "#a855f7",
-    border: "rgba(168, 85, 247, 0.3)",
+    bg: "#EFF4FE",
+    text: "#356AE6",
+    border: "#D2E0FB",
     label: "Practice Session",
-    dot: "#a855f7"
+    dot: "#356AE6"
   },
   exam: {
-    bg: "rgba(239, 68, 68, 0.12)",
-    text: "#ef4444",
-    border: "rgba(239, 68, 68, 0.3)",
+    bg: "#FDF2F2",
+    text: "#C24141",
+    border: "#F8C8C8",
     label: "Exam",
-    dot: "#ef4444"
+    dot: "#C24141"
   },
   reminder: {
-    bg: "rgba(59, 130, 246, 0.12)",
-    text: "#3b82f6",
-    border: "rgba(59, 130, 246, 0.3)",
+    bg: "#EFF4FE",
+    text: "#162A43",
+    border: "#D2E0FB",
     label: "Reminder",
-    dot: "#3b82f6"
+    dot: "#162A43"
   },
   other: {
-    bg: "rgba(148, 163, 184, 0.12)",
-    text: "#94a3b8",
-    border: "rgba(148, 163, 184, 0.3)",
+    bg: "#F6F5F1",
+    text: "#667085",
+    border: "#E4E1DA",
     label: "Milestone",
-    dot: "#94a3b8"
+    dot: "#667085"
   }
 };
 
-const STAGE_COLORS: Record<string, { bg: string; text: string }> = {
-  Bookmarked: { bg: "rgba(148, 163, 184, 0.15)", text: "#94a3b8" },
-  Applied: { bg: "rgba(59, 130, 246, 0.15)", text: "#60a5fa" },
-  Interviewing: { bg: "rgba(168, 85, 247, 0.15)", text: "#c084fc" },
-  Offer: { bg: "rgba(34, 197, 94, 0.15)", text: "#4ade80" },
-  Rejected: { bg: "rgba(239, 68, 68, 0.15)", text: "#f87171" }
+const STAGE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
+  Bookmarked: { bg: "#F6F5F1", text: "#667085", border: "#E4E1DA" },
+  Applied: { bg: "#EFF4FE", text: "#356AE6", border: "#D2E0FB" },
+  Interviewing: { bg: "#FEF7ED", text: "#B7791F", border: "#F8D8A7" },
+  Offer: { bg: "#EAF4EE", text: "#2E7D5B", border: "#C8E4D3" },
+  Rejected: { bg: "#FDF2F2", text: "#C24141", border: "#F8C8C8" }
 };
 
 export function getGoogleCalendarUrl(event: CalendarEventItem): string {
@@ -354,7 +354,7 @@ export default function StudentCalendarPage() {
   }, [events, viewMode]);
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f1f5f9", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "Inter, sans-serif" }}>
       {/* Toast Notification */}
       {notification && (
         <div
@@ -363,12 +363,12 @@ export default function StudentCalendarPage() {
             top: 24,
             right: 24,
             zIndex: 9999,
-            backgroundColor: "#1e293b",
-            border: "1px solid #38bdf8",
-            color: "#f8fafc",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #356AE6",
+            color: "#17191C",
             padding: "12px 20px",
-            borderRadius: 10,
-            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+            borderRadius: 8,
+            boxShadow: "0 10px 25px rgba(16, 24, 40, 0.12)",
             fontSize: 13,
             fontWeight: 500,
             display: "flex",
@@ -386,8 +386,8 @@ export default function StudentCalendarPage() {
       {/* Top Header */}
       <header
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          backgroundColor: "rgba(15, 23, 42, 0.7)",
+          borderBottom: "1px solid #E4E1DA",
+          backgroundColor: "rgba(255, 255, 255, 0.92)",
           backdropFilter: "blur(12px)",
           position: "sticky",
           top: 0,
@@ -397,22 +397,22 @@ export default function StudentCalendarPage() {
       >
         <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <Link href="/student" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+              <Link href="/student" style={{ color: "#667085", textDecoration: "none" }}>
                 ← Placement Copilot
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-              <span style={{ color: "#38bdf8", fontSize: 13, fontWeight: 600 }}>Season Calendar</span>
+              <span style={{ color: "#E4E1DA" }}>/</span>
+              <span style={{ color: "#356AE6", fontWeight: 600 }}>Season Calendar</span>
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: "4px 0 0", letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, margin: "4px 0 0", color: "#162A43", letterSpacing: "-0.4px" }}>
               🗓️ Placement Season Intelligence Calendar
             </h1>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#94a3b8" }}>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#667085" }}>
               Conflict-aware timeline, smart prep windows, and priority ranking based on fit + urgency.
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
             <NotificationBell candidateId={candidateId} />
 
             <Link
@@ -422,13 +422,14 @@ export default function StudentCalendarPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 14px",
-                borderRadius: 8,
-                backgroundColor: "rgba(30, 41, 59, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                color: "#cbd5e1",
+                borderRadius: 7,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
                 fontSize: 13,
                 textDecoration: "none",
-                fontWeight: 500
+                fontWeight: 500,
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               📊 Retrospective Log
@@ -442,10 +443,10 @@ export default function StudentCalendarPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 14px",
-                borderRadius: 8,
-                backgroundColor: "rgba(56, 189, 248, 0.12)",
-                border: "1px solid rgba(56, 189, 248, 0.3)",
-                color: "#38bdf8",
+                borderRadius: 7,
+                backgroundColor: "#EFF4FE",
+                border: "1px solid #D2E0FB",
+                color: "#356AE6",
                 fontSize: 13,
                 textDecoration: "none",
                 fontWeight: 600
@@ -461,13 +462,14 @@ export default function StudentCalendarPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 14px",
-                borderRadius: 8,
-                backgroundColor: "rgba(66, 133, 244, 0.15)",
-                border: "1px solid rgba(66, 133, 244, 0.4)",
-                color: "#60a5fa",
+                borderRadius: 7,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
                 fontSize: 13,
                 fontWeight: 600,
-                cursor: "pointer"
+                cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               <span>📅 Google Calendar Sync</span>
@@ -480,14 +482,14 @@ export default function StudentCalendarPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 16px",
-                borderRadius: 8,
-                background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+                borderRadius: 7,
+                backgroundColor: "#356AE6",
                 border: "none",
                 color: "#ffffff",
                 fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(99, 102, 241, 0.3)"
+                boxShadow: "0 2px 8px rgba(53, 106, 230, 0.25)"
               }}
             >
               ⚡ Schedule Practice Session
@@ -502,33 +504,34 @@ export default function StudentCalendarPage() {
           {/* In-App Today's Placement Digest */}
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
               padding: 20,
-              boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18 }}>☕</span>
-                <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Today&apos;s Placement Digest</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#162A43" }}>Today&apos;s Placement Digest</h2>
               </div>
               <span
                 style={{
                   fontSize: 11,
                   padding: "3px 8px",
-                  borderRadius: 10,
-                  backgroundColor: "rgba(245, 158, 11, 0.15)",
-                  color: "#fbbf24",
-                  border: "1px solid rgba(245, 158, 11, 0.3)"
+                  borderRadius: 5,
+                  backgroundColor: "#FEF7ED",
+                  color: "#B7791F",
+                  border: "1px solid #F8D8A7",
+                  fontWeight: 600
                 }}
               >
                 In-App Briefing
               </span>
             </div>
 
-            <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 14px", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: "#667085", margin: "0 0 14px", lineHeight: 1.5 }}>
               Proactive snapshot for today & upcoming 48 hours. Non-snoozed events ranked by priority.
             </p>
 
@@ -539,22 +542,22 @@ export default function StudentCalendarPage() {
                     key={evt.id}
                     onClick={() => setSelectedEvent(evt)}
                     style={{
-                      padding: "10px 12px",
-                      borderRadius: 8,
-                      backgroundColor: "rgba(30, 41, 59, 0.6)",
-                      border: `1px solid ${EVENT_TYPE_COLORS[evt.event_type]?.border || "rgba(255,255,255,0.1)"}`,
+                      padding: "10px 14px",
+                      borderRadius: 7,
+                      backgroundColor: "#F6F5F1",
+                      border: `1px solid ${EVENT_TYPE_COLORS[evt.event_type]?.border || "#E4E1DA"}`,
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
-                      transition: "transform 0.15s ease"
+                      transition: "background-color 0.15s ease"
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#f8fafc" }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#17191C" }}>
                         {evt.title}
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
                         📅 {evt.event_date} ({evt.days_until_date === 0 ? "Today" : `${evt.days_until_date}d away`}) • {EVENT_TYPE_COLORS[evt.event_type]?.label}
                       </div>
                     </div>
@@ -564,9 +567,10 @@ export default function StudentCalendarPage() {
                           fontSize: 11,
                           fontWeight: 700,
                           padding: "2px 8px",
-                          borderRadius: 6,
-                          backgroundColor: evt.priority_score >= 80 ? "rgba(239, 68, 68, 0.2)" : "rgba(56, 189, 248, 0.2)",
-                          color: evt.priority_score >= 80 ? "#f87171" : "#38bdf8"
+                          borderRadius: 5,
+                          backgroundColor: evt.priority_score >= 80 ? "#FDF2F2" : "#EFF4FE",
+                          color: evt.priority_score >= 80 ? "#C24141" : "#356AE6",
+                          border: `1px solid ${evt.priority_score >= 80 ? "#F8C8C8" : "#D2E0FB"}`
                         }}
                       >
                         {evt.priority_score} pts
@@ -576,7 +580,7 @@ export default function StudentCalendarPage() {
                 ))}
               </div>
             ) : (
-              <div style={{ padding: "16px", textAlign: "center", backgroundColor: "rgba(30, 41, 59, 0.3)", borderRadius: 8, color: "#94a3b8", fontSize: 13 }}>
+              <div style={{ padding: "16px", textAlign: "center", backgroundColor: "#F6F5F1", borderRadius: 8, color: "#667085", fontSize: 13 }}>
                 🌴 No urgent deadlines or assessments in the next 48 hours. Excellent window for mock interviews!
               </div>
             )}
@@ -586,19 +590,19 @@ export default function StudentCalendarPage() {
               style={{
                 marginTop: 14,
                 padding: "8px 12px",
-                borderRadius: 8,
-                backgroundColor: "rgba(100, 116, 139, 0.1)",
-                border: "1px dashed rgba(148, 163, 184, 0.25)",
+                borderRadius: 7,
+                backgroundColor: "#EFF4FE",
+                border: "1px dashed #D2E0FB",
                 display: "flex",
                 alignItems: "center",
                 gap: 8,
                 fontSize: 11,
-                color: "#94a3b8"
+                color: "#356AE6"
               }}
             >
               <span>ℹ️</span>
               <span>
-                <strong>System Note:</strong> External SMTP email delivery flagged as future gap. Real-time in-app briefing enabled.
+                <strong style={{ color: "#162A43" }}>System Note:</strong> External SMTP email delivery flagged as future gap. Real-time in-app briefing active.
               </span>
             </div>
           </div>
@@ -606,19 +610,19 @@ export default function StudentCalendarPage() {
           {/* Next 7 Days Priority Radar */}
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
               padding: 20,
-              boxShadow: "0 8px 30px rgba(0,0,0,0.3)"
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18 }}>🎯</span>
-                <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Next 7 Days — Priority Radar</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#162A43" }}>Next 7 Days — Priority Radar</h2>
               </div>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              <span style={{ fontSize: 11, color: "#667085" }}>
                 Sorted by Fit × Urgency
               </span>
             </div>
@@ -628,9 +632,9 @@ export default function StudentCalendarPage() {
               <div
                 style={{
                   padding: "12px 14px",
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  borderRadius: 8,
+                  backgroundColor: "#FEF7ED",
+                  border: "1px solid #F8D8A7",
                   marginBottom: 12,
                   display: "flex",
                   justifyContent: "space-between",
@@ -641,7 +645,7 @@ export default function StudentCalendarPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span
                       style={{
-                        backgroundColor: "#ef4444",
+                        backgroundColor: "#C24141",
                         color: "#ffffff",
                         fontSize: 10,
                         fontWeight: 800,
@@ -652,20 +656,20 @@ export default function StudentCalendarPage() {
                     >
                       DO THIS FIRST
                     </span>
-                    <span style={{ fontSize: 11, color: "#fca5a5" }}>
+                    <span style={{ fontSize: 11, color: "#B7791F" }}>
                       Highest fit + impending deadline
                     </span>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", marginTop: 4 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43", marginTop: 4 }}>
                     {topPriorityItem.title}
                   </div>
-                  <div style={{ fontSize: 11, color: "#cbd5e1", marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
                     Due: {topPriorityItem.event_date} ({topPriorityItem.days_until_date} days remaining)
                   </div>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: "#f87171" }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "#C24141" }}>
                     {topPriorityItem.priority_score} pts
                   </span>
                   {topPriorityItem.deep_links.project_suggestions_url && (
@@ -675,8 +679,8 @@ export default function StudentCalendarPage() {
                         fontSize: 11,
                         padding: "4px 8px",
                         borderRadius: 6,
-                        backgroundColor: "#38bdf8",
-                        color: "#0f172a",
+                        backgroundColor: "#356AE6",
+                        color: "#ffffff",
                         fontWeight: 700,
                         textDecoration: "none"
                       }}
@@ -696,9 +700,9 @@ export default function StudentCalendarPage() {
                   onClick={() => setSelectedEvent(evt)}
                   style={{
                     padding: "8px 12px",
-                    borderRadius: 8,
-                    backgroundColor: "rgba(30, 41, 59, 0.4)",
-                    border: "1px solid rgba(255, 255, 255, 0.05)",
+                    borderRadius: 7,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -706,15 +710,15 @@ export default function StudentCalendarPage() {
                   }}
                 >
                   <div style={{ maxWidth: "70%" }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: "#f1f5f9", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: "#17191C", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                       {evt.title}
                     </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                    <div style={{ fontSize: 11, color: "#667085" }}>
                       {evt.event_date} • {evt.days_until_date}d left
                     </div>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6" }}>
                       {evt.priority_score}
                     </span>
                     <button
@@ -726,7 +730,7 @@ export default function StudentCalendarPage() {
                       style={{
                         border: "none",
                         background: "none",
-                        color: "#94a3b8",
+                        color: "#667085",
                         cursor: "pointer",
                         fontSize: 13
                       }}
@@ -738,7 +742,7 @@ export default function StudentCalendarPage() {
               ))}
 
               {next7Days.length === 0 && (
-                <div style={{ textAlign: "center", padding: "16px", color: "#64748b", fontSize: 13 }}>
+                <div style={{ textAlign: "center", padding: "16px", color: "#667085", fontSize: 13 }}>
                   No imminent items in the 7-day window. All caught up!
                 </div>
               )}
@@ -756,9 +760,10 @@ export default function StudentCalendarPage() {
             gap: 16,
             marginBottom: 20,
             padding: "12px 18px",
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            borderRadius: 12,
-            border: "1px solid rgba(255, 255, 255, 0.08)"
+            backgroundColor: "#FFFFFF",
+            borderRadius: 10,
+            border: "1px solid #E4E1DA",
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
           }}
         >
           {/* Month Stepper */}
@@ -766,30 +771,32 @@ export default function StudentCalendarPage() {
             <button
               onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
               style={{
-                backgroundColor: "rgba(30, 41, 59, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#f8fafc",
-                borderRadius: 8,
+                backgroundColor: "#F6F5F1",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
+                borderRadius: 7,
                 padding: "6px 12px",
                 cursor: "pointer",
-                fontSize: 14
+                fontSize: 14,
+                fontWeight: 600
               }}
             >
               ‹
             </button>
-            <div style={{ fontSize: 18, fontWeight: 700, minWidth: 170, textAlign: "center" }}>
+            <div style={{ fontSize: 16, fontWeight: 700, minWidth: 170, textAlign: "center", color: "#162A43" }}>
               {monthName} {year}
             </div>
             <button
               onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
               style={{
-                backgroundColor: "rgba(30, 41, 59, 0.8)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#f8fafc",
-                borderRadius: 8,
+                backgroundColor: "#F6F5F1",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
+                borderRadius: 7,
                 padding: "6px 12px",
                 cursor: "pointer",
-                fontSize: 14
+                fontSize: 14,
+                fontWeight: 600
               }}
             >
               ›
@@ -797,9 +804,9 @@ export default function StudentCalendarPage() {
             <button
               onClick={() => setCurrentDate(new Date(2026, 8, 1))}
               style={{
-                backgroundColor: "rgba(56, 189, 248, 0.1)",
-                border: "1px solid rgba(56, 189, 248, 0.3)",
-                color: "#38bdf8",
+                backgroundColor: "#EFF4FE",
+                border: "1px solid #D2E0FB",
+                color: "#356AE6",
                 borderRadius: 6,
                 padding: "4px 10px",
                 cursor: "pointer",
@@ -812,7 +819,7 @@ export default function StudentCalendarPage() {
           </div>
 
           {/* View Mode Buttons */}
-          <div style={{ display: "flex", gap: 6, backgroundColor: "rgba(30, 41, 59, 0.6)", padding: 4, borderRadius: 8, overflowX: "auto", maxWidth: "100%" }}>
+          <div style={{ display: "flex", gap: 4, backgroundColor: "#F6F5F1", padding: 4, borderRadius: 8, border: "1px solid #E4E1DA", overflowX: "auto", maxWidth: "100%" }}>
             {[
               { id: "month", label: "📅 Month Grid" },
               { id: "weekly_load", label: "📊 Weekly Load" },
@@ -823,8 +830,8 @@ export default function StudentCalendarPage() {
                 key={tab.id}
                 onClick={() => setViewMode(tab.id as any)}
                 style={{
-                  backgroundColor: viewMode === tab.id ? "#38bdf8" : "transparent",
-                  color: viewMode === tab.id ? "#090d16" : "#94a3b8",
+                  backgroundColor: viewMode === tab.id ? "#356AE6" : "transparent",
+                  color: viewMode === tab.id ? "#ffffff" : "#667085",
                   border: "none",
                   borderRadius: 6,
                   padding: "6px 12px",
@@ -841,30 +848,30 @@ export default function StudentCalendarPage() {
         </div>
 
         {/* Legend */}
-        <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 16, fontSize: 12, color: "#94a3b8" }}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap", marginBottom: 16, fontSize: 12, color: "#667085" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#10b981" }}></span>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#2E7D5B" }}></span>
             <span>Application Deadline</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#f59e0b" }}></span>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#B7791F" }}></span>
             <span>Online Assessment</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#a855f7" }}></span>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#356AE6" }}></span>
             <span>Practice Session</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#ef4444" }}></span>
+            <span style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: "#C24141" }}></span>
             <span>Exam</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ display: "inline-block", width: 12, height: 12, border: "1px dashed rgba(56, 189, 248, 0.6)", backgroundColor: "rgba(56, 189, 248, 0.15)", borderRadius: 3 }}></span>
+            <span style={{ display: "inline-block", width: 12, height: 12, border: "1px dashed #356AE6", backgroundColor: "rgba(53, 106, 230, 0.1)", borderRadius: 3 }}></span>
             <span>Prep Window Range</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ fontSize: 13 }}>⚠️</span>
-            <span style={{ color: "#fbbf24" }}>Conflict Detected</span>
+            <span style={{ color: "#B7791F", fontWeight: 600 }}>Conflict Detected</span>
           </div>
         </div>
 
@@ -872,25 +879,25 @@ export default function StudentCalendarPage() {
         {viewMode === "month" && (
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
               overflowX: "auto",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.4)"
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             <div style={{ minWidth: 680 }}>
               {/* Days of Week Header */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", backgroundColor: "rgba(30, 41, 59, 0.7)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", backgroundColor: "#F6F5F1", borderBottom: "1px solid #E4E1DA" }}>
               {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(dow => (
-                <div key={dow} style={{ padding: "12px 8px", textAlign: "center", fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>
+                <div key={dow} style={{ padding: "10px 8px", textAlign: "center", fontSize: 12, fontWeight: 700, color: "#667085" }}>
                   {dow}
                 </div>
               ))}
             </div>
 
             {/* Calendar Cells */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "1px", backgroundColor: "rgba(255, 255, 255, 0.05)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "1px", backgroundColor: "#E4E1DA" }}>
               {calendarDays.map((cell, idx) => {
                 const isSelected = selectedDate === cell.dateStr;
                 const hasPrep = cell.activePrepWindows.length > 0;
@@ -908,17 +915,14 @@ export default function StudentCalendarPage() {
                       minHeight: 115,
                       padding: 8,
                       backgroundColor: isSelected
-                        ? "rgba(56, 189, 248, 0.12)"
+                        ? "#EFF4FE"
                         : cell.isCurrentMonth
                         ? hasPrep
-                          ? "rgba(14, 165, 233, 0.07)" // Lighter shade block for prep window
-                          : "rgba(15, 23, 42, 0.9)"
-                        : "rgba(10, 15, 26, 0.95)",
-                      border: isSelected
-                        ? "1px solid #38bdf8"
-                        : hasPrep
-                        ? "1px dashed rgba(56, 189, 248, 0.3)"
-                        : "1px solid rgba(255, 255, 255, 0.03)",
+                          ? "rgba(53, 106, 230, 0.05)"
+                          : "#FFFFFF"
+                        : "#F6F5F1",
+                      outline: isSelected ? "2px solid #356AE6" : "none",
+                      outlineOffset: -2,
                       display: "flex",
                       flexDirection: "column",
                       cursor: "pointer",
@@ -932,14 +936,14 @@ export default function StudentCalendarPage() {
                         style={{
                           fontSize: 12,
                           fontWeight: 700,
-                          color: cell.isCurrentMonth ? "#f1f5f9" : "#475569",
+                          color: isSelected ? "#FFFFFF" : cell.isCurrentMonth ? "#162A43" : "#98A2B3",
                           borderRadius: "50%",
                           width: 22,
                           height: 22,
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          backgroundColor: isSelected ? "#38bdf8" : "transparent"
+                          backgroundColor: isSelected ? "#356AE6" : "transparent"
                         }}
                       >
                         {cell.dayNumber}
@@ -954,9 +958,9 @@ export default function StudentCalendarPage() {
                             fontWeight: 700,
                             padding: "1px 5px",
                             borderRadius: 4,
-                            backgroundColor: "rgba(245, 158, 11, 0.2)",
-                            color: "#fbbf24",
-                            border: "1px solid rgba(245, 158, 11, 0.4)",
+                            backgroundColor: "#FEF7ED",
+                            color: "#B7791F",
+                            border: "1px solid #F8D8A7",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: 2
@@ -973,9 +977,10 @@ export default function StudentCalendarPage() {
                         style={{
                           fontSize: 9,
                           fontWeight: 600,
-                          color: "#38bdf8",
-                          backgroundColor: "rgba(56, 189, 248, 0.15)",
-                          borderRadius: 3,
+                          color: "#356AE6",
+                          backgroundColor: "#EFF4FE",
+                          border: "1px solid #D2E0FB",
+                          borderRadius: 4,
                           padding: "2px 4px",
                           marginBottom: 4,
                           textOverflow: "ellipsis",
@@ -1034,39 +1039,40 @@ export default function StudentCalendarPage() {
         {viewMode === "weekly_load" && (
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
-              padding: 24
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
+              padding: 24,
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
-            <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px" }}>Weekly Load & Cognitive Fatigue Radar</h3>
-            <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 24px" }}>
+            <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 8px", color: "#162A43" }}>Weekly Load & Cognitive Fatigue Radar</h3>
+            <p style={{ fontSize: 13, color: "#667085", margin: "0 0 24px" }}>
               Visualizes placement season workload across upcoming weeks so you can anticipate heavy assessment sprints.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               {weeklyLoad.map((w, idx) => {
                 const barPercent = Math.min(100, Math.max(10, w.eventsCount * 22));
-                const barColor = w.intensity === "High" ? "#f87171" : w.intensity === "Moderate" ? "#fbbf24" : "#38bdf8";
+                const barColor = w.intensity === "High" ? "#C24141" : w.intensity === "Moderate" ? "#B7791F" : "#356AE6";
 
                 return (
                   <div
                     key={idx}
                     style={{
                       padding: "16px 20px",
-                      borderRadius: 10,
-                      backgroundColor: "rgba(30, 41, 59, 0.5)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)"
+                      borderRadius: 8,
+                      backgroundColor: "#F6F5F1",
+                      border: "1px solid #E4E1DA"
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                       <div>
-                        <span style={{ fontSize: 15, fontWeight: 700, color: "#ffffff" }}>{w.label}</span>
-                        <span style={{ fontSize: 12, color: "#94a3b8", marginLeft: 10 }}>({w.range})</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>{w.label}</span>
+                        <span style={{ fontSize: 12, color: "#667085", marginLeft: 10 }}>({w.range})</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: 12, color: "#cbd5e1" }}>
+                        <span style={{ fontSize: 12, color: "#667085" }}>
                           {w.eventsCount} events ({w.deadlinesCount} deadlines, {w.assessmentsCount} tests, {w.practiceCount} practice)
                         </span>
                         <span
@@ -1074,9 +1080,10 @@ export default function StudentCalendarPage() {
                             fontSize: 11,
                             fontWeight: 700,
                             padding: "2px 8px",
-                            borderRadius: 6,
-                            backgroundColor: w.intensity === "High" ? "rgba(239, 68, 68, 0.2)" : w.intensity === "Moderate" ? "rgba(245, 158, 11, 0.2)" : "rgba(56, 189, 248, 0.2)",
-                            color: barColor
+                            borderRadius: 5,
+                            backgroundColor: w.intensity === "High" ? "#FDF2F2" : w.intensity === "Moderate" ? "#FEF7ED" : "#EFF4FE",
+                            color: barColor,
+                            border: `1px solid ${w.intensity === "High" ? "#F8C8C8" : w.intensity === "Moderate" ? "#F8D8A7" : "#D2E0FB"}`
                           }}
                         >
                           {w.intensity} Load
@@ -1085,13 +1092,13 @@ export default function StudentCalendarPage() {
                     </div>
 
                     {/* Progress Bar */}
-                    <div style={{ width: "100%", height: 10, backgroundColor: "rgba(15, 23, 42, 0.8)", borderRadius: 5, overflow: "hidden" }}>
+                    <div style={{ width: "100%", height: 8, backgroundColor: "#E4E1DA", borderRadius: 4, overflow: "hidden" }}>
                       <div
                         style={{
                           width: `${barPercent}%`,
                           height: "100%",
                           backgroundColor: barColor,
-                          borderRadius: 5,
+                          borderRadius: 4,
                           transition: "width 0.4s ease"
                         }}
                       ></div>
@@ -1107,17 +1114,18 @@ export default function StudentCalendarPage() {
         {(viewMode === "priority" || viewMode === "chronological") && (
           <div
             style={{
-              backgroundColor: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
-              padding: 24
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
+              padding: 24,
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#162A43" }}>
                 {viewMode === "priority" ? "🔥 Placement Events Ranked by Priority Score" : "⏳ Chronological Placement Season Timeline"}
               </h3>
-              <span style={{ fontSize: 12, color: "#94a3b8" }}>
+              <span style={{ fontSize: 12, color: "#667085" }}>
                 Total Active: {sortedEvents.length} events
               </span>
             </div>
@@ -1133,13 +1141,14 @@ export default function StudentCalendarPage() {
                     onClick={() => setSelectedEvent(evt)}
                     style={{
                       padding: "16px 20px",
-                      borderRadius: 10,
-                      backgroundColor: "rgba(30, 41, 59, 0.5)",
+                      borderRadius: 8,
+                      backgroundColor: "#FFFFFF",
                       border: `1px solid ${styleConfig.border}`,
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       cursor: "pointer",
+                      boxShadow: "0 1px 2px rgba(16, 24, 40, 0.03)",
                       transition: "transform 0.15s ease"
                     }}
                   >
@@ -1150,9 +1159,10 @@ export default function StudentCalendarPage() {
                             fontSize: 11,
                             fontWeight: 700,
                             padding: "2px 8px",
-                            borderRadius: 6,
+                            borderRadius: 5,
                             backgroundColor: styleConfig.bg,
-                            color: styleConfig.text
+                            color: styleConfig.text,
+                            border: `1px solid ${styleConfig.border}`
                           }}
                         >
                           {styleConfig.label}
@@ -1164,9 +1174,10 @@ export default function StudentCalendarPage() {
                               fontSize: 11,
                               fontWeight: 600,
                               padding: "2px 8px",
-                              borderRadius: 6,
+                              borderRadius: 5,
                               backgroundColor: stageConfig.bg,
-                              color: stageConfig.text
+                              color: stageConfig.text,
+                              border: `1px solid ${stageConfig.border}`
                             }}
                           >
                             Live Status: {evt.application_status}
@@ -1174,32 +1185,32 @@ export default function StudentCalendarPage() {
                         )}
 
                         {evt.conflict_flag && (
-                          <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: 600 }}>
+                          <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 600 }}>
                             ⚠️ Date Conflict ({evt.conflict_count} on {evt.event_date})
                           </span>
                         )}
 
                         {evt.is_snoozed && (
-                          <span style={{ fontSize: 11, color: "#94a3b8", fontStyle: "italic" }}>
+                          <span style={{ fontSize: 11, color: "#98A2B3", fontStyle: "italic" }}>
                             (Snoozed until {evt.snoozed_until})
                           </span>
                         )}
                       </div>
 
-                      <div style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", marginBottom: 2 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: "#162A43", marginBottom: 2 }}>
                         {evt.title}
                       </div>
-                      <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                      <div style={{ fontSize: 12, color: "#667085" }}>
                         📅 {evt.event_date} • {evt.days_until_date} days remaining {evt.prep_window && `• ⚡ Prep sprint active (${evt.prep_window.days}d)`}
                       </div>
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                       <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: evt.priority_score >= 80 ? "#f87171" : "#38bdf8" }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: evt.priority_score >= 80 ? "#C24141" : "#356AE6" }}>
                           {evt.priority_score} pts
                         </div>
-                        <div style={{ fontSize: 10, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 10, color: "#667085" }}>
                           {evt.priority_label} Priority
                         </div>
                       </div>
@@ -1211,12 +1222,13 @@ export default function StudentCalendarPage() {
                             handleSnooze(evt.id, 3);
                           }}
                           style={{
-                            backgroundColor: "rgba(100, 116, 139, 0.2)",
-                            border: "1px solid rgba(255, 255, 255, 0.1)",
-                            color: "#cbd5e1",
+                            backgroundColor: "#F6F5F1",
+                            border: "1px solid #E4E1DA",
+                            color: "#162A43",
                             padding: "4px 8px",
                             borderRadius: 6,
                             fontSize: 11,
+                            fontWeight: 500,
                             cursor: "pointer"
                           }}
                         >
@@ -1228,12 +1240,13 @@ export default function StudentCalendarPage() {
                             handleDismiss(evt.id);
                           }}
                           style={{
-                            backgroundColor: "rgba(239, 68, 68, 0.15)",
-                            border: "1px solid rgba(239, 68, 68, 0.3)",
-                            color: "#f87171",
+                            backgroundColor: "#FDF2F2",
+                            border: "1px solid #F8C8C8",
+                            color: "#C24141",
                             padding: "4px 8px",
                             borderRadius: 6,
                             fontSize: 11,
+                            fontWeight: 500,
                             cursor: "pointer"
                           }}
                         >
@@ -1257,12 +1270,11 @@ export default function StudentCalendarPage() {
               right: 24,
               width: 440,
               maxWidth: "calc(100vw - 48px)",
-              backgroundColor: "rgba(15, 23, 42, 0.95)",
-              backdropFilter: "blur(20px)",
-              border: "1px solid rgba(56, 189, 248, 0.4)",
-              borderRadius: 16,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
               padding: 24,
-              boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+              boxShadow: "0 12px 36px rgba(16, 24, 40, 0.16)",
               zIndex: 100
             }}
           >
@@ -1272,26 +1284,27 @@ export default function StudentCalendarPage() {
                   fontSize: 11,
                   fontWeight: 700,
                   padding: "3px 8px",
-                  borderRadius: 6,
+                  borderRadius: 5,
                   backgroundColor: EVENT_TYPE_COLORS[selectedEvent.event_type]?.bg,
-                  color: EVENT_TYPE_COLORS[selectedEvent.event_type]?.text
+                  color: EVENT_TYPE_COLORS[selectedEvent.event_type]?.text,
+                  border: `1px solid ${EVENT_TYPE_COLORS[selectedEvent.event_type]?.border}`
                 }}
               >
                 {EVENT_TYPE_COLORS[selectedEvent.event_type]?.label}
               </span>
               <button
                 onClick={() => setSelectedEvent(null)}
-                style={{ background: "none", border: "none", color: "#94a3b8", fontSize: 16, cursor: "pointer" }}
+                style={{ background: "none", border: "none", color: "#667085", fontSize: 16, cursor: "pointer" }}
               >
                 ✕
               </button>
             </div>
 
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px", color: "#ffffff" }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px", color: "#162A43" }}>
               {selectedEvent.title}
             </h3>
 
-            <div style={{ fontSize: 12, color: "#38bdf8", marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: "#356AE6", marginBottom: 12, fontWeight: 600 }}>
               📅 {selectedEvent.event_date} ({selectedEvent.days_until_date >= 0 ? `${selectedEvent.days_until_date} days remaining` : "Past due"})
             </div>
 
@@ -1299,13 +1312,13 @@ export default function StudentCalendarPage() {
             {selectedEvent.conflict_flag && (
               <div
                 style={{
-                  backgroundColor: "rgba(245, 158, 11, 0.15)",
-                  border: "1px solid rgba(245, 158, 11, 0.4)",
-                  borderRadius: 8,
+                  backgroundColor: "#FEF7ED",
+                  border: "1px solid #F8D8A7",
+                  borderRadius: 7,
                   padding: "8px 12px",
                   marginBottom: 12,
                   fontSize: 12,
-                  color: "#fbbf24",
+                  color: "#B7791F",
                   display: "flex",
                   alignItems: "center",
                   gap: 8
@@ -1322,54 +1335,56 @@ export default function StudentCalendarPage() {
             {selectedEvent.prep_window && (
               <div
                 style={{
-                  backgroundColor: "rgba(56, 189, 248, 0.1)",
-                  border: "1px dashed rgba(56, 189, 248, 0.4)",
-                  borderRadius: 8,
+                  backgroundColor: "#EFF4FE",
+                  border: "1px dashed #356AE6",
+                  borderRadius: 7,
                   padding: "8px 12px",
                   marginBottom: 12,
                   fontSize: 12,
-                  color: "#38bdf8"
+                  color: "#162A43"
                 }}
               >
-                ⚡ <strong>Suggested Prep Window:</strong> {selectedEvent.prep_window.start_date} to {selectedEvent.prep_window.end_date} ({selectedEvent.prep_window.days} days). {selectedEvent.prep_window.note}
+                ⚡ <strong style={{ color: "#356AE6" }}>Suggested Prep Window:</strong> {selectedEvent.prep_window.start_date} to {selectedEvent.prep_window.end_date} ({selectedEvent.prep_window.days} days). {selectedEvent.prep_window.note}
               </div>
             )}
 
             {/* Live Application Status */}
             {selectedEvent.application_status && (
-              <div style={{ marginBottom: 12, fontSize: 12, color: "#cbd5e1" }}>
+              <div style={{ marginBottom: 12, fontSize: 12, color: "#17191C" }}>
                 <strong>Application Status: </strong>
                 <span
                   style={{
                     padding: "2px 8px",
-                    borderRadius: 6,
+                    borderRadius: 5,
                     backgroundColor: STAGE_COLORS[selectedEvent.application_status]?.bg,
                     color: STAGE_COLORS[selectedEvent.application_status]?.text,
+                    border: `1px solid ${STAGE_COLORS[selectedEvent.application_status]?.border}`,
                     fontWeight: 600
                   }}
                 >
                   {selectedEvent.application_status}
                 </span>
-                <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 6 }}>(live from Application Tracker)</span>
+                <span style={{ fontSize: 11, color: "#667085", marginLeft: 6 }}>(live from Application Tracker)</span>
               </div>
             )}
 
             {/* Priority Score Breakdown */}
             <div
               style={{
-                backgroundColor: "rgba(30, 41, 59, 0.6)",
-                borderRadius: 8,
+                backgroundColor: "#F6F5F1",
+                borderRadius: 7,
+                border: "1px solid #E4E1DA",
                 padding: "10px 12px",
                 marginBottom: 16,
                 fontSize: 12,
-                color: "#cbd5e1"
+                color: "#162A43"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                 <strong>Priority Score:</strong>
-                <span style={{ color: "#38bdf8", fontWeight: 700 }}>{selectedEvent.priority_score} / 100</span>
+                <span style={{ color: "#356AE6", fontWeight: 700 }}>{selectedEvent.priority_score} / 100</span>
               </div>
-              <p style={{ margin: 0, fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
+              <p style={{ margin: 0, fontSize: 11, color: "#667085", lineHeight: 1.4 }}>
                 {selectedEvent.priority_breakdown.explanation}
               </p>
             </div>
@@ -1387,14 +1402,14 @@ export default function StudentCalendarPage() {
                   justifyContent: "center",
                   gap: 8,
                   padding: "10px 14px",
-                  borderRadius: 8,
-                  background: "linear-gradient(135deg, rgba(66, 133, 244, 0.25) 0%, rgba(52, 168, 83, 0.2) 50%, rgba(251, 188, 5, 0.2) 100%)",
-                  border: "1px solid rgba(66, 133, 244, 0.6)",
-                  color: "#ffffff",
+                  borderRadius: 7,
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #356AE6",
+                  color: "#356AE6",
                   fontSize: 12,
                   fontWeight: 700,
                   textDecoration: "none",
-                  boxShadow: "0 4px 14px rgba(66, 133, 244, 0.2)"
+                  boxShadow: "0 1px 2px rgba(53, 106, 230, 0.08)"
                 }}
               >
                 <span style={{ fontSize: 14 }}>📅</span>
@@ -1409,10 +1424,10 @@ export default function StudentCalendarPage() {
                     display: "block",
                     textAlign: "center",
                     padding: "8px",
-                    borderRadius: 8,
-                    backgroundColor: "rgba(56, 189, 248, 0.15)",
-                    border: "1px solid rgba(56, 189, 248, 0.4)",
-                    color: "#38bdf8",
+                    borderRadius: 7,
+                    backgroundColor: "#EFF4FE",
+                    border: "1px solid #D2E0FB",
+                    color: "#356AE6",
                     fontSize: 12,
                     fontWeight: 600,
                     textDecoration: "none"
@@ -1429,10 +1444,10 @@ export default function StudentCalendarPage() {
                     display: "block",
                     textAlign: "center",
                     padding: "8px",
-                    borderRadius: 8,
-                    backgroundColor: "rgba(99, 102, 241, 0.15)",
-                    border: "1px solid rgba(99, 102, 241, 0.4)",
-                    color: "#818cf8",
+                    borderRadius: 7,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    color: "#162A43",
                     fontSize: 12,
                     fontWeight: 600,
                     textDecoration: "none"
@@ -1449,10 +1464,10 @@ export default function StudentCalendarPage() {
                     display: "block",
                     textAlign: "center",
                     padding: "8px",
-                    borderRadius: 8,
-                    backgroundColor: "rgba(168, 85, 247, 0.15)",
-                    border: "1px solid rgba(168, 85, 247, 0.4)",
-                    color: "#c084fc",
+                    borderRadius: 7,
+                    backgroundColor: "#EFF4FE",
+                    border: "1px solid #D2E0FB",
+                    color: "#356AE6",
                     fontSize: 12,
                     fontWeight: 600,
                     textDecoration: "none"
@@ -1469,10 +1484,10 @@ export default function StudentCalendarPage() {
                     display: "block",
                     textAlign: "center",
                     padding: "8px",
-                    borderRadius: 8,
-                    backgroundColor: "rgba(236, 72, 153, 0.15)",
-                    border: "1px solid rgba(236, 72, 153, 0.4)",
-                    color: "#f472b6",
+                    borderRadius: 7,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    color: "#162A43",
                     fontSize: 12,
                     fontWeight: 600,
                     textDecoration: "none"
@@ -1484,17 +1499,18 @@ export default function StudentCalendarPage() {
             </div>
 
             {/* Snooze and Dismiss Controls */}
-            <div style={{ display: "flex", gap: 8, borderTop: "1px solid rgba(255, 255, 255, 0.08)", paddingTop: 12 }}>
+            <div style={{ display: "flex", gap: 8, borderTop: "1px solid #E4E1DA", paddingTop: 12 }}>
               <button
                 onClick={() => handleSnooze(selectedEvent.id, 3)}
                 style={{
                   flex: 1,
                   padding: "8px",
                   borderRadius: 6,
-                  backgroundColor: "rgba(100, 116, 139, 0.2)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                  color: "#cbd5e1",
+                  backgroundColor: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
+                  color: "#162A43",
                   fontSize: 12,
+                  fontWeight: 500,
                   cursor: "pointer"
                 }}
               >
@@ -1507,10 +1523,11 @@ export default function StudentCalendarPage() {
                   flex: 1,
                   padding: "8px",
                   borderRadius: 6,
-                  backgroundColor: "rgba(239, 68, 68, 0.15)",
-                  border: "1px solid rgba(239, 68, 68, 0.3)",
-                  color: "#f87171",
+                  backgroundColor: "#FDF2F2",
+                  border: "1px solid #F8C8C8",
+                  color: "#C24141",
                   fontSize: 12,
+                  fontWeight: 500,
                   cursor: "pointer"
                 }}
               >
@@ -1529,8 +1546,8 @@ export default function StudentCalendarPage() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.7)",
-              backdropFilter: "blur(8px)",
+              backgroundColor: "rgba(22, 42, 67, 0.45)",
+              backdropFilter: "blur(6px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1541,18 +1558,18 @@ export default function StudentCalendarPage() {
             <div
               style={{
                 width: 480,
-                backgroundColor: "#0f172a",
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                borderRadius: 16,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
                 padding: 24,
-                boxShadow: "0 25px 60px rgba(0,0,0,0.8)"
+                boxShadow: "0 20px 48px rgba(16, 24, 40, 0.16)"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>⚡ Schedule Placement Practice Session</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#162A43" }}>⚡ Schedule Placement Practice Session</h3>
                 <button
                   onClick={() => setShowPracticeModal(false)}
-                  style={{ background: "none", border: "none", color: "#94a3b8", fontSize: 16, cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "#667085", fontSize: 16, cursor: "pointer" }}
                 >
                   ✕
                 </button>
@@ -1560,7 +1577,7 @@ export default function StudentCalendarPage() {
 
               <form onSubmit={handleCreatePracticeSession}>
                 <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#162A43", marginBottom: 6 }}>
                     Session Title
                   </label>
                   <input
@@ -1572,18 +1589,19 @@ export default function StudentCalendarPage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      borderRadius: 8,
-                      backgroundColor: "rgba(30, 41, 59, 0.8)",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
-                      color: "#ffffff",
-                      fontSize: 13
+                      borderRadius: 7,
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
+                      fontSize: 13,
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#162A43", marginBottom: 6 }}>
                       Date
                     </label>
                     <input
@@ -1594,17 +1612,18 @@ export default function StudentCalendarPage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        borderRadius: 8,
-                        backgroundColor: "rgba(30, 41, 59, 0.8)",
-                        border: "1px solid rgba(255, 255, 255, 0.15)",
-                        color: "#ffffff",
-                        fontSize: 13
+                        borderRadius: 7,
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
+                        fontSize: 13,
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#162A43", marginBottom: 6 }}>
                       Event Type
                     </label>
                     <select
@@ -1613,11 +1632,12 @@ export default function StudentCalendarPage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        borderRadius: 8,
-                        backgroundColor: "rgba(30, 41, 59, 0.8)",
-                        border: "1px solid rgba(255, 255, 255, 0.15)",
-                        color: "#ffffff",
-                        fontSize: 13
+                        borderRadius: 7,
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
+                        fontSize: 13,
+                        boxSizing: "border-box"
                       }}
                     >
                       <option value="practice_session">Practice Session</option>
@@ -1629,7 +1649,7 @@ export default function StudentCalendarPage() {
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#162A43", marginBottom: 6 }}>
                     Direct Tool Integration (Jump straight into session)
                   </label>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
@@ -1645,9 +1665,9 @@ export default function StudentCalendarPage() {
                         style={{
                           padding: "8px 10px",
                           borderRadius: 6,
-                          border: newSessionTarget === target.id ? "1px solid #38bdf8" : "1px solid rgba(255, 255, 255, 0.1)",
-                          backgroundColor: newSessionTarget === target.id ? "rgba(56, 189, 248, 0.15)" : "rgba(30, 41, 59, 0.5)",
-                          color: newSessionTarget === target.id ? "#38bdf8" : "#94a3b8",
+                          border: newSessionTarget === target.id ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                          backgroundColor: newSessionTarget === target.id ? "#EFF4FE" : "#F6F5F1",
+                          color: newSessionTarget === target.id ? "#356AE6" : "#667085",
                           fontSize: 11,
                           fontWeight: 600,
                           cursor: "pointer"
@@ -1660,7 +1680,7 @@ export default function StudentCalendarPage() {
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#cbd5e1", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#162A43", marginBottom: 6 }}>
                     Notes & Focus Areas
                   </label>
                   <textarea
@@ -1671,12 +1691,13 @@ export default function StudentCalendarPage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      borderRadius: 8,
-                      backgroundColor: "rgba(30, 41, 59, 0.8)",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
-                      color: "#ffffff",
+                      borderRadius: 7,
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
                       fontSize: 13,
-                      resize: "vertical"
+                      resize: "vertical",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
@@ -1687,10 +1708,10 @@ export default function StudentCalendarPage() {
                     onClick={() => setShowPracticeModal(false)}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
-                      backgroundColor: "transparent",
-                      color: "#cbd5e1",
+                      borderRadius: 7,
+                      border: "1px solid #E4E1DA",
+                      backgroundColor: "#FFFFFF",
+                      color: "#667085",
                       fontSize: 13,
                       cursor: "pointer"
                     }}
@@ -1702,9 +1723,9 @@ export default function StudentCalendarPage() {
                     disabled={submittingModal}
                     style={{
                       padding: "8px 20px",
-                      borderRadius: 8,
+                      borderRadius: 7,
                       border: "none",
-                      background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+                      backgroundColor: "#356AE6",
                       color: "#ffffff",
                       fontSize: 13,
                       fontWeight: 600,
@@ -1728,8 +1749,8 @@ export default function StudentCalendarPage() {
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundColor: "rgba(0, 0, 0, 0.75)",
-              backdropFilter: "blur(10px)",
+              backgroundColor: "rgba(22, 42, 67, 0.45)",
+              backdropFilter: "blur(6px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1740,29 +1761,29 @@ export default function StudentCalendarPage() {
             <div
               style={{
                 width: 520,
-                backgroundColor: "#0f172a",
-                border: "1px solid rgba(66, 133, 244, 0.4)",
-                borderRadius: 16,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
                 padding: 26,
-                boxShadow: "0 25px 60px rgba(0,0,0,0.85)"
+                boxShadow: "0 20px 48px rgba(16, 24, 40, 0.16)"
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 22 }}>📅</span>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#ffffff" }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#162A43" }}>
                     Google Calendar Integration
                   </h3>
                 </div>
                 <button
                   onClick={() => setShowGoogleSyncModal(false)}
-                  style={{ background: "none", border: "none", color: "#94a3b8", fontSize: 18, cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "#667085", fontSize: 18, cursor: "pointer" }}
                 >
                   ✕
                 </button>
               </div>
 
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: "0 0 20px", lineHeight: 1.5 }}>
+              <p style={{ fontSize: 13, color: "#667085", margin: "0 0 20px", lineHeight: 1.5 }}>
                 Sync all your placement deadlines, online assessments, and practice sessions directly with your Google Calendar on web and mobile devices.
               </p>
 
@@ -1770,17 +1791,17 @@ export default function StudentCalendarPage() {
               <div
                 style={{
                   padding: "16px",
-                  borderRadius: 10,
-                  backgroundColor: "rgba(30, 41, 59, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 8,
+                  backgroundColor: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   marginBottom: 14
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#60a5fa" }}>Method 1: 1-Click Event Sync</span>
-                  <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, backgroundColor: "rgba(59, 130, 246, 0.2)", color: "#93c5fd" }}>Easiest</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#356AE6" }}>Method 1: 1-Click Event Sync</span>
+                  <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, backgroundColor: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB" }}>Easiest</span>
                 </div>
-                <p style={{ fontSize: 12, color: "#cbd5e1", margin: 0, lineHeight: 1.4 }}>
+                <p style={{ fontSize: 12, color: "#162A43", margin: 0, lineHeight: 1.4 }}>
                   Click on any event on your Month Grid or Next 7 Days Radar, then click <strong>&quot;Add to Google Calendar (1-Click)&quot;</strong> in the inspector drawer. It opens Google Calendar with all dates, prep notes, and links pre-filled.
                 </p>
               </div>
@@ -1789,16 +1810,16 @@ export default function StudentCalendarPage() {
               <div
                 style={{
                   padding: "16px",
-                  borderRadius: 10,
-                  backgroundColor: "rgba(30, 41, 59, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 8,
+                  backgroundColor: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   marginBottom: 20
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "#34d399" }}>Method 2: Full Season Calendar Sync (.ICS)</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "#2E7D5B" }}>Method 2: Full Season Calendar Sync (.ICS)</span>
                 </div>
-                <ol style={{ fontSize: 12, color: "#cbd5e1", margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
+                <ol style={{ fontSize: 12, color: "#162A43", margin: 0, paddingLeft: 18, lineHeight: 1.6 }}>
                   <li>Download your personalized season calendar file:</li>
                   <div style={{ margin: "8px 0" }}>
                     <a
@@ -1810,8 +1831,8 @@ export default function StudentCalendarPage() {
                         gap: 6,
                         padding: "6px 12px",
                         borderRadius: 6,
-                        backgroundColor: "#38bdf8",
-                        color: "#0f172a",
+                        backgroundColor: "#356AE6",
+                        color: "#ffffff",
                         fontSize: 12,
                         fontWeight: 700,
                         textDecoration: "none"
@@ -1832,7 +1853,7 @@ export default function StudentCalendarPage() {
                   rel="noopener noreferrer"
                   style={{
                     fontSize: 12,
-                    color: "#60a5fa",
+                    color: "#356AE6",
                     textDecoration: "none",
                     fontWeight: 600
                   }}
@@ -1844,10 +1865,10 @@ export default function StudentCalendarPage() {
                   onClick={() => setShowGoogleSyncModal(false)}
                   style={{
                     padding: "8px 18px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "rgba(255, 255, 255, 0.1)",
-                    color: "#ffffff",
+                    borderRadius: 7,
+                    border: "1px solid #E4E1DA",
+                    backgroundColor: "#FFFFFF",
+                    color: "#162A43",
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer"

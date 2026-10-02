@@ -1,8 +1,23 @@
 /**
  * COGNALYZE RESULT ENGINE — MASTER PIPELINE ORCHESTRATOR
- * Executes the complete pipeline:
- * JD Ingestion -> Resume Ingestion -> Normalization -> Hybrid Matching ->
- * Deterministic Scoring -> Derivation Engine -> Truthful Rewriter -> Validation Layer
+ * Executes the complete evidence-first verification pipeline:
+ * 
+ * 1. Extract JD & Canonical Requirements
+ * 2. Parse Resume (Document Truth, exact provenance, bullet boundaries)
+ * 3. Extract Candidate Claims -> Claim Ledger
+ * 4. Discover External Sources -> Source Ledger
+ * 5. Inspect External Sources (GitHub, LinkedIn, LeetCode, Deployment)
+ * 6. Cross-Check Sources & Contradiction Detection
+ * 7. Build Evidence Ledger
+ * 8. Map Requirements to Evidence (enforcing non-equivalence rules)
+ * 9. Calculate Deterministic Score
+ * 10. Derive Strengths (strictly from verified evidence)
+ * 11. Derive Gaps (evidence-aware: absence of evidence != evidence of absence)
+ * 12. Derive Roadmap & Evidence-Generating Milestones
+ * 13. Derive Interview Defensibility Probes
+ * 14. Synthesize Final Verdict from Evaluation Ledger
+ * 15. Generate Truthful Rewritten Resume
+ * 16. Enforce Claim Validation Gate & Quote Validation Gate
  */
 
 import { CanonicalAnalysisObject } from './types';
@@ -21,6 +36,14 @@ import {
 } from './derivation-engine';
 import { rewriteFullResume } from './resume-rewriter';
 import { validateCanonicalAnalysis } from './validation-layer';
+import {
+  crossCheckSources,
+  inspectGithubRepository,
+  RepoInspectionResult,
+  LinkedInInspectionResult,
+  LeetCodeInspectionResult,
+  DeploymentInspectionResult,
+} from '@/lib/evidence/source-verifier';
 
 export * from './types';
 export * from './ontology';
@@ -32,13 +55,24 @@ export * from './derivation-engine';
 export * from './resume-rewriter';
 export * from './validation-layer';
 
+export interface ExternalInspectionOverrides {
+  githubMock?: {
+    accessible: boolean;
+    readmeText?: string;
+    files?: Record<string, string>;
+  };
+  linkedinMock?: LinkedInInspectionResult;
+  leetcodeMock?: LeetCodeInspectionResult;
+  deploymentMock?: DeploymentInspectionResult;
+}
+
 /**
  * Runs the complete evidence-grounded result engine on the input JD and Resume.
  * Guaranteed:
+ * - NO EVIDENCE = NO CLAIM
  * - Deterministic scoring math
  * - Zero ungrounded metric fabrication
- * - Single source of truth canonical object
- * - Never returns 0% upon pipeline error
+ * - Single source of truth canonical object with Evidence Ledger and Audit Trail
  */
 export async function runCanonicalResultEngine(
   resumeText: string,
@@ -47,6 +81,7 @@ export async function runCanonicalResultEngine(
     githubUsername?: string;
     targetRole?: string;
     experienceLevel?: string;
+    overrides?: ExternalInspectionOverrides;
   }
 ): Promise<CanonicalAnalysisObject> {
   const startTime = Date.now();
@@ -60,28 +95,69 @@ export async function runCanonicalResultEngine(
   // 1. Ingest JD & Extract Canonical Requirements
   const jd = parseJobDescription(cleanJd);
 
-  // 2. Ingest Resume & Extract Source-Located Evidence Inventory
+  // 2. Ingest Resume & Extract Source-Located Evidence Inventory + Ledger
   const resume = parseResume(cleanResume);
+  const ledger = resume.ledger;
 
-  // 3. Build Evidence Graph & Execute Hybrid Matching
-  const matches = matchRequirementsToEvidence(jd.requirements, resume.evidenceItems);
+  // 3. Discover & Inspect External Sources (Phases 3, 4, 5, 6, 7, 8)
+  const discoveredSources = ledger.getAllSources();
+  const ghSource = discoveredSources.find((s) => s.type === 'github');
+  const liSource = discoveredSources.find((s) => s.type === 'linkedin');
+  const lcSource = discoveredSources.find((s) => s.type === 'leetcode');
+  const depSource = discoveredSources.find((s) => s.type === 'deployment');
 
-  // 4. Calculate Deterministic Evidence Score
+  let ghInspection: RepoInspectionResult | undefined;
+  let liInspection: LinkedInInspectionResult | undefined = candidateProfile?.overrides?.linkedinMock;
+  let lcInspection: LeetCodeInspectionResult | undefined = candidateProfile?.overrides?.leetcodeMock;
+  let depInspection: DeploymentInspectionResult | undefined = candidateProfile?.overrides?.deploymentMock;
+
+  // Extract all claimed technologies to independently audit
+  const claimedTech = Array.from(new Set(resume.evidenceItems.flatMap((e) => e.technologies)));
+
+  if (ghSource || candidateProfile?.githubUsername || candidateProfile?.overrides?.githubMock) {
+    const ghTarget = ghSource?.url || candidateProfile?.githubUsername || 'candidate-repo';
+    ghInspection = await inspectGithubRepository(
+      ghTarget,
+      claimedTech,
+      candidateProfile?.overrides?.githubMock
+    );
+
+    // Update discovered source status
+    if (ghSource) {
+      ghSource.verification_status = ghInspection.accessible ? 'VERIFIED' : 'INACCESSIBLE';
+      ghSource.checks_performed = ghInspection.checks;
+    }
+  }
+
+  // Cross-check sources & detect contradictions (Phases 9 & 10)
+  crossCheckSources({
+    ledger,
+    resumeText: cleanResume,
+    githubInspection: ghInspection,
+    linkedinInspection: liInspection,
+    leetcodeInspection: lcInspection,
+    deploymentInspection: depInspection,
+  });
+
+  // 4. Build Evidence Graph & Execute Matching with Non-Equivalence Rules
+  const matches = matchRequirementsToEvidence(jd.requirements, resume.evidenceItems, ledger);
+
+  // 5. Calculate Deterministic Evidence Score (Phase 20)
   const score = calculateDeterministicScore(jd.requirements, matches);
 
-  // 5. Derive Secondary Intelligence (strictly from canonical matches)
+  // 6. Derive Secondary Intelligence (strictly from verified matches and ledger)
   const strengths = deriveStrengths(matches, jd.requirements, resume.evidenceItems);
   const gaps = deriveGaps(matches, jd.requirements);
   const experienceAnalysis = deriveExperienceAnalysis(resume, resume.evidenceItems);
   const projectAnalysis = deriveProjectQuality(resume, resume.evidenceItems, jd);
   const roadmap = deriveRoadmap(gaps, matches);
-  const interviewFocus = deriveInterviewFocus(matches, resume.evidenceItems);
+  const interviewFocus = deriveInterviewFocus(matches, resume.evidenceItems, ledger);
   const finalVerdict = deriveFinalVerdict(matches, resume, jd);
 
-  // 6. Generate Truthful Rewritten Resume
+  // 7. Generate Truthful Rewritten Resume (zero fabrication)
   const resumeRewrite = rewriteFullResume(resume, jd, jd.requirements, cleanResume);
 
-  // 7. Execute Validation Layer (cross-section consistency, zero fabrication, score consistency)
+  // 8. Execute Validation Layer (15-Check Cross-Section Audit & Certification)
   const validation = validateCanonicalAnalysis({
     requirements: jd.requirements,
     evidenceItems: resume.evidenceItems,
@@ -91,9 +167,13 @@ export async function runCanonicalResultEngine(
     gaps,
     resumeRewrite,
     originalResumeText: cleanResume,
+    ledger,
+    roadmap,
+    interviewFocus,
+    finalVerdict,
   });
 
-  // 8. Market Position (honest benchmark standard)
+  // 9. Market Position (honest benchmark standard)
   const supportedCount = matches.filter((m) => m.status === 'SUPPORTED').length;
   const marketPosition = {
     benchmarkStatus: 'BENCHMARK_UNAVAILABLE' as const,
@@ -128,6 +208,10 @@ export async function runCanonicalResultEngine(
     marketPosition,
     finalVerdict,
     validation,
+    evidenceLedger: ledger.getAllEvidence(),
+    claimLedger: ledger.getAllClaims(),
+    discoveredSources: ledger.getAllSources(),
+    auditTrail: ledger.getAuditTrail(),
     metadata: {
       version: 'v3.0-canonical-result-engine',
       timestamp: new Date().toISOString(),

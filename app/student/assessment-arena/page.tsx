@@ -328,48 +328,48 @@ export default function AssessmentArenaPage() {
   };
 
   // Timer color
-  const timerColor = timeLeft < 180 ? "#ef4444" : timeLeft < 420 ? "#f59e0b" : "#10b981";
+  const timerColor = timeLeft < 180 ? "#C24141" : timeLeft < 420 ? "#B7791F" : "#2E7D5B";
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="student" />
 
       <main style={{ maxWidth: 1300, margin: "0 auto", padding: "24px 20px" }}>
         {!started ? (
           /* PRE-ASSESSMENT SETUP SCREEN */
-          <div style={{ maxWidth: 740, margin: "3rem auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: "2.5rem" }}>
+          <div style={{ maxWidth: 740, margin: "3rem auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "2.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <span style={{ fontSize: 32 }}>🛡️</span>
               <div>
-                <span style={{ fontSize: 10, fontWeight: 800, color: "#f43f5e", letterSpacing: 2, textTransform: "uppercase" }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", letterSpacing: 1.2, textTransform: "uppercase", background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "3px 8px", borderRadius: 5 }}>
                   STANDARDIZED SELECTION SIMULATOR
                 </span>
-                <h1 style={{ fontSize: 24, fontWeight: 900, margin: "2px 0 0" }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, margin: "8px 0 0", color: "#162A43" }}>
                   Proctored Technical Assessment Arena
                 </h1>
               </div>
             </div>
 
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.6, margin: "1rem 0 1.5rem" }}>
+            <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.6, margin: "1rem 0 1.5rem" }}>
               Experience the authentic first-round technical filter used by Tier 1 and Campus recruiters. Combines timed speed aptitude reasoning with live algorithmic coding challenges under active tab and window focus proctoring.
             </p>
 
             {/* Assessment Structure Overview */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: "1.5rem" }}>
-              <div style={{ padding: "1rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#818cf8", marginBottom: 4 }}>
+              <div style={{ padding: "1rem", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#356AE6", marginBottom: 4 }}>
                   SECTION 1: SPEED APTITUDE
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: "#17191C", lineHeight: 1.4 }}>
                   {aptitudeQuestions.length} Questions · Quantitative, Logical Reasoning & Programming Logic
                 </div>
               </div>
 
-              <div style={{ padding: "1rem", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 14 }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#34d399", marginBottom: 4 }}>
+              <div style={{ padding: "1rem", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#2E7D5B", marginBottom: 4 }}>
                   SECTION 2: ALGORITHMIC CODING
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: "#17191C", lineHeight: 1.4 }}>
                   1 Core Problem ({codingProblem.title}) · In-browser syntax execution & test cases
                 </div>
               </div>
@@ -377,7 +377,7 @@ export default function AssessmentArenaPage() {
 
             {/* Duration Selector */}
             <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 700, display: "block", marginBottom: 8, letterSpacing: 1 }}>
+              <label style={{ fontSize: 11, color: "#667085", fontWeight: 700, display: "block", marginBottom: 8, letterSpacing: 1 }}>
                 SELECT DURATION
               </label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -391,25 +391,26 @@ export default function AssessmentArenaPage() {
                     onClick={() => setDurationMinutes(d.mins)}
                     style={{
                       padding: "1rem",
-                      borderRadius: 12,
-                      border: `1.5px solid ${durationMinutes === d.mins ? "#f43f5e" : "rgba(255,255,255,0.08)"}`,
-                      background: durationMinutes === d.mins ? "rgba(244,63,94,0.12)" : "rgba(255,255,255,0.02)",
-                      color: durationMinutes === d.mins ? "white" : "rgba(255,255,255,0.6)",
+                      borderRadius: 8,
+                      border: `1.5px solid ${durationMinutes === d.mins ? "#356AE6" : "#E4E1DA"}`,
+                      background: durationMinutes === d.mins ? "#EFF4FE" : "#FFFFFF",
+                      color: durationMinutes === d.mins ? "#162A43" : "#667085",
                       cursor: "pointer",
                       textAlign: "left",
+                      transition: "all 0.15s ease",
                     }}
                   >
-                    <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2 }}>{d.label}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{d.sub}</div>
+                    <div style={{ fontWeight: 800, fontSize: 13, marginBottom: 2, color: durationMinutes === d.mins ? "#162A43" : "#17191C" }}>{d.label}</div>
+                    <div style={{ fontSize: 11, color: "#667085" }}>{d.sub}</div>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Integrity Warning */}
-            <div style={{ padding: "0.85rem 1rem", background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.25)", borderRadius: 12, marginBottom: "2rem", display: "flex", gap: 10, alignItems: "center" }}>
+            <div style={{ padding: "0.85rem 1rem", background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, marginBottom: "2rem", display: "flex", gap: 10, alignItems: "center" }}>
               <span style={{ fontSize: 20 }}>⚠️</span>
-              <div style={{ fontSize: 11, color: "#fca5a5", lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: "#B7791F", lineHeight: 1.4 }}>
                 <strong>Proctoring Notice:</strong> Tab switching, opening other windows, and clipboard copy-pasting are logged during the assessment. Auto-submit will trigger when the countdown reaches 00:00.
               </div>
             </div>
@@ -419,15 +420,14 @@ export default function AssessmentArenaPage() {
               style={{
                 width: "100%",
                 padding: "1rem",
-                borderRadius: 14,
+                borderRadius: 7,
                 border: "none",
-                background: "linear-gradient(135deg,#f43f5e,#e11d48)",
-                color: "white",
+                background: "#356AE6",
+                color: "#FFFFFF",
                 fontSize: 14,
-                fontWeight: 800,
-                letterSpacing: 1,
+                fontWeight: 700,
+                letterSpacing: 0.5,
                 cursor: "pointer",
-                boxShadow: "0 0 30px rgba(244,63,94,0.3)",
               }}
             >
               Enter Proctored Assessment ({durationMinutes} Mins) ➔
@@ -443,12 +443,13 @@ export default function AssessmentArenaPage() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "0.85rem 1.5rem",
-                background: "rgba(15,23,42,0.85)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 16,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 10,
                 marginBottom: 16,
                 flexWrap: "wrap",
                 gap: 12,
+                boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
               }}
             >
               {/* Section Tabs */}
@@ -457,10 +458,10 @@ export default function AssessmentArenaPage() {
                   onClick={() => setActiveSection("aptitude")}
                   style={{
                     padding: "8px 16px",
-                    borderRadius: 10,
-                    border: activeSection === "aptitude" ? "1px solid #6366f1" : "1px solid rgba(255,255,255,0.08)",
-                    background: activeSection === "aptitude" ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.02)",
-                    color: activeSection === "aptitude" ? "#c7d2fe" : "rgba(255,255,255,0.5)",
+                    borderRadius: 7,
+                    border: activeSection === "aptitude" ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                    background: activeSection === "aptitude" ? "#EFF4FE" : "#F6F5F1",
+                    color: activeSection === "aptitude" ? "#356AE6" : "#667085",
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
@@ -472,10 +473,10 @@ export default function AssessmentArenaPage() {
                   onClick={() => setActiveSection("coding")}
                   style={{
                     padding: "8px 16px",
-                    borderRadius: 10,
-                    border: activeSection === "coding" ? "1px solid #10b981" : "1px solid rgba(255,255,255,0.08)",
-                    background: activeSection === "coding" ? "rgba(16,185,129,0.2)" : "rgba(255,255,255,0.02)",
-                    color: activeSection === "coding" ? "#a7f3d0" : "rgba(255,255,255,0.5)",
+                    borderRadius: 7,
+                    border: activeSection === "coding" ? "1px solid #2E7D5B" : "1px solid #E4E1DA",
+                    background: activeSection === "coding" ? "#EAF4EE" : "#F6F5F1",
+                    color: activeSection === "coding" ? "#2E7D5B" : "#667085",
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer",
@@ -488,7 +489,7 @@ export default function AssessmentArenaPage() {
               {/* Timer and Integrity Indicators */}
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 {/* Tab switches badge */}
-                <div style={{ fontSize: 11, color: tabSwitches > 0 ? "#f87171" : "#34d399", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
+                <div style={{ fontSize: 12, color: tabSwitches > 0 ? "#C24141" : "#2E7D5B", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 }}>
                   <span>{tabSwitches === 0 ? "🛡️ Verified Focus" : `⚠️ ${tabSwitches} Tab Switch${tabSwitches > 1 ? "es" : ""}`}</span>
                 </div>
 
@@ -496,12 +497,12 @@ export default function AssessmentArenaPage() {
                 <div
                   style={{
                     padding: "6px 14px",
-                    borderRadius: 10,
-                    background: "rgba(0,0,0,0.4)",
+                    borderRadius: 7,
+                    background: "#F6F5F1",
                     border: `1.5px solid ${timerColor}`,
                     color: timerColor,
-                    fontSize: 16,
-                    fontWeight: 900,
+                    fontSize: 15,
+                    fontWeight: 800,
                     letterSpacing: 1,
                   }}
                 >
@@ -513,12 +514,12 @@ export default function AssessmentArenaPage() {
                   onClick={handleSubmitAssessment}
                   style={{
                     padding: "8px 18px",
-                    borderRadius: 10,
+                    borderRadius: 7,
                     border: "none",
-                    background: "linear-gradient(135deg,#f43f5e,#e11d48)",
+                    background: "#162A43",
                     color: "white",
                     fontSize: 12,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: "pointer",
                   }}
                 >
@@ -532,22 +533,22 @@ export default function AssessmentArenaPage() {
               /* SECTION 1: APTITUDE */
               <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 16 }}>
                 {/* Question Area */}
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.75rem" }}>
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#a5b4fc", fontWeight: 700 }}>
+                      <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
                         {aptitudeQuestions[currentAptIdx]?.category?.replace("_", " ").toUpperCase()}
                       </span>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                      <span style={{ fontSize: 12, color: "#667085" }}>
                         {aptitudeQuestions[currentAptIdx]?.company_tag}
                       </span>
                     </div>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)" }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#667085" }}>
                       Question {currentAptIdx + 1} of {aptitudeQuestions.length}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.6, marginBottom: "1.5rem" }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.6, marginBottom: "1.5rem", color: "#162A43" }}>
                     {aptitudeQuestions[currentAptIdx]?.question}
                   </h3>
 
@@ -566,9 +567,9 @@ export default function AssessmentArenaPage() {
                           }
                           style={{
                             padding: "1rem 1.25rem",
-                            borderRadius: 12,
-                            border: `1.5px solid ${selected ? "#6366f1" : "rgba(255,255,255,0.08)"}`,
-                            background: selected ? "rgba(99,102,241,0.15)" : "rgba(255,255,255,0.02)",
+                            borderRadius: 8,
+                            border: `1.5px solid ${selected ? "#356AE6" : "#E4E1DA"}`,
+                            background: selected ? "#EFF4FE" : "#FFFFFF",
                             cursor: "pointer",
                             display: "flex",
                             alignItems: "center",
@@ -578,18 +579,18 @@ export default function AssessmentArenaPage() {
                         >
                           <div
                             style={{
-                              width: 20,
-                              height: 20,
+                              width: 18,
+                              height: 18,
                               borderRadius: "50%",
-                              border: `2px solid ${selected ? "#6366f1" : "rgba(255,255,255,0.3)"}`,
+                              border: `2px solid ${selected ? "#356AE6" : "#E4E1DA"}`,
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
                             }}
                           >
-                            {selected && <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#6366f1" }} />}
+                            {selected && <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#356AE6" }} />}
                           </div>
-                          <span style={{ fontSize: 14, color: selected ? "white" : "rgba(255,255,255,0.85)" }}>
+                          <span style={{ fontSize: 13, color: selected ? "#162A43" : "#17191C", fontWeight: selected ? 700 : 500 }}>
                             {opt}
                           </span>
                         </div>
@@ -598,7 +599,7 @@ export default function AssessmentArenaPage() {
                   </div>
 
                   {/* Nav buttons */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 16 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #E4E1DA", paddingTop: 16 }}>
                     <button
                       onClick={() =>
                         setMarkedReview((prev) => ({
@@ -608,12 +609,12 @@ export default function AssessmentArenaPage() {
                       }
                       style={{
                         padding: "8px 14px",
-                        borderRadius: 8,
-                        border: "1px solid rgba(245,158,11,0.3)",
+                        borderRadius: 7,
+                        border: "1px solid #F8D8A7",
                         background: markedReview[aptitudeQuestions[currentAptIdx]?.id]
-                          ? "rgba(245,158,11,0.2)"
-                          : "transparent",
-                        color: "#fbbf24",
+                          ? "#FEF7ED"
+                          : "#FFFFFF",
+                        color: "#B7791F",
                         fontSize: 12,
                         cursor: "pointer",
                         fontWeight: 700,
@@ -628,11 +629,12 @@ export default function AssessmentArenaPage() {
                         onClick={() => setCurrentAptIdx((prev) => Math.max(0, prev - 1))}
                         style={{
                           padding: "8px 16px",
-                          borderRadius: 8,
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          background: "rgba(255,255,255,0.04)",
-                          color: "white",
+                          borderRadius: 7,
+                          border: "1px solid #E4E1DA",
+                          background: "#FFFFFF",
+                          color: "#162A43",
                           fontSize: 12,
+                          fontWeight: 600,
                           cursor: currentAptIdx === 0 ? "not-allowed" : "pointer",
                           opacity: currentAptIdx === 0 ? 0.4 : 1,
                         }}
@@ -644,10 +646,10 @@ export default function AssessmentArenaPage() {
                         onClick={() => setCurrentAptIdx((prev) => Math.min(aptitudeQuestions.length - 1, prev + 1))}
                         style={{
                           padding: "8px 16px",
-                          borderRadius: 8,
+                          borderRadius: 7,
                           border: "none",
-                          background: "#6366f1",
-                          color: "white",
+                          background: "#356AE6",
+                          color: "#FFFFFF",
                           fontSize: 12,
                           fontWeight: 700,
                           cursor: currentAptIdx === aptitudeQuestions.length - 1 ? "not-allowed" : "pointer",
@@ -661,8 +663,8 @@ export default function AssessmentArenaPage() {
                 </div>
 
                 {/* Question Palette Sidebar */}
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.25rem" }}>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.25rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+                  <div style={{ fontSize: 11, color: "#667085", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", marginBottom: 12 }}>
                     QUESTION PALETTE
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 }}>
@@ -676,14 +678,14 @@ export default function AssessmentArenaPage() {
                           onClick={() => setCurrentAptIdx(idx)}
                           style={{
                             height: 36,
-                            borderRadius: 8,
-                            border: active ? "2px solid white" : "1px solid rgba(255,255,255,0.1)",
+                            borderRadius: 6,
+                            border: active ? "2px solid #356AE6" : "1px solid #E4E1DA",
                             background: marked
-                              ? "#f59e0b"
+                              ? "#B7791F"
                               : answered
-                              ? "#10b981"
-                              : "rgba(255,255,255,0.05)",
-                            color: answered || marked ? "white" : "rgba(255,255,255,0.6)",
+                              ? "#2E7D5B"
+                              : "#F6F5F1",
+                            color: answered || marked ? "#FFFFFF" : "#667085",
                             fontWeight: 800,
                             fontSize: 12,
                             cursor: "pointer",
@@ -695,17 +697,17 @@ export default function AssessmentArenaPage() {
                     })}
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 11, color: "#667085" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "#10b981" }} />
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "#2E7D5B" }} />
                       <span>Answered</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "#f59e0b" }} />
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "#B7791F" }} />
                       <span>Marked for Review</span>
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "rgba(255,255,255,0.1)" }} />
+                      <span style={{ width: 10, height: 10, borderRadius: 2, background: "#E4E1DA" }} />
                       <span>Not Answered</span>
                     </div>
                   </div>
@@ -715,41 +717,41 @@ export default function AssessmentArenaPage() {
               /* SECTION 2: CODING CHALLENGE */
               <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: 16, height: "calc(100vh - 160px)" }}>
                 {/* Problem Statement */}
-                <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem", overflowY: "auto" }}>
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.5rem", overflowY: "auto", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.2)", color: "#34d399", fontWeight: 800 }}>
+                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 5, background: "#EAF4EE", color: "#2E7D5B", fontWeight: 800, border: "1px solid #C8E4D3" }}>
                       {codingProblem.difficulty.toUpperCase()}
                     </span>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
+                    <span style={{ fontSize: 12, color: "#667085" }}>
                       Target: {codingProblem.companies?.slice(0, 3).join(", ") || "Amazon / Google"}
                     </span>
                   </div>
 
-                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 10px" }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 10px", color: "#162A43" }}>
                     {codingProblem.title}
                   </h2>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", lineHeight: 1.6, marginBottom: 14 }}>
+                  <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, marginBottom: 14 }}>
                     {codingProblem.description}
                   </p>
 
-                  <div style={{ padding: "10px 12px", background: "rgba(0,0,0,0.3)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", fontSize: 12, marginBottom: 14 }}>
-                    <div style={{ color: "#a5b4fc", fontWeight: 700, marginBottom: 4 }}>Example 1:</div>
-                    <div style={{ color: "rgba(255,255,255,0.7)", fontFamily: "monospace" }}>
+                  <div style={{ padding: "10px 12px", background: "#F6F5F1", borderRadius: 7, border: "1px solid #E4E1DA", fontSize: 12, marginBottom: 14 }}>
+                    <div style={{ color: "#356AE6", fontWeight: 700, marginBottom: 4 }}>Example 1:</div>
+                    <div style={{ color: "#17191C", fontFamily: "monospace", fontSize: 11.5 }}>
                       Input: nums = [2,7,11,15], target = 9<br />
                       Output: [0,1]<br />
                       Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
                     </div>
                   </div>
 
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>
-                    <strong>Expected Complexity:</strong> {codingProblem.time_complexity || "O(N)"} time, {codingProblem.space_complexity || "O(N)"} space.
+                  <div style={{ fontSize: 12, color: "#667085" }}>
+                    <strong style={{ color: "#162A43" }}>Expected Complexity:</strong> {codingProblem.time_complexity || "O(N)"} time, {codingProblem.space_complexity || "O(N)"} space.
                   </div>
                 </div>
 
-                {/* In-Browser Editor */}
-                <div style={{ display: "flex", flexDirection: "column", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden" }}>
+                {/* In-Browser Editor - Preserved High-Contrast Deep Navy for Code readability */}
+                <div style={{ display: "flex", flexDirection: "column", background: "#0D1929", border: "1px solid #1E3A5F", borderRadius: 10, overflow: "hidden" }}>
                   {/* Language bar */}
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(0,0,0,0.3)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 14px", borderBottom: "1px solid #1E3A5F", background: "#162A43" }}>
                     <div style={{ display: "flex", gap: 6 }}>
                       {(["python", "javascript", "java", "cpp"] as const).map((lang) => (
                         <button
@@ -762,8 +764,8 @@ export default function AssessmentArenaPage() {
                             padding: "4px 10px",
                             borderRadius: 6,
                             border: "none",
-                            background: selectedLanguage === lang ? "#6366f1" : "transparent",
-                            color: selectedLanguage === lang ? "white" : "rgba(255,255,255,0.5)",
+                            background: selectedLanguage === lang ? "#356AE6" : "transparent",
+                            color: selectedLanguage === lang ? "white" : "#98A2B3",
                             fontSize: 11,
                             fontWeight: 700,
                             cursor: "pointer",
@@ -779,9 +781,9 @@ export default function AssessmentArenaPage() {
                       disabled={isRunningCode}
                       style={{
                         padding: "6px 14px",
-                        borderRadius: 8,
+                        borderRadius: 6,
                         border: "none",
-                        background: "#10b981",
+                        background: "#2E7D5B",
                         color: "white",
                         fontSize: 12,
                         fontWeight: 700,
@@ -800,10 +802,10 @@ export default function AssessmentArenaPage() {
                     style={{
                       flex: 1,
                       padding: "1rem",
-                      background: "#0a0c16",
-                      color: "#f1f5f9",
+                      background: "#0D1929",
+                      color: "#4ADE80",
                       fontFamily: "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace",
-                      fontSize: 13,
+                      fontSize: 12.5,
                       lineHeight: 1.6,
                       border: "none",
                       outline: "none",
@@ -813,7 +815,7 @@ export default function AssessmentArenaPage() {
 
                   {/* Execution Output */}
                   {codeRunOutput && (
-                    <div style={{ padding: "12px 16px", background: "#050711", borderTop: "1px solid rgba(255,255,255,0.08)", fontFamily: "monospace", fontSize: 12, color: "#34d399", whiteSpace: "pre-wrap" }}>
+                    <div style={{ padding: "12px 16px", background: "#050711", borderTop: "1px solid #1E3A5F", fontFamily: "monospace", fontSize: 11, color: "#E2E8F0", whiteSpace: "pre-wrap" }}>
                       {codeRunOutput}
                     </div>
                   )}
@@ -823,41 +825,41 @@ export default function AssessmentArenaPage() {
           </div>
         ) : (
           /* POST-ASSESSMENT RESULTS VIEW */
-          <div style={{ maxWidth: 740, margin: "2rem auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 24, padding: "2.5rem" }}>
+          <div style={{ maxWidth: 740, margin: "2rem auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "2.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
               <div style={{ fontSize: 40, marginBottom: 8 }}>🏆</div>
-              <h2 style={{ fontSize: 24, fontWeight: 900, margin: 0 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: "#162A43" }}>
                 Assessment Complete & Evaluated
               </h2>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 6 }}>
+              <p style={{ fontSize: 13, color: "#667085", marginTop: 6 }}>
                 Your performance has been benchmarked and saved to your Prep History.
               </p>
             </div>
 
             {/* Score summary cards */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: "2rem" }}>
-              <div style={{ padding: "1.25rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 700 }}>SECTION 1 APTITUDE</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: "white", margin: "4px 0" }}>
+              <div style={{ padding: "1.25rem", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 700 }}>SECTION 1 APTITUDE</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: "#162A43", margin: "4px 0" }}>
                   {aptitudeQuestions.filter((q) => userAnswers[q.id] === q.correct_option_index).length}/{aptitudeQuestions.length}
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Correct Answers</div>
+                <div style={{ fontSize: 11, color: "#667085" }}>Correct Answers</div>
               </div>
 
-              <div style={{ padding: "1.25rem", background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>SECTION 2 CODING</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: "white", margin: "4px 0" }}>
+              <div style={{ padding: "1.25rem", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>SECTION 2 CODING</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: "#162A43", margin: "4px 0" }}>
                   {codingSubmitted ? "100%" : "30%"}
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Test Suite Pass</div>
+                <div style={{ fontSize: 11, color: "#667085" }}>Test Suite Pass</div>
               </div>
 
-              <div style={{ padding: "1.25rem", background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.2)", borderRadius: 16, textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#f43f5e", fontWeight: 700 }}>INTEGRITY SCORE</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: tabSwitches === 0 ? "#34d399" : "#fbbf24", margin: "4px 0" }}>
+              <div style={{ padding: "1.25rem", background: tabSwitches === 0 ? "#EAF4EE" : "#FEF7ED", border: `1px solid ${tabSwitches === 0 ? "#C8E4D3" : "#F8D8A7"}`, borderRadius: 10, textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: tabSwitches === 0 ? "#2E7D5B" : "#B7791F", fontWeight: 700 }}>INTEGRITY SCORE</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: tabSwitches === 0 ? "#2E7D5B" : "#B7791F", margin: "4px 0" }}>
                   {Math.max(40, 100 - tabSwitches * 15)}%
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                <div style={{ fontSize: 11, color: "#667085" }}>
                   {tabSwitches === 0 ? "Clean Session" : `${tabSwitches} Tab Switch(es)`}
                 </div>
               </div>
@@ -865,7 +867,7 @@ export default function AssessmentArenaPage() {
 
             {/* Explanations preview */}
             <div style={{ marginBottom: "2rem" }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "white", marginBottom: 10 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43", marginBottom: 10 }}>
                 APTITUDE QUESTION BREAKDOWN
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -877,20 +879,20 @@ export default function AssessmentArenaPage() {
                       key={q.id}
                       style={{
                         padding: "0.85rem 1rem",
-                        background: "rgba(255,255,255,0.02)",
-                        border: `1px solid ${isCorrect ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)"}`,
-                        borderRadius: 10,
+                        background: isCorrect ? "#EAF4EE" : "#FDF2F2",
+                        border: `1px solid ${isCorrect ? "#C8E4D3" : "#F8C8C8"}`,
+                        borderRadius: 8,
                         fontSize: 12,
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                        <span style={{ fontWeight: 700, color: "white" }}>Q{idx + 1}: {q.topic}</span>
-                        <span style={{ color: isCorrect ? "#34d399" : "#f87171", fontWeight: 800 }}>
+                        <span style={{ fontWeight: 700, color: "#162A43" }}>Q{idx + 1}: {q.topic}</span>
+                        <span style={{ color: isCorrect ? "#2E7D5B" : "#C24141", fontWeight: 800 }}>
                           {isCorrect ? "✓ Correct" : "✗ Incorrect"}
                         </span>
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 11 }}>
-                        Correct: <strong>{q.options[q.correct_option_index]}</strong> — {q.explanation}
+                      <div style={{ color: "#667085", fontSize: 12 }}>
+                        Correct: <strong style={{ color: "#17191C" }}>{q.options[q.correct_option_index]}</strong> — {q.explanation}
                       </div>
                     </div>
                   );
@@ -904,11 +906,11 @@ export default function AssessmentArenaPage() {
                 style={{
                   flex: 1,
                   padding: "0.9rem",
-                  borderRadius: 12,
-                  background: "linear-gradient(135deg,#6366f1,#4f46e5)",
+                  borderRadius: 7,
+                  background: "#356AE6",
                   color: "white",
                   textDecoration: "none",
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 13,
                   textAlign: "center",
                 }}
@@ -928,11 +930,11 @@ export default function AssessmentArenaPage() {
                 style={{
                   flex: 1,
                   padding: "0.9rem",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.04)",
-                  color: "white",
-                  fontWeight: 700,
+                  borderRadius: 7,
+                  border: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
+                  color: "#162A43",
+                  fontWeight: 600,
                   fontSize: 13,
                   cursor: "pointer",
                 }}

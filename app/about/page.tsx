@@ -1,168 +1,359 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 
 const sections = [
   {
-    icon: "⚡",
+    icon: "⚖️",
     title: "What is COGNALYZE?",
-    content: `COGNALYZE is the world's first AI Hiring Committee — a platform that uses 5 adversarial AI agents to evaluate candidates the way FAANG companies actually hire: through structured debate, not keyword matching.
+    content: `COGNALYZE is an institutional-grade hiring intelligence platform that evaluates engineering talent through structured adversarial debate and verified code evidence rather than shallow keyword matching.
 
-COGNALYZE solves the single biggest problem in hiring: great candidates get rejected because their resume doesn't match an algorithm, while unqualified candidates pass because they know which keywords to use.
+COGNALYZE solves the fundamental failure mode of traditional recruitment: top-tier builders get rejected because their resume doesn't match a legacy ATS keyword list, while keyword-stuffed candidates pass without real capability.
 
-The insight: Great hiring decisions come from disagreement, not consensus. When a Champion, Skeptic, Futurist, Pattern Breaker, and Culture Oracle all argue about a candidate — you get signal that no ATS can produce.`
+The architectural insight: High-conviction talent decisions come from structured examination and adversarial scrutiny. When Champion, Skeptic, Futurist, Pattern Breaker, and Culture Oracle evaluate a candidate against explicit role DNA, hiring teams gain clarity and precision impossible with legacy resume parsers.`
   },
   {
-    icon: "🏆",
-    title: "The #412 → #3 Moment",
-    content: `Anika had exactly the skills the company needed. But her title was "Data Analyst" not "ML Engineer." Every ATS buried her at #412.
+    icon: "🎯",
+    title: "Evidence Before Decisions",
+    content: `Anika had exactly the low-level systems capability the engineering team required. But her previous title was "Data Analyst" rather than "Distributed Systems Engineer." Legacy ATS systems buried her at ranking #412.
 
-The Pattern Breaker agent found her GitHub. The Champion agent quantified her impact. The Skeptic asked hard questions. The committee ranked her #3.
+The Pattern Breaker agent audited her verified GitHub repositories and commit history. The Champion agent quantified production impact. The Skeptic probed edge-case system boundaries. The hiring intelligence layer ranked her in the top 3 candidates.
 
-This is what COGNALYZE is built for: finding the candidates that systems miss.`
+This is the purpose of COGNALYZE: surfacing extraordinary capability that keyword filters systematically discard.`
   }
 ];
 
 const features = [
   {
-    category: "FOR RECRUITERS",
-    color: "#6366f1",
+    category: "FOR HIRING TEAMS",
+    color: "#162A43",
+    tagBg: "#F6F5F1",
+    tagBorder: "#E4E1DA",
     items: [
-      { name: "5-Agent AI Debate", desc: "Champion, Skeptic, Futurist, Pattern Breaker & Culture Oracle argue about every candidate", icon: "⚡" },
-      { name: "ATS Match Score", desc: "Real-time keyword matching against your JD with percentage breakdown", icon: "🎯" },
-      { name: "Skills Matrix", desc: "Must-have vs good-to-have skills — what the candidate has and what's missing", icon: "📊" },
-      { name: "Red & Green Flags", desc: "Evidence-based concerns and strengths with specific resume references", icon: "🚩" },
-      { name: "Candidate DNA Radar", desc: "7-dimension profile: Technical Depth, Leadership, Communication, Culture Fit + more", icon: "🧬" },
-      { name: "Interview Questions", desc: "5 targeted questions that probe specific gaps in this candidate's profile", icon: "🎤" },
-      { name: "Salary Assessment", desc: "Market-aligned compensation estimate based on experience and role", icon: "💰" },
-      { name: "Multi-Candidate Ranking", desc: "Upload up to 8 resumes, get ranked comparison with reasons", icon: "👥" },
-      { name: "SHORTLIST/HOLD/REJECT Decision", desc: "Clear hiring recommendation with confidence percentage", icon: "✅" },
+      { name: "5-Agent AI Committee", desc: "Champion, Skeptic, Futurist, Pattern Breaker & Culture Oracle debate candidate evidence", icon: "⚡" },
+      { name: "ATS Match Diagnostics", desc: "Real-time semantic matching against Job Architecture with percentage and gap breakdown", icon: "🎯" },
+      { name: "Skills Matrix & Verification", desc: "Must-have vs nice-to-have capabilities verified against public GitHub activity", icon: "📊" },
+      { name: "Evidence-Backed Flags", desc: "Calibrated strengths and inquiry points referencing specific project artifacts", icon: "🚩" },
+      { name: "Candidate DNA Profiling", desc: "Multi-dimensional evaluation: Technical Depth, Architecture, Verification & Problem Solving", icon: "🧬" },
+      { name: "Calibrated Inquiries", desc: "Role-specific technical questions designed to probe genuine capability boundaries", icon: "🎤" },
+      { name: "Compensation Banding", desc: "Market-aligned compensation ranges indexed to verified experience and role scope", icon: "💰" },
+      { name: "Comparative Decision Rooms", desc: "Side-by-side cohort benchmarking with traceable rationale for shortlists", icon: "👥" },
+      { name: "Deterministic Verdicts", desc: "Clear hiring recommendations (Advance, Hold, Pass) with confidence metrics", icon: "✅" },
     ]
   },
   {
-    category: "FOR CANDIDATES",
-    color: "#ec4899",
+    category: "FOR CANDIDATES & BUILDERS",
+    color: "#356AE6",
+    tagBg: "#EFF4FE",
+    tagBorder: "#D2E0FB",
     items: [
-      { name: "Honest Feedback", desc: "5 agents give you the real feedback recruiters think but don't say", icon: "💬" },
-      { name: "Skills Gap Analysis", desc: "Exact skills you have vs what the role needs — with learning resources", icon: "📈" },
-      { name: "Resume Rewriter", desc: "Evidence-based rewrite with ATS score before/after — no fake skills added", icon: "✍️" },
-      { name: "Career Roadmap", desc: "Honest 6-month plan to close your gaps with specific courses and projects", icon: "🗺️" },
-      { name: "Interview Prep", desc: "Predicted FAANG-level questions based on your specific resume gaps", icon: "🎯" },
+      { name: "Unfiltered Diagnostic Feedback", desc: "Adversarial committee feedback explaining exactly where evidence was convincing or lacking", icon: "💬" },
+      { name: "Skills Gap Analysis", desc: "Direct mapping of current evidence against target role DNA with targeted learning paths", icon: "📈" },
+      { name: "Institutional Resume Polish", desc: "Evidence-verified bullet quantification and structural alignment without keyword stuffing", icon: "✍️" },
+      { name: "6-Month Career Milestones", desc: "Structured, evidence-grounded technical progression plan targeting specific seniorities", icon: "🗺️" },
+      { name: "Predictive Interview Inquiries", desc: "Targeted technical challenges anticipating questions top engineering teams ask", icon: "🎯" },
     ]
   },
   {
-    category: "AI MOCK INTERVIEW",
-    color: "#00ff88",
+    category: "ASSESSMENT ARENA & SIMULATION",
+    color: "#2E7D5B",
+    tagBg: "#EAF4EE",
+    tagBorder: "#C8E4D3",
     items: [
-      { name: "FAANG-Level Interviewer Alex", desc: "Unlimited adaptive questions based on your resume and JD — Behavioral, Technical, System Design, Culture", icon: "👔" },
-      { name: "Live 7-Dimension Scoring", desc: "Relevance, Technical Accuracy, Communication, Problem Solving, Depth, Examples, Confidence — after every answer", icon: "📊" },
-      { name: "Evidence-Based Analysis", desc: "Specific feedback on what you said, not generic advice", icon: "🎯" },
-      { name: "Suggested Better Answers", desc: "Exact example of how to answer better for every response", icon: "💡" },
-      { name: "Body Language Analysis", desc: "Camera-based posture, eye contact, confidence scoring", icon: "📷" },
-      { name: "Voice Mode", desc: "Speak your answers — AI interviewer speaks back naturally", icon: "🎤" },
-      { name: "Final HIRE/NO-HIRE Verdict", desc: "Detailed FAANG-style decision with scorecard, standout moments, and interviewer note", icon: "🏆" },
+      { name: "Structured Technical Simulation", desc: "Adaptive technical inquiry across Behavioral, System Design, and Algorithms", icon: "👔" },
+      { name: "Multi-Dimension Scoring", desc: "Accuracy, Communication, Depth, Production Judgment, and Problem Solving scored per turn", icon: "📊" },
+      { name: "Evidence-Grounded Feedback", desc: "Traceable critique referencing exact algorithmic choices and trade-off explanations", icon: "🎯" },
+      { name: "Exemplary Response Models", desc: "Institutional-standard architectural explanations showing ideal production considerations", icon: "💡" },
+      { name: "Production GD Simulation", desc: "Interactive round-table debate with adversarial AI peers testing team reasoning", icon: "👥" },
+      { name: "Comprehensive Final Scorecard", desc: "Detailed hire recommendations with competency breakdowns and interviewer documentation", icon: "🏆" },
     ]
   },
   {
-    category: "RESUME BUILDER",
-    color: "#fbbf24",
+    category: "RESUME INTELLIGENCE",
+    color: "#B7791F",
+    tagBg: "#FEF7ED",
+    tagBorder: "#F8D8A7",
     items: [
-      { name: "6 Professional Templates", desc: "Modern Tech (sidebar), Corporate, Executive, Creative, Fresher, Startup — each genuinely different", icon: "📄" },
-      { name: "Keyword Optimization", desc: "Inject JD keywords naturally throughout — maximizes ATS score", icon: "🔑" },
-      { name: "AI Quantification", desc: "Transforms weak bullets into metric-driven achievements", icon: "📈" },
-      { name: "ATS Score Display", desc: "See your ATS score before and after optimization", icon: "🎯" },
-      { name: "PDF Export", desc: "Download clean, print-ready PDF in any template", icon: "⬇️" },
+      { name: "Institutional Clean Layouts", desc: "Executive, Systems Engineering, Modern Tech, and Academic formats built for clarity", icon: "📄" },
+      { name: "Evidence Quantification", desc: "Converts ambiguous task bullets into metric-driven production impact statements", icon: "📈" },
+      { name: "ATS Diagnostic Audit", desc: "Comprehensive structural and semantic compliance inspection prior to submission", icon: "🎯" },
+      { name: "Verified PDF Generation", desc: "Crisp vector export guaranteed to parse cleanly across institutional ATS systems", icon: "⬇️" },
     ]
   }
 ];
 
 const techStack = [
-  { name: "Next.js 14", desc: "App Router, Server Components", icon: "▲" },
-  { name: "TypeScript", desc: "Full type safety", icon: "TS" },
-  { name: "Groq API", desc: "llama-3.3-70b-versatile + llama-3.1-8b-instant", icon: "⚡" },
-  { name: "Groq Vision", desc: "llama-3.2-11b-vision-preview for body language", icon: "👁" },
-  { name: "Web Speech API", desc: "Browser STT + TTS for voice mode", icon: "🎤" },
-  { name: "Tailwind CSS", desc: "Utility-first styling", icon: "🎨" },
+  { name: "Next.js 14 App Router", desc: "Server Components & Dynamic Edge Routes", icon: "▲" },
+  { name: "TypeScript", desc: "Strict end-to-end type safety", icon: "TS" },
+  { name: "Llama 3.3 70B & 8B", desc: "Multi-agent evaluation & fast streaming", icon: "⚡" },
+  { name: "Vision AI Analysis", desc: "Visual assessment & interview signal capture", icon: "👁" },
+  { name: "Web Speech API", desc: "Native browser speech synthesis & recognition", icon: "🎤" },
+  { name: "Institutional Design System", desc: "Enterprise typography, tokens & accessible contrast", icon: "🎨" },
 ];
 
 export default function AboutPage() {
   const [expanded, setExpanded] = useState<number | null>(0);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#06030f", color: "white", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
-      <style>{`
-        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.4);border-radius:2px;}
-      `}</style>
-
-      {/* Nav */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.25rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)", position: "sticky", top: 0, background: "rgba(6,3,15,0.9)", backdropFilter: "blur(20px)", zIndex: 100 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#F6F5F1",
+        color: "#17191C",
+        fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
+      }}
+    >
+      {/* Navigation Header */}
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0.875rem 2rem",
+          borderBottom: "1px solid #E4E1DA",
+          position: "sticky",
+          top: 0,
+          backgroundColor: "#FFFFFF",
+          zIndex: 100,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg,#6366f1,#a855f7)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>⚡</div>
-          <span style={{ fontWeight: 800, background: "linear-gradient(135deg,#fff,#a5b4fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>COGNALYZE</span>
+          <Link
+            href="/"
+            style={{
+              textDecoration: "none",
+              color: "#162A43",
+              fontWeight: 800,
+              fontSize: 18,
+              letterSpacing: "-0.5px",
+            }}
+          >
+            COGNALYZE
+          </Link>
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 700,
+              color: "#356AE6",
+              backgroundColor: "#EFF4FE",
+              border: "1px solid #D2E0FB",
+              padding: "2px 8px",
+              borderRadius: 4,
+              letterSpacing: "0.5px",
+            }}
+          >
+            PLATFORM ARCHITECTURE
+          </span>
         </div>
         <div style={{ display: "flex", gap: 10 }}>
-          <a href="/recruiter" style={{ textDecoration: "none" }}><button style={{ padding: "6px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", color: "rgba(255,255,255,0.6)", cursor: "pointer", fontSize: 13 }}>For Recruiters</button></a>
-          <a href="/" style={{ textDecoration: "none" }}><button style={{ padding: "6px 16px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#6366f1,#a855f7)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Home</button></a>
+          <Link href="/recruiter" style={{ textDecoration: "none" }}>
+            <button
+              style={{
+                padding: "7px 16px",
+                borderRadius: 8,
+                border: "1px solid #E4E1DA",
+                backgroundColor: "#FFFFFF",
+                color: "#162A43",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              For Hiring Teams
+            </button>
+          </Link>
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <button
+              style={{
+                padding: "7px 16px",
+                borderRadius: 8,
+                border: "none",
+                backgroundColor: "#356AE6",
+                color: "#FFFFFF",
+                cursor: "pointer",
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              Home
+            </button>
+          </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Hero */}
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "5rem 2rem 3rem", textAlign: "center", animation: "fadeUp 0.8s ease" }}>
-        <div style={{ fontSize: 11, letterSpacing: 4, color: "rgba(99,102,241,0.8)", marginBottom: 16, fontWeight: 600 }}>PRODUCT OVERVIEW</div>
-        <h1 style={{ fontSize: "clamp(2.5rem,6vw,4.5rem)", fontWeight: 900, letterSpacing: -3, lineHeight: 1.05, marginBottom: 20, background: "linear-gradient(135deg,#fff 20%,#a5b4fc 60%,#ec4899 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-          COGNALYZE
+      {/* Hero Section */}
+      <div
+        style={{
+          maxWidth: 960,
+          margin: "0 auto",
+          padding: "4rem 2rem 2.5rem",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: 11,
+            letterSpacing: 2,
+            color: "#356AE6",
+            marginBottom: 12,
+            fontWeight: 700,
+            textTransform: "uppercase",
+          }}
+        >
+          Institutional Evidence-First Hiring
+        </div>
+        <h1
+          style={{
+            fontSize: "clamp(2.2rem, 5vw, 3.5rem)",
+            fontWeight: 800,
+            letterSpacing: -1.5,
+            lineHeight: 1.15,
+            marginBottom: 16,
+            color: "#162A43",
+          }}
+        >
+          Complex Engine. Simple Interface.
         </h1>
-        <p style={{ fontSize: "clamp(1rem,2vw,1.25rem)", color: "rgba(255,255,255,0.5)", maxWidth: 600, margin: "0 auto 3rem", lineHeight: 1.7 }}>
-          The world's first AI Hiring Committee. 5 adversarial agents debate every candidate — finding signal that ATS systems miss, and giving candidates the feedback they deserve.
+        <p
+          style={{
+            fontSize: "clamp(1rem, 1.8vw, 1.15rem)",
+            color: "#667085",
+            maxWidth: 680,
+            margin: "0 auto 2.5rem",
+            lineHeight: 1.6,
+          }}
+        >
+          The evidence-first career and hiring intelligence layer. 5 adversarial agents debate engineering candidates against verified code proof to surface talent that legacy keyword filters discard.
         </p>
+
+        {/* Metric Badges */}
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          {[["⚡ 5 AI Agents","Adversarial debate"], ["🎯 FAANG-Level", "Interview simulation"], ["📊 7-Dimension", "Live scoring"], ["🧬 DNA Profile", "Candidate fingerprint"], ["📄 6 Templates", "ATS-optimized resume"]].map(([title, sub], i) => (
-            <div key={i} style={{ padding: "10px 18px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, textAlign: "center" }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{title}</div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{sub}</div>
+          {[
+            ["⚖️ 5-Agent Committee", "Adversarial evaluation"],
+            ["🎯 Evidence-First", "Verified repo commits"],
+            ["📊 7-Dimension Score", "Objective rubric"],
+            ["🧬 Role DNA Match", "Zero keyword stuffing"],
+            ["📄 Institutional Export", "Clean vector ATS PDF"]
+          ].map(([title, sub], i) => (
+            <div
+              key={i}
+              style={{
+                padding: "10px 18px",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 8,
+                textAlign: "center",
+                boxShadow: "0 1px 3px rgba(22, 42, 67, 0.04)",
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>{title}</div>
+              <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>{sub}</div>
             </div>
           ))}
         </div>
       </div>
 
-      <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 2rem 5rem" }}>
-
-        {/* About sections */}
-        <div style={{ marginBottom: "4rem" }}>
+      <div style={{ maxWidth: 960, margin: "0 auto", padding: "0 2rem 5rem" }}>
+        {/* About Sections Accordion */}
+        <div style={{ marginBottom: "3.5rem" }}>
           {sections.map((s, i) => (
-            <div key={i} onClick={() => setExpanded(expanded === i ? null : i)} style={{ marginBottom: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden", cursor: "pointer" }}>
-              <div style={{ padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div
+              key={i}
+              onClick={() => setExpanded(expanded === i ? null : i)}
+              style={{
+                marginBottom: 12,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 12,
+                overflow: "hidden",
+                cursor: "pointer",
+                boxShadow: "0 1px 3px rgba(22, 42, 67, 0.03)",
+              }}
+            >
+              <div
+                style={{
+                  padding: "1.25rem 1.5rem",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <span style={{ fontSize: 22 }}>{s.icon}</span>
-                  <span style={{ fontWeight: 700, fontSize: 15 }}>{s.title}</span>
+                  <span style={{ fontSize: 20 }}>{s.icon}</span>
+                  <span style={{ fontWeight: 700, fontSize: 15, color: "#162A43" }}>{s.title}</span>
                 </div>
-                <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 18 }}>{expanded === i ? "▲" : "▼"}</span>
+                <span style={{ color: "#667085", fontSize: 14 }}>{expanded === i ? "▲" : "▼"}</span>
               </div>
               {expanded === i && (
-                <div style={{ padding: "0 1.5rem 1.5rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.8, marginTop: "1rem", whiteSpace: "pre-line" }}>{s.content}</p>
+                <div
+                  style={{
+                    padding: "0 1.5rem 1.5rem",
+                    borderTop: "1px solid #E4E1DA",
+                    backgroundColor: "#FAFAF8",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 14,
+                      color: "#667085",
+                      lineHeight: 1.7,
+                      marginTop: "1rem",
+                      whiteSpace: "pre-line",
+                    }}
+                  >
+                    {s.content}
+                  </p>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        {/* Features by category */}
+        {/* Feature Categories */}
         {features.map((cat, ci) => (
           <div key={ci} style={{ marginBottom: "3rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1.5rem" }}>
-              <div style={{ height: 2, width: 30, background: cat.color, borderRadius: 999 }} />
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, letterSpacing: 1, color: cat.color }}>{cat.category}</h2>
-              <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg,${cat.color}30,transparent)` }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1.25rem" }}>
+              <div style={{ height: 3, width: 28, backgroundColor: cat.color, borderRadius: 2 }} />
+              <h2
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: 800,
+                  letterSpacing: 0.5,
+                  color: cat.color,
+                  margin: 0,
+                }}
+              >
+                {cat.category}
+              </h2>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(260px,1fr))", gap: 10 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: 12,
+              }}
+            >
               {cat.items.map((item, i) => (
-                <div key={i} style={{ padding: "1.1rem 1.25rem", background: "rgba(255,255,255,0.04)", border: `1px solid ${cat.color}15`, borderRadius: 14, transition: "border-color 0.2s" }} onMouseEnter={e => e.currentTarget.style.borderColor = `${cat.color}40`} onMouseLeave={e => e.currentTarget.style.borderColor = `${cat.color}15`}>
+                <div
+                  key={i}
+                  style={{
+                    padding: "1.1rem 1.25rem",
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 10,
+                    boxShadow: "0 1px 3px rgba(22, 42, 67, 0.03)",
+                    transition: "border-color 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#356AE6")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#E4E1DA")}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span style={{ fontSize: 18 }}>{item.icon}</span>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: "rgba(255,255,255,0.9)" }}>{item.name}</span>
+                    <span style={{ fontSize: 16 }}>{item.icon}</span>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: "#162A43" }}>{item.name}</span>
                   </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.5, margin: 0 }}>{item.desc}</p>
+                  <p style={{ fontSize: 12, color: "#667085", lineHeight: 1.5, margin: 0 }}>
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -171,45 +362,184 @@ export default function AboutPage() {
 
         {/* Tech Stack */}
         <div style={{ marginBottom: "3rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1.5rem" }}>
-            <div style={{ height: 2, width: 30, background: "#22d3ee", borderRadius: 999 }} />
-            <h2 style={{ fontSize: "1.2rem", fontWeight: 800, letterSpacing: 1, color: "#22d3ee" }}>TECHNICAL STACK</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: "1.25rem" }}>
+            <div style={{ height: 3, width: 28, backgroundColor: "#356AE6", borderRadius: 2 }} />
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, letterSpacing: 0.5, color: "#162A43", margin: 0 }}>
+              TECHNICAL FOUNDATION
+            </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 10 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
+              gap: 12,
+            }}
+          >
             {techStack.map((t, i) => (
-              <div key={i} style={{ padding: "1rem 1.25rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(34,211,238,0.12)", borderRadius: 12, display: "flex", gap: 10, alignItems: "center" }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: "rgba(34,211,238,0.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: "#22d3ee", flexShrink: 0 }}>{t.icon}</div>
+              <div
+                key={i}
+                style={{
+                  padding: "1rem 1.25rem",
+                  backgroundColor: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 10,
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  boxShadow: "0 1px 3px rgba(22, 42, 67, 0.03)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    backgroundColor: "#EFF4FE",
+                    border: "1px solid #D2E0FB",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: "#356AE6",
+                    flexShrink: 0,
+                  }}
+                >
+                  {t.icon}
+                </div>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>{t.name}</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{t.desc}</div>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: "#162A43" }}>{t.name}</div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>{t.desc}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* AI Rules */}
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem", marginBottom: "3rem" }}>
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "1.25rem", color: "#fbbf24" }}>🛡️ AI EVALUATION PRINCIPLES</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 10 }}>
-            {["Never hallucinate skills or experience", "Every observation traced to resume evidence", "Evidence-based scoring — not black box", "Same quality answer = same score range", "No generic feedback without evidence", "Explainable decisions with score breakdown"].map((p, i) => (
-              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                <span style={{ color: "#00ff88", fontSize: 13, flexShrink: 0, marginTop: 1 }}>✓</span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.4 }}>{p}</span>
+        {/* AI Principles */}
+        <div
+          style={{
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 14,
+            padding: "2rem",
+            marginBottom: "3.5rem",
+            boxShadow: "0 1px 4px rgba(22, 42, 67, 0.04)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "1.25rem" }}>
+            <span style={{ fontSize: 18 }}>🛡️</span>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#162A43", margin: 0 }}>
+              AI EVALUATION PRINCIPLES
+            </h2>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              gap: 12,
+            }}
+          >
+            {[
+              "Never hallucinate skills or unverified experience",
+              "Every observation traced to inspectable code evidence",
+              "Deterministic, rubric-based evaluation — not a black box",
+              "Consistent answer quality yields consistent score range",
+              "Zero generic advice; feedback references specific artifacts",
+              "Explainable decisions with verifiable competency breakdown"
+            ].map((p, i) => (
+              <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                <span style={{ color: "#2E7D5B", fontSize: 14, fontWeight: 800, flexShrink: 0 }}>✓</span>
+                <span style={{ fontSize: 12.5, color: "#667085", lineHeight: 1.5 }}>{p}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA */}
-        <div style={{ textAlign: "center" }}>
-          <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: -1, marginBottom: "1rem" }}>Start using COGNALYZE</h2>
-          <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: "2rem", fontSize: 15 }}>Autonomous Multi-Agent Evaluation · Powered by Groq</p>
+        {/* Call to Action */}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "3rem 2rem",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 16,
+            boxShadow: "0 2px 8px rgba(22, 42, 67, 0.04)",
+          }}
+        >
+          <h2 style={{ fontSize: "1.85rem", fontWeight: 800, letterSpacing: -0.5, marginBottom: "0.75rem", color: "#162A43" }}>
+            Start Using COGNALYZE
+          </h2>
+          <p style={{ color: "#667085", marginBottom: "2rem", fontSize: 14, maxWidth: 520, margin: "0 auto 2rem" }}>
+            Institutional hiring and talent intelligence for modern engineering teams and candidates.
+          </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <a href="/recruiter" style={{ textDecoration: "none" }}><button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#a855f7)", color: "white", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>⚡ Recruiter Mode</button></a>
-            <a href="/candidate" style={{ textDecoration: "none" }}><button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "1px solid rgba(236,72,153,0.4)", background: "rgba(236,72,153,0.1)", color: "#f9a8d4", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>✦ Candidate Mode</button></a>
-            <a href="/interview" style={{ textDecoration: "none" }}><button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "1px solid rgba(0,255,136,0.4)", background: "rgba(0,255,136,0.08)", color: "#00ff88", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>🎤 Mock Interview</button></a>
-            <a href="/resume" style={{ textDecoration: "none" }}><button style={{ padding: "0.9rem 2rem", borderRadius: 12, border: "1px solid rgba(251,191,36,0.4)", background: "rgba(251,191,36,0.08)", color: "#fbbf24", cursor: "pointer", fontSize: 14, fontWeight: 600 }}>📄 Resume Builder</button></a>
+            <Link href="/recruiter" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  padding: "0.75rem 1.75rem",
+                  borderRadius: 8,
+                  border: "none",
+                  backgroundColor: "#162A43",
+                  color: "#FFFFFF",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  transition: "background 0.15s ease",
+                }}
+              >
+                ⚡ Recruiter Workspace
+              </button>
+            </Link>
+            <Link href="/student" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  padding: "0.75rem 1.75rem",
+                  borderRadius: 8,
+                  border: "none",
+                  backgroundColor: "#356AE6",
+                  color: "#FFFFFF",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  transition: "background 0.15s ease",
+                }}
+              >
+                Candidate Workspace
+              </button>
+            </Link>
+            <Link href="/student/interview-prep" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  padding: "0.75rem 1.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #E4E1DA",
+                  backgroundColor: "#FFFFFF",
+                  color: "#162A43",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                🎤 Mock Interview
+              </button>
+            </Link>
+            <Link href="/resume" style={{ textDecoration: "none" }}>
+              <button
+                style={{
+                  padding: "0.75rem 1.75rem",
+                  borderRadius: 8,
+                  border: "1px solid #E4E1DA",
+                  backgroundColor: "#FFFFFF",
+                  color: "#162A43",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
+              >
+                📄 Resume Builder
+              </button>
+            </Link>
           </div>
         </div>
       </div>

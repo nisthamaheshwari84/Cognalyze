@@ -169,41 +169,44 @@ A TOP-TIER RESUME EMBODIES THESE 10 PRINCIPLES:
 
 ${selectedRubric}
 
-CRITICAL ANTI-HALLUCINATION & HONESTY RULES (ZERO TOLERANCE FOR FAKE DATA):
-1. PROJECT HONESTY:
-   - NEVER INVENT OR HALLUCINATE ANY PROJECTS! Only include projects that the candidate has EXPLICITLY NAMED and BUILT.
-   - If the candidate only mentions building ONE named project (e.g. "Cognalyze"), you MUST output EXACTLY ONE project in the "projects" array!
-   - ABSOLUTELY DO NOT INVENT A SECOND PROJECT (such as "AI Agent Framework for Opportunity Tracking", "AI-Driven Opportunity Tracker", or any other made-up project name)! The user strictly forbids fake projects.
-   - For that single project (e.g. Cognalyze), provide 4 to 5 comprehensive, technically deep, authentic engineering bullets that deconstruct its actual architecture:
-     * Bullet 1: Core Problem & Architecture (Action verb + system built + tech stack).
-     * Bullet 2: LLM Integration & Prompt Engineering (Structured prompt pipelines, evidence scoring, matching candidate claims against job descriptions).
-     * Bullet 3: Dynamic Interview Question Generation (Tailored competency-based interview questions mapped to candidate resumes).
-     * Bullet 4: Recruiter Dashboard & Multi-Candidate Benchmarking (Interactive comparison view, side-by-side competency analysis in React).
-     * Bullet 5: Full-Stack Engineering & Best Practices (Modular React components, REST API design, error handling, Git version control).
-2. EXPERIENCE HONESTY:
-   - If the candidate is a student or fresher with no formal corporate employment, the "experience" array MUST BE EMPTY: []!
-   - NEVER invent fake job titles like "AI Engineer & Founder · Cognalyze", "Lead Engineer", or fictitious companies/dates.
-3. TECH STACK HONESTY:
-   - NEVER invent tools the candidate did not mention or know (NEVER hallucinate LangChain, FAISS, SQLite, Streamlit, Railway, AWS Elastic Beanstalk, spaCy unless explicitly provided in keywords/background).
-   - Only use technologies truthful to the candidate's input (e.g., Python, C++, JavaScript, HTML, CSS, React, Next.js, APIs, Git, GitHub).
-4. METRICS & AWARDS HONESTY:
-   - NEVER fabricate numbers, user counts, star counts, or metrics (NO "200+ stars", NO "95% precision", NO "100 concurrent users", NO fake hackathon awards).
-   - If the candidate did not provide numbers, focus on specific technical actions, engineering mechanisms, and concrete deliverables.
-5. ACADEMIC & TECHNICAL EXPLORATIONS:
-   - If the candidate mentions areas of exploration in their background (e.g. "worked on AI agent concepts, opportunity tracking, resume intelligence, and AI-powered automation. Strengthening DSA, AI/ML"):
-     Represent this factually in the "achievements" array without inventing a standalone software product:
-     e.g., in "achievements":
-     [
-       "Researched and prototyped AI agent concepts, prompt workflows, and automated resume intelligence pipelines.",
-       "Actively practicing core Data Structures & Algorithms (DSA) in C++ and Python with a focus on algorithmic problem solving."
-     ]
+CRITICAL REAL PROFESSIONAL RESUME & 85-95% PAGE UTILIZATION RULES:
+1. NEVER PRODUCE A SPARSE, HALF-PAGE RESUME!
+   - An empty or compressed half-page resume looks amateurish and fails recruiter screening.
+   - The final typeset resume MUST achieve 85%–95% balanced vertical page utilization (~400–520 words total).
+   - Never artificially compress or truncate the candidate's achievements.
 
-CRITICAL 1-PAGE DENSITY & COMPLETENESS RULE:
-- NEVER produce a sparse, half-empty resume! An empty resume looks amateurish.
-- The finished resume must be a complete, beautifully proportioned, professional ONE-PAGE document (~350–450 words total).
-- Summary: Always include a sharp 2-3 line professional summary stating target role, specialization, demonstrable technical capabilities, and core focus.
-- Education: Always include degree, specialization, and relevant academic coursework (e.g. Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Operating Systems, Machine Learning, Deep Learning).
-- Skills: Group into Languages, Frameworks, Tools, AI & ML, and Core Fundamentals.
+2. PROJECT DEPTH & STRUCTURE (2 to 4 Strong Projects):
+   - For technical students, freshers, and engineers, projects are the cornerstone of the resume.
+   - Extract and structure 2 to 4 distinct technical projects, systems, or modules represented in the candidate's background (e.g., core platform, asynchronous execution engine, semantic search, or AI workflow automation).
+   - For EACH project, provide 3 to 4 comprehensive, detailed engineering bullets:
+     * Bullet 1 (System & Architecture): What was built, core architecture, and primary tech stack.
+     * Bullet 2 (Implementation & Mechanism): How it was built (API design, database schemas, prompt pipelines, state management, or asynchronous tasks).
+     * Bullet 3 (Technical Contribution): Algorithms, data structures, integration points, error handling, or vector embeddings.
+     * Bullet 4 (Deliverable / Verification): Testing, deployment, user interface, or concrete system outcome.
+
+3. EDUCATION & COURSEWORK COMPLETENESS:
+   - Always include degree, institution, location, dates/expected graduation, and CGPA if mentioned.
+   - Always include a comprehensive list of foundational Computer Science coursework:
+     "Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Operating Systems, Machine Learning & Neural Networks, Computer Networks, Discrete Mathematics".
+
+4. TECHNICAL SKILLS CATEGORIZATION (Zero Skill Bars or Percentages):
+   - Categorize cleanly into:
+     * "Programming Languages": e.g., Python, C++, JavaScript, TypeScript, SQL
+     * "AI & Machine Learning": e.g., Machine Learning, Generative AI, LLMs, Prompt Engineering, NLP
+     * "Web & Backend": e.g., React, Next.js, FastAPI, Node.js, RESTful APIs, TailwindCSS
+     * "Databases & Caching": e.g., PostgreSQL, MongoDB, Redis, Vector Databases
+     * "Developer Tools": e.g., Git, GitHub, Docker, Linux, DSA Problem Solving
+
+5. HONORS, HACKATHONS & ACHIEVEMENTS:
+   - Include 3 to 4 factual milestones (competitive programming challenges solved, hackathon participation/finalist, academic merit, technical explorations).
+
+6. PROFESSIONAL HEADER:
+   - Clean, professional header without emojis or dashboard graphics.
+   - Format: Name, Title, Email, Phone, Location, LinkedIn, GitHub.
+
+7. STRICT ANTI-HALLUCINATION:
+   - Zero fake companies, zero fake metrics (NO "99.9%", NO "10x", NO fake revenue numbers).
+   - Only ground claims in technologies and systems the candidate has actually worked with or explored.
 
 YOUR TASK NOW:
 Target role: ${targetRole || "Software Engineer"}
@@ -216,25 +219,53 @@ LinkedIn: ${linkedin || ""}
 GitHub: ${github || ""}
 Certifications provided: ${certifications || ""}
 
-Write a top-tier, defensible, beautifully proportioned 1-page resume strictly adhering to the facts above.
+Generate a master-grade, beautifully proportioned, 85–95% page-utilized resume strictly adhering to the facts above.
 Return ONLY this JSON, no markdown fences:
 
 {
   "name": "Candidate Full Name extracted from background (or 'Candidate' if not specified)",
-  "title": "${targetRole || "Software Engineer"}",
+  "title": "${targetRole || "Computer Science & Engineering | Software & AI Systems"}",
   "email": "email if present in background or empty string",
   "phone": "phone if present in background or empty string",
   "linkedin": "${linkedin || ""}",
   "github": "${github || ""}",
   "location": "location if stated in background or empty string",
   "summary": "2-3 crisp lines stating target specialization, demonstrable technical capabilities, and core focus.",
-  "sections_in_order": ["Education", "Skills", "Projects", "Achievements"],
+  "sections_in_order": ["Education", "Skills", "Projects", "Experience", "Achievements"],
   "experience": [],
-  "projects": [{"title": "string", "tech": "string", "bullets": ["bullet 1...", "bullet 2...", "bullet 3...", "bullet 4...", "bullet 5..."]}],
-  "education": [{"degree": "string", "institution": "string", "year": "string", "gpa": "string", "relevant": "Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Operating Systems, Machine Learning, Deep Learning"}],
-  "skills_categorized": {"Languages": [], "Frameworks": [], "Tools": [], "AI & ML": [], "Core Fundamentals": []},
-  "certifications": ["only if provided"],
-  "achievements": ["factual achievements, hackathons, or academic milestones"]
+  "projects": [
+    {
+      "title": "Project Name",
+      "tech": "Python, React, FastAPI, PostgreSQL",
+      "bullets": [
+        "Architected and deployed...",
+        "Engineered backend pipelines...",
+        "Implemented real-time...",
+        "Designed responsive..."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.Tech in Computer Science & Engineering (AI/ML Specialization)",
+      "institution": "ABES Engineering College, Ghaziabad",
+      "year": "2024 – 2028",
+      "gpa": "8.8 / 10.0",
+      "relevant": "Data Structures & Algorithms, Object-Oriented Programming, Database Management Systems, Operating Systems, Machine Learning & Neural Networks, Computer Networks"
+    }
+  ],
+  "skills_categorized": {
+    "Languages": ["Python", "C++", "JavaScript", "TypeScript", "SQL"],
+    "AI & ML": ["Machine Learning", "Generative AI", "LLMs", "Prompt Engineering"],
+    "Frameworks & Web": ["React", "Next.js", "FastAPI", "Node.js", "REST APIs"],
+    "Databases & Tools": ["PostgreSQL", "MongoDB", "Redis", "Git", "GitHub", "Docker"]
+  },
+  "certifications": ["Certifications if provided"],
+  "achievements": [
+    "Actively practicing core Data Structures & Algorithms with 250+ solved challenges across arrays, trees, dynamic programming, and graphs.",
+    "Prototyped autonomous AI agent workflows and structured evidence scoring algorithms for technical career benchmarking.",
+    "Academic Merit Scholar for outstanding performance in foundational computer science coursework."
+  ]
 }`;
 
     const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {

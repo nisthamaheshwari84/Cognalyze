@@ -3,11 +3,25 @@
  * Single Source of Truth for all JD-vs-Resume intelligence.
  */
 
-// ============================================================
-// 1. JD REQUIREMENTS & INGESTION CONTRACTS
-// ============================================================
+import {
+  AuditLogEntry,
+  CandidateClaimRecord,
+  DiscoveredSourceRecord,
+  EvidenceRecord,
+  VerificationCheck,
+  VerificationStatus,
+} from '@/lib/evidence/evidence-ledger';
 
-export type RequirementPriority = 'CRITICAL' | 'IMPORTANT' | 'PREFERRED';
+export type {
+  AuditLogEntry,
+  CandidateClaimRecord,
+  DiscoveredSourceRecord,
+  EvidenceRecord,
+  VerificationCheck,
+  VerificationStatus,
+};
+
+export type RequirementPriority = 'CRITICAL' | 'IMPORTANT' | 'PREFERRED' | 'NICE_TO_HAVE';
 
 export type RequirementCategory =
   | 'technical'
@@ -47,6 +61,7 @@ export interface CanonicalJDRequirement {
   category: RequirementCategory;
   subcategory: string;
   priority: RequirementPriority;
+  priority_source_text: string;
   requirement_type: RequirementType;
   synonyms: string[];
   explicitness: Explicitness;
@@ -102,15 +117,48 @@ export interface EvidenceSourceLocation {
   line?: number;
 }
 
+export type EvidenceType =
+  | 'DIRECT_IMPLEMENTATION'
+  | 'PROJECT_USAGE'
+  | 'EXPLICIT_CLAIM'
+  | 'SKILL_LIST'
+  | 'PROFILE_LINK'
+  | 'EDUCATION'
+  | 'CERTIFICATION'
+  | 'EMPLOYMENT'
+  | 'INDIRECT_CONTEXT'
+  | 'NO_EVIDENCE';
+
+export type EvidenceStrength = 'DIRECT' | 'STRONG' | 'MODERATE' | 'WEAK' | 'NONE';
+
+export interface RejectedEvidenceItem {
+  retrievedText: string;
+  reason: string;
+  decision: 'REJECTED';
+  evidenceId?: string;
+}
+
 export interface CanonicalResumeEvidence {
   id: string;
   type: string;
+  evidence_type: EvidenceType;
+  canonical_evidence_id?: string;
+  occurrences?: EvidenceSourceLocation[];
   section: EvidenceSectionType;
   title: string;
   text: string;
   technologies: string[];
   source_location: EvidenceSourceLocation;
   verbatim_quote: string;
+  evidence_id?: string;
+  claim_id?: string;
+  source_type?: string;
+  source_url?: string;
+  observed_fact?: string;
+  verification_status?: VerificationStatus;
+  supports?: string[];
+  does_not_prove?: string[];
+  checks_performed?: VerificationCheck[];
 }
 
 export interface ParsedResume {
@@ -144,6 +192,12 @@ export interface ParsedResume {
     category: string;
     items: string[];
   }[];
+  languages?: string[];
+  frameworks?: string[];
+  databases?: string[];
+  cloud?: string[];
+  tools?: string[];
+  uniqueSourcesCount?: number;
   certifications: string[];
   achievements: string[];
   publications: string[];
@@ -180,14 +234,26 @@ export interface RequirementEvidenceMatch {
   requirementId: string;
   requirementName: string;
   priority: RequirementPriority;
+  prioritySourceText?: string;
   relationship: EvidenceRelationship;
   status: EvidenceStatus;
+  evidenceStrength: EvidenceStrength;
+  evidenceType: EvidenceType;
   confidence: number; // 0.0 - 1.0
   confidenceTier: ConfidenceTier;
   matchedEvidenceIds: string[];
   evidenceQuotes: string[];
   reasoning: string;
   actionableRecommendation: string;
+  verificationStatus?: VerificationStatus;
+  supports?: string[];
+  doesNotProve?: string[];
+  checksPerformed?: VerificationCheck[];
+  rejectedEvidence?: RejectedEvidenceItem[];
+  requirement_weight: number;
+  status_multiplier: number;
+  earned_points: number;
+  possible_points: number;
 }
 
 // ============================================================
@@ -211,9 +277,14 @@ export interface DeterministicScoreBreakdown {
   criticalScore: number;
   importantScore: number;
   preferredScore: number;
+  niceToHaveScore?: number;
   criticalStats: ScoreCategoryStats;
   importantStats: ScoreCategoryStats;
   preferredStats: ScoreCategoryStats;
+  niceToHaveStats?: ScoreCategoryStats;
+  totalEarnedPoints: number;
+  totalPossiblePoints: number;
+  pointsAuditPassed: boolean;
   summaryCounts: {
     supported: number;
     partial: number;
@@ -237,6 +308,8 @@ export type DefensibilityRating = 'STRONG' | 'MODERATE' | 'WEAK';
 
 export interface StrengthItem {
   id: string;
+  requirement_id: string;
+  evidence_id: string;
   strength: string;
   evidence: string;
   whyItMatters: string;
@@ -326,6 +399,7 @@ export interface RewrittenBullet {
   evidenceStatus: 'SUPPORTED' | 'EVIDENCE_GAP';
   targetRequirement?: string;
   interviewDefensibility: DefensibilityRating;
+  original_evidence_ids?: string[];
 }
 
 export interface FullRewrittenResume {
@@ -387,6 +461,9 @@ export interface RoadmapPlan {
 
 export interface InterviewProbeQuestion {
   questionId: string;
+  requirementId: string;
+  evidenceId: string;
+  reasonForQuestion: string;
   targetRequirement: string;
   claimBeingProbed: string;
   question: string;
@@ -433,7 +510,15 @@ export interface FinalVerdict {
   primaryStrengths: string[];
   primaryDocumentedLimitations: string[];
   recommendedApplicationStrategy: string;
+  evidenceBasedSynthesis: string;
   overallPanelSummary: string;
+}
+
+export interface CrossSectionAuditCheck {
+  checkNumber: number;
+  name: string;
+  passed: boolean;
+  detail?: string;
 }
 
 export interface ValidationReport {
@@ -442,6 +527,9 @@ export interface ValidationReport {
   zeroFabricationCertified: boolean;
   crossSectionConsistent: boolean;
   hallucinationFree: boolean;
+  auditPassed: boolean;
+  traceabilityStatus: 'ZERO_FABRICATION_CERTIFIED' | 'TRACEABILITY_AUDIT_INCOMPLETE';
+  crossSectionChecks: CrossSectionAuditCheck[];
   violations: string[];
   withheldSections: string[];
 }
@@ -468,6 +556,10 @@ export interface CanonicalAnalysisObject {
   marketPosition: MarketPositionAnalysis;
   finalVerdict: FinalVerdict;
   validation: ValidationReport;
+  evidenceLedger?: EvidenceRecord[];
+  claimLedger?: CandidateClaimRecord[];
+  discoveredSources?: DiscoveredSourceRecord[];
+  auditTrail?: AuditLogEntry[];
   metadata: {
     version: string;
     timestamp: string;

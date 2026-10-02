@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface Opportunity {
   id?: string;
@@ -18,6 +19,7 @@ interface Opportunity {
 }
 
 export default function AdminOpportunitiesPage() {
+  const { isDark } = useTheme();
   const [adminKey, setAdminKey] = useState("cognalyze-admin-secret");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -30,13 +32,13 @@ export default function AdminOpportunitiesPage() {
   const fetchOpportunities = async () => {
     setFetchingOpps(true);
     try {
-      const res = await fetch("/api/opportunities/ingest");
+      const res = await fetch("/api/admin/opportunities");
       const data = await res.json();
       if (data.opportunities) {
         setOpportunities(data.opportunities);
       }
-    } catch (err: any) {
-      console.error("Failed to fetch opportunities:", err);
+    } catch (e) {
+      console.error(e);
     } finally {
       setFetchingOpps(false);
     }
@@ -55,15 +57,13 @@ export default function AdminOpportunitiesPage() {
     setSuccess(null);
 
     try {
-      const res = await fetch("/api/opportunities/ingest", {
+      const res = await fetch("/api/admin/opportunities", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-key": adminKey
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rawDescription: description,
-          sourceUrl: url
+          adminKey,
+          url: url.trim() || undefined,
+          description: description.trim()
         })
       });
 
@@ -84,38 +84,107 @@ export default function AdminOpportunitiesPage() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#06030f", color: "#f3f4f6", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: isDark ? "#07111F" : "#F6F5F1",
+        color: isDark ? "#F2F6FC" : "#17191C",
+        fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
+      }}
+    >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.25rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(6,3,15,0.85)", backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 10 }}>
+      <header
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "16px 28px",
+          borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+          backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+          position: "sticky",
+          top: 0,
+          zIndex: 20
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 34, height: 34, background: "linear-gradient(135deg,#f59e0b,#ef4444)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900 }}>🛡️</div>
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              backgroundColor: isDark ? "#13243A" : "#EFF4FE",
+              border: `1px solid ${isDark ? "#2A435F" : "#D2E0FB"}`,
+              borderRadius: 8,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+            }}
+          >
+            🛡️
+          </div>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, letterSpacing: -0.5 }}>COGNALYZE ADMIN</div>
-            <div style={{ fontSize: 10, color: "#f59e0b", fontWeight: 700, letterSpacing: 1.5 }}>OPPORTUNITY INGESTION ENGINE</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: isDark ? "#F2F6FC" : "#162A43", letterSpacing: "-0.2px" }}>
+              COGNALYZE ADMIN
+            </div>
+            <div style={{ fontSize: 10, color: "#356AE6", fontWeight: 700, letterSpacing: 1 }}>
+              OPPORTUNITY INGESTION ENGINE
+            </div>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/student" style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", textDecoration: "none", padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <Link
+            href="/student"
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: isDark ? "#B6C4D6" : "#667085",
+              textDecoration: "none",
+              padding: "6px 14px",
+              borderRadius: 7,
+              border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+              backgroundColor: isDark ? "#13243A" : "#FFFFFF"
+            }}
+          >
             Student View ➔
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1.5rem", display: "grid", gridTemplateColumns: "480px 1fr", gap: "2.5rem" }}>
+      <main style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 24px 80px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 24 }}>
         
         {/* Ingestion Form */}
         <div>
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem", position: "sticky", top: 100 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-              <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0 }}>Add Opportunity</h2>
-              <span style={{ fontSize: 10, padding: "3px 8px", background: "rgba(245,158,11,0.15)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 6, color: "#fbbf24", fontWeight: 700 }}>
+          <div
+            style={{
+              backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+              border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+              borderRadius: 12,
+              padding: 24,
+              boxShadow: isDark ? "none" : "0 1px 3px rgba(16, 24, 40, 0.04)"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: isDark ? "#F2F6FC" : "#162A43" }}>
+                Add Opportunity
+              </h2>
+              <span
+                style={{
+                  fontSize: 10,
+                  padding: "3px 8px",
+                  backgroundColor: isDark ? "rgba(234, 182, 90, 0.12)" : "#FEF7ED",
+                  border: `1px solid ${isDark ? "#EAB65A" : "#F8D8A7"}`,
+                  borderRadius: 5,
+                  color: isDark ? "#EAB65A" : "#B7791F",
+                  fontWeight: 700
+                }}
+              >
                 ADMIN ONLY
               </span>
             </div>
 
-            <form onSubmit={handleIngest} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form onSubmit={handleIngest} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                <label style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", fontWeight: 600, display: "block", marginBottom: 6 }}>
                   ADMIN SECURITY KEY
                 </label>
                 <input
@@ -123,12 +192,22 @@ export default function AdminOpportunitiesPage() {
                   value={adminKey}
                   onChange={e => setAdminKey(e.target.value)}
                   placeholder="Enter admin secret key"
-                  style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "white", fontSize: 13, outline: "none" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                    border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                    borderRadius: 7,
+                    color: isDark ? "#F2F6FC" : "#17191C",
+                    fontSize: 13,
+                    outline: "none",
+                    boxSizing: "border-box"
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                <label style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", fontWeight: 600, display: "block", marginBottom: 6 }}>
                   SOURCE URL (Optional)
                 </label>
                 <input
@@ -136,12 +215,22 @@ export default function AdminOpportunitiesPage() {
                   value={url}
                   onChange={e => setUrl(e.target.value)}
                   placeholder="https://unstop.com/hackathons/..."
-                  style={{ width: "100%", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "white", fontSize: 13, outline: "none" }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 12px",
+                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                    border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                    borderRadius: 7,
+                    color: isDark ? "#F2F6FC" : "#17191C",
+                    fontSize: 13,
+                    outline: "none",
+                    boxSizing: "border-box"
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 600, display: "block", marginBottom: 6 }}>
+                <label style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", fontWeight: 600, display: "block", marginBottom: 6 }}>
                   RAW DESCRIPTION OR BROCHURE TEXT
                 </label>
                 <textarea
@@ -150,18 +239,30 @@ export default function AdminOpportunitiesPage() {
                   onChange={e => setDescription(e.target.value)}
                   placeholder="Paste problem statement, brochure, hackathon tracks, eligibility, or internship JD..."
                   required
-                  style={{ width: "100%", padding: "0.85rem 1rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, color: "white", fontSize: 13, outline: "none", resize: "vertical" }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                    border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                    borderRadius: 7,
+                    color: isDark ? "#F2F6FC" : "#17191C",
+                    fontSize: 13,
+                    outline: "none",
+                    resize: "vertical",
+                    boxSizing: "border-box",
+                    lineHeight: 1.5
+                  }}
                 />
               </div>
 
               {error && (
-                <div style={{ padding: "0.75rem 1rem", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, color: "#f87171", fontSize: 12 }}>
+                <div style={{ padding: "10px 14px", backgroundColor: isDark ? "rgba(233, 104, 114, 0.12)" : "#FDF2F2", border: `1px solid ${isDark ? "#E96872" : "#F8C8C8"}`, borderRadius: 8, color: isDark ? "#E96872" : "#C24141", fontSize: 12 }}>
                   ⚠️ {error}
                 </div>
               )}
 
               {success && (
-                <div style={{ padding: "0.75rem 1rem", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 10, color: "#34d399", fontSize: 12 }}>
+                <div style={{ padding: "10px 14px", backgroundColor: isDark ? "rgba(53, 185, 130, 0.12)" : "#EAF4EE", border: `1px solid ${isDark ? "#35B982" : "#C8E4D3"}`, borderRadius: 8, color: isDark ? "#35B982" : "#2E7D5B", fontSize: 12 }}>
                   {success}
                 </div>
               )}
@@ -169,7 +270,22 @@ export default function AdminOpportunitiesPage() {
               <button
                 type="submit"
                 disabled={loading || !description.trim()}
-                style={{ marginTop: 6, padding: "0.9rem", background: loading ? "rgba(255,255,255,0.1)" : "linear-gradient(135deg,#f59e0b,#ef4444)", color: "white", border: "none", borderRadius: 12, fontWeight: 800, fontSize: 14, cursor: loading ? "wait" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                style={{
+                  marginTop: 6,
+                  padding: "10px 18px",
+                  backgroundColor: "#356AE6",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: 7,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: loading ? "wait" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  boxShadow: "0 1px 2px rgba(53, 106, 230, 0.2)"
+                }}
               >
                 {loading ? "⚡ AI Extracting Tags & Context..." : "Parse & Ingest Opportunity ➔"}
               </button>
@@ -179,71 +295,110 @@ export default function AdminOpportunitiesPage() {
 
         {/* Opportunity Review List */}
         <div>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <h2 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: isDark ? "#F2F6FC" : "#162A43" }}>
               Active Ingested Opportunities ({opportunities.length})
             </h2>
             <button
               onClick={fetchOpportunities}
-              style={{ fontSize: 11, padding: "5px 12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "rgba(255,255,255,0.7)", cursor: "pointer" }}
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                padding: "6px 12px",
+                backgroundColor: isDark ? "#13243A" : "#FFFFFF",
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                borderRadius: 7,
+                color: isDark ? "#F2F6FC" : "#162A43",
+                cursor: "pointer"
+              }}
             >
               ↻ Refresh
             </button>
           </div>
 
           {fetchingOpps ? (
-            <div style={{ textAlign: "center", padding: "4rem 2rem", color: "rgba(255,255,255,0.4)" }}>
+            <div style={{ textAlign: "center", padding: "4rem 2rem", color: isDark ? "#8292A8" : "#98A2B3" }}>
               Loading opportunities...
             </div>
           ) : opportunities.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "4rem 2rem", background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ textAlign: "center", padding: "4rem 2rem", backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF", borderRadius: 12, border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
-              <div style={{ fontSize: 14, fontWeight: 600 }}>No opportunities added yet.</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Paste a description on the left to add one!</div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? "#F2F6FC" : "#162A43" }}>No opportunities added yet.</div>
+              <div style={{ fontSize: 12, color: isDark ? "#8292A8" : "#667085", marginTop: 4 }}>Paste a description on the left to add one!</div>
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {opportunities.map((opp, idx) => (
-                <div key={opp.id || idx} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "1.25rem" }}>
+                <div
+                  key={opp.id || idx}
+                  style={{
+                    backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+                    border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                    borderRadius: 10,
+                    padding: 16,
+                    boxShadow: isDark ? "none" : "0 1px 2px rgba(16, 24, 40, 0.03)"
+                  }}
+                >
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, textTransform: "uppercase", padding: "2px 8px", background: opp.type === "hackathon" ? "rgba(99,102,241,0.15)" : "rgba(16,185,129,0.15)", color: opp.type === "hackathon" ? "#818cf8" : "#34d399", borderRadius: 6, fontWeight: 700 }}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            textTransform: "uppercase",
+                            padding: "2px 7px",
+                            backgroundColor: isDark ? "#13243A" : "#EFF4FE",
+                            color: isDark ? "#4C8DFF" : "#356AE6",
+                            border: `1px solid ${isDark ? "#2A435F" : "#D2E0FB"}`,
+                            borderRadius: 5,
+                            fontWeight: 700
+                          }}
+                        >
                           {opp.type}
                         </span>
-                        <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(245,158,11,0.12)", color: "#fbbf24", borderRadius: 6, fontWeight: 700 }}>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            padding: "2px 7px",
+                            backgroundColor: isDark ? "rgba(234, 182, 90, 0.12)" : "#FEF7ED",
+                            border: `1px solid ${isDark ? "#EAB65A" : "#F8D8A7"}`,
+                            color: isDark ? "#EAB65A" : "#B7791F",
+                            borderRadius: 5,
+                            fontWeight: 700
+                          }}
+                        >
                           {opp.tier}
                         </span>
-                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>• {opp.organizer}</span>
+                        <span style={{ fontSize: 12, color: isDark ? "#8292A8" : "#667085" }}>• {opp.organizer}</span>
                       </div>
-                      <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#ffffff" }}>{opp.title}</h3>
+                      <h3 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: isDark ? "#F2F6FC" : "#17191C" }}>{opp.title}</h3>
                     </div>
                     {opp.deadline && (
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", textAlign: "right" }}>
-                        Deadline: <span style={{ color: "#f87171", fontWeight: 600 }}>{new Date(opp.deadline).toLocaleDateString()}</span>
+                      <div style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", textAlign: "right" }}>
+                        Deadline: <span style={{ color: "#C24141", fontWeight: 600 }}>{new Date(opp.deadline).toLocaleDateString()}</span>
                       </div>
                     )}
                   </div>
 
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, margin: "6px 0 10px" }}>
+                  <p style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.5, margin: "6px 0 10px" }}>
                     {opp.extracted_context?.summary || opp.eligibility}
                   </p>
 
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
                     {(opp.tags || []).map((t, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: "2px 8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, color: "#94a3b8" }}>
+                      <span key={i} style={{ fontSize: 11, padding: "2px 7px", backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, borderRadius: 5, color: isDark ? "#B6C4D6" : "#667085" }}>
                         #{t}
                       </span>
                     ))}
                     {(opp.domain_tags || []).map((d, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: "2px 8px", background: "rgba(168,85,247,0.1)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: 6, color: "#c084fc" }}>
+                      <span key={i} style={{ fontSize: 11, padding: "2px 7px", backgroundColor: isDark ? "#13243A" : "#EFF4FE", border: `1px solid ${isDark ? "#2A435F" : "#D2E0FB"}`, borderRadius: 5, color: isDark ? "#4C8DFF" : "#356AE6" }}>
                         {d}
                       </span>
                     ))}
                   </div>
 
                   {opp.extracted_context?.prize_pool && (
-                    <div style={{ fontSize: 11, color: "#34d399", fontWeight: 600 }}>
+                    <div style={{ fontSize: 11, color: isDark ? "#35B982" : "#2E7D5B", fontWeight: 600 }}>
                       🏆 Prize: {opp.extracted_context.prize_pool}
                     </div>
                   )}
@@ -253,7 +408,7 @@ export default function AdminOpportunitiesPage() {
           )}
         </div>
 
-      </div>
+      </main>
     </div>
   );
 }

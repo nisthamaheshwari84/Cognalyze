@@ -34,63 +34,100 @@ export function parseJobDescription(jdText: string): ParsedJD {
   }
 
   // 2. Identify sections
-  const reqLines: { text: string; sectionPriority: RequirementPriority; explicitness: 'explicit' | 'implicit' }[] = [];
+  const reqLines: {
+    text: string;
+    sectionPriority: RequirementPriority;
+    prioritySourceText: string;
+    explicitness: 'explicit' | 'implicit';
+  }[] = [];
   let currentPriority: RequirementPriority = 'IMPORTANT';
+  let currentPrioritySourceText: string = 'Role Responsibilities & Core Competencies';
 
   for (const line of lines) {
     const isBullet = line.startsWith('-') || line.startsWith('•') || line.startsWith('*') || /^\d+\./.test(line);
     const cleanText = line.replace(/^[-•*]|\d+\.\s*/, '').trim();
     const lower = cleanText.toLowerCase();
 
-    // Check section header changes (only if not an actual bullet or ends with a colon)
-    const isHeaderCandidate = !isBullet && (cleanText.length < 50 || cleanText.endsWith(':'));
+    // Check section header changes (only if it ends with colon or is a short standalone header without colon)
+    const isHeaderCandidate =
+      !isBullet &&
+      (cleanText.endsWith(':') || (!cleanText.includes(':') && cleanText.length < 35));
+    const normalizedHeader = lower.replace(/[-_]/g, ' ');
     if (isHeaderCandidate) {
       if (
-        lower.includes('must have') ||
-        lower.includes('required qualification') ||
-        lower.includes('basic qualification') ||
-        lower.includes('minimum qualification') ||
-        lower.includes('requirements') ||
-        lower.includes('core requirements')
+        normalizedHeader.includes('must have') ||
+        normalizedHeader.includes('required qualification') ||
+        normalizedHeader.includes('basic qualification') ||
+        normalizedHeader.includes('minimum qualification') ||
+        normalizedHeader.includes('core requirements') ||
+        normalizedHeader.includes('requirements')
       ) {
         currentPriority = 'CRITICAL';
+        currentPrioritySourceText = line;
         continue;
       }
       if (
-        lower.includes('preferred') ||
-        lower.includes('nice to have') ||
-        lower.includes('bonus') ||
-        lower.includes('plus if') ||
-        lower.includes('good to have') ||
-        lower.includes('desired')
+        normalizedHeader.includes('nice to have') ||
+        normalizedHeader.includes('good to have')
+      ) {
+        currentPriority = 'NICE_TO_HAVE';
+        currentPrioritySourceText = line;
+        continue;
+      }
+      if (
+        normalizedHeader.includes('preferred') ||
+        normalizedHeader.includes('bonus') ||
+        normalizedHeader.includes('plus if') ||
+        normalizedHeader.includes('desired')
       ) {
         currentPriority = 'PREFERRED';
+        currentPrioritySourceText = line;
         continue;
       }
       if (
-        lower.includes('responsibilities') ||
-        lower.includes('what you will do') ||
-        lower.includes('about the role')
+        normalizedHeader.includes('responsibilities') ||
+        normalizedHeader.includes('what you will do') ||
+        normalizedHeader.includes('about the role')
       ) {
         currentPriority = 'IMPORTANT';
+        currentPrioritySourceText = line;
         continue;
       }
     }
 
-    if (cleanText.length > 8 && !cleanText.endsWith(':')) {
+    if (cleanText.length > 5 && !cleanText.endsWith(':')) {
       let itemPriority = currentPriority;
+      let itemPrioritySource = currentPrioritySourceText;
       const lowerClean = cleanText.toLowerCase();
+      const normalizedClean = lowerClean.replace(/[-_]/g, ' ');
 
       // Inline explicit markers
-      if (lowerClean.includes('must have') || lowerClean.includes('required') || lowerClean.includes('mandatory')) {
+      if (
+        normalizedClean.includes('must have') ||
+        normalizedClean.includes('required') ||
+        normalizedClean.includes('mandatory')
+      ) {
         itemPriority = 'CRITICAL';
-      } else if (lowerClean.includes('preferred') || lowerClean.includes('plus') || lowerClean.includes('nice to have')) {
+        itemPrioritySource = cleanText;
+      } else if (
+        normalizedClean.includes('nice to have') ||
+        normalizedClean.includes('good to have')
+      ) {
+        itemPriority = 'NICE_TO_HAVE';
+        itemPrioritySource = cleanText;
+      } else if (
+        normalizedClean.includes('preferred') ||
+        normalizedClean.includes('plus') ||
+        normalizedClean.includes('bonus')
+      ) {
         itemPriority = 'PREFERRED';
+        itemPrioritySource = cleanText;
       }
 
       reqLines.push({
         text: cleanText,
         sectionPriority: itemPriority,
+        prioritySourceText: itemPrioritySource,
         explicitness: isBullet ? 'explicit' : 'implicit',
       });
     }
@@ -132,16 +169,19 @@ export function parseJobDescription(jdText: string): ParsedJD {
           category: cat,
           subcategory: subcat,
           priority: item.sectionPriority,
+          priority_source_text: item.prioritySourceText,
           requirement_type: node.category === 'language' ? 'language' : node.category === 'framework' ? 'framework' : 'skill',
           synonyms: node.synonyms,
           explicitness: item.explicitness,
           evidence_policy: 'direct_or_project_evidence',
           priority_reasoning:
             item.sectionPriority === 'CRITICAL'
-              ? 'Explicitly listed in core requirements/must-have criteria.'
+              ? `Derived from source text: "${item.prioritySourceText}"`
               : item.sectionPriority === 'PREFERRED'
-              ? 'Identified in preferred/bonus qualifications section.'
-              : 'Core competency derived from role responsibilities.',
+              ? `Derived from preferred qualifications: "${item.prioritySourceText}"`
+              : item.sectionPriority === 'NICE_TO_HAVE'
+              ? `Derived from nice-to-have criteria: "${item.prioritySourceText}"`
+              : `Derived from role description: "${item.prioritySourceText}"`,
         });
       }
     }
@@ -150,10 +190,10 @@ export function parseJobDescription(jdText: string): ParsedJD {
   // Fallback / standard role patterns if JD text was brief or non-bulleted
   if (canonicalReqs.length === 0) {
     const defaultPatterns = [
-      { name: 'Python', key: 'python', priority: 'CRITICAL' as RequirementPriority },
-      { name: 'Machine Learning', key: 'machine_learning', priority: 'CRITICAL' as RequirementPriority },
-      { name: 'RESTful APIs', key: 'rest_api', priority: 'IMPORTANT' as RequirementPriority },
-      { name: 'AWS', key: 'aws', priority: 'PREFERRED' as RequirementPriority },
+      { name: 'Python', key: 'python', priority: 'CRITICAL' as RequirementPriority, source: 'Core Role Expectation' },
+      { name: 'Machine Learning', key: 'machine_learning', priority: 'CRITICAL' as RequirementPriority, source: 'Core Role Expectation' },
+      { name: 'RESTful APIs', key: 'rest_api', priority: 'IMPORTANT' as RequirementPriority, source: 'Role Responsibilities' },
+      { name: 'AWS', key: 'aws', priority: 'PREFERRED' as RequirementPriority, source: 'Preferred Qualifications' },
     ];
 
     for (const dp of defaultPatterns) {
@@ -165,18 +205,19 @@ export function parseJobDescription(jdText: string): ParsedJD {
         category: dp.key === 'aws' ? 'deployment' : 'technical',
         subcategory: node?.category || 'skill',
         priority: dp.priority,
+        priority_source_text: dp.source,
         requirement_type: 'skill',
         synonyms: node?.synonyms || [],
         explicitness: 'implicit',
         evidence_policy: 'direct_or_project_evidence',
-        priority_reasoning: 'Standard role competency requirement derived from title context.',
+        priority_reasoning: `Standard role competency requirement derived from title context.`,
       });
     }
   }
 
-  // Ensure priority ordering: CRITICAL first, then IMPORTANT, then PREFERRED
+  // Ensure priority ordering: CRITICAL first, then IMPORTANT, then PREFERRED, then NICE_TO_HAVE
   canonicalReqs.sort((a, b) => {
-    const weight = { CRITICAL: 3, IMPORTANT: 2, PREFERRED: 1 };
+    const weight: Record<RequirementPriority, number> = { CRITICAL: 4, IMPORTANT: 3, PREFERRED: 2, NICE_TO_HAVE: 1 };
     return weight[b.priority] - weight[a.priority];
   });
 
@@ -193,7 +234,7 @@ export function parseJobDescription(jdText: string): ParsedJD {
     programmingLanguages: canonicalReqs.filter((r) => r.requirement_type === 'language').map((r) => r.normalized_requirement),
     domainKnowledge: ['Software Architecture', 'Data Processing'],
     certifications: [],
-    preferredQualifications: canonicalReqs.filter((r) => r.priority === 'PREFERRED').map((r) => r.normalized_requirement),
+    preferredQualifications: canonicalReqs.filter((r) => r.priority === 'PREFERRED' || r.priority === 'NICE_TO_HAVE').map((r) => r.normalized_requirement),
     deploymentRequirements: canonicalReqs.filter((r) => r.category === 'deployment').map((r) => r.normalized_requirement),
     requirements: canonicalReqs,
   };

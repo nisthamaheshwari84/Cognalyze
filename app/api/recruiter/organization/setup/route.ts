@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
-import { extractEmailDomain } from "@/lib/auth/security";
+import { extractEmailDomain, isGenericEmailDomain } from "@/lib/auth/security";
 import {
   createOrganization,
   getOrganizationByDomain,
@@ -18,16 +18,28 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { companyName, companyWebsite, industry, companySize, designation } = body;
 
-    if (!companyName || typeof companyName !== "string") {
-      return NextResponse.json({ error: "Company name is required." }, { status: 400 });
+    if (!companyName || typeof companyName !== "string" || companyName.trim().length < 2) {
+      return NextResponse.json({ error: "A valid company name is required." }, { status: 400 });
     }
 
-    // Extract work email domain from recruiter work email
-    const workEmailDomain = extractEmailDomain(auth.user.email);
+    const workEmail = auth.user.email;
+    const workEmailDomain = extractEmailDomain(workEmail);
 
-    // Normalize company domain from website if provided, else use work email domain
+    // 1. Consumer Email Rejection (Section 20 & 21)
+    // Personal emails (gmail, yahoo, etc.) CANNOT be automatically verified as company identity.
+    if (isGenericEmailDomain(workEmail)) {
+      return NextResponse.json({
+        success: false,
+        status: "FAILED",
+        verificationStatus: "FAILED",
+        domainMatches: false,
+        error: "Personal/consumer email addresses cannot be used for company verification. Please register with your official company work email."
+      }, { status: 400 });
+    }
+
+    // 2. Normalize company website domain
     let companyDomain = workEmailDomain;
-    if (companyWebsite) {
+    if (companyWebsite && typeof companyWebsite === "string" && companyWebsite.trim().length > 3) {
       try {
         const urlStr = companyWebsite.startsWith("http") ? companyWebsite : `https://${companyWebsite}`;
         const parsed = new URL(urlStr);
@@ -37,31 +49,45 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Domain Match Verification Logic
+    // 3. Domain Consistency Check (Section 21, 22, 23)
     const domainMatches = workEmailDomain.toLowerCase() === companyDomain.toLowerCase();
-    const verificationStatus = domainMatches ? "VERIFIED" : "DOMAIN_MATCHED";
+    
+    // Explicit verification states: PENDING, VERIFIED, FAILED, MANUAL_REVIEW
+    let verificationStatus: "VERIFIED" | "MANUAL_REVIEW" | "PENDING" | "FAILED" = "PENDING";
+    let verificationMessage = "";
 
-    // Check if organization already registered for this domain
+    if (domainMatches && auth.user.emailVerifiedAt) {
+      verificationStatus = "VERIFIED";
+      verificationMessage = "Company identity and work email domain verified successfully.";
+    } else if (!domainMatches) {
+      verificationStatus = "MANUAL_REVIEW";
+      verificationMessage = `Email domain (${workEmailDomain}) differs from company website domain (${companyDomain}). Submitted for manual compliance review.`;
+    } else {
+      verificationStatus = "PENDING";
+      verificationMessage = "Work email verification pending.";
+    }
+
+    // 4. Create or reuse company entity (Section 24)
     let organization = getOrganizationByDomain(companyDomain);
     if (!organization) {
       organization = createOrganization({
-        name: companyName,
+        name: companyName.trim(),
         domain: companyDomain,
-        website: companyWebsite || `https://${companyDomain}`,
+        website: companyWebsite ? (companyWebsite.startsWith("http") ? companyWebsite : `https://${companyWebsite}`) : `https://${companyDomain}`,
         industry: industry || "Technology & Software",
         companySize: companySize || "50-250",
-        verificationStatus
+        verificationStatus: verificationStatus as any
       });
     }
 
-    // Link recruiter to organization
+    // 5. Update Recruiter Profile
     updateRecruiterProfile(auth.user.id, {
       organizationId: organization.id,
       designation: designation || auth.recruiterProfile?.designation || "Technical Recruiter",
       status: verificationStatus === "VERIFIED" ? "ACTIVE" : "ORGANIZATION_PENDING"
     });
 
-    // Update user status
+    // 6. Update User Status
     if (verificationStatus === "VERIFIED") {
       updateUser(auth.user.id, { status: "ACTIVE" });
     }
@@ -70,7 +96,9 @@ export async function POST(req: NextRequest) {
       success: true,
       organization,
       domainMatches,
+      verificationStatus,
       status: verificationStatus === "VERIFIED" ? "ACTIVE" : "ORGANIZATION_PENDING",
+      message: verificationMessage,
       nextUrl: verificationStatus === "VERIFIED" ? "/recruiter/dashboard" : "/recruiter/organization/setup"
     });
   } catch (err: any) {

@@ -79,11 +79,7 @@ export async function POST(req: NextRequest) {
       } else {
         const studentProfile = getStudentProfileByUserId(user.id);
         profile = studentProfile;
-        if (!studentProfile || !studentProfile.profileCompleted) {
-          nextUrl = "/student/onboarding";
-        } else {
-          nextUrl = "/student/dashboard";
-        }
+        nextUrl = "/student/dashboard";
       }
     } else if (user.accountType === "recruiter") {
       if (user.status === "EMAIL_PENDING") {

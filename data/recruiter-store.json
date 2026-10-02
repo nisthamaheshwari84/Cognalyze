@@ -1,6 +1,88 @@
 {
   "roles": [
     {
+      "id": "role-principal-distributed-architect-4543",
+      "title": "Principal Distributed Architect",
+      "department": "Core Systems",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "status": "active",
+      "createdAt": "2026-10-01T16:44:44.543Z",
+      "updatedAt": "2026-10-01T16:44:44.543Z",
+      "uncertaintyThreshold": 0.2,
+      "businessOutcomes": [
+        {
+          "id": "out-1",
+          "outcome": "Deliver high-availability distributed architecture for tier-1 service",
+          "metric": "99.99% service uptime under 5x traffic surges",
+          "timeframe": "First 90 days",
+          "impactSeverity": "Critical"
+        },
+        {
+          "id": "out-2",
+          "outcome": "Mentor team on distributed caching, partition fault tolerance, and observability",
+          "metric": "Zero critical production incidents caused by cache invalidation failures",
+          "timeframe": "First 60 days",
+          "impactSeverity": "High"
+        }
+      ],
+      "tieredRequirements": [
+        {
+          "id": "req-crit-1",
+          "name": "Raft Consensus & Distributed Log Replication",
+          "tier": "Critical",
+          "category": "System Design",
+          "description": "Deep knowledge of multi-Paxos/Raft state machines and quorum failover",
+          "weightPct": 40,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "live_work_sample"
+          ]
+        },
+        {
+          "id": "req-crit-2",
+          "name": "Low-Latency Kernel Network Tuning (eBPF/DPDK)",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "High packet throughput with zero-copy buffers",
+          "weightPct": 30,
+          "verificationMethod": "code_execution",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code"
+          ]
+        },
+        {
+          "id": "req-imp-1",
+          "name": "Distributed Tracing Architecture (OpenTelemetry)",
+          "tier": "Important",
+          "category": "Technical",
+          "description": "Context propagation across microservices boundaries",
+          "weightPct": 20,
+          "verificationMethod": "targeted_interview",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        },
+        {
+          "id": "req-train-1",
+          "name": "Prometheus Alertmanager Syntax",
+          "tier": "Trainable",
+          "category": "Technical",
+          "description": "Rule writing; easily acquired in first 2 weeks",
+          "weightPct": 10,
+          "verificationMethod": "portfolio_audit",
+          "dealBreakerIfMissing": false,
+          "acceptableProofTypes": [
+            "verified_interview"
+          ]
+        }
+      ]
+    },
+    {
       "id": "role-principal-distributed-architect-4065",
       "title": "Principal Distributed Architect",
       "department": "Core Systems",

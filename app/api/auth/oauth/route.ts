@@ -29,9 +29,7 @@ export async function POST(req: NextRequest) {
       const studentProfile = getStudentProfileByUserId(existingLinkedUser.id);
       const session = createSession(existingLinkedUser.id, existingLinkedUser.accountType);
 
-      const nextUrl = !studentProfile
-        ? "/student/onboarding"
-        : "/student/dashboard";
+      const nextUrl = "/student/dashboard";
 
       const res = NextResponse.json({
         status: "AUTHENTICATED",
@@ -106,7 +104,7 @@ export async function POST(req: NextRequest) {
         accountType: newUser.accountType
       },
       profile: null,
-      nextUrl: "/student/onboarding"
+      nextUrl: "/student/dashboard"
     });
 
     res.cookies.set("cognalyze_session", session.token, {

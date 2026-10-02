@@ -2,6 +2,8 @@
 
 import React, { useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
+import CompanyLogo from "@/components/CompanyLogo";
 
 interface OpportunityMatchModalProps {
   isOpen: boolean;
@@ -23,6 +25,8 @@ export default function OpportunityMatchModal({
   onClose,
   opportunity
 }: OpportunityMatchModalProps) {
+  const { isDark } = useTheme();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
@@ -41,8 +45,8 @@ export default function OpportunityMatchModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
+        backgroundColor: isDark ? "rgba(7, 17, 31, 0.75)" : "rgba(22, 42, 67, 0.45)",
+        backdropFilter: "blur(4px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -53,11 +57,11 @@ export default function OpportunityMatchModal({
       <div
         style={{
           width: "100%",
-          maxWidth: 540,
-          backgroundColor: "#0f172a",
-          borderRadius: 16,
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+          maxWidth: 520,
+          backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+          borderRadius: 12,
+          border: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
+          boxShadow: isDark ? "0 20px 40px -10px rgba(0, 0, 0, 0.4)" : "0 20px 40px -10px rgba(22, 42, 67, 0.18)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden"
@@ -66,64 +70,68 @@ export default function OpportunityMatchModal({
       >
         <div
           style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "18px 24px",
+            borderBottom: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "rgba(15, 23, 42, 0.8)"
+            backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF"
           }}
         >
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
-              {opportunity.organizer}
-            </span>
-            <div style={{ fontSize: 17, fontWeight: 800, color: "#ffffff", marginTop: 2 }}>
-              {opportunity.title}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <CompanyLogo companyName={opportunity.organizer} size={36} />
+            <div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#4C8DFF" : "#356AE6", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                {opportunity.organizer}
+              </span>
+              <div style={{ fontSize: 16, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43", marginTop: 2 }}>
+                {opportunity.title}
+              </div>
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
+              width: 30,
+              height: 30,
+              borderRadius: 6,
+              border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+              backgroundColor: isDark ? "#13243A" : "#F6F5F1",
+              color: isDark ? "#B6C4D6" : "#667085",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              fontWeight: 700
+              fontWeight: 600,
+              fontSize: 14
             }}
           >
             ✕
           </button>
         </div>
 
-        <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Explainable Match Rationale */}
           <div
             style={{
               padding: "14px 16px",
-              borderRadius: 12,
-              backgroundColor: "rgba(37, 99, 235, 0.12)",
-              border: "1px solid rgba(37, 99, 235, 0.3)"
+              borderRadius: 8,
+              backgroundColor: isDark ? "rgba(76, 141, 255, 0.12)" : "#EEF4FD",
+              border: isDark ? "1px solid rgba(76, 141, 255, 0.25)" : "1px solid #D1E2FB"
             }}
           >
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#60a5fa", textTransform: "uppercase", letterSpacing: 0.6 }}>
-              ✦ Why Cognalyze Matched You
+            <div style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#73A6FF" : "#356AE6", textTransform: "uppercase", letterSpacing: 0.5 }}>
+              Why this match?
             </div>
-            <div style={{ fontSize: 13, color: "#93c5fd", fontWeight: 600, marginTop: 4, lineHeight: 1.4 }}>
+            <div style={{ fontSize: 13, color: isDark ? "#F2F6FC" : "#162A43", fontWeight: 500, marginTop: 4, lineHeight: 1.5 }}>
               {opportunity.matchReason}
             </div>
           </div>
 
-          {/* Verified Evidence vs Needs Gaps */}
+          {/* Verified Evidence */}
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 8 }}>
-              Verified Skills Supporting This Match
+            <div style={{ fontSize: 11, fontWeight: 600, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", marginBottom: 8, letterSpacing: 0.5 }}>
+              Verified Capabilities Supporting Match
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {opportunity.verifiedTags.map((tag) => (
@@ -132,11 +140,11 @@ export default function OpportunityMatchModal({
                   style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    padding: "4px 10px",
-                    borderRadius: 6,
-                    backgroundColor: "rgba(16, 185, 129, 0.15)",
-                    color: "#34d399",
-                    border: "1px solid rgba(16, 185, 129, 0.3)"
+                    padding: "4px 9px",
+                    borderRadius: 5,
+                    backgroundColor: isDark ? "rgba(53, 185, 130, 0.12)" : "#EAF4EE",
+                    color: isDark ? "#5ED19D" : "#2E7D5B",
+                    border: isDark ? "1px solid rgba(53, 185, 130, 0.25)" : "1px solid #C8E4D3"
                   }}
                 >
                   ✓ {tag}
@@ -147,8 +155,8 @@ export default function OpportunityMatchModal({
 
           {opportunity.missingTags.length > 0 && (
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", marginBottom: 8 }}>
-                Suggested Capabilities to Strengthen
+              <div style={{ fontSize: 11, fontWeight: 600, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", marginBottom: 8, letterSpacing: 0.5 }}>
+                Open Gaps to Strengthen
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {opportunity.missingTags.map((tag) => (
@@ -157,11 +165,11 @@ export default function OpportunityMatchModal({
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      padding: "4px 10px",
-                      borderRadius: 6,
-                      backgroundColor: "rgba(245, 158, 11, 0.15)",
-                      color: "#fbbf24",
-                      border: "1px solid rgba(245, 158, 11, 0.3)"
+                      padding: "4px 9px",
+                      borderRadius: 5,
+                      backgroundColor: isDark ? "rgba(234, 182, 90, 0.12)" : "#FEF7ED",
+                      color: isDark ? "#F0C978" : "#B7791F",
+                      border: isDark ? "1px solid rgba(234, 182, 90, 0.25)" : "1px solid #FDE68A"
                     }}
                   >
                     ⚠ {tag}
@@ -172,42 +180,43 @@ export default function OpportunityMatchModal({
           )}
 
           {opportunity.deadline && (
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>
-              <strong style={{ color: "#e2e8f0" }}>Deadline:</strong> {opportunity.deadline}
+            <div style={{ fontSize: 13, color: isDark ? "#B6C4D6" : "#667085" }}>
+              <strong style={{ color: isDark ? "#F2F6FC" : "#162A43" }}>Deadline:</strong> {opportunity.deadline}
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+          {/* Action Row */}
+          <div style={{ display: "flex", gap: 10, marginTop: 6, paddingTop: 14, borderTop: isDark ? "1px solid #223750" : "1px solid #E4E1DA" }}>
             <Link
               href={opportunity.sourceUrl || "/student/opportunities"}
               target={opportunity.sourceUrl?.startsWith("http") ? "_blank" : undefined}
               onClick={onClose}
               style={{
                 flex: 1,
-                padding: "11px 0",
-                borderRadius: 10,
-                backgroundColor: "#2563eb",
+                padding: "10px 0",
+                borderRadius: 7,
+                backgroundColor: isDark ? "#3478F6" : "#356AE6",
                 color: "#ffffff",
                 textAlign: "center",
                 textDecoration: "none",
-                fontSize: 14,
-                fontWeight: 700,
-                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)"
+                fontSize: 13,
+                fontWeight: 600,
+                boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.18)" : "0 1px 2px rgba(16, 24, 40, 0.05)"
               }}
             >
-              Open Application / Portal ↗
+              Open Application Portal →
             </Link>
             <Link
               href="/student/opportunities"
               onClick={onClose}
               style={{
-                padding: "11px 18px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                color: "#cbd5e1",
+                padding: "10px 16px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FFFFFF",
+                color: isDark ? "#DCE7F5" : "#17191C",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
                 textDecoration: "none",
                 display: "flex",
                 alignItems: "center"

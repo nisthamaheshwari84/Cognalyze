@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface EditStudentDnaModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function EditStudentDnaModal({
   currentGoal = "AI/ML Engineer",
   onGoalUpdated
 }: EditStudentDnaModalProps) {
+  const { isDark } = useTheme();
   const [selectedGoal, setSelectedGoal] = useState(currentGoal);
   const [timeline, setTimeline] = useState("Next 6 months");
   const [saving, setSaving] = useState(false);
@@ -76,8 +78,8 @@ export default function EditStudentDnaModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
+        backgroundColor: isDark ? "rgba(3, 8, 16, 0.72)" : "rgba(22, 42, 67, 0.45)",
+        backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -88,11 +90,13 @@ export default function EditStudentDnaModal({
       <div
         style={{
           width: "100%",
-          maxWidth: 540,
-          backgroundColor: "#0f172a",
-          borderRadius: 16,
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+          maxWidth: 520,
+          backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+          borderRadius: 12,
+          border: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
+          boxShadow: isDark
+            ? "0 24px 48px -12px rgba(0, 0, 0, 0.5)"
+            : "0 20px 40px -10px rgba(22, 42, 67, 0.18)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden"
@@ -101,45 +105,46 @@ export default function EditStudentDnaModal({
       >
         <div
           style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "18px 24px",
+            borderBottom: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "rgba(15, 23, 42, 0.8)"
+            backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF"
           }}
         >
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: "#ffffff" }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43" }}>
               Edit Student DNA & Career Intent
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>
+            <div style={{ fontSize: 13, color: isDark ? "#8292A8" : "#667085", marginTop: 2 }}>
               Calibrate role expectations, gap formulas, and opportunity ranking
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
+              width: 30,
+              height: 30,
+              borderRadius: 6,
+              border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+              backgroundColor: isDark ? "#13243A" : "#F6F5F1",
+              color: isDark ? "#B6C4D6" : "#667085",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              fontWeight: 700
+              fontWeight: 600,
+              fontSize: 14
             }}
           >
             ✕
           </button>
         </div>
 
-        <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 18 }}>
+        <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
               Primary Career Target
             </label>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
@@ -152,10 +157,20 @@ export default function EditStudentDnaModal({
                     onClick={() => setSelectedGoal(opt.title)}
                     style={{
                       textAlign: "left",
-                      padding: "12px 16px",
-                      borderRadius: 12,
-                      border: isSelected ? "2px solid #2563eb" : "1px solid rgba(255, 255, 255, 0.1)",
-                      backgroundColor: isSelected ? "rgba(37, 99, 235, 0.15)" : "rgba(2, 6, 23, 0.5)",
+                      padding: "12px 14px",
+                      borderRadius: 7,
+                      border: isSelected
+                        ? "1.5px solid #3478F6"
+                        : isDark
+                        ? "1px solid #263D57"
+                        : "1px solid #E4E1DA",
+                      backgroundColor: isSelected
+                        ? isDark
+                          ? "rgba(52, 120, 246, 0.16)"
+                          : "#EEF4FD"
+                        : isDark
+                        ? "#13243A"
+                        : "#FAF9F6",
                       cursor: "pointer",
                       display: "flex",
                       justifyContent: "space-between",
@@ -164,15 +179,27 @@ export default function EditStudentDnaModal({
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: isSelected ? "#60a5fa" : "#ffffff" }}>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: isSelected
+                            ? isDark
+                              ? "#73A6FF"
+                              : "#356AE6"
+                            : isDark
+                            ? "#F2F6FC"
+                            : "#17191C"
+                        }}
+                      >
                         {opt.title}
                       </div>
-                      <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: isDark ? "#8292A8" : "#667085", marginTop: 2 }}>
                         {opt.focus}
                       </div>
                     </div>
                     {isSelected && (
-                      <span style={{ fontSize: 16, color: "#38bdf8", fontWeight: 900 }}>✓</span>
+                      <span style={{ fontSize: 14, color: isDark ? "#73A6FF" : "#356AE6", fontWeight: 700 }}>✓</span>
                     )}
                   </button>
                 );
@@ -181,47 +208,66 @@ export default function EditStudentDnaModal({
           </div>
 
           <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
               Target Season / Timeline
             </label>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
-              {["Immediate / 2026 Batch", "Next 6 months", "Summer 2027", "Full-Time Placement"].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setTimeline(t)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: 8,
-                    fontSize: 12,
-                    fontWeight: 600,
-                    border: timeline === t ? "1px solid #2563eb" : "1px solid rgba(255, 255, 255, 0.1)",
-                    backgroundColor: timeline === t ? "rgba(37, 99, 235, 0.2)" : "rgba(2, 6, 23, 0.5)",
-                    color: timeline === t ? "#60a5fa" : "#94a3b8",
-                    cursor: "pointer"
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
+              {["Immediate / 2026 Batch", "Next 6 months", "Summer 2027", "Full-Time Placement"].map((t) => {
+                const isSelected = timeline === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setTimeline(t)}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      border: isSelected
+                        ? "1.5px solid #3478F6"
+                        : isDark
+                        ? "1px solid #263D57"
+                        : "1px solid #E4E1DA",
+                      backgroundColor: isSelected
+                        ? isDark
+                          ? "rgba(52, 120, 246, 0.16)"
+                          : "#EEF4FD"
+                        : isDark
+                        ? "#13243A"
+                        : "#FAF9F6",
+                      color: isSelected
+                        ? isDark
+                          ? "#73A6FF"
+                          : "#356AE6"
+                        : isDark
+                        ? "#B6C4D6"
+                        : "#667085",
+                      cursor: "pointer"
+                    }}
+                  >
+                    {t}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 6, paddingTop: 14, borderTop: isDark ? "1px solid #223750" : "1px solid #E4E1DA" }}>
             <button
               onClick={handleSave}
               disabled={saving}
               style={{
                 flex: 1,
-                padding: "11px 0",
-                borderRadius: 10,
-                backgroundColor: "#2563eb",
+                padding: "10px 0",
+                borderRadius: 7,
+                backgroundColor: "#3478F6",
                 color: "#ffffff",
                 border: "none",
-                fontSize: 14,
-                fontWeight: 700,
+                fontSize: 13,
+                fontWeight: 600,
                 cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)"
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)"
               }}
             >
               {saving ? "Updating DNA..." : "Save Career Direction"}
@@ -230,13 +276,13 @@ export default function EditStudentDnaModal({
               href="/student/dna"
               onClick={onClose}
               style={{
-                padding: "11px 18px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                color: "#cbd5e1",
+                padding: "10px 16px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FFFFFF",
+                color: isDark ? "#DCE7F5" : "#17191C",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
                 textDecoration: "none",
                 display: "flex",
                 alignItems: "center"

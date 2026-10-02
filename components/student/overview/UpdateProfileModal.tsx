@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface UpdateProfileModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function UpdateProfileModal({
   profile,
   onSave
 }: UpdateProfileModalProps) {
+  const { isDark } = useTheme();
   const [fullName, setFullName] = useState(profile.fullName);
   const [college, setCollege] = useState(profile.college);
   const [degree, setDegree] = useState(profile.degree);
@@ -59,8 +61,8 @@ export default function UpdateProfileModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
+        backgroundColor: isDark ? "rgba(3, 8, 16, 0.72)" : "rgba(22, 42, 67, 0.45)",
+        backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -72,10 +74,12 @@ export default function UpdateProfileModal({
         style={{
           width: "100%",
           maxWidth: 480,
-          backgroundColor: "#0f172a",
-          borderRadius: 16,
-          border: "1px solid rgba(255, 255, 255, 0.12)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+          backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+          borderRadius: 12,
+          border: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
+          boxShadow: isDark
+            ? "0 24px 48px -12px rgba(0, 0, 0, 0.5)"
+            : "0 20px 40px -10px rgba(22, 42, 67, 0.18)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden"
@@ -84,45 +88,46 @@ export default function UpdateProfileModal({
       >
         <div
           style={{
-            padding: "20px 24px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            padding: "18px 24px",
+            borderBottom: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "rgba(15, 23, 42, 0.8)"
+            backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF"
           }}
         >
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: "#ffffff" }}>
+            <div style={{ fontSize: 17, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43" }}>
               Update Student Profile
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>
+            <div style={{ fontSize: 13, color: isDark ? "#8292A8" : "#667085", marginTop: 2 }}>
               Academic context for campus placement eligibility
             </div>
           </div>
           <button
             onClick={onClose}
             style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
+              width: 30,
+              height: 30,
+              borderRadius: 6,
+              border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+              backgroundColor: isDark ? "#13243A" : "#F6F5F1",
+              color: isDark ? "#B6C4D6" : "#667085",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              fontWeight: 700
+              fontWeight: 600,
+              fontSize: 14
             }}
           >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleSubmit} style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
               Full Name
             </label>
             <input
@@ -133,12 +138,12 @@ export default function UpdateProfileModal({
               style={{
                 width: "100%",
                 marginTop: 6,
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(2, 6, 23, 0.7)",
-                fontSize: 14,
-                color: "#ffffff",
+                padding: "9px 12px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                fontSize: 13,
+                color: isDark ? "#F2F6FC" : "#17191C",
                 outline: "none"
               }}
             />
@@ -146,7 +151,7 @@ export default function UpdateProfileModal({
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
                 Degree
               </label>
               <input
@@ -157,18 +162,18 @@ export default function UpdateProfileModal({
                 style={{
                   width: "100%",
                   marginTop: 6,
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backgroundColor: "rgba(2, 6, 23, 0.7)",
-                  fontSize: 14,
-                  color: "#ffffff",
+                  padding: "9px 12px",
+                  borderRadius: 7,
+                  border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                  backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                  fontSize: 13,
+                  color: isDark ? "#F2F6FC" : "#17191C",
                   outline: "none"
                 }}
               />
             </div>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
                 Branch / Major
               </label>
               <input
@@ -179,12 +184,12 @@ export default function UpdateProfileModal({
                 style={{
                   width: "100%",
                   marginTop: 6,
-                  padding: "10px 14px",
-                  borderRadius: 10,
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
-                  backgroundColor: "rgba(2, 6, 23, 0.7)",
-                  fontSize: 14,
-                  color: "#ffffff",
+                  padding: "9px 12px",
+                  borderRadius: 7,
+                  border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                  backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                  fontSize: 13,
+                  color: isDark ? "#F2F6FC" : "#17191C",
                   outline: "none"
                 }}
               />
@@ -192,7 +197,7 @@ export default function UpdateProfileModal({
           </div>
 
           <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
               College / University
             </label>
             <input
@@ -203,19 +208,19 @@ export default function UpdateProfileModal({
               style={{
                 width: "100%",
                 marginTop: 6,
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(2, 6, 23, 0.7)",
-                fontSize: 14,
-                color: "#ffffff",
+                padding: "9px 12px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                fontSize: 13,
+                color: isDark ? "#F2F6FC" : "#17191C",
                 outline: "none"
               }}
             />
           </div>
 
           <div>
-            <label style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.6 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase", letterSpacing: 0.5 }}>
               Graduation Year
             </label>
             <input
@@ -226,31 +231,31 @@ export default function UpdateProfileModal({
               style={{
                 width: "100%",
                 marginTop: 6,
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(2, 6, 23, 0.7)",
-                fontSize: 14,
-                color: "#ffffff",
+                padding: "9px 12px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                fontSize: 13,
+                color: isDark ? "#F2F6FC" : "#17191C",
                 outline: "none"
               }}
             />
           </div>
 
-          <div style={{ marginTop: 12, display: "flex", gap: 10 }}>
+          <div style={{ marginTop: 8, display: "flex", gap: 10, paddingTop: 14, borderTop: isDark ? "1px solid #223750" : "1px solid #E4E1DA" }}>
             <button
               type="submit"
               style={{
                 flex: 1,
-                padding: "11px 0",
-                borderRadius: 10,
-                backgroundColor: "#2563eb",
+                padding: "10px 0",
+                borderRadius: 7,
+                backgroundColor: "#3478F6",
                 color: "#ffffff",
                 border: "none",
-                fontSize: 14,
-                fontWeight: 700,
+                fontSize: 13,
+                fontWeight: 600,
                 cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(37, 99, 235, 0.4)"
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.05)"
               }}
             >
               Save Profile
@@ -259,12 +264,12 @@ export default function UpdateProfileModal({
               type="button"
               onClick={onClose}
               style={{
-                padding: "11px 18px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                color: "#94a3b8",
-                fontSize: 14,
+                padding: "10px 16px",
+                borderRadius: 7,
+                border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                backgroundColor: isDark ? "#13243A" : "#FFFFFF",
+                color: isDark ? "#DCE7F5" : "#17191C",
+                fontSize: 13,
                 fontWeight: 600,
                 cursor: "pointer"
               }}

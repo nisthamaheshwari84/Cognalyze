@@ -3,78 +3,94 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { BehavioralQuestion, SEED_BEHAVIORAL_QUESTIONS } from "@/lib/skill-hub-store";
 import {
-  generateSessionBrief,
-  generatePostSessionFeedback,
-  getStudentProfile,
-  PostSessionFeedback,
-  SessionBrief
-} from "@/lib/skills/adaptive-engine";
-import SessionBriefModal from "@/components/skills/SessionBriefModal";
+  BehavioralQuestionFull,
+  MicroLearnScenario,
+  SingleImprovementEvaluation,
+  CoachDiagnosticResult,
+  SimpleCandidateProgress,
+  GroundedInterviewReview
+} from "@/lib/skills/behavioral-curriculum";
 
 function BehavioralHRContent() {
   const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
-  const [questions, setQuestions] = useState<BehavioralQuestion[]>(SEED_BEHAVIORAL_QUESTIONS);
-  const [mode, setMode] = useState<"learn" | "practice" | "coach" | "interview" | "bank">("interview");
-  const [activeTab, setActiveTab] = useState<"service_hr" | "faang_star">("faang_star");
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string>(SEED_BEHAVIORAL_QUESTIONS[0].id);
-  const [searchQuery, setSearchQuery] = useState("");
+  // Core Modes: Home, Learn, Practice, Coach, Interview, Bank
+  const [mode, setMode] = useState<"home" | "learn" | "practice" | "coach" | "interview" | "bank">("home");
+  const [activeTrackType, setActiveTrackType] = useState<"faang_star" | "service_hr">("faang_star");
 
-  // Learn Mode Checkpoint State
-  const [learnCheckpointAnswer, setLearnCheckpointAnswer] = useState<number | null>(null);
-  const [learnCheckpointRevealed, setLearnCheckpointRevealed] = useState(false);
+  // Data Stores
+  const [questions, setQuestions] = useState<BehavioralQuestionFull[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Practice Mode: Story Builder State (Section 36)
-  const [storySituation, setStorySituation] = useState("During our final year project, our team faced a 3-day deadline when our primary authentication service broke due to API schema deprecation.");
-  const [storyAction, setStoryAction] = useState("I stepped up to own the migration. I audited the breaking endpoints, coordinated fallback JWT session cookies, and stayed overnight to rewrite the auth middleware.");
-  const [storyImpact, setStoryImpact] = useState("We deployed 12 hours ahead of the presentation, achieving 99.8% uptime with zero failed logins during the demo.");
-  const [storyReflection, setStoryReflection] = useState("Looking back, I learned to enforce contract testing on external dependencies so breaking changes are caught in CI instead of production.");
+  // ── HOME GATEWAY STATE ──
+  const [homeProgress, setHomeProgress] = useState<SimpleCandidateProgress | null>(null);
+  const [quickQuestion, setQuickQuestion] = useState<BehavioralQuestionFull | null>(null);
 
-  // Coach Mode State (Section 13)
-  const [coachLog, setCoachLog] = useState<{ sender: "coach" | "candidate"; text: string }[]>([
-    {
-      sender: "coach",
-      text: "Hello! I am your Socratic Behavioral Coach. Tell me about a time you handled a difficult conflict or technical roadblock."
-    }
-  ]);
-  const [coachInput, setCoachInput] = useState("");
+  // ── LEARN MODE STATE ──
+  const [learnScenarios, setLearnScenarios] = useState<MicroLearnScenario[]>([]);
+  const [activeScenarioIdx, setActiveScenarioIdx] = useState(0);
+  const [chosenOption, setChosenOption] = useState<"A" | "B" | null>(null);
+  const [showTryItPrompt, setShowTryItPrompt] = useState(false);
+  const [learnAnswer, setLearnAnswer] = useState("");
+  const [learnEvaluating, setLearnEvaluating] = useState(false);
+  const [learnFeedback, setLearnFeedback] = useState<SingleImprovementEvaluation | null>(null);
 
-  // Live Interview Simulation State
+  // ── PRACTICE MODE STATE ──
+  const [practiceQuestion, setPracticeQuestion] = useState<BehavioralQuestionFull | null>(null);
+  const [practiceAnswer, setPracticeAnswer] = useState("");
+  const [practiceEvaluating, setPracticeEvaluating] = useState(false);
+  const [practiceFeedback, setPracticeFeedback] = useState<SingleImprovementEvaluation | null>(null);
+  const [showDetailedDiagnostic, setShowDetailedDiagnostic] = useState(false);
+  const [recentlyPracticedIds, setRecentlyPracticedIds] = useState<string[]>([]);
+
+  // ── COACH MODE STATE ──
+  const [coachDraft, setCoachDraft] = useState("");
+  const [coachDiagnosis, setCoachDiagnosis] = useState<CoachDiagnosticResult | null>(null);
+  const [coachAnalyzing, setCoachAnalyzing] = useState(false);
+  const [coachLog, setCoachLog] = useState<{
+    sender: "coach" | "candidate";
+    text: string;
+    headline?: string;
+    suggestion?: string;
+    quote?: string;
+  }[]>([]);
+  const [coachReplyInput, setCoachReplyInput] = useState("");
+
+  // ── INTERVIEW MODE STATE ──
   const [interviewStarted, setInterviewStarted] = useState(false);
-  const [turnIndex, setTurnIndex] = useState(0);
-  const [activeQuestion, setActiveQuestion] = useState<BehavioralQuestion>(SEED_BEHAVIORAL_QUESTIONS[0]);
-  const [activeFollowUpProbe, setActiveFollowUpProbe] = useState<{
-    question: string;
-    reason: string;
-  } | null>(null);
+  const [interviewQuestions, setInterviewQuestions] = useState<BehavioralQuestionFull[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [interviewTurn, setInterviewTurn] = useState<"initial" | "followup">("initial");
+  const [activeFollowUpQuestion, setActiveFollowUpQuestion] = useState<string | null>(null);
+  const [candidateResponse, setCandidateResponse] = useState("");
+  const [interviewEvaluating, setInterviewEvaluating] = useState(false);
+  const [interviewEvaluations, setInterviewEvaluations] = useState<SingleImprovementEvaluation[]>([]);
+  const [sessionCompleted, setSessionCompleted] = useState(false);
+  const [finalReview, setFinalReview] = useState<GroundedInterviewReview | null>(null);
+  const [timeLeft, setTimeLeft] = useState(300);
 
   const [conversationHistory, setConversationHistory] = useState<Array<{
     speaker: "interviewer" | "candidate";
     text: string;
-    isProbe?: boolean;
-    evalResult?: any;
+    isFollowUp?: boolean;
   }>>([]);
 
-  const [candidateResponse, setCandidateResponse] = useState("");
-  const [evaluating, setEvaluating] = useState(false);
-  const [turnEvaluations, setTurnEvaluations] = useState<any[]>([]);
-  const [sessionCompleted, setSessionCompleted] = useState(false);
-  const [postFeedback, setPostFeedback] = useState<PostSessionFeedback | null>(null);
-  const [timeLeft, setTimeLeft] = useState(240); // 4 mins
-
-  // Audio Speech Synthesis
+  // ── PROCTORING & AUDIO ──
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [speechSupported, setSpeechSupported] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
-  // Session Brief
-  const [sessionBrief, setSessionBrief] = useState<SessionBrief | null>(null);
+  // ── BANK MODE FILTER STATE ──
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankCompetencyFilter, setBankCompetencyFilter] = useState("all");
 
+  // Audio Speech Synthesis
   const speakText = (text: string) => {
     if (!soundEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
     try {
@@ -83,7 +99,12 @@ function BehavioralHRContent() {
       utterance.rate = 1.0;
       utterance.pitch = 1.05;
       const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Samantha") || v.lang.includes("en-IN") || v.lang.includes("en-US"));
+      const femaleVoice = voices.find(v =>
+        v.name.includes("Female") ||
+        v.name.includes("Samantha") ||
+        v.lang.includes("en-IN") ||
+        v.lang.includes("en-US")
+      );
       if (femaleVoice) utterance.voice = femaleVoice;
       window.speechSynthesis.speak(utterance);
     } catch (e) {
@@ -91,876 +112,2049 @@ function BehavioralHRContent() {
     }
   };
 
+  // Initial Data Load
   useEffect(() => {
-    const storedId = searchParams.get("candidateId") || localStorage.getItem("cognalyze_student_id") || "student-demo";
+    const storedId =
+      searchParams.get("candidateId") ||
+      (typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") : null) ||
+      "student-demo";
     setCandidateId(storedId);
 
     const paramTrack = (searchParams.get("track") as any) || "product_mid";
     setTrackSlug(paramTrack);
     if (paramTrack === "service_mass" || paramTrack === "service_elite") {
-      setActiveTab("service_hr");
+      setActiveTrackType("service_hr");
     } else {
-      setActiveTab("faang_star");
+      setActiveTrackType("faang_star");
     }
 
-    const brief = generateSessionBrief(paramTrack, "behavioral_hr", storedId);
-    setSessionBrief(brief);
+    const queryMode = searchParams.get("mode") as any;
+    if (queryMode && ["home", "learn", "practice", "coach", "interview", "bank"].includes(queryMode)) {
+      setMode(queryMode);
+    }
 
-    // Setup Speech Recognition
+    async function loadData() {
+      setLoading(true);
+      try {
+        const [homeRes, scenariosRes, bankRes] = await Promise.all([
+          fetch(`/api/skills/behavioral?mode=home&candidateId=${storedId}`),
+          fetch(`/api/skills/behavioral?mode=learn_scenarios`),
+          fetch(`/api/skills/behavioral?mode=bank&candidateId=${storedId}`)
+        ]);
+
+        const homeData = await homeRes.json();
+        const scenariosData = await scenariosRes.json();
+        const bankData = await bankRes.json();
+
+        if (homeData.success) {
+          setHomeProgress(homeData.progress);
+          setQuickQuestion(homeData.quickQuestion);
+          if (homeData.quickQuestion && !practiceQuestion) {
+            setPracticeQuestion(homeData.quickQuestion);
+          }
+        }
+
+        if (scenariosData.scenarios) {
+          setLearnScenarios(scenariosData.scenarios);
+        }
+
+        if (bankData.questions && bankData.questions.length > 0) {
+          setQuestions(bankData.questions);
+          if (!practiceQuestion) {
+            setPracticeQuestion(bankData.questions[0]);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load behavioral data:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [searchParams]);
+
+  // Tab switch detection (proctoring during interview)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden && interviewStarted && !sessionCompleted) {
+        setTabSwitchCount(prev => prev + 1);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [interviewStarted, sessionCompleted]);
+
+  // Camera stream for interview mode
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    if (mode === "interview" && interviewStarted && !sessionCompleted) {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: { width: 320, height: 240 }, audio: false })
+          .then(s => {
+            stream = s;
+            if (videoRef.current) {
+              videoRef.current.srcObject = s;
+              setCameraActive(true);
+            }
+          })
+          .catch(() => {
+            setCameraActive(false);
+          });
+      }
+    } else {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const s = videoRef.current.srcObject as MediaStream;
+        s.getTracks().forEach(t => t.stop());
+        videoRef.current.srcObject = null;
+        setCameraActive(false);
+      }
+    }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
+    };
+  }, [mode, interviewStarted, sessionCompleted]);
+
+  // Web Speech recognition setup
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
-        setSpeechSupported(true);
         const recog = new SpeechRecognition();
         recog.continuous = true;
         recog.interimResults = true;
         recog.lang = "en-IN";
 
         recog.onresult = (event: any) => {
-          let transcript = "";
+          let fullTranscript = "";
           for (let i = 0; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript + " ";
+            fullTranscript += event.results[i][0].transcript + " ";
           }
-          setCandidateResponse(transcript.trim());
+          const cleaned = fullTranscript.trim();
+          if (mode === "practice") {
+            setPracticeAnswer(cleaned);
+          } else if (mode === "learn") {
+            setLearnAnswer(cleaned);
+          } else if (mode === "interview") {
+            setCandidateResponse(cleaned);
+          }
         };
 
-        recog.onerror = () => setIsRecording(false);
-        recog.onend = () => setIsRecording(false);
+        recog.onerror = () => {
+          setIsRecording(false);
+        };
+        recog.onend = () => {
+          setIsRecording(false);
+        };
+
         recognitionRef.current = recog;
       }
     }
-  }, [searchParams]);
-
-  // Timer countdown
-  useEffect(() => {
-    let timer: any = null;
-    if (interviewStarted && !sessionCompleted && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => Math.max(0, prev - 1));
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [interviewStarted, sessionCompleted, timeLeft]);
-
-  const handleStartLiveHRInterview = (type: "service_hr" | "faang_star") => {
-    setActiveTab(type);
-    setMode("interview");
-    const trackQuestions = questions.filter(q => q.track_type === type);
-    const firstQ = trackQuestions[0] || questions[0];
-    setActiveQuestion(firstQ);
-    setTurnIndex(0);
-    setInterviewStarted(true);
-    setSessionCompleted(false);
-    setCandidateResponse("");
-    setActiveFollowUpProbe(null);
-    setTurnEvaluations([]);
-    setTimeLeft(240);
-
-    const greeting = type === "service_hr"
-      ? `Welcome to your HR Round. I am Priya Sharma, HR Director. We will evaluate your relocation readiness, corporate values, and client collaboration. Let's begin: ${firstQ.question}`
-      : `Welcome to your Leadership Principles Bar-Raiser round. I am Priya. I will evaluate behavioral ownership and impact. Let's begin: ${firstQ.question}`;
-
-    setConversationHistory([
-      {
-        speaker: "interviewer",
-        text: firstQ.question
-      }
-    ]);
-
-    speakText(greeting);
-  };
+  }, [mode]);
 
   const toggleRecording = () => {
-    if (!speechSupported || !recognitionRef.current) {
-      alert("Voice speech recognition is not supported in this browser. Please type your response.");
+    if (!recognitionRef.current) {
+      alert("Speech recognition is not available in this browser. Please type your response.");
       return;
     }
     if (isRecording) {
       recognitionRef.current.stop();
       setIsRecording(false);
     } else {
-      setIsRecording(true);
       try {
         recognitionRef.current.start();
+        setIsRecording(true);
       } catch (e) {
-        console.warn(e);
+        console.warn("Could not start recognition:", e);
       }
     }
   };
 
-  const handleSubmitTurn = async () => {
-    if (isRecording && recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
+  // ── HOME ACTIONS ──
+  const handleStartQuickPractice = () => {
+    if (quickQuestion) {
+      setPracticeQuestion(quickQuestion);
     }
+    setPracticeAnswer("");
+    setPracticeFeedback(null);
+    setMode("practice");
+  };
 
-    if (!candidateResponse.trim()) {
-      alert("Please provide your spoken or typed response.");
+  const handleStartWeakSpotPractice = () => {
+    if (homeProgress?.workOnNext?.recommendedQuestion) {
+      setPracticeQuestion(homeProgress.workOnNext.recommendedQuestion);
+    }
+    setPracticeAnswer("");
+    setPracticeFeedback(null);
+    setMode("practice");
+  };
+
+  // ── PRACTICE ACTIONS ──
+  const handlePracticeSubmit = async () => {
+    if (!practiceAnswer.trim()) {
+      alert("Please provide an answer before submitting.");
       return;
     }
+    if (!practiceQuestion) return;
 
-    setEvaluating(true);
+    setPracticeEvaluating(true);
+    try {
+      const res = await fetch("/api/skills/behavioral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "evaluate",
+          questionId: practiceQuestion.id,
+          candidateResponse: practiceAnswer,
+          candidateId,
+          trackSlug,
+          isInterview: false
+        })
+      });
 
-    const updatedHistory = [
-      ...conversationHistory,
-      {
-        speaker: "candidate" as const,
-        text: candidateResponse
+      const data = await res.json();
+      if (data.evaluation) {
+        setPracticeFeedback(data.evaluation);
+        setRecentlyPracticedIds(prev => [practiceQuestion.id, ...prev.slice(0, 4)]);
       }
-    ];
-    setConversationHistory(updatedHistory);
+    } catch (e) {
+      alert("Failed to evaluate answer. Please try again.");
+    } finally {
+      setPracticeEvaluating(false);
+    }
+  };
+
+  const handleNextPracticeQuestion = async () => {
+    setPracticeEvaluating(true);
+    try {
+      const res = await fetch(
+        `/api/skills/behavioral?mode=next_practice_question&candidateId=${candidateId}&currentQuestionId=${practiceQuestion?.id || ""}`
+      );
+      const data = await res.json();
+      if (data.question) {
+        setPracticeQuestion(data.question);
+        setPracticeAnswer("");
+        setPracticeFeedback(null);
+        setShowDetailedDiagnostic(false);
+      }
+    } catch (e) {
+      if (questions.length > 0) {
+        setPracticeQuestion(questions[Math.floor(Math.random() * questions.length)]);
+      }
+    } finally {
+      setPracticeEvaluating(false);
+    }
+  };
+
+  const handleSendPracticeToCoach = () => {
+    setCoachDraft(practiceAnswer);
+    setMode("coach");
+    handleCoachAnalyze(practiceAnswer);
+  };
+
+  // ── LEARN ACTIONS ──
+  const activeScenario = learnScenarios[activeScenarioIdx] || learnScenarios[0];
+
+  const handleSelectLearnOption = (opt: "A" | "B") => {
+    setChosenOption(opt);
+    setShowTryItPrompt(true);
+  };
+
+  const handleLearnSubmit = async () => {
+    if (!learnAnswer.trim()) {
+      alert("Please speak or type your answer before submitting.");
+      return;
+    }
+    setLearnEvaluating(true);
+    try {
+      const res = await fetch("/api/skills/behavioral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "evaluate",
+          questionId: activeScenario?.sampleQuestionId || "learn-q",
+          candidateResponse: learnAnswer,
+          candidateId,
+          trackSlug,
+          isInterview: false
+        })
+      });
+      const data = await res.json();
+      if (data.evaluation) {
+        setLearnFeedback(data.evaluation);
+      }
+    } catch (e) {
+      alert("Failed to evaluate learn answer.");
+    } finally {
+      setLearnEvaluating(false);
+    }
+  };
+
+  const handleNextLearnScenario = () => {
+    const nextIdx = (activeScenarioIdx + 1) % (learnScenarios.length || 1);
+    setActiveScenarioIdx(nextIdx);
+    setChosenOption(null);
+    setShowTryItPrompt(false);
+    setLearnAnswer("");
+    setLearnFeedback(null);
+  };
+
+  // ── COACH ACTIONS ──
+  const handleCoachAnalyze = async (draftToAnalyze: string) => {
+    const text = draftToAnalyze.trim();
+    if (!text) {
+      alert("Please enter your answer draft to receive coaching.");
+      return;
+    }
+    setCoachAnalyzing(true);
+    try {
+      const res = await fetch("/api/skills/behavioral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "coach",
+          candidateResponse: text,
+          candidateId
+        })
+      });
+      const data = await res.json();
+      if (data.diagnosis) {
+        setCoachDiagnosis(data.diagnosis);
+        setCoachLog([
+          {
+            sender: "coach",
+            text: data.diagnosis.followUpPrompt,
+            headline: data.diagnosis.headline,
+            suggestion: data.diagnosis.actionableSuggestion,
+            quote: data.diagnosis.quoteEvidence
+          }
+        ]);
+      }
+    } catch (e) {
+      alert("Error analyzing answer draft.");
+    } finally {
+      setCoachAnalyzing(false);
+    }
+  };
+
+  const handleCoachReply = async () => {
+    if (!coachReplyInput.trim()) return;
+    const reply = coachReplyInput.trim();
+    setCoachReplyInput("");
+
+    setCoachLog(prev => [...prev, { sender: "candidate", text: reply }]);
+    setCoachAnalyzing(true);
 
     try {
       const res = await fetch("/api/skills/behavioral", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          questionId: activeQuestion.id,
-          candidateResponse
+          action: "evaluate",
+          candidateResponse: `${coachDraft}\n\nAddendum: ${reply}`,
+          candidateId,
+          trackSlug
+        })
+      });
+      const data = await res.json();
+      const evalData = data.evaluation;
+
+      setCoachLog(prev => [
+        ...prev,
+        {
+          sender: "coach",
+          headline: "That makes your answer much stronger.",
+          suggestion: evalData?.tryThis || "Now synthesize that into your polished final story.",
+          text: evalData?.adaptiveFollowUp || "How would you explain the outcome in one crisp closing sentence?"
+        }
+      ]);
+    } catch (e) {
+      setCoachLog(prev => [
+        ...prev,
+        {
+          sender: "coach",
+          text: "That strengthens your narrative significantly! Always make sure your personal actions and final results are clear."
+        }
+      ]);
+    } finally {
+      setCoachAnalyzing(false);
+    }
+  };
+
+  // ── INTERVIEW ACTIONS ──
+  const handleStartInterview = async () => {
+    setInterviewEvaluating(true);
+    try {
+      const res = await fetch(
+        `/api/skills/behavioral?mode=interview_set&candidateId=${candidateId}&trackType=${activeTrackType}&count=3`
+      );
+      const data = await res.json();
+      const selected = data.questions && data.questions.length > 0 ? data.questions : questions.slice(0, 3);
+
+      setInterviewQuestions(selected);
+      setCurrentQuestionIndex(0);
+      setInterviewTurn("initial");
+      setActiveFollowUpQuestion(null);
+      setCandidateResponse("");
+      setInterviewEvaluations([]);
+      setTabSwitchCount(0);
+      setTimeLeft(selected.length * 240);
+
+      const firstQ = selected[0];
+      const greeting = `Hello, I'm Priya Sharma. Welcome to your interview. Let's start with our first question: ${firstQ.question}`;
+
+      setConversationHistory([
+        {
+          speaker: "interviewer",
+          text: greeting
+        }
+      ]);
+
+      setInterviewStarted(true);
+      setSessionCompleted(false);
+      setFinalReview(null);
+
+      speakText(greeting);
+    } catch (e) {
+      alert("Failed to start interview session. Please try again.");
+    } finally {
+      setInterviewEvaluating(false);
+    }
+  };
+
+  const handleInterviewSubmit = async () => {
+    if (!candidateResponse.trim()) {
+      alert("Please provide an answer before submitting.");
+      return;
+    }
+
+    const currentQ = interviewQuestions[currentQuestionIndex];
+    if (!currentQ) return;
+
+    const answerText = candidateResponse.trim();
+    setCandidateResponse("");
+    setInterviewEvaluating(true);
+
+    setConversationHistory(prev => [...prev, { speaker: "candidate", text: answerText }]);
+
+    try {
+      const res = await fetch("/api/skills/behavioral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "evaluate",
+          questionId: currentQ.id,
+          candidateResponse: answerText,
+          candidateId,
+          trackSlug,
+          isInterview: true,
+          turn: interviewTurn
         })
       });
 
       const data = await res.json();
-      const evalData = data.evaluation;
-      const nextEvals = [...turnEvaluations, evalData];
-      setTurnEvaluations(nextEvals);
+      const evalItem: SingleImprovementEvaluation = data.evaluation;
+      const updatedEvals = [...interviewEvaluations, evalItem];
+      setInterviewEvaluations(updatedEvals);
 
-      // Section 25: Dynamic Follow-Up Probing (Ownership, Specificity, Counter-concern, Reflection)
-      if (!activeFollowUpProbe) {
-        let probeQuestion = "That's a helpful overview. What specifically was your personal contribution versus the team? What was the other person's legitimate counter-concern, and looking back, what is one thing you would do differently today?";
-        let probeReason = "Probing candidate ownership, counter-party empathy, and self-reflection under pressure.";
-
-        if (activeTab === "service_hr") {
-          probeQuestion = "Thank you. What if your first project requires rotational night shifts supporting US banking clients with unexpected weekend escalations?";
-          probeReason = "Verifying operational flexibility and client commitment.";
-        }
-
-        const probeObj = { question: probeQuestion, reason: probeReason };
-        setActiveFollowUpProbe(probeObj);
-
-        setConversationHistory([
-          ...updatedHistory,
+      if (interviewTurn === "initial" && evalItem.adaptiveFollowUp) {
+        setInterviewTurn("followup");
+        setActiveFollowUpQuestion(evalItem.adaptiveFollowUp);
+        setConversationHistory(prev => [
+          ...prev,
           {
             speaker: "interviewer",
-            text: `[BEHAVIORAL PROBE]: ${probeQuestion}`,
-            isProbe: true,
-            evalResult: evalData
+            text: evalItem.adaptiveFollowUp,
+            isFollowUp: true
           }
         ]);
-
-        speakText(probeQuestion);
-        setCandidateResponse("");
+        speakText(evalItem.adaptiveFollowUp);
       } else {
-        // Conclude HR interview session
-        setSessionCompleted(true);
-        const fb = generatePostSessionFeedback(trackSlug, "behavioral_hr", [
-          {
-            score: evalData.starScore || 84,
-            verdict: evalData.verdict || "Hire",
-            conceptualAccuracy: evalData.starScore || 84,
-            depthScore: 82,
-            feedback: evalData.barRaiserFeedback || "Strong ownership.",
-            detectedClaims: ["Team leadership", "Conflict resolution"],
-            observedStrengths: evalData.strengths || ["Crisp situation setup"],
-            observedGaps: evalData.improvements || ["Quantify metrics further"],
-            nextFollowUp: {
-              type: "APPLICATION",
-              question: "How did that experience influence your next project?",
-              reason: "Testing transfer of learning."
+        const nextQIndex = currentQuestionIndex + 1;
+        if (nextQIndex < interviewQuestions.length) {
+          setCurrentQuestionIndex(nextQIndex);
+          setInterviewTurn("initial");
+          setActiveFollowUpQuestion(null);
+
+          const nextQ = interviewQuestions[nextQIndex];
+          const nextPrompt = `Thank you. Moving to question ${nextQIndex + 1}: ${nextQ.question}`;
+          setConversationHistory(prev => [
+            ...prev,
+            {
+              speaker: "interviewer",
+              text: nextPrompt
             }
-          }
-        ], candidateId);
-        setPostFeedback(fb);
-        speakText("Thank you. That completes our behavioral evaluation. Your evidence has been compiled.");
+          ]);
+          speakText(nextPrompt);
+        } else {
+          finishInterview(updatedEvals);
+        }
       }
-    } catch (err) {
-      console.error("Behavioral turn error:", err);
+    } catch (e) {
+      alert("Error evaluating response. Continuing interview...");
     } finally {
-      setEvaluating(false);
+      setInterviewEvaluating(false);
     }
   };
 
-  const filteredQuestions = questions.filter(q => {
-    const matchTab = q.track_type === activeTab;
-    const matchSearch = !searchQuery || q.title.toLowerCase().includes(searchQuery.toLowerCase()) || q.question.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchTab && matchSearch;
-  });
+  const finishInterview = async (evals: SingleImprovementEvaluation[]) => {
+    setSessionCompleted(true);
+    setInterviewEvaluating(true);
+    try {
+      const res = await fetch("/api/skills/behavioral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "interview_finish",
+          evaluationsHistory: evals
+        })
+      });
+      const data = await res.json();
+      if (data.review) {
+        setFinalReview(data.review);
+      }
+    } catch (e) {
+      console.warn("Failed to generate interview review", e);
+    } finally {
+      setInterviewEvaluating(false);
+    }
+
+    const completionMsg =
+      "That concludes our interview. Thank you for your responses. I have compiled your review with specific excerpts from what you said.";
+    setConversationHistory(prev => [...prev, { speaker: "interviewer", text: completionMsg }]);
+    speakText(completionMsg);
+  };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      
-      {/* ── HEADER ── */}
-      <header style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", backgroundColor: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(16px)", padding: "14px 24px", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <Link href="/student/skills" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>
-                ← Skill Practice Hub
-              </Link>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-              <span style={{ color: "#f59e0b", fontSize: 13, fontWeight: 700 }}>STAR Behavioral & Corporate HR Round</span>
-            </div>
-            <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 8 }}>
-              <span>🤝</span>
-              <span>STAR Behavioral & Corporate HR Arena • Dynamic Probe Engine</span>
-            </h1>
-          </div>
-
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      {/* ── TOP NAV HEADER ── */}
+      <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", position: "sticky", top: 0, zIndex: 40, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Mode Switcher (Section 4, 35) */}
-            <div style={{ display: "flex", background: "rgba(0,0,0,0.5)", padding: 3, borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
-              {[
-                { id: "learn", label: "💡 Learn", color: "#38bdf8" },
-                { id: "practice", label: "🛠️ Practice", color: "#34d399" },
-                { id: "coach", label: "🎓 Coach", color: "#fbbf24" },
-                { id: "interview", label: "🎯 Interview", color: "#c084fc" },
-                { id: "bank", label: "📚 Bank", color: "#94a3b8" }
-              ].map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => setMode(m.id as any)}
-                  style={{
-                    padding: "5px 10px",
-                    borderRadius: 7,
-                    border: "none",
-                    background: mode === m.id ? "rgba(255,255,255,0.12)" : "transparent",
-                    color: mode === m.id ? m.color : "#94a3b8",
-                    fontSize: 11,
-                    fontWeight: 800,
-                    cursor: "pointer"
-                  }}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Audio Toggle */}
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              style={{
-                background: soundEnabled ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.05)",
-                border: soundEnabled ? "1px solid rgba(16,185,129,0.3)" : "1px solid rgba(255,255,255,0.1)",
-                color: soundEnabled ? "#34d399" : "#94a3b8",
-                padding: "6px 10px",
-                borderRadius: 8,
-                fontSize: 12,
-                cursor: "pointer",
-                fontWeight: 700
-              }}
+            <Link
+              href={`/student/skills?candidateId=${candidateId}&track=${trackSlug}`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: "#667085", textDecoration: "none", fontWeight: 600 }}
             >
-              {soundEnabled ? "🔊 Voice On" : "🔇 Voice Off"}
-            </button>
+              ← Hub
+            </Link>
+            <span style={{ color: "#E4E1DA" }}>/</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 18 }}>🎯</span>
+              <span style={{ fontSize: 16, fontWeight: 800, color: "#162A43", letterSpacing: "-0.02em" }}>
+                Cognalyze Behavioral &amp; Leadership Prep
+              </span>
+            </div>
           </div>
+
+          {/* Mode Tabs */}
+          <nav style={{ display: "flex", alignItems: "center", gap: 2, background: "#F6F5F1", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA" }}>
+            {[
+              { id: "home", label: "⚡ Home" },
+              { id: "learn", label: "💡 Learn" },
+              { id: "practice", label: "🛠️ Practice" },
+              { id: "coach", label: "🎓 Coach" },
+              { id: "interview", label: "🎤 Interview" },
+              { id: "bank", label: "📚 Question Bank" }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setMode(tab.id as any)}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  background: mode === tab.id ? "#162A43" : "transparent",
+                  color: mode === tab.id ? "#FFFFFF" : "#667085",
+                  fontSize: 12,
+                  fontWeight: mode === tab.id ? 700 : 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease"
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+
+          {/* Voice Toggle */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            style={{
+              padding: "6px 12px",
+              borderRadius: 7,
+              border: "1px solid #E4E1DA",
+              background: soundEnabled ? "#EAF4EE" : "#FFFFFF",
+              color: soundEnabled ? "#2E7D5B" : "#667085",
+              fontSize: 11,
+              cursor: "pointer",
+              fontWeight: 700
+            }}
+          >
+            {soundEnabled ? "🔊 Voice On" : "🔇 Voice Off"}
+          </button>
         </div>
       </header>
 
-      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "24px" }}>
+      {/* ── MAIN CONTENT AREA ── */}
+      <main style={{ maxWidth: 1050, margin: "0 auto", padding: "28px 20px" }}>
+        {loading && (
+          <div style={{ padding: 60, textAlign: "center", color: "#667085", fontSize: 14 }}>
+            Loading interview experience...
+          </div>
+        )}
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 1: LEARN MODE (Behavioral Storytelling Principles)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "learn" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 20, marginBottom: 24 }}>
-            <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: 22 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(56,189,248,0.2)", color: "#38bdf8", borderRadius: 6, fontWeight: 800 }}>
-                  STORYTELLING BLUEPRINT
-                </span>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                  Safe Learning Environment (No interview pressure)
-                </span>
-              </div>
-
-              <h2 style={{ fontSize: 18, fontWeight: 900, margin: "0 0 10px", color: "white" }}>
-                The 4 Pillars of High-Signal Behavioral Communication
-              </h2>
-
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, margin: "0 0 14px" }}>
-                Senior tech interviewers (FAANG Bar-Raisers and HR Directors) do not evaluate memorized scripts. They listen for <strong>extreme ownership</strong>, <strong>counter-party empathy</strong>, and <strong>quantifiable impact</strong>. The classic mistake is speaking as a passive bystander (&ldquo;We decided to fix it&rdquo;) rather than establishing personal agency (&ldquo;I proposed and implemented...&rdquo;).
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 1: HOME (Simple Gateway Screen)
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "home" && (
+          <div>
+            {/* Header */}
+            <div style={{ marginBottom: 24 }}>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#162A43", margin: "0 0 6px", letterSpacing: "-0.02em" }}>
+                GET BETTER AT INTERVIEWS
+              </h1>
+              <p style={{ fontSize: 14, color: "#667085", margin: 0 }}>
+                Practice. Get evidence-based feedback. Try again.
               </p>
+            </div>
 
-              {/* Checkpoint */}
-              <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(56, 189, 248, 0.08)", border: "1px solid rgba(56, 189, 248, 0.25)", marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", marginBottom: 6 }}>
-                  CHECKPOINT: Identify the Strongest Behavioral Signal
-                </div>
-                <div style={{ fontSize: 12, color: "white", fontWeight: 700, marginBottom: 10 }}>
-                  Which statement delivers the highest hiring signal when asked about a project failure?
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[
-                    "A. 'The backend team shipped a broken API right before demo day, which caused our service to crash.'",
-                    "B. 'I should have enforced schema contracts in CI earlier. When the API broke, I took ownership of the migration, shipped a hotfix within 4 hours, and instituted automated contract tests to prevent recurrence.'",
-                    "C. 'We had some communication issues between teams, but everyone worked hard and eventually things got solved.'",
-                    "D. 'I never made mistakes on the project because our architecture was very scalable.'"
-                  ].map((opt, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setLearnCheckpointAnswer(idx);
-                        setLearnCheckpointRevealed(true);
-                      }}
-                      style={{
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        border: learnCheckpointAnswer === idx ? "2px solid #38bdf8" : "1px solid rgba(255,255,255,0.12)",
-                        background: learnCheckpointAnswer === idx
-                          ? (idx === 1 ? "rgba(16,185,129,0.2)" : "rgba(239,68,68,0.2)")
-                          : "rgba(0,0,0,0.3)",
-                        color: "white",
-                        fontSize: 11,
-                        textAlign: "left",
-                        cursor: "pointer"
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-
-                {learnCheckpointRevealed && (
-                  <div style={{ marginTop: 10, fontSize: 11, color: learnCheckpointAnswer === 1 ? "#34d399" : "#fbbf24", fontWeight: 700 }}>
-                    {learnCheckpointAnswer === 1
-                      ? "✓ Correct! Option B demonstrates ownership of the root cause, immediate constructive action, and systematic prevention."
-                      : "Notice: Blaming others or claiming perfection is an instant rejection flag. Option B demonstrates true accountability."}
+            {/* 4 Gateway Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))", gap: 16, marginBottom: 28 }}>
+              {/* Card 1: Quick Practice */}
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 10,
+                  padding: 22,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18 }}>⚡</span>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                      Quick Practice
+                    </h3>
                   </div>
-                )}
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                  Demonstrated: Ownership & Storytelling Invariant
-                </span>
+                  <p style={{ fontSize: 13, color: "#667085", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    Answer a single question. Get one specific improvement. Revise immediately.
+                  </p>
+                  {quickQuestion && (
+                    <div style={{ background: "#F6F5F1", padding: "10px 12px", borderRadius: 7, border: "1px solid #E4E1DA", fontSize: 12, color: "#475467", marginBottom: 16, fontStyle: "italic" }}>
+                      &ldquo;{quickQuestion.question}&rdquo;
+                    </div>
+                  )}
+                </div>
                 <button
-                  onClick={() => setMode("practice")}
-                  style={{
-                    padding: "8px 18px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "linear-gradient(135deg, #38bdf8 0%, #3b82f6 100%)",
-                    color: "white",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: "pointer"
-                  }}
-                >
-                  Draft Story in Practice Mode ➔
-                </button>
-              </div>
-            </div>
-
-            {/* Right: Competency Guide */}
-            <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: 18 }}>
-              <h3 style={{ fontSize: 12, fontWeight: 800, color: "white", textTransform: "uppercase", marginBottom: 10 }}>
-                Target Competencies Evaluated
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  { name: "Extreme Ownership", desc: "Takes responsibility for outcomes without deflecting blame.", status: "Demonstrated" },
-                  { name: "Disagree & Commit", desc: "Constructively debates alternatives, then commits fully to team decision.", status: "Developing" },
-                  { name: "Bias for Action", desc: "Navigates ambiguity and ships minimum viable solutions rapidly.", status: "Demonstrated" },
-                  { name: "Dealing with Failure", desc: "Treats postmortems as learning opportunities with systemic fixes.", status: "Developing" }
-                ].map((c, i) => (
-                  <div key={i} style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                      <strong style={{ fontSize: 12, color: "white" }}>{c.name}</strong>
-                      <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: c.status === "Demonstrated" ? "rgba(16,185,129,0.2)" : "rgba(245,158,11,0.2)", color: c.status === "Demonstrated" ? "#34d399" : "#fbbf24", fontWeight: 700 }}>
-                        {c.status}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 11, color: "#94a3b8" }}>{c.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 2: PRACTICE MODE (Story Builder Scaffolding)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "practice" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: 22, marginBottom: 24 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(52,211,153,0.2)", color: "#34d399", borderRadius: 4, fontWeight: 800 }}>
-                  PRACTICE MODE: STORY BUILDER
-                </span>
-                <h2 style={{ fontSize: 18, fontWeight: 900, margin: "4px 0 0", color: "white" }}>
-                  Construct Your Behavioral Narrative with Invariant Prompts
-                </h2>
-              </div>
-              <button
-                onClick={() => setMode("interview")}
-                style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#f59e0b", color: "#080b12", fontSize: 11, fontWeight: 800, cursor: "pointer" }}
-              >
-                Test in Live Interview ➔
-              </button>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 14, marginBottom: 18 }}>
-              {/* Situation */}
-              <div style={{ background: "#080b12", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", marginBottom: 4 }}>
-                  1. SITUATION & PROBLEM CONTEXT (15%)
-                </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>Set the stakes, timeline constraint, and business impact.</div>
-                <textarea
-                  value={storySituation}
-                  onChange={e => setStorySituation(e.target.value)}
-                  rows={4}
-                  style={{ width: "100%", background: "#04060a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: 8, color: "white", fontSize: 11, outline: "none", lineHeight: 1.4 }}
-                />
-              </div>
-
-              {/* Action */}
-              <div style={{ background: "#080b12", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", marginBottom: 4 }}>
-                  2. YOUR SPECIFIC ACTION (60%)
-                </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>Use &ldquo;I&rdquo; statements. What specific technical/leadership steps did you take?</div>
-                <textarea
-                  value={storyAction}
-                  onChange={e => setStoryAction(e.target.value)}
-                  rows={4}
-                  style={{ width: "100%", background: "#04060a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: 8, color: "white", fontSize: 11, outline: "none", lineHeight: 1.4 }}
-                />
-              </div>
-
-              {/* Impact */}
-              <div style={{ background: "#080b12", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", marginBottom: 4 }}>
-                  3. QUANTIFIABLE IMPACT (15%)
-                </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>Metrics, hours saved, uptime percentage, customer satisfaction.</div>
-                <textarea
-                  value={storyImpact}
-                  onChange={e => setStoryImpact(e.target.value)}
-                  rows={4}
-                  style={{ width: "100%", background: "#04060a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: 8, color: "white", fontSize: 11, outline: "none", lineHeight: 1.4 }}
-                />
-              </div>
-
-              {/* Reflection */}
-              <div style={{ background: "#080b12", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, padding: 12 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", marginBottom: 4 }}>
-                  4. RETROSPECTIVE REFLECTION (10%)
-                </div>
-                <div style={{ fontSize: 10, color: "#94a3b8", marginBottom: 6 }}>What would you do differently today? What systemic mechanism did you add?</div>
-                <textarea
-                  value={storyReflection}
-                  onChange={e => setStoryReflection(e.target.value)}
-                  rows={4}
-                  style={{ width: "100%", background: "#04060a", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: 8, color: "white", fontSize: 11, outline: "none", lineHeight: 1.4 }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 3: COACH MODE (Socratic Behavioral Feedback)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "coach" && (
-          <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(251, 191, 36, 0.35)", borderRadius: 16, padding: 22, marginBottom: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <span style={{ fontSize: 20 }}>🎓</span>
-              <div>
-                <h2 style={{ fontSize: 16, fontWeight: 900, color: "#fbbf24", margin: 0 }}>
-                  Socratic Behavioral & Culture Coach
-                </h2>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>
-                  Sharpens your ownership signals and probes for counter-party perspective
-                </div>
-              </div>
-            </div>
-
-            <div style={{ maxHeight: 280, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-              {coachLog.map((c, i) => (
-                <div key={i} style={{ padding: "10px 14px", borderRadius: 10, background: c.sender === "coach" ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.04)", border: c.sender === "coach" ? "1px solid rgba(251,191,36,0.2)" : "1px solid rgba(255,255,255,0.08)", fontSize: 12, lineHeight: 1.5 }}>
-                  <strong>{c.sender === "coach" ? "🎓 Coach: " : "👤 You: "}</strong>
-                  {c.text}
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                type="text"
-                value={coachInput}
-                onChange={e => setCoachInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === "Enter" && coachInput.trim()) {
-                    const text = coachInput.trim();
-                    setCoachInput("");
-                    setCoachLog(prev => [...prev, { sender: "candidate", text }]);
-                    setTimeout(() => {
-                      setCoachLog(prev => [...prev, { sender: "coach", text: "Notice how using passive voice obscures your contribution. Instead of 'A fallback was deployed', state 'I audited the endpoints and deployed the fallback'. What was the hardest trade-off you personally decided?" }]);
-                    }, 400);
-                  }
-                }}
-                placeholder="Share your draft or ask how to frame a difficult conflict..."
-                style={{ flex: 1, background: "#080b12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 12px", color: "white", fontSize: 11, outline: "none" }}
-              />
-              <button
-                onClick={() => {
-                  if (!coachInput.trim()) return;
-                  const text = coachInput.trim();
-                  setCoachInput("");
-                  setCoachLog(prev => [...prev, { sender: "candidate", text }]);
-                  setTimeout(() => {
-                    setCoachLog(prev => [...prev, { sender: "coach", text: "Notice how using passive voice obscures your contribution. Instead of 'A fallback was deployed', state 'I audited the endpoints and deployed the fallback'. What was the hardest trade-off you personally decided?" }]);
-                  }, 400);
-                }}
-                style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#fbbf24", color: "#080b12", fontSize: 11, fontWeight: 800, cursor: "pointer" }}
-              >
-                Ask Coach
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 4: LIVE INTERVIEW SIMULATION (PRIMARY)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "interview" && (
-          !interviewStarted ? (
-          /* Pre-Session Setup */
-          <div style={{ maxWidth: 800, margin: "20px auto", background: "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.6) 100%)", border: "1px solid rgba(245, 158, 11, 0.35)", borderRadius: 18, padding: "28px 32px", boxShadow: "0 15px 35px rgba(0,0,0,0.5)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(245,158,11,0.25)", color: "#fbbf24", borderRadius: 6, fontWeight: 800, textTransform: "uppercase" }}>
-                  SESSION BRIEF
-                </span>
-                <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 4px", color: "white" }}>
-                  {sessionBrief?.title}
-                </h2>
-                <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                  Candidate Context: <strong style={{ color: "white" }}>Ownership & Disagreement Handling</strong>
-                </div>
-              </div>
-              <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(245,158,11,0.2)", color: "#fbbf24", fontWeight: 700 }}>
-                {activeTab === "service_hr" ? "Service Mass HR Mode" : "FAANG Bar-Raiser Mode"}
-              </span>
-            </div>
-
-            <div style={{ padding: "14px 16px", background: "rgba(255,255,255,0.03)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)", marginBottom: 18 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", marginBottom: 4 }}>
-                Why This Session
-              </div>
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.9)", lineHeight: 1.5 }}>
-                {sessionBrief?.whyThisSession}
-              </p>
-            </div>
-
-            {/* Select Track Mode */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-              <button
-                onClick={() => setActiveTab("faang_star")}
-                style={{
-                  flex: 1,
-                  padding: "12px",
-                  borderRadius: 10,
-                  border: activeTab === "faang_star" ? "2px solid #f59e0b" : "1px solid rgba(255,255,255,0.1)",
-                  background: activeTab === "faang_star" ? "rgba(245,158,11,0.15)" : "rgba(255,255,255,0.03)",
-                  color: "white",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  textAlign: "left"
-                }}
-              >
-                <div style={{ fontWeight: 800, color: "#fbbf24" }}>Amazon / Product STAR Mode</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Interrogates personal ownership, disagreement, and measurable metrics</div>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("service_hr")}
-                style={{
-                  flex: 1,
-                  padding: "12px",
-                  borderRadius: 10,
-                  border: activeTab === "service_hr" ? "2px solid #38bdf8" : "1px solid rgba(255,255,255,0.1)",
-                  background: activeTab === "service_hr" ? "rgba(56,189,248,0.15)" : "rgba(255,255,255,0.03)",
-                  color: "white",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  textAlign: "left"
-                }}
-              >
-                <div style={{ fontWeight: 800, color: "#38bdf8" }}>TCS / Infosys Service HR Mode</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginTop: 2 }}>Verifies relocation willingness, 2-year service agreement, and shift stability</div>
-              </button>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 18, borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-              <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                ⏱️ Estimated Time: <strong>15 Minutes</strong>
-              </div>
-              <button
-                onClick={() => handleStartLiveHRInterview(activeTab)}
-                style={{
-                  padding: "12px 28px",
-                  borderRadius: 10,
-                  border: "none",
-                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: "pointer",
-                  boxShadow: "0 4px 15px rgba(245,158,11,0.4)"
-                }}
-              >
-                Begin Behavioral Simulation ➔
-              </button>
-            </div>
-          </div>
-        ) : !sessionCompleted ? (
-          /* Live Conversational Behavioral Interview */
-          <div style={{ display: "grid", gridTemplateColumns: "minmax(320px, 420px) 1fr", gap: 20, alignItems: "start" }}>
-            
-            {/* Left Panel: Priya Sharma (HR Director / Bar-Raiser) */}
-            <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: 20, display: "flex", flexDirection: "column", height: "calc(100vh - 160px)" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 12, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #ec4899)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-                    👩‍💼
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>Priya Sharma • HR Director</div>
-                    <div style={{ fontSize: 10, color: "#34d399" }}>● {activeTab === "service_hr" ? "Service HR" : "Bar-Raiser"} Live</div>
-                  </div>
-                </div>
-
-                <div style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, background: "rgba(255,255,255,0.05)", color: "#fbbf24", fontWeight: 700 }}>
-                  ⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
-                </div>
-              </div>
-
-              {/* Conversation Feed */}
-              <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, paddingRight: 4 }}>
-                {conversationHistory.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      alignSelf: item.speaker === "interviewer" ? "flex-start" : "flex-end",
-                      maxWidth: "90%",
-                      padding: "10px 14px",
-                      borderRadius: 12,
-                      background: item.speaker === "interviewer"
-                        ? item.isProbe ? "rgba(245, 158, 11, 0.15)" : "rgba(99, 102, 241, 0.15)"
-                        : "rgba(56, 189, 248, 0.15)",
-                      border: item.speaker === "interviewer"
-                        ? item.isProbe ? "1px solid rgba(245, 158, 11, 0.35)" : "1px solid rgba(99, 102, 241, 0.25)"
-                        : "1px solid rgba(56, 189, 248, 0.25)",
-                      fontSize: 12,
-                      lineHeight: 1.5,
-                      color: "white"
-                    }}
-                  >
-                    <div style={{ fontSize: 10, fontWeight: 800, color: item.speaker === "interviewer" ? (item.isProbe ? "#fbbf24" : "#a5b4fc") : "#38bdf8", marginBottom: 3 }}>
-                      {item.speaker === "interviewer" ? (item.isProbe ? "⚡ DYNAMIC PROBE" : "INTERVIEWER") : "YOU"}
-                    </div>
-                    <div>{item.text}</div>
-                    {item.evalResult && (
-                      <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "#34d399" }}>
-                        Score: {item.evalResult.starScore}/100 • Verdict: {item.evalResult.verdict}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right Panel: Spoken / Typed Story Area */}
-            <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 16, padding: 22 }}>
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "rgba(245,158,11,0.2)", color: "#fbbf24", fontWeight: 800 }}>
-                    {activeTab === "service_hr" ? "SERVICE CULTURE" : "LEADERSHIP PRINCIPLE"}
-                  </span>
-                </div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 8px", color: "white" }}>
-                  {activeQuestion.title}
-                </h3>
-                <div style={{ padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)", fontSize: 13, lineHeight: 1.5, color: "rgba(255,255,255,0.9)" }}>
-                  {activeQuestion.question}
-                </div>
-              </div>
-
-              {/* Dynamic Follow-Up Probe Alert */}
-              {activeFollowUpProbe && (
-                <div style={{ padding: "10px 14px", borderRadius: 10, background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.35)", marginBottom: 14 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", marginBottom: 2 }}>
-                    ⚡ Priya's Follow-Up Challenge:
-                  </div>
-                  <div style={{ fontSize: 12, color: "white", fontWeight: 600 }}>
-                    {activeFollowUpProbe.question}
-                  </div>
-                </div>
-              )}
-
-              {/* Response Editor */}
-              <div style={{ marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8" }}>
-                    YOUR BEHAVIORAL STORY & RESPONSE
-                  </div>
-                  <button
-                    onClick={toggleRecording}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
-                      padding: "4px 10px",
-                      borderRadius: 6,
-                      border: isRecording ? "1px solid #ef4444" : "1px solid rgba(255,255,255,0.15)",
-                      background: isRecording ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.05)",
-                      color: isRecording ? "#f87171" : "white",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: "pointer"
-                    }}
-                  >
-                    {isRecording ? "🔴 Listening... (Click to stop)" : "🎙️ Speak Your Answer"}
-                  </button>
-                </div>
-
-                <textarea
-                  value={candidateResponse}
-                  onChange={e => setCandidateResponse(e.target.value)}
-                  placeholder="Structure your story with Situation, Task, your specific Personal Action ('I' rather than 'we'), and the measurable Impact..."
-                  rows={10}
+                  onClick={handleStartQuickPractice}
                   style={{
                     width: "100%",
-                    background: "#080b12",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderRadius: 10,
-                    padding: 14,
-                    color: "white",
-                    fontSize: 13,
-                    lineHeight: 1.5,
-                    resize: "vertical",
-                    outline: "none"
-                  }}
-                />
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <button
-                  onClick={handleSubmitTurn}
-                  disabled={evaluating}
-                  style={{
-                    padding: "10px 24px",
-                    borderRadius: 10,
+                    padding: "9px 16px",
+                    borderRadius: 7,
                     border: "none",
-                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                    color: "white",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    cursor: evaluating ? "not-allowed" : "pointer",
-                    boxShadow: "0 4px 15px rgba(245,158,11,0.3)"
-                  }}
-                >
-                  {evaluating ? "Evaluating Story..." : activeFollowUpProbe ? "Submit Follow-Up Response ➔" : "Submit Answer & Defend ➔"}
-                </button>
-              </div>
-            </div>
-
-          </div>
-        ) : postFeedback ? (
-          /* Post-Session Feedback */
-          <div style={{ maxWidth: 840, margin: "20px auto", background: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(245, 158, 11, 0.4)", borderRadius: 20, padding: 30, boxShadow: "0 20px 50px rgba(0,0,0,0.6)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-                <div>
-                  <div style={{ fontSize: 10, padding: "2px 8px", background: "rgba(16,185,129,0.2)", color: "#34d399", borderRadius: 6, fontWeight: 800, display: "inline-block", marginBottom: 6 }}>
-                    VERIFIED BEHAVIORAL EVIDENCE
-                  </div>
-                  <h2 style={{ fontSize: 22, fontWeight: 900, margin: 0, color: "white" }}>
-                    Behavioral Hiring Committee Dossier
-                  </h2>
-                </div>
-
-                <button
-                  onClick={() => handleStartLiveHRInterview(activeTab)}
-                  style={{
-                    padding: "8px 16px",
-                    borderRadius: 8,
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "white",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
                     fontSize: 12,
                     fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
-                  ↺ New Behavioral Session
+                  Start Practice ➔
                 </button>
               </div>
 
-              {/* Feedback Points */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-                <div style={{ padding: 14, borderRadius: 10, background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", marginBottom: 6 }}>
-                    ✓ WHAT YOU DEMONSTRATED
-                  </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
-                    Clear personal ownership and constructive conflict resolution under deadline pressure.
-                  </div>
-                </div>
-
-                <div style={{ padding: 14, borderRadius: 10, background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.25)" }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", marginBottom: 6 }}>
-                    △ WHAT REMAINS UNCERTAIN
-                  </div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
-                    Quantifiable impact metrics (e.g. latency reduced by X%, client turnaround improved by Y%).
-                  </div>
-                </div>
-              </div>
-
-              {/* Next Best Action */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)", flexWrap: "wrap", gap: 12 }}>
+              {/* Card 2: Work on Weak Spot */}
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #F8D8A7",
+                  borderRadius: 10,
+                  padding: 22,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", fontWeight: 800 }}>
-                    RECOMMENDED NEXT PRACTICE ACTION
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18 }}>🎯</span>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#B7791F" }}>
+                      Work on your weak spot
+                    </h3>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "white", marginTop: 2 }}>
-                    Retry the same story with measurable, quantifiable metrics.
+                  <p style={{ fontSize: 13, color: "#475467", margin: "0 0 14px", lineHeight: 1.5 }}>
+                    &ldquo;{homeProgress?.workOnNext?.reason || "Your project answers could be more specific about your individual contribution."}&rdquo;
+                  </p>
+                  <div style={{ fontSize: 11, color: "#667085", marginBottom: 16 }}>
+                    Target: <strong style={{ color: "#162A43" }}>{homeProgress?.workOnNext?.title || "Personal Specificity"}</strong>
                   </div>
                 </div>
-
                 <button
-                  onClick={() => handleStartLiveHRInterview(activeTab)}
+                  onClick={handleStartWeakSpotPractice}
                   style={{
-                    padding: "10px 20px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "#f59e0b",
-                    color: "white",
+                    width: "100%",
+                    padding: "9px 16px",
+                    borderRadius: 7,
+                    border: "1px solid #F8D8A7",
+                    background: "#FEF7ED",
+                    color: "#B7791F",
                     fontSize: 12,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
-                  Retry Differently ➔
+                  Practice This Weak Spot ➔
+                </button>
+              </div>
+
+              {/* Card 3: Mock Interview */}
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 10,
+                  padding: 22,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18 }}>🎤</span>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                      Mock Interview
+                    </h3>
+                  </div>
+                  <p style={{ fontSize: 13, color: "#667085", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    A realistic conversational interview. Interviewer listens and asks adaptive follow-ups before delivering a final review.
+                  </p>
+                  <div style={{ fontSize: 11, color: "#667085", marginBottom: 16 }}>
+                    3 Core Questions • Adaptive Probes • Audio Speech
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setMode("interview");
+                    handleStartInterview();
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "9px 16px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: "#162A43",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Start Mock Interview ➔
+                </button>
+              </div>
+
+              {/* Card 4: Micro-Learn */}
+              <div
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 10,
+                  padding: 22,
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 18 }}>💡</span>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                      Learn while you practice
+                    </h3>
+                  </div>
+                  <p style={{ fontSize: 13, color: "#667085", margin: "0 0 16px", lineHeight: 1.5 }}>
+                    Quick 2-minute interactive scenarios. Choose between A and B, understand why, and practice immediately.
+                  </p>
+                  <div style={{ fontSize: 11, color: "#667085", marginBottom: 16 }}>
+                    No 500-word lectures • 100% interactive
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMode("learn")}
+                  style={{
+                    width: "100%",
+                    padding: "9px 16px",
+                    borderRadius: 7,
+                    border: "1px solid #E4E1DA",
+                    background: "#FFFFFF",
+                    color: "#162A43",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Explore Lessons ➔
                 </button>
               </div>
             </div>
-          ) : null
+
+            {/* Simple Progress Section */}
+            {homeProgress && (
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "22px 24px", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+                  <h2 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: 0 }}>
+                    📈 YOUR INTERVIEW PROGRESS
+                  </h2>
+                  <span style={{ fontSize: 12, color: "#667085" }}>
+                    {homeProgress.totalAnswers} answers practiced so far
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                  <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 8 }}>
+                      ✓ YOU&apos;RE GETTING BETTER AT:
+                    </div>
+                    {homeProgress.gettingBetterAt.map((pt, idx) => (
+                      <div key={idx} style={{ fontSize: 12, color: "#14532D", marginBottom: 4 }}>• {pt}</div>
+                    ))}
+                  </div>
+
+                  <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, padding: 14 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 8 }}>
+                      🎯 WORK ON NEXT:
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: "#78350F", marginBottom: 4 }}>
+                      {homeProgress.workOnNext.title}
+                    </div>
+                    <div style={{ fontSize: 12, color: "#92400E", lineHeight: 1.4 }}>
+                      {homeProgress.workOnNext.reason}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Evidence-Based History Shift */}
+                {homeProgress.improvementDetected && (
+                  <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: 12, fontSize: 12, color: "#162A43", lineHeight: 1.5 }}>
+                    <strong style={{ color: "#356AE6" }}>💡 Improvement detected across answers:</strong>
+                    <div style={{ marginTop: 4 }}>Earlier: {homeProgress.improvementDetected.earlier}</div>
+                    <div style={{ color: "#2E7D5B", fontWeight: 700, marginTop: 2 }}>Now: {homeProgress.improvementDetected.now}</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 2: LEARN ("Learn While You Practice")
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "learn" && activeScenario && (
+          <div style={{ maxWidth: 760, margin: "0 auto" }}>
+            {/* Lesson Selector Pills */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10, marginBottom: 20 }}>
+              {learnScenarios.map((sc, idx) => (
+                <button
+                  key={sc.id}
+                  onClick={() => {
+                    setActiveScenarioIdx(idx);
+                    setChosenOption(null);
+                    setShowTryItPrompt(false);
+                    setLearnAnswer("");
+                    setLearnFeedback(null);
+                  }}
+                  style={{
+                    padding: "7px 12px",
+                    borderRadius: 7,
+                    border: activeScenarioIdx === idx ? "1px solid #162A43" : "1px solid #E4E1DA",
+                    background: activeScenarioIdx === idx ? "#162A43" : "#FFFFFF",
+                    color: activeScenarioIdx === idx ? "#FFFFFF" : "#667085",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  <span>{sc.icon} </span>
+                  <span>{sc.competencyTitle}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Interactive Lesson Card */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px 30px", marginBottom: 20, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase" }}>
+                  {activeScenario.icon} {activeScenario.competencyTitle} · 2 Min Practice
+                </span>
+                <span style={{ fontSize: 11, color: "#667085" }}>
+                  Lesson {activeScenarioIdx + 1} of {learnScenarios.length}
+                </span>
+              </div>
+
+              {/* Scenario */}
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#162A43", lineHeight: 1.4, marginBottom: 20 }}>
+                &ldquo;{activeScenario.scenario}&rdquo;
+              </div>
+
+              {/* Options A vs B */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                <button
+                  onClick={() => handleSelectLearnOption("A")}
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 8,
+                    border: chosenOption === "A"
+                      ? (activeScenario.optionA.isPreferred ? "2px solid #2E7D5B" : "2px solid #C24141")
+                      : "1px solid #E4E1DA",
+                    background: chosenOption === "A"
+                      ? (activeScenario.optionA.isPreferred ? "#EAF4EE" : "#FDF2F2")
+                      : "#F6F5F1",
+                    color: chosenOption === "A"
+                      ? (activeScenario.optionA.isPreferred ? "#14532D" : "#7F1D1D")
+                      : "#17191C",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    textAlign: "left",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10
+                  }}
+                >
+                  <strong style={{ color: "#356AE6" }}>A:</strong>
+                  <span>{activeScenario.optionA.text}</span>
+                </button>
+
+                <button
+                  onClick={() => handleSelectLearnOption("B")}
+                  style={{
+                    padding: "14px 16px",
+                    borderRadius: 8,
+                    border: chosenOption === "B"
+                      ? (activeScenario.optionB.isPreferred ? "2px solid #2E7D5B" : "2px solid #C24141")
+                      : "1px solid #E4E1DA",
+                    background: chosenOption === "B"
+                      ? (activeScenario.optionB.isPreferred ? "#EAF4EE" : "#FDF2F2")
+                      : "#F6F5F1",
+                    color: chosenOption === "B"
+                      ? (activeScenario.optionB.isPreferred ? "#14532D" : "#7F1D1D")
+                      : "#17191C",
+                    fontSize: 13,
+                    lineHeight: 1.5,
+                    textAlign: "left",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10
+                  }}
+                >
+                  <strong style={{ color: "#B7791F" }}>B:</strong>
+                  <span>{activeScenario.optionB.text}</span>
+                </button>
+              </div>
+
+              {/* Reveal: Why & Key Idea */}
+              {chosenOption && (
+                <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: "16px 18px", marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
+                    WHY?
+                  </div>
+                  <p style={{ fontSize: 13, color: "#475467", lineHeight: 1.5, margin: "0 0 14px" }}>
+                    {activeScenario.why}
+                  </p>
+
+                  <div style={{ fontSize: 11, fontWeight: 900, color: "#356AE6", marginBottom: 4 }}>
+                    KEY IDEA
+                  </div>
+                  <p style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5, margin: 0, fontStyle: "italic" }}>
+                    &ldquo;{activeScenario.keyIdea}&rdquo;
+                  </p>
+                </div>
+              )}
+
+              {/* Immediate Prompt: Try It Yourself */}
+              {showTryItPrompt && (
+                <div style={{ borderTop: "1px solid #E4E1DA", paddingTop: 18 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43" }}>
+                      Now try it yourself:
+                    </div>
+                    <button
+                      onClick={toggleRecording}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        border: isRecording ? "1px solid #C24141" : "1px solid #E4E1DA",
+                        background: isRecording ? "#FDF2F2" : "#FFFFFF",
+                        color: isRecording ? "#C24141" : "#475467",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      {isRecording ? "🔴 Listening..." : "🎙️ Speak"}
+                    </button>
+                  </div>
+
+                  <div style={{ fontSize: 15, fontWeight: 800, color: "#162A43", marginBottom: 10 }}>
+                    &ldquo;{activeScenario.tryItQuestion}&rdquo;
+                  </div>
+
+                  <textarea
+                    value={learnAnswer}
+                    onChange={e => setLearnAnswer(e.target.value)}
+                    placeholder="Speak or type your answer here... Tell a real story about what you did."
+                    rows={6}
+                    style={{
+                      width: "100%",
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 8,
+                      padding: 14,
+                      color: "#17191C",
+                      fontSize: 13,
+                      lineHeight: 1.5,
+                      outline: "none",
+                      marginBottom: 12,
+                      boxSizing: "border-box"
+                    }}
+                  />
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 11, color: "#667085" }}>
+                      {learnAnswer.trim() ? `${learnAnswer.trim().split(/\s+/).length} words` : "Speak or type"}
+                    </span>
+                    <button
+                      onClick={handleLearnSubmit}
+                      disabled={learnEvaluating || !learnAnswer.trim()}
+                      style={{
+                        padding: "9px 20px",
+                        borderRadius: 7,
+                        border: "none",
+                        background: learnEvaluating ? "#98A2B3" : "#356AE6",
+                        color: "#FFFFFF",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: learnEvaluating ? "not-allowed" : "pointer"
+                      }}
+                    >
+                      {learnEvaluating ? "Checking..." : "Submit Answer ➔"}
+                    </button>
+                  </div>
+
+                  {/* Immediate Feedback */}
+                  {learnFeedback && (
+                    <div style={{ marginTop: 18, background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: 18 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 4 }}>
+                        ✓ WHAT WORKED
+                      </div>
+                      <div style={{ fontSize: 13, color: "#14532D", marginBottom: 14 }}>
+                        {learnFeedback.whatWorked}
+                      </div>
+
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 4 }}>
+                        🎯 ONE THING TO IMPROVE
+                      </div>
+                      <div style={{ fontSize: 13, color: "#78350F", marginBottom: 6 }}>
+                        {learnFeedback.oneThingToImprove}
+                      </div>
+
+                      <div style={{ background: "#F6F5F1", padding: "8px 12px", borderRadius: 6, fontSize: 12, color: "#475467", marginBottom: 14, fontStyle: "italic" }}>
+                        Your answer: {learnFeedback.evidenceQuote}
+                      </div>
+
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", marginBottom: 4 }}>
+                        TRY THIS:
+                      </div>
+                      <div style={{ fontSize: 13, color: "#162A43", marginBottom: 16 }}>
+                        {learnFeedback.tryThis}
+                      </div>
+
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                        <button
+                          onClick={() => {
+                            setLearnFeedback(null);
+                          }}
+                          style={{
+                            padding: "7px 14px",
+                            borderRadius: 6,
+                            border: "1px solid #E4E1DA",
+                            background: "#FFFFFF",
+                            color: "#475467",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            cursor: "pointer"
+                          }}
+                        >
+                          🎙️ Try Again
+                        </button>
+                        <button
+                          onClick={handleNextLearnScenario}
+                          style={{
+                            padding: "7px 16px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#356AE6",
+                            color: "#FFFFFF",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: "pointer"
+                          }}
+                        >
+                          Next Lesson ➔
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 3: PRACTICE (Single Question, "ONE Thing to Improve")
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "practice" && practiceQuestion && (
+          <div style={{ maxWidth: 820, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px 30px", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+            {/* Top Bar */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 4, fontWeight: 800 }}>
+                  INTERVIEW PRACTICE
+                </span>
+                <span style={{ fontSize: 11, color: "#667085" }}>
+                  Focus: <strong>{practiceQuestion.competency_id.replace(/_/g, " ").toUpperCase()}</strong>
+                </span>
+              </div>
+              <button
+                onClick={handleNextPracticeQuestion}
+                disabled={practiceEvaluating}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
+                  color: "#475467",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+              >
+                🔄 Another Question
+              </button>
+            </div>
+
+            {/* The Question */}
+            <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: "18px 20px", marginBottom: 16 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#162A43", lineHeight: 1.4 }}>
+                &ldquo;{practiceQuestion.question}&rdquo;
+              </div>
+              <div style={{ fontSize: 12, color: "#667085", marginTop: 8 }}>
+                Answer naturally in your own words. Think of a real situation and what YOU personally did.
+              </div>
+            </div>
+
+            {/* Answer Input Area */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#667085" }}>
+                  YOUR ANSWER:
+                </label>
+                <button
+                  onClick={toggleRecording}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    padding: "4px 10px",
+                    borderRadius: 6,
+                    border: isRecording ? "1px solid #C24141" : "1px solid #E4E1DA",
+                    background: isRecording ? "#FDF2F2" : "#FFFFFF",
+                    color: isRecording ? "#C24141" : "#475467",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  {isRecording ? "🔴 Listening... (Click to stop)" : "🎙️ Speak Answer"}
+                </button>
+              </div>
+
+              <textarea
+                value={practiceAnswer}
+                onChange={e => setPracticeAnswer(e.target.value)}
+                placeholder="Type or speak your answer here... Tell me what happened, what your specific role was, and what the outcome was."
+                rows={8}
+                style={{
+                  width: "100%",
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 8,
+                  padding: 14,
+                  color: "#17191C",
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box"
+                }}
+              />
+            </div>
+
+            {/* Submit Action */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: 11, color: "#667085" }}>
+                {practiceAnswer.trim() ? `${practiceAnswer.trim().split(/\s+/).length} words` : "Empty answer"}
+              </span>
+
+              <button
+                onClick={handlePracticeSubmit}
+                disabled={practiceEvaluating || !practiceAnswer.trim()}
+                style={{
+                  padding: "10px 24px",
+                  borderRadius: 7,
+                  border: "none",
+                  background: practiceEvaluating || !practiceAnswer.trim() ? "#98A2B3" : "#356AE6",
+                  color: "#FFFFFF",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: practiceEvaluating || !practiceAnswer.trim() ? "not-allowed" : "pointer",
+                  boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+                }}
+              >
+                {practiceEvaluating ? "Cognalyze is analyzing..." : "Submit Answer ➔"}
+              </button>
+            </div>
+
+            {/* ── THE "ONE THING TO IMPROVE" RESULT ── */}
+            {practiceFeedback && (
+              <div style={{ marginTop: 24, background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20 }}>
+                {/* Your answer excerpt */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+                    YOUR ANSWER
+                  </div>
+                  <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, background: "#F6F5F1", padding: "10px 14px", borderRadius: 6, borderLeft: "3px solid #356AE6" }}>
+                    &ldquo;{practiceFeedback.candidateText}&rdquo;
+                  </div>
+                </div>
+
+                {/* What worked */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 4 }}>
+                    ✓ WHAT WORKED
+                  </div>
+                  <div style={{ fontSize: 13, color: "#14532D", lineHeight: 1.5 }}>
+                    {practiceFeedback.whatWorked}
+                  </div>
+                </div>
+
+                {/* ONE Thing to Improve */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 4 }}>
+                    🎯 ONE THING TO IMPROVE
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#78350F", marginBottom: 6 }}>
+                    {practiceFeedback.oneThingToImprove}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#667085", fontStyle: "italic" }}>
+                    From your answer: <strong>{practiceFeedback.evidenceQuote}</strong>
+                  </div>
+                </div>
+
+                {/* Why this matters */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 4 }}>
+                    WHY THIS MATTERS
+                  </div>
+                  <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.4 }}>
+                    {practiceFeedback.whyThisMatters}
+                  </div>
+                </div>
+
+                {/* Try This */}
+                <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: 14, marginBottom: 18 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", marginBottom: 4 }}>
+                    TRY THIS
+                  </div>
+                  <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5, fontWeight: 600 }}>
+                    {practiceFeedback.tryThis}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+                  <button
+                    onClick={() => setShowDetailedDiagnostic(!showDetailedDiagnostic)}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "#667085",
+                      fontSize: 11,
+                      cursor: "pointer",
+                      textDecoration: "underline"
+                    }}
+                  >
+                    {showDetailedDiagnostic ? "Hide detailed feedback" : "See detailed feedback"}
+                  </button>
+
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button
+                      onClick={() => {
+                        setPracticeFeedback(null);
+                      }}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 7,
+                        border: "1px solid #E4E1DA",
+                        background: "#FFFFFF",
+                        color: "#475467",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      🎙️ Try Again
+                    </button>
+                    <button
+                      onClick={handleSendPracticeToCoach}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 7,
+                        border: "1px solid #D2E0FB",
+                        background: "#EFF4FE",
+                        color: "#356AE6",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      🎓 Coach My Answer
+                    </button>
+                    <button
+                      onClick={handleNextPracticeQuestion}
+                      style={{
+                        padding: "8px 18px",
+                        borderRadius: 7,
+                        border: "none",
+                        background: "#356AE6",
+                        color: "#FFFFFF",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Next Question ➔
+                    </button>
+                  </div>
+                </div>
+
+                {/* Optional Expandable Detailed Analysis */}
+                {showDetailedDiagnostic && practiceFeedback.detailedAnalysis && (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #E4E1DA", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10 }}>
+                    <div style={{ background: "#F6F5F1", padding: 8, borderRadius: 6, fontSize: 11 }}>
+                      <span style={{ color: "#667085" }}>Personal &lsquo;I&rsquo; Ratio:</span>{" "}
+                      <strong style={{ color: practiceFeedback.detailedAnalysis.ownershipRatio >= 45 ? "#2E7D5B" : "#B7791F" }}>
+                        {practiceFeedback.detailedAnalysis.ownershipRatio}%
+                      </strong>
+                    </div>
+                    <div style={{ background: "#F6F5F1", padding: 8, borderRadius: 6, fontSize: 11 }}>
+                      <span style={{ color: "#667085" }}>Measurable Metric:</span>{" "}
+                      <strong style={{ color: practiceFeedback.detailedAnalysis.metricsFound ? "#2E7D5B" : "#667085" }}>
+                        {practiceFeedback.detailedAnalysis.metricsFound ? "Detected" : "Not cited"}
+                      </strong>
+                    </div>
+                    <div style={{ background: "#F6F5F1", padding: 8, borderRadius: 6, fontSize: 11 }}>
+                      <span style={{ color: "#667085" }}>Outcome/Result:</span>{" "}
+                      <strong style={{ color: practiceFeedback.detailedAnalysis.resultPresent ? "#2E7D5B" : "#C24141" }}>
+                        {practiceFeedback.detailedAnalysis.resultPresent ? "Included" : "Missing"}
+                      </strong>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 4: COACH ("Give me any answer and help me improve it")
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "coach" && (
+          <div style={{ maxWidth: 780, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px 30px", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+            <div style={{ marginBottom: 18, borderBottom: "1px solid #E4E1DA", paddingBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 20 }}>🎓</span>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: "#162A43", margin: 0 }}>
+                  Interview Coach
+                </h2>
+              </div>
+              <div style={{ fontSize: 13, color: "#667085" }}>
+                Bring any answer draft you already have. Cognalyze will diagnose what is missing and help you improve your own words.
+              </div>
+            </div>
+
+            {/* Input Draft Area */}
+            {coachLog.length === 0 ? (
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#667085", display: "block", marginBottom: 6 }}>
+                  PASTE OR WRITE YOUR ANSWER:
+                </label>
+                <textarea
+                  value={coachDraft}
+                  onChange={e => setCoachDraft(e.target.value)}
+                  placeholder="Paste your answer draft here... (e.g. 'I worked on an AI project with my team. We made a resume screening system...')"
+                  rows={8}
+                  style={{
+                    width: "100%",
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 8,
+                    padding: 14,
+                    color: "#17191C",
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                    outline: "none",
+                    marginBottom: 14,
+                    boxSizing: "border-box"
+                  }}
+                />
+                <button
+                  onClick={() => handleCoachAnalyze(coachDraft)}
+                  disabled={coachAnalyzing || !coachDraft.trim()}
+                  style={{
+                    padding: "10px 24px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: coachAnalyzing || !coachDraft.trim() ? "#98A2B3" : "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: coachAnalyzing || !coachDraft.trim() ? "not-allowed" : "pointer"
+                  }}
+                >
+                  {coachAnalyzing ? "Analyzing..." : "Improve My Answer ➔"}
+                </button>
+              </div>
+            ) : (
+              <div>
+                {/* Socratic Refinement Dialogue */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
+                  {coachLog.map((entry, idx) => (
+                    <div key={idx}>
+                      {entry.sender === "coach" ? (
+                        <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: 18 }}>
+                          {entry.headline && (
+                            <div style={{ fontSize: 15, fontWeight: 800, color: "#162A43", marginBottom: 8 }}>
+                              {entry.headline}
+                            </div>
+                          )}
+
+                          {entry.quote && (
+                            <div style={{ fontSize: 12, color: "#475467", marginBottom: 8 }}>
+                              You said: <strong style={{ color: "#162A43" }}>{entry.quote}</strong>
+                            </div>
+                          )}
+
+                          {entry.suggestion && (
+                            <div style={{ background: "#FFFFFF", padding: "10px 12px", borderRadius: 6, border: "1px solid #D2E0FB", fontSize: 13, color: "#17191C", marginBottom: 10 }}>
+                              <strong style={{ color: "#356AE6" }}>Try: </strong>
+                              {entry.suggestion}
+                            </div>
+                          )}
+
+                          <div style={{ fontSize: 13, color: "#162A43", fontWeight: 700 }}>
+                            👉 {entry.text}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 12, alignSelf: "flex-end", maxWidth: "90%" }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: "#667085", marginBottom: 2 }}>YOU</div>
+                          <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.4 }}>{entry.text}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {coachAnalyzing && (
+                    <div style={{ fontSize: 12, color: "#356AE6", fontStyle: "italic" }}>
+                      Coach is analyzing your response...
+                    </div>
+                  )}
+                </div>
+
+                {/* Reply Input */}
+                <div style={{ display: "flex", gap: 10 }}>
+                  <input
+                    type="text"
+                    value={coachReplyInput}
+                    onChange={e => setCoachReplyInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && coachReplyInput.trim()) {
+                        handleCoachReply();
+                      }
+                    }}
+                    placeholder="Type your revision here (e.g. 'I specifically wrote the scoring algorithm in Python...')"
+                    style={{
+                      flex: 1,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      padding: "10px 14px",
+                      color: "#17191C",
+                      fontSize: 12,
+                      outline: "none"
+                    }}
+                  />
+                  <button
+                    onClick={handleCoachReply}
+                    disabled={coachAnalyzing || !coachReplyInput.trim()}
+                    style={{
+                      padding: "10px 18px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: "#356AE6",
+                      color: "#FFFFFF",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Reply
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCoachLog([]);
+                      setCoachDraft("");
+                    }}
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 7,
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: "#667085",
+                      fontSize: 11,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 5: INTERVIEW (Simulate Real Interview)
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "interview" && (
+          !interviewStarted ? (
+            /* Pre-Interview Brief */
+            <div style={{ maxWidth: 740, margin: "20px auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "28px 32px", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+              <div style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 4, fontWeight: 800, display: "inline-block", marginBottom: 8 }}>
+                REAL MOCK INTERVIEW
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 6px", color: "#162A43" }}>
+                {activeTrackType === "service_hr" ? "Corporate Service HR Round" : "Behavioral Interview Simulation"}
+              </h2>
+              <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.5, margin: "0 0 20px" }}>
+                A realistic 3-question interview without interruptions. Priya Sharma will listen to your answer and ask an adaptive follow-up. At the end, you receive a full report grounded in your actual answers.
+              </p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+                <button
+                  onClick={() => setActiveTrackType("faang_star")}
+                  style={{
+                    padding: "12px 14px",
+                    borderRadius: 8,
+                    border: activeTrackType === "faang_star" ? "2px solid #356AE6" : "1px solid #E4E1DA",
+                    background: activeTrackType === "faang_star" ? "#EFF4FE" : "#F6F5F1",
+                    color: "#162A43",
+                    textAlign: "left",
+                    cursor: "pointer"
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#356AE6" }}>Product / Tech Track</div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>Ownership, Disagreement, Overcoming Failure</div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTrackType("service_hr")}
+                  style={{
+                    padding: "12px 14px",
+                    borderRadius: 8,
+                    border: activeTrackType === "service_hr" ? "2px solid #356AE6" : "1px solid #E4E1DA",
+                    background: activeTrackType === "service_hr" ? "#EFF4FE" : "#F6F5F1",
+                    color: "#162A43",
+                    textAlign: "left",
+                    cursor: "pointer"
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>TCS / Infosys Corporate HR</div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>Relocation readiness, night shifts, client stability</div>
+                </button>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 11, color: "#667085" }}>
+                  3 Core Scenarios • Adaptive Follow-ups • Grounded Review
+                </div>
+                <button
+                  onClick={handleStartInterview}
+                  disabled={interviewEvaluating}
+                  style={{
+                    padding: "11px 26px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+                  }}
+                >
+                  {interviewEvaluating ? "Preparing Interview..." : "Begin Interview ➔"}
+                </button>
+              </div>
+            </div>
+          ) : !sessionCompleted ? (
+            /* Active Conversational Mock Interview */
+            <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 20, alignItems: "start" }}>
+              {/* Left Panel: Interviewer Panel + Camera + Live Transcript */}
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 18, display: "flex", flexDirection: "column", height: "calc(100vh - 160px)", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, paddingBottom: 10, borderBottom: "1px solid #E4E1DA" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#162A43", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+                      👩‍💼
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>Priya Sharma</div>
+                      <div style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 600 }}>Question {currentQuestionIndex + 1} of {interviewQuestions.length}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#F6F5F1", color: "#162A43", fontWeight: 700, border: "1px solid #E4E1DA" }}>
+                    ⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+                  </div>
+                </div>
+
+                {/* Camera Feed */}
+                <div style={{ position: "relative", width: "100%", height: 110, background: "#111C2E", borderRadius: 7, overflow: "hidden", border: "1px solid #233752", marginBottom: 12 }}>
+                  <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  <div style={{ position: "absolute", bottom: 4, left: 6, display: "flex", alignItems: "center", gap: 4, fontSize: 10, background: "rgba(0,0,0,0.6)", color: "#FFFFFF", padding: "1px 6px", borderRadius: 4 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: cameraActive ? "#2E7D5B" : "#C24141" }} />
+                    <span>{cameraActive ? "Camera Active" : "Camera Standby"}</span>
+                  </div>
+                </div>
+
+                {/* Transcript */}
+                <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, paddingRight: 4 }}>
+                  {conversationHistory.map((item, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        alignSelf: item.speaker === "interviewer" ? "flex-start" : "flex-end",
+                        maxWidth: "90%",
+                        padding: "8px 12px",
+                        borderRadius: 8,
+                        background: item.speaker === "interviewer"
+                          ? item.isFollowUp ? "#FEF7ED" : "#EFF4FE"
+                          : "#F6F5F1",
+                        border: item.speaker === "interviewer"
+                          ? item.isFollowUp ? "1px solid #F8D8A7" : "1px solid #D2E0FB"
+                          : "1px solid #E4E1DA",
+                        fontSize: 12,
+                        lineHeight: 1.4,
+                        color: "#17191C"
+                      }}
+                    >
+                      <div style={{ fontSize: 10, fontWeight: 800, color: item.speaker === "interviewer" ? (item.isFollowUp ? "#B7791F" : "#356AE6") : "#162A43", marginBottom: 2 }}>
+                        {item.speaker === "interviewer" ? (item.isFollowUp ? "⚡ PRIYA'S FOLLOW-UP" : "PRIYA") : "YOU"}
+                      </div>
+                      <div>{item.text}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Panel: Current Question & Answer Area */}
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 22, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 800 }}>
+                      QUESTION {currentQuestionIndex + 1} OF {interviewQuestions.length}
+                    </span>
+                    <span style={{ fontSize: 11, color: "#667085" }}>
+                      {interviewTurn === "initial" ? "Initial Scenario" : "Adaptive Follow-Up"}
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: 16, fontWeight: 800, color: "#162A43", lineHeight: 1.4, marginTop: 4 }}>
+                    {interviewTurn === "initial"
+                      ? interviewQuestions[currentQuestionIndex]?.question
+                      : activeFollowUpQuestion}
+                  </div>
+                </div>
+
+                {/* Answer Area */}
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#667085" }}>
+                      {interviewTurn === "initial" ? "YOUR ANSWER:" : "YOUR FOLLOW-UP RESPONSE:"}
+                    </label>
+                    <button
+                      onClick={toggleRecording}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "4px 10px",
+                        borderRadius: 6,
+                        border: isRecording ? "1px solid #C24141" : "1px solid #E4E1DA",
+                        background: isRecording ? "#FDF2F2" : "#FFFFFF",
+                        color: isRecording ? "#C24141" : "#475467",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      {isRecording ? "🔴 Listening... (Click to stop)" : "🎙️ Speak Answer"}
+                    </button>
+                  </div>
+
+                  <textarea
+                    value={candidateResponse}
+                    onChange={e => setCandidateResponse(e.target.value)}
+                    placeholder={
+                      interviewTurn === "initial"
+                        ? "Type or speak your answer... Describe the situation, your specific role ('I did...'), and the outcome."
+                        : "Address Priya's follow-up question directly..."
+                    }
+                    rows={9}
+                    style={{
+                      width: "100%",
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 8,
+                      padding: 14,
+                      color: "#17191C",
+                      fontSize: 13,
+                      lineHeight: 1.5,
+                      outline: "none",
+                      resize: "vertical",
+                      boxSizing: "border-box"
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <button
+                    onClick={handleInterviewSubmit}
+                    disabled={interviewEvaluating || !candidateResponse.trim()}
+                    style={{
+                      padding: "10px 24px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: interviewEvaluating || !candidateResponse.trim() ? "#98A2B3" : "#356AE6",
+                      color: "#FFFFFF",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: interviewEvaluating || !candidateResponse.trim() ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {interviewEvaluating ? "Evaluating..." : interviewTurn === "initial" ? "Submit Answer ➔" : "Submit Follow-Up ➔"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : finalReview ? (
+            /* Grounded Final Interview Report */
+            <div style={{ maxWidth: 760, margin: "20px auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "28px 32px", boxShadow: "0 1px 4px rgba(16,24,40,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, borderBottom: "1px solid #E4E1DA", paddingBottom: 12 }}>
+                  <div>
+                    <span style={{ fontSize: 10, padding: "2px 8px", background: "#EAF4EE", color: "#2E7D5B", border: "1px solid #C8E4D3", borderRadius: 4, fontWeight: 800 }}>
+                      INTERVIEW COMPLETED
+                    </span>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, margin: "6px 0 2px", color: "#162A43" }}>
+                      YOUR INTERVIEW REVIEW
+                    </h2>
+                  </div>
+                  <span style={{ fontSize: 12, color: "#667085" }}>
+                    {interviewQuestions.length} scenarios evaluated
+                  </span>
+                </div>
+
+                <p style={{ fontSize: 13, color: "#475467", lineHeight: 1.5, margin: "0 0 20px" }}>
+                  {finalReview.overallObservation}
+                </p>
+
+                {/* What You Did Well */}
+                <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: 16, marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#2E7D5B", marginBottom: 8 }}>
+                    ✓ WHAT YOU DID WELL
+                  </div>
+                  {finalReview.whatYouDidWell.map((item, idx) => (
+                    <div key={idx} style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, color: "#14532D", fontWeight: 600 }}>• {item.point}</div>
+                      {item.quote && (
+                        <div style={{ fontSize: 11, color: "#166534", fontStyle: "italic", marginLeft: 14 }}>
+                          Evidence: {item.quote}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* What to Work On */}
+                <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, padding: 16, marginBottom: 20 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#B7791F", marginBottom: 8 }}>
+                    🎯 WHAT TO WORK ON
+                  </div>
+                  {finalReview.whatToWorkOn.map((item, idx) => (
+                    <div key={idx} style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 13, color: "#78350F", fontWeight: 600 }}>• {item.point}</div>
+                      {item.quote && (
+                        <div style={{ fontSize: 11, color: "#92400E", fontStyle: "italic", marginLeft: 14 }}>
+                          Evidence: {item.quote}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Recommended Next Practice Session */}
+                {finalReview.recommendedNextPractice && (
+                  <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: 16, marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", marginBottom: 4 }}>
+                      RECOMMENDED NEXT PRACTICE
+                    </div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43", marginBottom: 4 }}>
+                      {finalReview.recommendedNextPractice.topic}
+                    </div>
+                    <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.4, marginBottom: 12 }}>
+                      {finalReview.recommendedNextPractice.reason}
+                    </div>
+                    <button
+                      onClick={() => {
+                        const targetQ = questions.find(q => q.id === finalReview.recommendedNextPractice.suggestedQuestionId) || questions[0];
+                        if (targetQ) setPracticeQuestion(targetQ);
+                        setPracticeAnswer("");
+                        setPracticeFeedback(null);
+                        setMode("practice");
+                      }}
+                      style={{
+                        padding: "8px 18px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: "#356AE6",
+                        color: "#FFFFFF",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Practice This Topic ➔
+                    </button>
+                  </div>
+                )}
+
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                  <button
+                    onClick={() => setMode("home")}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: "#475467",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Back to Home
+                  </button>
+                  <button
+                    onClick={handleStartInterview}
+                    style={{
+                      padding: "8px 18px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: "#356AE6",
+                      color: "#FFFFFF",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Take Another Interview ➔
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: 40, color: "#667085" }}>
+                Compiling your interview review...
+              </div>
+            )
+          )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MODE 6: QUESTION BANK (Clean Searchable Catalog)
+        ══════════════════════════════════════════════════════════════════════ */}
+        {!loading && mode === "bank" && (
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 800, color: "#162A43", margin: 0 }}>
+                  Behavioral Question Bank
+                </h2>
+                <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                  Browse {questions.length} real interview questions across competencies.
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <input
+                type="text"
+                value={bankSearch}
+                onChange={e => setBankSearch(e.target.value)}
+                placeholder="Search questions by keyword or company..."
+                style={{
+                  width: 280,
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 7,
+                  padding: "8px 12px",
+                  color: "#17191C",
+                  fontSize: 12,
+                  outline: "none"
+                }}
+              />
+            </div>
+
+            {/* Filter Pills */}
+            <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 10, marginBottom: 16 }}>
+              {[
+                { id: "all", label: "All Questions" },
+                { id: "extreme_ownership", label: "Ownership" },
+                { id: "disagree_and_commit", label: "Conflict" },
+                { id: "handling_failure", label: "Mistakes" },
+                { id: "leadership_initiative", label: "Leadership" },
+                { id: "teamwork_conflict", label: "Teamwork" },
+                { id: "prioritization_pressure", label: "Prioritization" },
+                { id: "corporate_stability", label: "Corporate HR" }
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setBankCompetencyFilter(f.id)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: bankCompetencyFilter === f.id ? "1px solid #162A43" : "1px solid #E4E1DA",
+                    background: bankCompetencyFilter === f.id ? "#162A43" : "#FFFFFF",
+                    color: bankCompetencyFilter === f.id ? "#FFFFFF" : "#667085",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Questions Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 14 }}>
+              {questions
+                .filter(q => {
+                  const matchSearch =
+                    bankSearch === "" ||
+                    q.title.toLowerCase().includes(bankSearch.toLowerCase()) ||
+                    q.question.toLowerCase().includes(bankSearch.toLowerCase()) ||
+                    q.company_tag.toLowerCase().includes(bankSearch.toLowerCase());
+                  const matchComp = bankCompetencyFilter === "all" || q.competency_id === bankCompetencyFilter;
+                  return matchSearch && matchComp;
+                })
+                .map(q => (
+                  <div
+                    key={q.id}
+                    style={{
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 10,
+                      padding: 16,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                        <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 800 }}>
+                          {q.competency_id.replace(/_/g, " ").toUpperCase()}
+                        </span>
+                        <span style={{ fontSize: 11, color: "#667085" }}>{q.company_tag}</span>
+                      </div>
+
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43", lineHeight: 1.4, marginBottom: 12 }}>
+                        &ldquo;{q.question}&rdquo;
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
+                      <button
+                        onClick={() => {
+                          setPracticeQuestion(q);
+                          setPracticeAnswer("");
+                          setPracticeFeedback(null);
+                          setMode("practice");
+                        }}
+                        style={{
+                          padding: "6px 14px",
+                          borderRadius: 6,
+                          border: "none",
+                          background: "#356AE6",
+                          color: "#FFFFFF",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: "pointer"
+                        }}
+                      >
+                        Practice This ➔
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
-export default function BehavioralHRPage() {
+export default function BehavioralHRArena() {
   return (
-    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+    <React.Suspense fallback={<div style={{ padding: 40, textAlign: "center", color: "#667085" }}>Loading Interview Experience...</div>}>
       <BehavioralHRContent />
     </React.Suspense>
   );

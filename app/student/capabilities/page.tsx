@@ -84,39 +84,39 @@ export default function StudentCapabilitiesPage() {
   const getStatusBadge = (status: CapabilityMatrixItem["status"]) => {
     switch (status) {
       case "Verified in Code":
-        return { bg: "rgba(16,185,129,0.15)", color: "#6ee7b7", border: "rgba(16,185,129,0.3)" };
+        return { bg: "#EAF4EE", color: "#2E7D5B", border: "#C8E4D3" };
       case "Verified in Work Sample":
-        return { bg: "rgba(99,102,241,0.15)", color: "#a5b4fc", border: "rgba(99,102,241,0.3)" };
+        return { bg: "#EFF4FE", color: "#356AE6", border: "#D2E0FB" };
       case "Verified in Interview":
-        return { bg: "rgba(59,130,246,0.15)", color: "#93c5fd", border: "rgba(59,130,246,0.3)" };
+        return { bg: "#EFF4FE", color: "#162A43", border: "#D2E0FB" };
       case "Claimed in Portfolio":
-        return { bg: "rgba(234,179,8,0.15)", color: "#fde047", border: "rgba(234,179,8,0.3)" };
+        return { bg: "#FEF7ED", color: "#B7791F", border: "#F8D8A7" };
       case "Identified Gap":
-        return { bg: "rgba(239,68,68,0.15)", color: "#fca5a5", border: "rgba(239,68,68,0.3)" };
+        return { bg: "#FDF2F2", color: "#C24141", border: "#F8C8C8" };
     }
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="student" />
 
-      <main style={{ maxWidth: 1380, margin: "0 auto", padding: "32px 24px" }}>
+      <main style={{ maxWidth: 1380, margin: "0 auto", padding: "32px 24px 60px" }}>
         
-        {/* HEADER: ONE QUESTION */}
+        {/* HEADER */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#a5b4fc", fontWeight: 800, textTransform: "uppercase" }}>
+              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB", textTransform: "uppercase" }}>
                 Capability Matrix
               </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>
                 Factual Competency Map
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.5px" }}>
               Where do I stand?
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 750, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "#667085", margin: "8px 0 0", maxWidth: 750, lineHeight: 1.5 }}>
               A factual breakdown of what you can actually do across engineering domains. Understand which capabilities have concrete evidence and where targeted practice will yield the highest return.
             </p>
           </div>
@@ -124,14 +124,13 @@ export default function StudentCapabilitiesPage() {
           <Link
             href="/student/growth"
             style={{
-              padding: "10px 18px",
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #10b981, #059669)",
+              padding: "9px 18px",
+              borderRadius: 7,
+              background: "#2E7D5B",
               color: "white",
               fontSize: 13,
               fontWeight: 700,
               textDecoration: "none",
-              boxShadow: "0 4px 15px rgba(16,185,129,0.3)"
             }}
           >
             Resolve Gaps in Growth Track ➔
@@ -148,14 +147,16 @@ export default function StudentCapabilitiesPage() {
                 onClick={() => setSelectedDomain(dom)}
                 style={{
                   padding: "8px 16px",
-                  borderRadius: 8,
-                  background: isSelected ? "rgba(99,102,241,0.3)" : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${isSelected ? "rgba(99,102,241,0.6)" : "rgba(255,255,255,0.08)"}`,
-                  color: isSelected ? "#a5b4fc" : "#94a3b8",
+                  borderRadius: 7,
+                  background: isSelected ? "#EFF4FE" : "#FFFFFF",
+                  border: `1px solid ${isSelected ? "#356AE6" : "#E4E1DA"}`,
+                  color: isSelected ? "#356AE6" : "#667085",
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: "pointer",
-                  whiteSpace: "nowrap"
+                  whiteSpace: "nowrap",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.02)",
+                  transition: "all 0.15s ease",
                 }}
               >
                 {dom}
@@ -173,38 +174,39 @@ export default function StudentCapabilitiesPage() {
                 key={item.id}
                 style={{
                   padding: "20px",
-                  borderRadius: 14,
-                  background: "rgba(15, 23, 42, 0.7)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 10,
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between"
+                  justifyContent: "space-between",
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                 }}
               >
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-                    <span style={{ fontSize: 11, color: "#94a3b8" }}>{item.domain}</span>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>{item.domain}</span>
                     <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: badge.bg, color: badge.color, border: `1px solid ${badge.border}`, fontWeight: 800 }}>
                       {item.status.toUpperCase()}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "0 0 8px" }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: "0 0 8px" }}>
                     {item.name}
                   </h3>
 
-                  <div style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.5, background: "rgba(0,0,0,0.25)", padding: "10px 12px", borderRadius: 8, marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, background: "#F6F5F1", border: "1px solid #E4E1DA", padding: "10px 12px", borderRadius: 7, marginBottom: 12 }}>
                     {item.proofDescription}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 4 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 4 }}>
                     RELEVANT OPPORTUNITIES:
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                     {item.relevanceToRoles.map((r, i) => (
-                      <span key={i} style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(255,255,255,0.06)", color: "#e2e8f0" }}>
+                      <span key={i} style={{ fontSize: 11, padding: "3px 8px", borderRadius: 4, background: "#F6F5F1", border: "1px solid #E4E1DA", color: "#162A43" }}>
                         {r}
                       </span>
                     ))}

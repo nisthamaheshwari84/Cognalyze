@@ -59,13 +59,12 @@ export default function CalendarHistoryPage() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f1f5f9", fontFamily: "Inter, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "var(--font-geist-sans), sans-serif" }}>
       {/* Header */}
       <header
         style={{
-          borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-          backgroundColor: "rgba(15, 23, 42, 0.7)",
-          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid #E4E1DA",
+          backgroundColor: "#FFFFFF",
           position: "sticky",
           top: 0,
           zIndex: 40,
@@ -75,16 +74,16 @@ export default function CalendarHistoryPage() {
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <Link href="/student/calendar" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>
+              <Link href="/student/calendar" style={{ color: "#667085", textDecoration: "none", fontSize: 13 }}>
                 ← Season Calendar
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-              <span style={{ color: "#38bdf8", fontSize: 13, fontWeight: 600 }}>Retrospective Log</span>
+              <span style={{ color: "#98A2B3" }}>/</span>
+              <span style={{ color: "#356AE6", fontSize: 13, fontWeight: 600 }}>Retrospective Log</span>
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: "4px 0 0", letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: 24, fontWeight: 700, margin: "4px 0 0", color: "#162A43", letterSpacing: "-0.5px" }}>
               📊 Placement Season Retrospective Log
             </h1>
-            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#94a3b8" }}>
+            <p style={{ margin: "4px 0 0", fontSize: 13, color: "#667085" }}>
               Verifiable audit trail of hit vs missed deadlines, completed practice sessions, and execution accuracy.
             </p>
           </div>
@@ -96,10 +95,10 @@ export default function CalendarHistoryPage() {
               alignItems: "center",
               gap: 6,
               padding: "8px 16px",
-              borderRadius: 8,
-              backgroundColor: "rgba(56, 189, 248, 0.12)",
-              border: "1px solid rgba(56, 189, 248, 0.3)",
-              color: "#38bdf8",
+              borderRadius: 7,
+              backgroundColor: "#EFF4FE",
+              border: "1px solid #D2E0FB",
+              color: "#356AE6",
               fontSize: 13,
               fontWeight: 600,
               textDecoration: "none"
@@ -116,10 +115,10 @@ export default function CalendarHistoryPage() {
           <div
             style={{
               padding: "24px 28px",
-              borderRadius: 16,
-              background: "linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)",
-              border: "1px solid rgba(56, 189, 248, 0.3)",
-              boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
+              borderRadius: 10,
+              background: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              boxShadow: "0 1px 3px rgba(16,24,40,0.04)",
               marginBottom: 32,
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
@@ -131,21 +130,21 @@ export default function CalendarHistoryPage() {
               <span
                 style={{
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   letterSpacing: 0.5,
                   padding: "4px 8px",
-                  borderRadius: 6,
-                  backgroundColor: "rgba(16, 185, 129, 0.2)",
-                  color: "#34d399",
-                  border: "1px solid rgba(16, 185, 129, 0.4)"
+                  borderRadius: 5,
+                  backgroundColor: "#EAF4EE",
+                  color: "#2E7D5B",
+                  border: "1px solid #C8E4D3"
                 }}
               >
                 EXECUTION DISCIPLINE STAT
               </span>
-              <h2 style={{ fontSize: 20, fontWeight: 700, margin: "10px 0 6px", color: "#ffffff" }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, margin: "10px 0 6px", color: "#162A43" }}>
                 {metrics.headline_stat}
               </h2>
-              <p style={{ margin: 0, fontSize: 13, color: "#94a3b8", lineHeight: 1.5 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "#667085", lineHeight: 1.5 }}>
                 Computed directly from real application submissions versus opportunity deadlines. Zero estimation or rounded vanity metrics.
               </p>
             </div>
@@ -154,17 +153,17 @@ export default function CalendarHistoryPage() {
               <div
                 style={{
                   padding: "16px 20px",
-                  borderRadius: 12,
-                  backgroundColor: "rgba(15, 23, 42, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 8,
+                  backgroundColor: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   textAlign: "center",
                   minWidth: 120
                 }}
               >
-                <div style={{ fontSize: 28, fontWeight: 800, color: "#38bdf8" }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#356AE6" }}>
                   {metrics.percentage_applied_before_deadline}%
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2, fontWeight: 600 }}>
                   Hit Rate
                 </div>
               </div>
@@ -172,17 +171,17 @@ export default function CalendarHistoryPage() {
               <div
                 style={{
                   padding: "16px 20px",
-                  borderRadius: 12,
-                  backgroundColor: "rgba(15, 23, 42, 0.6)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: 8,
+                  backgroundColor: "#F6F5F1",
+                  border: "1px solid #E4E1DA",
                   textAlign: "center",
                   minWidth: 120
                 }}
               >
-                <div style={{ fontSize: 28, fontWeight: 800, color: "#10b981" }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: "#2E7D5B" }}>
                   {metrics.high_fit_applied_before_deadline} / {metrics.high_fit_passed_deadlines}
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2, fontWeight: 600 }}>
                   High-Fit Deadlines
                 </div>
               </div>
@@ -202,10 +201,10 @@ export default function CalendarHistoryPage() {
               key={tab.id}
               onClick={() => setFilter(tab.id as any)}
               style={{
-                backgroundColor: filter === tab.id ? "#38bdf8" : "rgba(30, 41, 59, 0.6)",
-                color: filter === tab.id ? "#090d16" : "#94a3b8",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: 8,
+                backgroundColor: filter === tab.id ? "#EFF4FE" : "#FFFFFF",
+                color: filter === tab.id ? "#356AE6" : "#667085",
+                border: filter === tab.id ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                borderRadius: 7,
                 padding: "8px 16px",
                 fontSize: 13,
                 fontWeight: filter === tab.id ? 700 : 500,
@@ -220,15 +219,16 @@ export default function CalendarHistoryPage() {
         {/* Historical Log Table / Cards */}
         <div
           style={{
-            backgroundColor: "rgba(15, 23, 42, 0.8)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: 14,
-            overflow: "hidden"
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 10,
+            overflow: "hidden",
+            boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
           }}
         >
-          <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Timeline Events & Outcomes</h3>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>Showing {filteredHistory.length} events</span>
+          <div style={{ padding: "16px 24px", borderBottom: "1px solid #E4E1DA", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: "#162A43" }}>Timeline Events & Outcomes</h3>
+            <span style={{ fontSize: 12, color: "#667085" }}>Showing {filteredHistory.length} events</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
@@ -236,23 +236,29 @@ export default function CalendarHistoryPage() {
               const isHit = item.outcome === "Hit";
               const isMissed = item.outcome === "Missed";
               const isCompleted = item.outcome === "Completed";
-              const isDismissed = item.outcome === "Dismissed";
 
-              const badgeColor = isHit ? "#34d399" : isMissed ? "#f87171" : isCompleted ? "#a855f7" : "#94a3b8";
+              const badgeColor = isHit ? "#2E7D5B" : isMissed ? "#C24141" : isCompleted ? "#356AE6" : "#667085";
               const badgeBg = isHit
-                ? "rgba(16, 185, 129, 0.15)"
+                ? "#EAF4EE"
                 : isMissed
-                ? "rgba(239, 68, 68, 0.15)"
+                ? "#FDF2F2"
                 : isCompleted
-                ? "rgba(168, 85, 247, 0.15)"
-                : "rgba(148, 163, 184, 0.15)";
+                ? "#EFF4FE"
+                : "#F6F5F1";
+              const badgeBorder = isHit
+                ? "#C8E4D3"
+                : isMissed
+                ? "#F8C8C8"
+                : isCompleted
+                ? "#D2E0FB"
+                : "#E4E1DA";
 
               return (
                 <div
                   key={`${item.id}-${idx}`}
                   style={{
                     padding: "18px 24px",
-                    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                    borderBottom: "1px solid #E4E1DA",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -267,31 +273,31 @@ export default function CalendarHistoryPage() {
                           fontSize: 11,
                           fontWeight: 700,
                           padding: "2px 8px",
-                          borderRadius: 6,
+                          borderRadius: 5,
                           backgroundColor: badgeBg,
                           color: badgeColor,
-                          border: `1px solid ${badgeColor}33`
+                          border: `1px solid ${badgeBorder}`
                         }}
                       >
                         {item.outcome.toUpperCase()}
                       </span>
 
                       {item.is_high_fit && (
-                        <span style={{ fontSize: 11, color: "#38bdf8", fontWeight: 600 }}>
+                        <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 600 }}>
                           ⭐ High Fit ({item.fit_score}% match)
                         </span>
                       )}
 
-                      <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                      <span style={{ fontSize: 12, color: "#667085" }}>
                         📅 Date: {item.date}
                       </span>
                     </div>
 
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#ffffff", marginBottom: 2 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#17191C", marginBottom: 2 }}>
                       {item.title}
                     </div>
 
-                    <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>
+                    <p style={{ margin: 0, fontSize: 12, color: "#667085" }}>
                       {item.notes}
                     </p>
                   </div>
@@ -304,9 +310,9 @@ export default function CalendarHistoryPage() {
                           fontWeight: 600,
                           padding: "4px 10px",
                           borderRadius: 6,
-                          backgroundColor: "rgba(30, 41, 59, 0.8)",
-                          color: "#cbd5e1",
-                          border: "1px solid rgba(255, 255, 255, 0.08)"
+                          backgroundColor: "#F6F5F1",
+                          color: "#162A43",
+                          border: "1px solid #E4E1DA"
                         }}
                       >
                         Stage: {item.application_stage}
@@ -318,7 +324,7 @@ export default function CalendarHistoryPage() {
                         href={`/student/opportunities/${item.opportunity_id}`}
                         style={{
                           fontSize: 12,
-                          color: "#38bdf8",
+                          color: "#356AE6",
                           textDecoration: "none",
                           fontWeight: 600
                         }}
@@ -332,7 +338,7 @@ export default function CalendarHistoryPage() {
             })}
 
             {filteredHistory.length === 0 && (
-              <div style={{ padding: "32px", textAlign: "center", color: "#64748b", fontSize: 14 }}>
+              <div style={{ padding: "32px", textAlign: "center", color: "#667085", fontSize: 14 }}>
                 No events found matching the selected filter.
               </div>
             )}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { CalendarEventItem } from "@/app/api/student/calendar/route";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface PlacementCalendarModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export default function PlacementCalendarModal({
   onClose,
   events = []
 }: PlacementCalendarModalProps) {
+  const { isDark } = useTheme();
   const [filter, setFilter] = useState<"all" | "drives" | "deadlines" | "interviews">("all");
 
   useEffect(() => {
@@ -117,7 +119,7 @@ export default function PlacementCalendarModal({
         position: "fixed",
         inset: 0,
         zIndex: 9999,
-        backgroundColor: "rgba(15, 23, 42, 0.55)",
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
         backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
@@ -131,13 +133,15 @@ export default function PlacementCalendarModal({
           width: "100%",
           maxWidth: 780,
           maxHeight: "88vh",
-          backgroundColor: "#ffffff",
-          borderRadius: 20,
-          border: "1px solid #e2e8f0",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+          borderRadius: 16,
+          border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+          boxShadow: isDark ? "0 25px 50px -12px rgba(0, 0, 0, 0.8)" : "0 20px 40px -12px rgba(22, 42, 67, 0.12)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
+          color: isDark ? "#F2F6FC" : "#17191C",
+          fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
           animation: "scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)"
         }}
         onClick={(e) => e.stopPropagation()}
@@ -146,11 +150,11 @@ export default function PlacementCalendarModal({
         <div
           style={{
             padding: "20px 24px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "#f8fafc"
+            backgroundColor: isDark ? "#13243A" : "#FAF9F6"
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -158,24 +162,24 @@ export default function PlacementCalendarModal({
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
-                backgroundColor: "#0f172a",
-                color: "#ffffff",
+                borderRadius: 10,
+                backgroundColor: isDark ? "rgba(52, 120, 246, 0.2)" : "#EEF4FD",
+                color: isDark ? "#3478F6" : "#356AE6",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: 18,
-                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                border: `1px solid ${isDark ? "rgba(52, 120, 246, 0.3)" : "#D1E2FB"}`
               }}
             >
               📅
             </div>
             <div>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "#0f172a" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: isDark ? "#F2F6FC" : "#17191C" }}>
                 Placement Calendar & Season Schedule
               </div>
-              <div style={{ fontSize: 12, color: "#64748b" }}>
+              <div style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085" }}>
                 Live campus drives, corporate deadlines, online assessments & prep milestones
               </div>
             </div>
@@ -188,12 +192,12 @@ export default function PlacementCalendarModal({
               style={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#2563eb",
+                color: isDark ? "#3478F6" : "#356AE6",
                 textDecoration: "none",
                 padding: "6px 12px",
                 borderRadius: 8,
-                backgroundColor: "#eff6ff",
-                border: "1px solid #dbeafe"
+                backgroundColor: isDark ? "rgba(52, 120, 246, 0.15)" : "#EEF4FD",
+                border: `1px solid ${isDark ? "rgba(52, 120, 246, 0.3)" : "#D1E2FB"}`
               }}
             >
               Full Calendar Page →
@@ -205,9 +209,9 @@ export default function PlacementCalendarModal({
                 width: 32,
                 height: 32,
                 borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                backgroundColor: "#ffffff",
-                color: "#64748b",
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+                color: isDark ? "#B6C4D6" : "#667085",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -226,8 +230,8 @@ export default function PlacementCalendarModal({
             padding: "12px 24px",
             display: "flex",
             gap: 8,
-            borderBottom: "1px solid #f1f5f9",
-            backgroundColor: "#ffffff"
+            borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+            backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF"
           }}
         >
           {[
@@ -244,9 +248,9 @@ export default function PlacementCalendarModal({
                 borderRadius: 20,
                 fontSize: 12,
                 fontWeight: filter === tab.id ? 700 : 500,
-                backgroundColor: filter === tab.id ? "#0f172a" : "#f1f5f9",
-                color: filter === tab.id ? "#ffffff" : "#475569",
-                border: "none",
+                backgroundColor: filter === tab.id ? (isDark ? "#3478F6" : "#162A43") : (isDark ? "#13243A" : "#F0EFEA"),
+                color: filter === tab.id ? "#ffffff" : (isDark ? "#B6C4D6" : "#667085"),
+                border: `1px solid ${filter === tab.id ? (isDark ? "#3478F6" : "#162A43") : (isDark ? "#223750" : "#E4E1DA")}`,
                 cursor: "pointer",
                 transition: "all 0.15s ease"
               }}
@@ -266,9 +270,9 @@ export default function PlacementCalendarModal({
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "14px 16px",
-                borderRadius: 14,
-                border: "1px solid #e2e8f0",
-                backgroundColor: "#ffffff",
+                borderRadius: 12,
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                backgroundColor: isDark ? "#13243A" : "#FFFFFF",
                 gap: 16,
                 flexWrap: "wrap",
                 transition: "border-color 0.15s ease"
@@ -280,9 +284,9 @@ export default function PlacementCalendarModal({
                   style={{
                     width: 52,
                     height: 52,
-                    borderRadius: 12,
-                    backgroundColor: "#f8fafc",
-                    border: "1px solid #e2e8f0",
+                    borderRadius: 10,
+                    backgroundColor: isDark ? "#0E1B2E" : "#FAF9F6",
+                    border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -290,10 +294,10 @@ export default function PlacementCalendarModal({
                     flexShrink: 0
                   }}
                 >
-                  <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? "#B6C4D6" : "#667085", textTransform: "uppercase" }}>
                     {item.date.split(" ")[1]}
                   </span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: "#0f172a", lineHeight: 1 }}>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1 }}>
                     {item.date.split(" ")[0]}
                   </span>
                 </div>
@@ -301,7 +305,7 @@ export default function PlacementCalendarModal({
                 {/* Details */}
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: "#0f172a" }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: isDark ? "#F2F6FC" : "#17191C" }}>
                       {item.company}
                     </span>
                     <span
@@ -310,20 +314,20 @@ export default function PlacementCalendarModal({
                         fontWeight: 700,
                         padding: "2px 8px",
                         borderRadius: 6,
-                        backgroundColor: item.status === "Open" ? "#ecfdf5" : "#f1f5f9",
-                        color: item.status === "Open" ? "#059669" : "#475569",
-                        border: `1px solid ${item.status === "Open" ? "#a7f3d0" : "#e2e8f0"}`
+                        backgroundColor: item.status === "Open" ? (isDark ? "rgba(46, 125, 91, 0.2)" : "#EAF4EE") : (isDark ? "#0E1B2E" : "#F0EFEA"),
+                        color: item.status === "Open" ? "#2E7D5B" : (isDark ? "#B6C4D6" : "#667085"),
+                        border: `1px solid ${item.status === "Open" ? "#2E7D5B" : (isDark ? "#223750" : "#E4E1DA")}`
                       }}
                     >
                       {item.status}
                     </span>
                   </div>
 
-                  <div style={{ fontSize: 13, color: "#334155", fontWeight: 600, marginTop: 2 }}>
-                    {item.type} • <span style={{ color: "#64748b", fontWeight: 400 }}>{item.round}</span>
+                  <div style={{ fontSize: 13, color: isDark ? "#B6C4D6" : "#475569", fontWeight: 600, marginTop: 2 }}>
+                    {item.type} • <span style={{ color: isDark ? "#7E8FA6" : "#667085", fontWeight: 400 }}>{item.round}</span>
                   </div>
 
-                  <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: isDark ? "#7E8FA6" : "#98A2B3", marginTop: 2 }}>
                     Eligibility: {item.eligibility}
                   </div>
                 </div>
@@ -335,14 +339,14 @@ export default function PlacementCalendarModal({
                 onClick={onClose}
                 style={{
                   padding: "8px 18px",
-                  borderRadius: 10,
+                  borderRadius: 8,
                   fontSize: 12,
                   fontWeight: 700,
                   textDecoration: "none",
-                  backgroundColor: item.action === "Open" ? "#2563eb" : "#f1f5f9",
-                  color: item.action === "Open" ? "#ffffff" : "#0f172a",
-                  border: item.action === "Open" ? "none" : "1px solid #cbd5e1",
-                  boxShadow: item.action === "Open" ? "0 2px 4px rgba(37,99,235,0.2)" : "none",
+                  backgroundColor: item.action === "Open" ? (isDark ? "#3478F6" : "#356AE6") : (isDark ? "#0E1B2E" : "#F0EFEA"),
+                  color: item.action === "Open" ? "#ffffff" : (isDark ? "#F2F6FC" : "#17191C"),
+                  border: item.action === "Open" ? "none" : `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                  boxShadow: item.action === "Open" ? "0 2px 6px rgba(53, 106, 230, 0.25)" : "none",
                   marginLeft: "auto"
                 }}
               >
@@ -356,14 +360,14 @@ export default function PlacementCalendarModal({
         <div
           style={{
             padding: "14px 24px",
-            borderTop: "1px solid #e2e8f0",
-            backgroundColor: "#f8fafc",
+            borderTop: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+            backgroundColor: isDark ? "#13243A" : "#FAF9F6",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center"
           }}
         >
-          <span style={{ fontSize: 12, color: "#64748b" }}>
+          <span style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085" }}>
             All dates synchronized with College TPO Portal & Corporate ATS.
           </span>
           <button
@@ -371,9 +375,9 @@ export default function PlacementCalendarModal({
             style={{
               padding: "7px 16px",
               borderRadius: 8,
-              border: "1px solid #cbd5e1",
-              backgroundColor: "#ffffff",
-              color: "#334155",
+              border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+              backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+              color: isDark ? "#B6C4D6" : "#475569",
               fontSize: 12,
               fontWeight: 600,
               cursor: "pointer"

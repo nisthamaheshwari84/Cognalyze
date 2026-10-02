@@ -8,30 +8,33 @@ export default function SignupChoicePage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden font-sans">
-      {/* Background Grid */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)
-          `,
-          backgroundSize: "64px 64px"
-        }}
-      />
-
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#F6F5F1",
+        color: "#17191C",
+        fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
+      }}
+      className="flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden"
+    >
       <div className="w-full max-w-lg relative z-10 space-y-8">
         {/* Brand Header */}
-        <div className="text-center space-y-3">
-          <Link href="/" className="inline-block font-semibold text-lg tracking-tight text-white mb-1">
-            Cognalyze
+        <div className="text-center space-y-2">
+          <Link
+            href="/"
+            style={{ color: "#162A43" }}
+            className="inline-block font-extrabold text-xl tracking-tight mb-1"
+          >
+            COGNALYZE
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+          <h1
+            style={{ color: "#162A43" }}
+            className="text-3xl sm:text-4xl font-bold tracking-tight"
+          >
             Welcome to Cognalyze
           </h1>
-          <p className="text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
-            Build your professional identity. Discover opportunities. Understand people through their work.
+          <p style={{ color: "#667085" }} className="text-sm max-w-sm mx-auto leading-relaxed">
+            Build your verifiable professional identity. Discover opportunities. Understand talent through verified evidence.
           </p>
         </div>
 
@@ -41,22 +44,44 @@ export default function SignupChoicePage() {
           <div
             id="choice-student"
             onClick={() => router.push("/signup/student")}
-            className="group rounded-xl p-6 sm:p-7 bg-[#0e131f] border border-white/10 hover:border-indigo-500/40 transition-all cursor-pointer shadow-xl flex items-center justify-between"
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E4E1DA",
+              boxShadow: "0 2px 12px rgba(22, 42, 67, 0.04)",
+            }}
+            className="group rounded-xl p-6 sm:p-7 border hover:border-[#356AE6] transition-all cursor-pointer flex items-center justify-between"
           >
             <div className="space-y-1.5 pr-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-semibold text-indigo-400 uppercase tracking-wide">
+                <span
+                  style={{
+                    backgroundColor: "#EFF4FE",
+                    color: "#356AE6",
+                    borderColor: "#D2E0FB",
+                  }}
+                  className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+                >
                   Candidates & Builders
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white group-hover:text-indigo-200 transition-colors">
+              <h3
+                style={{ color: "#162A43" }}
+                className="text-lg font-bold group-hover:text-[#356AE6] transition-colors"
+              >
                 Continue as Student
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-                Build your verifiable profile, connect repositories, and discover internships matched to your proof.
+              <p style={{ color: "#667085" }} className="text-xs leading-relaxed max-w-sm">
+                Build your verifiable profile, connect repositories, and discover internships matched to your evidence.
               </p>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-[#141b2b] group-hover:bg-indigo-600 border border-white/10 flex items-center justify-center text-slate-300 group-hover:text-white transition-all shrink-0">
+            <div
+              style={{
+                backgroundColor: "#EFF4FE",
+                borderColor: "#D2E0FB",
+                color: "#356AE6",
+              }}
+              className="w-10 h-10 rounded-lg border flex items-center justify-center font-bold text-base transition-all shrink-0 group-hover:bg-[#356AE6] group-hover:text-white"
+            >
               →
             </div>
           </div>
@@ -65,31 +90,57 @@ export default function SignupChoicePage() {
           <div
             id="choice-recruiter"
             onClick={() => router.push("/signup/recruiter")}
-            className="group rounded-xl p-6 sm:p-7 bg-[#0e131f] border border-white/10 hover:border-slate-400 transition-all cursor-pointer shadow-xl flex items-center justify-between"
+            style={{
+              backgroundColor: "#FFFFFF",
+              borderColor: "#E4E1DA",
+              boxShadow: "0 2px 12px rgba(22, 42, 67, 0.04)",
+            }}
+            className="group rounded-xl p-6 sm:p-7 border hover:border-[#162A43] transition-all cursor-pointer flex items-center justify-between"
           >
             <div className="space-y-1.5 pr-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-semibold text-slate-400 uppercase tracking-wide">
+                <span
+                  style={{
+                    backgroundColor: "#F6F5F1",
+                    color: "#162A43",
+                    borderColor: "#E4E1DA",
+                  }}
+                  className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded border"
+                >
                   Hiring Teams & Leaders
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-white group-hover:text-slate-200 transition-colors">
+              <h3
+                style={{ color: "#162A43" }}
+                className="text-lg font-bold group-hover:text-[#162A43] transition-colors"
+              >
                 Continue as Recruiter
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-                Evaluate engineering candidates through observable code, run Decision Rooms, and hire with context.
+              <p style={{ color: "#667085" }} className="text-xs leading-relaxed max-w-sm">
+                Evaluate engineering candidates through observable code, run Decision Rooms, and hire with verified context.
               </p>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-[#141b2b] group-hover:bg-slate-200 border border-white/10 flex items-center justify-center text-slate-300 group-hover:text-slate-900 transition-all shrink-0">
+            <div
+              style={{
+                backgroundColor: "#F6F5F1",
+                borderColor: "#E4E1DA",
+                color: "#162A43",
+              }}
+              className="w-10 h-10 rounded-lg border flex items-center justify-center font-bold text-base transition-all shrink-0 group-hover:bg-[#162A43] group-hover:text-white"
+            >
               →
             </div>
           </div>
         </div>
 
         {/* Existing account prompt */}
-        <p className="text-center text-xs text-slate-400">
+        <p style={{ color: "#667085" }} className="text-center text-xs">
           Already have a Cognalyze account?{" "}
-          <Link href="/login" className="text-slate-200 hover:text-white font-medium underline underline-offset-4">
+          <Link
+            href="/login"
+            style={{ color: "#356AE6" }}
+            className="hover:underline font-semibold"
+          >
             Sign in
           </Link>
         </p>

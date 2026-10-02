@@ -89,37 +89,47 @@ export default function StudentGrowthPage() {
   const missingCount = gaps.filter(g => g.status !== "proven").length;
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="student" />
 
-      <main style={{ maxWidth: 1380, margin: "0 auto", padding: "32px 24px" }}>
+      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
         
         {/* HEADER: ONE QUESTION */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(16,185,129,0.2)", color: "#6ee7b7", fontWeight: 800, textTransform: "uppercase" }}>
+              <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#EAF4EE", color: "#2E7D5B", border: "1px solid #C8E4D3", fontWeight: 700, textTransform: "uppercase" }}>
                 Targeted Capability Growth
               </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>
                 Factual Gap Engine
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 800, margin: 0, letterSpacing: "-0.03em", color: "#162A43" }}>
               How do I grow?
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 750, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 13, color: "#667085", margin: "8px 0 0", maxWidth: 750, lineHeight: 1.5 }}>
               Compare your verified capabilities against real target role requirements. The Next-Best-Evidence engine generates exact practice exercises to turn uncertainties into proven capabilities.
             </p>
           </div>
 
           {/* Target Role Selector */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(15, 23, 42, 0.6)", padding: "8px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
-            <span style={{ fontSize: 12, fontWeight: 700, color: "#94a3b8" }}>Target Role:</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#FFFFFF", padding: "8px 14px", borderRadius: 10, border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>Target Role:</span>
             <select
               value={selectedRoleId}
               onChange={e => setSelectedRoleId(e.target.value)}
-              style={{ padding: "6px 12px", borderRadius: 6, background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", color: "white", fontSize: 12 }}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 7,
+                background: "#F6F5F1",
+                border: "1px solid #E4E1DA",
+                color: "#17191C",
+                fontSize: 12,
+                fontWeight: 600,
+                outline: "none",
+                cursor: "pointer"
+              }}
             >
               {roles.map(r => (
                 <option key={r.id} value={r.id}>{r.title}</option>
@@ -130,26 +140,36 @@ export default function StudentGrowthPage() {
 
         {/* ── GAP SUMMARY METRIC CARDS ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 28 }}>
-          <div style={{ padding: "20px", borderRadius: 14, background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.2)" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#6ee7b7", textTransform: "uppercase", marginBottom: 4 }}>
-              Proven Capabilities
+          <div style={{ padding: "20px", borderRadius: 10, background: "#FFFFFF", border: "1px solid #C8E4D3", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                Proven Capabilities
+              </span>
+              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 5, background: "#EAF4EE", color: "#2E7D5B", fontWeight: 700 }}>
+                Verified
+              </span>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: "white" }}>
-              {provenCount} Requirements
+            <div style={{ fontSize: 32, fontWeight: 800, color: "#162A43", letterSpacing: "-0.02em" }}>
+              {provenCount} <span style={{ fontSize: 16, fontWeight: 600, color: "#667085" }}>Requirements</span>
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 6, lineHeight: 1.4 }}>
               Fully backed by verified code repositories and algorithmic submissions.
             </div>
           </div>
 
-          <div style={{ padding: "20px", borderRadius: 14, background: "rgba(234, 179, 8, 0.08)", border: "1px solid rgba(234, 179, 8, 0.2)" }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: "#fde047", textTransform: "uppercase", marginBottom: 4 }}>
-              Targeted Growth Areas
+          <div style={{ padding: "20px", borderRadius: 10, background: "#FFFFFF", border: "1px solid #F8D8A7", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                Targeted Growth Areas
+              </span>
+              <span style={{ fontSize: 11, padding: "2px 7px", borderRadius: 5, background: "#FEF7ED", color: "#B7791F", fontWeight: 700 }}>
+                Actionable
+              </span>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 900, color: "white" }}>
-              {missingCount} Validations
+            <div style={{ fontSize: 32, fontWeight: 800, color: "#162A43", letterSpacing: "-0.02em" }}>
+              {missingCount} <span style={{ fontSize: 16, fontWeight: 600, color: "#667085" }}>Validations</span>
             </div>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "#667085", marginTop: 6, lineHeight: 1.4 }}>
               Uncertainties that can be resolved with focused mini work samples.
             </div>
           </div>
@@ -158,28 +178,36 @@ export default function StudentGrowthPage() {
         {/* ── NEXT BEST EVIDENCE PLAN ── */}
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "white", margin: 0 }}>
-              Requirement Fulfillment & Growth Actions
-            </h2>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>
-              Ordered by highest return on effort
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#162A43", margin: 0, letterSpacing: "-0.02em" }}>
+                Requirement Fulfillment &amp; Growth Actions
+              </h2>
+              <p style={{ margin: "3px 0 0", fontSize: 12, color: "#667085" }}>
+                Ordered by highest return on effort to prove your target competency.
+              </p>
+            </div>
+            <span style={{ fontSize: 12, color: "#667085", fontWeight: 600 }}>
+              {gaps.length} Requirements Tracked
             </span>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {gaps.map(gap => {
               const isProven = gap.status === "proven";
               const isUncertain = gap.status === "uncertain";
-              const badgeColor = isProven ? "#10b981" : isUncertain ? "#3b82f6" : "#f59e0b";
+              const badgeBg = isProven ? "#EAF4EE" : isUncertain ? "#EFF4FE" : "#FEF7ED";
+              const badgeBorder = isProven ? "#C8E4D3" : isUncertain ? "#D2E0FB" : "#F8D8A7";
+              const badgeColor = isProven ? "#2E7D5B" : isUncertain ? "#356AE6" : "#B7791F";
 
               return (
                 <div
                   key={gap.id}
                   style={{
-                    padding: "20px 24px",
-                    borderRadius: 14,
-                    background: "rgba(15, 23, 42, 0.7)",
-                    border: `1px solid ${isProven ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.08)"}`,
+                    padding: "18px 22px",
+                    borderRadius: 10,
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
@@ -187,26 +215,26 @@ export default function StudentGrowthPage() {
                     gap: 16
                   }}
                 >
-                  <div style={{ maxWidth: 750 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: `${badgeColor}20`, color: badgeColor, fontWeight: 800 }}>
-                        {gap.status.toUpperCase()}
+                  <div style={{ maxWidth: 750, flex: 1, minWidth: 280 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 5, background: badgeBg, border: `1px solid ${badgeBorder}`, color: badgeColor, fontWeight: 700, textTransform: "uppercase" }}>
+                        {gap.status}
                       </span>
-                      <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                      <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>
                         {gap.category === "core" ? "Core Requirement" : "Trainable Capability"}
                       </span>
                     </div>
 
-                    <h3 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "2px 0 6px" }}>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, color: "#162A43", margin: "0 0 6px" }}>
                       {gap.requirementName}
                     </h3>
 
-                    <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 6 }}>
-                      Current Evidence: <strong style={{ color: "#cbd5e1" }}>{gap.currentEvidence}</strong>
+                    <div style={{ fontSize: 12, color: "#667085", marginBottom: !isProven ? 8 : 0 }}>
+                      Current Evidence: <strong style={{ color: "#17191C", fontWeight: 600 }}>{gap.currentEvidence}</strong>
                     </div>
 
                     {!isProven && (
-                      <div style={{ fontSize: 12, color: "#a5b4fc", background: "rgba(99,102,241,0.1)", padding: "6px 12px", borderRadius: 6, display: "inline-block" }}>
+                      <div style={{ fontSize: 12, color: "#356AE6", background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "6px 12px", borderRadius: 7, display: "inline-block", fontWeight: 500 }}>
                         💡 Recommended Step: {gap.recommendedValidation}
                       </div>
                     )}
@@ -217,14 +245,15 @@ export default function StudentGrowthPage() {
                       href={gap.actionUrl}
                       style={{
                         padding: "9px 18px",
-                        borderRadius: 8,
-                        background: isProven ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg, #6366f1, #a855f7)",
-                        border: isProven ? "1px solid rgba(255,255,255,0.1)" : "none",
-                        color: "white",
+                        borderRadius: 7,
+                        background: isProven ? "#FFFFFF" : "#356AE6",
+                        border: isProven ? "1px solid #E4E1DA" : "1px solid #356AE6",
+                        color: isProven ? "#17191C" : "#FFFFFF",
                         fontSize: 12,
                         fontWeight: 700,
                         textDecoration: "none",
-                        display: "inline-block"
+                        display: "inline-block",
+                        transition: "all 0.15s ease"
                       }}
                     >
                       {gap.actionLabel} ➔
@@ -237,40 +266,40 @@ export default function StudentGrowthPage() {
         </div>
 
         {/* ── PRACTICE MODULE SHORTCUTS ── */}
-        <div style={{ padding: "24px", borderRadius: 16, background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)" }}>
-          <h2 style={{ fontSize: 16, fontWeight: 800, color: "white", margin: "0 0 4px" }}>
+        <div style={{ padding: "24px", borderRadius: 10, background: "#FFFFFF", border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <h2 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: "0 0 4px" }}>
             Evidence Practice Tools
           </h2>
-          <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 18px" }}>
-            Preserved interactive training environments to validate your capabilities under real-world scenarios.
+          <p style={{ fontSize: 12, color: "#667085", margin: "0 0 18px" }}>
+            Interactive simulation environments to convert uncertainties into verified candidate credentials.
           </p>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 14 }}>
             <Link
               href="/student/practice-interview"
-              style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none", color: "inherit" }}
+              style={{ padding: "16px", borderRadius: 10, background: "#F9F8F5", border: "1px solid #E4E1DA", textDecoration: "none", color: "inherit", transition: "all 0.15s ease" }}
             >
-              <div style={{ fontSize: 20, marginBottom: 4 }}>🎙️</div>
-              <strong style={{ fontSize: 14, color: "white", display: "block" }}>Mock Interview Simulator</strong>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>Practice structural questions with real-time feedback</span>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>🎙️</div>
+              <strong style={{ fontSize: 14, color: "#162A43", display: "block", fontWeight: 700 }}>Mock Interview Simulator</strong>
+              <span style={{ fontSize: 11, color: "#667085", marginTop: 2, display: "block" }}>Practice structural questions with real-time feedback</span>
             </Link>
 
             <Link
               href="/student/dsa-tracker"
-              style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none", color: "inherit" }}
+              style={{ padding: "16px", borderRadius: 10, background: "#F9F8F5", border: "1px solid #E4E1DA", textDecoration: "none", color: "inherit", transition: "all 0.15s ease" }}
             >
-              <div style={{ fontSize: 20, marginBottom: 4 }}>🧠</div>
-              <strong style={{ fontSize: 14, color: "white", display: "block" }}>DSA & Algorithmic Tracker</strong>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>Track problem solving streaks and verified submissions</span>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>🧠</div>
+              <strong style={{ fontSize: 14, color: "#162A43", display: "block", fontWeight: 700 }}>DSA &amp; Algorithmic Tracker</strong>
+              <span style={{ fontSize: 11, color: "#667085", marginTop: 2, display: "block" }}>Track problem solving streaks and verified submissions</span>
             </Link>
 
             <Link
               href="/student/opportunities"
-              style={{ padding: "16px", borderRadius: 12, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)", textDecoration: "none", color: "inherit" }}
+              style={{ padding: "16px", borderRadius: 10, background: "#F9F8F5", border: "1px solid #E4E1DA", textDecoration: "none", color: "inherit", transition: "all 0.15s ease" }}
             >
-              <div style={{ fontSize: 20, marginBottom: 4 }}>🎯</div>
-              <strong style={{ fontSize: 14, color: "white", display: "block" }}>Opportunity Matcher</strong>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>Browse open roles matched to your verified capabilities</span>
+              <div style={{ fontSize: 20, marginBottom: 6 }}>🎯</div>
+              <strong style={{ fontSize: 14, color: "#162A43", display: "block", fontWeight: 700 }}>Opportunity Matcher</strong>
+              <span style={{ fontSize: 11, color: "#667085", marginTop: 2, display: "block" }}>Browse open roles matched to your verified capabilities</span>
             </Link>
           </div>
         </div>

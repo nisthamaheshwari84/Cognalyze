@@ -13,6 +13,8 @@ import {
   SessionBrief
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
+import { getAdaptiveRecommendation } from "@/lib/skills/candidate-history";
+import AppNav from "@/components/AppNav";
 
 export default function SkillPracticeHubPage() {
   const [candidateId, setCandidateId] = useState("student-demo");
@@ -143,18 +145,27 @@ export default function SkillPracticeHubPage() {
     let targetHref = "/student/skills/cs-interview";
 
     const nameLower = roundName.toLowerCase();
-    if (nameLower.includes("aptitude") || nameLower.includes("online test") || nameLower.includes("nqt")) {
+    if (nameLower.includes("communication") || nameLower.includes("spoken english") || nameLower.includes("english")) {
+      domainSlug = "communication_english";
+      targetHref = "/student/skills/communication";
+    } else if (nameLower.includes("aptitude") || nameLower.includes("online test") || nameLower.includes("nqt") || nameLower.includes("reasoning")) {
       domainSlug = "aptitude_reasoning";
       targetHref = "/student/skills/aptitude";
-    } else if (nameLower.includes("system design") || nameLower.includes("architecture")) {
+    } else if (nameLower.includes("system design") || nameLower.includes("architecture") || nameLower.includes("lld") || nameLower.includes("hld")) {
       domainSlug = "system_design";
       targetHref = "/student/skills/system-design";
-    } else if (nameLower.includes("behavioral") || nameLower.includes("hr") || nameLower.includes("bar-raiser")) {
+    } else if (nameLower.includes("behavioral") || nameLower.includes("culture") || nameLower.includes("leadership") || nameLower.includes("bar-raiser")) {
       domainSlug = "behavioral_hr";
       targetHref = "/student/skills/behavioral";
-    } else if (nameLower.includes("coding") || nameLower.includes("dsa")) {
+    } else if (nameLower.includes("coding") || nameLower.includes("dsa") || nameLower.includes("algorithmic") || nameLower.includes("phone screen") || nameLower.includes("oa")) {
       domainSlug = "dsa_coding";
       targetHref = "/student/skills/dsa";
+    } else if (nameLower.includes("hr")) {
+      domainSlug = "behavioral_hr";
+      targetHref = "/student/skills/behavioral";
+    } else {
+      domainSlug = "cs_fundamentals";
+      targetHref = "/student/skills/cs-interview";
     }
 
     const brief = generateSessionBrief(selectedTrackSlug, domainSlug, candidateId);
@@ -170,47 +181,7 @@ export default function SkillPracticeHubPage() {
   // ══════════════════════════════════════════════════════════════════════
   // LEVEL 2: DYNAMIC "WHAT TO PRACTICE NOW" (SINGLE DOMINANT RECOMMENDATION)
   // ══════════════════════════════════════════════════════════════════════
-  let recommendedNow = {
-    domainName: "System Design",
-    domainSlug: "system_design",
-    focusTitle: "Failure Recovery & Cache Invalidation",
-    reason: "Your architecture is strong, but your last two sessions showed difficulty handling service failure under high concurrency.",
-    estimatedMinutes: 25,
-    difficulty: selectedTrackSlug === "product_faang" ? "L5 Senior FAANG" : "L4 Mid-Tier",
-    targetHref: "/student/skills/system-design"
-  };
-
-  if (candidateId === "student_a") {
-    recommendedNow = {
-      domainName: "DSA Coding Arena",
-      domainSlug: "dsa_coding",
-      focusTitle: "Sliding Window Pattern Recognition",
-      reason: "Your recent submissions show hesitation identifying the sliding-window invariant under interview time constraints.",
-      estimatedMinutes: 30,
-      difficulty: "L4 Mid-Tier",
-      targetHref: "/student/skills/dsa"
-    };
-  } else if (candidateId === "student_b") {
-    recommendedNow = {
-      domainName: "CS Fundamentals",
-      domainSlug: "cs_fundamentals",
-      focusTitle: "SQL Optimization & B-Tree Leftmost Prefix",
-      reason: "Algorithms are verified, but your last technical session had gaps in composite index ordering and execution plans.",
-      estimatedMinutes: 20,
-      difficulty: "L4 Mid-Tier",
-      targetHref: "/student/skills/cs-interview"
-    };
-  } else if (selectedTrackSlug === "service_mass") {
-    recommendedNow = {
-      domainName: "Aptitude & Speed Assessment",
-      domainSlug: "aptitude_reasoning",
-      focusTitle: "Percentages & Speed Calculation Under 60s",
-      reason: "Mass campus hiring rounds eliminate 65%+ on initial quantitative speed gates. Practice 60s rapid calculation.",
-      estimatedMinutes: 20,
-      difficulty: "L3 Foundational",
-      targetHref: "/student/skills/aptitude"
-    };
-  }
+  const recommendedNow = getAdaptiveRecommendation(candidateId, selectedTrackSlug);
 
   // 6 Primary Practice Domains
   const domainCardConfig = [
@@ -222,96 +193,114 @@ export default function SkillPracticeHubPage() {
     { slug: "communication_english", name: "Spoken English", icon: "🎙️", href: "/student/skills/communication" }
   ];
 
+  const getReadinessSemanticStyle = (status: string) => {
+    switch (status?.toUpperCase()) {
+      case "READY":
+      case "VERIFIED":
+      case "HIGH":
+        return { bg: "#EAF4EE", text: "#2E7D5B", border: "#C8E4D3" };
+      case "NEEDS_WORK":
+      case "MODERATE":
+      case "PRACTICING":
+        return { bg: "#FEF7ED", text: "#B7791F", border: "#F8D8A7" };
+      case "IN_PROGRESS":
+      case "ACTIVE":
+        return { bg: "#EFF4FE", text: "#356AE6", border: "#D2E0FB" };
+      default:
+        return { bg: "#F6F5F1", text: "#667085", border: "#E4E1DA" };
+    }
+  };
+
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      
-      {/* ── LEVEL 1: CLEAN HEADER (NO CLUTTER) ── */}
-      <header style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", backgroundColor: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(16px)", padding: "16px 24px", position: "sticky", top: 0, zIndex: 40 }}>
-        <div style={{ maxWidth: 1040, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <AppNav role="student" />
+      {/* ── LEVEL 1: CLEAN HEADER ── */}
+      <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "14px 24px", position: "sticky", top: 56, zIndex: 30, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-              <Link href="/student" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 12, fontWeight: 600 }}>
+              <Link href="/student" style={{ color: "#667085", textDecoration: "none", fontSize: 12, fontWeight: 600 }}>
                 ← Placement Copilot
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-              <span style={{ color: "#818cf8", fontSize: 12, fontWeight: 700 }}>Practice Hub</span>
+              <span style={{ color: "#98A2B3" }}>/</span>
+              <span style={{ color: "#356AE6", fontSize: 12, fontWeight: 700 }}>Practice Hub</span>
             </div>
-            <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: "white", letterSpacing: "-0.4px" }}>
+            <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.03em" }}>
               Skill Practice Hub
             </h1>
-            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8" }}>
-              Adaptive preparation based on your target track and current performance.
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#667085" }}>
+              Adaptive preparation calibrated to target hiring tiers and verified evidence.
             </p>
           </div>
 
-          {/* Compact Contextual Controls */}
+          {/* Contextual Controls */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             
             {/* Target Track Dropdown Control */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255, 255, 255, 0.04)", padding: "5px 10px", borderRadius: 8, border: "1px solid rgba(255, 255, 255, 0.1)" }}>
-              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Target:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F6F5F1", padding: "6px 12px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+              <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Target:</span>
               <select
                 value={selectedTrackSlug}
                 onChange={e => handleSelectTrack(e.target.value as any)}
                 style={{
                   background: "transparent",
-                  color: "#38bdf8",
+                  color: "#162A43",
                   border: "none",
                   fontSize: 12,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   outline: "none"
                 }}
               >
-                <option value="service_mass" style={{ background: "#0f172a", color: "white" }}>Service Mass (₹3.5–4.5 LPA)</option>
-                <option value="service_elite" style={{ background: "#0f172a", color: "white" }}>Service Elite (₹6.5–9.5 LPA)</option>
-                <option value="product_mid" style={{ background: "#0f172a", color: "white" }}>Product & Mid-Tier (₹12–24 LPA)</option>
-                <option value="product_faang" style={{ background: "#0f172a", color: "white" }}>Tier-1 Product & FAANG (₹28L+)</option>
+                <option value="service_mass" style={{ background: "#FFFFFF", color: "#17191C" }}>Service Mass (₹3.5–4.5 LPA)</option>
+                <option value="service_elite" style={{ background: "#FFFFFF", color: "#17191C" }}>Service Elite (₹6.5–9.5 LPA)</option>
+                <option value="product_mid" style={{ background: "#FFFFFF", color: "#17191C" }}>Product &amp; Mid-Tier (₹12–24 LPA)</option>
+                <option value="product_faang" style={{ background: "#FFFFFF", color: "#17191C" }}>Tier-1 Product &amp; FAANG (₹28L+)</option>
               </select>
             </div>
 
             {/* Profile Switcher */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255, 255, 255, 0.04)", padding: "5px 10px", borderRadius: 8, border: "1px solid rgba(255, 255, 255, 0.1)" }}>
-              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 700 }}>Profile:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F6F5F1", padding: "6px 12px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+              <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Profile:</span>
               <select
                 value={candidateId}
                 onChange={e => handleSwitchCandidateProfile(e.target.value)}
                 style={{
                   background: "transparent",
-                  color: "#a5b4fc",
+                  color: "#162A43",
                   border: "none",
                   fontSize: 12,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   outline: "none"
                 }}
               >
                 {userProfileName && (
-                  <option value={candidateId} style={{ background: "#0f172a", color: "white" }}>
+                  <option value={candidateId} style={{ background: "#FFFFFF", color: "#17191C" }}>
                     {userProfileName} (My DNA)
                   </option>
                 )}
-                <option value="student-demo" style={{ background: "#0f172a", color: "white" }}>Standard Benchmark</option>
-                <option value="student_a" style={{ background: "#0f172a", color: "white" }}>Benchmark A (SQL Focus)</option>
-                <option value="student_b" style={{ background: "#0f172a", color: "white" }}>Benchmark B (DSA Focus)</option>
+                <option value="student-demo" style={{ background: "#FFFFFF", color: "#17191C" }}>Standard Benchmark</option>
+                <option value="student_a" style={{ background: "#FFFFFF", color: "#17191C" }}>Benchmark A (SQL Focus)</option>
+                <option value="student_b" style={{ background: "#FFFFFF", color: "#17191C" }}>Benchmark B (DSA Focus)</option>
               </select>
             </div>
           </div>
         </div>
       </header>
 
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "24px 20px" }}>
+      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 20px" }}>
 
         {/* ── COMPACT TRACK CONTEXT STRIP & EXPLORE BUTTON ── */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10, padding: "10px 14px", background: "rgba(255, 255, 255, 0.02)", borderRadius: 10, border: "1px solid rgba(255, 255, 255, 0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 10, padding: "10px 16px", background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 6, background: "rgba(99, 102, 241, 0.15)", color: "#a5b4fc", fontWeight: 800 }}>
+            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 700 }}>
               {activeTrackDetails?.name || "Product Track"}
             </span>
-            <span style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>
+            <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>
               {activeTrackDetails?.typical_ctc_range || "₹12–24 LPA"}
             </span>
-            <span style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.65)" }}>
+            <span style={{ fontSize: 12, color: "#667085" }}>
               {activeTrackDetails?.description ? activeTrackDetails.description.slice(0, 85) + "..." : "Adaptive preparation customized for this career tier."}
             </span>
           </div>
@@ -319,14 +308,15 @@ export default function SkillPracticeHubPage() {
           <button
             onClick={() => setExploreTracksOpen(true)}
             style={{
-              padding: "4px 10px",
-              borderRadius: 6,
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              background: "transparent",
-              color: "#94a3b8",
+              padding: "5px 12px",
+              borderRadius: 7,
+              border: "1px solid #E4E1DA",
+              background: "#FFFFFF",
+              color: "#17191C",
               fontSize: 11,
               fontWeight: 700,
-              cursor: "pointer"
+              cursor: "pointer",
+              transition: "all 0.15s ease"
             }}
           >
             Explore All 4 Tracks ▾
@@ -336,40 +326,40 @@ export default function SkillPracticeHubPage() {
         {/* ── LEVEL 2: WHAT TO PRACTICE NOW (SINGLE DOMINANT ACTION) ── */}
         <div
           style={{
-            background: "linear-gradient(135deg, rgba(30, 27, 75, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%)",
-            border: "1px solid rgba(99, 102, 241, 0.4)",
-            borderRadius: 18,
+            background: "#162A43",
+            borderRadius: 12,
             padding: "24px 28px",
-            marginBottom: 28,
-            boxShadow: "0 12px 35px -5px rgba(0, 0, 0, 0.6)",
-            position: "relative"
+            marginBottom: 24,
+            boxShadow: "0 4px 16px rgba(22, 42, 67, 0.15)",
+            position: "relative",
+            color: "#FFFFFF"
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
             <div style={{ flex: 1, minWidth: 280 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "rgba(99, 102, 241, 0.25)", color: "#c7d2fe", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                  RECOMMENDED FOR YOU RIGHT NOW
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 5, background: "rgba(255, 255, 255, 0.15)", color: "#FFFFFF", border: "1px solid rgba(255, 255, 255, 0.25)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                  Recommended For You Right Now
                 </span>
-                <span style={{ fontSize: 11, color: "#38bdf8", fontWeight: 700 }}>
+                <span style={{ fontSize: 11, color: "#93C5FD", fontWeight: 700 }}>
                   {recommendedNow.domainName}
                 </span>
               </div>
 
-              <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 6px", color: "white" }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 6px", color: "#FFFFFF", letterSpacing: "-0.02em" }}>
                 {recommendedNow.focusTitle}
               </h2>
 
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.5, maxWidth: 680 }}>
+              <p style={{ margin: 0, fontSize: 13, color: "#D2E0FB", lineHeight: 1.5, maxWidth: 680 }}>
                 {recommendedNow.reason}
               </p>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14, fontSize: 11, color: "#94a3b8" }}>
-                <span>⏱️ <strong>{recommendedNow.estimatedMinutes} mins</strong></span>
+              <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 14, fontSize: 11, color: "#94A3B8" }}>
+                <span>⏱️ <strong style={{ color: "#FFFFFF" }}>{recommendedNow.estimatedMinutes} mins</strong></span>
                 <span>•</span>
-                <span>Level: <strong style={{ color: "#c7d2fe" }}>{recommendedNow.difficulty}</strong></span>
+                <span>Level: <strong style={{ color: "#FFFFFF" }}>{recommendedNow.difficulty}</strong></span>
                 <span>•</span>
-                <span style={{ color: "#34d399" }}>Adaptive live follow-up probe included</span>
+                <span style={{ color: "#86EFAC" }}>✓ Adaptive live follow-up probe included</span>
               </div>
             </div>
 
@@ -378,44 +368,44 @@ export default function SkillPracticeHubPage() {
               <button
                 onClick={() => openSessionBrief(recommendedNow.domainSlug, recommendedNow.targetHref)}
                 style={{
-                  padding: "13px 28px",
-                  borderRadius: 12,
+                  padding: "12px 24px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                  color: "white",
-                  fontSize: 14,
-                  fontWeight: 800,
+                  background: "#356AE6",
+                  color: "#FFFFFF",
+                  fontSize: 13,
+                  fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  boxShadow: "0 6px 20px rgba(99, 102, 241, 0.45)",
+                  boxShadow: "0 2px 8px rgba(53, 106, 230, 0.35)",
                   transition: "all 0.15s ease"
                 }}
               >
                 <span>Start Practice</span>
-                <span style={{ fontSize: 16 }}>➔</span>
+                <span style={{ fontSize: 14 }}>➔</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* ── LEVEL 2.5: TODAY'S ADAPTIVE LEARNING PLAN (Section 50) ── */}
-        <div style={{ background: "linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.6))", border: "1px solid rgba(129, 140, 248, 0.35)", borderRadius: 16, padding: "20px 24px", marginBottom: 28, boxShadow: "0 10px 30px rgba(0,0,0,0.4)" }}>
+        {/* ── LEVEL 2.5: TODAY'S ADAPTIVE LEARNING PLAN ── */}
+        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 24px", marginBottom: 28, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: "rgba(129, 140, 248, 0.25)", color: "#a5b4fc", fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                  📅 TODAY&apos;S ADAPTIVE LEARNING PLAN
+                <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 700, textTransform: "uppercase" }}>
+                  📅 Today&apos;s Adaptive Learning Plan
                 </span>
-                <span style={{ fontSize: 11, color: "#38bdf8", fontWeight: 700 }}>
+                <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>
                   Evidence-Driven Sequence
                 </span>
               </div>
-              <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: "white" }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.02em" }}>
                 {dailyPlan.focusTitle}
               </h2>
-              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#94a3b8" }}>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#667085" }}>
                 {dailyPlan.whyToday}
               </p>
             </div>
@@ -423,30 +413,35 @@ export default function SkillPracticeHubPage() {
 
           {/* 4 Steps: 1. Learn ➔ 2. Practice ➔ 3. Interview ➔ 4. Re-test */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
-            {dailyPlan.steps.map((st) => (
-              <Link key={st.stepNumber} href={st.targetHref} style={{ textDecoration: "none" }}>
-                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "14px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", cursor: "pointer", transition: "all 0.15s ease" }}>
-                  <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                      <span style={{ fontSize: 11, fontWeight: 900, color: st.type === "learn" ? "#38bdf8" : st.type === "practice" ? "#a855f7" : st.type === "coach" ? "#fbbf24" : st.type === "interview" ? "#10b981" : "#f43f5e" }}>
-                        Step {st.stepNumber}: {st.type === "learn" ? "💡 Learn" : st.type === "practice" ? "🛠️ Practice" : st.type === "coach" ? "🎓 Coach" : st.type === "interview" ? "🎯 Interview" : "🔄 Re-test"}
-                      </span>
-                      <span style={{ fontSize: 10, color: "#94a3b8" }}>{st.durationMins}m</span>
+            {dailyPlan.steps.map((st) => {
+              const stepColor = st.type === "learn" ? "#356AE6" : st.type === "practice" ? "#B7791F" : st.type === "coach" ? "#356AE6" : st.type === "interview" ? "#2E7D5B" : "#C24141";
+              const stepLabel = st.type === "learn" ? "💡 Learn" : st.type === "practice" ? "🛠️ Practice" : st.type === "coach" ? "🎓 Coach" : st.type === "interview" ? "🎯 Interview" : "🔄 Re-test";
+
+              return (
+                <Link key={st.stepNumber} href={st.targetHref} style={{ textDecoration: "none" }}>
+                  <div style={{ background: "#F9F8F5", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", cursor: "pointer", transition: "all 0.15s ease" }}>
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: stepColor }}>
+                          Step {st.stepNumber}: {stepLabel}
+                        </span>
+                        <span style={{ fontSize: 10, color: "#667085" }}>{st.durationMins}m</span>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43", marginBottom: 4, lineHeight: 1.3 }}>
+                        {st.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4 }}>
+                        {st.description}
+                      </div>
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "white", marginBottom: 4, lineHeight: 1.3 }}>
-                      {st.title}
-                    </div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
-                      {st.description}
+                    <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: "#356AE6", fontWeight: 700 }}>
+                      <span>{st.domainName}</span>
+                      <span>Launch ➔</span>
                     </div>
                   </div>
-                  <div style={{ marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: "#38bdf8", fontWeight: 700 }}>
-                    <span>{st.domainName}</span>
-                    <span>Launch ➔</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
 
@@ -454,17 +449,17 @@ export default function SkillPracticeHubPage() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <div>
-              <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "white", textTransform: "uppercase", letterSpacing: 0.5 }}>
+              <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.02em" }}>
                 Practice Domains &amp; Evidence Readiness
               </h3>
-              <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8" }}>
-                Select a specific skill domain. Each card targets your verified Student DNA evidence and readiness state.
+              <p style={{ margin: "2px 0 0", fontSize: 12, color: "#667085" }}>
+                Select a specific skill domain. Each card targets verified Student DNA evidence and readiness.
               </p>
             </div>
 
             {/* Quick reference link to Company Patterns */}
             <Link href="/student/skills/patterns" style={{ textDecoration: "none" }}>
-              <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: 700, cursor: "pointer" }}>
+              <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, cursor: "pointer" }}>
                 🏛️ Company Patterns Bank ➔
               </span>
             </Link>
@@ -476,28 +471,30 @@ export default function SkillPracticeHubPage() {
               const domainStatus = getDomainStatus(candidateId, dom.slug, selectedTrackSlug);
               const readiness = getDomainReadiness(candidateId, dom.slug);
               const isWhyOpen = activeWhyDomain === dom.slug;
+              const badgeStyle = getReadinessSemanticStyle(readiness.status);
 
               return (
                 <div
                   key={dom.slug}
                   style={{
-                    background: "rgba(15, 23, 42, 0.7)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 14,
-                    padding: "16px 18px",
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 10,
+                    padding: "18px 20px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
                     gap: 12,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.02)",
                     transition: "border 0.15s ease"
                   }}
                 >
                   <div>
                     {/* Card Top: Icon, Name & Single Primary Readiness Status */}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ fontSize: 20 }}>{dom.icon}</span>
-                        <h4 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "white" }}>
+                        <h4 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "#162A43" }}>
                           {dom.name}
                         </h4>
                       </div>
@@ -507,11 +504,12 @@ export default function SkillPracticeHubPage() {
                         style={{
                           fontSize: 10,
                           padding: "2px 7px",
-                          borderRadius: 6,
-                          background: `${readiness.statusColor}20`,
-                          color: readiness.statusColor,
-                          border: `1px solid ${readiness.statusColor}40`,
-                          fontWeight: 800
+                          borderRadius: 5,
+                          background: badgeStyle.bg,
+                          color: badgeStyle.text,
+                          border: `1px solid ${badgeStyle.border}`,
+                          fontWeight: 700,
+                          textTransform: "uppercase"
                         }}
                       >
                         {readiness.status.replace("_", " ")}
@@ -519,22 +517,22 @@ export default function SkillPracticeHubPage() {
                     </div>
 
                     {/* Compact One-Line Focus */}
-                    <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.8)", marginBottom: 4 }}>
-                      <span style={{ color: "#94a3b8", fontWeight: 600 }}>Focus: </span>
-                      <strong style={{ color: "white" }}>{domainStatus.focusToday.split("&")[0].trim()}</strong>
+                    <div style={{ fontSize: 12, color: "#17191C", marginBottom: 4 }}>
+                      <span style={{ color: "#667085", fontWeight: 600 }}>Focus: </span>
+                      <strong style={{ color: "#162A43", fontWeight: 700 }}>{domainStatus.focusToday.split("&")[0].trim()}</strong>
                     </div>
 
-                    {/* Evidence Reason (Section 49) */}
-                    <div style={{ fontSize: 11, color: "rgba(255, 255, 255, 0.65)", lineHeight: 1.4, marginBottom: 8 }}>
+                    {/* Evidence Reason */}
+                    <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4, marginBottom: 8 }}>
                       {readiness.reason}
                     </div>
 
                     {/* Progressive Disclosure: Small [Why?] Toggle */}
                     {isWhyOpen ? (
-                      <div style={{ marginTop: 6, padding: "8px 10px", background: "rgba(255, 255, 255, 0.03)", borderRadius: 8, border: "1px solid rgba(255, 255, 255, 0.08)", fontSize: 11, color: "rgba(255, 255, 255, 0.7)", lineHeight: 1.4 }}>
+                      <div style={{ marginTop: 6, padding: "8px 10px", background: "#F6F5F1", borderRadius: 7, border: "1px solid #E4E1DA", fontSize: 11, color: "#17191C", lineHeight: 1.4 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
-                          <span style={{ fontWeight: 800, color: "#818cf8" }}>Why this:</span>
-                          <button onClick={() => setActiveWhyDomain(null)} style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 10, cursor: "pointer" }}>✕</button>
+                          <span style={{ fontWeight: 700, color: "#356AE6" }}>Why this:</span>
+                          <button onClick={() => setActiveWhyDomain(null)} style={{ background: "transparent", border: "none", color: "#667085", fontSize: 10, cursor: "pointer" }}>✕</button>
                         </div>
                         {domainStatus.whyRecommended}
                       </div>
@@ -544,7 +542,7 @@ export default function SkillPracticeHubPage() {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#818cf8",
+                          color: "#356AE6",
                           fontSize: 11,
                           cursor: "pointer",
                           padding: 0,
@@ -558,17 +556,17 @@ export default function SkillPracticeHubPage() {
                   </div>
 
                   {/* Mode Quick Jump Row: [Learn] [Practice] [Interview] */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingTop: 10, borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
                     <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                       <Link
                         href={`${dom.href}?mode=learn`}
                         style={{
                           flex: 1,
-                          padding: "5px 8px",
-                          borderRadius: 6,
-                          background: "rgba(255, 255, 255, 0.04)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          color: "#cbd5e1",
+                          padding: "6px 8px",
+                          borderRadius: 7,
+                          background: "#F6F5F1",
+                          border: "1px solid #E4E1DA",
+                          color: "#17191C",
                           fontSize: 10,
                           fontWeight: 700,
                           textAlign: "center",
@@ -581,11 +579,11 @@ export default function SkillPracticeHubPage() {
                         href={`${dom.href}?mode=practice`}
                         style={{
                           flex: 1,
-                          padding: "5px 8px",
-                          borderRadius: 6,
-                          background: "rgba(255, 255, 255, 0.04)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          color: "#cbd5e1",
+                          padding: "6px 8px",
+                          borderRadius: 7,
+                          background: "#F6F5F1",
+                          border: "1px solid #E4E1DA",
+                          color: "#17191C",
                           fontSize: 10,
                           fontWeight: 700,
                           textAlign: "center",
@@ -598,11 +596,11 @@ export default function SkillPracticeHubPage() {
                         href={`${dom.href}?mode=interview`}
                         style={{
                           flex: 1,
-                          padding: "5px 8px",
-                          borderRadius: 6,
-                          background: readiness.status === "READY" ? "rgba(16,185,129,0.15)" : "rgba(255, 255, 255, 0.04)",
-                          border: readiness.status === "READY" ? "1px solid rgba(16,185,129,0.4)" : "1px solid rgba(255, 255, 255, 0.08)",
-                          color: readiness.status === "READY" ? "#34d399" : "#cbd5e1",
+                          padding: "6px 8px",
+                          borderRadius: 7,
+                          background: readiness.status === "READY" ? "#EAF4EE" : "#F6F5F1",
+                          border: readiness.status === "READY" ? "1px solid #C8E4D3" : "1px solid #E4E1DA",
+                          color: readiness.status === "READY" ? "#2E7D5B" : "#17191C",
                           fontSize: 10,
                           fontWeight: 700,
                           textAlign: "center",
@@ -614,18 +612,18 @@ export default function SkillPracticeHubPage() {
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 10, color: "#94a3b8" }}>
-                        Recommended: <strong style={{ color: readiness.statusColor }}>{readiness.recommendedModeLabel}</strong>
+                      <span style={{ fontSize: 10, color: "#667085" }}>
+                        Recommended: <strong style={{ color: badgeStyle.text }}>{readiness.recommendedModeLabel}</strong>
                       </span>
 
                       <button
                         onClick={() => openSessionBrief(dom.slug, dom.href)}
                         style={{
-                          padding: "5px 12px",
-                          borderRadius: 8,
-                          border: "1px solid rgba(255, 255, 255, 0.15)",
-                          background: "rgba(255, 255, 255, 0.08)",
-                          color: "white",
+                          padding: "6px 12px",
+                          borderRadius: 7,
+                          border: "none",
+                          background: "#356AE6",
+                          color: "#FFFFFF",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -647,7 +645,7 @@ export default function SkillPracticeHubPage() {
 
         {/* ── LEVEL 4: HIRING FUNNEL (COLLAPSIBLE ON DEMAND) ── */}
         {activeTrackDetails && (
-          <div style={{ background: "rgba(15, 23, 42, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, overflow: "hidden", marginBottom: 32 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, overflow: "hidden", marginBottom: 32, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
             
             {/* Collapsible Header */}
             <div
@@ -658,23 +656,23 @@ export default function SkillPracticeHubPage() {
                 justifyContent: "space-between",
                 alignItems: "center",
                 cursor: "pointer",
-                background: funnelExpanded ? "rgba(255, 255, 255, 0.03)" : "transparent"
+                background: funnelExpanded ? "#F9F8F5" : "#FFFFFF"
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 16 }}>📊</span>
                 <div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>
                     Hiring Funnel · {activeTrackDetails.name}
                   </span>
-                  <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 8 }}>
+                  <span style={{ fontSize: 11, color: "#667085", marginLeft: 8 }}>
                     ({activeTrackDetails.round_structure?.length || 4} hiring rounds)
                   </span>
                 </div>
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 700 }}>
+                <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700 }}>
                   {funnelExpanded ? "Hide Funnel ↑" : "View Funnel ↓"}
                 </span>
               </div>
@@ -682,9 +680,9 @@ export default function SkillPracticeHubPage() {
 
             {/* Expanded Accordion Rounds */}
             {funnelExpanded && (
-              <div style={{ padding: "0 20px 20px", borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                <p style={{ fontSize: 12, color: "#94a3b8", margin: "14px 0 12px" }}>
-                  Real rounds verified against 2026 hiring drives. Click any round to inspect or launch round practice.
+              <div style={{ padding: "0 20px 20px", borderTop: "1px solid #E4E1DA" }}>
+                <p style={{ fontSize: 12, color: "#667085", margin: "14px 0 12px" }}>
+                  Real rounds verified against hiring drives. Click any round to inspect or launch round practice.
                 </p>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -695,9 +693,9 @@ export default function SkillPracticeHubPage() {
                       <div
                         key={round.round_number}
                         style={{
-                          borderRadius: 10,
-                          background: isExpanded ? "rgba(99, 102, 241, 0.1)" : "rgba(255, 255, 255, 0.02)",
-                          border: isExpanded ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid rgba(255, 255, 255, 0.06)",
+                          borderRadius: 8,
+                          background: isExpanded ? "#EFF4FE" : "#F9F8F5",
+                          border: isExpanded ? "1px solid #356AE6" : "1px solid #E4E1DA",
                           padding: 12
                         }}
                       >
@@ -706,24 +704,24 @@ export default function SkillPracticeHubPage() {
                           style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
                         >
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(255, 255, 255, 0.08)", color: "white", fontWeight: 700 }}>
+                            <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 700 }}>
                               Round {round.round_number}
                             </span>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
                               {round.name}
                             </span>
                             {round.is_hard_gate && (
-                              <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "rgba(239, 68, 68, 0.2)", color: "#f87171", fontWeight: 800 }}>
+                              <span style={{ fontSize: 9, padding: "2px 6px", borderRadius: 4, background: "#FDF2F2", color: "#C24141", border: "1px solid #F8C8C8", fontWeight: 800 }}>
                                 HARD GATE
                               </span>
                             )}
                           </div>
 
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: 700 }}>
+                            <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 700 }}>
                               {round.typical_elimination_rate}
                             </span>
-                            <span style={{ fontSize: 12, color: "#94a3b8" }}>
+                            <span style={{ fontSize: 12, color: "#667085" }}>
                               {isExpanded ? "▲" : "▼"}
                             </span>
                           </div>
@@ -731,24 +729,24 @@ export default function SkillPracticeHubPage() {
 
                         {/* Accordion Expanded Detail */}
                         {isExpanded && (
-                          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255, 255, 255, 0.06)" }}>
-                            <p style={{ margin: "0 0 10px", fontSize: 12, color: "rgba(255, 255, 255, 0.75)", lineHeight: 1.5 }}>
+                          <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
+                            <p style={{ margin: "0 0 10px", fontSize: 12, color: "#667085", lineHeight: 1.5 }}>
                               {round.description}
                             </p>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                              <span style={{ fontSize: 11, color: "#a5b4fc" }}>
+                              <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 600 }}>
                                 Key Focus: {round.key_focus_areas?.[0] || "Foundational reasoning"}
                               </span>
                               <button
                                 onClick={() => openFunnelRoundBrief(round.name)}
                                 style={{
                                   padding: "6px 14px",
-                                  borderRadius: 6,
+                                  borderRadius: 7,
                                   border: "none",
-                                  background: "linear-gradient(135deg, #6366f1, #38bdf8)",
-                                  color: "white",
+                                  background: "#356AE6",
+                                  color: "#FFFFFF",
                                   fontSize: 11,
-                                  fontWeight: 800,
+                                  fontWeight: 700,
                                   cursor: "pointer"
                                 }}
                               >
@@ -775,8 +773,8 @@ export default function SkillPracticeHubPage() {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0, 0, 0, 0.75)",
-            backdropFilter: "blur(8px)",
+            background: "rgba(22, 42, 67, 0.45)",
+            backdropFilter: "blur(6px)",
             zIndex: 100,
             display: "flex",
             alignItems: "center",
@@ -789,27 +787,28 @@ export default function SkillPracticeHubPage() {
             style={{
               width: "100%",
               maxWidth: 720,
-              background: "#0c1322",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              borderRadius: 18,
+              background: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
               padding: 24,
-              color: "white",
+              color: "#17191C",
               maxHeight: "85vh",
-              overflowY: "auto"
+              overflowY: "auto",
+              boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <div>
-                <h3 style={{ fontSize: 17, fontWeight: 900, margin: 0 }}>
+                <h3 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: "#162A43" }}>
                   Compare Target Hiring Tracks
                 </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                <p style={{ margin: "2px 0 0", fontSize: 11, color: "#667085" }}>
                   Selecting a track adapts session difficulty, follow-ups, and question depth across all practice domains.
                 </p>
               </div>
               <button
                 onClick={() => setExploreTracksOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 16, cursor: "pointer" }}
+                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 16, cursor: "pointer" }}
               >
                 ✕
               </button>
@@ -827,9 +826,9 @@ export default function SkillPracticeHubPage() {
                     }}
                     style={{
                       padding: 14,
-                      borderRadius: 12,
-                      background: isSelected ? "rgba(99, 102, 241, 0.15)" : "rgba(255, 255, 255, 0.02)",
-                      border: isSelected ? "2px solid #818cf8" : "1px solid rgba(255, 255, 255, 0.08)",
+                      borderRadius: 10,
+                      background: isSelected ? "#EFF4FE" : "#F9F8F5",
+                      border: isSelected ? "2px solid #356AE6" : "1px solid #E4E1DA",
                       cursor: "pointer",
                       display: "flex",
                       justifyContent: "space-between",
@@ -839,10 +838,10 @@ export default function SkillPracticeHubPage() {
                   >
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <strong style={{ fontSize: 14 }}>{track.name}</strong>
-                        <span style={{ fontSize: 11, color: "#34d399", fontWeight: 700 }}>{track.typical_ctc_range}</span>
+                        <strong style={{ fontSize: 14, color: "#162A43" }}>{track.name}</strong>
+                        <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>{track.typical_ctc_range}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.65)", lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                         {track.description}
                       </div>
                     </div>
@@ -850,10 +849,10 @@ export default function SkillPracticeHubPage() {
                     <button
                       style={{
                         padding: "6px 12px",
-                        borderRadius: 6,
-                        border: "none",
-                        background: isSelected ? "#6366f1" : "rgba(255, 255, 255, 0.08)",
-                        color: "white",
+                        borderRadius: 7,
+                        border: isSelected ? "none" : "1px solid #E4E1DA",
+                        background: isSelected ? "#356AE6" : "#FFFFFF",
+                        color: isSelected ? "#FFFFFF" : "#17191C",
                         fontSize: 11,
                         fontWeight: 700,
                         whiteSpace: "nowrap"

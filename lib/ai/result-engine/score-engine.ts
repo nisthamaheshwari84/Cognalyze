@@ -10,14 +10,24 @@ import {
   ScoreCategoryStats,
 } from './types';
 
-const STATUS_VALUES: Record<string, number> = {
+export const CANONICAL_STATUS_WEIGHTS: Record<string, number> = {
+  VERIFIED: 1.0,
   SUPPORTED: 1.0,
   PARTIAL: 0.5,
   CLAIM_ONLY: 0.25,
+  CLAIMED: 0.25,
   EVIDENCE_GAP: 0.0,
   SKILL_GAP: 0.0,
+  NOT_EVIDENCED: 0.0,
   MISSING: 0.0,
   CONTRADICTED: 0.0,
+};
+
+export const CANONICAL_PRIORITY_WEIGHTS: Record<string, number> = {
+  CRITICAL: 6,
+  IMPORTANT: 3,
+  PREFERRED: 1,
+  NICE_TO_HAVE: 1,
 };
 
 function computeCategoryStats(
@@ -70,12 +80,53 @@ function computeCategoryStats(
         break;
     }
 
-    const val = STATUS_VALUES[status] ?? 0;
+    const val = CANONICAL_STATUS_WEIGHTS[status] ?? 0;
     totalValue += val;
   }
 
   stats.categoryScore = Math.round((totalValue / reqs.length) * 100);
   return stats;
+}
+
+/**
+ * Validates score integrity independently (Section 27 & 28).
+ * Checks mathematical invariant: supported + partial + claimed + not_evidenced + contradicted = total requirements
+ * and asserts that SUM(earned_points) / SUM(possible_points) equals calculated score.
+ */
+export function validateScoreIntegrity(
+  requirements: CanonicalJDRequirement[],
+  matches: RequirementEvidenceMatch[],
+  calculatedScore: number
+): { valid: boolean; error?: string } {
+  // 1. Total Ingested Invariant
+  const supported = matches.filter((m) => m.status === 'SUPPORTED').length;
+  const partial = matches.filter((m) => m.status === 'PARTIAL').length;
+  const claimOnly = matches.filter((m) => m.status === 'CLAIM_ONLY').length;
+  const evidenceGaps = matches.filter((m) => m.status === 'EVIDENCE_GAP' || m.status === 'MISSING').length;
+  const skillGaps = matches.filter((m) => m.status === 'SKILL_GAP').length;
+  const contradicted = matches.filter((m) => m.status === 'CONTRADICTED').length;
+
+  const totalEvaluated = supported + partial + claimOnly + evidenceGaps + skillGaps + contradicted;
+  if (totalEvaluated !== requirements.length) {
+    return {
+      valid: false,
+      error: `SCORE_VALIDATION_ERROR: Evaluated matches count (${totalEvaluated}) != Total JD requirements (${requirements.length}).`,
+    };
+  }
+
+  // 2. Exact Points Audit (Section 27 & 28)
+  const sumEarned = matches.reduce((sum, m) => sum + (m.earned_points ?? 0), 0);
+  const sumPossible = matches.reduce((sum, m) => sum + (m.possible_points ?? 0), 0);
+  const expectedPointsScore = sumPossible > 0 ? Math.round((sumEarned / sumPossible) * 100) : 0;
+
+  if (calculatedScore !== expectedPointsScore) {
+    return {
+      valid: false,
+      error: `SCORE_AUDIT_MISMATCH: Calculated score (${calculatedScore}) does not match exact points ratio SUM(earned)/SUM(possible) (${expectedPointsScore}). Earned: ${sumEarned}, Possible: ${sumPossible}.`,
+    };
+  }
+
+  return { valid: true };
 }
 
 /**
@@ -88,29 +139,25 @@ export function calculateDeterministicScore(
   const criticalReqs = requirements.filter((r) => r.priority === 'CRITICAL');
   const importantReqs = requirements.filter((r) => r.priority === 'IMPORTANT');
   const preferredReqs = requirements.filter((r) => r.priority === 'PREFERRED');
+  const niceToHaveReqs = requirements.filter((r) => r.priority === 'NICE_TO_HAVE');
 
   const criticalStats = computeCategoryStats(criticalReqs, matches);
   const importantStats = computeCategoryStats(importantReqs, matches);
   const preferredStats = computeCategoryStats(preferredReqs, matches);
+  const niceToHaveStats = computeCategoryStats(niceToHaveReqs, matches);
 
-  // Weighted overall calculation: Critical 60%, Important 30%, Preferred 10%
-  let weightedScoreSum = 0;
-  let weightsSum = 0;
+  // Exact Points Aggregation (Section 27 & 28)
+  const totalEarnedPoints = matches.reduce((sum, m) => sum + (m.earned_points ?? 0), 0);
+  const totalPossiblePoints = matches.reduce((sum, m) => sum + (m.possible_points ?? 0), 0);
 
-  if (criticalReqs.length > 0) {
-    weightedScoreSum += criticalStats.categoryScore * 0.60;
-    weightsSum += 0.60;
-  }
-  if (importantReqs.length > 0) {
-    weightedScoreSum += importantStats.categoryScore * 0.30;
-    weightsSum += 0.30;
-  }
-  if (preferredReqs.length > 0) {
-    weightedScoreSum += preferredStats.categoryScore * 0.10;
-    weightsSum += 0.10;
-  }
+  const overallEvidenceMatch =
+    totalPossiblePoints > 0 ? Math.round((totalEarnedPoints / totalPossiblePoints) * 100) : 50;
 
-  const overallEvidenceMatch = weightsSum > 0 ? Math.round(weightedScoreSum / weightsSum) : 50;
+  // Run Score Integrity Validation (Section 28)
+  const validation = validateScoreIntegrity(requirements, matches, overallEvidenceMatch);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
 
   // Summary counts
   const summaryCounts = {
@@ -142,13 +189,18 @@ export function calculateDeterministicScore(
     criticalScore: criticalStats.categoryScore,
     importantScore: importantStats.categoryScore,
     preferredScore: preferredStats.categoryScore,
+    niceToHaveScore: niceToHaveStats.categoryScore,
     criticalStats,
     importantStats,
     preferredStats,
+    niceToHaveStats,
+    totalEarnedPoints,
+    totalPossiblePoints,
+    pointsAuditPassed: true,
     summaryCounts,
     scoreVerdictExplanation: explanation,
     formulaExplanation:
-      'Deterministic requirement weighting: Critical requirements (60%), Important requirements (30%), Preferred qualifications (10%). Supported evidence confers 100% points, Partial 50%, Claimed-only 25%, and Evidence Gaps 0%.',
+      'Deterministic requirement weighting: Critical requirements (weight 6), Important requirements (weight 3), Preferred qualifications (weight 1), Nice to have (weight 1). Supported evidence confers 100% points, Partial 50%, Claimed-only 25%, and Evidence Gaps 0%. Final score = total earned points / total possible points.',
     calculatedAt: new Date().toISOString(),
   };
 }

@@ -5,7 +5,8 @@ import {
   incrementVerificationAttempt,
   markEmailVerified,
   getUserById,
-  getSessionByToken
+  getSessionByToken,
+  createSession
 } from "@/lib/auth/store";
 
 export async function POST(req: NextRequest) {
@@ -75,16 +76,33 @@ export async function POST(req: NextRequest) {
 
     // Compute next URL based on account type
     const nextUrl = user.accountType === "student"
-      ? "/student/onboarding"
+      ? "/student/dashboard"
       : "/recruiter/organization/setup";
 
-    return NextResponse.json({
+    const session = createSession(user.id, user.accountType);
+
+    const res = NextResponse.json({
       success: true,
       email: user.email,
       accountType: user.accountType,
       status: user.accountType === "student" ? "ACTIVE" : "ORGANIZATION_PENDING",
       nextUrl
     });
+
+    res.cookies.set("cognalyze_session", session.token, {
+      path: "/",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60
+    });
+
+    res.cookies.set("cognalyze_role", user.accountType, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60
+    });
+
+    return res;
   } catch (err: any) {
     console.error("Verify email error:", err);
     return NextResponse.json({ error: err.message || "Failed to verify email." }, { status: 500 });

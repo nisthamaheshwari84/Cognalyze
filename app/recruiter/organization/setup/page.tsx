@@ -83,29 +83,32 @@ export default function RecruiterOrganizationSetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden font-sans">
-      {/* Background Grid */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)
-          `,
-          backgroundSize: "64px 64px"
-        }}
-      />
-
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "var(--bg-canvas)",
+        color: "var(--text-primary)",
+        fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
+      }}
+      className="flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden"
+    >
       <div className="w-full max-w-lg relative z-10 space-y-8">
         {/* Brand */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-block font-semibold text-lg tracking-tight text-white mb-1">
+          <Link
+            href="/"
+            style={{ color: "var(--accent)" }}
+            className="inline-block font-semibold text-lg tracking-tight mb-1"
+          >
             Cognalyze
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1
+            style={{ color: "var(--text-primary)" }}
+            className="text-2xl sm:text-3xl font-bold tracking-tight"
+          >
             {verificationResult ? "Organization Verification" : "Let's set up your organization"}
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p style={{ color: "var(--text-secondary)" }} className="text-xs sm:text-sm">
             {verificationResult
               ? "Distinct verification checks for your hiring organization."
               : "Establish your company identity to unlock candidate screening and Decision Rooms."}
@@ -113,9 +116,23 @@ export default function RecruiterOrganizationSetupPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-xl border border-white/10 bg-[#0e131f] p-6 sm:p-8 shadow-2xl space-y-6">
+        <div
+          style={{
+            backgroundColor: "var(--bg-card)",
+            borderColor: "var(--border-subtle)",
+            boxShadow: "var(--shadow-card)",
+          }}
+          className="rounded-xl border p-6 sm:p-8 space-y-6"
+        >
           {error && (
-            <div className="p-3.5 rounded-lg bg-red-950/50 border border-red-800/60 text-xs text-red-300 leading-relaxed">
+            <div
+              style={{
+                backgroundColor: "var(--color-error-bg)",
+                borderColor: "var(--color-error)",
+                color: "var(--color-error)",
+              }}
+              className="p-3.5 rounded-lg border text-xs leading-relaxed"
+            >
               {error}
             </div>
           )}
@@ -123,7 +140,7 @@ export default function RecruiterOrganizationSetupPage() {
           {!verificationResult ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label style={{ color: "var(--text-secondary)" }} className="block text-xs font-semibold mb-1.5">
                   Company name
                 </label>
                 <input
@@ -133,16 +150,21 @@ export default function RecruiterOrganizationSetupPage() {
                   onChange={(e) => setCompanyName(e.target.value)}
                   placeholder="Acme Technologies"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-medium text-slate-300">
+                  <label style={{ color: "var(--text-secondary)" }} className="text-xs font-semibold">
                     Company website
                   </label>
-                  <span className="text-[10px] font-mono text-slate-500">
+                  <span style={{ color: "var(--text-muted)" }} className="text-[10px] font-mono">
                     Domain match verification
                   </span>
                 </div>
@@ -153,13 +175,18 @@ export default function RecruiterOrganizationSetupPage() {
                   onChange={(e) => setCompanyWebsite(e.target.value)}
                   placeholder="https://acme.com"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label style={{ color: "var(--text-secondary)" }} className="block text-xs font-semibold mb-1.5">
                     Industry
                   </label>
                   <input
@@ -168,19 +195,29 @@ export default function RecruiterOrganizationSetupPage() {
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
                     placeholder="Cloud & Distributed Systems"
-                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    style={{
+                      backgroundColor: "var(--bg-surface-inner)",
+                      borderColor: "var(--border-subtle)",
+                      color: "var(--text-primary)",
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label style={{ color: "var(--text-secondary)" }} className="block text-xs font-semibold mb-1.5">
                     Company size
                   </label>
                   <select
                     id="org-size"
                     value={companySize}
                     onChange={(e) => setCompanySize(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    style={{
+                      backgroundColor: "var(--bg-surface-inner)",
+                      borderColor: "var(--border-subtle)",
+                      color: "var(--text-primary)",
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                   >
                     <option value="1-10 employees">1-10 employees</option>
                     <option value="11-50 employees">11-50 employees</option>
@@ -192,7 +229,7 @@ export default function RecruiterOrganizationSetupPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label style={{ color: "var(--text-secondary)" }} className="block text-xs font-semibold mb-1.5">
                   Your role in hiring
                 </label>
                 <input
@@ -202,7 +239,12 @@ export default function RecruiterOrganizationSetupPage() {
                   onChange={(e) => setDesignation(e.target.value)}
                   placeholder="Technical Recruiter"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-1 focus:ring-[var(--accent)] transition-colors"
                 />
               </div>
 
@@ -211,7 +253,11 @@ export default function RecruiterOrganizationSetupPage() {
                   id="org-setup-submit"
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  style={{
+                    backgroundColor: "var(--accent)",
+                    color: "#FFFFFF",
+                  }}
+                  className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50 hover:opacity-90"
                 >
                   {loading ? "Verifying domain..." : "Continue to Verification Check"}
                 </button>
@@ -221,68 +267,141 @@ export default function RecruiterOrganizationSetupPage() {
             <div className="space-y-6">
               {/* Verification Checklist */}
               <div className="space-y-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 block">
+                <span style={{ color: "var(--text-muted)" }} className="text-xs font-mono font-semibold uppercase tracking-wider block">
                   Organization Verification Status
                 </span>
 
                 {/* Check 1: Work Email */}
-                <div className="p-3.5 rounded-lg bg-[#141b2b] border border-white/5 flex items-center justify-between text-xs">
+                <div
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                  }}
+                  className="p-3.5 rounded-lg border flex items-center justify-between text-xs"
+                >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span className="text-slate-200">Work email verified</span>
+                    <span style={{ color: "var(--color-success)" }} className="font-bold">✓</span>
+                    <span style={{ color: "var(--text-primary)" }}>Work email verified</span>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-400">
+                  <span style={{ color: "var(--color-success)" }} className="text-[11px] font-mono font-semibold">
                     {workEmail || "Verified"}
                   </span>
                 </div>
 
                 {/* Check 2: Domain Match */}
-                <div className="p-3.5 rounded-lg bg-[#141b2b] border border-white/5 flex items-center justify-between text-xs">
+                <div
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                  }}
+                  className="p-3.5 rounded-lg border flex items-center justify-between text-xs"
+                >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span className="text-slate-200">Company domain match</span>
+                    <span style={{ color: verificationResult.domainMatches ? "var(--color-success)" : "var(--color-warning)" }} className="font-bold">
+                      {verificationResult.domainMatches ? "✓" : "⚠"}
+                    </span>
+                    <span style={{ color: "var(--text-primary)" }}>Company domain match</span>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-400">
-                    {verificationResult.organization?.domain || "Matched"}
+                  <span
+                    style={{ color: verificationResult.domainMatches ? "var(--color-success)" : "var(--color-warning)" }}
+                    className="text-[11px] font-mono font-semibold"
+                  >
+                    {verificationResult.domainMatches ? (verificationResult.organization?.domain || "Matched") : "Domain Mismatch"}
                   </span>
                 </div>
 
                 {/* Check 3: Organization Status */}
-                <div className="p-3.5 rounded-lg bg-[#141b2b] border border-white/5 flex items-center justify-between text-xs">
+                <div
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                  }}
+                  className="p-3.5 rounded-lg border flex items-center justify-between text-xs"
+                >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-emerald-400 font-bold">✓</span>
-                    <span className="text-slate-200">Organization verification</span>
+                    <span style={{ color: verificationResult.status === "ACTIVE" ? "var(--color-success)" : "var(--color-warning)" }} className="font-bold">
+                      {verificationResult.status === "ACTIVE" ? "✓" : "●"}
+                    </span>
+                    <span style={{ color: "var(--text-primary)" }}>Verification state</span>
                   </div>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-950 text-emerald-400 border border-emerald-800/40 uppercase">
-                    {verificationResult.status}
+                  <span
+                    style={{
+                      backgroundColor: verificationResult.status === "ACTIVE" ? "var(--color-success-bg)" : "var(--color-warning-bg)",
+                      color: verificationResult.status === "ACTIVE" ? "var(--color-success)" : "var(--color-warning)",
+                      borderColor: verificationResult.status === "ACTIVE" ? "var(--color-success)" : "var(--color-warning)",
+                    }}
+                    className="px-2 py-0.5 rounded text-[10px] font-mono uppercase border font-semibold"
+                  >
+                    {verificationResult.status === "ACTIVE" ? "VERIFIED" : "MANUAL REVIEW"}
                   </span>
                 </div>
               </div>
 
               {/* Status Note */}
-              <div className="p-4 rounded-lg bg-emerald-950/20 border border-emerald-500/20 text-xs text-slate-300 space-y-1">
-                <span className="font-semibold text-emerald-300 block">
-                  Workspace Ready: {verificationResult.organization?.name}
-                </span>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Your organization status is verified. You now have full access to candidate dossiers, Decision Rooms, and hiring workflows.
-                </p>
-              </div>
+              {verificationResult.status === "ACTIVE" ? (
+                <div
+                  style={{
+                    backgroundColor: "var(--color-success-bg)",
+                    borderColor: "var(--color-success)",
+                  }}
+                  className="p-4 rounded-lg border text-xs space-y-1"
+                >
+                  <span style={{ color: "var(--color-success)" }} className="font-semibold block">
+                    Workspace Verified: {verificationResult.organization?.name}
+                  </span>
+                  <p style={{ color: "var(--text-secondary)" }} className="text-[11px] leading-relaxed">
+                    Your organization domain is verified. You now have full access to candidate screening and hiring workflows.
+                  </p>
+                </div>
+              ) : (
+                <div
+                  style={{
+                    backgroundColor: "var(--color-warning-bg)",
+                    borderColor: "var(--color-warning)",
+                  }}
+                  className="p-4 rounded-lg border text-xs space-y-1"
+                >
+                  <span style={{ color: "var(--color-warning)" }} className="font-semibold block">
+                    Submission Under Compliance Review
+                  </span>
+                  <p style={{ color: "var(--text-secondary)" }} className="text-[11px] leading-relaxed">
+                    Your company domain differs from your work email domain or requires independent substantiation. Our team has received your submission for manual review.
+                  </p>
+                </div>
+              )}
 
-              <button
-                id="org-enter-workspace-btn"
-                onClick={() => router.push("/recruiter/dashboard")}
-                className="w-full py-3 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>Enter Recruiter Workspace</span>
-                <span>→</span>
-              </button>
+              {verificationResult.status === "ACTIVE" ? (
+                <button
+                  id="org-enter-workspace-btn"
+                  onClick={() => router.push("/recruiter/dashboard")}
+                  style={{
+                    backgroundColor: "var(--accent)",
+                    color: "#FFFFFF",
+                  }}
+                  className="w-full py-3 px-4 rounded-lg text-xs font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Enter Recruiter Workspace</span>
+                  <span>→</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setVerificationResult(null)}
+                  style={{
+                    backgroundColor: "var(--bg-surface-inner)",
+                    borderColor: "var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                  className="w-full py-3 px-4 rounded-lg border text-xs font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Edit Company Details</span>
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* Note */}
-        <p className="text-center text-[11px] font-mono text-slate-500">
+        <p style={{ color: "var(--text-muted)" }} className="text-center text-[11px] font-mono">
           Email verification is distinct from organization verification.
         </p>
       </div>

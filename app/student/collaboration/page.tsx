@@ -6,19 +6,19 @@ import CollaborationFeed from "@/components/collab/CollaborationFeed";
 
 export default function StudentCollaborationPage() {
   return (
-    <div className="min-h-screen bg-[#060913] text-slate-100 flex flex-col font-sans">
-      <AppNav />
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <AppNav role="student" />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8 space-y-6">
+      <main style={{ maxWidth: 1024, margin: "0 auto", padding: "32px 20px 60px", display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Banner */}
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 shadow-xl space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-semibold">
+        <div style={{ padding: "24px", borderRadius: 10, background: "#FFFFFF", border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 8px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontSize: 11, fontWeight: 700, width: "fit-content" }}>
             <span>🤝</span> Verified Enterprise Placement
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: "#162A43", margin: "4px 0 0", letterSpacing: "-0.5px" }}>
             Collaboration Feed
           </h1>
-          <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
+          <p style={{ fontSize: 13, color: "#667085", maxWidth: 640, lineHeight: 1.5, margin: 0 }}>
             Direct collaboration roles posted exclusively by enterprise recruiters. When you apply, your verified Cognalyze DNA radar and project credentials are automatically attached as a frozen snapshot.
           </p>
         </div>

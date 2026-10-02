@@ -62,44 +62,64 @@ export default function RecruiterSignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080b11] text-slate-100 flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden font-sans">
-      {/* Background Grid */}
-      <div
-        className="fixed inset-0 pointer-events-none z-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px)
-          `,
-          backgroundSize: "64px 64px"
-        }}
-      />
-
-      <div className="w-full max-w-md relative z-10 space-y-8">
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#F6F5F1",
+        color: "#17191C",
+        fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
+      }}
+      className="flex flex-col justify-center items-center px-4 sm:px-6 py-12 relative overflow-hidden"
+    >
+      <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
-          <Link href="/signup" className="inline-block text-xs font-mono text-slate-400 hover:text-slate-300 transition-colors mb-1">
+          <Link
+            href="/signup"
+            style={{ color: "#356AE6" }}
+            className="inline-block text-xs font-mono font-semibold hover:underline transition-colors mb-1"
+          >
             ← Back to choices
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1
+            style={{ color: "#162A43" }}
+            className="text-2xl sm:text-3xl font-bold tracking-tight"
+          >
             Create your recruiter account
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p style={{ color: "#667085" }} className="text-xs sm:text-sm">
             Hire with context through verifiable engineering evidence.
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-xl border border-white/10 bg-[#0e131f] p-6 sm:p-8 shadow-2xl space-y-6">
+        <div
+          style={{
+            backgroundColor: "#FFFFFF",
+            borderColor: "#E4E1DA",
+            boxShadow: "0 4px 20px rgba(22, 42, 67, 0.06)",
+          }}
+          className="rounded-xl border p-6 sm:p-8 space-y-6"
+        >
           {error && (
-            <div className="p-3.5 rounded-lg bg-red-950/50 border border-red-800/60 text-xs text-red-300 leading-relaxed">
+            <div
+              style={{
+                backgroundColor: "#FDF2F2",
+                borderColor: "#F8C8C8",
+                color: "#C24141",
+              }}
+              className="p-3.5 rounded-lg border text-xs leading-relaxed"
+            >
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label
+                style={{ color: "#162A43" }}
+                className="block text-xs font-semibold mb-1.5"
+              >
                 Full name
               </label>
               <input
@@ -109,16 +129,31 @@ export default function RecruiterSignupPage() {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Aarav Sharma"
                 required
-                className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                style={{
+                  backgroundColor: "#FAFAF8",
+                  borderColor: "#E4E1DA",
+                  color: "#17191C",
+                }}
+                className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-slate-300">
+                <label
+                  style={{ color: "#162A43" }}
+                  className="text-xs font-semibold"
+                >
                   Work email
                 </label>
-                <span className="text-[10px] font-mono text-indigo-400 uppercase">
+                <span
+                  style={{
+                    backgroundColor: "#FEF7ED",
+                    color: "#B7791F",
+                    borderColor: "#F8D8A7",
+                  }}
+                  className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border"
+                >
                   Company domain required
                 </span>
               </div>
@@ -129,14 +164,15 @@ export default function RecruiterSignupPage() {
                 onChange={(e) => setWorkEmail(e.target.value)}
                 placeholder="recruiter@company.com"
                 required
-                className={`w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border text-white placeholder-slate-500 text-sm focus:outline-none transition-colors ${
-                  isGeneric
-                    ? "border-red-500/80 focus:border-red-500"
-                    : "border-white/10 focus:border-indigo-500"
-                }`}
+                style={{
+                  backgroundColor: "#FAFAF8",
+                  borderColor: isGeneric ? "#F8C8C8" : "#E4E1DA",
+                  color: "#17191C",
+                }}
+                className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
               />
               {isGeneric && (
-                <p className="text-[11px] text-red-400 mt-1.5 leading-tight">
+                <p style={{ color: "#C24141" }} className="text-[11px] mt-1.5 leading-tight font-medium">
                   Please use your company email address. Recruiter accounts require a verified work email.
                 </p>
               )}
@@ -144,7 +180,10 @@ export default function RecruiterSignupPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label
+                  style={{ color: "#162A43" }}
+                  className="block text-xs font-semibold mb-1.5"
+                >
                   Company name
                 </label>
                 <input
@@ -154,12 +193,20 @@ export default function RecruiterSignupPage() {
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="Acme Tech"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundColor: "#FAFAF8",
+                    borderColor: "#E4E1DA",
+                    color: "#17191C",
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                <label
+                  style={{ color: "#162A43" }}
+                  className="block text-xs font-semibold mb-1.5"
+                >
                   Your designation
                 </label>
                 <input
@@ -169,13 +216,21 @@ export default function RecruiterSignupPage() {
                   onChange={(e) => setDesignation(e.target.value)}
                   placeholder="Talent Lead"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  style={{
+                    backgroundColor: "#FAFAF8",
+                    borderColor: "#E4E1DA",
+                    color: "#17191C",
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label
+                style={{ color: "#162A43" }}
+                className="block text-xs font-semibold mb-1.5"
+              >
                 Password (min 8 characters)
               </label>
               <input
@@ -186,12 +241,20 @@ export default function RecruiterSignupPage() {
                 placeholder="••••••••"
                 minLength={8}
                 required
-                className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                style={{
+                  backgroundColor: "#FAFAF8",
+                  borderColor: "#E4E1DA",
+                  color: "#17191C",
+                }}
+                className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label
+                style={{ color: "#162A43" }}
+                className="block text-xs font-semibold mb-1.5"
+              >
                 Confirm password
               </label>
               <input
@@ -202,7 +265,12 @@ export default function RecruiterSignupPage() {
                 placeholder="••••••••"
                 minLength={8}
                 required
-                className="w-full px-3.5 py-2.5 rounded-lg bg-[#141b2b] border border-white/10 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                style={{
+                  backgroundColor: "#FAFAF8",
+                  borderColor: "#E4E1DA",
+                  color: "#17191C",
+                }}
+                className="w-full px-3.5 py-2.5 rounded-lg border placeholder-slate-400 text-sm focus:outline-none focus:border-[#356AE6] transition-colors"
               />
             </div>
 
@@ -210,7 +278,11 @@ export default function RecruiterSignupPage() {
               id="recruiter-signup-submit"
               type="submit"
               disabled={loading || isGeneric}
-              className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
+              style={{
+                backgroundColor: "#356AE6",
+                color: "#FFFFFF",
+              }}
+              className="w-full py-2.5 px-4 rounded-lg hover:bg-[#2858C7] text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50"
             >
               {loading ? "Creating account..." : "Continue to Email Verification"}
             </button>
@@ -218,9 +290,13 @@ export default function RecruiterSignupPage() {
         </div>
 
         {/* Existing account prompt */}
-        <p className="text-center text-xs text-slate-400">
+        <p style={{ color: "#667085" }} className="text-center text-xs">
           Already have an account?{" "}
-          <Link href="/login" className="text-slate-200 hover:text-white font-medium underline underline-offset-4">
+          <Link
+            href="/login"
+            style={{ color: "#356AE6" }}
+            className="hover:underline font-semibold"
+          >
             Sign in
           </Link>
         </p>

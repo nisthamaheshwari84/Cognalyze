@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { StudentDNAProfile } from "@/lib/intelligence/student-intelligence";
+import { useTheme } from "@/components/ThemeProvider";
 
 export interface StageContextData {
   stageNumber: string;
@@ -159,6 +160,8 @@ export default function JourneyContextModal({
   onClose: () => void;
   customData?: Partial<StageContextData>;
 }) {
+  const { isDark } = useTheme();
+
   if (!isOpen) return null;
 
   const stage = {
@@ -171,8 +174,8 @@ export default function JourneyContextModal({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.8)",
-        backdropFilter: "blur(10px)",
+        backgroundColor: "rgba(0, 0, 0, 0.65)",
+        backdropFilter: "blur(8px)",
         zIndex: 110,
         display: "flex",
         alignItems: "center",
@@ -185,14 +188,16 @@ export default function JourneyContextModal({
           width: "100%",
           maxWidth: 540,
           height: "100vh",
-          background: "#0c081e",
-          borderLeft: "1px solid rgba(255, 255, 255, 0.12)",
+          background: isDark ? "#0E1B2E" : "#FFFFFF",
+          borderLeft: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
           padding: "2rem",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          boxShadow: "-20px 0 50px rgba(0,0,0,0.8)",
-          overflowY: "auto"
+          boxShadow: isDark ? "-20px 0 50px rgba(0,0,0,0.8)" : "-20px 0 50px rgba(22, 42, 67, 0.12)",
+          overflowY: "auto",
+          color: isDark ? "#F2F6FC" : "#17191C",
+          fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)"
         }}
         onClick={e => e.stopPropagation()}
       >
@@ -201,68 +206,68 @@ export default function JourneyContextModal({
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "1.5rem" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.2, padding: "2px 8px", background: "rgba(99,102,241,0.2)", color: "#818cf8", borderRadius: 4 }}>
+                <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1.2, padding: "2px 8px", background: isDark ? "rgba(52, 120, 246, 0.15)" : "#EEF4FD", color: isDark ? "#3478F6" : "#356AE6", borderRadius: 4, border: `1px solid ${isDark ? "rgba(52, 120, 246, 0.3)" : "#D1E2FB"}` }}>
                   CAREER JOURNEY · STAGE {stage.stageNumber}
                 </span>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: stage.status.includes("Active") ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.06)", color: stage.status.includes("Active") ? "#34d399" : "rgba(255,255,255,0.7)", borderRadius: 4, fontWeight: 700 }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", background: stage.status.includes("Active") ? (isDark ? "rgba(46, 125, 91, 0.2)" : "#EAF4EE") : (isDark ? "rgba(255,255,255,0.06)" : "#F0EFEA"), color: stage.status.includes("Active") ? "#2E7D5B" : (isDark ? "#B6C4D6" : "#667085"), borderRadius: 4, fontWeight: 700 }}>
                   ● {stage.status}
                 </span>
               </div>
-              <h2 style={{ fontSize: 22, fontWeight: 900, color: "white", margin: "0 0 2px" }}>
+              <h2 style={{ fontSize: 22, fontWeight: 900, color: isDark ? "#F2F6FC" : "#17191C", margin: "0 0 2px" }}>
                 {stage.stageName}
               </h2>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", margin: 0 }}>
+              <p style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085", margin: 0 }}>
                 {stage.subtitle}
               </p>
             </div>
 
             <button
               onClick={onClose}
-              style={{ background: "rgba(255,255,255,0.06)", border: "none", color: "rgba(255,255,255,0.6)", width: 32, height: 32, borderRadius: 8, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{ background: isDark ? "rgba(255,255,255,0.06)" : "#F0EFEA", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, color: isDark ? "#B6C4D6" : "#667085", width: 32, height: 32, borderRadius: 8, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}
             >
               ✕
             </button>
           </div>
 
           {/* Section 1: What Happened */}
-          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
+          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, borderRadius: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
               WHAT HAPPENED
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5 }}>
               {stage.whatHappened}
             </div>
           </div>
 
           {/* Section 2: What Evidence Exists */}
-          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
+          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, borderRadius: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
               WHAT EVIDENCE EXISTS
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5 }}>
               {stage.whatEvidenceExists}
             </div>
           </div>
 
           {/* Section 3: What Changed in DNA */}
-          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 12 }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
+          <div style={{ marginBottom: "1.25rem", padding: "1rem", background: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, borderRadius: 12 }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: "#B7791F", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
               WHAT CHANGED IN DNA
             </div>
-            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5 }}>
               {stage.whatChanged}
             </div>
           </div>
 
           {/* Section 4: Recommended Action */}
-          <div style={{ padding: "1rem", background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 12, marginBottom: "1.25rem" }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: "#a5b4fc", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
+          <div style={{ padding: "1rem", background: isDark ? "rgba(52, 120, 246, 0.12)" : "#EEF4FD", border: `1px solid ${isDark ? "rgba(52, 120, 246, 0.3)" : "#D1E2FB"}`, borderRadius: 12, marginBottom: "1.25rem" }}>
+            <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 0.8, textTransform: "uppercase", marginBottom: 6 }}>
               RECOMMENDED NEXT ACTION
             </div>
-            <div style={{ fontSize: 13, color: "white", fontWeight: 700, marginBottom: 4 }}>
+            <div style={{ fontSize: 13, color: isDark ? "#F2F6FC" : "#17191C", fontWeight: 700, marginBottom: 4 }}>
               {stage.recommendedAction.label}
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.4, marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4, marginBottom: 12 }}>
               {stage.recommendedAction.description}
             </div>
             <Link
@@ -273,12 +278,13 @@ export default function JourneyContextModal({
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 16px",
-                background: "linear-gradient(135deg, #6366f1, #a855f7)",
+                background: "linear-gradient(135deg, #356AE6, #2858C7)",
                 color: "white",
                 borderRadius: 8,
                 fontSize: 12,
                 fontWeight: 800,
-                textDecoration: "none"
+                textDecoration: "none",
+                boxShadow: "0 2px 6px rgba(53, 106, 230, 0.25)"
               }}
             >
               {stage.recommendedAction.label} →
@@ -287,18 +293,18 @@ export default function JourneyContextModal({
         </div>
 
         {/* Drawer Footer Navigation */}
-        <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ borderTop: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`, paddingTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Link
             href="/student/journey"
             onClick={onClose}
-            style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", textDecoration: "none" }}
+            style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085", textDecoration: "none" }}
           >
             🗺️ View Full 9-Stage Pipeline
           </Link>
           <Link
             href="/student/dna"
             onClick={onClose}
-            style={{ fontSize: 12, color: "#818cf8", textDecoration: "none", fontWeight: 700 }}
+            style={{ fontSize: 12, color: isDark ? "#3478F6" : "#356AE6", textDecoration: "none", fontWeight: 700 }}
           >
             Inspect Student DNA ↗
           </Link>

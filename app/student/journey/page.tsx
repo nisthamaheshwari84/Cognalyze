@@ -211,7 +211,7 @@ export default function StudentJourneyPage() {
   const activeStage = stages.find(s => s.id === activeStageId) || stages[0];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "Inter, sans-serif" }}>
       <AppNav role="student" />
 
       <main style={{ maxWidth: 1320, margin: "0 auto", padding: "32px 24px" }}>
@@ -219,17 +219,17 @@ export default function StudentJourneyPage() {
         {/* HEADER */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.2, textTransform: "uppercase", color: "#818cf8" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.2, textTransform: "uppercase", color: "#356AE6" }}>
               END-TO-END CAREER PIPELINE
             </span>
-            <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "rgba(16, 185, 129, 0.15)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.3)", fontWeight: 700 }}>
+            <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 5, backgroundColor: "#EAF4EE", color: "#2E7D5B", border: "1px solid #C8E4D3", fontWeight: 700 }}>
               ● 9-Stage Connected Pipeline
             </span>
           </div>
-          <h1 style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "white" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: "4px 0 0", color: "#162A43", letterSpacing: "-0.4px" }}>
             Your Career Journey
           </h1>
-          <p style={{ fontSize: 14, color: "#94a3b8", margin: "4px 0 0" }}>
+          <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
             Every meaningful student action flows through one continuous intelligence system. Click any stage to inspect live evidence and next actions.
           </p>
         </div>
@@ -244,9 +244,10 @@ export default function StudentJourneyPage() {
             gap: 8,
             marginBottom: 28,
             padding: 8,
-            backgroundColor: "rgba(15, 23, 42, 0.6)",
-            borderRadius: 14,
-            border: "1px solid rgba(255, 255, 255, 0.08)"
+            backgroundColor: "#FFFFFF",
+            borderRadius: 10,
+            border: "1px solid #E4E1DA",
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
           }}
         >
           {stages.map(stage => {
@@ -260,12 +261,9 @@ export default function StudentJourneyPage() {
                 onClick={() => setActiveStageId(stage.id)}
                 style={{
                   padding: "14px 10px",
-                  borderRadius: 10,
-                  border: isSelected ? "1px solid #6366f1" : "1px solid rgba(255, 255, 255, 0.05)",
-                  background: isSelected 
-                    ? "linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%)"
-                    : "rgba(255, 255, 255, 0.02)",
-                  color: "white",
+                  borderRadius: 8,
+                  border: isSelected ? "1px solid #356AE6" : "1px solid transparent",
+                  backgroundColor: isSelected ? "#EFF4FE" : "#FFFFFF",
                   cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
@@ -275,15 +273,15 @@ export default function StudentJourneyPage() {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 900, color: isSelected ? "#818cf8" : "#64748b" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isSelected ? "#356AE6" : "#667085" }}>
                     {stage.number}
                   </span>
-                  <span style={{ fontSize: 10, color: isCompleted ? "#10b981" : isInProgress ? "#38bdf8" : "#64748b" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: isCompleted ? "#2E7D5B" : isInProgress ? "#356AE6" : "#98A2B3" }}>
                     {isCompleted ? "✓" : isInProgress ? "●" : "○"}
                   </span>
                 </div>
 
-                <span style={{ fontSize: 12, fontWeight: 800, textAlign: "center", color: isSelected ? "#ffffff" : "#cbd5e1" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, textAlign: "center", color: isSelected ? "#162A43" : "#667085" }}>
                   {stage.name}
                 </span>
               </button>
@@ -296,11 +294,11 @@ export default function StudentJourneyPage() {
         {/* ══════════════════════════════════════════════════════════ */}
         <div
           style={{
-            backgroundColor: "rgba(15, 23, 42, 0.7)",
-            border: "1px solid rgba(99, 102, 241, 0.3)",
-            borderRadius: 16,
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 10,
             padding: "28px",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5)"
+            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
           }}
         >
           {/* TOP BAR */}
@@ -308,24 +306,26 @@ export default function StudentJourneyPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div
                 style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #6366f1, #a855f7)",
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
+                  backgroundColor: "#EFF4FE",
+                  border: "1px solid #D2E0FB",
+                  color: "#356AE6",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 18,
-                  fontWeight: 900
+                  fontSize: 16,
+                  fontWeight: 700
                 }}
               >
                 {activeStage.number}
               </div>
               <div>
-                <h2 style={{ fontSize: 22, fontWeight: 900, margin: 0, color: "white" }}>
+                <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: "#162A43" }}>
                   Stage {activeStage.number}: {activeStage.name}
                 </h2>
-                <span style={{ fontSize: 13, color: "#94a3b8" }}>
+                <span style={{ fontSize: 13, color: "#667085" }}>
                   {activeStage.summary}
                 </span>
               </div>
@@ -334,12 +334,12 @@ export default function StudentJourneyPage() {
             <span
               style={{
                 fontSize: 11,
-                fontWeight: 800,
+                fontWeight: 700,
                 padding: "4px 10px",
-                borderRadius: 6,
-                background: activeStage.status === "completed" ? "rgba(16, 185, 129, 0.15)" : "rgba(56, 189, 248, 0.15)",
-                color: activeStage.status === "completed" ? "#10b981" : "#38bdf8",
-                border: activeStage.status === "completed" ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(56, 189, 248, 0.3)"
+                borderRadius: 5,
+                backgroundColor: activeStage.status === "completed" ? "#EAF4EE" : "#EFF4FE",
+                color: activeStage.status === "completed" ? "#2E7D5B" : "#356AE6",
+                border: activeStage.status === "completed" ? "1px solid #C8E4D3" : "1px solid #D2E0FB"
               }}
             >
               {activeStage.status === "completed" ? "COMPLETED" : "ACTIVE / IN PROGRESS"}
@@ -350,42 +350,42 @@ export default function StudentJourneyPage() {
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, marginBottom: 24 }}>
             
             {/* 1. WHAT HAPPENED */}
-            <div style={{ backgroundColor: "rgba(30, 41, 59, 0.4)", borderRadius: 12, padding: "18px", border: "1px solid rgba(255, 255, 255, 0.06)" }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
+            <div style={{ backgroundColor: "#F6F5F1", borderRadius: 8, padding: "18px", border: "1px solid #E4E1DA" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", letterSpacing: 0.8 }}>
                 1. What Happened
               </span>
-              <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.5, marginTop: 8 }}>
+              <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, marginTop: 8 }}>
                 {activeStage.details.whatHappened}
               </p>
             </div>
 
             {/* 2. WHAT EVIDENCE EXISTS */}
-            <div style={{ backgroundColor: "rgba(30, 41, 59, 0.4)", borderRadius: 12, padding: "18px", border: "1px solid rgba(255, 255, 255, 0.06)" }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#10b981", textTransform: "uppercase", letterSpacing: 0.8 }}>
+            <div style={{ backgroundColor: "#F6F5F1", borderRadius: 8, padding: "18px", border: "1px solid #E4E1DA" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", letterSpacing: 0.8 }}>
                 2. What Evidence Exists
               </span>
-              <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.5, marginTop: 8 }}>
+              <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, marginTop: 8 }}>
                 {activeStage.details.whatEvidenceExists}
               </p>
             </div>
 
             {/* 3. WHAT CHANGED */}
-            <div style={{ backgroundColor: "rgba(30, 41, 59, 0.4)", borderRadius: 12, padding: "18px", border: "1px solid rgba(255, 255, 255, 0.06)" }}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: "#f59e0b", textTransform: "uppercase", letterSpacing: 0.8 }}>
+            <div style={{ backgroundColor: "#F6F5F1", borderRadius: 8, padding: "18px", border: "1px solid #E4E1DA" }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", letterSpacing: 0.8 }}>
                 3. What Changed
               </span>
-              <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.5, marginTop: 8 }}>
+              <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, marginTop: 8 }}>
                 {activeStage.details.whatChanged}
               </p>
             </div>
 
             {/* 4. NEXT BEST ACTION */}
-            <div style={{ backgroundColor: "rgba(30, 41, 59, 0.4)", borderRadius: 12, padding: "18px", border: "1px solid rgba(99, 102, 241, 0.3)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <div style={{ backgroundColor: "#FFFFFF", borderRadius: 8, padding: "18px", border: "1px solid #356AE6", display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(53, 106, 230, 0.08)" }}>
               <div>
-                <span style={{ fontSize: 11, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", letterSpacing: 0.8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase", letterSpacing: 0.8 }}>
                   4. Recommended Action
                 </span>
-                <p style={{ fontSize: 13, color: "#cbd5e1", lineHeight: 1.4, marginTop: 8 }}>
+                <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.4, marginTop: 8 }}>
                   Keep your pipeline momentum active by executing this connected milestone.
                 </p>
               </div>
@@ -395,13 +395,14 @@ export default function StudentJourneyPage() {
                 style={{
                   textAlign: "center",
                   textDecoration: "none",
-                  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                  backgroundColor: "#356AE6",
                   color: "white",
                   padding: "10px 16px",
-                  borderRadius: 8,
+                  borderRadius: 7,
                   fontSize: 12,
-                  fontWeight: 800,
-                  marginTop: 12
+                  fontWeight: 600,
+                  marginTop: 12,
+                  boxShadow: "0 2px 6px rgba(53, 106, 230, 0.2)"
                 }}
               >
                 {activeStage.details.nextAction.label} →
@@ -410,15 +411,15 @@ export default function StudentJourneyPage() {
           </div>
 
           {/* BOTTOM CONTROLS */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid rgba(255, 255, 255, 0.08)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid #E4E1DA" }}>
             <button
               onClick={() => handleOpenWhy(profile?.targetProfile?.coreCapabilities?.[0] || "Python")}
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#818cf8",
+                color: "#356AE6",
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer"
               }}
             >
@@ -428,14 +429,15 @@ export default function StudentJourneyPage() {
             <button
               onClick={() => setAskModalOpen(true)}
               style={{
-                background: "rgba(255, 255, 255, 0.06)",
-                border: "1px solid rgba(255, 255, 255, 0.12)",
-                borderRadius: 8,
-                color: "#cbd5e1",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 7,
+                color: "#162A43",
                 padding: "6px 14px",
                 fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer"
+                fontWeight: 600,
+                cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               Ask AI about this stage

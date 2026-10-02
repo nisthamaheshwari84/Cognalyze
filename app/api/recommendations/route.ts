@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   computeMatchScore,
-  generateMatchReasoning
+  generateMatchReasoning,
+  StudentProfileData,
 } from "@/lib/ai/placement-intelligence";
 import {
   getStudentProfile,
@@ -39,14 +40,30 @@ export async function GET(req: Request) {
     }
 
     // 1. Fetch Student Profile
-    const profile = await getStudentProfile(candidateId);
-    if (!profile) {
-      return NextResponse.json({
-        needsOnboarding: true,
-        message: "Student profile not found. Please complete onboarding first.",
-        recommendations: []
-      });
+    let fetchedProfile = await getStudentProfile(candidateId);
+    let needsOnboarding = false;
+
+    if (!fetchedProfile || !fetchedProfile.skills || fetchedProfile.skills.length === 0) {
+      needsOnboarding = true;
+      fetchedProfile = await getStudentProfile("student-demo");
     }
+
+    const activeProfile: StudentProfileData = fetchedProfile || {
+      candidate_id: candidateId,
+      skills: [
+        { name: "Python", level: "Intermediate" },
+        { name: "React", level: "Intermediate" },
+        { name: "AI/ML", level: "Intermediate" },
+        { name: "Data Structures", level: "Advanced" }
+      ],
+      past_projects: [],
+      target_roles: ["Software Engineer", "AI/ML Engineer"],
+      target_companies_or_events: ["Flipkart GRiD", "Google", "Smart India Hackathon"],
+      availability: "Immediate",
+      risk_appetite: "Moderate",
+      profile_summary: "Student interested in Software Engineering and AI/ML.",
+      experience_level: "fresher"
+    };
 
     // 2. Fetch Opportunities
     const opportunities = await getAllOpportunities();
@@ -60,7 +77,7 @@ export async function GET(req: Request) {
 
     // 3. Compute fit score for each opportunity
     const scoredList = opportunities.map(opp => {
-      const match = computeMatchScore(profile, opp);
+      const match = computeMatchScore(activeProfile, opp);
       return {
         opportunity: opp,
         fit_score: match.fit_score,
@@ -74,7 +91,7 @@ export async function GET(req: Request) {
 
     // 4. Generate high-signal match reasoning for the FULL catalog
     const allRecommendations = scoredList.map((item) => {
-      const targetRole = profile.target_roles?.[0] || "Software Engineering";
+      const targetRole = activeProfile.target_roles?.[0] || "Software Engineering";
       const overlap = item.matching_tags.slice(0, 3).join(", ");
       const reasoning = item.matching_tags.length > 0
         ? `High synergy with your verified proficiency in ${overlap} targeting ${targetRole} tracks.`

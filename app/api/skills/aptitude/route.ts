@@ -1,22 +1,63 @@
+/**
+ * app/api/skills/aptitude/route.ts
+ * Real Aptitude & Quantitative Reasoning Assessment API.
+ * 
+ * Supports:
+ * 1. GET:
+ *    - mode="learn": 19 structured curriculum topics with concepts, worked examples & try-it questions.
+ *    - mode="practice": Learning-oriented questions with option randomization & anti-repetition.
+ *    - mode="assessment": Placement-oriented timed test question set with balanced blueprint.
+ * 2. POST:
+ *    - Strict evaluation: unanswered questions never receive points.
+ *    - Topic-wise accuracy, time tracking, gate verdicts, and candidate-scoped persistence.
+ */
+
 import { NextRequest, NextResponse } from "next/server";
-import { skillHubStore, AptitudeQuestion } from "@/lib/skill-hub-store";
+import {
+  getAdaptiveAptitudeQuestions,
+  evaluateAptitudeSubmission,
+  APTITUDE_CURRICULUM_TOPICS,
+  RICH_APTITUDE_QUESTION_BANK
+} from "@/lib/skills/aptitude-engine";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const mode = (searchParams.get("mode") as any) || "practice";
     const company = searchParams.get("company") || "all";
-    const category = searchParams.get("category");
+    const category = searchParams.get("category") || "all";
+    const topic = searchParams.get("topic") || "all";
+    const difficulty = searchParams.get("difficulty") || "all";
+    const count = searchParams.get("count") ? parseInt(searchParams.get("count")!, 10) : undefined;
+    const candidateId = searchParams.get("candidateId") || "student-demo";
 
-    let questions = skillHubStore.getAptitudeQuestions(company);
-
-    if (category && category !== "all") {
-      questions = questions.filter(q => q.category === category);
+    // 1. Learn Mode: Curriculum Topics
+    if (mode === "learn") {
+      return NextResponse.json({
+        success: true,
+        mode: "learn",
+        totalTopics: APTITUDE_CURRICULUM_TOPICS.length,
+        topics: APTITUDE_CURRICULUM_TOPICS
+      });
     }
+
+    // 2. Practice or Assessment Mode: Fetch Randomized Questions
+    const questions = getAdaptiveAptitudeQuestions({
+      mode,
+      companyTag: company,
+      category,
+      topic,
+      difficulty,
+      count,
+      candidateId
+    });
 
     return NextResponse.json({
       success: true,
+      mode,
       company,
-      category: category || "all",
+      category,
+      topic,
       count: questions.length,
       questions
     });
@@ -29,93 +70,36 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { candidateId = "student-demo", answers = {}, companyTag = "TCS NQT", timeSpentSeconds = 0 } = body;
+    const {
+      candidateId = "student-demo",
+      answers = {},
+      companyTag = "Placement Screening",
+      timeSpentSeconds = 0,
+      questionIds = [],
+      questionKey = {}
+    } = body;
 
-    const allQuestions = skillHubStore.getAptitudeQuestions(companyTag === "all" ? undefined : companyTag);
+    const effectiveQuestionIds = questionIds.length > 0 ? questionIds : Object.keys(answers);
 
-    let correctCount = 0;
-    const itemAnalysis: Array<{
-      questionId: string;
-      category: string;
-      topic: string;
-      userAnswerIndex: number | null;
-      correctAnswerIndex: number;
-      isCorrect: boolean;
-      explanation: string;
-      shortcutTip?: string;
-    }> = [];
-
-    const categoryScores: Record<string, { total: number; correct: number }> = {};
-
-    allQuestions.forEach(q => {
-      const userAns = answers[q.id] !== undefined ? Number(answers[q.id]) : null;
-      const isCorrect = userAns === q.correct_option_index;
-
-      if (isCorrect) correctCount++;
-
-      if (!categoryScores[q.category]) {
-        categoryScores[q.category] = { total: 0, correct: 0 };
-      }
-      categoryScores[q.category].total++;
-      if (isCorrect) {
-        categoryScores[q.category].correct++;
-      }
-
-      itemAnalysis.push({
-        questionId: q.id,
-        category: q.category,
-        topic: q.topic,
-        userAnswerIndex: userAns,
-        correctAnswerIndex: q.correct_option_index,
-        isCorrect,
-        explanation: q.explanation,
-        shortcutTip: q.shortcut_tip
-      });
-    });
-
-    const totalQuestions = allQuestions.length || 1;
-    const percentage = Math.round((correctCount / totalQuestions) * 100);
-
-    // Gate qualification calculation based on company target
-    let gateStatus: "passed" | "borderline" | "eliminated" = "eliminated";
-    let cutoffThreshold = 65; // standard mass threshold
-
-    if (companyTag.includes("Digital") || companyTag.includes("Elite")) {
-      cutoffThreshold = 75;
+    if (effectiveQuestionIds.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: "No questions attempted to evaluate."
+      }, { status: 400 });
     }
 
-    if (percentage >= cutoffThreshold) {
-      gateStatus = "passed";
-    } else if (percentage >= cutoffThreshold - 15) {
-      gateStatus = "borderline";
-    } else {
-      gateStatus = "eliminated";
-    }
-
-    const resultPayload = {
+    const result = evaluateAptitudeSubmission({
       candidateId,
       companyTag,
-      totalQuestions,
-      correctCount,
-      percentage,
-      cutoffThreshold,
-      gateStatus,
-      gateVerdict:
-        gateStatus === "passed"
-          ? "🎉 Aptitude Gate Cleared! Cleared for Basic Coding Round."
-          : gateStatus === "borderline"
-          ? "⚠️ Borderline Score. High risk of elimination in mass screening."
-          : "❌ Mass Elimination: Missed Cutoff. Coding round is locked.",
-      categoryScores,
       timeSpentSeconds,
-      itemAnalysis
-    };
-
-    skillHubStore.recordAptitudeSubmission(candidateId, resultPayload);
+      questionIds: effectiveQuestionIds,
+      answers,
+      questionKey
+    });
 
     return NextResponse.json({
       success: true,
-      result: resultPayload
+      result
     });
   } catch (err: any) {
     console.error("Error evaluating aptitude answers:", err);

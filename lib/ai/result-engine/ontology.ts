@@ -118,7 +118,7 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
   generative_ai: {
     canonicalName: 'Generative AI & LLMs',
     category: 'ai_ml',
-    synonyms: ['genai', 'llm', 'large language models', 'rag', 'langchain', 'llamaindex', 'prompt engineering'],
+    synonyms: ['generative ai', 'genai', 'gen ai', 'llm', 'llms', 'large language models', 'rag', 'langchain', 'llamaindex', 'prompt engineering'],
     parents: ['ai'],
     notImpliedBy: ['machine_learning', 'python'],
   },
@@ -188,7 +188,8 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
   git: {
     canonicalName: 'Git & Version Control',
     category: 'tool',
-    synonyms: ['git', 'github', 'gitlab', 'version control'],
+    synonyms: ['git', 'version control', 'git vcs', 'git workflow'],
+    notImpliedBy: ['github', 'gitlab', 'bitbucket'],
   },
   linux: {
     canonicalName: 'Linux / Unix',

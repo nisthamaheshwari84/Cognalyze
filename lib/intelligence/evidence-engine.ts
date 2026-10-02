@@ -431,7 +431,7 @@ export function runEvidenceEngine(studentId: string = "student-demo"): EvidenceE
 
   // 1. IDENTITY
   const identity: StudentIdentity = {
-    name: "Nistha",
+    name: "Demo Candidate",
     degreeBranch: "BTech CSE",
     role: "AI / ML Engineer",
     currentStage: "Learning + Applying",

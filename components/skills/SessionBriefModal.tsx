@@ -26,8 +26,8 @@ export default function SessionBriefModal({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.75)",
-        backdropFilter: "blur(8px)",
+        backgroundColor: "rgba(22, 42, 67, 0.45)",
+        backdropFilter: "blur(6px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -40,31 +40,31 @@ export default function SessionBriefModal({
         style={{
           width: "100%",
           maxWidth: 640,
-          background: "linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)",
-          border: "1px solid rgba(99, 102, 241, 0.35)",
-          borderRadius: 20,
-          padding: 28,
-          color: "#f8fafc",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.7)",
+          background: "#FFFFFF",
+          border: "1px solid #E4E1DA",
+          borderRadius: 12,
+          padding: 24,
+          color: "#17191C",
+          boxShadow: "0 20px 40px rgba(0, 0, 0, 0.12)",
           position: "relative"
         }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 18 }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
               <span
                 style={{
                   fontSize: 10,
                   textTransform: "uppercase",
-                  padding: "3px 8px",
-                  borderRadius: 6,
-                  fontWeight: 800,
-                  letterSpacing: 0.5,
-                  background: "rgba(99, 102, 241, 0.25)",
-                  color: "#c7d2fe",
-                  border: "1px solid rgba(99, 102, 241, 0.3)"
+                  padding: "2px 7px",
+                  borderRadius: 5,
+                  fontWeight: 700,
+                  letterSpacing: "0.04em",
+                  background: "#EFF4FE",
+                  color: "#356AE6",
+                  border: "1px solid #D2E0FB"
                 }}
               >
                 CONTEXTUAL SESSION BRIEF
@@ -72,10 +72,11 @@ export default function SessionBriefModal({
               <span
                 style={{
                   fontSize: 11,
-                  padding: "2px 8px",
-                  borderRadius: 6,
-                  background: "rgba(56, 189, 248, 0.15)",
-                  color: "#38bdf8",
+                  padding: "2px 7px",
+                  borderRadius: 5,
+                  background: "#F6F5F1",
+                  color: "#162A43",
+                  border: "1px solid #E4E1DA",
                   fontWeight: 700
                 }}
               >
@@ -84,17 +85,18 @@ export default function SessionBriefModal({
               <span
                 style={{
                   fontSize: 11,
-                  padding: "2px 8px",
-                  borderRadius: 6,
-                  background: "rgba(168, 85, 247, 0.15)",
-                  color: "#c084fc",
+                  padding: "2px 7px",
+                  borderRadius: 5,
+                  background: "#FEF7ED",
+                  color: "#B7791F",
+                  border: "1px solid #F8D8A7",
                   fontWeight: 700
                 }}
               >
                 {brief.difficultyLevel}
               </span>
             </div>
-            <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: "white" }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.02em" }}>
               {brief.title}
             </h3>
           </div>
@@ -102,9 +104,9 @@ export default function SessionBriefModal({
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.08)",
+              background: "transparent",
               border: "none",
-              color: "#94a3b8",
+              color: "#667085",
               fontSize: 16,
               width: 32,
               height: 32,
@@ -124,15 +126,16 @@ export default function SessionBriefModal({
           <div
             style={{
               padding: "10px 14px",
-              borderRadius: 10,
-              background: "rgba(245, 158, 11, 0.12)",
-              border: "1px solid rgba(245, 158, 11, 0.3)",
+              borderRadius: 7,
+              background: "#FEF7ED",
+              border: "1px solid #F8D8A7",
               fontSize: 12,
-              color: "#fbbf24",
+              color: "#B7791F",
               marginBottom: 16,
               display: "flex",
               alignItems: "center",
-              gap: 8
+              gap: 8,
+              fontWeight: 500
             }}
           >
             <span>⚡</span>
@@ -141,28 +144,28 @@ export default function SessionBriefModal({
         )}
 
         {/* Why This Session */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>
             Why This Session Today
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: "rgba(255, 255, 255, 0.9)", lineHeight: 1.5 }}>
+          <p style={{ margin: 0, fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
             {brief.whyThisSession}
           </p>
         </div>
 
         {/* Session Goal */}
-        <div style={{ marginBottom: 16, padding: "12px 14px", background: "rgba(255, 255, 255, 0.03)", borderRadius: 10, border: "1px solid rgba(255, 255, 255, 0.07)" }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#818cf8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>
+        <div style={{ marginBottom: 14, padding: "12px 14px", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>
             🎯 Session Objective
           </div>
-          <p style={{ margin: 0, fontSize: 12, color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.4 }}>
+          <p style={{ margin: 0, fontSize: 12, color: "#17191C", lineHeight: 1.4 }}>
             {brief.sessionGoal}
           </p>
         </div>
 
         {/* Focus Areas */}
         <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>
             Key Diagnostic Focus Areas
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -171,11 +174,12 @@ export default function SessionBriefModal({
                 key={idx}
                 style={{
                   fontSize: 11,
-                  padding: "4px 10px",
-                  borderRadius: 6,
-                  background: "rgba(99, 102, 241, 0.15)",
-                  border: "1px solid rgba(99, 102, 241, 0.3)",
-                  color: "#c7d2fe"
+                  padding: "4px 9px",
+                  borderRadius: 5,
+                  background: "#EFF4FE",
+                  border: "1px solid #D2E0FB",
+                  color: "#356AE6",
+                  fontWeight: 600
                 }}
               >
                 ✓ {area}
@@ -191,19 +195,19 @@ export default function SessionBriefModal({
             justifyContent: "space-between",
             alignItems: "center",
             paddingTop: 16,
-            borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            borderTop: "1px solid #E4E1DA",
             flexWrap: "wrap",
             gap: 12
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div>
-              <div style={{ fontSize: 10, color: "#94a3b8" }}>ESTIMATED TIME</div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>⏱️ {brief.estimatedMinutes} Mins</div>
+              <div style={{ fontSize: 10, color: "#667085", fontWeight: 600 }}>ESTIMATED TIME</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>⏱️ {brief.estimatedMinutes} Mins</div>
             </div>
             <div>
-              <div style={{ fontSize: 10, color: "#94a3b8" }}>EVIDENCE GENERATED</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#34d399" }}>📜 Verified Live Evidence</div>
+              <div style={{ fontSize: 10, color: "#667085", fontWeight: 600 }}>EVIDENCE GENERATED</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B" }}>📜 Verified Live Evidence</div>
             </div>
           </div>
 
@@ -211,11 +215,11 @@ export default function SessionBriefModal({
             <button
               onClick={onClose}
               style={{
-                padding: "10px 16px",
-                borderRadius: 10,
-                border: "1px solid rgba(255, 255, 255, 0.15)",
-                background: "rgba(255, 255, 255, 0.05)",
-                color: "#94a3b8",
+                padding: "8px 16px",
+                borderRadius: 7,
+                border: "1px solid #E4E1DA",
+                background: "#FFFFFF",
+                color: "#17191C",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer"
@@ -230,18 +234,18 @@ export default function SessionBriefModal({
                   onClose();
                 }}
                 style={{
-                  padding: "10px 22px",
-                  borderRadius: 10,
+                  padding: "8px 18px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                  color: "white",
+                  background: "#356AE6",
+                  color: "#FFFFFF",
                   fontSize: 12,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  boxShadow: "0 4px 15px rgba(99, 102, 241, 0.4)"
+                  boxShadow: "0 2px 6px rgba(53, 106, 230, 0.3)"
                 }}
               >
                 <span>Start Personalized Session</span>

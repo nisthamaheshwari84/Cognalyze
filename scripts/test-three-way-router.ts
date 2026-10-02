@@ -1,5 +1,5 @@
 import { getAllUnifiedPosts, createCommunityPost } from "../lib/posts-store";
-import { middleware } from "../middleware";
+import { proxy as middleware } from "../proxy";
 import { NextRequest } from "next/server";
 
 async function runThreeWayRouterTests() {

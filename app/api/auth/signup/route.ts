@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "A valid email address is required." }, { status: 400 });
     }
 
-    if (!accountType || (accountType !== "student" && accountType !== "recruiter")) {
+    const effectiveAccountType = accountType || body.role;
+
+    if (!effectiveAccountType || (effectiveAccountType !== "student" && effectiveAccountType !== "recruiter")) {
       return NextResponse.json({ error: "Invalid account type." }, { status: 400 });
     }
 
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Recruiter Work Email Enforcement
-    if (accountType === "recruiter") {
+    if (effectiveAccountType === "recruiter") {
       if (isGenericEmailDomain(email)) {
         return NextResponse.json(
           {
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
       fullName: fullName.trim(),
       passwordHash: hash,
       passwordSalt: salt,
-      accountType,
+      accountType: effectiveAccountType,
       status: "EMAIL_PENDING",
       profileCompleted: false
     });
@@ -83,14 +85,14 @@ export async function POST(req: NextRequest) {
     createEmailVerification(user.id, user.email, codeHash);
 
     // 6. Create Profile based on account type
-    if (accountType === "recruiter") {
+    if (effectiveAccountType === "recruiter") {
       createRecruiterProfile({
         userId: user.id,
         fullName: fullName.trim(),
         designation: (designation || "Hiring Manager").trim(),
         workEmail: user.email
       });
-    } else if (accountType === "student") {
+    } else if (effectiveAccountType === "student") {
       // Create empty isolated student profile strictly bound to this user's ID
       upsertStudentProfileByUserId(user.id, {
         fullName: fullName.trim(),
@@ -101,7 +103,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 7. Establish Session
-    const session = createSession(user.id, accountType);
+    const session = createSession(user.id, effectiveAccountType);
 
     const res = NextResponse.json({
       success: true,
@@ -117,7 +119,7 @@ export async function POST(req: NextRequest) {
       accountType: user.accountType,
       email: user.email,
       status: user.status,
-      nextUrl: `/verify-email?role=${accountType}`,
+      nextUrl: `/verify-email?role=${effectiveAccountType}`,
       // Exposed for test/local demo verification
       demoVerificationCode: process.env.NODE_ENV !== "production" ? verificationCode : undefined
     });
@@ -129,7 +131,7 @@ export async function POST(req: NextRequest) {
       maxAge: 30 * 24 * 60 * 60
     });
 
-    res.cookies.set("cognalyze_role", accountType, {
+    res.cookies.set("cognalyze_role", effectiveAccountType, {
       path: "/",
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60

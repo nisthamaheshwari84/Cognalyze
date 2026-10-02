@@ -1,5 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { VisionPipeline } from "@/lib/camera/vision-models";
+import { TemporalTracker } from "@/lib/camera/temporal-tracker";
 
 interface Msg { role: "user" | "assistant"; content: string; time: string; }
 interface Violation { time: string; type: string; severity: "critical" | "high" | "medium" | "low"; }
@@ -45,13 +47,13 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
   const oc = ov >= 75 ? "#00ff88" : ov >= 55 ? "#fbbf24" : ov > 0 ? "#ff4466" : "rgba(255,255,255,0.15)";
   const r = 38, circ = 2 * Math.PI * r;
   const DIMS = [
-    { key: "relevance", label: "Relevance", max: 20, color: "#6366f1" },
-    { key: "technicalAccuracy", label: "Technical", max: 20, color: "#00ff88" },
-    { key: "communicationClarity", label: "Clarity", max: 15, color: "#22d3ee" },
-    { key: "problemSolving", label: "Problem Solving", max: 15, color: "#fbbf24" },
-    { key: "depth", label: "Depth", max: 15, color: "#a855f7" },
-    { key: "examples", label: "Examples", max: 10, color: "#ec4899" },
-    { key: "confidence", label: "Confidence", max: 5, color: "#38bdf8" },
+    { key: "relevance", label: "Relevance", max: 20, color: "#356AE6" },
+    { key: "technicalAccuracy", label: "Technical", max: 20, color: "#2E7D5B" },
+    { key: "communicationClarity", label: "Clarity", max: 15, color: "#356AE6" },
+    { key: "problemSolving", label: "Problem Solving", max: 15, color: "#B7791F" },
+    { key: "depth", label: "Depth", max: 15, color: "#162A43" },
+    { key: "examples", label: "Examples", max: 10, color: "#2E7D5B" },
+    { key: "confidence", label: "Confidence", max: 5, color: "#356AE6" },
   ];
   return (
     <div style={{ height: "100%", overflowY: "auto", padding: "10px" }}>
@@ -289,7 +291,13 @@ export default function SecureInterviewPage() {
   // page got stuck forever on "Loading face verification...". TinyFaceDetector
   // alone is sufficient for presence/liveness-style checks like this.
   const faceapiRef = useRef<any>(null);
+  const visionPipelineRef = useRef<VisionPipeline | null>(null);
+  const temporalTrackerRef = useRef<TemporalTracker | null>(null);
   const [modelsReady, setModelsReady] = useState(false);
+  const [phoneStatus, setPhoneStatus] = useState<"clear" | "detected">("clear");
+  const [personCount, setPersonCount] = useState(0);
+  const [lastPhoneConf, setLastPhoneConf] = useState(0);
+  const phoneFramesRef = useRef(0);
 
   // Precheck
   const [checksDone, setChecksDone] = useState({ camera: false, mic: false, security: false, network: false });
@@ -355,76 +363,72 @@ export default function SecureInterviewPage() {
     };
   }, []);
 
-  // ── LOAD FACE DETECTION MODEL (client-side, no server round-trip) ──
-  // FIX: only loads TinyFaceDetector — public/models doesn't ship SsdMobilenetv1's
-  // weight files, so the old Promise.all([tinyFaceDetector, ssdMobilenetv1]) call
-  // always rejected and modelsReady was never set to true.
+  // ── LOAD DUAL VISION PIPELINE (MediaPipe ObjectDetector + BlazeFace + face-api fallback) ──
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const faceapi = await import("face-api.js");
-        faceapiRef.current = faceapi;
-        await faceapi.nets.tinyFaceDetector.loadFromUri("/models");
-        const warmup = document.createElement("canvas");
-        warmup.width = 320; warmup.height = 240;
-        await faceapi.detectAllFaces(warmup, new faceapi.TinyFaceDetectorOptions({ inputSize: 416 }));
-        if (!cancelled) setModelsReady(true);
+        if (!visionPipelineRef.current) {
+          visionPipelineRef.current = new VisionPipeline();
+        }
+        if (!temporalTrackerRef.current) {
+          temporalTrackerRef.current = new TemporalTracker();
+        }
+        const res = await visionPipelineRef.current.initialize();
+        console.log(`[PROCTORING] Vision pipeline init result: status=${res.status}, success=${res.success}, message=${res.message}`);
+        if (!cancelled && res.success) {
+          setModelsReady(true);
+        }
       } catch (e) {
-        console.error("Face model load failed:", e);
+        console.error("[PROCTORING] Vision pipeline init failed:", e);
+        // Even on failure, check if fallback mode is available
+        if (!cancelled && visionPipelineRef.current?.isReady()) {
+          console.log("[PROCTORING] Pipeline in fallback mode, setting modelsReady=true");
+          setModelsReady(true);
+        }
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      visionPipelineRef.current?.release();
+    };
   }, []);
 
-  // ── REAL FACE COUNT — actually validates a human face is present ──
-  // Returns: -1 = unknown (models not ready / detector error this frame, never treated as 0 or 1)
-  //           0 = no face found, 1 = exactly one face, 2+ = multiple faces
+  // ── REAL FACE COUNT — validates human face presence with dual vision models ──
   const detectFaceCount = useCallback(async (
-  mediaEl: HTMLVideoElement,
-  mode: "lenient" | "strict" = "lenient"
-): Promise<number> => {
-  const faceapi = faceapiRef.current;
-  if (!faceapi || !modelsReady) return -1;
-  try {
-    if (mode === "strict") {
-  // Identity capture: high confidence bar + box-size filter — rejects
-  // blank/spurious "faces" using TinyFaceDetector alone.
-  const detections = await faceapi.detectAllFaces(
-    mediaEl,
-    new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.75 })
-  );
-  const w = mediaEl.videoWidth || 1;
-  const valid = detections.filter((d: any) => d.box.width >= w * 0.08);
-  return valid.length;
-}
-
-    // Live monitoring: a false "missing" flag wrongly dings someone clearly
-    // in frame, so recall matters more. Fast pass at normal threshold, then
-    // retry at a bigger input size + lower threshold before trusting a "0" result.
-    const fast = await faceapi.detectAllFaces(
-      mediaEl,
-      new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.4 })
-    );
-    if (fast.length > 0) return fast.length;
-    const confirm = await faceapi.detectAllFaces(
-      mediaEl,
-      new faceapi.TinyFaceDetectorOptions({ inputSize: 608, scoreThreshold: 0.25 })
-    );
-    return confirm.length;
-  } catch (e) {
-    console.error("Face detection error:", e);
-    return -1;
-  }
-}, [modelsReady]);
+    mediaEl: HTMLVideoElement,
+    mode: "lenient" | "strict" = "lenient"
+  ): Promise<number> => {
+    if (!modelsReady || !mediaEl || mediaEl.readyState < 2 || mediaEl.videoWidth === 0) return -1;
+    try {
+      const pipeline = visionPipelineRef.current;
+      if (pipeline && pipeline.isReady()) {
+        const det = pipeline.detectFrame(mediaEl);
+        if (mode === "strict") {
+          return det.faceCount;
+        }
+        return Math.max(det.faceCount, det.personCount);
+      }
+      return -1;
+    } catch (e) {
+      console.error("Face detection error:", e);
+      return -1;
+    }
+  }, [modelsReady]);
 
   // ── LIVE TRUST CALC ──
   useEffect(() => {
     const faceScore = totalFrames > 0 ? (faceOkFrames / totalFrames) * 40 : 40;
     const focusScore = Math.max(0, 32 - tabSwitches * 7 - windowBlurCount * 2);
-    const behaviorScore = Math.max(0, 28 - aiWarnings * 8 - pasteCount * 10 - (multipleFaceFrames > 1 ? 12 : 0));
+    const behaviorScore = Math.max(0, 28 - aiWarnings * 8 - pasteCount * 10 - (multipleFaceFrames > 1 ? 12 : 0) - (phoneFramesRef.current > 0 ? 15 : 0));
     setLiveTrust(Math.round(faceScore + focusScore + behaviorScore));
   }, [totalFrames, faceOkFrames, multipleFaceFrames, tabSwitches, windowBlurCount, aiWarnings, pasteCount]);
+
+  const addViolation = useCallback((type: string, severity: Violation["severity"]) => {
+    const v: Violation = { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, severity };
+    violationsRef.current = [...violationsRef.current, v];
+    setViolations([...violationsRef.current]);
+  }, []);
 
   // ── TAB/WINDOW PROCTORING ──
   useEffect(() => {
@@ -450,48 +454,89 @@ export default function SecureInterviewPage() {
     };
   }, [phase]);
 
-  // ── FACE DETECTION LOOP — local face-api.js check, no API call, no silent failure ──
+  // ── REAL-TIME LIVE-FRAME VISION PROCTORING LOOP (320ms tick) ──
   useEffect(() => {
     if (phase !== "live") return;
-    let consecutiveMisses = 0;
-    faceIntervalRef.current = setInterval(async () => {
+    let loopFrameCount = 0;
+    console.log("[PROCTORING] Starting live vision proctoring loop (phase=live).");
+    faceIntervalRef.current = setInterval(() => {
       const vid = videoRef.current;
-      if (!vid || vid.readyState < 2 || vid.videoWidth === 0) return;
+      if (!vid || vid.readyState < 2 || vid.videoWidth === 0 || vid.paused || vid.ended) {
+        if (loopFrameCount === 0) {
+          console.log(`[PROCTORING] Loop tick skipped: vid=${!!vid}, readyState=${vid?.readyState}, videoWidth=${vid?.videoWidth}, paused=${vid?.paused}`);
+        }
+        return;
+      }
       totalFramesRef.current++;
       setTotalFrames(totalFramesRef.current);
 
-      const faceCount = await detectFaceCount(vid);
-      if (faceCount === -1) return; // detector not ready this tick — skip, don't penalize
-
-      if (faceCount === 0) {
-        consecutiveMisses++;
-        // Require 2 consecutive misses (~10s) before flagging, so a brief look-away
-        // or a dropped frame doesn't generate a false "face missing" violation.
-        if (consecutiveMisses >= 2) {
-          setFaceStatus("missing");
-          addViolation("Face not visible", "high");
+      const pipeline = visionPipelineRef.current;
+      const tracker = temporalTrackerRef.current;
+      if (!pipeline || !tracker || !pipeline.isReady()) {
+        if (loopFrameCount === 0) {
+          console.log(`[PROCTORING] Pipeline not ready: pipeline=${!!pipeline}, tracker=${!!tracker}, status=${pipeline?.getStatus()}`);
         }
-      } else if (faceCount > 1) {
-        consecutiveMisses = 0;
-        setFaceStatus("multiple");
-        multipleFaceFramesRef.current++;
-        setMultipleFaceFrames(multipleFaceFramesRef.current);
-        addViolation("Multiple faces detected", "critical");
+        return;
+      }
+      loopFrameCount++;
+      if (loopFrameCount === 1) {
+        console.log(`[PROCTORING] ✅ First detection frame running! Pipeline status: ${pipeline.getStatus()}`);
+      }
+
+      const raw = pipeline.detectFrame(vid);
+      const sample = {
+        timestamp: Date.now(),
+        personCount: raw.personCount,
+        faceCount: raw.faceCount,
+        phoneCount: raw.phoneCount,
+        rawPhoneCandidate: raw.rawPhoneCandidate,
+        objects: raw.objects,
+        faces: raw.faces,
+      };
+
+      const { state, newEvents } = tracker.processFrame(sample);
+      const effectivePeople = Math.max(raw.personCount, raw.faceCount);
+      setPersonCount(effectivePeople);
+
+      if (raw.phoneCount > 0 && raw.rawPhoneCandidate) {
+        setLastPhoneConf(Math.round(raw.rawPhoneCandidate.confidence * 100));
+      }
+
+      for (const evt of newEvents) {
+        if (evt.eventType === "PHONE_DETECTED") {
+          phoneFramesRef.current++;
+          setPhoneStatus("detected");
+          addViolation(`Mobile phone detected in frame (${Math.round(evt.confidence * 100)}% confidence)`, "critical");
+        } else if (evt.eventType === "MULTIPLE_PERSONS") {
+          multipleFaceFramesRef.current++;
+          setMultipleFaceFrames(multipleFaceFramesRef.current);
+          addViolation(`Multiple individuals detected in camera frame (${effectivePeople} people present)`, "critical");
+        } else if (evt.eventType === "PERSON_LEFT_FRAME") {
+          addViolation("Candidate left camera frame (0 persons detected)", "high");
+        }
+      }
+
+      if (state === "PHONE_DETECTED") {
+        setPhoneStatus("detected");
       } else {
-        consecutiveMisses = 0;
+        setPhoneStatus("clear");
+      }
+
+      if (state === "MULTIPLE_PERSONS") {
+        setFaceStatus("multiple");
+      } else if (state === "NO_PERSON" || state === "PERSON_LEFT_FRAME") {
+        setFaceStatus("missing");
+      } else if (state === "ONE_PERSON" || effectivePeople === 1) {
         setFaceStatus("ok");
         faceOkFramesRef.current++;
         setFaceOkFrames(faceOkFramesRef.current);
       }
-    }, 5000);
-    return () => { if (faceIntervalRef.current) clearInterval(faceIntervalRef.current); };
-  }, [phase, detectFaceCount]);
+    }, 320);
 
-  const addViolation = useCallback((type: string, severity: Violation["severity"]) => {
-    const v: Violation = { time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }), type, severity };
-    violationsRef.current = [...violationsRef.current, v];
-    setViolations([...violationsRef.current]);
-  }, []);
+    return () => {
+      if (faceIntervalRef.current) clearInterval(faceIntervalRef.current);
+    };
+  }, [phase, addViolation]);
 
   // ══ CAMERA INIT — WITH VIDEO-ONLY FALLBACK ══
   const initCamera = async (): Promise<boolean> => {
@@ -868,121 +913,115 @@ export default function SecureInterviewPage() {
 
   // Colors
   const tc = liveTrust >= 80 ? "#00ff88" : liveTrust >= 60 ? "#fbbf24" : "#ff4466";
-  const fc = faceStatus === "ok" ? "#00ff88" : faceStatus === "missing" ? "#ff4466" : faceStatus === "multiple" ? "#fbbf24" : "rgba(255,255,255,0.25)";
+  const fc = phoneStatus === "detected" ? "#ff4466" : faceStatus === "ok" ? "#00ff88" : faceStatus === "missing" ? "#ff4466" : faceStatus === "multiple" ? "#fbbf24" : "rgba(255,255,255,0.25)";
   const sc = stage === "intro" ? "#a5b4fc" : stage === "behavioral" ? "#6366f1" : stage === "technical" ? "#00ff88" : stage === "system-design" ? "#fbbf24" : "#38bdf8";
   const sl = { intro: "Intro", behavioral: "Behavioral", technical: "Technical", "system-design": "System Design", culture: "Culture" }[stage] || stage;
 
-  const BG = "#04030d";
+  const BG = "#F6F5F1";
+  const LIVE_BG = "#0D1929";
 
   // ════════ SETUP ════════
   if (phase === "setup") return (
-    <div style={{ minHeight: "100vh", background: BG, color: "white", fontFamily: "-apple-system,sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: BG, color: "#17191C", fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
       <style>{`
         @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         textarea:focus,input:focus{outline:none;}
-        ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:rgba(230,57,70,0.4);border-radius:2px;}
+        ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:#E4E1DA;border-radius:2px;}
       `}</style>
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", background: "#FFFFFF", borderBottom: "1px solid #E4E1DA" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg,#e63946,#ff6b6b)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🛡️</div>
-          <span style={{ fontWeight: 800, background: "linear-gradient(135deg,#fff,#fca5a5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>COGNALYZE</span>
-          <span style={{ fontSize: 10, padding: "2px 8px", border: "1px solid rgba(230,57,70,0.4)", borderRadius: 20, color: "rgba(230,57,70,0.8)", letterSpacing: 1 }}>SECURE INTERVIEW</span>
+          <div style={{ width: 32, height: 32, background: "#162A43", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: "#FFFFFF" }}>🛡️</div>
+          <span style={{ fontWeight: 800, color: "#162A43", letterSpacing: "-0.01em" }}>COGNALYZE</span>
+          <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 20, color: "#356AE6", fontWeight: 700, letterSpacing: 0.5 }}>SECURE PROCTORING</span>
         </div>
-        <a href="/interview" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "none", fontSize: 13 }}>← Standard Mode</a>
+        <a href="/interview" style={{ color: "#667085", textDecoration: "none", fontSize: 13, fontWeight: 500 }}>← Standard Mode</a>
       </nav>
-      <div style={{ maxWidth: 680, margin: "0 auto", padding: "3rem 2rem", animation: "fadeUp 0.7s ease" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto", padding: "3rem 2rem", animation: "fadeUp 0.6s ease" }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <div style={{ fontSize: 64, marginBottom: 14 }}>🛡️</div>
-          <div style={{ fontSize: 10, letterSpacing: 4, color: "rgba(230,57,70,0.8)", marginBottom: 10, fontWeight: 600 }}>PROCTORED FAANG INTERVIEW</div>
-          <h1 style={{ fontSize: "clamp(2rem,5vw,3rem)", fontWeight: 900, letterSpacing: "-2px", lineHeight: 1.05, marginBottom: 10, background: "linear-gradient(135deg,#fff 20%,#fca5a5 80%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Cognalyze Secure Interview</h1>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, lineHeight: 1.7 }}>FAANG-level questions · Live face monitoring · AI text detection · Trust Certificate for recruiters</p>
+          <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#EFF4FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, margin: "0 auto 16px" }}>🛡️</div>
+          <div style={{ fontSize: 11, letterSpacing: 2, color: "#356AE6", marginBottom: 8, fontWeight: 700, textTransform: "uppercase" }}>PROCTORED FAANG EVALUATION</div>
+          <h1 style={{ fontSize: "clamp(2rem,4vw,2.5rem)", fontWeight: 800, letterSpacing: "-0.5px", lineHeight: 1.15, marginBottom: 10, color: "#162A43" }}>Cognalyze Secure Interview</h1>
+          <p style={{ color: "#667085", fontSize: 14, lineHeight: 1.6, maxWidth: 520, margin: "0 auto" }}>FAANG-level questions · Live face monitoring · AI text detection · Evidence-backed Trust Certificate</p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: "1.75rem" }}>
-          {[["🪪", "Identity Verified", "Photo at start"], ["👁", "Face Monitoring", "Every 5 seconds"], ["🔄", "Tab Detection", "Logged + timestamped"], ["🤖", "AI Text Scan", "GPT patterns flagged"], ["⌚", "Typing Analysis", "Paste + WPM tracked"], ["📊", "Trust Score™", "Live recruiter view"]].map(([icon, label, desc]) => (
-            <div key={label as string} style={{ padding: "11px 13px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 12, display: "flex", gap: 9 }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>{icon}</span>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: "1.75rem" }}>
+          {[["🪪", "Identity Verified", "Photo captured at start"], ["👁", "Face Monitoring", "Verified every 5 seconds"], ["🔄", "Tab Detection", "Logged with timestamps"], ["🤖", "AI Text Scan", "Statistical syntax check"], ["⌚", "Typing Analysis", "Paste + cadence tracked"], ["📊", "Trust Score™", "Defensible hiring report"]].map(([icon, label, desc]) => (
+            <div key={label as string} style={{ padding: "12px 14px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, display: "flex", gap: 10 }}>
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{icon}</span>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 2 }}>{label}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>{desc}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#162A43", marginBottom: 2 }}>{label}</div>
+                <div style={{ fontSize: 11, color: "#667085" }}>{desc}</div>
               </div>
             </div>
           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
           {[{ id: "text", label: "⌨️ Text Mode" }, { id: "voice", label: "🎤 Voice Mode", disabled: !voiceOk }].map(m => (
-            <div key={m.id} onClick={() => !m.disabled && setMode(m.id as any)} style={{ padding: "0.85rem", borderRadius: 12, border: `2px solid ${mode === m.id ? "#e63946" : "rgba(255,255,255,0.08)"}`, background: mode === m.id ? "rgba(230,57,70,0.1)" : "transparent", cursor: m.disabled ? "not-allowed" : "pointer", textAlign: "center", fontSize: 13, fontWeight: mode === m.id ? 700 : 400, color: mode === m.id ? "white" : "rgba(255,255,255,0.45)", opacity: m.disabled ? 0.4 : 1, transition: "all 0.2s" }}>
+            <div key={m.id} onClick={() => !m.disabled && setMode(m.id as any)} style={{ padding: "0.85rem", borderRadius: 10, border: mode === m.id ? "2px solid #356AE6" : "1px solid #E4E1DA", background: mode === m.id ? "#EFF4FE" : "#FFFFFF", cursor: m.disabled ? "not-allowed" : "pointer", textAlign: "center", fontSize: 13, fontWeight: mode === m.id ? 700 : 500, color: mode === m.id ? "#356AE6" : "#667085", opacity: m.disabled ? 0.4 : 1, transition: "all 0.2s" }}>
               {m.label}
             </div>
           ))}
         </div>
-        <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem", marginBottom: 14 }}>
+        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 14, padding: "1.75rem", marginBottom: 16, boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(230,57,70,0.8)", marginBottom: 8, fontWeight: 600 }}>JOB DESCRIPTION</div>
-            <textarea value={jd} onChange={e => setJd(e.target.value)} rows={4} style={{ width: "100%", background: "rgba(230,57,70,0.05)", border: "1px solid rgba(230,57,70,0.2)", borderRadius: 12, padding: 12, color: "white", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "rgba(230,57,70,0.5)"} onBlur={e => e.target.style.borderColor = "rgba(230,57,70,0.2)"} placeholder="Paste the job description..." />
+            <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#162A43", marginBottom: 6, fontWeight: 700 }}>JOB DESCRIPTION</div>
+            <textarea value={jd} onChange={e => setJd(e.target.value)} rows={4} style={{ width: "100%", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 8, padding: 12, color: "#17191C", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }} placeholder="Paste the job description..." />
           </div>
           <div>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(76,201,240,0.8)", marginBottom: 8, fontWeight: 600 }}>YOUR RESUME</div>
-            <textarea value={resume} onChange={e => setResume(e.target.value)} rows={4} style={{ width: "100%", background: "rgba(76,201,240,0.05)", border: "1px solid rgba(76,201,240,0.2)", borderRadius: 12, padding: 12, color: "white", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }} onFocus={e => e.target.style.borderColor = "rgba(76,201,240,0.5)"} onBlur={e => e.target.style.borderColor = "rgba(76,201,240,0.2)"} placeholder="Paste your resume..." />
+            <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#162A43", marginBottom: 6, fontWeight: 700 }}>YOUR RESUME</div>
+            <textarea value={resume} onChange={e => setResume(e.target.value)} rows={4} style={{ width: "100%", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 8, padding: 12, color: "#17191C", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }} placeholder="Paste your resume..." />
           </div>
 
           {/* GitHub + LinkedIn */}
           <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(99,102,241,0.8)", marginBottom: 8, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#162A43", marginBottom: 6, fontWeight: 700 }}>
                 GITHUB USERNAME
               </div>
               <input
                 value={githubUsername}
                 onChange={e => setGithubUsername(e.target.value)}
-                placeholder="e.g. nistha-dev"
-                style={{ width: "100%", background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 12, padding: "10px 13px", color: "white", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" }}
-                onFocus={e => e.target.style.borderColor = "rgba(99,102,241,0.5)"}
-                onBlur={e => e.target.style.borderColor = "rgba(99,102,241,0.2)"}
+                placeholder="e.g. dev-candidate"
+                style={{ width: "100%", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 12px", color: "#17191C", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" }}
               />
             </div>
             <div>
-              <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(14,165,233,0.8)", marginBottom: 8, fontWeight: 600 }}>
+              <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#162A43", marginBottom: 6, fontWeight: 700 }}>
                 LINKEDIN URL
               </div>
               <input
                 value={linkedinUrl}
                 onChange={e => setLinkedinUrl(e.target.value)}
-                placeholder="linkedin.com/in/your-profile"
-                style={{ width: "100%", background: "rgba(14,165,233,0.05)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 12, padding: "10px 13px", color: "white", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" }}
-                onFocus={e => e.target.style.borderColor = "rgba(14,165,233,0.5)"}
-                onBlur={e => e.target.style.borderColor = "rgba(14,165,233,0.2)"}
+                placeholder="linkedin.com/in/profile"
+                style={{ width: "100%", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 12px", color: "#17191C", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" }}
               />
             </div>
           </div>
 
           {/* LinkedIn About/Experience paste area */}
-          <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 10, letterSpacing: 2, color: "rgba(14,165,233,0.8)", marginBottom: 6, fontWeight: 600 }}>
+          <div style={{ marginTop: 14 }}>
+            <div style={{ fontSize: 11, letterSpacing: 1.5, color: "#162A43", marginBottom: 6, fontWeight: 700 }}>
               LINKEDIN ABOUT + EXPERIENCE TEXT
-              <span style={{ marginLeft: 6, fontSize: 9, color: "rgba(255,255,255,0.25)", fontWeight: 400, letterSpacing: 0 }}>
-                (LinkedIn profile kholo → About + Experience section ka text copy karo)
+              <span style={{ marginLeft: 6, fontSize: 10, color: "#667085", fontWeight: 400, letterSpacing: 0 }}>
+                (Copy and paste from your profile)
               </span>
             </div>
             <textarea
               value={linkedinText}
               onChange={e => setLinkedinText(e.target.value)}
               rows={3}
-              placeholder="Paste your LinkedIn About section and Experience here..."
-              style={{ width: "100%", background: "rgba(14,165,233,0.05)", border: "1px solid rgba(14,165,233,0.2)", borderRadius: 12, padding: 12, color: "white", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }}
-              onFocus={e => e.target.style.borderColor = "rgba(14,165,233,0.5)"}
-              onBlur={e => e.target.style.borderColor = "rgba(14,165,233,0.2)"}
+              placeholder="Paste your LinkedIn summary and experience details here..."
+              style={{ width: "100%", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 8, padding: 12, color: "#17191C", fontSize: 13, resize: "none", fontFamily: "inherit", lineHeight: 1.6, boxSizing: "border-box" }}
             />
           </div>
         </div>
-        <div style={{ padding: "10px 14px", background: "rgba(230,57,70,0.06)", border: "1px solid rgba(230,57,70,0.15)", borderRadius: 10, marginBottom: 14, fontSize: 12, color: "rgba(255,255,255,0.4)", lineHeight: 1.5 }}>
-          🔒 Proceeding means you consent to face monitoring, tab-switch logging, AI text detection, and behavior analysis during this session.
+        <div style={{ padding: "10px 14px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, marginBottom: 16, fontSize: 12, color: "#162A43", lineHeight: 1.5 }}>
+          🔒 Proceeding confirms candidate consent to automated face monitoring, tab logging, text analysis, and response timing for this proctored session.
         </div>
         <button onClick={async () => {
           const ok = await initCamera();
           if (!ok) return;
 
-          // Fetch GitHub + LinkedIn in parallel, don't block on failure
           const promises = [];
 
           if (githubUsername.trim()) {
@@ -1013,30 +1052,30 @@ export default function SecureInterviewPage() {
 
           await Promise.all(promises);
           setPhase("identity");
-        }} disabled={!jd || !resume} style={{ width: "100%", padding: "1rem", borderRadius: 14, border: "none", background: !jd || !resume ? "rgba(230,57,70,0.15)" : "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 15, fontWeight: 800, letterSpacing: 2, cursor: !jd || !resume ? "not-allowed" : "pointer", opacity: !jd || !resume ? 0.3 : 1, boxShadow: jd && resume ? "0 0 50px rgba(230,57,70,0.2)" : "none" }}>
+        }} disabled={!jd || !resume} style={{ width: "100%", padding: "1rem", borderRadius: 10, border: "none", background: !jd || !resume ? "#E4E1DA" : "#356AE6", color: !jd || !resume ? "#98A2B3" : "#FFFFFF", fontSize: 14, fontWeight: 700, letterSpacing: 1, cursor: !jd || !resume ? "not-allowed" : "pointer", transition: "all 0.2s" }}>
           🛡️ BEGIN SECURE INTERVIEW →
         </button>
-        {camError && <div style={{ marginTop: 10, padding: "10px 14px", background: "rgba(255,68,102,0.1)", border: "1px solid rgba(255,68,102,0.3)", borderRadius: 10, fontSize: 12, color: "#ff4466", lineHeight: 1.5 }}>⚠ {camError}</div>}
+        {camError && <div style={{ marginTop: 10, padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 8, fontSize: 12, color: "#C24141", lineHeight: 1.5 }}>⚠ {camError}</div>}
       </div>
     </div>
   );
 
   // ════════ IDENTITY ════════
   if (phase === "identity") return (
-    <div style={{ minHeight: "100vh", background: BG, color: "white", fontFamily: "-apple-system,sans-serif", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "100vh", background: BG, color: "#17191C", fontFamily: "var(--font-inter, -apple-system, sans-serif)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <style>{`
         @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
         @keyframes ovalPulse{0%,100%{opacity:0.7;transform:scale(1)}50%{opacity:1;transform:scale(1.01)}}
         @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
       `}</style>
       <div style={{ maxWidth: 540, width: "100%", textAlign: "center", animation: "fadeUp 0.5s ease" }}>
-        <div style={{ fontSize: 10, letterSpacing: 4, color: "rgba(230,57,70,0.8)", marginBottom: 10, fontWeight: 600 }}>STEP 1 OF 3 — IDENTITY VERIFICATION</div>
-        <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: -1, marginBottom: 8 }}>Look directly at the camera</h2>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginBottom: "1.75rem" }}>Position your face inside the oval. Good lighting required. Click capture when ready.</p>
+        <div style={{ fontSize: 11, letterSpacing: 2, color: "#356AE6", marginBottom: 8, fontWeight: 700 }}>STEP 1 OF 3 — IDENTITY VERIFICATION</div>
+        <h2 style={{ fontSize: "1.85rem", fontWeight: 800, letterSpacing: -0.5, marginBottom: 8, color: "#162A43" }}>Look directly at the camera</h2>
+        <p style={{ color: "#667085", fontSize: 13, marginBottom: "1.75rem" }}>Position your face inside the oval. Good lighting required. Click capture when ready.</p>
 
-        <div style={{ position: "relative", borderRadius: 20, overflow: "hidden", border: `2px solid ${identityPhoto ? "#00ff88" : streamReady ? "rgba(230,57,70,0.5)" : "rgba(255,255,255,0.15)"}`, boxShadow: identityPhoto ? "0 0 40px rgba(0,255,136,0.15)" : streamReady ? "0 0 40px rgba(230,57,70,0.1)" : "none", marginBottom: "1.5rem", background: "#0a0810", aspectRatio: "4/3", transition: "all 0.4s" }}>
+        <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", border: `2px solid ${identityPhoto ? "#2E7D5B" : streamReady ? "#356AE6" : "#E4E1DA"}`, boxShadow: "0 4px 20px rgba(0,0,0,0.06)", marginBottom: "1.5rem", background: "#FAFAF8", aspectRatio: "4/3", transition: "all 0.4s" }}>
 
-          {/* Video element — always rendered, visibility toggled */}
+          {/* Video element */}
           <video
             ref={identityVideoRef}
             autoPlay
@@ -1051,54 +1090,54 @@ export default function SecureInterviewPage() {
           {/* Face oval guide */}
           {!identityPhoto && (
             <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-              <div style={{ width: "45%", height: "70%", border: `2px solid ${streamReady ? "rgba(230,57,70,0.7)" : "rgba(255,255,255,0.2)"}`, borderRadius: "50%", animation: streamReady ? "ovalPulse 2s ease-in-out infinite" : "none", boxShadow: streamReady ? "0 0 20px rgba(230,57,70,0.2), inset 0 0 20px rgba(230,57,70,0.05)" : "none" }} />
+              <div style={{ width: "45%", height: "70%", border: `2px solid ${streamReady ? "#356AE6" : "#E4E1DA"}`, borderRadius: "50%", animation: streamReady ? "ovalPulse 2s ease-in-out infinite" : "none" }} />
             </div>
           )}
 
           {/* Not ready overlay */}
           {!streamReady && !identityPhoto && (
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(4,3,13,0.8)" }}>
-              <div style={{ width: 40, height: 40, border: "2px solid rgba(230,57,70,0.2)", borderTop: "2px solid #e63946", borderRadius: "50%", animation: "spin 1s linear infinite", marginBottom: 12 }} />
-              <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)" }}>Starting camera...</div>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(246,245,241,0.9)" }}>
+              <div style={{ width: 36, height: 36, border: "2px solid #E4E1DA", borderTop: "2px solid #356AE6", borderRadius: "50%", animation: "spin 1s linear infinite", marginBottom: 12 }} />
+              <div style={{ fontSize: 13, color: "#667085" }}>Starting camera...</div>
             </div>
           )}
 
           {/* Captured badge */}
           {identityPhoto && (
-            <div style={{ position: "absolute", top: 14, right: 14, padding: "5px 14px", background: "rgba(0,255,136,0.9)", backdropFilter: "blur(8px)", borderRadius: 999, fontSize: 11, fontWeight: 700, color: "#000", boxShadow: "0 0 20px rgba(0,255,136,0.3)" }}>✓ CAPTURED</div>
+            <div style={{ position: "absolute", top: 14, right: 14, padding: "5px 14px", background: "#2E7D5B", borderRadius: 999, fontSize: 11, fontWeight: 700, color: "#FFFFFF" }}>✓ CAPTURED</div>
           )}
 
           {/* Live indicator */}
           {streamReady && !identityPhoto && (
-            <div style={{ position: "absolute", top: 12, left: 12, display: "flex", alignItems: "center", gap: 5, padding: "3px 10px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", borderRadius: 999, border: "1px solid rgba(230,57,70,0.3)" }}>
-              <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#e63946", animation: "blink 1s infinite" }} />
-              <span style={{ fontSize: 9, color: "rgba(230,57,70,0.9)", fontWeight: 700, letterSpacing: 1 }}>LIVE</span>
+            <div style={{ position: "absolute", top: 12, left: 12, display: "flex", alignItems: "center", gap: 5, padding: "3px 10px", background: "#FFFFFF", borderRadius: 999, border: "1px solid #E4E1DA" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#2E7D5B", animation: "blink 1s infinite" }} />
+              <span style={{ fontSize: 10, color: "#162A43", fontWeight: 700, letterSpacing: 0.5 }}>LIVE</span>
             </div>
           )}
         </div>
 
         {camError && (
-          <div style={{ marginBottom: 14, padding: "10px 14px", background: "rgba(255,68,102,0.1)", border: "1px solid rgba(255,68,102,0.3)", borderRadius: 10, fontSize: 12, color: "#ff4466", lineHeight: 1.5, textAlign: "left" }}>
+          <div style={{ marginBottom: 14, padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 8, fontSize: 12, color: "#C24141", lineHeight: 1.5, textAlign: "left" }}>
             ⚠ {camError}
-            <button onClick={async () => { const ok = await initCamera(); }} style={{ display: "block", marginTop: 8, padding: "4px 12px", borderRadius: 7, border: "1px solid rgba(255,68,102,0.4)", background: "rgba(255,68,102,0.15)", color: "#ff6b6b", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>↺ Retry Camera</button>
+            <button onClick={async () => { const ok = await initCamera(); }} style={{ display: "block", marginTop: 8, padding: "4px 12px", borderRadius: 6, border: "1px solid #F8C8C8", background: "#FFFFFF", color: "#C24141", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>↺ Retry Camera</button>
           </div>
         )}
 
         {!identityPhoto ? (
-          <button onClick={captureIdentity} disabled={!streamReady || capturing || !modelsReady} style={{ width: "100%", padding: "0.95rem", borderRadius: 13, border: "none", background: !streamReady || capturing || !modelsReady ? "rgba(230,57,70,0.15)" : "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: !streamReady || capturing || !modelsReady ? "not-allowed" : "pointer", letterSpacing: 2, opacity: !streamReady || capturing || !modelsReady ? 0.5 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+          <button onClick={captureIdentity} disabled={!streamReady || capturing || !modelsReady} style={{ width: "100%", padding: "0.95rem", borderRadius: 10, border: "none", background: !streamReady || capturing || !modelsReady ? "#E4E1DA" : "#356AE6", color: !streamReady || capturing || !modelsReady ? "#98A2B3" : "#FFFFFF", fontSize: 14, fontWeight: 700, cursor: !streamReady || capturing || !modelsReady ? "not-allowed" : "pointer", letterSpacing: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
             {capturing ? <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⟳</span> Capturing...</> : !modelsReady ? "Loading face verification..." : "📸 CAPTURE PHOTO"}
           </button>
         ) : (
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => setIdentityPhoto(null)} style={{ flex: 1, padding: "0.9rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.5)", fontSize: 13, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s" }}>↺ Retake</button>
-            <button onClick={() => setPhase("precheck")} style={{ flex: 2, padding: "0.9rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, boxShadow: "0 0 30px rgba(230,57,70,0.3)" }}>
+            <button onClick={() => setIdentityPhoto(null)} style={{ flex: 1, padding: "0.9rem", borderRadius: 10, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#162A43", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↺ Retake</button>
+            <button onClick={() => setPhase("precheck")} style={{ flex: 2, padding: "0.9rem", borderRadius: 10, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 1 }}>
               CONFIRM & CONTINUE →
             </button>
           </div>
         )}
 
-        <p style={{ marginTop: 14, fontSize: 11, color: "rgba(255,255,255,0.2)", lineHeight: 1.5 }}>
-          This photo is used only for identity verification during this session.
+        <p style={{ marginTop: 14, fontSize: 11, color: "#667085", lineHeight: 1.5 }}>
+          This photo is used strictly for identity verification during this proctored evaluation session.
         </p>
       </div>
     </div>
@@ -1106,13 +1145,13 @@ export default function SecureInterviewPage() {
 
   // ════════ PRECHECK ════════
   if (phase === "precheck") return (
-    <div style={{ minHeight: "100vh", background: BG, color: "white", fontFamily: "-apple-system,sans-serif", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
+    <div style={{ minHeight: "100vh", background: BG, color: "#17191C", fontFamily: "var(--font-inter, -apple-system, sans-serif)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}>
       <style>{`@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}} @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}`}</style>
       <div style={{ maxWidth: 480, width: "100%", animation: "fadeUp 0.5s ease" }}>
         <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <div style={{ fontSize: 10, letterSpacing: 4, color: "rgba(230,57,70,0.8)", marginBottom: 10, fontWeight: 600 }}>STEP 2 OF 3 — SYSTEM CHECK</div>
-          <h2 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: -1 }}>Verifying setup</h2>
-          <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 13, marginTop: 8 }}>All systems must pass before interview begins</p>
+          <div style={{ fontSize: 11, letterSpacing: 2, color: "#356AE6", marginBottom: 8, fontWeight: 700 }}>STEP 2 OF 3 — SYSTEM CHECK</div>
+          <h2 style={{ fontSize: "1.85rem", fontWeight: 800, letterSpacing: -0.5, color: "#162A43" }}>Verifying setup</h2>
+          <p style={{ color: "#667085", fontSize: 13, marginTop: 6 }}>All systems must pass before interview begins</p>
         </div>
         {[
           { key: "camera", icon: "📷", label: "Camera feed verified", sub: "Live video stream active" },
@@ -1123,20 +1162,20 @@ export default function SecureInterviewPage() {
           const done = checksDone[item.key as keyof typeof checksDone];
           const active = checkStep === i && !done;
           return (
-            <div key={item.key} style={{ display: "flex", alignItems: "center", gap: 14, padding: "1rem 1.25rem", background: done ? "rgba(0,255,136,0.06)" : active ? "rgba(230,57,70,0.06)" : "rgba(255,255,255,0.02)", border: `1px solid ${done ? "rgba(0,255,136,0.2)" : active ? "rgba(230,57,70,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: 14, marginBottom: 10, transition: "all 0.35s" }}>
+            <div key={item.key} style={{ display: "flex", alignItems: "center", gap: 14, padding: "1rem 1.25rem", background: done ? "#EAF4EE" : active ? "#EFF4FE" : "#FFFFFF", border: `1px solid ${done ? "#C8E4D3" : active ? "#D2E0FB" : "#E4E1DA"}`, borderRadius: 12, marginBottom: 10, transition: "all 0.35s" }}>
               <span style={{ fontSize: 22, flexShrink: 0 }}>{item.icon}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: done ? "#00ff88" : active ? "white" : "rgba(255,255,255,0.6)" }}>{item.label}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", marginTop: 2 }}>{item.sub}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: done ? "#2E7D5B" : active ? "#356AE6" : "#162A43" }}>{item.label}</div>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>{item.sub}</div>
               </div>
-              {done ? <span style={{ fontSize: 20, color: "#00ff88" }}>✓</span>
-                : active ? <span style={{ animation: "spin 0.8s linear infinite", display: "inline-block", color: "#e63946", fontSize: 18 }}>⟳</span>
-                  : <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 18 }}>○</span>}
+              {done ? <span style={{ fontSize: 18, color: "#2E7D5B", fontWeight: 700 }}>✓</span>
+                : active ? <span style={{ animation: "spin 0.8s linear infinite", display: "inline-block", color: "#356AE6", fontSize: 18 }}>⟳</span>
+                  : <span style={{ color: "#98A2B3", fontSize: 18 }}>○</span>}
             </div>
           );
         })}
         {checkStep === -1 && (
-          <button onClick={runPrechecks} style={{ width: "100%", padding: "1rem", marginTop: 16, borderRadius: 14, border: "none", background: "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 2, boxShadow: "0 0 40px rgba(230,57,70,0.2)" }}>
+          <button onClick={runPrechecks} style={{ width: "100%", padding: "1rem", marginTop: 16, borderRadius: 10, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 14, fontWeight: 700, cursor: "pointer", letterSpacing: 1 }}>
             ⚡ START SYSTEM CHECK →
           </button>
         )}
@@ -1146,7 +1185,7 @@ export default function SecureInterviewPage() {
 
   // ════════ LIVE INTERVIEW ════════
   if (phase === "live") return (
-    <div style={{ height: "100vh", background: BG, color: "white", fontFamily: "-apple-system,sans-serif", display: "flex", flexDirection: "column", overflow: "hidden" }} onContextMenu={e => e.preventDefault()}>
+    <div style={{ height: "100vh", background: LIVE_BG, color: "white", fontFamily: "var(--font-inter, -apple-system, sans-serif)", display: "flex", flexDirection: "column", overflow: "hidden" }} onContextMenu={e => e.preventDefault()}>
       <style>{`
         @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -1169,7 +1208,10 @@ export default function SecureInterviewPage() {
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: fc, boxShadow: `0 0 5px ${fc}`, transition: "all 0.5s" }} />
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Face: <span style={{ color: fc, fontWeight: 600 }}>{faceStatus === "ok" ? "Detected" : faceStatus === "missing" ? "Missing!" : faceStatus === "multiple" ? "Multiple!" : "Monitoring..."}</span></span>
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Candidate: <span style={{ color: fc, fontWeight: 600 }}>{faceStatus === "ok" ? "1 Present ✓" : faceStatus === "missing" ? "Missing! ✗" : faceStatus === "multiple" ? `Multiple (${personCount}) ⚠` : "Monitoring..."}</span></span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>Phone: <span style={{ color: phoneStatus === "detected" ? "#ff4466" : "#00ff88", fontWeight: 600 }}>{phoneStatus === "detected" ? `DETECTED! 📱 (${lastPhoneConf}%)` : "Clear ✓"}</span></span>
           </div>
           <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>Tabs: <span style={{ color: tabSwitches > 0 ? "#ff4466" : "#00ff88", fontWeight: 600 }}>{tabSwitches}</span></span>
           {pasteCount > 0 && <span style={{ fontSize: 10, color: "#fbbf24" }}>📋 {pasteCount} paste{pasteCount > 1 ? "s" : ""}</span>}
@@ -1211,7 +1253,7 @@ export default function SecureInterviewPage() {
           </div>
 
           {/* User cam */}
-          <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", border: `2px solid ${fc}30`, background: "#030308", position: "relative", minHeight: 110, transition: "border-color 0.5s" }}>
+          <div style={{ flex: 1, borderRadius: 14, overflow: "hidden", border: `2px solid ${fc}30`, background: "#07111F", position: "relative", minHeight: 110, transition: "border-color 0.5s" }}>
             <video ref={videoRef} autoPlay muted playsInline style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", transform: "scaleX(-1)", display: "block" }} />
 
             {/* Face oval overlay */}
@@ -1220,7 +1262,7 @@ export default function SecureInterviewPage() {
               {faceStatus !== "idle" && (
                 <div style={{ position: "absolute", bottom: "6%", left: "50%", transform: "translateX(-50%)", padding: "2px 9px", background: `${fc}18`, border: `1px solid ${fc}40`, borderRadius: 999, whiteSpace: "nowrap" }}>
                   <span style={{ fontSize: 8, color: fc, fontWeight: 700, letterSpacing: 0.8 }}>
-                    {faceStatus === "ok" ? "✓ DETECTED" : faceStatus === "missing" ? "✗ NOT VISIBLE" : "⚠ MULTIPLE"}
+                    {phoneStatus === "detected" ? `⚠ PHONE DETECTED (${lastPhoneConf}%)` : faceStatus === "ok" ? "✓ DETECTED" : faceStatus === "missing" ? "✗ NOT VISIBLE" : `⚠ MULTIPLE (${personCount})`}
                   </span>
                 </div>
               )}
@@ -1414,116 +1456,124 @@ export default function SecureInterviewPage() {
 
   // ════════ REPORT ════════
   return (
-    <div style={{ minHeight: "100vh", background: BG, color: "white", fontFamily: "-apple-system,sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: BG, color: "#17191C", fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
       <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}} @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}`}</style>
-      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1.1rem 2rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+      <nav style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 2rem", background: "#FFFFFF", borderBottom: "1px solid #E4E1DA" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 32, height: 32, background: "linear-gradient(135deg,#e63946,#ff6b6b)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>🛡️</div>
-          <span style={{ fontWeight: 800, background: "linear-gradient(135deg,#fff,#fca5a5)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>COGNALYZE</span>
-          <span style={{ fontSize: 10, padding: "2px 8px", border: "1px solid rgba(230,57,70,0.4)", borderRadius: 20, color: "rgba(230,57,70,0.8)" }}>INTEGRITY REPORT</span>
+          <div style={{ width: 32, height: 32, background: "#162A43", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: "#FFFFFF" }}>🛡️</div>
+          <span style={{ fontWeight: 800, color: "#162A43", letterSpacing: "-0.01em" }}>COGNALYZE</span>
+          <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 20, color: "#356AE6", fontWeight: 700 }}>INTEGRITY REPORT</span>
         </div>
-        <a href="/" style={{ color: "rgba(255,255,255,0.3)", textDecoration: "none", fontSize: 13 }}>← Home</a>
+        <a href="/" style={{ color: "#667085", textDecoration: "none", fontSize: 13, fontWeight: 500 }}>← Home</a>
       </nav>
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "3rem 2rem", animation: "fadeUp 0.6s ease" }}>
         {buildingReport ? (
           <div style={{ textAlign: "center", padding: "6rem 0" }}>
-            <div style={{ position: "relative", width: 80, height: 80, margin: "0 auto 1.5rem" }}>
-              <div style={{ position: "absolute", inset: 0, border: "2px solid rgba(230,57,70,0.2)", borderTop: "2px solid #e63946", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-              <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28 }}>🛡️</span>
+            <div style={{ position: "relative", width: 64, height: 64, margin: "0 auto 1.5rem" }}>
+              <div style={{ position: "absolute", inset: 0, border: "3px solid #E4E1DA", borderTop: "3px solid #356AE6", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+              <span style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🛡️</span>
             </div>
-            <div style={{ fontSize: 13, letterSpacing: 3, color: "rgba(255,255,255,0.4)" }}>Generating integrity report...</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43", marginBottom: 4 }}>Generating evidence-based integrity report...</div>
+            <div style={{ fontSize: 12, color: "#667085" }}>Synthesizing session metrics, face continuity, and response verification.</div>
           </div>
         ) : report ? (() => {
-          const vc = report.verdict === "VERIFIED" ? "#00ff88" : report.verdict === "CAUTION" ? "#fbbf24" : "#ff4466";
-          const icon = report.verdict === "VERIFIED" ? "✅" : report.verdict === "CAUTION" ? "⚠️" : "🚩";
+          const isVerified = report.verdict === "VERIFIED";
+          const isCaution = report.verdict === "CAUTION";
+          const vc = isVerified ? "#2E7D5B" : isCaution ? "#B7791F" : "#C24141";
+          const vbg = isVerified ? "#EAF4EE" : isCaution ? "#FEF7ED" : "#FDF2F2";
+          const vborder = isVerified ? "#C8E4D3" : isCaution ? "#F8D8A7" : "#F8C8C8";
+          const icon = isVerified ? "✅" : isCaution ? "⚠️" : "🚩";
           return (
             <>
-              {/* Hero */}
-              <div style={{ textAlign: "center", padding: "3rem 2rem", background: `linear-gradient(135deg,${vc}08,rgba(0,0,0,0.5))`, border: `1px solid ${vc}25`, borderRadius: 24, marginBottom: "1.5rem", position: "relative", overflow: "hidden" }}>
-                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg,transparent,${vc},transparent)` }} />
-                {identityPhoto && <img src={identityPhoto} alt="ID" style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", border: `2px solid ${vc}`, marginBottom: 16, boxShadow: `0 0 20px ${vc}30` }} />}
-                <div style={{ fontSize: "3.5rem", marginBottom: 10 }}>{icon}</div>
-                <div style={{ fontSize: "2.8rem", fontWeight: 900, color: vc, letterSpacing: -2, textShadow: `0 0 50px ${vc}40`, marginBottom: 4 }}>{report.verdict}</div>
-                <div style={{ fontSize: "4rem", fontWeight: 900, color: "white", letterSpacing: -2, lineHeight: 1, marginBottom: 8 }}>{report.trust_score}<span style={{ fontSize: "1.1rem", color: "rgba(255,255,255,0.3)", fontWeight: 400 }}>/100</span></div>
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>{report.verdict_reason}</div>
-                <div style={{ display: "inline-flex", gap: 8 }}>
-                  <span style={{ fontSize: 11, padding: "3px 12px", background: `${vc}12`, border: `1px solid ${vc}28`, borderRadius: 999, color: vc }}>Confidence: {report.confidence_level}</span>
-                  <span style={{ fontSize: 11, padding: "3px 12px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 999, color: "rgba(255,255,255,0.4)" }}>
-                    {aiWarnings > 0 ? `${aiWarnings} AI warning${aiWarnings > 1 ? "s" : ""}` : "No AI text detected"}
+              {/* Hero Card */}
+              <div style={{ textAlign: "center", padding: "3rem 2rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 16, marginBottom: "1.5rem", position: "relative", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: vc }} />
+                {identityPhoto && <img src={identityPhoto} alt="ID" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", border: `2px solid ${vc}`, marginBottom: 16 }} />}
+                <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>{icon}</div>
+                <div style={{ fontSize: "2rem", fontWeight: 800, color: vc, letterSpacing: -0.5, marginBottom: 4 }}>{report.verdict}</div>
+                <div style={{ fontSize: "3.5rem", fontWeight: 900, color: "#162A43", letterSpacing: -1, lineHeight: 1, marginBottom: 8 }}>{report.trust_score}<span style={{ fontSize: "1.2rem", color: "#667085", fontWeight: 500 }}>/100</span></div>
+                <div style={{ fontSize: 14, color: "#667085", marginBottom: 14, maxWidth: 500, margin: "0 auto 14px" }}>{report.verdict_reason}</div>
+                <div style={{ display: "inline-flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+                  <span style={{ fontSize: 11, padding: "3px 12px", background: vbg, border: `1px solid ${vborder}`, borderRadius: 999, color: vc, fontWeight: 700 }}>Confidence: {report.confidence_level}</span>
+                  <span style={{ fontSize: 11, padding: "3px 12px", background: "#FAFAF8", border: "1px solid #E4E1DA", borderRadius: 999, color: "#667085", fontWeight: 600 }}>
+                    {aiWarnings > 0 ? `${aiWarnings} AI warning${aiWarnings > 1 ? "s" : ""}` : "Zero AI synthetic markers detected"}
                   </span>
                 </div>
               </div>
 
-              {/* Breakdown */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10, marginBottom: "1.25rem" }}>
-                {Object.values(report.breakdown).map((b, i) => (
-                  <div key={i} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "1rem", textAlign: "center" }}>
-                    <div style={{ fontSize: "1.8rem", fontWeight: 900, color: b.score >= 70 ? "#00ff88" : b.score >= 50 ? "#fbbf24" : "#ff4466", marginBottom: 4 }}>{b.score}</div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 600, marginBottom: 6 }}>{b.label}</div>
-                    <div style={{ height: 3, background: "rgba(255,255,255,0.06)", borderRadius: 999, overflow: "hidden", marginBottom: 6 }}>
-                      <div style={{ height: "100%", width: `${b.score}%`, background: b.score >= 70 ? "#00ff88" : b.score >= 50 ? "#fbbf24" : "#ff4466", borderRadius: 999 }} />
+              {/* Breakdown Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12, marginBottom: "1.5rem" }}>
+                {Object.values(report.breakdown).map((b, i) => {
+                  const bScoreColor = b.score >= 70 ? "#2E7D5B" : b.score >= 50 ? "#B7791F" : "#C24141";
+                  return (
+                    <div key={i} style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: "1.25rem", textAlign: "center" }}>
+                      <div style={{ fontSize: "1.8rem", fontWeight: 900, color: bScoreColor, marginBottom: 2 }}>{b.score}</div>
+                      <div style={{ fontSize: 12, color: "#162A43", fontWeight: 700, marginBottom: 6 }}>{b.label}</div>
+                      <div style={{ height: 4, background: "#E4E1DA", borderRadius: 999, overflow: "hidden", marginBottom: 8 }}>
+                        <div style={{ height: "100%", width: `${b.score}%`, background: bScoreColor, borderRadius: 999 }} />
+                      </div>
+                      <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4 }}>{b.note}</div>
                     </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", lineHeight: 1.4 }}>{b.note}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* AI Detection */}
               {aiChecks.length > 0 && (
-                <div style={{ background: aiWarnings > 0 ? "rgba(255,68,102,0.06)" : "rgba(0,255,136,0.05)", border: `1px solid ${aiWarnings > 0 ? "rgba(255,68,102,0.18)" : "rgba(0,255,136,0.15)"}`, borderRadius: 16, padding: "1.25rem", marginBottom: "1rem" }}>
-                  <div style={{ fontSize: 10, color: aiWarnings > 0 ? "#ff4466" : "#00ff88", fontWeight: 600, letterSpacing: 2, marginBottom: "1rem" }}>🤖 AI TEXT DETECTION RESULTS</div>
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 14, padding: "1.5rem", marginBottom: "1.5rem" }}>
+                  <div style={{ fontSize: 11, color: "#162A43", fontWeight: 800, letterSpacing: 1.5, marginBottom: "1rem" }}>🤖 SYNTACTIC AI TEXT VERIFICATION</div>
                   {aiChecks.map((c, i) => (
-                    <div key={i} style={{ marginBottom: 8, padding: "8px 10px", background: c.isAI ? "rgba(255,68,102,0.08)" : "rgba(0,255,136,0.05)", border: `1px solid ${c.isAI ? "rgba(255,68,102,0.2)" : "rgba(0,255,136,0.12)"}`, borderRadius: 10 }}>
+                    <div key={i} style={{ marginBottom: 8, padding: "10px 12px", background: "#FAFAF8", border: `1px solid ${c.isAI ? "#F8C8C8" : "#E4E1DA"}`, borderRadius: 8 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: c.isAI ? "#ff4466" : "#00ff88" }}>{c.isAI ? "⚠ AI-generated" : "✓ Human answer"} — Answer {i + 1}</span>
-                        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>AI: {c.ai_score}%</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: c.isAI ? "#C24141" : "#2E7D5B" }}>{c.isAI ? "⚠ AI-generated patterns" : "✓ Human conversational text"} — Answer {i + 1}</span>
+                        <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>Synthetic index: {c.ai_score}%</span>
                       </div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}>{c.verdict}</div>
-                      {c.signals_found.length > 0 && <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 2 }}>Signals: {c.signals_found.join(", ")}</div>}
+                      <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>{c.verdict}</div>
+                      {c.signals_found.length > 0 && <div style={{ fontSize: 11, color: "#C24141", marginTop: 2 }}>Signals: {c.signals_found.join(", ")}</div>}
                     </div>
                   ))}
                 </div>
               )}
 
               {/* Violations + Analysis */}
-              <div style={{ display: "grid", gridTemplateColumns: report.flags.length > 0 ? "1fr 1fr" : "1fr", gap: "1rem", marginBottom: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: report.flags.length > 0 ? "1fr 1fr" : "1fr", gap: 12, marginBottom: "1.5rem" }}>
                 {report.flags.length > 0 && (
-                  <div style={{ background: "rgba(255,68,102,0.06)", border: "1px solid rgba(255,68,102,0.18)", borderRadius: 16, padding: "1.25rem" }}>
-                    <div style={{ fontSize: 10, color: "#ff4466", fontWeight: 600, letterSpacing: 2, marginBottom: "1rem" }}>🚩 VIOLATIONS ({report.flags.length})</div>
-                    {report.flags.map((f, i) => <div key={i} style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginBottom: 5, paddingLeft: 10, borderLeft: "2px solid rgba(255,68,102,0.4)", lineHeight: 1.4 }}>{f}</div>)}
+                  <div style={{ background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 12, padding: "1.25rem" }}>
+                    <div style={{ fontSize: 11, color: "#C24141", fontWeight: 800, letterSpacing: 1.5, marginBottom: "0.75rem" }}>🚩 PROCTORING FLAGS ({report.flags.length})</div>
+                    {report.flags.map((f, i) => <div key={i} style={{ fontSize: 12, color: "#17191C", marginBottom: 5, paddingLeft: 8, borderLeft: "2px solid #C24141", lineHeight: 1.4 }}>{f}</div>)}
                   </div>
                 )}
-                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16, padding: "1.25rem" }}>
-                  <div style={{ fontSize: 10, color: "rgba(76,201,240,0.8)", fontWeight: 600, letterSpacing: 2, marginBottom: "1rem" }}>🧠 BEHAVIORAL ANALYSIS</div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, margin: 0 }}>{report.ai_observation}</p>
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: "1.25rem" }}>
+                  <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 800, letterSpacing: 1.5, marginBottom: "0.75rem" }}>🧠 BEHAVIORAL OBSERVATION</div>
+                  <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.6, margin: 0 }}>{report.ai_observation}</p>
                 </div>
               </div>
 
               {/* Recommendation */}
-              <div style={{ padding: "1.25rem 1.5rem", background: "rgba(0,255,136,0.06)", border: "1px solid rgba(0,255,136,0.18)", borderRadius: 16, marginBottom: "1.5rem" }}>
-                <div style={{ fontSize: 10, color: "#00ff88", fontWeight: 600, letterSpacing: 2, marginBottom: 8 }}>📋 RECRUITER RECOMMENDATION</div>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.75)", lineHeight: 1.6, margin: 0 }}>{report.recruiter_recommendation}</p>
+              <div style={{ padding: "1.25rem 1.5rem", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 12, marginBottom: "1.5rem" }}>
+                <div style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 800, letterSpacing: 1.5, marginBottom: 6 }}>📋 RECRUITER RECOMMENDATION</div>
+                <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, margin: 0 }}>{report.recruiter_recommendation}</p>
               </div>
 
               {/* Actions */}
               <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                <button onClick={downloadReport} style={{ padding: "0.85rem 2rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#e63946,#ff6b6b)", color: "white", cursor: "pointer", fontSize: 13, fontWeight: 700, letterSpacing: 1, boxShadow: "0 0 30px rgba(230,57,70,0.2)" }}>
+                <button onClick={downloadReport} style={{ padding: "0.85rem 2rem", borderRadius: 8, border: "none", background: "#356AE6", color: "#FFFFFF", cursor: "pointer", fontSize: 13, fontWeight: 700, letterSpacing: 0.5 }}>
                   ⬇ Download Trust Report
                 </button>
                 {finalVerdict && (
-                  <button onClick={() => setShowVerdict(true)} style={{ padding: "0.85rem 1.75rem", borderRadius: 12, border: "1px solid rgba(99,102,241,0.3)", background: "rgba(99,102,241,0.1)", color: "#a5b4fc", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
+                  <button onClick={() => setShowVerdict(true)} style={{ padding: "0.85rem 1.75rem", borderRadius: 8, border: "1px solid #D2E0FB", background: "#EFF4FE", color: "#356AE6", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>
                     View Verdict 🏆
                   </button>
                 )}
                 <a href="/" style={{ textDecoration: "none" }}>
-                  <button style={{ padding: "0.85rem 1.75rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.12)", background: "transparent", color: "rgba(255,255,255,0.45)", cursor: "pointer", fontSize: 13 }}>Home</button>
+                  <button style={{ padding: "0.85rem 1.75rem", borderRadius: 8, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#162A43", cursor: "pointer", fontSize: 13, fontWeight: 600 }}>Home</button>
                 </a>
               </div>
               {showVerdict && finalVerdict && <VerdictModal verdict={finalVerdict} onClose={() => setShowVerdict(false)} />}
             </>
           );
         })() : (
-          <div style={{ textAlign: "center", padding: "4rem 0", color: "rgba(255,255,255,0.3)" }}>No report available</div>
+          <div style={{ textAlign: "center", padding: "4rem 0", color: "#667085" }}>No report available</div>
         )}
       </div>
     </div>

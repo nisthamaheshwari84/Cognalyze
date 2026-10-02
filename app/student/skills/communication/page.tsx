@@ -2,158 +2,66 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { CommunicationPrompt, SEED_COMMUNICATION_PROMPTS } from "@/lib/skill-hub-store";
+import { useSearchParams } from "next/navigation";
+import {
+  COMMUNICATION_LESSONS,
+  COMMUNICATION_QUESTION_BANK,
+  CommunicationQuestion,
+  CommunicationLesson,
+  CommunicationCategory,
+  CommunicationEvaluationReport,
+  InterviewMessage
+} from "@/lib/skills/communication-engine";
 
-export default function CommunicationStudioPage() {
+function CommunicationArenaContent() {
+  const searchParams = useSearchParams();
   const [candidateId, setCandidateId] = useState("student-demo");
-  const [viewMode, setViewMode] = useState<"learn" | "practice" | "coach" | "interview">("interview");
-  
-  // Audience Adaptation Tier
-  const [audienceTier, setAudienceTier] = useState<"grandparent" | "junior_dev" | "staff_architect">("grandparent");
-  
-  // Prompts & Selection
-  const [prompts, setPrompts] = useState<CommunicationPrompt[]>(SEED_COMMUNICATION_PROMPTS);
-  const [selectedPromptId, setSelectedPromptId] = useState<string>(SEED_COMMUNICATION_PROMPTS[0].id);
+  const [activeMode, setActiveMode] = useState<"learn" | "practice" | "coach" | "interview">("practice");
 
-  // Input state
-  const [inputMode, setInputMode] = useState<"speech" | "typed">("speech");
-  const [userText, setUserText] = useState("");
+  // ── LEARN MODE STATE ──
+  const [selectedLessonIdx, setSelectedLessonIdx] = useState(0);
+
+  // ── PRACTICE MODE STATE ──
+  const [selectedCategory, setSelectedCategory] = useState<CommunicationCategory | "all">("all");
+  const [currentQuestion, setCurrentQuestion] = useState<CommunicationQuestion>(COMMUNICATION_QUESTION_BANK[0]);
+  const [practiceInputMode, setPracticeInputMode] = useState<"speech" | "typed">("typed");
+  const [practiceText, setPracticeText] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [evaluating, setEvaluating] = useState(false);
-  const [evaluationReport, setEvaluationReport] = useState<any>(null);
+  const [practiceReport, setPracticeReport] = useState<CommunicationEvaluationReport | null>(null);
 
-  // Learn Mode state
-  const [selectedConceptIdx, setSelectedConceptIdx] = useState(0);
-  const [checkpointAnswer, setCheckpointAnswer] = useState<number | null>(null);
-  const [checkpointSubmitted, setCheckpointSubmitted] = useState(false);
-  const [socraticAnswer, setSocraticAnswer] = useState("");
-  const [socraticFeedback, setSocraticFeedback] = useState<string | null>(null);
+  // ── COACH MODE STATE ──
+  const [coachQuestion, setCoachQuestion] = useState<CommunicationQuestion>(COMMUNICATION_QUESTION_BANK[0]);
+  const [coachInputText, setCoachInputText] = useState("");
+  const [coachReport, setCoachReport] = useState<CommunicationEvaluationReport | null>(null);
+  const [coachEvaluating, setCoachEvaluating] = useState(false);
 
-  // Coach Mode state
-  const [coachSocraticHint, setCoachSocraticHint] = useState<string | null>(null);
-
-  // Interview Mode state (Dynamic Scenarios & Conversational Follow-up)
-  const [interviewStep, setInterviewStep] = useState<"prompt" | "answering" | "followup" | "evaluation">("prompt");
-  const [interviewFollowupQuestion, setInterviewFollowupQuestion] = useState<string | null>(null);
-  const [followupAnswer, setFollowupAnswer] = useState("");
-  const [interviewHistory, setInterviewHistory] = useState<Array<{ speaker: string; text: string }>>([]);
+  // ── INTERVIEW MODE STATE ──
+  const [interviewStarted, setInterviewStarted] = useState(false);
+  const [interviewTurn, setInterviewTurn] = useState(0);
+  const [interviewHistory, setInterviewHistory] = useState<InterviewMessage[]>([]);
+  const [interviewCurrentInput, setInterviewCurrentInput] = useState("");
+  const [interviewEvaluating, setInterviewEvaluating] = useState(false);
+  const [interviewFinished, setInterviewFinished] = useState(false);
+  const [interviewReport, setInterviewReport] = useState<CommunicationEvaluationReport | null>(null);
 
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
 
-  // Real-time filler detection
-  const fillerRegex = /\b(um|uh|like|you know|actually|basically|sort of|kind of|literally)\b/gi;
-  const detectedFillersInText = (userText.match(fillerRegex) || []).map(f => f.toLowerCase());
-  const wordsCount = userText.trim().split(/\s+/).filter(Boolean).length;
-  const wordsPerMinute = elapsedSeconds > 5 ? Math.round((wordsCount / elapsedSeconds) * 60) : 0;
-
-  // Learn Mode Curriculum
-  const concepts = [
-    {
-      id: "bluf",
-      title: "1. The Pyramid Principle & BLUF",
-      subtitle: "Bottom-Line-Up-Front for Executive & Stakeholder Briefings",
-      summary: "In engineering crises or sprint updates, stakeholders do not want chronological history. State the conclusion and business impact first, then support with 2-3 key drivers.",
-      keyPoints: [
-        "Lead with the outcome: 'The release will be delayed 48 hours to patch an auth token vulnerability.'",
-        "Group supporting arguments logically: Impact -> Root Cause -> Remediation -> Expected Recovery.",
-        "Avoid the chronological trap: Never start with 'At 8 AM the server alerted, then we checked logs, then John discovered...'"
-      ],
-      checkpoint: {
-        question: "A high-priority API migration failed 2 hours before release. What is the optimal BLUF opening to the VP of Engineering?",
-        options: [
-          "Around 2 PM our worker queue started throwing 504 timeouts, so the team investigated Redis connections and found connection pool saturation.",
-          "The checkout migration is postponed by 3 hours due to connection pool limits; rollback is complete and no transactions were dropped.",
-          "I apologize, our backend team didn't anticipate the traffic surge on staging and the script timed out.",
-          "We are currently working very hard on debugging the database and will update everyone when possible."
-        ],
-        correct: 1,
-        explanation: "Option B leads directly with the decision (postponed 3 hours), the technical driver (connection pool limits), business risk assurance (zero dropped transactions), and current state (rollback complete)."
-      }
-    },
-    {
-      id: "fillers",
-      title: "2. Eliminating Verbal Fillers & Embracing the Pause",
-      subtitle: "Transforming 'Um / Basically / Like' into Authoritative Silence",
-      summary: "Fillers are cognitive buffers when the brain searches for words. Senior communicators replace filler sounds with a 1-second deliberate breath, which sounds intentional and confident.",
-      keyPoints: [
-        "A 1-second pause feels long to the speaker, but sounds authoritative and measured to the listener.",
-        "Common culprits: 'Basically' (minimizes complexity), 'Like' (shows uncertainty), 'Actually' (sounds defensive).",
-        "Practice phrasing thoughts in short, 10-15 word declarative sentences rather than run-on clauses."
-      ],
-      checkpoint: {
-        question: "When an interviewer asks a difficult trade-off question you need 5 seconds to think about, what is the best verbal strategy?",
-        options: [
-          "Say: 'Um, basically, like, there are multiple ways we could consider this, like...'",
-          "Say: 'That is a critical constraint. Let me take five seconds to structure the trade-offs between consistency and latency.'",
-          "Begin speaking immediately with whatever thoughts first cross your mind.",
-          "Say: 'I actually know this answer, let me remember how the textbook solved it.'"
-        ],
-        correct: 1,
-        explanation: "Acknowledging the question and stating your thinking framework buys composure without relying on distracting vocalized fillers."
-      }
-    },
-    {
-      id: "audience",
-      title: "3. Audience Adaptation: Plain-English Translation",
-      subtitle: "Translating Inodes, Race Conditions, and DB Locks for Non-Engineers",
-      summary: "True mastery of software engineering is the ability to explain complex mechanisms using familiar physical analogies without patronizing your audience.",
-      keyPoints: [
-        "Non-Technical / Grandparent: Use physical analogies (Postal carrier, library indexing, bank safety deposit boxes).",
-        "Product Manager: Focus on business risk, user experience friction, and sprint velocity trade-offs.",
-        "Principal Architect: Defend latency percentiles (p99), memory boundaries, and failure isolation."
-      ],
-      checkpoint: {
-        question: "How do you explain 'Database Indexing' to an angry retail store manager who wants to know why search is lagging?",
-        options: [
-          "Explain B-Tree node traversal and how disk I/O requires O(log N) page lookups on SSD storage.",
-          "Say: 'It's like an alphabetical index at the back of a 1,000-page catalog. Without it, we have to flip through every single page from page 1 to find your shirt.'",
-          "Tell them it's a technical database configuration that the DevOps team is tuning.",
-          "Say: 'We need to write an SQL statement with CREATE INDEX to fix the query planner.'"
-        ],
-        correct: 1,
-        explanation: "The catalog index analogy immediately communicates the difference between an exhaustive scan and a direct pointer lookup in everyday human terms."
-      }
-    }
-  ];
-
-  // Dynamic Interview Scenarios (Section 39)
-  const interviewScenarios = [
-    {
-      id: "delay_client",
-      title: "Client Crisis: Two-Day Production Delay",
-      role: "Client Delivery Partner & Senior Account Director",
-      scenario: "You are the tech lead explaining a 48-hour production delay for an enterprise e-commerce launch to a high-value client whose team is already frustrated. The delay is caused by an unverified third-party payment gateway token invalidation.",
-      openingPrompt: "We committed to going live on Wednesday morning. Marketing campaigns are already scheduled. Why are we delaying the release by two full days, and what guarantee do I have that Friday won't slip as well?",
-      followupQuestion: "You mentioned the third-party payment token issue was uncovered during load testing. Why wasn't this token behavior tested two weeks ago during our sprint integration phase?"
-    },
-    {
-      id: "tech_debt",
-      title: "Stakeholder Negotiation: Paying Down Technical Debt",
-      role: "VP of Product Management",
-      scenario: "The engineering team is struggling with a monolithic SQL schema that causes weekly regressions. You must convince the VP of Product to allocate 40% of the next 2 sprints to database refactoring instead of new user-facing features.",
-      openingPrompt: "Our roadmap for Q3 is packed with competitive features our sales team promised. Why should I surrender nearly half of our engineering bandwidth to something our end users will never see?",
-      followupQuestion: "If we approve this refactoring, what measurable metric improves? How will I prove to executive leadership that this was worth delaying the customer loyalty portal?"
-    },
-    {
-      id: "p0_incident",
-      title: "Executive Post-Mortem: 45-Minute Checkout Outage",
-      role: "Chief Technology Officer (CTO)",
-      scenario: "During a flash sale, the primary inventory service experienced connection pool exhaustion, dropping 14,000 checkout requests over 45 minutes. You are briefing the CTO 1 hour after resolution.",
-      openingPrompt: "Walk me through what happened, what the financial and user impact was, and why our circuit breakers failed to isolate the inventory service.",
-      followupQuestion: "What automated canary or health-check gate are we implementing before this weekend's second flash sale to make sure this failure mode is impossible?"
-    }
-  ];
-
-  const activeScenario = interviewScenarios[0];
-
+  // Initialize candidate & query mode
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
+    const queryCandidateId = searchParams.get("candidateId");
+    const stored = queryCandidateId || localStorage.getItem("cognalyze_student_id") || "student-demo";
     setCandidateId(stored);
 
-    // Initialize Web Speech API
+    const queryMode = searchParams.get("mode") as any;
+    if (queryMode && ["learn", "practice", "coach", "interview"].includes(queryMode)) {
+      setActiveMode(queryMode);
+    }
+
+    // Initialize Web Speech API for voice recording
     if (typeof window !== "undefined") {
       const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -168,7 +76,11 @@ export default function CommunicationStudioPage() {
           for (let i = 0; i < event.results.length; i++) {
             fullTranscript += event.results[i][0].transcript + " ";
           }
-          setUserText(fullTranscript.trim());
+          if (activeMode === "interview") {
+            setInterviewCurrentInput(fullTranscript.trim());
+          } else {
+            setPracticeText(fullTranscript.trim());
+          }
         };
 
         recog.onerror = (err: any) => {
@@ -183,28 +95,31 @@ export default function CommunicationStudioPage() {
         recognitionRef.current = recog;
       }
     }
-  }, []);
+  }, [searchParams, activeMode]);
 
-  const activePrompt = prompts.find(p => p.id === selectedPromptId) || prompts[0];
-
+  // Voice recording handlers
   const startRecording = () => {
     if (!speechSupported || !recognitionRef.current) {
-      alert("Speech recognition is not supported in this browser. Please use the typed input mode.");
+      alert("Speech recognition is not available on this browser. Please use the typed response tab.");
       return;
     }
-    setUserText("");
-    setElapsedSeconds(0);
+    if (activeMode === "interview") {
+      setInterviewCurrentInput("");
+    } else {
+      setPracticeText("");
+      setPracticeReport(null);
+    }
+    setRecordingSeconds(0);
     setIsRecording(true);
-    setEvaluationReport(null);
 
     try {
       recognitionRef.current.start();
     } catch (e) {
-      console.warn(e);
+      console.warn("Speech recognition already running or error:", e);
     }
 
     timerRef.current = setInterval(() => {
-      setElapsedSeconds(prev => prev + 1);
+      setRecordingSeconds(prev => prev + 1);
     }, 1000);
   };
 
@@ -220,997 +135,1214 @@ export default function CommunicationStudioPage() {
     }
   };
 
-  const handleCoachAnalyze = () => {
-    const fillers = detectedFillersInText;
-    const words = wordsCount;
-    const textLower = userText.toLowerCase();
-
-    if (words < 15) {
-      setCoachSocraticHint("You have only spoken a few words. State a full thought including your conclusion, root cause, and immediate next steps.");
-      return;
+  // Switch category in practice
+  const handleCategoryChange = (cat: CommunicationCategory | "all") => {
+    setSelectedCategory(cat);
+    const pool = cat === "all" ? COMMUNICATION_QUESTION_BANK : COMMUNICATION_QUESTION_BANK.filter(q => q.category === cat);
+    if (pool.length > 0) {
+      const randomQ = pool[Math.floor(Math.random() * pool.length)];
+      setCurrentQuestion(randomQ);
+      setPracticeText("");
+      setPracticeReport(null);
     }
-
-    if (fillers.length >= 2) {
-      setCoachSocraticHint(`Coach noticed you relied on fillers: "${fillers.slice(0, 3).join(', ')}". Try replacing these transitions with a 1-second pause. How would you restate your first sentence without saying "${fillers[0]}"?`);
-      return;
-    }
-
-    if (textLower.includes("because") && !textLower.includes("delay") && !textLower.includes("recommend") && !textLower.includes("will")) {
-      setCoachSocraticHint("You began with explanations and reasons before stating the concrete outcome. How can you apply the Pyramid Principle (BLUF) to lead with the bottom-line first?");
-      return;
-    }
-
-    setCoachSocraticHint("Strong, structured articulation. Your pacing is clear. Can you make your final sentence an explicit ownership commitment with a clear timestamp?");
   };
 
-  const submitForEvaluation = async (isInterviewFollowup = false) => {
-    if (isRecording) {
-      stopRecording();
-    }
-    const textToEval = isInterviewFollowup ? followupAnswer : userText;
-    if (!textToEval.trim()) {
-      alert("Please provide your response either by speaking or typing.");
+  // Next question in practice
+  const handleNextPracticeQuestion = () => {
+    const pool = selectedCategory === "all"
+      ? COMMUNICATION_QUESTION_BANK
+      : COMMUNICATION_QUESTION_BANK.filter(q => q.category === selectedCategory);
+    const otherQuestions = pool.filter(q => q.id !== currentQuestion.id);
+    const nextQ = otherQuestions.length > 0
+      ? otherQuestions[Math.floor(Math.random() * otherQuestions.length)]
+      : pool[0];
+    setCurrentQuestion(nextQ);
+    setPracticeText("");
+    setPracticeReport(null);
+  };
+
+  // Submit practice response for evidence-based evaluation
+  const handleSubmitPractice = async () => {
+    if (isRecording) stopRecording();
+    const text = practiceText.trim();
+    if (!text || text.length < 15) {
+      alert("Please provide a meaningful answer of at least 15 characters before submitting.");
       return;
     }
 
     setEvaluating(true);
-    setEvaluationReport(null);
+    setPracticeReport(null);
 
     try {
       const res = await fetch("/api/skills/communication-eval", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "evaluate",
           candidateId,
-          promptId: activePrompt.id,
-          spokenText: textToEval,
-          durationSeconds: elapsedSeconds || 45,
-          audienceTier
+          questionId: currentQuestion.id,
+          spokenText: text,
+          durationSeconds: recordingSeconds || 45
         })
       });
 
       const data = await res.json();
       if (data.report) {
-        setEvaluationReport(data.report);
+        setPracticeReport(data.report);
       }
     } catch (err) {
-      console.error("Evaluation error:", err);
+      console.error("Evaluation submission error:", err);
     } finally {
       setEvaluating(false);
     }
   };
 
-  const handleInterviewFirstAnswer = () => {
-    if (!userText.trim()) return;
-    setInterviewHistory([
-      { speaker: activeScenario.role, text: activeScenario.openingPrompt },
-      { speaker: "Candidate", text: userText }
-    ]);
-    setInterviewFollowupQuestion(activeScenario.followupQuestion);
-    setInterviewStep("followup");
-    setElapsedSeconds(0);
-    setUserText("");
+  // Submit Coach analysis
+  const handleCoachAnalyze = async () => {
+    const text = coachInputText.trim();
+    if (!text || text.length < 15) {
+      alert("Please provide a response of at least 15 characters for the coach to analyze.");
+      return;
+    }
+
+    setCoachEvaluating(true);
+    setCoachReport(null);
+
+    try {
+      const res = await fetch("/api/skills/communication-eval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "evaluate",
+          candidateId,
+          questionId: coachQuestion.id,
+          spokenText: text,
+          durationSeconds: 60
+        })
+      });
+
+      const data = await res.json();
+      if (data.report) {
+        setCoachReport(data.report);
+      }
+    } catch (err) {
+      console.error("Coach analysis error:", err);
+    } finally {
+      setCoachEvaluating(false);
+    }
   };
 
-  const handleInterviewFollowupAnswer = async () => {
-    if (!followupAnswer.trim()) return;
-    setInterviewHistory(prev => [
-      ...prev,
-      { speaker: activeScenario.role, text: activeScenario.followupQuestion },
-      { speaker: "Candidate", text: followupAnswer }
+  // ── MOCK INTERVIEW ACTIONS ──
+  const startNewInterview = () => {
+    setInterviewStarted(true);
+    setInterviewFinished(false);
+    setInterviewTurn(0);
+    setInterviewReport(null);
+    setInterviewCurrentInput("");
+    setInterviewHistory([
+      {
+        speaker: "interviewer",
+        text: "Hello! Welcome to your technical communication screening. To start, walk me through your engineering background and tell me about yourself."
+      }
     ]);
-    setInterviewStep("evaluation");
-    await submitForEvaluation(true);
   };
+
+  const handleSendInterviewAnswer = async () => {
+    if (isRecording) stopRecording();
+    const answer = interviewCurrentInput.trim();
+    if (!answer) return;
+
+    const updatedHistory: InterviewMessage[] = [
+      ...interviewHistory,
+      { speaker: "candidate", text: answer }
+    ];
+    setInterviewHistory(updatedHistory);
+    setInterviewCurrentInput("");
+    setInterviewEvaluating(true);
+
+    try {
+      const nextTurnNum = interviewTurn + 1;
+      setInterviewTurn(nextTurnNum);
+
+      const res = await fetch("/api/skills/communication-eval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "interview_next",
+          candidateId,
+          interviewHistory: updatedHistory,
+          spokenText: answer,
+          turnNumber: nextTurnNum
+        })
+      });
+
+      const data = await res.json();
+      if (data.interviewerText) {
+        setInterviewHistory(prev => [
+          ...prev,
+          { speaker: "interviewer", text: data.interviewerText }
+        ]);
+
+        if (data.isFinalTurn || nextTurnNum >= 3) {
+          finishInterview(updatedHistory);
+        }
+      }
+    } catch (err) {
+      console.error("Interview turn error:", err);
+    } finally {
+      setInterviewEvaluating(false);
+    }
+  };
+
+  const finishInterview = async (historyToFinish?: InterviewMessage[]) => {
+    setInterviewEvaluating(true);
+    const hist = historyToFinish || interviewHistory;
+
+    try {
+      const res = await fetch("/api/skills/communication-eval", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "interview_finish",
+          candidateId,
+          interviewHistory: hist
+        })
+      });
+
+      const data = await res.json();
+      if (data.report) {
+        setInterviewReport(data.report);
+        setInterviewFinished(true);
+      }
+    } catch (err) {
+      console.error("Interview finish error:", err);
+    } finally {
+      setInterviewEvaluating(false);
+    }
+  };
+
+  const activeLesson = COMMUNICATION_LESSONS[selectedLessonIdx] || COMMUNICATION_LESSONS[0];
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       
       {/* ── HEADER ── */}
-      <header style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", backgroundColor: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(16px)", padding: "16px 24px", position: "sticky", top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+      <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "14px 24px", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+        <div style={{ maxWidth: 1300, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <Link href="/student/skills" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13, fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+              <Link href="/student/skills" style={{ color: "#667085", textDecoration: "none", fontSize: 12, fontWeight: 600 }}>
                 ← Skill Practice Hub
               </Link>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-              <span style={{ color: "#10b981", fontSize: 13, fontWeight: 700 }}>Domain 5: Spoken English & Technical Articulation</span>
+              <span style={{ color: "#98A2B3" }}>/</span>
+              <span style={{ color: "#356AE6", fontSize: 12, fontWeight: 700 }}>Domain: Spoken English & Articulation</span>
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
-              🎙️ Corporate Spoken English & Executive Communication
+            <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.03em", display: "flex", alignItems: "center", gap: 8 }}>
+              <span>🎙️</span>
+              <span>Communication & Spoken English Arena</span>
             </h1>
           </div>
 
-          {/* UNIFIED MODE SELECTOR */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(0,0,0,0.5)", padding: 4, borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+          {/* 4 PRIMARY MODES */}
+          <div style={{ display: "flex", background: "#F6F5F1", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA", gap: 2 }}>
             <button
-              onClick={() => setViewMode("learn")}
+              onClick={() => setActiveMode("learn")}
               style={{
                 padding: "7px 14px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: viewMode === "learn" ? "#10b981" : "transparent",
-                color: viewMode === "learn" ? "white" : "#94a3b8",
+                background: activeMode === "learn" ? "#162A43" : "transparent",
+                color: activeMode === "learn" ? "#FFFFFF" : "#667085",
                 fontSize: 12,
                 fontWeight: 700,
-                cursor: "pointer"
+                cursor: "pointer",
+                transition: "all 0.15s ease"
               }}
             >
               💡 Learn
             </button>
             <button
-              onClick={() => setViewMode("practice")}
+              onClick={() => setActiveMode("practice")}
               style={{
                 padding: "7px 14px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: viewMode === "practice" ? "#10b981" : "transparent",
-                color: viewMode === "practice" ? "white" : "#94a3b8",
+                background: activeMode === "practice" ? "#162A43" : "transparent",
+                color: activeMode === "practice" ? "#FFFFFF" : "#667085",
                 fontSize: 12,
                 fontWeight: 700,
-                cursor: "pointer"
+                cursor: "pointer",
+                transition: "all 0.15s ease"
               }}
             >
               🛠️ Practice
             </button>
             <button
-              onClick={() => setViewMode("coach")}
+              onClick={() => setActiveMode("coach")}
               style={{
                 padding: "7px 14px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: viewMode === "coach" ? "#10b981" : "transparent",
-                color: viewMode === "coach" ? "white" : "#94a3b8",
+                background: activeMode === "coach" ? "#162A43" : "transparent",
+                color: activeMode === "coach" ? "#FFFFFF" : "#667085",
                 fontSize: 12,
                 fontWeight: 700,
-                cursor: "pointer"
+                cursor: "pointer",
+                transition: "all 0.15s ease"
               }}
             >
               🎓 Coach
             </button>
             <button
-              onClick={() => setViewMode("interview")}
+              onClick={() => setActiveMode("interview")}
               style={{
                 padding: "7px 14px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "none",
-                background: viewMode === "interview" ? "#10b981" : "transparent",
-                color: viewMode === "interview" ? "white" : "#94a3b8",
+                background: activeMode === "interview" ? "#356AE6" : "transparent",
+                color: activeMode === "interview" ? "#FFFFFF" : "#667085",
                 fontSize: 12,
                 fontWeight: 700,
-                cursor: "pointer"
+                cursor: "pointer",
+                transition: "all 0.15s ease"
               }}
             >
-              🎯 Interview
+              🎙️ Mock Interview
             </button>
           </div>
         </div>
       </header>
 
-      <main style={{ maxWidth: 1200, margin: "0 auto", padding: "28px 24px" }}>
+      <main style={{ maxWidth: 1300, margin: "0 auto", padding: "24px 20px" }}>
 
         {/* ════════════════════════════════════════════════════════════════
-            1. LEARN MODE
+            1. LEARN MODE: PRACTICAL PLACEMENT LESSONS
             ════════════════════════════════════════════════════════════════ */}
-        {viewMode === "learn" && (
+        {activeMode === "learn" && (
           <div>
-            <div style={{ background: "rgba(15,23,42,0.8)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 16, padding: "20px 24px", marginBottom: 24 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                ADAPTIVE LEARNING TUTOR • SPOKEN ENGLISH & ARTICULATION
-              </div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 8px", color: "white" }}>
-                Mastering Concise, Authoritative Technical Communication
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#162A43", margin: "0 0 6px" }}>
+                Placement Communication Playbook
               </h2>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, lineHeight: 1.5 }}>
-                Move from stream-of-consciousness filler habits to executive-level Bottom-Line-Up-Front (BLUF) delivery.
+              <p style={{ color: "#667085", fontSize: 13, margin: 0 }}>
+                10 concise lessons on how to articulate technical engineering choices, handle HR questions, and eliminate filler words.
               </p>
             </div>
 
-            {/* Concept Selector Pills */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 12, marginBottom: 24 }}>
-              {concepts.map((c, idx) => {
-                const isSel = idx === selectedConceptIdx;
+            {/* Lesson Selector Pills */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10, marginBottom: 20 }}>
+              {COMMUNICATION_LESSONS.map((lesson, idx) => {
+                const isSelected = idx === selectedLessonIdx;
                 return (
-                  <div
-                    key={c.id}
-                    onClick={() => {
-                      setSelectedConceptIdx(idx);
-                      setCheckpointAnswer(null);
-                      setCheckpointSubmitted(false);
-                      setSocraticFeedback(null);
-                    }}
+                  <button
+                    key={lesson.id}
+                    onClick={() => setSelectedLessonIdx(idx)}
                     style={{
-                      padding: "14px 18px",
-                      borderRadius: 14,
-                      background: isSel ? "linear-gradient(135deg, rgba(16,185,129,0.2), rgba(15,23,42,0.9))" : "rgba(15,23,42,0.6)",
-                      border: isSel ? "2px solid #10b981" : "1px solid rgba(255,255,255,0.08)",
-                      cursor: "pointer"
+                      padding: "8px 14px",
+                      borderRadius: 7,
+                      border: isSelected ? "1px solid #162A43" : "1px solid #E4E1DA",
+                      background: isSelected ? "#162A43" : "#FFFFFF",
+                      color: isSelected ? "#FFFFFF" : "#475467",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      boxShadow: "0 1px 2px rgba(16,24,40,0.03)"
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 800, color: isSel ? "#34d399" : "white", marginBottom: 4 }}>
-                      {c.title}
-                    </div>
-                    <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
-                      {c.subtitle}
-                    </div>
-                  </div>
+                    {lesson.title}
+                  </button>
                 );
               })}
             </div>
 
-            {/* Selected Concept Lesson Body */}
-            {(() => {
-              const currentConcept = concepts[selectedConceptIdx];
-              return (
-                <div style={{ background: "rgba(15,23,42,0.75)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "24px", marginBottom: 28 }}>
-                  <h3 style={{ fontSize: 18, fontWeight: 800, color: "white", marginTop: 0, marginBottom: 8 }}>
-                    {currentConcept.title}: {currentConcept.subtitle}
-                  </h3>
-                  <p style={{ fontSize: 14, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, marginBottom: 16 }}>
-                    {currentConcept.summary}
-                  </p>
+            {/* Active Lesson Card */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px", boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 6 }}>
+                CONCEPT
+              </div>
+              <p style={{ fontSize: 15, color: "#17191C", lineHeight: 1.6, margin: "0 0 24px", fontWeight: 500 }}>
+                {activeLesson.concept}
+              </p>
 
-                  <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 12, padding: "16px 20px", marginBottom: 24, border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", marginBottom: 8 }}>
-                      Core Communication Rules:
-                    </div>
-                    <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: "#cbd5e1", lineHeight: 1.6 }}>
-                      {currentConcept.keyPoints.map((kp, kIdx) => (
-                        <li key={kIdx} style={{ marginBottom: 6 }}>{kp}</li>
-                      ))}
-                    </ul>
+              {/* Weak vs Improved Comparison */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+                <div style={{ background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 8, padding: "16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#C24141", textTransform: "uppercase", marginBottom: 6 }}>
+                    ✗ Weak Response (What recruiters dislike)
                   </div>
-
-                  {/* CONCEPT CHECKPOINT */}
-                  <div style={{ background: "rgba(16,185,129,0.06)", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 14, padding: "20px" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 6 }}>
-                      ⚡ Concept Checkpoint
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 14 }}>
-                      {currentConcept.checkpoint.question}
-                    </div>
-
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
-                      {currentConcept.checkpoint.options.map((opt, optIdx) => {
-                        const isChosen = checkpointAnswer === optIdx;
-                        let optBg = "rgba(255,255,255,0.03)";
-                        let optBorder = "rgba(255,255,255,0.08)";
-                        if (checkpointSubmitted) {
-                          if (optIdx === currentConcept.checkpoint.correct) {
-                            optBg = "rgba(16,185,129,0.2)";
-                            optBorder = "#10b981";
-                          } else if (isChosen) {
-                            optBg = "rgba(239,68,68,0.2)";
-                            optBorder = "#ef4444";
-                          }
-                        } else if (isChosen) {
-                          optBg = "rgba(16,185,129,0.15)";
-                          optBorder = "#34d399";
-                        }
-
-                        return (
-                          <div
-                            key={optIdx}
-                            onClick={() => {
-                              if (!checkpointSubmitted) setCheckpointAnswer(optIdx);
-                            }}
-                            style={{
-                              padding: "12px 16px",
-                              borderRadius: 10,
-                              background: optBg,
-                              border: `1px solid ${optBorder}`,
-                              cursor: checkpointSubmitted ? "default" : "pointer",
-                              fontSize: 13,
-                              color: "white",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 12
-                            }}
-                          >
-                            <span style={{ fontWeight: 800, color: "#94a3b8" }}>{String.fromCharCode(65 + optIdx)}.</span>
-                            <span>{opt}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {!checkpointSubmitted ? (
-                      <button
-                        onClick={() => {
-                          if (checkpointAnswer !== null) setCheckpointSubmitted(true);
-                        }}
-                        disabled={checkpointAnswer === null}
-                        style={{
-                          padding: "8px 18px",
-                          borderRadius: 8,
-                          border: "none",
-                          background: checkpointAnswer !== null ? "#10b981" : "rgba(255,255,255,0.1)",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 800,
-                          cursor: checkpointAnswer !== null ? "pointer" : "not-allowed"
-                        }}
-                      >
-                        Submit Checkpoint Answer
-                      </button>
-                    ) : (
-                      <div>
-                        <div style={{ padding: "12px 14px", borderRadius: 10, background: checkpointAnswer === currentConcept.checkpoint.correct ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)", border: `1px solid ${checkpointAnswer === currentConcept.checkpoint.correct ? "#10b981" : "#ef4444"}`, marginBottom: 12, fontSize: 13, color: "white" }}>
-                          <strong style={{ color: checkpointAnswer === currentConcept.checkpoint.correct ? "#34d399" : "#f87171" }}>
-                            {checkpointAnswer === currentConcept.checkpoint.correct ? "✓ Correct Reasoning!" : "✗ Review the Key Driver:"}
-                          </strong>{" "}
-                          {currentConcept.checkpoint.explanation}
-                        </div>
-                        <button
-                          onClick={() => setViewMode("practice")}
-                          style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#6366f1", color: "white", fontSize: 12, fontWeight: 800, cursor: "pointer" }}
-                        >
-                          Advance to Practice Mode ➔
-                        </button>
-                      </div>
-                    )}
+                  <div style={{ fontSize: 13, color: "#7F1D1D", lineHeight: 1.5, fontStyle: "italic" }}>
+                    &ldquo;{activeLesson.weakExample}&rdquo;
                   </div>
                 </div>
-              );
-            })()}
+
+                <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: "16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 6 }}>
+                    ✓ Improved Response (What gets you hired)
+                  </div>
+                  <div style={{ fontSize: 13, color: "#14532D", lineHeight: 1.5 }}>
+                    &ldquo;{activeLesson.improvedExample}&rdquo;
+                  </div>
+                </div>
+              </div>
+
+              {/* Why It Works */}
+              <div style={{ background: "#F6F5F1", borderRadius: 8, padding: "16px 20px", marginBottom: 24, border: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8 }}>
+                  WHY IT WORKS
+                </div>
+                <ul style={{ margin: 0, paddingLeft: 18, color: "#475467", fontSize: 13, lineHeight: 1.6 }}>
+                  {activeLesson.whyItWorks.map((pt, i) => (
+                    <li key={i} style={{ marginBottom: 4 }}>{pt}</li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Try It Call-to-Action */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: "16px 20px", flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 2 }}>
+                    TRY IT NOW
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>
+                    &ldquo;{activeLesson.tryItQuestion.prompt}&rdquo;
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    const matchedQ = COMMUNICATION_QUESTION_BANK.find(q => q.id === activeLesson.tryItQuestion.questionId) || COMMUNICATION_QUESTION_BANK[0];
+                    setCurrentQuestion(matchedQ);
+                    setActiveMode("practice");
+                    setPracticeText("");
+                    setPracticeReport(null);
+                  }}
+                  style={{
+                    padding: "9px 18px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+                  }}
+                >
+                  Practice This Question ➔
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         {/* ════════════════════════════════════════════════════════════════
-            2. PRACTICE MODE
+            2. PRACTICE MODE: ANSWER REAL INTERVIEW QUESTIONS
             ════════════════════════════════════════════════════════════════ */}
-        {viewMode === "practice" && (
+        {activeMode === "practice" && (
           <div>
-            {/* Audience Adaptation Level Selector */}
-            <div style={{ background: "rgba(15, 23, 42, 0.7)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "16px 20px", marginBottom: 24 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>
-                1. SELECT TARGET AUDIENCE COMPLEXITY LEVEL (ADAPTIVE DRILL):
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
-                {[
-                  { id: "grandparent", label: "Level 1: Non-Technical / Grandparent", desc: "Zero technical jargon. Pure everyday analogies (waiter, library, post office)." },
-                  { id: "junior_dev", label: "Level 2: Junior Developer", desc: "Explain code structure, execution order, and algorithmic mental model." },
-                  { id: "staff_architect", label: "Level 3: Principal Architect", desc: "Defend trade-offs, concurrency hazards, and memory limit boundaries." }
-                ].map(tier => {
-                  const isSel = audienceTier === tier.id;
-                  return (
-                    <div
-                      key={tier.id}
-                      onClick={() => setAudienceTier(tier.id as any)}
-                      style={{
-                        padding: "12px 14px",
-                        borderRadius: 12,
-                        background: isSel ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.02)",
-                        border: isSel ? "2px solid #10b981" : "1px solid rgba(255,255,255,0.06)",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease"
-                      }}
-                    >
-                      <div style={{ fontSize: 13, fontWeight: 800, color: isSel ? "#34d399" : "white", marginBottom: 2 }}>
-                        {tier.label}
-                      </div>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
-                        {tier.desc}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            {/* Category Filter Pills */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 10, marginBottom: 18 }}>
+              {[
+                { id: "all", label: "All Questions (40+)" },
+                { id: "self_intro", label: "Self Introduction" },
+                { id: "project", label: "Project Explanation" },
+                { id: "hr", label: "HR & Motivation" },
+                { id: "behavioral", label: "Behavioral" },
+                { id: "situational", label: "Situational" },
+                { id: "technical", label: "Technical Concepts" },
+                { id: "client", label: "Client Briefings" },
+                { id: "corporate", label: "Corporate Updates" }
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategoryChange(cat.id as any)}
+                  style={{
+                    padding: "7px 13px",
+                    borderRadius: 7,
+                    border: selectedCategory === cat.id ? "1px solid #162A43" : "1px solid #E4E1DA",
+                    background: selectedCategory === cat.id ? "#162A43" : "#FFFFFF",
+                    color: selectedCategory === cat.id ? "#FFFFFF" : "#667085",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.02)"
+                  }}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
 
-            {/* Prompt Selector Pills */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>
-                2. SELECT PRACTICE SCENARIO:
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
-                {prompts.map(p => {
-                  const isSelected = p.id === activePrompt.id;
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => {
-                        setSelectedPromptId(p.id);
-                        setUserText("");
-                        setEvaluationReport(null);
-                        setElapsedSeconds(0);
-                      }}
-                      style={{
-                        padding: "14px 18px",
-                        borderRadius: 14,
-                        background: isSelected ? "linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(15,23,42,0.9) 100%)" : "rgba(15, 23, 42, 0.6)",
-                        border: isSelected ? "2px solid #10b981" : "1px solid rgba(255,255,255,0.08)",
-                        cursor: "pointer"
-                      }}
-                    >
-                      <div style={{ fontSize: 10, color: isSelected ? "#34d399" : "#94a3b8", fontWeight: 800, textTransform: "uppercase", marginBottom: 4 }}>
-                        {p.type.replace(/_/g, " ")} • {p.target_duration_seconds}s Target
-                      </div>
-                      <h4 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 4px", color: "white" }}>
-                        {p.title}
-                      </h4>
-                      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-                        {p.target_role}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Active Prompt Briefing Card */}
-            <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(99, 102, 241, 0.3)", borderRadius: 18, padding: "24px", marginBottom: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
-                <div>
-                  <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 6, background: "rgba(16,185,129,0.2)", color: "#34d399", fontWeight: 800 }}>
-                    PRACTICE PROTOCOL • {audienceTier.toUpperCase().replace("_", " ")}
+            {/* Question Workspace */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px", marginBottom: 24, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+              {/* Question Meta */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 11, padding: "3px 9px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 5, fontWeight: 700 }}>
+                    {currentQuestion.categoryLabel}
                   </span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: "6px 0 0", color: "white" }}>
-                    {activePrompt.title}
-                  </h2>
+                  <span style={{ fontSize: 11, padding: "3px 9px", background: "#F6F5F1", color: "#667085", border: "1px solid #E4E1DA", borderRadius: 5, fontWeight: 600 }}>
+                    {currentQuestion.topic}
+                  </span>
                 </div>
-                <div style={{ fontSize: 12, color: "#cbd5e1", background: "rgba(255,255,255,0.05)", padding: "4px 10px", borderRadius: 8 }}>
-                  ⏱️ Target: ~{activePrompt.target_duration_seconds} seconds
-                </div>
-              </div>
-
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.9)", lineHeight: 1.6, margin: "0 0 16px" }}>
-                {activePrompt.prompt_text}
-              </p>
-
-              {/* Scaffolding Helper Box */}
-              <div style={{ padding: "12px 16px", background: "rgba(56,189,248,0.08)", border: "1px solid rgba(56,189,248,0.2)", borderRadius: 10, fontSize: 12, color: "#7dd3fc", marginBottom: 12 }}>
-                <strong>Scaffolding Structure:</strong> 1. Lead with the core conclusion & impact ➔ 2. Explain technical reason without jargon ➔ 3. State recovery ETA & mitigation.
-              </div>
-
-              <div style={{ padding: "10px 14px", background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)", borderRadius: 10, fontSize: 12, color: "#fca5a5" }}>
-                {activePrompt.context_note}
-              </div>
-            </div>
-
-            {/* Recording & Input Area */}
-            <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 18, padding: "24px", marginBottom: 28 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <button
-                    onClick={() => setInputMode("speech")}
-                    style={{
-                      padding: "6px 14px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: inputMode === "speech" ? "#10b981" : "rgba(255,255,255,0.05)",
-                      color: "white",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6
-                    }}
-                  >
-                    <span>🎙️</span>
-                    <span>Voice Microphone</span>
-                  </button>
-
-                  <button
-                    onClick={() => setInputMode("typed")}
-                    style={{
-                      padding: "6px 14px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: inputMode === "typed" ? "#6366f1" : "rgba(255,255,255,0.05)",
-                      color: "white",
-                      fontSize: 12,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6
-                    }}
-                  >
-                    <span>⌨️</span>
-                    <span>Typed Explanation</span>
-                  </button>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 12, color: "#94a3b8" }}>
-                  <span>Words: <strong style={{ color: "white" }}>{wordsCount}</strong></span>
-                  {elapsedSeconds > 0 && <span>Pacing: <strong style={{ color: wordsPerMinute >= 110 && wordsPerMinute <= 160 ? "#34d399" : "#fbbf24" }}>{wordsPerMinute} wpm</strong></span>}
+                <div style={{ fontSize: 12, color: "#356AE6", fontWeight: 700 }}>
+                  ⏱️ Target: {currentQuestion.targetDurationSeconds} seconds
                 </div>
               </div>
 
-              {/* Speech Controls */}
-              {inputMode === "speech" && (
-                <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 14 }}>
-                  {!isRecording ? (
-                    <button
-                      onClick={startRecording}
-                      style={{
-                        padding: "10px 20px",
-                        borderRadius: 10,
-                        border: "none",
-                        background: "linear-gradient(135deg,#10b981,#059669)",
-                        color: "white",
-                        fontSize: 13,
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        boxShadow: "0 4px 14px rgba(16,185,129,0.3)"
-                      }}
-                    >
-                      <span>🔴</span>
-                      <span>Start Voice Recording</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={stopRecording}
-                      style={{
-                        padding: "10px 20px",
-                        borderRadius: 10,
-                        border: "2px solid #ef4444",
-                        background: "rgba(239,68,68,0.2)",
-                        color: "#f87171",
-                        fontSize: 13,
-                        fontWeight: 800,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8
-                      }}
-                    >
-                      <span>⏹️ Stop Recording ({elapsedSeconds}s)</span>
-                    </button>
-                  )}
+              {/* Question Statement */}
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#162A43", margin: "0 0 12px", lineHeight: 1.4 }}>
+                &ldquo;{currentQuestion.question}&rdquo;
+              </h2>
 
-                  {isRecording && (
-                    <span style={{ fontSize: 12, color: "#34d399", fontWeight: 600 }}>
-                      ● Listening to speech... Speak clearly in natural conversational English.
+              {/* Framework Hint */}
+              <div style={{ fontSize: 12, color: "#475467", background: "#F6F5F1", padding: "10px 14px", borderRadius: 7, marginBottom: 20, border: "1px solid #E4E1DA" }}>
+                <strong style={{ color: "#162A43" }}>Strategy:</strong> {currentQuestion.idealFramework} • {currentQuestion.tips}
+              </div>
+
+              {/* Input Mode Selector */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                <button
+                  onClick={() => setPracticeInputMode("typed")}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    border: practiceInputMode === "typed" ? "1px solid #162A43" : "1px solid #E4E1DA",
+                    background: practiceInputMode === "typed" ? "#162A43" : "#FFFFFF",
+                    color: practiceInputMode === "typed" ? "#FFFFFF" : "#667085",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  ⌨️ Type Answer
+                </button>
+                <button
+                  onClick={() => setPracticeInputMode("speech")}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    border: practiceInputMode === "speech" ? "1px solid #162A43" : "1px solid #E4E1DA",
+                    background: practiceInputMode === "speech" ? "#162A43" : "#FFFFFF",
+                    color: practiceInputMode === "speech" ? "#FFFFFF" : "#667085",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer"
+                  }}
+                >
+                  🎙️ Speak Answer (Web Speech)
+                </button>
+              </div>
+
+              {/* Speech Mode Interface */}
+              {practiceInputMode === "speech" && (
+                <div style={{ padding: "18px", borderRadius: 8, background: "#F6F5F1", border: "1px solid #E4E1DA", marginBottom: 18 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      {!isRecording ? (
+                        <button
+                          onClick={startRecording}
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: 7,
+                            border: "none",
+                            background: "#C24141",
+                            color: "#FFFFFF",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6
+                          }}
+                        >
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#FFFFFF" }} />
+                          Start Voice Recording
+                        </button>
+                      ) : (
+                        <button
+                          onClick={stopRecording}
+                          style={{
+                            padding: "8px 16px",
+                            borderRadius: 7,
+                            border: "none",
+                            background: "#B7791F",
+                            color: "#FFFFFF",
+                            fontSize: 12,
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6
+                          }}
+                        >
+                          <span style={{ width: 8, height: 8, background: "#FFFFFF" }} />
+                          Stop Recording ({recordingSeconds}s)
+                        </button>
+                      )}
+                      {isRecording && (
+                        <span style={{ fontSize: 12, color: "#C24141", fontWeight: 600 }}>
+                          ● Recording speech in progress...
+                        </span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: 12, color: "#667085" }}>
+                      Words captured: {practiceText.trim().split(/\s+/).filter(Boolean).length}
                     </span>
-                  )}
+                  </div>
+
+                  <div style={{ fontSize: 13, color: practiceText ? "#17191C" : "#98A2B3", minHeight: 70, lineHeight: 1.5, background: "#FFFFFF", padding: "12px 14px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
+                    {practiceText || "Your live transcribed speech will appear here. Press 'Start Voice Recording' and answer naturally."}
+                  </div>
                 </div>
               )}
 
-              <textarea
-                value={userText}
-                onChange={e => setUserText(e.target.value)}
-                placeholder={`Speak or type your explanation here tailored for ${audienceTier.replace("_", " ")}...`}
-                rows={6}
-                style={{
-                  width: "100%",
-                  background: "#080b12",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 12,
-                  padding: 16,
-                  color: "white",
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  outline: "none",
-                  marginBottom: 16
-                }}
-              />
+              {/* Typed Input Area */}
+              {practiceInputMode === "typed" && (
+                <div style={{ marginBottom: 18 }}>
+                  <textarea
+                    rows={5}
+                    value={practiceText}
+                    onChange={e => setPracticeText(e.target.value)}
+                    placeholder="Type your response here as you would articulate it in an actual technical screening or HR round..."
+                    style={{
+                      width: "100%",
+                      padding: "12px 14px",
+                      borderRadius: 7,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
+                      fontSize: 13,
+                      lineHeight: 1.6,
+                      boxSizing: "border-box",
+                      fontFamily: "inherit",
+                      resize: "vertical"
+                    }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6, fontSize: 11, color: "#667085" }}>
+                    <span>Word Count: {practiceText.trim().split(/\s+/).filter(Boolean).length} words</span>
+                    <span>Aim for ~80–140 words for a crisp 60s pitch</span>
+                  </div>
+                </div>
+              )}
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              {/* Action Buttons */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderTop: "1px solid #E4E1DA", paddingTop: 16 }}>
                 <button
-                  onClick={() => setUserText("")}
-                  style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 12, cursor: "pointer" }}
-                >
-                  Clear Text
-                </button>
-
-                <button
-                  onClick={() => submitForEvaluation(false)}
-                  disabled={evaluating || !userText.trim()}
+                  onClick={handleNextPracticeQuestion}
                   style={{
-                    padding: "10px 24px",
-                    borderRadius: 10,
-                    border: "none",
-                    background: evaluating ? "rgba(99,102,241,0.4)" : "linear-gradient(135deg,#10b981,#059669)",
-                    color: "white",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: evaluating || !userText.trim() ? "not-allowed" : "pointer",
-                    boxShadow: "0 4px 16px rgba(16,185,129,0.3)"
+                    padding: "8px 16px",
+                    borderRadius: 7,
+                    border: "1px solid #E4E1DA",
+                    background: "#FFFFFF",
+                    color: "#475467",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer"
                   }}
                 >
-                  {evaluating ? "⚡ Analyzing Speech & Articulation..." : "Evaluate Speech & Articulation ➔"}
+                  Skip to Another Question ➔
+                </button>
+
+                <button
+                  onClick={handleSubmitPractice}
+                  disabled={evaluating || !practiceText.trim()}
+                  style={{
+                    padding: "9px 24px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: evaluating || !practiceText.trim() ? "#98A2B3" : "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: evaluating || !practiceText.trim() ? "not-allowed" : "pointer",
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+                  }}
+                >
+                  {evaluating ? "⚡ Analyzing Speech Evidence..." : "Submit Answer for Review ➔"}
                 </button>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ════════════════════════════════════════════════════════════════
-            3. COACH MODE
-            ════════════════════════════════════════════════════════════════ */}
-        {viewMode === "coach" && (
-          <div>
-            <div style={{ background: "rgba(15,23,42,0.8)", border: "1px solid rgba(245,158,11,0.3)", borderRadius: 16, padding: "20px 24px", marginBottom: 24 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
-                🎓 REAL-TIME ARTICULATION & SOCRATIC COACH
-              </div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 8px", color: "white" }}>
-                Live Speech Diagnostics & Socratic Pacing Guidance
-              </h2>
-              <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, lineHeight: 1.5 }}>
-                Speak or type your draft. The coach monitors verbal fillers, speech cadence, and BLUF structuring in real time.
-              </p>
-            </div>
+            {/* ── EVIDENCE-FIRST PRACTICE EVALUATION REPORT ── */}
+            {practiceReport && (
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px", marginBottom: 28, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+                {/* Header Verdict */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 12, borderBottom: "1px solid #E4E1DA", paddingBottom: 16 }}>
+                  <div>
+                    <span style={{ fontSize: 10, padding: "3px 9px", background: practiceReport.verdict === "Strong" ? "#EAF4EE" : "#FEF7ED", color: practiceReport.verdict === "Strong" ? "#2E7D5B" : "#B7791F", border: `1px solid ${practiceReport.verdict === "Strong" ? "#C8E4D3" : "#F8D8A7"}`, borderRadius: 5, fontWeight: 800, letterSpacing: 0.8 }}>
+                      EVIDENCE-GROUNDED VERDICT: {practiceReport.verdict.toUpperCase()}
+                    </span>
+                    <h3 style={{ fontSize: 20, fontWeight: 800, margin: "6px 0 0", color: "#162A43" }}>
+                      Your Communication Review
+                    </h3>
+                    <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
+                      {practiceReport.summary}
+                    </p>
+                  </div>
 
-            {/* Live Telemetry Bar */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 24 }}>
-              <div style={{ background: "rgba(15,23,42,0.6)", padding: "14px 16px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>Fillers Detected</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: detectedFillersInText.length > 2 ? "#ef4444" : "#10b981", marginTop: 4 }}>
-                  {detectedFillersInText.length} {detectedFillersInText.length === 1 ? "filler" : "fillers"}
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 36, fontWeight: 800, color: practiceReport.overallScore >= 75 ? "#2E7D5B" : practiceReport.overallScore >= 60 ? "#B7791F" : "#C24141" }}>
+                      {practiceReport.overallScore}<span style={{ fontSize: 16, color: "#98A2B3" }}>/100</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#667085" }}>
+                      {practiceReport.totalWords} words • ~{practiceReport.speechPaceWpm || 120} WPM
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
-                  {detectedFillersInText.slice(0, 3).join(", ") || "None detected"}
-                </div>
-              </div>
 
-              <div style={{ background: "rgba(15,23,42,0.6)", padding: "14px 16px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>Words & Cadence</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginTop: 4 }}>
-                  {wordsCount} words
+                {/* Dimension Scores */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 22 }}>
+                  {practiceReport.dimensions.map((dim, i) => (
+                    <div key={i} style={{ background: "#F6F5F1", borderRadius: 8, padding: "12px 14px", border: "1px solid #E4E1DA" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>{dim.dimension}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: dim.score >= 75 ? "#2E7D5B" : "#B7791F" }}>{dim.score}%</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4 }}>
+                        {dim.reason}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div style={{ fontSize: 11, color: "#38bdf8", marginTop: 2 }}>
-                  {wordsPerMinute ? `${wordsPerMinute} wpm (Target: 120-150)` : "Begin speaking to measure"}
-                </div>
-              </div>
 
-              <div style={{ background: "rgba(15,23,42,0.6)", padding: "14px 16px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8", textTransform: "uppercase" }}>Structure Check</div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: userText.length > 40 ? "#34d399" : "#fbbf24", marginTop: 8 }}>
-                  {userText.length > 40 ? "✓ Sufficient Draft Length" : "⚠️ Needs More Content"}
-                </div>
-              </div>
-            </div>
+                {/* Evidence: What Worked vs What Can Improve */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, marginBottom: 22 }}>
+                  {/* Strengths */}
+                  <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: "18px" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "#2E7D5B", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>✓</span> WHAT WORKED (VERIFIED FROM YOUR WORDS)
+                    </div>
+                    {practiceReport.strengths.length > 0 ? (
+                      practiceReport.strengths.map((s, idx) => (
+                        <div key={idx} style={{ marginBottom: 14 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#14532D", marginBottom: 3 }}>
+                            {s.claim}
+                          </div>
+                          {s.evidence && (
+                            <div style={{ fontSize: 12, color: "#166534", background: "#FFFFFF", padding: "6px 10px", borderRadius: 6, border: "1px solid #C8E4D3", marginBottom: 3, fontStyle: "italic" }}>
+                              &ldquo;{s.evidence}&rdquo;
+                            </div>
+                          )}
+                          <div style={{ fontSize: 11, color: "#15803D" }}>
+                            {s.reason}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ fontSize: 12, color: "#667085" }}>Response was too brief to verify distinct positive traits.</div>
+                    )}
+                  </div>
 
-            {/* Coach Speech Workspace */}
-            <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 18, padding: "24px", marginBottom: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "white" }}>
-                  Coach Speech Sandbox (Try answering: "Explain why our API is delayed 2 days")
+                  {/* Improvements */}
+                  <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, padding: "18px" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "#B7791F", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>⚠</span> WHAT TO IMPROVE (GROUNDED GAPS)
+                    </div>
+                    {practiceReport.weaknesses.length > 0 ? (
+                      practiceReport.weaknesses.map((w, idx) => (
+                        <div key={idx} style={{ marginBottom: 14 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#78350F", marginBottom: 3 }}>
+                            {w.claim}
+                          </div>
+                          {w.evidence && (
+                            <div style={{ fontSize: 12, color: "#92400E", background: "#FFFFFF", padding: "6px 10px", borderRadius: 6, border: "1px solid #F8D8A7", marginBottom: 3, fontStyle: "italic" }}>
+                              &ldquo;{w.evidence}&rdquo;
+                            </div>
+                          )}
+                          <div style={{ fontSize: 11, color: "#A16207", marginBottom: 2 }}>
+                            {w.reason}
+                          </div>
+                          {w.recommendation && (
+                            <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 600 }}>
+                              Fix: {w.recommendation}
+                            </div>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ fontSize: 12, color: "#2E7D5B" }}>No major communication anti-patterns detected. Excellent structure!</div>
+                    )}
+                  </div>
                 </div>
-                {speechSupported && (
+
+                {/* Vocal Fillers (Only shown if detected) */}
+                {practiceReport.detectedFillers.length > 0 && (
+                  <div style={{ background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 8, padding: "14px 18px", marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#C24141", textTransform: "uppercase", marginBottom: 6 }}>
+                      VOCAL FILLERS DETECTED IN YOUR TRANSCRIPT
+                    </div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+                      {practiceReport.detectedFillers.map((f, i) => (
+                        <span key={i} style={{ padding: "4px 10px", borderRadius: 5, background: "#FFFFFF", border: "1px solid #F8C8C8", color: "#C24141", fontSize: 12, fontWeight: 700 }}>
+                          &ldquo;{f.word}&rdquo; ({f.count}x)
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ fontSize: 11, color: "#7F1D1D" }}>
+                      Replace these filler hesitations with a 1-second deliberate silent breath.
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom CTA Actions */}
+                <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
                   <button
-                    onClick={isRecording ? stopRecording : startRecording}
+                    onClick={() => {
+                      setPracticeText("");
+                      setPracticeReport(null);
+                    }}
                     style={{
-                      padding: "6px 14px",
-                      borderRadius: 8,
+                      padding: "8px 16px",
+                      borderRadius: 7,
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: "#475467",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Try Again on Same Question ↺
+                  </button>
+
+                  <button
+                    onClick={handleNextPracticeQuestion}
+                    style={{
+                      padding: "8px 18px",
+                      borderRadius: 7,
                       border: "none",
-                      background: isRecording ? "#ef4444" : "#10b981",
-                      color: "white",
+                      background: "#356AE6",
+                      color: "#FFFFFF",
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: "pointer"
                     }}
                   >
-                    {isRecording ? `⏹️ Stop (${elapsedSeconds}s)` : "🎙️ Start Voice Microphone"}
+                    Next Question ➔
                   </button>
-                )}
-              </div>
-
-              <textarea
-                value={userText}
-                onChange={e => setUserText(e.target.value)}
-                placeholder="Speak or type your explanation here. The coach will analyze filler frequency and structure..."
-                rows={5}
-                style={{
-                  width: "100%",
-                  background: "#080b12",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: 12,
-                  padding: 16,
-                  color: "white",
-                  fontSize: 14,
-                  lineHeight: 1.6,
-                  outline: "none",
-                  marginBottom: 16
-                }}
-              />
-
-              <button
-                onClick={handleCoachAnalyze}
-                disabled={!userText.trim()}
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
-                  color: "white",
-                  fontSize: 13,
-                  fontWeight: 800,
-                  cursor: userText.trim() ? "pointer" : "not-allowed"
-                }}
-              >
-                🎓 Request Socratic Coach Critique
-              </button>
-
-              {coachSocraticHint && (
-                <div style={{ marginTop: 20, padding: "16px 20px", borderRadius: 12, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.4)" }}>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: "#fbbf24", textTransform: "uppercase", marginBottom: 6 }}>
-                    Coach Socratic Inquiry:
-                  </div>
-                  <div style={{ fontSize: 14, color: "white", lineHeight: 1.6 }}>
-                    {coachSocraticHint}
-                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {/* ════════════════════════════════════════════════════════════════
-            4. INTERVIEW MODE (Dynamic Scenarios & Follow-up Questions)
+            3. COACH MODE: IMPROVE A SPECIFIC ANSWER
             ════════════════════════════════════════════════════════════════ */}
-        {viewMode === "interview" && (
+        {activeMode === "coach" && (
           <div>
-            <div style={{ background: "linear-gradient(135deg, rgba(15,23,42,0.9), rgba(16,185,129,0.15))", border: "1px solid rgba(16,185,129,0.3)", borderRadius: 18, padding: "24px", marginBottom: 24 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
-                <div>
-                  <span style={{ fontSize: 10, padding: "3px 8px", borderRadius: 6, background: "rgba(16,185,129,0.25)", color: "#34d399", fontWeight: 800 }}>
-                    EXECUTIVE INTERVIEW ROUND • UNSEEN SCENARIO
-                  </span>
-                  <h2 style={{ fontSize: 20, fontWeight: 900, margin: "6px 0 2px", color: "white" }}>
-                    {activeScenario.title}
-                  </h2>
-                  <div style={{ fontSize: 13, color: "#38bdf8", fontWeight: 700 }}>
-                    Interviewer: {activeScenario.role}
-                  </div>
-                </div>
-                <div style={{ fontSize: 12, padding: "4px 10px", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, color: "#fca5a5", fontWeight: 700 }}>
-                  ⚠️ Zero Hints • Adaptive Follow-ups Active
-                </div>
-              </div>
-
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", margin: "12px 0 0", lineHeight: 1.5 }}>
-                {activeScenario.scenario}
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 800, color: "#162A43", margin: "0 0 6px" }}>
+                Answer Improvement Coach
+              </h2>
+              <p style={{ color: "#667085", fontSize: 13, margin: 0 }}>
+                Paste or speak your current draft answer to see what is already working and how to refine it into an executive-level response.
               </p>
             </div>
 
-            {/* Conversation Flow */}
-            <div style={{ background: "rgba(15,23,42,0.7)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px", marginBottom: 24 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", marginBottom: 14 }}>
-                Interview Dialogue History:
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px", marginBottom: 24, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+              {/* Question selector */}
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  SELECT QUESTION TO REFINE:
+                </label>
+                <select
+                  value={coachQuestion.id}
+                  onChange={e => {
+                    const q = COMMUNICATION_QUESTION_BANK.find(item => item.id === e.target.value) || COMMUNICATION_QUESTION_BANK[0];
+                    setCoachQuestion(q);
+                    setCoachReport(null);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "10px 14px",
+                    borderRadius: 7,
+                    background: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    color: "#17191C",
+                    fontSize: 13,
+                    fontFamily: "inherit"
+                  }}
+                >
+                  {COMMUNICATION_QUESTION_BANK.map(q => (
+                    <option key={q.id} value={q.id}>
+                      [{q.categoryLabel}] {q.question}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Initial Question */}
-              <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>
-                  👔
-                </div>
-                <div style={{ background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.3)", borderRadius: 12, padding: "14px 18px", flex: 1 }}>
-                  <div style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, marginBottom: 4 }}>
-                    {activeScenario.role} (Stakeholder):
-                  </div>
-                  <div style={{ fontSize: 14, color: "white", lineHeight: 1.5 }}>
-                    "{activeScenario.openingPrompt}"
-                  </div>
-                </div>
-              </div>
-
-              {/* Interview History Dialogues */}
-              {interviewHistory.map((item, idx) => (
-                <div key={idx} style={{ display: "flex", gap: 12, marginBottom: 16 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: "50%", background: item.speaker === "Candidate" ? "#10b981" : "#6366f1", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, flexShrink: 0 }}>
-                    {item.speaker === "Candidate" ? "👤" : "👔"}
-                  </div>
-                  <div style={{ background: item.speaker === "Candidate" ? "rgba(16,185,129,0.12)" : "rgba(99,102,241,0.12)", border: `1px solid ${item.speaker === "Candidate" ? "rgba(16,185,129,0.3)" : "rgba(99,102,241,0.3)"}`, borderRadius: 12, padding: "14px 18px", flex: 1 }}>
-                    <div style={{ fontSize: 11, color: item.speaker === "Candidate" ? "#34d399" : "#818cf8", fontWeight: 800, marginBottom: 4 }}>
-                      {item.speaker}:
-                    </div>
-                    <div style={{ fontSize: 14, color: "white", lineHeight: 1.5 }}>
-                      {item.text}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Phase 1 Input: Answering First Prompt */}
-              {interviewStep === "prompt" && (
-                <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
-                      Your Response (Lead with BLUF):
-                    </div>
-                    {speechSupported && (
-                      <button
-                        onClick={isRecording ? stopRecording : startRecording}
-                        style={{
-                          padding: "6px 12px",
-                          borderRadius: 8,
-                          border: "none",
-                          background: isRecording ? "#ef4444" : "#10b981",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: "pointer"
-                        }}
-                      >
-                        {isRecording ? `⏹️ Stop (${elapsedSeconds}s)` : "🎙️ Use Microphone"}
-                      </button>
-                    )}
-                  </div>
-
-                  <textarea
-                    value={userText}
-                    onChange={e => setUserText(e.target.value)}
-                    placeholder="Deliver your explanation directly to the stakeholder..."
-                    rows={4}
-                    style={{
-                      width: "100%",
-                      background: "#080b12",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderRadius: 12,
-                      padding: 14,
-                      color: "white",
-                      fontSize: 14,
-                      lineHeight: 1.6,
-                      outline: "none",
-                      marginBottom: 12
-                    }}
-                  />
-
-                  <button
-                    onClick={handleInterviewFirstAnswer}
-                    disabled={!userText.trim()}
-                    style={{
-                      padding: "10px 22px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: userText.trim() ? "#10b981" : "rgba(255,255,255,0.1)",
-                      color: "white",
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: userText.trim() ? "pointer" : "not-allowed"
-                    }}
-                  >
-                    Deliver Response & Face Stakeholder Challenge ➔
-                  </button>
-                </div>
-              )}
-
-              {/* Phase 2 Input: Follow-up Probe */}
-              {interviewStep === "followup" && (
-                <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                  <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: "14px 18px", marginBottom: 16 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#f87171", textTransform: "uppercase", marginBottom: 4 }}>
-                      Stakeholder Follow-up Probe:
-                    </div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "white" }}>
-                      "{interviewFollowupQuestion}"
-                    </div>
-                  </div>
-
-                  <textarea
-                    value={followupAnswer}
-                    onChange={e => setFollowupAnswer(e.target.value)}
-                    placeholder="Defend your strategy and address the stakeholder's pushback..."
-                    rows={4}
-                    style={{
-                      width: "100%",
-                      background: "#080b12",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderRadius: 12,
-                      padding: 14,
-                      color: "white",
-                      fontSize: 14,
-                      lineHeight: 1.6,
-                      outline: "none",
-                      marginBottom: 12
-                    }}
-                  />
-
-                  <button
-                    onClick={handleInterviewFollowupAnswer}
-                    disabled={!followupAnswer.trim() || evaluating}
-                    style={{
-                      padding: "10px 24px",
-                      borderRadius: 8,
-                      border: "none",
-                      background: followupAnswer.trim() ? "linear-gradient(135deg,#10b981,#059669)" : "rgba(255,255,255,0.1)",
-                      color: "white",
-                      fontSize: 13,
-                      fontWeight: 800,
-                      cursor: followupAnswer.trim() ? "pointer" : "not-allowed"
-                    }}
-                  >
-                    {evaluating ? "⚡ Generating Bar-Raiser Evaluation..." : "Conclude Interview & View Evidence Dossier ➔"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── AI EVALUATION DOSSIER REPORT (Shared across Practice & Interview) ── */}
-        {evaluationReport && (
-          <div style={{ background: "linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,27,75,0.9))", border: "1px solid rgba(16,185,129,0.4)", borderRadius: 20, padding: "28px", marginBottom: 32, boxShadow: "0 15px 40px rgba(0,0,0,0.7)" }}>
-            
-            {/* Top Score Bar */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 16, borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 20 }}>
-              <div>
-                <span style={{ fontSize: 10, padding: "3px 9px", borderRadius: 6, background: "rgba(16,185,129,0.2)", color: "#34d399", fontWeight: 800, letterSpacing: 1 }}>
-                  HR & CLIENT READINESS ASSESSMENT
-                </span>
-                <h3 style={{ fontSize: 22, fontWeight: 900, margin: "6px 0 2px", color: "white" }}>
-                  {evaluationReport.verdict || "Demonstrated Executive Presence"}
-                </h3>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-                  Audience Context: <strong style={{ color: "#34d399" }}>{audienceTier.replace("_", " ").toUpperCase()}</strong>
-                </div>
-              </div>
-
-              <div style={{ textAlign: "right", display: "flex", alignItems: "center", gap: 16 }}>
-                <div>
-                  <div style={{ fontSize: 36, fontWeight: 900, color: (evaluationReport.overallScore || 82) >= 75 ? "#34d399" : (evaluationReport.overallScore || 82) >= 60 ? "#fbbf24" : "#f87171" }}>
-                    {evaluationReport.overallScore || 82}<span style={{ fontSize: 16, color: "rgba(255,255,255,0.4)" }}>/100</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>Communicability Index</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Sub-Metric Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
-              <div style={{ padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>Clarity & Structure</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "white", marginTop: 2 }}>{evaluationReport.clarityScore || 84}/100</div>
-              </div>
-              <div style={{ padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>Audience Adaptation</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "white", marginTop: 2 }}>{evaluationReport.simplicityScore || 80}/100</div>
-              </div>
-              <div style={{ padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>Filler Words Detected</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: (evaluationReport.fillerCount || 0) > 2 ? "#fbbf24" : "#34d399", marginTop: 2 }}>
-                  {evaluationReport.fillerCount || 0} fillers
-                </div>
-              </div>
-            </div>
-
-            {/* Evidence & Next Best Action */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)", flexWrap: "wrap", gap: 12 }}>
-              <div>
-                <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", fontWeight: 800 }}>
-                  STUDENT DNA EVIDENCE UPDATE
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#34d399", marginTop: 2 }}>
-                  ✓ Spoken English & Stakeholder Articulation: DEMONSTRATED
-                </div>
+              {/* Text input */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 800, color: "#475467", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                  YOUR DRAFT ANSWER:
+                </label>
+                <textarea
+                  rows={5}
+                  value={coachInputText}
+                  onChange={e => setCoachInputText(e.target.value)}
+                  placeholder="Paste or write your answer here. e.g.: 'I'm pursuing BTech in Computer Science and I built Cognalyze to automate resumes...'"
+                  style={{
+                    width: "100%",
+                    padding: "12px 14px",
+                    borderRadius: 7,
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    color: "#17191C",
+                    fontSize: 13,
+                    lineHeight: 1.6,
+                    boxSizing: "border-box",
+                    fontFamily: "inherit",
+                    resize: "vertical"
+                  }}
+                />
               </div>
 
               <button
-                onClick={() => {
-                  setUserText("");
-                  setFollowupAnswer("");
-                  setEvaluationReport(null);
-                  setInterviewStep("prompt");
-                  setViewMode("interview");
-                }}
+                onClick={handleCoachAnalyze}
+                disabled={coachEvaluating || !coachInputText.trim()}
                 style={{
-                  padding: "8px 18px",
-                  borderRadius: 8,
+                  padding: "10px 24px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "#10b981",
-                  color: "white",
+                  background: coachEvaluating || !coachInputText.trim() ? "#98A2B3" : "#356AE6",
+                  color: "#FFFFFF",
                   fontSize: 12,
-                  fontWeight: 800,
-                  cursor: "pointer"
+                  fontWeight: 700,
+                  cursor: coachEvaluating || !coachInputText.trim() ? "not-allowed" : "pointer",
+                  boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
                 }}
               >
-                Start New Unseen Challenge ➔
+                {coachEvaluating ? "⚡ Inspecting Answer Evidence..." : "Analyze & Improve My Answer ➔"}
               </button>
             </div>
 
+            {/* Coach Report */}
+            {coachReport && (
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "24px", marginBottom: 28, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43", marginBottom: 14 }}>
+                  COACH EVIDENCE AUDIT:
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+                  <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: "16px" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "#2E7D5B", marginBottom: 8 }}>
+                      ✓ WHAT IS ALREADY WORKING:
+                    </div>
+                    {coachReport.strengths.map((s, idx) => (
+                      <div key={idx} style={{ marginBottom: 10, fontSize: 12, color: "#14532D" }}>
+                        <strong style={{ color: "#166534" }}>• {s.claim}:</strong>
+                        <div style={{ color: "#15803D", fontStyle: "italic", marginTop: 2, background: "#FFFFFF", padding: "4px 8px", borderRadius: 5, border: "1px solid #C8E4D3" }}>&ldquo;{s.evidence}&rdquo;</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, padding: "16px" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "#B7791F", marginBottom: 8 }}>
+                      ⚠ HOW TO ELEVATE THIS ANSWER:
+                    </div>
+                    {coachReport.weaknesses.map((w, idx) => (
+                      <div key={idx} style={{ marginBottom: 10, fontSize: 12, color: "#78350F" }}>
+                        <strong style={{ color: "#92400E" }}>• {w.claim}:</strong>
+                        <div style={{ color: "#A16207", fontStyle: "italic", marginTop: 2, background: "#FFFFFF", padding: "4px 8px", borderRadius: 5, border: "1px solid #F8D8A7" }}>&ldquo;{w.evidence}&rdquo;</div>
+                        <div style={{ color: "#356AE6", marginTop: 3, fontWeight: 600 }}>→ Fix: {w.recommendation}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════════════════════════════
+            4. INTERVIEW MODE: CONVERSATIONAL MOCK INTERVIEW
+            ════════════════════════════════════════════════════════════════ */}
+        {activeMode === "interview" && (
+          <div>
+            {!interviewStarted ? (
+              <div style={{ textAlign: "center", padding: "48px 20px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+                <div style={{ fontSize: 40, marginBottom: 14 }}>🎙️</div>
+                <h2 style={{ fontSize: 22, fontWeight: 800, color: "#162A43", margin: "0 0 10px" }}>
+                  Interactive Placement Mock Interview
+                </h2>
+                <p style={{ color: "#667085", fontSize: 14, maxWidth: 600, margin: "0 auto 24px", lineHeight: 1.6 }}>
+                  Simulates a genuine multi-turn placement screening round. The interviewer will listen to your answers and ask dynamic follow-ups based directly on what you say. Detailed evaluation is presented at the end.
+                </p>
+
+                <button
+                  onClick={startNewInterview}
+                  style={{
+                    padding: "11px 26px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+                  }}
+                >
+                  Start Mock Interview Session ➔
+                </button>
+              </div>
+            ) : !interviewFinished ? (
+              <div>
+                {/* Active Interview Conversation Container */}
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "24px", marginBottom: 20, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, borderBottom: "1px solid #E4E1DA", paddingBottom: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2E7D5B" }} />
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>Senior Engineering Hiring Manager</span>
+                    </div>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>
+                      Turn {interviewTurn + 1} of 3
+                    </span>
+                  </div>
+
+                  {/* Message History */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14, maxHeight: 380, overflowY: "auto", paddingRight: 4, marginBottom: 20 }}>
+                    {interviewHistory.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          alignSelf: msg.speaker === "candidate" ? "flex-end" : "flex-start",
+                          maxWidth: "80%",
+                          background: msg.speaker === "candidate" ? "#EFF4FE" : "#F6F5F1",
+                          border: msg.speaker === "candidate" ? "1px solid #D2E0FB" : "1px solid #E4E1DA",
+                          borderRadius: 8,
+                          padding: "12px 16px"
+                        }}
+                      >
+                        <div style={{ fontSize: 10, fontWeight: 800, color: msg.speaker === "candidate" ? "#356AE6" : "#162A43", textTransform: "uppercase", marginBottom: 4 }}>
+                          {msg.speaker === "candidate" ? "You (Candidate)" : "Interviewer"}
+                        </div>
+                        <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                    {interviewEvaluating && (
+                      <div style={{ alignSelf: "flex-start", fontSize: 12, color: "#667085", fontStyle: "italic" }}>
+                        Interviewer is reflecting on your answer and preparing next question...
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Candidate Input Area */}
+                  <div>
+                    <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                      {!isRecording ? (
+                        <button
+                          onClick={startRecording}
+                          disabled={interviewEvaluating}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#C24141",
+                            color: "#FFFFFF",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: interviewEvaluating ? "not-allowed" : "pointer"
+                          }}
+                        >
+                          🎙️ Speak Answer
+                        </button>
+                      ) : (
+                        <button
+                          onClick={stopRecording}
+                          style={{
+                            padding: "6px 12px",
+                            borderRadius: 6,
+                            border: "none",
+                            background: "#B7791F",
+                            color: "#FFFFFF",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            cursor: "pointer"
+                          }}
+                        >
+                          Stop Recording ({recordingSeconds}s)
+                        </button>
+                      )}
+                    </div>
+
+                    <textarea
+                      rows={3}
+                      value={interviewCurrentInput}
+                      onChange={e => setInterviewCurrentInput(e.target.value)}
+                      placeholder="Type or speak your answer to the interviewer..."
+                      disabled={interviewEvaluating}
+                      style={{
+                        width: "100%",
+                        padding: "12px 14px",
+                        borderRadius: 7,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        color: "#17191C",
+                        fontSize: 13,
+                        lineHeight: 1.5,
+                        boxSizing: "border-box",
+                        fontFamily: "inherit",
+                        resize: "vertical"
+                      }}
+                    />
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+                      <button
+                        onClick={() => finishInterview()}
+                        disabled={interviewEvaluating || interviewHistory.length < 2}
+                        style={{
+                          padding: "8px 14px",
+                          borderRadius: 6,
+                          border: "1px solid #E4E1DA",
+                          background: "#FFFFFF",
+                          color: "#667085",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: interviewEvaluating ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        Finish & View Diagnostic Report ➔
+                      </button>
+
+                      <button
+                        onClick={handleSendInterviewAnswer}
+                        disabled={interviewEvaluating || !interviewCurrentInput.trim()}
+                        style={{
+                          padding: "9px 20px",
+                          borderRadius: 7,
+                          border: "none",
+                          background: interviewEvaluating || !interviewCurrentInput.trim() ? "#98A2B3" : "#356AE6",
+                          color: "#FFFFFF",
+                          fontSize: 12,
+                          fontWeight: 700,
+                          cursor: interviewEvaluating || !interviewCurrentInput.trim() ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        Send Answer ➔
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* ── COMPREHENSIVE END-OF-INTERVIEW REPORT ── */
+              interviewReport && (
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "26px", marginBottom: 28, boxShadow: "0 1px 3px rgba(16,24,40,0.05)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, borderBottom: "1px solid #E4E1DA", paddingBottom: 16, flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                      <span style={{ fontSize: 10, padding: "3px 9px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 5, fontWeight: 800, letterSpacing: 0.8 }}>
+                        INTERVIEW READINESS: {interviewReport.verdict.toUpperCase()}
+                      </span>
+                      <h2 style={{ fontSize: 20, fontWeight: 800, margin: "6px 0 0", color: "#162A43" }}>
+                        Mock Interview Diagnostic Report
+                      </h2>
+                      <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
+                        {interviewReport.summary}
+                      </p>
+                    </div>
+
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 36, fontWeight: 800, color: interviewReport.overallScore >= 75 ? "#2E7D5B" : "#B7791F" }}>
+                        {interviewReport.overallScore}<span style={{ fontSize: 16, color: "#98A2B3" }}>/100</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: "#667085" }}>
+                        Multi-Turn Candidate Speech Evidence
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dimensions */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 20 }}>
+                    {interviewReport.dimensions.map((d, i) => (
+                      <div key={i} style={{ background: "#F6F5F1", borderRadius: 7, padding: "12px", border: "1px solid #E4E1DA" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>{d.dimension}</span>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: d.score >= 75 ? "#2E7D5B" : "#B7791F" }}>{d.score}%</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: "#667085" }}>{d.reason}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Strengths vs Growth Areas */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+                    <div style={{ background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, padding: "16px" }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "#2E7D5B", marginBottom: 10 }}>
+                        ✓ DEMONSTRATED STRENGTHS (EXACT QUOTES)
+                      </div>
+                      {interviewReport.strengths.map((s, idx) => (
+                        <div key={idx} style={{ marginBottom: 12 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#14532D" }}>{s.claim}</div>
+                          {s.evidence && (
+                            <div style={{ fontSize: 12, color: "#166534", background: "#FFFFFF", padding: "4px 8px", borderRadius: 5, border: "1px solid #C8E4D3", margin: "4px 0", fontStyle: "italic" }}>
+                              &ldquo;{s.evidence}&rdquo;
+                            </div>
+                          )}
+                          <div style={{ fontSize: 11, color: "#15803D" }}>{s.reason}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 8, padding: "16px" }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "#B7791F", marginBottom: 10 }}>
+                        ⚠ SPECIFIC GROWTH AREAS
+                      </div>
+                      {interviewReport.weaknesses.map((w, idx) => (
+                        <div key={idx} style={{ marginBottom: 12 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#78350F" }}>{w.claim}</div>
+                          {w.evidence && (
+                            <div style={{ fontSize: 12, color: "#92400E", background: "#FFFFFF", padding: "4px 8px", borderRadius: 5, border: "1px solid #F8D8A7", margin: "4px 0", fontStyle: "italic" }}>
+                              &ldquo;{w.evidence}&rdquo;
+                            </div>
+                          )}
+                          <div style={{ fontSize: 11, color: "#A16207" }}>{w.reason}</div>
+                          {w.recommendation && (
+                            <div style={{ fontSize: 11, color: "#356AE6", marginTop: 2 }}>→ Fix: {w.recommendation}</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                    <button
+                      onClick={startNewInterview}
+                      style={{
+                        padding: "10px 22px",
+                        borderRadius: 7,
+                        border: "none",
+                        background: "#356AE6",
+                        color: "#FFFFFF",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Start Fresh Mock Interview ➔
+                    </button>
+                  </div>
+                </div>
+              )
+            )}
           </div>
         )}
 
       </main>
     </div>
+  );
+}
+
+export default function CommunicationArenaPage() {
+  return (
+    <React.Suspense fallback={<div style={{ padding: 40, textAlign: "center", color: "#667085" }}>Loading Communication Arena...</div>}>
+      <CommunicationArenaContent />
+    </React.Suspense>
   );
 }

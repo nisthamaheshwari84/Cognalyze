@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const studentProfile = getStudentProfileByUserId(userId);
     const session = createSession(userId, user.accountType);
 
-    const nextUrl = !studentProfile ? "/student/onboarding" : "/student/dashboard";
+    const nextUrl = "/student/dashboard";
 
     const res = NextResponse.json({
       success: true,

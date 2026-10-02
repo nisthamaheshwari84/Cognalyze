@@ -399,9 +399,9 @@ export default function StudentProfilePage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#060913",
-        color: "#f8fafc",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        backgroundColor: "#F6F5F1",
+        color: "#17191C",
+        fontFamily: "Inter, sans-serif",
       }}
     >
       <AppNav role="student" />
@@ -421,52 +421,57 @@ export default function StudentProfilePage() {
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
             <div
               style={{
-                width: 60,
-                height: 60,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #176B5B, #22c55e)",
+                backgroundColor: "#EFF4FE",
+                border: "1px solid #D2E0FB",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 26,
-                border: "2px solid rgba(255,255,255,0.2)",
+                fontSize: 24,
+                color: "#356AE6",
+                boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
               }}
             >
               👤
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 900, color: "white", margin: 0 }}>
+                <h1 style={{ fontSize: 22, fontWeight: 700, color: "#162A43", margin: 0, letterSpacing: "-0.4px" }}>
                   {basicInfo.fullName || (loading ? "Loading..." : "Student Profile")}
                 </h1>
                 <span
                   style={{
                     fontSize: 10,
                     padding: "2px 8px",
-                    borderRadius: 4,
-                    background: "rgba(23, 107, 91, 0.25)",
-                    color: "#34d399",
-                    border: "1px solid rgba(34, 197, 94, 0.35)",
-                    fontWeight: 800,
+                    borderRadius: 5,
+                    backgroundColor: "#EAF4EE",
+                    color: "#2E7D5B",
+                    border: "1px solid #C8E4D3",
+                    fontWeight: 700,
                   }}
                 >
-                  VERIFIED IDENTITY
+                  ✓ VERIFIED PROFILE
                 </span>
               </div>
-              <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 4 }}>
-                {academicInfo.degree || "Degree"} • {academicInfo.college || "University"}
+              <div style={{ fontSize: 13, color: "#667085", marginTop: 4 }}>
+                {academicInfo.degree && academicInfo.branch
+                  ? `${academicInfo.degree} in ${academicInfo.branch}`
+                  : "Comprehensive Academic & Technical Candidate Profile"}
+                {academicInfo.college ? ` • ${academicInfo.college}` : ""}
               </div>
             </div>
           </div>
 
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
             {savedSuccess && (
-              <span style={{ fontSize: 12, color: "#34d399", fontWeight: 700 }}>
+              <span style={{ fontSize: 12, color: "#2E7D5B", fontWeight: 600 }}>
                 ✓ Profile saved successfully
               </span>
             )}
             {errorMessage && (
-              <span style={{ fontSize: 12, color: "#ef4444", fontWeight: 700 }}>
+              <span style={{ fontSize: 12, color: "#C24141", fontWeight: 600 }}>
                 {errorMessage}
               </span>
             )}
@@ -475,14 +480,15 @@ export default function StudentProfilePage() {
               disabled={saving}
               style={{
                 padding: "8px 20px",
-                background: "#176B5B",
+                backgroundColor: "#356AE6",
                 border: "none",
-                borderRadius: 8,
+                borderRadius: 7,
                 color: "white",
                 fontSize: 13,
-                fontWeight: 800,
+                fontWeight: 600,
                 cursor: saving ? "not-allowed" : "pointer",
                 opacity: saving ? 0.7 : 1,
+                boxShadow: "0 2px 6px rgba(53, 106, 230, 0.2)",
                 transition: "all 0.15s ease",
               }}
             >
@@ -492,13 +498,14 @@ export default function StudentProfilePage() {
               href="/student/dna"
               style={{
                 padding: "8px 16px",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                color: "white",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 7,
+                color: "#162A43",
                 fontSize: 13,
-                fontWeight: 700,
+                fontWeight: 600,
                 textDecoration: "none",
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               View Student DNA ↗
@@ -511,13 +518,14 @@ export default function StudentProfilePage() {
           {/* Tabs Sidebar */}
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 14,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
               padding: 8,
               display: "flex",
               flexDirection: "column",
               gap: 4,
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             {tabs.map((tab) => (
@@ -529,11 +537,11 @@ export default function StudentProfilePage() {
                   alignItems: "center",
                   gap: 10,
                   padding: "10px 14px",
-                  borderRadius: 8,
+                  borderRadius: 7,
                   border: "none",
-                  background: activeTab === tab.id ? "rgba(23, 107, 91, 0.25)" : "transparent",
-                  color: activeTab === tab.id ? "white" : "rgba(255, 255, 255, 0.7)",
-                  fontWeight: activeTab === tab.id ? 800 : 600,
+                  backgroundColor: activeTab === tab.id ? "#EFF4FE" : "transparent",
+                  color: activeTab === tab.id ? "#356AE6" : "#667085",
+                  fontWeight: activeTab === tab.id ? 700 : 500,
                   fontSize: 13,
                   textAlign: "left",
                   cursor: "pointer",
@@ -549,21 +557,22 @@ export default function StudentProfilePage() {
           {/* Tab Content Panel */}
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.5)",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: 16,
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 10,
               padding: "24px 28px",
+              boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)"
             }}
           >
             {/* 1. Basic Information */}
             {activeTab === "basic" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Basic Information
                 </h2>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       FULL NAME
                     </label>
                     <input
@@ -574,17 +583,18 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       EMAIL ADDRESS
                     </label>
                     <input
@@ -594,13 +604,14 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.02)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        borderRadius: 8,
-                        color: "#94a3b8",
+                        backgroundColor: "#F6F5F1",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#667085",
                         fontSize: 13,
                         outline: "none",
                         cursor: "not-allowed",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
@@ -608,7 +619,7 @@ export default function StudentProfilePage() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       PHONE NUMBER
                     </label>
                     <input
@@ -619,17 +630,18 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       LOCATION
                     </label>
                     <input
@@ -640,19 +652,20 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     PROFESSIONAL BIO
                   </label>
                   <textarea
@@ -663,13 +676,14 @@ export default function StudentProfilePage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8,
-                      color: "white",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      color: "#17191C",
                       fontSize: 13,
                       outline: "none",
                       resize: "vertical",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
@@ -679,11 +693,11 @@ export default function StudentProfilePage() {
             {/* 2. Academic Information */}
             {activeTab === "academic" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Education &amp; Academics
                 </h2>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     COLLEGE / UNIVERSITY
                   </label>
                   <input
@@ -694,19 +708,20 @@ export default function StudentProfilePage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8,
-                      color: "white",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      color: "#17191C",
                       fontSize: 13,
                       outline: "none",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       DEGREE
                     </label>
                     <input
@@ -717,17 +732,18 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       BRANCH / MAJOR
                     </label>
                     <input
@@ -738,12 +754,13 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
@@ -751,7 +768,7 @@ export default function StudentProfilePage() {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       GRADUATION YEAR
                     </label>
                     <input
@@ -762,17 +779,18 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                       CGPA / PERCENTAGE
                     </label>
                     <input
@@ -783,12 +801,13 @@ export default function StudentProfilePage() {
                       style={{
                         width: "100%",
                         padding: "10px 12px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        borderRadius: 8,
-                        color: "white",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 7,
+                        color: "#17191C",
                         fontSize: 13,
                         outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
@@ -799,10 +818,10 @@ export default function StudentProfilePage() {
             {/* 3. Technical Skills */}
             {activeTab === "skills" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: 0 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: 0 }}>
                   Technical Skills &amp; Competencies
                 </h2>
-                <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                <p style={{ fontSize: 12, color: "#667085", margin: 0 }}>
                   Add your programming languages, frameworks, databases, and cloud tools.
                 </p>
 
@@ -810,9 +829,9 @@ export default function StudentProfilePage() {
                 <div
                   style={{
                     padding: "14px",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 10,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 8,
                     display: "grid",
                     gridTemplateColumns: "1fr 140px 1fr auto",
                     gap: 10,
@@ -826,10 +845,10 @@ export default function StudentProfilePage() {
                     onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
                     style={{
                       padding: "8px 10px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
                       borderRadius: 6,
-                      color: "white",
+                      color: "#17191C",
                       fontSize: 12,
                       outline: "none",
                     }}
@@ -839,10 +858,10 @@ export default function StudentProfilePage() {
                     onChange={(e) => setNewSkill({ ...newSkill, level: e.target.value })}
                     style={{
                       padding: "8px 10px",
-                      background: "#0f172a",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
                       borderRadius: 6,
-                      color: "white",
+                      color: "#17191C",
                       fontSize: 12,
                       outline: "none",
                     }}
@@ -859,10 +878,10 @@ export default function StudentProfilePage() {
                     onChange={(e) => setNewSkill({ ...newSkill, evidence: e.target.value })}
                     style={{
                       padding: "8px 10px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
                       borderRadius: 6,
-                      color: "white",
+                      color: "#17191C",
                       fontSize: 12,
                       outline: "none",
                     }}
@@ -870,13 +889,13 @@ export default function StudentProfilePage() {
                   <button
                     onClick={addSkill}
                     style={{
-                      padding: "8px 14px",
-                      background: "#176B5B",
+                      padding: "8px 16px",
+                      backgroundColor: "#356AE6",
                       border: "none",
                       borderRadius: 6,
                       color: "white",
                       fontSize: 12,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer",
                     }}
                   >
@@ -887,7 +906,7 @@ export default function StudentProfilePage() {
                 {/* Skills List */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
                   {skillsList.length === 0 ? (
-                    <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                    <div style={{ padding: "24px", textAlign: "center", color: "#667085", fontSize: 13, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px dashed #E4E1DA" }}>
                       No skills added yet. Add your core languages and frameworks above.
                     </div>
                   ) : (
@@ -899,17 +918,18 @@ export default function StudentProfilePage() {
                           alignItems: "center",
                           justifyContent: "space-between",
                           padding: "10px 14px",
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
                           borderRadius: 8,
+                          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)"
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
                             {skill.name}
                           </div>
                           {skill.evidence && (
-                            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+                            <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
                               {skill.evidence}
                             </div>
                           )}
@@ -919,10 +939,11 @@ export default function StudentProfilePage() {
                             style={{
                               fontSize: 11,
                               padding: "2px 8px",
-                              background: "rgba(23, 107, 91, 0.2)",
-                              color: "#34d399",
+                              backgroundColor: "#EFF4FE",
+                              color: "#356AE6",
+                              border: "1px solid #D2E0FB",
                               borderRadius: 4,
-                              fontWeight: 700,
+                              fontWeight: 600,
                             }}
                           >
                             {skill.level}
@@ -930,12 +951,13 @@ export default function StudentProfilePage() {
                           <button
                             onClick={() => removeSkill(idx)}
                             style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "#ef4444",
-                              fontSize: 14,
+                              backgroundColor: "#FDF2F2",
+                              border: "1px solid #F8C8C8",
+                              color: "#C24141",
+                              fontSize: 12,
+                              borderRadius: 5,
                               cursor: "pointer",
-                              padding: "2px 6px",
+                              padding: "3px 8px",
                             }}
                           >
                             ✕
@@ -951,10 +973,10 @@ export default function StudentProfilePage() {
             {/* 4. Projects */}
             {activeTab === "projects" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: 0 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: 0 }}>
                   Projects &amp; Code Evidence
                 </h2>
-                <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>
+                <p style={{ fontSize: 12, color: "#667085", margin: 0 }}>
                   Real projects provide the strongest evidence for your Student DNA.
                 </p>
 
@@ -962,9 +984,9 @@ export default function StudentProfilePage() {
                 <div
                   style={{
                     padding: "16px",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 10,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 8,
                     display: "flex",
                     flexDirection: "column",
                     gap: 12,
@@ -978,10 +1000,10 @@ export default function StudentProfilePage() {
                       onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
                       style={{
                         padding: "8px 10px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 12,
                         outline: "none",
                       }}
@@ -993,10 +1015,10 @@ export default function StudentProfilePage() {
                       onChange={(e) => setNewProject({ ...newProject, techStack: e.target.value })}
                       style={{
                         padding: "8px 10px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 12,
                         outline: "none",
                       }}
@@ -1010,10 +1032,10 @@ export default function StudentProfilePage() {
                     onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
                     style={{
                       padding: "8px 10px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
                       borderRadius: 6,
-                      color: "white",
+                      color: "#17191C",
                       fontSize: 12,
                       outline: "none",
                       resize: "vertical",
@@ -1028,10 +1050,10 @@ export default function StudentProfilePage() {
                       onChange={(e) => setNewProject({ ...newProject, githubUrl: e.target.value })}
                       style={{
                         padding: "8px 10px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 12,
                         outline: "none",
                       }}
@@ -1043,10 +1065,10 @@ export default function StudentProfilePage() {
                       onChange={(e) => setNewProject({ ...newProject, liveUrl: e.target.value })}
                       style={{
                         padding: "8px 10px",
-                        background: "rgba(255,255,255,0.04)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 12,
                         outline: "none",
                       }}
@@ -1055,12 +1077,12 @@ export default function StudentProfilePage() {
                       onClick={addProject}
                       style={{
                         padding: "8px 16px",
-                        background: "#176B5B",
+                        backgroundColor: "#356AE6",
                         border: "none",
                         borderRadius: 6,
                         color: "white",
                         fontSize: 12,
-                        fontWeight: 700,
+                        fontWeight: 600,
                         cursor: "pointer",
                       }}
                     >
@@ -1072,7 +1094,7 @@ export default function StudentProfilePage() {
                 {/* Projects List */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {projectsList.length === 0 ? (
-                    <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                    <div style={{ padding: "24px", textAlign: "center", color: "#667085", fontSize: 13, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px dashed #E4E1DA" }}>
                       No projects added yet. Add a project above to provide proof of your engineering skills.
                     </div>
                   ) : (
@@ -1081,20 +1103,21 @@ export default function StudentProfilePage() {
                         key={idx}
                         style={{
                           padding: "14px 16px",
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                          borderRadius: 10,
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
+                          borderRadius: 8,
+                          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)"
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>{p.name}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>{p.name}</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                             {p.githubUrl && (
                               <a
                                 href={p.githubUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                style={{ fontSize: 11, color: "#38bdf8", textDecoration: "none" }}
+                                style={{ fontSize: 11, color: "#356AE6", textDecoration: "none", fontWeight: 600 }}
                               >
                                 GitHub ↗
                               </a>
@@ -1102,11 +1125,13 @@ export default function StudentProfilePage() {
                             <button
                               onClick={() => removeProject(idx)}
                               style={{
-                                background: "transparent",
-                                border: "none",
-                                color: "#ef4444",
-                                fontSize: 14,
+                                backgroundColor: "#FDF2F2",
+                                border: "1px solid #F8C8C8",
+                                color: "#C24141",
+                                fontSize: 12,
+                                borderRadius: 5,
                                 cursor: "pointer",
+                                padding: "3px 8px",
                               }}
                             >
                               ✕
@@ -1114,11 +1139,11 @@ export default function StudentProfilePage() {
                           </div>
                         </div>
                         {p.techStack && p.techStack.length > 0 && (
-                          <div style={{ fontSize: 11, color: "#a5b4fc", fontWeight: 600, marginBottom: 6 }}>
+                          <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 600, marginBottom: 6 }}>
                             {p.techStack.join(" • ")}
                           </div>
                         )}
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>
+                        <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                           {p.description}
                         </div>
                       </div>
@@ -1131,15 +1156,15 @@ export default function StudentProfilePage() {
             {/* 5. Experience */}
             {activeTab === "experience" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Work &amp; Practical Experience
                 </h2>
                 <div
                   style={{
                     padding: "16px",
-                    background: "rgba(255,255,255,0.02)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: 10,
+                    backgroundColor: "#F6F5F1",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 8,
                     display: "flex",
                     flexDirection: "column",
                     gap: 12,
@@ -1151,21 +1176,21 @@ export default function StudentProfilePage() {
                       placeholder="Organization / Company *"
                       value={newExp.organization}
                       onChange={(e) => setNewExp({ ...newExp, organization: e.target.value })}
-                      style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                     <input
                       type="text"
                       placeholder="Role (e.g. SDE Intern) *"
                       value={newExp.role}
                       onChange={(e) => setNewExp({ ...newExp, role: e.target.value })}
-                      style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                     <input
                       type="text"
                       placeholder="Duration (e.g. May 2025 - July 2025)"
                       value={newExp.duration}
                       onChange={(e) => setNewExp({ ...newExp, duration: e.target.value })}
-                      style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
@@ -1174,11 +1199,11 @@ export default function StudentProfilePage() {
                       placeholder="Key responsibilities and technical contributions..."
                       value={newExp.responsibilities}
                       onChange={(e) => setNewExp({ ...newExp, responsibilities: e.target.value })}
-                      style={{ flex: 1, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12, resize: "vertical" }}
+                      style={{ flex: 1, padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, resize: "vertical", outline: "none" }}
                     />
                     <button
                       onClick={addExperience}
-                      style={{ padding: "8px 16px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ padding: "8px 16px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                     >
                       + Add
                     </button>
@@ -1187,7 +1212,7 @@ export default function StudentProfilePage() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {experienceList.length === 0 ? (
-                    <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                    <div style={{ padding: "24px", textAlign: "center", color: "#667085", fontSize: 13, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px dashed #E4E1DA" }}>
                       No experience added yet. (Internships, research, open source, or freelance).
                     </div>
                   ) : (
@@ -1196,27 +1221,36 @@ export default function StudentProfilePage() {
                         key={idx}
                         style={{
                           padding: "14px 16px",
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.06)",
-                          borderRadius: 10,
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
+                          borderRadius: 8,
+                          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)"
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: "white" }}>{exp.role}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>{exp.role}</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <span style={{ fontSize: 11, color: "#fbbf24", fontWeight: 700 }}>{exp.duration}</span>
+                            <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 600 }}>{exp.duration}</span>
                             <button
                               onClick={() => removeExperience(idx)}
-                              style={{ background: "transparent", border: "none", color: "#ef4444", fontSize: 14, cursor: "pointer" }}
+                              style={{
+                                backgroundColor: "#FDF2F2",
+                                border: "1px solid #F8C8C8",
+                                color: "#C24141",
+                                fontSize: 12,
+                                borderRadius: 5,
+                                cursor: "pointer",
+                                padding: "3px 8px",
+                              }}
                             >
                               ✕
                             </button>
                           </div>
                         </div>
-                        <div style={{ fontSize: 12, color: "#818cf8", fontWeight: 600, marginBottom: 6 }}>
+                        <div style={{ fontSize: 12, color: "#356AE6", fontWeight: 600, marginBottom: 6 }}>
                           {exp.organization}
                         </div>
-                        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.4 }}>
+                        <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                           {exp.responsibilities}
                         </div>
                       </div>
@@ -1229,27 +1263,27 @@ export default function StudentProfilePage() {
             {/* 6. Achievements */}
             {activeTab === "achievements" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Achievements &amp; Honors
                 </h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, padding: 14, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
                   <input
                     type="text"
                     placeholder="Achievement Title (e.g. Smart India Hackathon Finalist)"
                     value={newAch.title}
                     onChange={(e) => setNewAch({ ...newAch, title: e.target.value })}
-                    style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                    style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                   />
                   <input
                     type="text"
                     placeholder="Awarding Body / Organization"
                     value={newAch.organization}
                     onChange={(e) => setNewAch({ ...newAch, organization: e.target.value })}
-                    style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                    style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                   />
                   <button
                     onClick={addAchievement}
-                    style={{ padding: "8px 16px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    style={{ padding: "8px 16px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                   >
                     + Add
                   </button>
@@ -1257,7 +1291,7 @@ export default function StudentProfilePage() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {achievementsList.length === 0 ? (
-                    <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                    <div style={{ padding: "24px", textAlign: "center", color: "#667085", fontSize: 13, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px dashed #E4E1DA" }}>
                       No achievements recorded yet. Add hackathon rankings, competitive programming medals, or awards.
                     </div>
                   ) : (
@@ -1269,20 +1303,29 @@ export default function StudentProfilePage() {
                           justifyContent: "space-between",
                           alignItems: "center",
                           padding: "10px 14px",
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
                           borderRadius: 8,
+                          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)"
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{a.title}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>{a.title}</div>
                           {a.organization && (
-                            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{a.organization}</div>
+                            <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>{a.organization}</div>
                           )}
                         </div>
                         <button
                           onClick={() => removeAchievement(idx)}
-                          style={{ background: "transparent", border: "none", color: "#ef4444", fontSize: 14, cursor: "pointer" }}
+                          style={{
+                            backgroundColor: "#FDF2F2",
+                            border: "1px solid #F8C8C8",
+                            color: "#C24141",
+                            fontSize: 12,
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            padding: "3px 8px",
+                          }}
                         >
                           ✕
                         </button>
@@ -1296,27 +1339,27 @@ export default function StudentProfilePage() {
             {/* 7. Certifications */}
             {activeTab === "certifications" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Certifications &amp; Credentials
                 </h2>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10, padding: 14, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
                   <input
                     type="text"
                     placeholder="Certification Name (e.g. AWS Certified Developer)"
                     value={newCert.name}
                     onChange={(e) => setNewCert({ ...newCert, name: e.target.value })}
-                    style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                    style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                   />
                   <input
                     type="text"
                     placeholder="Issuer (e.g. Amazon Web Services)"
                     value={newCert.issuer}
                     onChange={(e) => setNewCert({ ...newCert, issuer: e.target.value })}
-                    style={{ padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                    style={{ padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                   />
                   <button
                     onClick={addCertification}
-                    style={{ padding: "8px 16px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    style={{ padding: "8px 16px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                   >
                     + Add
                   </button>
@@ -1324,7 +1367,7 @@ export default function StudentProfilePage() {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {certificationsList.length === 0 ? (
-                    <div style={{ padding: "24px", textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                    <div style={{ padding: "24px", textAlign: "center", color: "#667085", fontSize: 13, backgroundColor: "#F6F5F1", borderRadius: 8, border: "1px dashed #E4E1DA" }}>
                       No certifications added yet.
                     </div>
                   ) : (
@@ -1336,18 +1379,27 @@ export default function StudentProfilePage() {
                           justifyContent: "space-between",
                           alignItems: "center",
                           padding: "10px 14px",
-                          background: "rgba(255,255,255,0.02)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
                           borderRadius: 8,
+                          boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)"
                         }}
                       >
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "white" }}>{c.name}</div>
-                          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{c.issuer}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>{c.name}</div>
+                          <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>{c.issuer}</div>
                         </div>
                         <button
                           onClick={() => removeCertification(idx)}
-                          style={{ background: "transparent", border: "none", color: "#ef4444", fontSize: 14, cursor: "pointer" }}
+                          style={{
+                            backgroundColor: "#FDF2F2",
+                            border: "1px solid #F8C8C8",
+                            color: "#C24141",
+                            fontSize: 12,
+                            borderRadius: 5,
+                            cursor: "pointer",
+                            padding: "3px 8px",
+                          }}
                         >
                           ✕
                         </button>
@@ -1361,13 +1413,13 @@ export default function StudentProfilePage() {
             {/* 8. Career Goals & Interests */}
             {activeTab === "career" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: 0 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: 0 }}>
                   Career Goals &amp; Matching Preferences
                 </h2>
 
                 {/* Target Roles */}
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     TARGET ROLES
                   </label>
                   <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -1377,11 +1429,11 @@ export default function StudentProfilePage() {
                       value={targetRoleInput}
                       onChange={(e) => setTargetRoleInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addTargetRole()}
-                      style={{ flex: 1, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ flex: 1, padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                     <button
                       onClick={addTargetRole}
-                      style={{ padding: "8px 14px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ padding: "8px 14px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                     >
                       Add
                     </button>
@@ -1392,11 +1444,12 @@ export default function StudentProfilePage() {
                         key={role}
                         style={{
                           padding: "4px 10px",
-                          background: "rgba(23, 107, 91, 0.25)",
-                          border: "1px solid rgba(34, 197, 94, 0.3)",
-                          color: "#34d399",
+                          backgroundColor: "#EAF4EE",
+                          border: "1px solid #C8E4D3",
+                          color: "#2E7D5B",
                           borderRadius: 6,
                           fontSize: 12,
+                          fontWeight: 500,
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
@@ -1405,7 +1458,7 @@ export default function StudentProfilePage() {
                         {role}
                         <button
                           onClick={() => removeTargetRole(role)}
-                          style={{ background: "transparent", border: "none", color: "#34d399", cursor: "pointer", padding: 0 }}
+                          style={{ background: "transparent", border: "none", color: "#2E7D5B", cursor: "pointer", padding: 0 }}
                         >
                           ✕
                         </button>
@@ -1416,7 +1469,7 @@ export default function StudentProfilePage() {
 
                 {/* Preferred Domains */}
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     PREFERRED DOMAINS
                   </label>
                   <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -1426,11 +1479,11 @@ export default function StudentProfilePage() {
                       value={domainInput}
                       onChange={(e) => setDomainInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addDomain()}
-                      style={{ flex: 1, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ flex: 1, padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                     <button
                       onClick={addDomain}
-                      style={{ padding: "8px 14px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ padding: "8px 14px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                     >
                       Add
                     </button>
@@ -1441,11 +1494,12 @@ export default function StudentProfilePage() {
                         key={dom}
                         style={{
                           padding: "4px 10px",
-                          background: "rgba(56, 189, 248, 0.15)",
-                          border: "1px solid rgba(56, 189, 248, 0.3)",
-                          color: "#38bdf8",
+                          backgroundColor: "#EFF4FE",
+                          border: "1px solid #D2E0FB",
+                          color: "#356AE6",
                           borderRadius: 6,
                           fontSize: 12,
+                          fontWeight: 500,
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
@@ -1454,7 +1508,7 @@ export default function StudentProfilePage() {
                         {dom}
                         <button
                           onClick={() => removeDomain(dom)}
-                          style={{ background: "transparent", border: "none", color: "#38bdf8", cursor: "pointer", padding: 0 }}
+                          style={{ background: "transparent", border: "none", color: "#356AE6", cursor: "pointer", padding: 0 }}
                         >
                           ✕
                         </button>
@@ -1465,21 +1519,21 @@ export default function StudentProfilePage() {
 
                 {/* Target Companies */}
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     TARGET COMPANIES
                   </label>
                   <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                     <input
                       type="text"
-                      placeholder="e.g. Google, Stripe, Razorpay, Uber"
+                      placeholder="e.g. Google, Microsoft, Atlassian, TCS Digital"
                       value={companyInput}
                       onChange={(e) => setCompanyInput(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && addCompany()}
-                      style={{ flex: 1, padding: "8px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, color: "white", fontSize: 12 }}
+                      style={{ flex: 1, padding: "8px 10px", backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 6, color: "#17191C", fontSize: 12, outline: "none" }}
                     />
                     <button
                       onClick={addCompany}
-                      style={{ padding: "8px 14px", background: "#176B5B", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      style={{ padding: "8px 14px", backgroundColor: "#356AE6", border: "none", borderRadius: 6, color: "white", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
                     >
                       Add
                     </button>
@@ -1490,11 +1544,12 @@ export default function StudentProfilePage() {
                         key={c}
                         style={{
                           padding: "4px 10px",
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          color: "#f8fafc",
+                          backgroundColor: "#FEF7ED",
+                          border: "1px solid #F8D8A7",
+                          color: "#B7791F",
                           borderRadius: 6,
                           fontSize: 12,
+                          fontWeight: 500,
                           display: "flex",
                           alignItems: "center",
                           gap: 6,
@@ -1503,7 +1558,7 @@ export default function StudentProfilePage() {
                         {c}
                         <button
                           onClick={() => removeCompany(c)}
-                          style={{ background: "transparent", border: "none", color: "#f8fafc", cursor: "pointer", padding: 0 }}
+                          style={{ background: "transparent", border: "none", color: "#B7791F", cursor: "pointer", padding: 0 }}
                         >
                           ✕
                         </button>
@@ -1517,11 +1572,11 @@ export default function StudentProfilePage() {
             {/* 9. Links & Socials */}
             {activeTab === "links" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 18, fontWeight: 900, color: "white", margin: "0 0 8px" }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "0 0 8px" }}>
                   Profiles &amp; Verifiable Links
                 </h2>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     GITHUB PROFILE
                   </label>
                   <input
@@ -1532,17 +1587,18 @@ export default function StudentProfilePage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8,
-                      color: "white",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      color: "#17191C",
                       fontSize: 13,
                       outline: "none",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     LINKEDIN URL
                   </label>
                   <input
@@ -1553,17 +1609,18 @@ export default function StudentProfilePage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8,
-                      color: "white",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      color: "#17191C",
                       fontSize: 13,
                       outline: "none",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#94a3b8", marginBottom: 6 }}>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#667085", marginBottom: 6, letterSpacing: 0.5 }}>
                     PORTFOLIO OR PERSONAL SITE
                   </label>
                   <input
@@ -1574,12 +1631,13 @@ export default function StudentProfilePage() {
                     style={{
                       width: "100%",
                       padding: "10px 12px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      borderRadius: 8,
-                      color: "white",
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
+                      color: "#17191C",
                       fontSize: 13,
                       outline: "none",
+                      boxSizing: "border-box"
                     }}
                   />
                 </div>

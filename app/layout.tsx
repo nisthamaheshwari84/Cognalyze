@@ -1,21 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import PwaProvider from "@/components/PwaProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Cognalyze • Placement Intelligence & AI Assessment Platform",
-  description: "AI-Powered Placement Intelligence, Algorithmic Opportunities, FAANG Mock GD Arena, and DSA Tracker.",
+  title: "Cognalyze • Evidence-First Career & Hiring Intelligence",
+  description: "Evidence before decisions. Connect resumes, projects, GitHub activity, skills, and verified evidence into one hiring intelligence layer.",
   applicationName: "Cognalyze",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -32,16 +28,18 @@ export const metadata: Metadata = {
       { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
     ]
   },
-  keywords: ["Placement Copilot", "FAANG GD Arena", "DSA Tracker", "Campus Placements", "Striver Sheet", "Hackathons"]
+  keywords: ["Hiring Intelligence", "Evidence-First Recruitment", "Student DNA", "Role DNA", "Decision Room", "Verified Skills"]
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6366f1",
+  themeColor: "#162A43",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
   viewportFit: "cover"
 };
+
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({
   children,
@@ -51,10 +49,33 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col" style={{ margin: 0, padding: 0 }}>
-        <PwaProvider>{children}</PwaProvider>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('cognalyze-theme') || localStorage.getItem('cognalyze_theme');
+                  if (t === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col font-sans" style={{ margin: 0, padding: 0 }}>
+        <ThemeProvider>
+          <PwaProvider>{children}</PwaProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

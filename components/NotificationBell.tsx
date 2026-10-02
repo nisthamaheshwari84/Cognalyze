@@ -112,19 +112,19 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
   const formatSourceLabel = (src: string) => {
     switch (src) {
       case "calendar":
-        return { label: "Calendar", color: "#38bdf8", icon: "🗓️" };
+        return { label: "Calendar", color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", icon: "🗓️" };
       case "matching":
-        return { label: "Matching", color: "#a855f7", icon: "🎯" };
+        return { label: "Matching", color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", icon: "🎯" };
       case "question_bank":
-        return { label: "Question Bank", color: "#ec4899", icon: "💡" };
+        return { label: "Question Bank", color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", icon: "💡" };
       case "company_brief":
-        return { label: "Company Brief", color: "#f59e0b", icon: "🏢" };
+        return { label: "Company Brief", color: "#B7791F", bg: "#FEF7ED", border: "#F8D8A7", icon: "🏢" };
       case "dsa_tracker":
-        return { label: "DSA Tracker", color: "#10b981", icon: "⚡" };
+        return { label: "DSA Tracker", color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", icon: "⚡" };
       case "application_tracker":
-        return { label: "Pipeline", color: "#6366f1", icon: "📋" };
+        return { label: "Pipeline", color: "#162A43", bg: "#F6F5F1", border: "#E4E1DA", icon: "📋" };
       default:
-        return { label: src.replace("_", " "), color: "#94a3b8", icon: "🔔" };
+        return { label: src.replace("_", " "), color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", icon: "🔔" };
     }
   };
 
@@ -160,18 +160,18 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
           justifyContent: "center",
           width: 38,
           height: 38,
-          borderRadius: 10,
-          background: isOpen ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.04)",
-          border: isOpen ? "1px solid rgba(99, 102, 241, 0.5)" : "1px solid rgba(255, 255, 255, 0.1)",
-          color: unreadCount > 0 ? "#ffffff" : "rgba(255, 255, 255, 0.7)",
+          borderRadius: 8,
+          background: isOpen ? "#EFF4FE" : "#FFFFFF",
+          border: isOpen ? "1px solid #356AE6" : "1px solid #E4E1DA",
+          color: unreadCount > 0 ? "#162A43" : "#667085",
           cursor: "pointer",
           fontSize: 16,
-          transition: "all 0.2s ease"
+          transition: "all 0.15s ease"
         }}
       >
         <span>🔔</span>
 
-        {/* Glowing unread badge */}
+        {/* Unread badge */}
         {unreadCount > 0 && (
           <span
             style={{
@@ -181,17 +181,16 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
               minWidth: 18,
               height: 18,
               borderRadius: 999,
-              background: "linear-gradient(135deg, #ef4444, #f59e0b)",
+              background: "#C24141",
               color: "#ffffff",
               fontSize: 10,
-              fontWeight: 800,
+              fontWeight: 700,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               padding: "0 4px",
-              boxShadow: "0 0 10px rgba(239, 68, 68, 0.7)",
-              border: "1.5px solid #090d16",
-              animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+              boxShadow: "0 2px 4px rgba(194, 65, 65, 0.25)",
+              border: "1.5px solid #FFFFFF"
             }}
           >
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -208,11 +207,10 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
             right: 0,
             width: 380,
             maxHeight: 520,
-            background: "#0c101d",
-            border: "1px solid rgba(99, 102, 241, 0.3)",
-            borderRadius: 16,
-            boxShadow: "0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(99, 102, 241, 0.15)",
-            backdropFilter: "blur(20px)",
+            background: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 12,
+            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.12)",
             zIndex: 1000,
             display: "flex",
             flexDirection: "column",
@@ -224,15 +222,15 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
           <div
             style={{
               padding: "14px 18px",
-              borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+              borderBottom: "1px solid #E4E1DA",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              background: "rgba(255, 255, 255, 0.02)"
+              background: "#FAFAF8"
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: "#ffffff", letterSpacing: "-0.3px" }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: "#17191C", letterSpacing: "-0.3px" }}>
                 Notifications
               </span>
               {unreadCount > 0 && (
@@ -242,9 +240,9 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                     fontWeight: 700,
                     padding: "2px 7px",
                     borderRadius: 999,
-                    background: "rgba(99, 102, 241, 0.2)",
-                    color: "#818cf8",
-                    border: "1px solid rgba(99, 102, 241, 0.4)"
+                    background: "#EFF4FE",
+                    color: "#356AE6",
+                    border: "1px solid #D2E0FB"
                   }}
                 >
                   {unreadCount} new
@@ -260,7 +258,7 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "#94a3b8",
+                  color: "#667085",
                   cursor: "pointer",
                   fontSize: 11,
                   fontWeight: 600,
@@ -268,8 +266,8 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                   borderRadius: 6,
                   transition: "all 0.15s"
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = "#38bdf8")}
-                onMouseLeave={e => (e.currentTarget.style.color = "#94a3b8")}
+                onMouseEnter={e => (e.currentTarget.style.color = "#356AE6")}
+                onMouseLeave={e => (e.currentTarget.style.color = "#667085")}
               >
                 Mark all read
               </button>
@@ -299,8 +297,8 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                 }}
               >
                 <div style={{ fontSize: 32 }}>✨</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9" }}>You&apos;re all caught up</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", maxWidth: 240, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#17191C" }}>You&apos;re all caught up</div>
+                <div style={{ fontSize: 12, color: "#667085", maxWidth: 240, lineHeight: 1.5 }}>
                   No new alerts. Your deadlines, prep reviews, and high-fit matches are in order!
                 </div>
               </div>
@@ -308,7 +306,6 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
               notifications.map(n => {
                 const srcMeta = formatSourceLabel(n.source_feature);
                 const isHigh = n.priority === "high";
-                const isLow = n.priority === "low";
 
                 return (
                   <div
@@ -316,30 +313,30 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                     onClick={() => handleItemClick(n)}
                     style={{
                       padding: "13px 16px",
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderBottom: "1px solid #E4E1DA",
                       cursor: "pointer",
                       display: "flex",
                       gap: 12,
                       alignItems: "flex-start",
                       background: !n.is_read
                         ? isHigh
-                          ? "rgba(239, 68, 68, 0.07)"
-                          : "rgba(99, 102, 241, 0.06)"
-                        : "transparent",
+                          ? "#FEF7ED"
+                          : "#EFF4FE"
+                        : "#FFFFFF",
                       borderLeft: !n.is_read
                         ? isHigh
-                          ? "3px solid #f59e0b"
-                          : "3px solid #6366f1"
+                          ? "3px solid #B7791F"
+                          : "3px solid #356AE6"
                         : "3px solid transparent",
                       transition: "background 0.15s ease"
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.05)")}
+                    onMouseEnter={e => (e.currentTarget.style.background = "#F6F5F1")}
                     onMouseLeave={e =>
                       (e.currentTarget.style.background = !n.is_read
                         ? isHigh
-                          ? "rgba(239, 68, 68, 0.07)"
-                          : "rgba(99, 102, 241, 0.06)"
-                        : "transparent")
+                          ? "#FEF7ED"
+                          : "#EFF4FE"
+                        : "#FFFFFF")
                     }
                   >
                     {/* Feature Icon */}
@@ -348,8 +345,8 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                         width: 32,
                         height: 32,
                         borderRadius: 8,
-                        background: "rgba(255, 255, 255, 0.04)",
-                        border: `1px solid ${srcMeta.color}33`,
+                        background: srcMeta.bg,
+                        border: `1px solid ${srcMeta.border}`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -377,10 +374,11 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                               fontSize: 9,
                               fontWeight: 700,
                               textTransform: "uppercase",
-                              padding: "1px 6px",
+                              padding: "2px 6px",
                               borderRadius: 4,
-                              background: `${srcMeta.color}18`,
+                              background: srcMeta.bg,
                               color: srcMeta.color,
+                              border: `1px solid ${srcMeta.border}`,
                               letterSpacing: "0.5px"
                             }}
                           >
@@ -391,18 +389,18 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                               style={{
                                 fontSize: 9,
                                 fontWeight: 700,
-                                padding: "1px 6px",
+                                padding: "2px 6px",
                                 borderRadius: 4,
-                                background: "rgba(245, 158, 11, 0.2)",
-                                color: "#fbbf24",
-                                border: "1px solid rgba(245, 158, 11, 0.4)"
+                                background: "#FEF7ED",
+                                color: "#B7791F",
+                                border: "1px solid #F8D8A7"
                               }}
                             >
                               ⚡ High Priority
                             </span>
                           )}
                         </div>
-                        <span style={{ fontSize: 10, color: "rgba(255, 255, 255, 0.35)", whiteSpace: "nowrap" }}>
+                        <span style={{ fontSize: 10, color: "#98A2B3", whiteSpace: "nowrap" }}>
                           {formatRelativeTime(n.created_at)}
                         </span>
                       </div>
@@ -411,7 +409,7 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                         style={{
                           fontSize: 12.5,
                           fontWeight: n.is_read ? 500 : 700,
-                          color: n.is_read ? "rgba(255, 255, 255, 0.8)" : "#ffffff",
+                          color: n.is_read ? "#667085" : "#17191C",
                           lineHeight: 1.4,
                           marginBottom: 3
                         }}
@@ -423,7 +421,7 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                         <div
                           style={{
                             fontSize: 11.5,
-                            color: "rgba(255, 255, 255, 0.5)",
+                            color: "#667085",
                             lineHeight: 1.4,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
@@ -446,14 +444,14 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "rgba(255, 255, 255, 0.3)",
+                          color: "#98A2B3",
                           cursor: "pointer",
                           padding: "2px 4px",
                           fontSize: 12,
                           flexShrink: 0
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.color = "#38bdf8")}
-                        onMouseLeave={e => (e.currentTarget.style.color = "rgba(255, 255, 255, 0.3)")}
+                        onMouseEnter={e => (e.currentTarget.style.color = "#356AE6")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "#98A2B3")}
                       >
                         ✓
                       </button>

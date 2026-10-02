@@ -21,53 +21,53 @@ function StudentResumeContent() {
   }, [searchParams]);
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "var(--font-inter, sans-serif)" }}>
       <AppNav role="student" />
 
       {/* SUB-HEADER / TAB BAR */}
-      <div style={{ background: "rgba(15, 23, 42, 0.8)", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", padding: "12px 24px" }}>
+      <div style={{ background: "#FFFFFF", borderBottom: "1px solid #E4E1DA", padding: "14px 24px" }}>
         <div style={{ maxWidth: 1300, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           <div>
-            <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, textTransform: "uppercase", letterSpacing: 1 }}>
-              STUDENT RESUME COMMAND CENTER
+            <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              EVIDENCE-GROUNDED RESUME ENGINE
             </span>
-            <h1 style={{ fontSize: 20, fontWeight: 900, margin: "2px 0 0", color: "white" }}>
-              {activeTab === "builder" ? "📄 ATS-Optimized Resume Builder" : "🎯 Resume Intelligence & ATS Diagnostics"}
+            <h1 style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0", color: "#162A43" }}>
+              {activeTab === "builder" ? "Resume Studio & Document Canvas" : "Resume Intelligence & ATS Diagnostics"}
             </h1>
           </div>
 
-          <div style={{ display: "flex", background: "rgba(0,0,0,0.5)", padding: 4, borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ display: "flex", background: "#FAF9F6", padding: 3, borderRadius: 7, border: "1px solid #E4E1DA" }}>
             <button
               onClick={() => setActiveTab("builder")}
               style={{
-                padding: "8px 16px",
-                borderRadius: 8,
+                padding: "6px 14px",
+                borderRadius: 5,
                 border: "none",
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer",
-                background: activeTab === "builder" ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "transparent",
-                color: activeTab === "builder" ? "white" : "#94a3b8",
+                background: activeTab === "builder" ? "#162A43" : "transparent",
+                color: activeTab === "builder" ? "#FFFFFF" : "#667085",
                 transition: "all 0.15s ease"
               }}
             >
-              📄 6-Template Resume Builder
+              Resume Builder
             </button>
             <button
               onClick={() => setActiveTab("intelligence")}
               style={{
-                padding: "8px 16px",
-                borderRadius: 8,
+                padding: "6px 14px",
+                borderRadius: 5,
                 border: "none",
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer",
-                background: activeTab === "intelligence" ? "linear-gradient(135deg, #ec4899, #8b5cf6)" : "transparent",
-                color: activeTab === "intelligence" ? "white" : "#94a3b8",
+                background: activeTab === "intelligence" ? "#162A43" : "transparent",
+                color: activeTab === "intelligence" ? "#FFFFFF" : "#667085",
                 transition: "all 0.15s ease"
               }}
             >
-              🎯 Resume Intelligence & ATS Score
+              ATS & Role Diagnostics
             </button>
           </div>
         </div>
@@ -87,8 +87,9 @@ function StudentResumeContent() {
 
 export default function StudentResumePage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#060913", color: "white", padding: 40, textAlign: "center" }}>Loading Resume Workspace...</div>}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#F6F5F1", color: "#17191C", padding: 40, textAlign: "center", fontFamily: "var(--font-inter, sans-serif)" }}>Loading Resume Workspace...</div>}>
       <StudentResumeContent />
     </Suspense>
   );
 }
+

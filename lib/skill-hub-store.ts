@@ -419,7 +419,7 @@ export const SKILL_DOMAINS: SkillDomain[] = [
     is_service_track: true,
     is_product_track: true,
     gating_priority: "critical_gate",
-    action_route: "/student/dsa-tracker",
+    action_route: "/student/skills/dsa",
     action_label: "Launch Coding Arena ➔"
   },
   {

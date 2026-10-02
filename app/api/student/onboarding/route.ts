@@ -7,12 +7,16 @@ import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
-    const body = await req.json();
-
-    const targetUserId = auth?.user?.id || body.explicitUserId;
-    if (!targetUserId) {
+    if (!auth || !auth.user) {
       return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
     }
+
+    if (auth.user.accountType !== "student") {
+      return NextResponse.json({ error: "Forbidden. Recruiter accounts cannot access student onboarding." }, { status: 403 });
+    }
+
+    const targetUserId = auth.user.id;
+    const body = await req.json();
 
     const user = getUserById(targetUserId);
     if (!user) {

@@ -750,7 +750,7 @@ function SimulationContent() {
   };
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="student" />
 
       <main style={{ maxWidth: 1200, margin: "0 auto", padding: "2rem 1.5rem 4rem" }}>
@@ -759,30 +759,30 @@ function SimulationContent() {
         <div style={{ marginBottom: "2rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 8 }}>
             <div>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#818cf8", fontWeight: 800 }}>
+              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
                 HOLISTIC PLACEMENT SIMULATION
               </span>
-              <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", fontWeight: 900, margin: "6px 0 2px", letterSpacing: "-0.5px" }}>
+              <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)", fontWeight: 800, margin: "6px 0 2px", color: "#162A43", letterSpacing: "-0.5px" }}>
                 Full-Funnel Recruitment Arena
               </h1>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", margin: 0 }}>
+              <p style={{ fontSize: 13, color: "#667085", margin: 0 }}>
                 Strict participation gating enforced across all 5 rounds. Real code tests, live debate, and verified evidence.
               </p>
             </div>
 
             {/* Target Settings Summary */}
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, padding: "6px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8 }}>
+              <span style={{ fontSize: 12, padding: "6px 12px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#162A43", fontWeight: 600 }}>
                 🏢 {targetCompany}
               </span>
-              <span style={{ fontSize: 11, padding: "6px 12px", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", color: "#818cf8", borderRadius: 8, fontWeight: 700 }}>
+              <span style={{ fontSize: 12, padding: "6px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", borderRadius: 7, fontWeight: 700 }}>
                 🎯 {targetTier}
               </span>
             </div>
           </div>
 
           {/* Stepper Tabs */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6, marginTop: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8, marginTop: 20 }}>
             {[
               { num: 1, label: "Resume Screening", icon: "📄" },
               { num: 2, label: "Online Assessment", icon: "⚡" },
@@ -797,16 +797,17 @@ function SimulationContent() {
                 <div
                   key={s.num}
                   style={{
-                    padding: "8px 10px",
+                    padding: "10px 12px",
                     borderRadius: 10,
-                    background: isActive ? "rgba(99,102,241,0.2)" : isPast ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${isActive ? "#6366f1" : isPast ? "rgba(16,185,129,0.3)" : "rgba(255,255,255,0.06)"}`,
+                    background: isActive ? "#EFF4FE" : isPast ? "#EAF4EE" : "#FFFFFF",
+                    border: `1px solid ${isActive ? "#356AE6" : isPast ? "#C8E4D3" : "#E4E1DA"}`,
                     textAlign: "center",
                     transition: "all 0.15s ease",
+                    boxShadow: isActive ? "0 2px 4px rgba(53,106,230,0.08)" : "0 1px 2px rgba(0,0,0,0.02)",
                   }}
                 >
-                  <div style={{ fontSize: 13, marginBottom: 2 }}>{s.icon}</div>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: isActive ? "#818cf8" : isPast ? "#34d399" : "#64748b" }}>
+                  <div style={{ fontSize: 14, marginBottom: 2 }}>{s.icon}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: isActive ? "#356AE6" : isPast ? "#2E7D5B" : "#667085" }}>
                     R{s.num}: {s.label}
                   </div>
                 </div>
@@ -819,40 +820,40 @@ function SimulationContent() {
         {/* ROUND 1: RESUME SCREENING & GITHUB AUDIT */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 1 && (
-          <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem" }}>
+          <div style={{ maxWidth: 840, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "2rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
               <span style={{ fontSize: 26 }}>📄</span>
               <div>
-                <span style={{ fontSize: 10, color: "#818cf8", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 1 OF 5</span>
-                <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>ATS Resume Screening & Real GitHub Verification</h2>
+                <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, letterSpacing: 1.2 }}>ROUND 1 OF 5</span>
+                <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>ATS Resume Screening & Real GitHub Verification</h2>
               </div>
             </div>
 
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+            <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.5, marginBottom: "1.5rem" }}>
               Every skill and project claim is cross-referenced against your resume text and live GitHub public repositories. Missing or contradictory repos are flagged.
             </p>
 
             {/* Target Settings Config */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12, marginBottom: "1.5rem" }}>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
                   TARGET COMPANY
                 </label>
                 <input
                   type="text"
                   value={targetCompany}
                   onChange={(e) => setTargetCompany(e.target.value)}
-                  style={{ width: "100%", padding: "8px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "9px 12px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13, boxSizing: "border-box" }}
                 />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
                   TARGET HIRING BAR
                 </label>
                 <select
                   value={targetTier}
                   onChange={(e) => setTargetTier(e.target.value as CompanyTier)}
-                  style={{ width: "100%", padding: "8px 12px", background: "rgba(15,23,42,0.9)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
+                  style={{ width: "100%", padding: "9px 12px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13, boxSizing: "border-box" }}
                 >
                   <option value="Tier 1 FAANG">Tier 1 FAANG / Extreme Bar</option>
                   <option value="High-Growth Product / FinTech">High-Growth Product / FinTech</option>
@@ -863,7 +864,7 @@ function SimulationContent() {
 
             {/* GitHub URL Input */}
             <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8", display: "block", marginBottom: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
                 GITHUB PROFILE URL / USERNAME (FOR LIVE REPO VERIFICATION)
               </label>
               <input
@@ -871,23 +872,23 @@ function SimulationContent() {
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
                 placeholder="https://github.com/your-username (or leave empty)"
-                style={{ width: "100%", padding: "8px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(56,189,248,0.3)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "9px 12px", background: "#FFFFFF", border: "1px solid #D2E0FB", borderRadius: 7, color: "#17191C", fontSize: 13, boxSizing: "border-box" }}
               />
-              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4, display: "block" }}>
+              <span style={{ fontSize: 11, color: "#98A2B3", marginTop: 4, display: "block" }}>
                 Optional. If omitted, skills are scored purely on resume text without penalization.
               </span>
             </div>
 
             {/* Resume Text Input */}
             <div style={{ marginBottom: "1.5rem" }}>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
                 RESUME TEXT CONTENT
               </label>
               <textarea
                 value={resumeText}
                 onChange={(e) => setResumeText(e.target.value)}
                 rows={5}
-                style={{ width: "100%", padding: "0.85rem 1rem", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "white", fontSize: 12, lineHeight: 1.6, resize: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "0.85rem 1rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13, lineHeight: 1.6, resize: "vertical", boxSizing: "border-box" }}
               />
             </div>
 
@@ -895,36 +896,36 @@ function SimulationContent() {
               <button
                 onClick={handleRunScreening}
                 disabled={screeningLoading}
-                style={{ width: "100%", padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "white", fontSize: 13, fontWeight: 800, cursor: screeningLoading ? "not-allowed" : "pointer" }}
+                style={{ width: "100%", padding: "0.95rem", borderRadius: 7, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: screeningLoading ? "not-allowed" : "pointer" }}
               >
                 {screeningLoading ? "Auditing Resume & Verifying GitHub..." : "Run Resume Screening & GitHub Audit ➔"}
               </button>
             ) : (
               <div>
-                <div style={{ padding: "1.25rem", borderRadius: 14, background: resumeResult.result === "pass" ? "rgba(16,185,129,0.1)" : "rgba(245,158,11,0.1)", border: `1.5px solid ${resumeResult.result === "pass" ? "#10b981" : "#f59e0b"}40`, marginBottom: "1.5rem" }}>
+                <div style={{ padding: "1.25rem", borderRadius: 10, background: resumeResult.result === "pass" ? "#EAF4EE" : "#FEF7ED", border: `1px solid ${resumeResult.result === "pass" ? "#C8E4D3" : "#F8D8A7"}`, marginBottom: "1.5rem" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: resumeResult.result === "pass" ? "#34d399" : "#fbbf24", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: resumeResult.result === "pass" ? "#2E7D5B" : "#B7791F", textTransform: "uppercase" }}>
                       {resumeResult.result === "pass" ? "✓ SCREENING AUDITED" : "⚠ BORDERLINE SCREENING"}
                     </span>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: "white" }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: "#162A43" }}>
                       {resumeResult.score}/100
                     </span>
                   </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.5, margin: "0 0 8px" }}>
+                  <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, margin: "0 0 8px" }}>
                     {resumeResult.evidence}
                   </p>
 
                   {/* GitHub Verification Card */}
                   {resumeResult.github_verification && (
-                    <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(0,0,0,0.3)", borderRadius: 8, fontSize: 11 }}>
-                      <strong style={{ color: "#38bdf8" }}>GitHub Evidence Check:</strong> {resumeResult.github_verification.summary}
+                    <div style={{ marginTop: 10, padding: "10px 12px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, fontSize: 12 }}>
+                      <strong style={{ color: "#356AE6" }}>GitHub Evidence Check:</strong> <span style={{ color: "#667085" }}>{resumeResult.github_verification.summary}</span>
                     </div>
                   )}
                 </div>
 
                 <button
                   onClick={() => setCurrentRound(2)}
-                  style={{ width: "100%", padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+                  style={{ width: "100%", padding: "0.95rem", borderRadius: 7, border: "none", background: "#2E7D5B", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                 >
                   Advance to Round 2: Online Assessment ➔
                 </button>
@@ -939,58 +940,58 @@ function SimulationContent() {
         {currentRound === 2 && oaSession && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* OA Header Banner with Live Timer */}
-            <div style={{ background: "rgba(15,23,42,0.8)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.5rem" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 24 }}>⚡</span>
                   <div>
-                    <span style={{ fontSize: 10, color: "#f43f5e", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 2 OF 5</span>
-                    <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Online Assessment: Timed Aptitude & Coding Suite</h2>
+                    <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, letterSpacing: 1.2 }}>ROUND 2 OF 5</span>
+                    <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>Online Assessment: Timed Aptitude & Coding Suite</h2>
                   </div>
                 </div>
 
                 {/* Hard Server Timer Badge */}
-                <div style={{ display: "flex", alignItems: "center", gap: 8, background: "rgba(0,0,0,0.4)", padding: "6px 14px", borderRadius: 10, border: `1px solid ${oaElapsedSeconds >= oaSession.minTimeSeconds ? "#10b981" : "#f59e0b"}` }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, background: oaElapsedSeconds >= oaSession.minTimeSeconds ? "#EAF4EE" : "#FEF7ED", padding: "6px 14px", borderRadius: 7, border: `1px solid ${oaElapsedSeconds >= oaSession.minTimeSeconds ? "#C8E4D3" : "#F8D8A7"}` }}>
                   <span style={{ fontSize: 14 }}>⏱️</span>
                   <div>
-                    <div style={{ fontSize: 9, color: "rgba(255,255,255,0.5)", fontWeight: 700 }}>SESSION TIMER</div>
-                    <div style={{ fontSize: 13, fontWeight: 900, color: oaElapsedSeconds >= oaSession.minTimeSeconds ? "#34d399" : "#fbbf24" }}>
+                    <div style={{ fontSize: 10, color: "#667085", fontWeight: 700 }}>SESSION TIMER</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: oaElapsedSeconds >= oaSession.minTimeSeconds ? "#2E7D5B" : "#B7791F" }}>
                       {Math.floor(oaElapsedSeconds / 60)}m {oaElapsedSeconds % 60}s / {Math.floor(oaSession.minTimeSeconds / 60)}m min
                     </div>
                   </div>
                 </div>
               </div>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", margin: 0 }}>
+              <p style={{ fontSize: 13, color: "#667085", margin: 0 }}>
                 Calibrated to {oaSession.companyTier}. All {oaSession.aptitudeQuestions.length} aptitude questions must be answered and coding must be executed against the test suite.
               </p>
             </div>
 
             {oaWarning && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12 }}>
+              <div style={{ padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 7, color: "#C24141", fontSize: 13, fontWeight: 600 }}>
                 ⚠️ {oaWarning}
               </div>
             )}
 
             {/* Section A: Aptitude Questions */}
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <span style={{ fontSize: 11, color: "#818cf8", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
+                <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
                   SECTION A: APTITUDE & LOGICAL REASONING ({oaSession.aptitudeQuestions.length} QUESTIONS)
                 </span>
-                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+                <span style={{ fontSize: 12, color: "#667085", fontWeight: 600 }}>
                   {Object.keys(oaAnswers).length}/{oaSession.aptitudeQuestions.length} Attempted
                 </span>
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {oaSession.aptitudeQuestions.map((q, idx) => (
-                  <div key={q.id} style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div key={q.id} style={{ padding: "1rem", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, textTransform: "uppercase" }}>
+                      <span style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>
                         Q{idx + 1} • {q.topic} ({q.difficulty})
                       </span>
                     </div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "white", marginBottom: 10 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43", marginBottom: 10 }}>
                       {q.question}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
@@ -1001,13 +1002,15 @@ function SimulationContent() {
                             key={oIdx}
                             onClick={() => setOaAnswers((prev) => ({ ...prev, [q.id]: oIdx }))}
                             style={{
-                              padding: "8px 12px",
-                              borderRadius: 8,
-                              border: `1px solid ${sel ? "#6366f1" : "rgba(255,255,255,0.08)"}`,
-                              background: sel ? "rgba(99,102,241,0.2)" : "transparent",
-                              color: sel ? "white" : "rgba(255,255,255,0.7)",
+                              padding: "9px 12px",
+                              borderRadius: 7,
+                              border: `1px solid ${sel ? "#356AE6" : "#E4E1DA"}`,
+                              background: sel ? "#EFF4FE" : "#FFFFFF",
+                              color: sel ? "#356AE6" : "#17191C",
+                              fontWeight: sel ? 700 : 500,
                               fontSize: 12,
                               cursor: "pointer",
+                              transition: "all 0.15s ease",
                             }}
                           >
                             {opt}
@@ -1022,9 +1025,9 @@ function SimulationContent() {
 
             {/* Section B: Algorithmic Coding Problems (Real blank code, not pre-solved) */}
             {currentCodingProblem && (
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <span style={{ fontSize: 11, color: "#34d399", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
+                  <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
                     SECTION B: ALGORITHMIC CODING ({oaSession.codingProblems.length} PROBLEMS)
                   </span>
 
@@ -1038,14 +1041,14 @@ function SimulationContent() {
                           key={p.id}
                           onClick={() => setActiveCodingProblemIdx(pIdx)}
                           style={{
-                            padding: "4px 10px",
+                            padding: "5px 12px",
                             borderRadius: 6,
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: 700,
                             cursor: "pointer",
-                            background: isActive ? "#6366f1" : "rgba(255,255,255,0.04)",
-                            border: `1px solid ${isActive ? "#818cf8" : "rgba(255,255,255,0.08)"}`,
-                            color: "white",
+                            background: isActive ? "#356AE6" : "#F6F5F1",
+                            border: `1px solid ${isActive ? "#356AE6" : "#E4E1DA"}`,
+                            color: isActive ? "#FFFFFF" : "#667085",
                           }}
                         >
                           Problem {pIdx + 1} {res ? (res.passed === res.total ? "✓" : "✗") : ""}
@@ -1056,35 +1059,35 @@ function SimulationContent() {
                 </div>
 
                 {/* Problem Description */}
-                <div style={{ marginBottom: 14, padding: "1rem", background: "rgba(0,0,0,0.2)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.04)" }}>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                <div style={{ marginBottom: 14, padding: "1rem", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43", marginBottom: 4 }}>
                     {currentCodingProblem.title} ({currentCodingProblem.difficulty})
                   </div>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", margin: "0 0 10px", whiteSpace: "pre-wrap" }}>
+                  <p style={{ fontSize: 13, color: "#17191C", margin: "0 0 10px", whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
                     {currentCodingProblem.description}
                   </p>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
-                    <strong>Example:</strong> {currentCodingProblem.examples[0]?.input} ➔ {currentCodingProblem.examples[0]?.output}
+                  <div style={{ fontSize: 12, color: "#667085" }}>
+                    <strong style={{ color: "#162A43" }}>Example:</strong> {currentCodingProblem.examples[0]?.input} ➔ {currentCodingProblem.examples[0]?.output}
                   </div>
                 </div>
 
                 {/* Language Switcher */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>Write your solution below:</span>
+                  <span style={{ fontSize: 12, color: "#667085" }}>Write your solution below:</span>
                   <div style={{ display: "flex", gap: 6 }}>
                     {(["python", "javascript"] as const).map((lang) => (
                       <button
                         key={lang}
                         onClick={() => setCodingLang(lang)}
                         style={{
-                          padding: "3px 8px",
+                          padding: "4px 10px",
                           borderRadius: 6,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
-                          background: codingLang === lang ? "#818cf8" : "rgba(255,255,255,0.04)",
-                          border: "none",
-                          color: "white",
+                          background: codingLang === lang ? "#162A43" : "#F6F5F1",
+                          border: `1px solid ${codingLang === lang ? "#162A43" : "#E4E1DA"}`,
+                          color: codingLang === lang ? "#FFFFFF" : "#667085",
                         }}
                       >
                         {lang.toUpperCase()}
@@ -1093,7 +1096,7 @@ function SimulationContent() {
                   </div>
                 </div>
 
-                {/* Code Editor */}
+                {/* Code Editor - Preserved High-Contrast Deep Navy for Code readability */}
                 <textarea
                   value={codingCodes[currentCodingProblem.id]?.[codingLang] || ""}
                   onChange={(e) => {
@@ -1110,13 +1113,13 @@ function SimulationContent() {
                   style={{
                     width: "100%",
                     padding: "1rem",
-                    background: "#0a0c16",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: 10,
-                    color: "#86efac",
-                    fontFamily: "monospace",
-                    fontSize: 12,
-                    lineHeight: 1.5,
+                    background: "#0D1929",
+                    border: "1px solid #1E3A5F",
+                    borderRadius: 7,
+                    color: "#4ADE80",
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                    fontSize: 12.5,
+                    lineHeight: 1.6,
                     resize: "vertical",
                     boxSizing: "border-box",
                   }}
@@ -1129,10 +1132,10 @@ function SimulationContent() {
                     disabled={codingRunning}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: 8,
+                      borderRadius: 7,
                       border: "none",
-                      background: "linear-gradient(135deg,#6366f1,#4f46e5)",
-                      color: "white",
+                      background: "#162A43",
+                      color: "#FFFFFF",
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: codingRunning ? "not-allowed" : "pointer",
@@ -1142,7 +1145,7 @@ function SimulationContent() {
                   </button>
 
                   {codingResults[currentCodingProblem.id] && (
-                    <span style={{ fontSize: 12, fontWeight: 800, color: codingResults[currentCodingProblem.id].passed === codingResults[currentCodingProblem.id].total ? "#34d399" : "#f87171" }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: codingResults[currentCodingProblem.id].passed === codingResults[currentCodingProblem.id].total ? "#2E7D5B" : "#C24141" }}>
                       {codingResults[currentCodingProblem.id].passed}/{codingResults[currentCodingProblem.id].total} Test Cases Passed
                     </span>
                   )}
@@ -1150,7 +1153,7 @@ function SimulationContent() {
 
                 {/* Test Run Logs */}
                 {codingResults[currentCodingProblem.id]?.logs && (
-                  <div style={{ marginTop: 10, padding: "8px 12px", background: "#050711", borderRadius: 8, fontFamily: "monospace", fontSize: 11, color: "rgba(255,255,255,0.8)", whiteSpace: "pre-wrap" }}>
+                  <div style={{ marginTop: 10, padding: "8px 12px", background: "#0D1929", border: "1px solid #1E3A5F", borderRadius: 7, fontFamily: "monospace", fontSize: 11, color: "#E2E8F0", whiteSpace: "pre-wrap" }}>
                     {codingResults[currentCodingProblem.id].logs.join("\n")}
                   </div>
                 )}
@@ -1163,15 +1166,17 @@ function SimulationContent() {
                 onClick={handleSubmitOA}
                 style={{
                   flex: 2,
-                  padding: "1rem",
-                  borderRadius: 12,
+                  padding: "0.95rem",
+                  borderRadius: 7,
                   border: "none",
                   background: oaElapsedSeconds >= oaSession.minTimeSeconds && Object.keys(codingResults).length > 0 && Object.keys(oaAnswers).length >= oaSession.aptitudeQuestions.length
-                    ? "linear-gradient(135deg,#10b981,#059669)"
-                    : "rgba(255,255,255,0.1)",
-                  color: "white",
+                    ? "#2E7D5B"
+                    : "#E4E1DA",
+                  color: oaElapsedSeconds >= oaSession.minTimeSeconds && Object.keys(codingResults).length > 0 && Object.keys(oaAnswers).length >= oaSession.aptitudeQuestions.length
+                    ? "#FFFFFF"
+                    : "#667085",
                   fontSize: 13,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                 }}
               >
@@ -1187,13 +1192,13 @@ function SimulationContent() {
                 }}
                 style={{
                   flex: 1,
-                  padding: "1rem",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  background: "transparent",
-                  color: "#94a3b8",
-                  fontSize: 12,
-                  fontWeight: 700,
+                  padding: "0.95rem",
+                  borderRadius: 7,
+                  border: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
+                  color: "#667085",
+                  fontSize: 13,
+                  fontWeight: 600,
                   cursor: "pointer",
                 }}
               >
@@ -1207,45 +1212,45 @@ function SimulationContent() {
         {/* ROUND 3: GROUP DISCUSSION (GD) ARENA */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 3 && (
-          <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem" }}>
+          <div style={{ maxWidth: 840, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 26 }}>🗣️</span>
                 <div>
-                  <span style={{ fontSize: 10, color: "#10b981", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 3 OF 5</span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Campus Placement Group Discussion (GD)</h2>
+                  <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700, letterSpacing: 1.2 }}>ROUND 3 OF 5</span>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>Campus Placement Group Discussion (GD)</h2>
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>ARTICULATION SCORE</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: gdArticulationScore !== null ? "#34d399" : "#94a3b8" }}>
+                <div style={{ fontSize: 10, color: "#667085", fontWeight: 700 }}>ARTICULATION SCORE</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: gdArticulationScore !== null ? "#2E7D5B" : "#98A2B3" }}>
                   {gdArticulationScore !== null ? `${gdArticulationScore}/100` : "Not Attempted"}
                 </div>
               </div>
             </div>
 
-            <div style={{ padding: "8px 12px", background: "rgba(99,102,241,0.08)", borderRadius: 10, fontSize: 12, color: "#c7d2fe", marginBottom: 14 }}>
+            <div style={{ padding: "10px 14px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 7, fontSize: 13, color: "#162A43", marginBottom: 14 }}>
               <strong>Topic:</strong> {gdTopicLoading ? `Generating fresh calibrated topic for ${targetCompany}...` : gdTopic}
             </div>
 
             {gdWarning && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14 }}>
+              <div style={{ padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 7, color: "#C24141", fontSize: 12, marginBottom: 14 }}>
                 ⚠️ {gdWarning}
               </div>
             )}
 
             {/* Live Chat / Transcript Area */}
-            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 14, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ background: "#F6F5F1", borderRadius: 8, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid #E4E1DA" }}>
               {gdMessages.map((m, mIdx) => {
                 const isCandidate = m.speaker.includes("Candidate") || m.role === "Candidate";
                 return (
                   <div key={mIdx} style={{ display: "flex", gap: 8, alignItems: "flex-start", alignSelf: isCandidate ? "flex-end" : "flex-start", maxWidth: "85%" }}>
                     {!isCandidate && <span style={{ fontSize: 20 }}>{m.avatar || "👤"}</span>}
-                    <div style={{ background: isCandidate ? "rgba(99,102,241,0.25)" : "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 12, border: `1px solid ${isCandidate ? "#6366f1" : "rgba(255,255,255,0.08)"}` }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: isCandidate ? "#818cf8" : "#94a3b8", marginBottom: 2 }}>
+                    <div style={{ background: isCandidate ? "#EFF4FE" : "#FFFFFF", padding: "8px 12px", borderRadius: 8, border: `1px solid ${isCandidate ? "#D2E0FB" : "#E4E1DA"}` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: isCandidate ? "#356AE6" : "#667085", marginBottom: 2 }}>
                         {m.speaker} {m.role ? `• ${m.role}` : ""}
                       </div>
-                      <div style={{ fontSize: 12, color: "white", lineHeight: 1.4 }}>
+                      <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.4 }}>
                         {m.content}
                       </div>
                     </div>
@@ -1263,19 +1268,19 @@ function SimulationContent() {
                 onChange={(e) => setGdInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendGDTurn()}
                 placeholder="Intervene in the debate (e.g. 'To synthesize both points, starting with a modular monolith...')"
-                style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "white", fontSize: 12 }}
+                style={{ flex: 1, padding: "10px 14px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13 }}
               />
               <button
                 onClick={handleSendGDTurn}
                 disabled={gdSending || !gdInput.trim()}
-                style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#6366f1,#4f46e5)", color: "white", fontSize: 12, fontWeight: 800, cursor: (gdSending || !gdInput.trim()) ? "not-allowed" : "pointer" }}
+                style={{ padding: "10px 18px", borderRadius: 7, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: (gdSending || !gdInput.trim()) ? "not-allowed" : "pointer" }}
               >
                 {gdSending ? "Responding..." : "Intervene ➔"}
               </button>
             </div>
 
             {gdFeedback && (
-              <div style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: "1.5rem" }}>
+              <div style={{ padding: "8px 12px", background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 7, fontSize: 12, color: "#B7791F", marginBottom: "1.5rem" }}>
                 💡 <strong>Panel Feedback:</strong> {gdFeedback}
               </div>
             )}
@@ -1283,14 +1288,14 @@ function SimulationContent() {
             <div style={{ display: "flex", gap: 10 }}>
               <button
                 onClick={() => handleAdvanceFromGD(false)}
-                style={{ flex: 2, padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+                style={{ flex: 2, padding: "0.95rem", borderRadius: 7, border: "none", background: "#2E7D5B", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 Conclude GD & Advance to Round 4: Technical Interview ➔
               </button>
 
               <button
                 onClick={() => handleAdvanceFromGD(true)}
-                style={{ flex: 1, padding: "0.95rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                style={{ flex: 1, padding: "0.95rem", borderRadius: 7, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#667085", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
               >
                 Skip GD (Mark as Not Attempted)
               </button>
@@ -1299,44 +1304,44 @@ function SimulationContent() {
         )}
 
         {/* ═══════════════════════════════════════════════ */}
-        {/* ROUND 4: TECHNICAL INTERVIEW (PRESERVED)      */}
+        {/* ROUND 4: TECHNICAL INTERVIEW */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 4 && (
-          <div style={{ maxWidth: 840, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "1.75rem" }}>
+          <div style={{ maxWidth: 840, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.75rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 26 }}>💻</span>
                 <div>
-                  <span style={{ fontSize: 10, color: "#38bdf8", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 4 OF 5</span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>Technical Interview & System Boundaries</h2>
+                  <span style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, letterSpacing: 1.2 }}>ROUND 4 OF 5</span>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>Technical Interview & System Boundaries</h2>
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>LIVE TECH SCORE</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: techScore !== null ? "#38bdf8" : "#94a3b8" }}>
+                <div style={{ fontSize: 10, color: "#667085", fontWeight: 700 }}>LIVE TECH SCORE</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: techScore !== null ? "#356AE6" : "#98A2B3" }}>
                   {techScore !== null ? `${techScore}/100` : "Not Attempted"}
                 </div>
               </div>
             </div>
 
             {techWarning && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: 14 }}>
+              <div style={{ padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 7, color: "#C24141", fontSize: 12, marginBottom: 14 }}>
                 ⚠️ {techWarning}
               </div>
             )}
 
             {/* Conversation Log */}
-            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: 14, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid rgba(255,255,255,0.05)" }}>
+            <div style={{ background: "#F6F5F1", borderRadius: 8, padding: "1rem", height: 320, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 14, border: "1px solid #E4E1DA" }}>
               {techMessages.map((m, idx) => {
                 const isUser = m.role === "user";
                 return (
                   <div key={idx} style={{ display: "flex", gap: 8, alignItems: "flex-start", alignSelf: isUser ? "flex-end" : "flex-start", maxWidth: "85%" }}>
                     {!isUser && <span style={{ fontSize: 20 }}>🧑‍💻</span>}
-                    <div style={{ background: isUser ? "rgba(56,189,248,0.25)" : "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 12, border: `1px solid ${isUser ? "#38bdf8" : "rgba(255,255,255,0.08)"}` }}>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: isUser ? "#38bdf8" : "#94a3b8", marginBottom: 2 }}>
+                    <div style={{ background: isUser ? "#EFF4FE" : "#FFFFFF", padding: "8px 12px", borderRadius: 8, border: `1px solid ${isUser ? "#D2E0FB" : "#E4E1DA"}` }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: isUser ? "#356AE6" : "#667085", marginBottom: 2 }}>
                         {isUser ? "You (Candidate)" : "Principal Interviewer"}
                       </div>
-                      <div style={{ fontSize: 12, color: "white", lineHeight: 1.4 }}>{m.content}</div>
+                      <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.4 }}>{m.content}</div>
                     </div>
                     {isUser && <span style={{ fontSize: 20 }}>🧑</span>}
                   </div>
@@ -1351,19 +1356,19 @@ function SimulationContent() {
                 onChange={(e) => setTechInput(e.target.value)}
                 placeholder="Articulate your technical solution, time/space complexity, and architecture trade-offs..."
                 rows={3}
-                style={{ flex: 1, padding: "10px 14px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "white", fontSize: 12, resize: "none" }}
+                style={{ flex: 1, padding: "10px 14px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13, resize: "vertical" }}
               />
               <button
                 onClick={handleSendTechAnswer}
                 disabled={techLoading || !techInput.trim()}
-                style={{ padding: "10px 18px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#38bdf8,#0284c7)", color: "white", fontSize: 12, fontWeight: 800, cursor: (techLoading || !techInput.trim()) ? "not-allowed" : "pointer" }}
+                style={{ padding: "10px 18px", borderRadius: 7, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: (techLoading || !techInput.trim()) ? "not-allowed" : "pointer" }}
               >
                 {techLoading ? "Evaluating..." : "Submit Answer ➔"}
               </button>
             </div>
 
             {techAssessment && (
-              <div style={{ padding: "8px 12px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 11, color: "rgba(255,255,255,0.7)", marginBottom: "1.5rem" }}>
+              <div style={{ padding: "8px 12px", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 7, fontSize: 12, color: "#2E7D5B", marginBottom: "1.5rem" }}>
                 <strong>Live Assessment:</strong> {techAssessment.answer_quality?.toUpperCase()} — {techAssessment.reasoning}
               </div>
             )}
@@ -1371,14 +1376,14 @@ function SimulationContent() {
             <div style={{ display: "flex", gap: 10 }}>
               <button
                 onClick={() => handleAdvanceFromTech(false)}
-                style={{ flex: 2, padding: "0.95rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#10b981,#059669)", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+                style={{ flex: 2, padding: "0.95rem", borderRadius: 7, border: "none", background: "#2E7D5B", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 Conclude Tech Round & Advance to Round 5: HR Interview ➔
               </button>
 
               <button
                 onClick={() => handleAdvanceFromTech(true)}
-                style={{ flex: 1, padding: "0.95rem", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "#94a3b8", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                style={{ flex: 1, padding: "0.95rem", borderRadius: 7, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#667085", fontSize: 13, fontWeight: 600, cursor: "pointer" }}
               >
                 Skip Tech (Mark as Not Attempted)
               </button>
@@ -1390,35 +1395,35 @@ function SimulationContent() {
         {/* ROUND 5: HR / BEHAVIORAL INTERVIEW */}
         {/* ═══════════════════════════════════════════════ */}
         {currentRound === 5 && (
-          <div style={{ maxWidth: 800, margin: "0 auto", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 20, padding: "2rem" }}>
+          <div style={{ maxWidth: 800, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "2rem", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 26 }}>🤝</span>
                 <div>
-                  <span style={{ fontSize: 10, color: "#ec4899", fontWeight: 800, letterSpacing: 1.5 }}>ROUND 5 OF 5</span>
-                  <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0 }}>HR & Cultural Bar-Raiser Interview</h2>
+                  <span style={{ fontSize: 11, color: "#162A43", fontWeight: 700, letterSpacing: 1.2 }}>ROUND 5 OF 5</span>
+                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>HR & Cultural Bar-Raiser Interview</h2>
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>HR SCORE</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: hrScore !== null ? "#ec4899" : "#94a3b8" }}>
+                <div style={{ fontSize: 10, color: "#667085", fontWeight: 700 }}>HR SCORE</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: hrScore !== null ? "#356AE6" : "#98A2B3" }}>
                   {hrScore !== null ? `${hrScore}/100` : "Not Attempted"}
                 </div>
               </div>
             </div>
 
-            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5, marginBottom: "1.5rem" }}>
+            <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.5, marginBottom: "1.5rem" }}>
               Conditioned on your prior technical round performance at {targetCompany}. Answer in STAR format (Situation, Task, Action, Result).
             </p>
 
             {hrWarning && (
-              <div style={{ padding: "10px 14px", background: "rgba(239,68,68,0.15)", border: "1px solid #ef4444", borderRadius: 10, color: "#fca5a5", fontSize: 12, marginBottom: "1.5rem" }}>
+              <div style={{ padding: "10px 14px", background: "#FDF2F2", border: "1px solid #F8C8C8", borderRadius: 7, color: "#C24141", fontSize: 12, marginBottom: "1.5rem" }}>
                 ⚠️ {hrWarning}
               </div>
             )}
 
             {hrLoading && (
-              <div style={{ padding: "1.5rem", textAlign: "center", color: "#f472b6", fontSize: 13, background: "rgba(236,72,153,0.05)", borderRadius: 12, marginBottom: "1.5rem" }}>
+              <div style={{ padding: "1.5rem", textAlign: "center", color: "#356AE6", fontSize: 13, background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 7, marginBottom: "1.5rem" }}>
                 ⏳ Generating context-conditioned HR questions for {targetCompany}...
               </div>
             )}
@@ -1427,11 +1432,11 @@ function SimulationContent() {
             <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: "2rem" }}>
               {hrQuestions.length > 0 ? (
                 hrQuestions.map((q, qIdx) => (
-                  <div key={q.id || qIdx} style={{ padding: "1rem", background: "rgba(255,255,255,0.02)", borderRadius: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: "#f472b6", marginBottom: 4 }}>
+                  <div key={q.id || qIdx} style={{ padding: "1rem", background: "#F6F5F1", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", marginBottom: 4 }}>
                       Question {qIdx + 1}: {q.competency}
                     </div>
-                    <div style={{ fontSize: 12, color: "white", marginBottom: 8, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 13, color: "#17191C", marginBottom: 8, lineHeight: 1.4 }}>
                       {q.question}
                     </div>
                     <textarea
@@ -1446,7 +1451,7 @@ function SimulationContent() {
                       }}
                       rows={3}
                       placeholder={q.guidance_placeholder || "Describe Situation, Task, Action ('I decided to...'), and Result..."}
-                      style={{ width: "100%", padding: "8px 12px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, color: "white", fontSize: 12, boxSizing: "border-box", resize: "none" }}
+                      style={{ width: "100%", padding: "9px 12px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, color: "#17191C", fontSize: 13, boxSizing: "border-box", resize: "vertical" }}
                     />
                   </div>
                 ))
@@ -1454,7 +1459,7 @@ function SimulationContent() {
                 <div style={{ padding: "1rem", textAlign: "center" }}>
                   <button
                     onClick={initHR}
-                    style={{ padding: "8px 16px", borderRadius: 8, background: "#ec4899", border: "none", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    style={{ padding: "8px 16px", borderRadius: 7, background: "#162A43", border: "none", color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                   >
                     Generate Context Questions for {targetCompany}
                   </button>
@@ -1465,7 +1470,7 @@ function SimulationContent() {
             <button
               onClick={handleGenerateFinalReport}
               disabled={generatingReport || hrLoading}
-              style={{ width: "100%", padding: "1rem", borderRadius: 12, border: "none", background: "linear-gradient(135deg,#6366f1,#a855f7)", color: "white", fontSize: 14, fontWeight: 800, cursor: (generatingReport || hrLoading) ? "not-allowed" : "pointer" }}
+              style={{ width: "100%", padding: "1rem", borderRadius: 7, border: "none", background: "#162A43", color: "#FFFFFF", fontSize: 14, fontWeight: 800, cursor: (generatingReport || hrLoading) ? "not-allowed" : "pointer" }}
             >
               {generatingReport ? "Synthesizing Final Holistic Report..." : "Complete Simulation & Generate Holistic Report ➔"}
             </button>
@@ -1481,23 +1486,23 @@ function SimulationContent() {
             <div
               style={{
                 padding: "1.75rem 2rem",
-                borderRadius: 20,
+                borderRadius: 10,
                 background: holisticReport.realistic_outcome.would_be_selected
-                  ? "rgba(16,185,129,0.1)"
-                  : "rgba(239,68,68,0.1)",
-                border: `2px solid ${holisticReport.realistic_outcome.would_be_selected ? "#10b981" : "#ef4444"}50`,
+                  ? "#EAF4EE"
+                  : "#FDF2F2",
+                border: `1px solid ${holisticReport.realistic_outcome.would_be_selected ? "#C8E4D3" : "#F8C8C8"}`,
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, marginBottom: 8 }}>
                 <span
                   style={{
-                    fontSize: 12,
-                    fontWeight: 900,
-                    letterSpacing: 1.5,
+                    fontSize: 11,
+                    fontWeight: 800,
+                    letterSpacing: 1,
                     textTransform: "uppercase",
                     padding: "4px 12px",
-                    borderRadius: 999,
-                    background: holisticReport.realistic_outcome.would_be_selected ? "#10b981" : "#ef4444",
+                    borderRadius: 5,
+                    background: holisticReport.realistic_outcome.would_be_selected ? "#2E7D5B" : "#C24141",
                     color: "white",
                   }}
                 >
@@ -1505,53 +1510,53 @@ function SimulationContent() {
                     ? "✓ REALISTIC OUTCOME: CANDIDATE OFFER RECOMMENDED"
                     : `✗ REALISTIC OUTCOME: ELIMINATED AT ${holisticReport.realistic_outcome.likely_elimination_round?.replace("_", " ").toUpperCase()}`}
                 </span>
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+                <span style={{ fontSize: 12, color: "#667085", fontWeight: 600 }}>
                   Audited against {holisticReport.target_role_and_company_tier}
                 </span>
               </div>
 
-              <h2 style={{ fontSize: 18, fontWeight: 800, margin: "10px 0 6px", color: "white" }}>
+              <h2 style={{ fontSize: 18, fontWeight: 800, margin: "10px 0 6px", color: "#162A43" }}>
                 Honest Recruitment Reality Check
               </h2>
-              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, margin: 0 }}>
                 {holisticReport.realistic_outcome.reasoning}
               </p>
             </div>
 
             {/* 5-DIMENSION SCORECARD */}
             <div>
-              <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12, color: "#162A43" }}>
                 Per-Dimension Breakdown (Real Participation Gated)
               </h3>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
                 {/* 1. Resume */}
-                <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
+                <div style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>1. RESUME (ATS)</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.resume_screening.result === "pass" ? "#34d399" : holisticReport.round_results.resume_screening.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>1. RESUME (ATS)</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.resume_screening.result === "pass" ? "#2E7D5B" : holisticReport.round_results.resume_screening.result === "not_attempted" ? "#B7791F" : "#C24141", textTransform: "uppercase" }}>
                       {holisticReport.round_results.resume_screening.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
                     {holisticReport.round_results.resume_screening.score !== null ? `${holisticReport.round_results.resume_screening.score}/100` : "Not Attempted"}
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                     {holisticReport.round_results.resume_screening.evidence}
                   </div>
                 </div>
 
                 {/* 2. Online Assessment */}
-                <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
+                <div style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>2. ONLINE ASSESSMENT</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.online_assessment.result === "pass" ? "#34d399" : holisticReport.round_results.online_assessment.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>2. ONLINE ASSESSMENT</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.online_assessment.result === "pass" ? "#2E7D5B" : holisticReport.round_results.online_assessment.result === "not_attempted" ? "#B7791F" : "#C24141", textTransform: "uppercase" }}>
                       {holisticReport.round_results.online_assessment.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
                     {holisticReport.round_results.online_assessment.coding_problems_solved}
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                     {holisticReport.round_results.online_assessment.aptitude_score !== null
                       ? `Aptitude: ${holisticReport.round_results.online_assessment.aptitude_score}/100 · Coding: ${holisticReport.round_results.online_assessment.coding_score}/100`
                       : "Round was skipped without submitting answers."}
@@ -1559,49 +1564,49 @@ function SimulationContent() {
                 </div>
 
                 {/* 3. Group Discussion */}
-                <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
+                <div style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>3. GROUP DISCUSSION</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.group_discussion.result === "pass" ? "#34d399" : holisticReport.round_results.group_discussion.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>3. GROUP DISCUSSION</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.group_discussion.result === "pass" ? "#2E7D5B" : holisticReport.round_results.group_discussion.result === "not_attempted" ? "#B7791F" : "#C24141", textTransform: "uppercase" }}>
                       {holisticReport.round_results.group_discussion.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
                     {holisticReport.round_results.group_discussion.articulation_score !== null ? `${holisticReport.round_results.group_discussion.articulation_score}/100` : "Not Attempted"}
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                     {holisticReport.round_results.group_discussion.specific_feedback}
                   </div>
                 </div>
 
                 {/* 4. Technical Interview */}
-                <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
+                <div style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>4. TECHNICAL INTERVIEW</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.technical_interview.result === "pass" ? "#34d399" : holisticReport.round_results.technical_interview.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>4. TECHNICAL INTERVIEW</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.technical_interview.result === "pass" ? "#2E7D5B" : holisticReport.round_results.technical_interview.result === "not_attempted" ? "#B7791F" : "#C24141", textTransform: "uppercase" }}>
                       {holisticReport.round_results.technical_interview.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
                     {holisticReport.round_results.technical_interview.score !== null ? `${holisticReport.round_results.technical_interview.score}/100` : "Not Attempted"}
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                     {holisticReport.round_results.technical_interview.specific_examples}
                   </div>
                 </div>
 
                 {/* 5. HR Interview */}
-                <div style={{ padding: "1.25rem", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14 }}>
+                <div style={{ padding: "1.25rem", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 700 }}>5. HR INTERVIEW</span>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.hr_interview.result === "pass" ? "#34d399" : holisticReport.round_results.hr_interview.result === "not_attempted" ? "#f59e0b" : "#f87171", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>5. HR INTERVIEW</span>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: holisticReport.round_results.hr_interview.result === "pass" ? "#2E7D5B" : holisticReport.round_results.hr_interview.result === "not_attempted" ? "#B7791F" : "#C24141", textTransform: "uppercase" }}>
                       {holisticReport.round_results.hr_interview.result.replace("_", " ")}
                     </span>
                   </div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: "white", marginBottom: 4 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: "#162A43", marginBottom: 4 }}>
                     {holisticReport.round_results.hr_interview.score !== null ? `${holisticReport.round_results.hr_interview.score}/100` : "Not Attempted"}
                   </div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
                     {holisticReport.round_results.hr_interview.specific_feedback}
                   </div>
                 </div>
@@ -1609,14 +1614,14 @@ function SimulationContent() {
             </div>
 
             {/* RECOMMENDATIONS LIST */}
-            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "1.5rem" }}>
-              <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 12px", color: "#818cf8" }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "1.5rem", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
+              <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 12px", color: "#162A43" }}>
                 Targeted Action Plan & Recommended Focus
               </h3>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {holisticReport.recommended_focus.map((rec, rIdx) => (
-                  <div key={rIdx} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "rgba(255,255,255,0.85)" }}>
-                    <span style={{ color: "#34d399", fontWeight: 800 }}>#{rIdx + 1}</span>
+                  <div key={rIdx} style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 13, color: "#17191C" }}>
+                    <span style={{ color: "#356AE6", fontWeight: 800 }}>#{rIdx + 1}</span>
                     <span>{rec}</span>
                   </div>
                 ))}
@@ -1636,7 +1641,7 @@ function SimulationContent() {
                   setHolisticReport(null);
                   setCurrentRound(1);
                 }}
-                style={{ padding: "0.85rem 1.5rem", borderRadius: 10, background: "linear-gradient(135deg,#6366f1,#4f46e5)", border: "none", color: "white", fontSize: 13, fontWeight: 800, cursor: "pointer" }}
+                style={{ padding: "0.85rem 1.5rem", borderRadius: 7, background: "#356AE6", border: "none", color: "white", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 🔄 Launch New Simulation Session
               </button>

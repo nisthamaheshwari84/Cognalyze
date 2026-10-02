@@ -12,13 +12,15 @@ export default function StudentInterviewPrepPage() {
       id: "vision-interview",
       title: "FAANG AI Mock Interview (Live Vision & Voice)",
       interviewer: "Alex, Lead Architect & Vision Panel",
-      desc: "Cognalyze's flagship full-screen FAANG technical interview. Features Alex's interactive animated 3D avatar, real-time voice speech synthesis (TTS) & mic transcription (STT), webcam face oval proctoring, posture & eye contact telemetry, and 7-axis precision scoring.",
+      desc: "Cognalyze's flagship full-screen FAANG technical interview. Features Alex's interactive animated avatar, real-time voice speech synthesis (TTS) & mic transcription (STT), webcam proctoring telemetry, posture & eye contact monitoring, and 7-axis precision scoring.",
       track: "product",
       href: "/interview",
-      badge: "⭐ Flagship FAANG Experience",
-      badgeColor: "#ec4899",
+      badge: "Flagship FAANG Experience",
+      badgeColor: "#356AE6",
+      badgeBg: "#EFF4FE",
+      badgeBorder: "#D2E0FB",
       icon: "🎙️",
-      features: ["3D Alex Animated Avatar", "Webcam Vision & Eye Contact", "Voice STT & TTS Audio", "7-Axis Scoring & Verdict"]
+      features: ["Interactive 3D Avatar", "Webcam Vision & Eye Contact", "Voice STT & TTS Audio", "7-Axis Scoring & Verdict"]
     },
     {
       id: "cs-technical",
@@ -28,7 +30,9 @@ export default function StudentInterviewPrepPage() {
       track: "product",
       href: "/student/skills/cs-interview",
       badge: "Lead Architect Alex",
-      badgeColor: "#38bdf8",
+      badgeColor: "#356AE6",
+      badgeBg: "#EFF4FE",
+      badgeBorder: "#D2E0FB",
       icon: "💻",
       features: ["Audio Speech Synthesis", "SQL & Code IDE", "Scale Follow-ups", "21+ Questions"]
     },
@@ -40,7 +44,9 @@ export default function StudentInterviewPrepPage() {
       track: "service",
       href: "/student/skills/behavioral",
       badge: "HR Director Priya",
-      badgeColor: "#fbbf24",
+      badgeColor: "#B7791F",
+      badgeBg: "#FEF7ED",
+      badgeBorder: "#F8D8A7",
       icon: "👔",
       features: ["STAR Structure Scoring", "Voice Response Mode", "Service & FAANG Track", "16+ Scenarios"]
     },
@@ -52,7 +58,9 @@ export default function StudentInterviewPrepPage() {
       track: "product",
       href: "/student/skills/system-design",
       badge: "L4/L5 Production Scale",
-      badgeColor: "#a855f7",
+      badgeColor: "#162A43",
+      badgeBg: "#F6F5F1",
+      badgeBorder: "#E4E1DA",
       icon: "🏗️",
       features: ["45-Min Timed Live Mode", "Blueprint Studio", "4-Quadrant Form", "6 Challenges"]
     },
@@ -64,19 +72,23 @@ export default function StudentInterviewPrepPage() {
       track: "service",
       href: "/student/skills/aptitude",
       badge: "Must-Clear Gate",
-      badgeColor: "#ef4444",
+      badgeColor: "#C24141",
+      badgeBg: "#FDF2F2",
+      badgeBorder: "#F8C8C8",
       icon: "⏱️",
       features: ["TCS / Infosys / Wipro", "Timed Speed Test", "Sub-Topic Filtering", "42+ Questions"]
     },
     {
       id: "gd-arena",
-      title: "FAANG AI Group Discussion (GD) Arena",
+      title: "AI Group Discussion (GD) Arena",
       interviewer: "Multi-Persona AI Panel",
       desc: "Live simulated group discussion room with diverse AI participants (Analytical, Skeptical, Moderating). Test your articulation, rebuttal, timing, and consensus building.",
       track: "service",
       href: "/student/gd-practice",
       badge: "Communication Filter",
-      badgeColor: "#10b981",
+      badgeColor: "#2E7D5B",
+      badgeBg: "#EAF4EE",
+      badgeBorder: "#C8E4D3",
       icon: "🗣️",
       features: ["Multi-Agent Debate", "Audio Transcript", "Turn-Taking Telemetry", "Culture Fit"]
     },
@@ -88,7 +100,9 @@ export default function StudentInterviewPrepPage() {
       track: "all",
       href: "/student/simulation",
       badge: "Flagship 5-Round Journey",
-      badgeColor: "#a855f7",
+      badgeColor: "#356AE6",
+      badgeBg: "#EFF4FE",
+      badgeBorder: "#D2E0FB",
       icon: "🏆",
       features: ["5 Sequential Stages", "Non-Blended Holistic Report", "Honest Elimination Pinpoint", "OA-Conditioned Tech Probing"]
     },
@@ -100,7 +114,9 @@ export default function StudentInterviewPrepPage() {
       track: "all",
       href: "/student/assessment-arena",
       badge: "Timed & Proctored",
-      badgeColor: "#f43f5e",
+      badgeColor: "#162A43",
+      badgeBg: "#F6F5F1",
+      badgeBorder: "#E4E1DA",
       icon: "🛡️",
       features: ["Timed Coding + Aptitude", "Tab & Window Proctoring", "Auto-Submit on Expiry", "Detailed Score Breakdown"]
     }
@@ -109,7 +125,7 @@ export default function StudentInterviewPrepPage() {
   const filteredArenas = arenas.filter(a => selectedTrack === "all" || a.track === selectedTrack || a.track === "all");
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#060913", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "Inter, sans-serif" }}>
       <AppNav role="student" />
 
       <main style={{ maxWidth: 1300, margin: "0 auto", padding: "32px 24px" }}>
@@ -118,18 +134,18 @@ export default function StudentInterviewPrepPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 28 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 6, background: "rgba(99,102,241,0.2)", color: "#818cf8", fontWeight: 800 }}>
-                STUDENT INTERVIEW PREPARATION
+              <span style={{ fontSize: 11, padding: "3px 8px", borderRadius: 5, backgroundColor: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
+                INTERVIEW PREPARATION MODULE
               </span>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>
-                8 Interactive Arenas
+              <span style={{ fontSize: 12, color: "#667085" }}>
+                8 Rigorous Evaluation Arenas
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 900, margin: 0, letterSpacing: "-0.5px" }}>
+            <h1 style={{ fontSize: "clamp(1.5rem, 2.5vw, 1.9rem)", fontWeight: 700, margin: 0, color: "#162A43", letterSpacing: "-0.4px" }}>
               🎙️ Mock Interview & Assessment Arenas
             </h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", margin: "8px 0 0", maxWidth: 650, lineHeight: 1.5 }}>
-              Prepare for real campus selection funnels with conversational AI interviewers, timed aptitude papers, and high-scale architecture studios.
+            <p style={{ fontSize: 13, color: "#667085", margin: "8px 0 0", maxWidth: 680, lineHeight: 1.5 }}>
+              Prepare for rigorous campus recruitment selection funnels with conversational AI interviewers, timed aptitude papers, and high-scale architecture studios.
             </p>
           </div>
 
@@ -142,13 +158,13 @@ export default function StudentInterviewPrepPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 16px",
-                borderRadius: 10,
-                background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
-                color: "white",
+                borderRadius: 7,
+                backgroundColor: "#356AE6",
+                color: "#ffffff",
                 textDecoration: "none",
-                fontWeight: 800,
+                fontWeight: 600,
                 fontSize: 13,
-                boxShadow: "0 0 20px rgba(99,102,241,0.3)",
+                boxShadow: "0 2px 6px rgba(53, 106, 230, 0.2)"
               }}
             >
               🏆 Full Pipeline Simulation
@@ -160,67 +176,71 @@ export default function StudentInterviewPrepPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "8px 16px",
-                borderRadius: 10,
-                background: "rgba(99,102,241,0.15)",
-                border: "1px solid rgba(99,102,241,0.3)",
-                color: "#c7d2fe",
+                borderRadius: 7,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
                 textDecoration: "none",
-                fontWeight: 700,
+                fontWeight: 600,
                 fontSize: 13,
+                boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)"
               }}
             >
               📊 Prep History
             </Link>
 
-            <div style={{ display: "flex", background: "rgba(0,0,0,0.5)", padding: 4, borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+            <div style={{ display: "flex", backgroundColor: "#FFFFFF", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA" }}>
               <button
                 onClick={() => setSelectedTrack("all")}
                 style={{
-                  padding: "6px 14px",
-                  borderRadius: 8,
+                  padding: "6px 12px",
+                  borderRadius: 6,
                   border: "none",
                   fontSize: 12,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: "pointer",
-                  background: selectedTrack === "all" ? "#6366f1" : "transparent",
-                  color: selectedTrack === "all" ? "white" : "#94a3b8"
+                  backgroundColor: selectedTrack === "all" ? "#356AE6" : "transparent",
+                  color: selectedTrack === "all" ? "#ffffff" : "#667085",
+                  transition: "all 0.15s ease"
                 }}
               >
                 All Arenas
               </button>
-            <button
-              onClick={() => setSelectedTrack("product")}
-              style={{
-                padding: "6px 14px",
-                borderRadius: 8,
-                border: "none",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                background: selectedTrack === "product" ? "#38bdf8" : "transparent",
-                color: selectedTrack === "product" ? "black" : "#94a3b8"
-              }}
-            >
-              Product / FAANG
-            </button>
-            <button
-              onClick={() => setSelectedTrack("service")}
-              style={{
-                padding: "6px 14px",
-                borderRadius: 8,
-                border: "none",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                background: selectedTrack === "service" ? "#10b981" : "transparent",
-                color: selectedTrack === "service" ? "white" : "#94a3b8"
-              }}
-            >
-              Mass Service
-            </button>
+              <button
+                onClick={() => setSelectedTrack("product")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  backgroundColor: selectedTrack === "product" ? "#356AE6" : "transparent",
+                  color: selectedTrack === "product" ? "#ffffff" : "#667085",
+                  transition: "all 0.15s ease"
+                }}
+              >
+                Product / FAANG
+              </button>
+              <button
+                onClick={() => setSelectedTrack("service")}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: 6,
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  backgroundColor: selectedTrack === "service" ? "#356AE6" : "transparent",
+                  color: selectedTrack === "service" ? "#ffffff" : "#667085",
+                  transition: "all 0.15s ease"
+                }}
+              >
+                Mass Service
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
         {/* ARENA CARDS GRID */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))", gap: 20 }}>
@@ -230,20 +250,14 @@ export default function StudentInterviewPrepPage() {
               <div
                 key={arena.id}
                 style={{
-                  background: isFlagship 
-                    ? "linear-gradient(145deg, rgba(236, 72, 153, 0.15) 0%, rgba(15, 23, 42, 0.85) 100%)"
-                    : "rgba(15, 23, 42, 0.7)",
-                  border: isFlagship
-                    ? "1.5px solid rgba(236, 72, 153, 0.5)"
-                    : "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 18,
+                  backgroundColor: "#FFFFFF",
+                  border: isFlagship ? "2px solid #356AE6" : "1px solid #E4E1DA",
+                  borderRadius: 10,
                   padding: "24px",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  boxShadow: isFlagship
-                    ? "0 14px 35px rgba(236, 72, 153, 0.25)"
-                    : "0 10px 25px rgba(0,0,0,0.4)",
+                  boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)",
                   position: "relative",
                   overflow: "hidden"
                 }}
@@ -253,42 +267,42 @@ export default function StudentInterviewPrepPage() {
                     position: "absolute",
                     top: 0,
                     right: 0,
-                    background: "linear-gradient(135deg, #ec4899, #8b5cf6)",
-                    color: "white",
-                    fontSize: 9,
-                    fontWeight: 900,
-                    padding: "3px 14px",
-                    borderBottomLeftRadius: 10,
-                    letterSpacing: 1
+                    backgroundColor: "#356AE6",
+                    color: "#ffffff",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "3px 12px",
+                    borderBottomLeftRadius: 8,
+                    letterSpacing: 0.5
                   }}>
                     MOST POPULAR
                   </div>
                 )}
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                    <div style={{ fontSize: 32 }}>{arena.icon}</div>
+                    <div style={{ fontSize: 28 }}>{arena.icon}</div>
                     <span
                       style={{
-                        fontSize: 10,
+                        fontSize: 11,
                         padding: "3px 9px",
-                        borderRadius: 6,
-                        fontWeight: 800,
-                        background: `${arena.badgeColor}18`,
+                        borderRadius: 5,
+                        fontWeight: 600,
+                        backgroundColor: arena.badgeBg,
                         color: arena.badgeColor,
-                        border: `1px solid ${arena.badgeColor}40`
+                        border: `1px solid ${arena.badgeBorder}`
                       }}
                     >
                       {arena.badge}
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: 17, fontWeight: 800, color: "white", margin: "0 0 6px" }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "#162A43", margin: "0 0 6px" }}>
                     {arena.title}
                   </h3>
-                  <div style={{ fontSize: 11, color: isFlagship ? "#f472b6" : "#818cf8", fontWeight: 700, marginBottom: 10 }}>
+                  <div style={{ fontSize: 12, color: "#356AE6", fontWeight: 600, marginBottom: 10 }}>
                     Interviewer: {arena.interviewer}
                   </div>
-                  <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 16px", lineHeight: 1.55 }}>
+                  <p style={{ fontSize: 12, color: "#667085", margin: "0 0 16px", lineHeight: 1.55 }}>
                     {arena.desc}
                   </p>
 
@@ -297,11 +311,13 @@ export default function StudentInterviewPrepPage() {
                       <span
                         key={idx}
                         style={{
-                          fontSize: 10,
-                          padding: "2px 7px",
-                          borderRadius: 4,
-                          background: isFlagship ? "rgba(236,72,153,0.15)" : "rgba(255,255,255,0.05)",
-                          color: isFlagship ? "#fbcfe8" : "#cbd5e1"
+                          fontSize: 11,
+                          padding: "3px 8px",
+                          borderRadius: 5,
+                          backgroundColor: "#F6F5F1",
+                          color: "#162A43",
+                          border: "1px solid #E4E1DA",
+                          fontWeight: 500
                         }}
                       >
                         ✓ {feat}
@@ -318,16 +334,14 @@ export default function StudentInterviewPrepPage() {
                     justifyContent: "center",
                     gap: 8,
                     padding: "10px 16px",
-                    borderRadius: 10,
-                    background: isFlagship
-                      ? "linear-gradient(135deg, #ec4899, #8b5cf6)"
-                      : "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(6,182,212,0.15))",
-                    border: isFlagship ? "none" : "1px solid rgba(99,102,241,0.4)",
-                    color: "white",
+                    borderRadius: 7,
+                    backgroundColor: isFlagship ? "#356AE6" : "#FFFFFF",
+                    border: isFlagship ? "none" : "1px solid #E4E1DA",
+                    color: isFlagship ? "#ffffff" : "#162A43",
                     textDecoration: "none",
-                    fontSize: 12,
-                    fontWeight: 800,
-                    boxShadow: isFlagship ? "0 4px 15px rgba(236,72,153,0.4)" : "none",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    boxShadow: isFlagship ? "0 2px 8px rgba(53, 106, 230, 0.25)" : "0 1px 2px rgba(16, 24, 40, 0.04)",
                     transition: "all 0.15s ease"
                   }}
                 >

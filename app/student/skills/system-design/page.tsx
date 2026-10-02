@@ -50,7 +50,7 @@ interface CanvasHistoryState {
   edges: CanvasEdge[];
 }
 
-// ── COMPONENT PALETTE (Section 4) ──
+// ── COMPONENT PALETTE ──
 const PALETTE_COMPONENTS = [
   { type: "client", label: "Client App", icon: "📱", defaultRole: "Mobile & Web Browser Clients", defaultProtocol: "HTTPS" },
   { type: "cdn", label: "Cloudflare CDN", icon: "🌐", defaultRole: "Edge caching & DDoS origin shield", defaultProtocol: "HTTPS" },
@@ -79,7 +79,7 @@ const LEARNING_STARTER_EDGES: CanvasEdge[] = [
   { id: "ledge-3", from: "learn-3", to: "learn-4", protocol: "SQL", pattern: "sync", purpose: "Query customer data" }
 ];
 
-// ── REFERENCE BLUEPRINTS (Reference Blueprint Modal/Drawer Only) ──
+// ── REFERENCE BLUEPRINTS ──
 const REFERENCE_BLUEPRINTS: Record<string, {
   nodes: CanvasNode[];
   edges: CanvasEdge[];
@@ -195,56 +195,6 @@ const CHALLENGE_CLARIFICATIONS: Record<string, ClarificationItem[]> = {
       category: "scale",
       interviewerResponse: "Heavy 100:1 read-to-write ratio. ~100M URLs created per month vs ~10 Billion redirection reads per month (~4,000 read RPS).",
       discoveredSpec: { label: "Traffic Ratio", value: "100:1 Read-to-Write (Heavy Read Cache)" }
-    },
-    {
-      id: "c-3",
-      question: "Should we return HTTP 301 Permanent or HTTP 302 Temporary redirects?",
-      category: "sla",
-      interviewerResponse: "HTTP 301 lets browsers cache the redirect (sub-5ms, zero server load), whereas HTTP 302 forces every hit through our server for click analytics. Support 302 for trackable links.",
-      discoveredSpec: { label: "Redirection", value: "HTTP 302 for Click Analytics / 301 for Static" }
-    }
-  ],
-  "sd-3": [
-    {
-      id: "c-1",
-      question: "What network transport protocol should be used for live messages?",
-      category: "scope",
-      interviewerResponse: "Full-duplex persistent WebSockets with bidirectional heartbeat ping/pong every 30s to detect ghost disconnects.",
-      discoveredSpec: { label: "Transport", value: "WebSockets + 30s Heartbeat" }
-    },
-    {
-      id: "c-2",
-      question: "How should chat history be persisted for rapid timeline scrolling?",
-      category: "data",
-      interviewerResponse: "Wide-column store (Cassandra or ScyllaDB) partitioned by chat_id with clustering key timestamp DESC for lightning-fast range slices.",
-      discoveredSpec: { label: "Persistence", value: "Cassandra partitioned by (chat_id, timestamp DESC)" }
-    }
-  ],
-  "sd-4": [
-    {
-      id: "c-1",
-      question: "What spatial indexing algorithm and cell resolution should we use?",
-      category: "scope",
-      interviewerResponse: "Use Uber H3 hexagonal spatial indexing (Resolution 8, ~460m radius) or Geohash. Hexagons have equidistant neighbors, eliminating corner distortion.",
-      discoveredSpec: { label: "Spatial Index", value: "Uber H3 Hexagonal Cells (Res 8)" }
-    }
-  ],
-  "sd-5": [
-    {
-      id: "c-1",
-      question: "Can we lock relational database rows directly for flash sale checkout?",
-      category: "data",
-      interviewerResponse: "Absolutely not. 200,000 concurrent row locks will immediately exhaust the database connection pool and cause severe deadlocks.",
-      discoveredSpec: { label: "DB Rule", value: "Zero DB row locks during peak surge" }
-    }
-  ],
-  "sd-6": [
-    {
-      id: "c-1",
-      question: "How does video playback adapt to fluctuating user network bandwidth?",
-      category: "scope",
-      interviewerResponse: "Transcode master 4K video asynchronously into Adaptive Bitrate Streaming chunks (HLS / MPEG-DASH) across 1080p, 720p, 480p, and 360p.",
-      discoveredSpec: { label: "Streaming", value: "Adaptive Bitrate Streaming (HLS / DASH chunks)" }
     }
   ]
 };
@@ -255,57 +205,48 @@ function SystemDesignContent() {
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
   const [challenges, setChallenges] = useState<SystemDesignChallenge[]>(SEED_SYSTEM_DESIGN_CHALLENGES);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string>(SEED_SYSTEM_DESIGN_CHALLENGES[0].id);
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string>("sd-1");
 
-  // ── THREE DISTINCT MODES (Section 2) ──
-  // Interview Mode starts completely blank (0 Nodes, 0 Connections)
+  // Arena Mode: Interview Mode (Blank Canvas) vs Learning Mode (Guided Template)
   const [mode, setMode] = useState<ArenaMode>("interview");
-  const [phase, setPhase] = useState<InterviewPhase>("requirements");
   const [hintUsed, setHintUsed] = useState(false);
 
-  // ── CANVAS NODES & EDGES (Whiteboard) ──
-  // INTERVIEW MODE STARTS WITH 0 NODES AND 0 CONNECTIONS
+  // Phase Progression
+  const [phase, setPhase] = useState<InterviewPhase>("requirements");
+
+  // ── WHITEBOARD CANVAS STATE ──
   const [canvasNodes, setCanvasNodes] = useState<CanvasNode[]>([]);
   const [canvasEdges, setCanvasEdges] = useState<CanvasEdge[]>([]);
-
-  // Selection & Inspector
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
 
-  // Connection Mode
+  // Interaction: Drag, Connect, Zoom
   const [isConnectMode, setIsConnectMode] = useState(false);
   const [connectingSourceId, setConnectingSourceId] = useState<string | null>(null);
-
-  // Component Palette Drawer
+  const [zoomScale, setZoomScale] = useState(1);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
 
-  // Canvas Dragging
-  const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [hasMovedDuringDrag, setHasMovedDuringDrag] = useState(false);
+  // Dragging State
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [hasMovedDuringDrag, setHasMovedDuringDrag] = useState(false);
 
-  // Canvas Zoom
-  const [zoomScale, setZoomScale] = useState(1);
-
-  // Undo / Redo History Stack (Section 58)
+  // History for Undo / Redo
   const [history, setHistory] = useState<CanvasHistoryState[]>([{ nodes: [], edges: [] }]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
-  // Push State to History
-  const pushHistory = useCallback((newNodes: CanvasNode[], newEdges: CanvasEdge[]) => {
-    setHistory(prev => {
-      const upToCurrent = prev.slice(0, historyIndex + 1);
-      return [...upToCurrent, { nodes: newNodes, edges: newEdges }];
-    });
-    setHistoryIndex(prev => prev + 1);
-  }, [historyIndex]);
+  const pushHistory = (newNodes: CanvasNode[], newEdges: CanvasEdge[]) => {
+    const trimmed = history.slice(0, historyIndex + 1);
+    setHistory([...trimmed, { nodes: newNodes, edges: newEdges }]);
+    setHistoryIndex(trimmed.length);
+  };
 
   const handleUndo = () => {
     if (historyIndex > 0) {
-      const targetState = history[historyIndex - 1];
-      setCanvasNodes(targetState.nodes);
-      setCanvasEdges(targetState.edges);
+      const prev = history[historyIndex - 1];
+      setCanvasNodes(prev.nodes);
+      setCanvasEdges(prev.edges);
       setHistoryIndex(historyIndex - 1);
       setSelectedNodeId(null);
       setSelectedEdgeId(null);
@@ -314,39 +255,30 @@ function SystemDesignContent() {
 
   const handleRedo = () => {
     if (historyIndex < history.length - 1) {
-      const targetState = history[historyIndex + 1];
-      setCanvasNodes(targetState.nodes);
-      setCanvasEdges(targetState.edges);
+      const next = history[historyIndex + 1];
+      setCanvasNodes(next.nodes);
+      setCanvasEdges(next.edges);
       setHistoryIndex(historyIndex + 1);
       setSelectedNodeId(null);
       setSelectedEdgeId(null);
     }
   };
 
-  // Keyboard shortcuts: Delete, Undo, Redo
+  // Keyboard shortcut listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === "INPUT" || (e.target as HTMLElement).tagName === "TEXTAREA") {
-        return;
-      }
-
-      if ((e.key === "Backspace" || e.key === "Delete")) {
-        if (selectedNodeId) {
-          handleDeleteSelectedNode();
-        } else if (selectedEdgeId) {
-          handleDeleteSelectedEdge();
-        }
-      } else if ((e.metaKey || e.ctrlKey) && e.key === "z") {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        e.preventDefault();
         if (e.shiftKey) {
           handleRedo();
         } else {
           handleUndo();
         }
-      } else if ((e.metaKey || e.ctrlKey) && e.key === "y") {
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+        e.preventDefault();
         handleRedo();
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
@@ -356,7 +288,7 @@ function SystemDesignContent() {
   const [customQuestionInput, setCustomQuestionInput] = useState("");
   const [clarificationThinking, setClarificationThinking] = useState(false);
 
-  // ── CONVERSATION & INTERVIEWER DIALOGUE (Section 20, 53) ──
+  // ── CONVERSATION & INTERVIEWER DIALOGUE ──
   const [candidateResponse, setCandidateResponse] = useState("");
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [interviewerLog, setInterviewerLog] = useState<{ sender: "interviewer" | "candidate"; text: string }[]>([
@@ -373,7 +305,7 @@ function SystemDesignContent() {
   const [cachingStrategy, setCachingStrategy] = useState("");
   const [bottleneckStrategy, setBottleneckStrategy] = useState("");
 
-  // ── PHASE 4: CHAOS INJECTION & DYNAMIC SCALE (Section 27, 28) ──
+  // ── PHASE 4: CHAOS INJECTION & DYNAMIC SCALE ──
   const [chaosInjected, setChaosInjected] = useState(false);
   const [chaosScenario, setChaosScenario] = useState<{
     title: string;
@@ -402,11 +334,24 @@ function SystemDesignContent() {
     const storedId = searchParams.get("candidateId") || localStorage.getItem("cognalyze_student_id") || "student-demo";
     setCandidateId(storedId);
 
-    const paramTrack = (searchParams.get("track") as any) || "product_mid";
+    const rawTrack = searchParams.get("track");
+    const validTracks = ["service_mass", "service_elite", "product_mid", "product_faang"];
+    const paramTrack = (validTracks.includes(rawTrack || "") ? rawTrack : "product_mid") as "service_mass" | "service_elite" | "product_mid" | "product_faang";
     setTrackSlug(paramTrack);
 
     const brief = generateSessionBrief(paramTrack, "system_design", storedId);
     setSessionBrief(brief);
+
+    const queryMode = searchParams.get("mode");
+    if (queryMode === "learn" || queryMode === "learning") {
+      setMode("learning");
+      setCanvasNodes(LEARNING_STARTER_NODES);
+      setCanvasEdges(LEARNING_STARTER_EDGES);
+    } else if (queryMode === "interview" || queryMode === "practice") {
+      setMode("interview");
+      setCanvasNodes([]);
+      setCanvasEdges([]);
+    }
   }, [searchParams]);
 
   // Handle Mode Change (Interview vs Learning)
@@ -423,7 +368,6 @@ function SystemDesignContent() {
     setSelectedEdgeId(null);
 
     if (newMode === "interview") {
-      // INTERVIEW MODE: Strictly 0 Nodes, 0 Connections (Section 1, 2)
       setCanvasNodes([]);
       setCanvasEdges([]);
       setHistory([{ nodes: [], edges: [] }]);
@@ -435,7 +379,6 @@ function SystemDesignContent() {
         }
       ]);
     } else {
-      // LEARNING MODE: Guided starter with fully editable nodes
       setCanvasNodes(LEARNING_STARTER_NODES);
       setCanvasEdges(LEARNING_STARTER_EDGES);
       setHistory([{ nodes: LEARNING_STARTER_NODES, edges: LEARNING_STARTER_EDGES }]);
@@ -464,7 +407,6 @@ function SystemDesignContent() {
     setHintUsed(false);
 
     if (mode === "interview") {
-      // Always blank for Interview Mode
       setCanvasNodes([]);
       setCanvasEdges([]);
       setHistory([{ nodes: [], edges: [] }]);
@@ -540,7 +482,7 @@ function SystemDesignContent() {
     }, 450);
   };
 
-  // ── CANVAS OPERATIONS: ADD, MOVE, DUPLICATE, DELETE (Sections 5-10) ──
+  // ── CANVAS OPERATIONS: ADD, MOVE, DUPLICATE, DELETE ──
   const handleAddPaletteNode = (comp: typeof PALETTE_COMPONENTS[0]) => {
     const newNode: CanvasNode = {
       id: `node-${Date.now()}`,
@@ -560,7 +502,6 @@ function SystemDesignContent() {
     setSelectedEdgeId(null);
     setIsPaletteOpen(false);
 
-    // Dynamic Interviewer reaction to added component (Section 20)
     if (comp.type === "cache") {
       setInterviewerLog(prev => [
         ...prev,
@@ -579,7 +520,6 @@ function SystemDesignContent() {
     }
   };
 
-  // Duplicate Selected Node (Section 9)
   const handleDuplicateSelectedNode = () => {
     if (!selectedNodeId) return;
     const target = canvasNodes.find(n => n.id === selectedNodeId);
@@ -604,7 +544,6 @@ function SystemDesignContent() {
     ]);
   };
 
-  // Delete Selected Node (Section 8)
   const handleDeleteSelectedNode = () => {
     if (!selectedNodeId) return;
     const nextNodes = canvasNodes.filter(n => n.id !== selectedNodeId);
@@ -616,7 +555,6 @@ function SystemDesignContent() {
     setSelectedNodeId(null);
   };
 
-  // Delete Selected Edge (Section 12)
   const handleDeleteSelectedEdge = () => {
     if (!selectedEdgeId) return;
     const nextEdges = canvasEdges.filter(e => e.id !== selectedEdgeId);
@@ -625,7 +563,6 @@ function SystemDesignContent() {
     setSelectedEdgeId(null);
   };
 
-  // Clear Canvas (Section 59)
   const handleConfirmClearCanvas = () => {
     setCanvasNodes([]);
     setCanvasEdges([]);
@@ -635,11 +572,9 @@ function SystemDesignContent() {
     setIsClearConfirmOpen(false);
   };
 
-  // Auto-Arrange Layout (Section 57)
   const handleAutoArrange = () => {
     if (canvasNodes.length === 0) return;
 
-    // Rank components by layer
     const getTier = (type: string) => {
       if (type === "client") return 0;
       if (type === "cdn" || type === "lb") return 1;
@@ -665,7 +600,7 @@ function SystemDesignContent() {
     pushHistory(arranged, canvasEdges);
   };
 
-  // ── NODE DRAGGING EVENTS (Section 3, 6) ──
+  // ── NODE DRAGGING EVENTS ──
   const handleMouseDownNode = (e: React.MouseEvent, node: CanvasNode) => {
     e.stopPropagation();
 
@@ -673,7 +608,6 @@ function SystemDesignContent() {
       if (!connectingSourceId) {
         setConnectingSourceId(node.id);
       } else if (connectingSourceId !== node.id) {
-        // Connect Source to Target
         const defaultProtocol = node.type === "cache" ? "RESP" : node.type === "db" ? "SQL" : "HTTP/2";
         const newEdge: CanvasEdge = {
           id: `edge-${Date.now()}`,
@@ -691,7 +625,6 @@ function SystemDesignContent() {
         setIsConnectMode(false);
         setSelectedEdgeId(newEdge.id);
 
-        // Dynamic Graph Analysis on Connection (Section 10, 14)
         const srcNode = canvasNodes.find(n => n.id === connectingSourceId);
         if (srcNode?.type === "gateway" && node.type === "cache") {
           setInterviewerLog(prev => [
@@ -740,7 +673,7 @@ function SystemDesignContent() {
     setHasMovedDuringDrag(false);
   };
 
-  // ── INTELLIGENT CHAOS SURGE (Section 27, 28) ──
+  // ── INTELLIGENT CHAOS SURGE ──
   const handleTriggerIntelligentChaos = () => {
     setChaosInjected(true);
     setPhase("chaos");
@@ -782,7 +715,6 @@ function SystemDesignContent() {
     ]);
   };
 
-  // Candidate sends response in dialogue
   const handleSendCandidateResponse = () => {
     if (!candidateResponse.trim()) return;
     const text = candidateResponse.trim();
@@ -793,7 +725,6 @@ function SystemDesignContent() {
       { sender: "candidate", text }
     ]);
 
-    // Adaptive follow-up probe (Section 20)
     setTimeout(() => {
       let probe = "Understood. How does this decision affect your P99 latency bounds under peak traffic surge?";
       const lower = text.toLowerCase();
@@ -814,7 +745,6 @@ function SystemDesignContent() {
     }, 500);
   };
 
-  // Voice Mode Toggle (Section 54)
   const handleToggleVoice = () => {
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       alert("Speech recognition is not supported in this browser. Please type your response.");
@@ -845,7 +775,7 @@ function SystemDesignContent() {
     }
   };
 
-  // ── FINAL SUBMISSION & EVALUATION (Sections 45, 46) ──
+  // ── FINAL SUBMISSION & EVALUATION ──
   const handleSubmitInterview = async () => {
     setEvaluating(true);
     setEvalResult(null);
@@ -910,39 +840,39 @@ function SystemDesignContent() {
   );
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#090d16", color: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       
       {/* ── HEADER ── */}
-      <header style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", backgroundColor: "rgba(15, 23, 42, 0.9)", backdropFilter: "blur(16px)", padding: "12px 24px", position: "sticky", top: 0, zIndex: 50 }}>
+      <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "12px 24px", position: "sticky", top: 0, zIndex: 50, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
         <div style={{ maxWidth: 1480, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                <Link href="/student/skills" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 12, fontWeight: 600 }}>
+                <Link href="/student/skills" style={{ color: "#667085", textDecoration: "none", fontSize: 12, fontWeight: 600 }}>
                   ← Skill Practice Hub
                 </Link>
-                <span style={{ color: "rgba(255,255,255,0.2)" }}>/</span>
-                <span style={{ color: "#a855f7", fontSize: 12, fontWeight: 700 }}>Arena 2.0</span>
+                <span style={{ color: "#E4E1DA" }}>/</span>
+                <span style={{ color: "#356AE6", fontSize: 12, fontWeight: 700 }}>Arena 2.0</span>
               </div>
-              <h1 style={{ fontSize: 18, fontWeight: 900, margin: 0, letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 8 }}>
+              <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.02em", display: "flex", alignItems: "center", gap: 8 }}>
                 <span>🏛️</span>
-                <span>System Design & Architecture Studio</span>
+                <span>System Design &amp; Architecture Studio</span>
               </h1>
             </div>
 
-            {/* Mode Switcher: Interview vs Learning (Section 2, 66) */}
-            <div style={{ display: "flex", background: "rgba(0,0,0,0.5)", padding: 3, borderRadius: 10, border: "1px solid rgba(255,255,255,0.1)" }}>
+            {/* Mode Switcher */}
+            <div style={{ display: "flex", background: "#F6F5F1", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA", gap: 2 }}>
               <button
                 onClick={() => handleSwitchMode("interview")}
                 style={{
                   padding: "5px 12px",
-                  borderRadius: 7,
+                  borderRadius: 6,
                   border: "none",
-                  background: mode === "interview" ? "linear-gradient(135deg, rgba(168,85,247,0.4) 0%, rgba(99,102,241,0.3) 100%)" : "transparent",
-                  color: mode === "interview" ? "#c084fc" : "#94a3b8",
+                  background: mode === "interview" ? "#162A43" : "transparent",
+                  color: mode === "interview" ? "#FFFFFF" : "#667085",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -956,12 +886,12 @@ function SystemDesignContent() {
                 onClick={() => handleSwitchMode("learning")}
                 style={{
                   padding: "5px 12px",
-                  borderRadius: 7,
+                  borderRadius: 6,
                   border: "none",
-                  background: mode === "learning" ? "linear-gradient(135deg, rgba(56,189,248,0.4) 0%, rgba(16,185,129,0.3) 100%)" : "transparent",
-                  color: mode === "learning" ? "#38bdf8" : "#94a3b8",
+                  background: mode === "learning" ? "#162A43" : "transparent",
+                  color: mode === "learning" ? "#FFFFFF" : "#667085",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -973,48 +903,48 @@ function SystemDesignContent() {
               </button>
             </div>
 
-            {/* Challenge Dropdown Selector (Section 36) */}
+            {/* Challenge Dropdown Selector */}
             <select
               value={selectedChallengeId}
               onChange={e => handleSelectChallenge(e.target.value)}
               style={{
-                background: "rgba(30, 41, 59, 0.8)",
-                border: "1px solid rgba(168, 85, 247, 0.4)",
-                color: "white",
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                color: "#17191C",
                 padding: "6px 12px",
-                borderRadius: 8,
+                borderRadius: 7,
                 fontSize: 12,
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: "pointer",
                 outline: "none"
               }}
             >
               {challenges.map(c => (
-                <option key={c.id} value={c.id} style={{ background: "#0f172a", color: "white" }}>
+                <option key={c.id} value={c.id}>
                   {c.title}
                 </option>
               ))}
             </select>
 
-            {/* Scale Target Badge (Section 37) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(56, 189, 248, 0.1)", border: "1px solid rgba(56, 189, 248, 0.3)", padding: "4px 10px", borderRadius: 8 }}>
-              <span style={{ fontSize: 10, color: "#38bdf8", fontWeight: 800 }}>⚡ SCALE</span>
-              <span style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>
+            {/* Scale Target Badge */}
+            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "4px 10px", borderRadius: 6 }}>
+              <span style={{ fontSize: 10, color: "#356AE6", fontWeight: 800 }}>⚡ SCALE</span>
+              <span style={{ fontSize: 11, color: "#162A43", fontWeight: 600 }}>
                 {activeChallenge.scale_metrics.split(".")[0]}
               </span>
             </div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Technical Spec Drawer Button (Section 35) */}
+            {/* Technical Spec Drawer Button */}
             <button
               onClick={() => setIsSpecDrawerOpen(true)}
               style={{
                 padding: "6px 12px",
-                borderRadius: 8,
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(255,255,255,0.05)",
-                color: "#e2e8f0",
+                borderRadius: 7,
+                border: "1px solid #E4E1DA",
+                background: "#FFFFFF",
+                color: "#475467",
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -1027,15 +957,15 @@ function SystemDesignContent() {
               <span>Technical Spec</span>
             </button>
 
-            {/* Reference Blueprint Drawer Button (Section 34) */}
+            {/* Reference Blueprint Drawer Button */}
             <button
               onClick={() => setIsBlueprintDrawerOpen(true)}
               style={{
                 padding: "6px 12px",
-                borderRadius: 8,
-                border: "1px solid rgba(245,158,11,0.35)",
-                background: "rgba(245,158,11,0.1)",
-                color: "#fbbf24",
+                borderRadius: 7,
+                border: "1px solid #E4E1DA",
+                background: "#FFFFFF",
+                color: "#162A43",
                 fontSize: 11,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -1051,11 +981,11 @@ function SystemDesignContent() {
         </div>
       </header>
 
-      {/* ── INTERVIEW PROGRESSION INDICATOR (Section 16) ── */}
-      <div style={{ backgroundColor: "#0b1120", borderBottom: "1px solid rgba(255, 255, 255, 0.06)", padding: "8px 24px" }}>
+      {/* ── INTERVIEW PROGRESSION INDICATOR ── */}
+      <div style={{ backgroundColor: "#FFFFFF", borderBottom: "1px solid #E4E1DA", padding: "8px 24px" }}>
         <div style={{ maxWidth: 1480, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
           
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             {[
               { id: "requirements", step: "1", title: "Requirements & Clarification" },
               { id: "architecture", step: "2", title: "Architecture Canvas" },
@@ -1072,17 +1002,17 @@ function SystemDesignContent() {
 
               return (
                 <React.Fragment key={p.id}>
-                  {idx > 0 && <span style={{ color: "rgba(255,255,255,0.2)", fontSize: 11 }}>➔</span>}
+                  {idx > 0 && <span style={{ color: "#E4E1DA", fontSize: 11 }}>➔</span>}
                   <button
                     onClick={() => setPhase(p.id as InterviewPhase)}
                     style={{
-                      background: isActive ? "rgba(168,85,247,0.2)" : "transparent",
-                      border: isActive ? "1px solid rgba(168,85,247,0.5)" : "1px solid transparent",
-                      color: isActive ? "#c084fc" : isPast ? "#34d399" : "rgba(255,255,255,0.4)",
+                      background: isActive ? "#162A43" : isPast ? "#EAF4EE" : "transparent",
+                      border: isActive ? "1px solid #162A43" : isPast ? "1px solid #C8E4D3" : "1px solid transparent",
+                      color: isActive ? "#FFFFFF" : isPast ? "#2E7D5B" : "#667085",
                       padding: "4px 10px",
                       borderRadius: 6,
                       fontSize: 11,
-                      fontWeight: isActive || isPast ? 800 : 600,
+                      fontWeight: isActive || isPast ? 700 : 600,
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
@@ -1103,13 +1033,13 @@ function SystemDesignContent() {
               <button
                 onClick={() => setPhase("architecture")}
                 style={{
-                  padding: "5px 14px",
-                  borderRadius: 6,
+                  padding: "6px 14px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
-                  color: "white",
+                  background: "#356AE6",
+                  color: "#FFFFFF",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
@@ -1120,13 +1050,13 @@ function SystemDesignContent() {
               <button
                 onClick={() => setPhase("deep_dive")}
                 style={{
-                  padding: "5px 14px",
-                  borderRadius: 6,
+                  padding: "6px 14px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
-                  color: "white",
+                  background: "#356AE6",
+                  color: "#FFFFFF",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
@@ -1137,13 +1067,13 @@ function SystemDesignContent() {
               <button
                 onClick={handleTriggerIntelligentChaos}
                 style={{
-                  padding: "5px 14px",
-                  borderRadius: 6,
+                  padding: "6px 14px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "white",
+                  background: "#B7791F",
+                  color: "#FFFFFF",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
@@ -1155,13 +1085,13 @@ function SystemDesignContent() {
                 onClick={handleSubmitInterview}
                 disabled={evaluating}
                 style={{
-                  padding: "5px 14px",
-                  borderRadius: 6,
+                  padding: "6px 14px",
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                  color: "white",
+                  background: "#2E7D5B",
+                  color: "#FFFFFF",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: evaluating ? "not-allowed" : "pointer"
                 }}
               >
@@ -1177,43 +1107,43 @@ function SystemDesignContent() {
 
         {/* Learning Mode Guided Banner */}
         {mode === "learning" && (
-          <div style={{ background: "rgba(56, 189, 248, 0.08)", border: "1px solid rgba(56, 189, 248, 0.25)", borderRadius: 12, padding: "10px 16px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: "10px 16px", marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ fontSize: 16 }}>💡</span>
-              <div style={{ fontSize: 12, color: "white" }}>
+              <div style={{ fontSize: 12, color: "#162A43" }}>
                 <strong>Learning Mode:</strong> High-frequency rate-limiting directly querying PostgreSQL will cause connection exhaustion. Try adding a <strong>Redis Cluster</strong> from the component library.
               </div>
             </div>
-            <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(56, 189, 248, 0.2)", color: "#38bdf8", borderRadius: 6, fontWeight: 700 }}>
+            <span style={{ fontSize: 10, padding: "2px 8px", background: "#FFFFFF", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 5, fontWeight: 700 }}>
               Guided Mode
             </span>
           </div>
         )}
 
-        {/* ── CHAOS SURGE ALERT BANNER (Shown during chaos) ── */}
+        {/* ── CHAOS SURGE ALERT BANNER ── */}
         {chaosInjected && chaosScenario && (
-          <div style={{ background: "rgba(245, 158, 11, 0.12)", border: "1px solid rgba(245, 158, 11, 0.5)", borderRadius: 14, padding: "14px 20px", marginBottom: 16, boxShadow: "0 0 30px rgba(245,158,11,0.15)" }}>
+          <div style={{ background: "#FEF7ED", border: "1px solid #F8D8A7", borderRadius: 10, padding: "14px 20px", marginBottom: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18 }}>🚨</span>
-                <h3 style={{ fontSize: 13, fontWeight: 900, margin: 0, color: "#fbbf24" }}>
+                <h3 style={{ fontSize: 13, fontWeight: 800, margin: 0, color: "#B7791F" }}>
                   {chaosScenario.title}
                 </h3>
               </div>
-              <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(245,158,11,0.2)", color: "#fef08a", borderRadius: 4, fontWeight: 800 }}>
+              <span style={{ fontSize: 10, padding: "2px 8px", background: "#FFFFFF", color: "#B7791F", border: "1px solid #F8D8A7", borderRadius: 4, fontWeight: 800 }}>
                 ACTIVE RESILIENCE DRILL
               </span>
             </div>
             
-            <p style={{ margin: "0 0 10px", fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.4 }}>
+            <p style={{ margin: "0 0 10px", fontSize: 12, color: "#78350F", lineHeight: 1.4 }}>
               {chaosScenario.description}
             </p>
 
-            <div style={{ padding: "10px 14px", background: "rgba(0,0,0,0.4)", borderRadius: 8, border: "1px solid rgba(245,158,11,0.3)", marginBottom: 10 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: "#fbbf24", marginBottom: 2 }}>
+            <div style={{ padding: "10px 14px", background: "#FFFFFF", borderRadius: 7, border: "1px solid #F8D8A7", marginBottom: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 2 }}>
                 🎙️ Interviewer Challenge:
               </div>
-              <div style={{ fontSize: 12, color: "white", fontWeight: 700 }}>
+              <div style={{ fontSize: 12, color: "#17191C", fontWeight: 700 }}>
                 {chaosScenario.interviewerProbe}
               </div>
             </div>
@@ -1225,47 +1155,48 @@ function SystemDesignContent() {
               rows={2}
               style={{
                 width: "100%",
-                background: "#080b12",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: 8,
+                background: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 7,
                 padding: 10,
-                color: "white",
+                color: "#17191C",
                 fontSize: 12,
-                outline: "none"
+                outline: "none",
+                boxSizing: "border-box"
               }}
             />
           </div>
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            PHASE 1: REQUIREMENTS & CLARIFICATION (Section 17, 18)
+            PHASE 1: REQUIREMENTS & CLARIFICATION
             ══════════════════════════════════════════════════════════════ */}
         {phase === "requirements" && (
           <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 18, marginBottom: 20 }}>
             
             {/* Left: Clarification Dialogue */}
-            <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: 18 }}>
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 18, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 16 }}>🎙️</span>
-                  <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "white" }}>
+                  <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "#162A43" }}>
                     Phase 1: Clarify Problem Requirements
                   </h2>
                 </div>
-                <span style={{ fontSize: 11, padding: "2px 8px", background: "rgba(168,85,247,0.15)", color: "#c084fc", borderRadius: 6, fontWeight: 700 }}>
+                <span style={{ fontSize: 11, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 5, fontWeight: 700 }}>
                   Interactive Brief
                 </span>
               </div>
 
               {/* Initial Problem Prompt */}
-              <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(99, 102, 241, 0.1)", border: "1px solid rgba(99, 102, 241, 0.25)", marginBottom: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#a5b4fc", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ padding: "12px 16px", borderRadius: 8, background: "#F6F5F1", border: "1px solid #E4E1DA", marginBottom: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 4 }}>
                   Problem Statement
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "white", marginBottom: 4 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#17191C", marginBottom: 4 }}>
                   &ldquo;{activeChallenge.description}&rdquo;
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8" }}>
+                <div style={{ fontSize: 11, color: "#667085" }}>
                   Before opening the whiteboard, clarify requirements regarding caller identity, SLA latency, accuracy tolerances, and outage policies.
                 </div>
               </div>
@@ -1273,16 +1204,16 @@ function SystemDesignContent() {
               {/* Clarification Q&A History */}
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14, maxHeight: 280, overflowY: "auto", paddingRight: 4 }}>
                 {clarificationsAsked.map(item => (
-                  <div key={item.id} style={{ borderRadius: 8, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", padding: 10 }}>
+                  <div key={item.id} style={{ borderRadius: 7, background: "#F6F5F1", border: "1px solid #E4E1DA", padding: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
                       <span style={{ fontSize: 11 }}>👤</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: "#38bdf8" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6" }}>
                         Candidate asked: {item.question}
                       </span>
                     </div>
                     <div style={{ display: "flex", alignItems: "flex-start", gap: 6, paddingLeft: 16 }}>
                       <span style={{ fontSize: 11 }}>🏛️</span>
-                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.9)", lineHeight: 1.4 }}>
+                      <span style={{ fontSize: 11, color: "#17191C", lineHeight: 1.4 }}>
                         {item.interviewerResponse}
                       </span>
                     </div>
@@ -1290,7 +1221,7 @@ function SystemDesignContent() {
                 ))}
 
                 {clarificationThinking && (
-                  <div style={{ fontSize: 11, color: "#a855f7", fontStyle: "italic", padding: "6px 10px" }}>
+                  <div style={{ fontSize: 11, color: "#356AE6", fontStyle: "italic", padding: "6px 10px" }}>
                     Interviewer is evaluating requirement specification...
                   </div>
                 )}
@@ -1299,7 +1230,7 @@ function SystemDesignContent() {
               {/* Suggested Questions to Ask */}
               {availableClarifications.length > 0 && (
                 <div style={{ marginBottom: 12 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", marginBottom: 6 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginBottom: 6 }}>
                     Suggested Clarifying Probes (Click to Ask):
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -1311,9 +1242,9 @@ function SystemDesignContent() {
                         style={{
                           padding: "5px 10px",
                           borderRadius: 6,
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          background: "rgba(255,255,255,0.04)",
-                          color: "white",
+                          border: "1px solid #E4E1DA",
+                          background: "#FFFFFF",
+                          color: "#17191C",
                           fontSize: 11,
                           fontWeight: 600,
                           cursor: "pointer",
@@ -1337,12 +1268,12 @@ function SystemDesignContent() {
                   placeholder="Ask any custom clarifying question (e.g. Do we require multi-region replication?)..."
                   style={{
                     flex: 1,
-                    background: "#080b12",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    borderRadius: 8,
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 7,
                     padding: "8px 12px",
-                    color: "white",
-                    fontSize: 11,
+                    color: "#17191C",
+                    fontSize: 12,
                     outline: "none"
                   }}
                 />
@@ -1351,12 +1282,12 @@ function SystemDesignContent() {
                   disabled={clarificationThinking || !customQuestionInput.trim()}
                   style={{
                     padding: "8px 16px",
-                    borderRadius: 8,
+                    borderRadius: 7,
                     border: "none",
-                    background: "#a855f7",
-                    color: "white",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
                     fontSize: 11,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: customQuestionInput.trim() ? "pointer" : "not-allowed"
                   }}
                 >
@@ -1368,25 +1299,25 @@ function SystemDesignContent() {
 
             {/* Right: Discovered Requirements */}
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: 16 }}>
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: "#34d399", textTransform: "uppercase" }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase" }}>
                     ✓ Discovered Requirements ({clarificationsAsked.length})
                   </div>
                 </div>
 
                 {clarificationsAsked.length === 0 ? (
-                  <div style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", padding: "24px 10px", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: "#667085", textAlign: "center", padding: "24px 10px", lineHeight: 1.5 }}>
                     No requirements uncovered yet. Ask the interviewer clarifying questions on the left.
                   </div>
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {clarificationsAsked.map(c => (
-                      <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.2)", borderRadius: 6 }}>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: "#a7f3d0" }}>
+                      <div key={c.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 6 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: "#14532D" }}>
                           {c.discoveredSpec.label}
                         </span>
-                        <span style={{ fontSize: 11, color: "white", fontWeight: 600 }}>
+                        <span style={{ fontSize: 11, color: "#166534", fontWeight: 600 }}>
                           {c.discoveredSpec.value}
                         </span>
                       </div>
@@ -1400,12 +1331,12 @@ function SystemDesignContent() {
                     width: "100%",
                     marginTop: 14,
                     padding: "9px",
-                    borderRadius: 8,
+                    borderRadius: 7,
                     border: "none",
-                    background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
-                    color: "white",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
                     fontSize: 11,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
@@ -1414,11 +1345,11 @@ function SystemDesignContent() {
               </div>
 
               {/* Bar-Raiser Principle Note */}
-              <div style={{ background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.25)", borderRadius: 12, padding: 14 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", marginBottom: 2 }}>
+              <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", marginBottom: 2 }}>
                   💡 Interview Assessment Standard
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: "#162A43", lineHeight: 1.4 }}>
                   In Tier-1 evaluations, starting with a blank canvas and asking targeted scope questions distinguishes senior engineers from candidates who memorize diagrams.
                 </div>
               </div>
@@ -1436,22 +1367,22 @@ function SystemDesignContent() {
             {/* Whiteboard Workspace */}
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               
-              {/* Whiteboard Toolbar (Section 38, 58, 59) */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", padding: "7px 12px", borderRadius: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {/* Whiteboard Toolbar */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#FFFFFF", border: "1px solid #E4E1DA", padding: "7px 12px", borderRadius: 8, boxShadow: "0 1px 3px rgba(16,24,40,0.02)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                   
-                  {/* + Components Popover Button (Section 4, 51) */}
+                  {/* + Components Popover Button */}
                   <div style={{ position: "relative" }}>
                     <button
                       onClick={() => setIsPaletteOpen(!isPaletteOpen)}
                       style={{
                         padding: "5px 12px",
                         borderRadius: 6,
-                        border: "1px solid rgba(168,85,247,0.4)",
-                        background: "rgba(168,85,247,0.2)",
-                        color: "#c084fc",
+                        border: "none",
+                        background: "#162A43",
+                        color: "#FFFFFF",
                         fontSize: 11,
-                        fontWeight: 800,
+                        fontWeight: 700,
                         cursor: "pointer",
                         display: "flex",
                         alignItems: "center",
@@ -1470,11 +1401,11 @@ function SystemDesignContent() {
                         left: 0,
                         marginTop: 6,
                         width: 220,
-                        background: "#0f172a",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: 10,
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 8,
                         padding: 6,
-                        boxShadow: "0 10px 30px rgba(0,0,0,0.85)",
+                        boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
                         zIndex: 100,
                         display: "grid",
                         gridTemplateColumns: "1fr",
@@ -1492,12 +1423,14 @@ function SystemDesignContent() {
                               borderRadius: 6,
                               border: "none",
                               background: "transparent",
-                              color: "white",
+                              color: "#17191C",
                               fontSize: 11,
                               fontWeight: 600,
                               cursor: "pointer",
                               textAlign: "left"
                             }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#F6F5F1")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                           >
                             <span>{c.icon}</span>
                             <span>{c.label}</span>
@@ -1507,7 +1440,7 @@ function SystemDesignContent() {
                     )}
                   </div>
 
-                  {/* Connect Tool (Section 10) */}
+                  {/* Connect Tool */}
                   <button
                     onClick={() => {
                       setIsConnectMode(!isConnectMode);
@@ -1516,9 +1449,9 @@ function SystemDesignContent() {
                     style={{
                       padding: "5px 10px",
                       borderRadius: 6,
-                      border: isConnectMode ? "1px solid rgba(56,189,248,0.6)" : "1px solid rgba(255,255,255,0.1)",
-                      background: isConnectMode ? "rgba(56,189,248,0.2)" : "rgba(255,255,255,0.04)",
-                      color: isConnectMode ? "#38bdf8" : "#94a3b8",
+                      border: isConnectMode ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                      background: isConnectMode ? "#356AE6" : "#F6F5F1",
+                      color: isConnectMode ? "#FFFFFF" : "#475467",
                       fontSize: 11,
                       fontWeight: 700,
                       cursor: "pointer",
@@ -1531,16 +1464,16 @@ function SystemDesignContent() {
                     <span>{isConnectMode ? (connectingSourceId ? "Select Target..." : "Click Source Node") : "Connect"}</span>
                   </button>
 
-                  {/* Undo & Redo (Section 58) */}
+                  {/* Undo & Redo */}
                   <button
                     onClick={handleUndo}
                     disabled={historyIndex <= 0}
                     style={{
                       padding: "5px 8px",
                       borderRadius: 6,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: historyIndex <= 0 ? "rgba(255,255,255,0.2)" : "#94a3b8",
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: historyIndex <= 0 ? "#98A2B3" : "#475467",
                       fontSize: 11,
                       cursor: historyIndex <= 0 ? "not-allowed" : "pointer"
                     }}
@@ -1554,9 +1487,9 @@ function SystemDesignContent() {
                     style={{
                       padding: "5px 8px",
                       borderRadius: 6,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: historyIndex >= history.length - 1 ? "rgba(255,255,255,0.2)" : "#94a3b8",
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: historyIndex >= history.length - 1 ? "#98A2B3" : "#475467",
                       fontSize: 11,
                       cursor: historyIndex >= history.length - 1 ? "not-allowed" : "pointer"
                     }}
@@ -1565,16 +1498,16 @@ function SystemDesignContent() {
                     ↪ Redo
                   </button>
 
-                  {/* Auto-Arrange (Section 57) */}
+                  {/* Auto-Arrange */}
                   <button
                     onClick={handleAutoArrange}
                     disabled={canvasNodes.length === 0}
                     style={{
                       padding: "5px 8px",
                       borderRadius: 6,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "#94a3b8",
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: "#475467",
                       fontSize: 11,
                       cursor: canvasNodes.length === 0 ? "not-allowed" : "pointer"
                     }}
@@ -1583,7 +1516,7 @@ function SystemDesignContent() {
                     🔀 Auto-Arrange
                   </button>
 
-                  {/* Clear Canvas (Section 59) */}
+                  {/* Clear Canvas */}
                   <button
                     onClick={() => {
                       if (canvasNodes.length > 0) {
@@ -1594,9 +1527,9 @@ function SystemDesignContent() {
                     style={{
                       padding: "5px 8px",
                       borderRadius: 6,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: canvasNodes.length === 0 ? "rgba(255,255,255,0.2)" : "#f87171",
+                      border: "1px solid #F8C8C8",
+                      background: "#FFFFFF",
+                      color: canvasNodes.length === 0 ? "#98A2B3" : "#C24141",
                       fontSize: 11,
                       cursor: canvasNodes.length === 0 ? "not-allowed" : "pointer"
                     }}
@@ -1610,28 +1543,28 @@ function SystemDesignContent() {
                   <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                     <button
                       onClick={() => setZoomScale(prev => Math.max(0.7, prev - 0.1))}
-                      style={{ padding: "3px 6px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "white", fontSize: 10, cursor: "pointer" }}
+                      style={{ padding: "3px 6px", borderRadius: 4, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#17191C", fontSize: 10, cursor: "pointer" }}
                     >
                       -
                     </button>
-                    <span style={{ fontSize: 10, color: "#94a3b8", minWidth: 32, textAlign: "center" }}>
+                    <span style={{ fontSize: 10, color: "#667085", minWidth: 32, textAlign: "center" }}>
                       {Math.round(zoomScale * 100)}%
                     </span>
                     <button
                       onClick={() => setZoomScale(prev => Math.min(1.3, prev + 0.1))}
-                      style={{ padding: "3px 6px", borderRadius: 4, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "white", fontSize: 10, cursor: "pointer" }}
+                      style={{ padding: "3px 6px", borderRadius: 4, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#17191C", fontSize: 10, cursor: "pointer" }}
                     >
                       +
                     </button>
                   </div>
 
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 11, color: "#667085" }}>
                     {canvasNodes.length} Nodes • {canvasEdges.length} Connections
                   </span>
                 </div>
               </div>
 
-              {/* Whiteboard Canvas (Section 3, 6) */}
+              {/* Whiteboard Canvas */}
               <div
                 ref={canvasRef}
                 onMouseMove={handleMouseMoveCanvas}
@@ -1642,12 +1575,11 @@ function SystemDesignContent() {
                 }}
                 style={{
                   height: 480,
-                  background: "#080b14",
-                  border: "1px solid rgba(99, 102, 241, 0.25)",
-                  borderRadius: 14,
+                  background: "#0D1929",
+                  border: "1px solid #233752",
+                  borderRadius: 10,
                   position: "relative",
                   overflow: "hidden",
-                  boxShadow: "inset 0 0 50px rgba(0,0,0,0.85)",
                   cursor: isConnectMode ? "crosshair" : "default"
                 }}
               >
@@ -1656,25 +1588,25 @@ function SystemDesignContent() {
                   style={{
                     position: "absolute",
                     inset: 0,
-                    backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px)",
+                    backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)",
                     backgroundSize: "22px 22px"
                   }}
                 />
 
-                {/* Empty State Prompt for Interview Mode (Section 1) */}
+                {/* Empty State Prompt for Interview Mode */}
                 {canvasNodes.length === 0 && (
                   <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", pointerEvents: "none" }}>
                     <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.6 }}>🏗️</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: "rgba(255,255,255,0.7)" }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "rgba(255,255,255,0.85)" }}>
                       Interview Mode: Blank Architecture Canvas
                     </div>
-                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                    <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>
                       Click <strong>[+ Components]</strong> in the top toolbar to begin placing system components.
                     </div>
                   </div>
                 )}
 
-                {/* SVG Connections Layer (Section 10, 11) */}
+                {/* SVG Connections Layer */}
                 <svg
                   style={{
                     position: "absolute",
@@ -1696,7 +1628,7 @@ function SystemDesignContent() {
                       markerHeight="6"
                       orient="auto-start-reverse"
                     >
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#c084fc" />
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#356AE6" />
                     </marker>
                     <marker
                       id="arrow-selected"
@@ -1707,7 +1639,7 @@ function SystemDesignContent() {
                       markerHeight="6"
                       orient="auto-start-reverse"
                     >
-                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+                      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2E7D5B" />
                     </marker>
                   </defs>
 
@@ -1734,18 +1666,18 @@ function SystemDesignContent() {
                       }}>
                         <path
                           d={`M ${x1} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`}
-                          stroke={isEdgeSelected ? "#38bdf8" : "#a855f7"}
+                          stroke={isEdgeSelected ? "#2E7D5B" : "#356AE6"}
                           strokeWidth={isEdgeSelected ? "3" : "2"}
                           strokeDasharray={edge.pattern === "async" ? "5 3" : undefined}
                           fill="none"
                           markerEnd={isEdgeSelected ? "url(#arrow-selected)" : "url(#arrow)"}
-                          opacity="0.85"
+                          opacity="0.9"
                         />
                         {edge.protocol && (
                           <text
                             x={mx}
                             y={my - 6}
-                            fill={isEdgeSelected ? "#38bdf8" : "#c084fc"}
+                            fill={isEdgeSelected ? "#2E7D5B" : "#356AE6"}
                             fontSize="9"
                             fontWeight="800"
                             textAnchor="middle"
@@ -1781,18 +1713,18 @@ function SystemDesignContent() {
                           left: node.x,
                           top: node.y,
                           padding: "8px 12px",
-                          borderRadius: 10,
+                          borderRadius: 8,
                           background: isSel
-                            ? "linear-gradient(135deg, rgba(168,85,247,0.35) 0%, rgba(15,23,42,0.95) 100%)"
+                            ? "#FFFFFF"
                             : isConnectingSrc
-                            ? "rgba(56,189,248,0.3)"
-                            : "rgba(15, 23, 42, 0.9)",
+                            ? "#EFF4FE"
+                            : "#FFFFFF",
                           border: isSel
-                            ? "2px solid #c084fc"
+                            ? "2px solid #356AE6"
                             : isConnectingSrc
-                            ? "2px solid #38bdf8"
-                            : "1px solid rgba(255,255,255,0.15)",
-                          boxShadow: isSel ? "0 0 20px rgba(168,85,247,0.4)" : "0 4px 12px rgba(0,0,0,0.6)",
+                            ? "2px solid #2E7D5B"
+                            : "1px solid #E4E1DA",
+                          boxShadow: isSel ? "0 0 16px rgba(53,106,230,0.35)" : "0 2px 6px rgba(0,0,0,0.2)",
                           cursor: isConnectMode ? "crosshair" : "grab",
                           userSelect: "none",
                           minWidth: 130,
@@ -1801,10 +1733,10 @@ function SystemDesignContent() {
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 2 }}>
                           <span style={{ fontSize: 16 }}>{node.icon}</span>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: "white" }}>{node.label}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>{node.label}</span>
                         </div>
                         {node.role && (
-                          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <div style={{ fontSize: 10, color: "#667085", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {node.role}
                           </div>
                         )}
@@ -1815,16 +1747,16 @@ function SystemDesignContent() {
 
               </div>
 
-              {/* Dynamic Interviewer Dialogue Box (Section 20, 53) */}
-              <div style={{ background: "rgba(15, 23, 42, 0.9)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 12, padding: "12px 16px" }}>
+              {/* Dynamic Interviewer Dialogue Box */}
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "12px 16px", boxShadow: "0 1px 3px rgba(16,24,40,0.03)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 15 }}>🎙️</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: "#c084fc", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase" }}>
                       Interviewer Live Probe
                     </span>
                   </div>
-                  <span style={{ fontSize: 10, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 10, color: "#667085" }}>
                     Reasoning Engine Active
                   </span>
                 </div>
@@ -1832,7 +1764,7 @@ function SystemDesignContent() {
                 {/* Conversation Stream */}
                 <div style={{ maxHeight: 110, overflowY: "auto", marginBottom: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                   {interviewerLog.slice(-3).map((item, idx) => (
-                    <div key={idx} style={{ fontSize: 12, color: item.sender === "interviewer" ? "white" : "#38bdf8", lineHeight: 1.4 }}>
+                    <div key={idx} style={{ fontSize: 12, color: item.sender === "interviewer" ? "#162A43" : "#356AE6", lineHeight: 1.4 }}>
                       <strong>{item.sender === "interviewer" ? "🏛️ Interviewer: " : "👤 You: "}</strong>
                       {item.text}
                     </div>
@@ -1849,12 +1781,12 @@ function SystemDesignContent() {
                     placeholder="Defend your architectural choice or explain your flow..."
                     style={{
                       flex: 1,
-                      background: "#080b12",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      borderRadius: 8,
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 7,
                       padding: "8px 12px",
-                      color: "white",
-                      fontSize: 11,
+                      color: "#17191C",
+                      fontSize: 12,
                       outline: "none"
                     }}
                   />
@@ -1862,10 +1794,10 @@ function SystemDesignContent() {
                     onClick={handleToggleVoice}
                     style={{
                       padding: "8px 12px",
-                      borderRadius: 8,
-                      border: isVoiceRecording ? "1px solid #ef4444" : "1px solid rgba(255,255,255,0.15)",
-                      background: isVoiceRecording ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.05)",
-                      color: isVoiceRecording ? "#f87171" : "#94a3b8",
+                      borderRadius: 7,
+                      border: isVoiceRecording ? "1px solid #C24141" : "1px solid #E4E1DA",
+                      background: isVoiceRecording ? "#FDF2F2" : "#F6F5F1",
+                      color: isVoiceRecording ? "#C24141" : "#475467",
                       fontSize: 11,
                       fontWeight: 700,
                       cursor: "pointer"
@@ -1879,12 +1811,12 @@ function SystemDesignContent() {
                     disabled={!candidateResponse.trim()}
                     style={{
                       padding: "8px 14px",
-                      borderRadius: 8,
+                      borderRadius: 7,
                       border: "none",
-                      background: "#a855f7",
-                      color: "white",
+                      background: "#356AE6",
+                      color: "#FFFFFF",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: candidateResponse.trim() ? "pointer" : "not-allowed"
                     }}
                   >
@@ -1895,29 +1827,29 @@ function SystemDesignContent() {
 
             </div>
 
-            {/* Contextual Inspector: Component OR Connection (Section 7, 11, 52) */}
+            {/* Contextual Inspector: Component OR Connection */}
             {selectedNode && (
-              <div style={{ background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(168, 85, 247, 0.4)", borderRadius: 14, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                       <span style={{ fontSize: 20 }}>{selectedNode.icon}</span>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 900, color: "white" }}>{selectedNode.label}</div>
-                        <div style={{ fontSize: 10, color: "#818cf8" }}>ID: {selectedNode.id}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>{selectedNode.label}</div>
+                        <div style={{ fontSize: 10, color: "#667085" }}>ID: {selectedNode.id}</div>
                       </div>
                     </div>
                     <button
                       onClick={() => setSelectedNodeId(null)}
-                      style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 14 }}
+                      style={{ background: "transparent", border: "none", color: "#667085", cursor: "pointer", fontSize: 14 }}
                     >
                       ✕
                     </button>
                   </div>
 
                   <div style={{ marginBottom: 12 }}>
-                    <label style={{ fontSize: 10, color: "#94a3b8", display: "block", marginBottom: 4, fontWeight: 700 }}>
-                      Role & Workload Rationale:
+                    <label style={{ fontSize: 11, color: "#475467", display: "block", marginBottom: 4, fontWeight: 700 }}>
+                      Role &amp; Workload Rationale:
                     </label>
                     <textarea
                       value={selectedNode.role || ""}
@@ -1928,23 +1860,24 @@ function SystemDesignContent() {
                       rows={3}
                       style={{
                         width: "100%",
-                        background: "#080b12",
-                        border: "1px solid rgba(255,255,255,0.15)",
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
                         padding: 8,
-                        color: "white",
-                        fontSize: 11,
-                        outline: "none"
+                        color: "#17191C",
+                        fontSize: 12,
+                        outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
 
                   {/* Failure Modes */}
-                  <div style={{ padding: "8px 10px", borderRadius: 8, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 10 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", marginBottom: 2 }}>
+                  <div style={{ padding: "8px 10px", borderRadius: 7, background: "#F6F5F1", border: "1px solid #E4E1DA", marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43", marginBottom: 2 }}>
                       ⚠️ Potential Failure Modes:
                     </div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 11, color: "#475467", lineHeight: 1.4 }}>
                       {selectedNode.type === "cache" && "• Memory fragmentation\n• Replication lag\n• Cache stampede"}
                       {selectedNode.type === "gateway" && "• CPU exhaustion under TLS\n• Bottleneck if not horizontally scaled"}
                       {selectedNode.type === "db" && "• Connection pool exhaustion\n• Disk I/O throttling"}
@@ -1952,16 +1885,16 @@ function SystemDesignContent() {
                     </div>
                   </div>
 
-                  {/* Duplicate Node (Section 9) */}
+                  {/* Duplicate Node */}
                   <button
                     onClick={handleDuplicateSelectedNode}
                     style={{
                       width: "100%",
-                      padding: "6px",
+                      padding: "7px",
                       borderRadius: 6,
-                      border: "1px solid rgba(56,189,248,0.3)",
-                      background: "rgba(56,189,248,0.1)",
-                      color: "#38bdf8",
+                      border: "1px solid #D2E0FB",
+                      background: "#EFF4FE",
+                      color: "#356AE6",
                       fontSize: 11,
                       fontWeight: 700,
                       cursor: "pointer",
@@ -1972,16 +1905,16 @@ function SystemDesignContent() {
                   </button>
                 </div>
 
-                {/* Delete Node (Section 8) */}
+                {/* Delete Node */}
                 <button
                   onClick={handleDeleteSelectedNode}
                   style={{
                     width: "100%",
-                    padding: "6px",
+                    padding: "7px",
                     borderRadius: 6,
                     border: "none",
-                    background: "rgba(239,68,68,0.2)",
-                    color: "#f87171",
+                    background: "#FDF2F2",
+                    color: "#C24141",
                     fontSize: 11,
                     fontWeight: 700,
                     cursor: "pointer"
@@ -1992,27 +1925,27 @@ function SystemDesignContent() {
               </div>
             )}
 
-            {/* Contextual Connection Inspector (Section 11, 12) */}
+            {/* Contextual Connection Inspector */}
             {selectedEdge && !selectedNode && (
-              <div style={{ background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(56, 189, 248, 0.4)", borderRadius: 14, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", justifyContent: "space-between", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 900, color: "#38bdf8" }}>Connection Inspector</div>
-                      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43" }}>Connection Inspector</div>
+                      <div style={{ fontSize: 11, color: "#667085" }}>
                         {canvasNodes.find(n => n.id === selectedEdge.from)?.label} ➔ {canvasNodes.find(n => n.id === selectedEdge.to)?.label}
                       </div>
                     </div>
                     <button
                       onClick={() => setSelectedEdgeId(null)}
-                      style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 14 }}
+                      style={{ background: "transparent", border: "none", color: "#667085", cursor: "pointer", fontSize: 14 }}
                     >
                       ✕
                     </button>
                   </div>
 
                   <div style={{ marginBottom: 10 }}>
-                    <label style={{ fontSize: 10, color: "#94a3b8", display: "block", marginBottom: 3, fontWeight: 700 }}>
+                    <label style={{ fontSize: 11, color: "#475467", display: "block", marginBottom: 3, fontWeight: 700 }}>
                       Communication Protocol:
                     </label>
                     <select
@@ -2023,11 +1956,11 @@ function SystemDesignContent() {
                       }}
                       style={{
                         width: "100%",
-                        background: "#080b12",
-                        border: "1px solid rgba(255,255,255,0.15)",
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
                         padding: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 11,
                         outline: "none"
                       }}
@@ -2042,7 +1975,7 @@ function SystemDesignContent() {
                   </div>
 
                   <div style={{ marginBottom: 10 }}>
-                    <label style={{ fontSize: 10, color: "#94a3b8", display: "block", marginBottom: 3, fontWeight: 700 }}>
+                    <label style={{ fontSize: 11, color: "#475467", display: "block", marginBottom: 3, fontWeight: 700 }}>
                       Pattern:
                     </label>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -2050,12 +1983,12 @@ function SystemDesignContent() {
                         onClick={() => setCanvasEdges(prev => prev.map(ed => ed.id === selectedEdge.id ? { ...ed, pattern: "sync" } : ed))}
                         style={{
                           flex: 1,
-                          padding: "5px",
+                          padding: "6px",
                           borderRadius: 6,
-                          border: "none",
-                          background: selectedEdge.pattern === "sync" ? "#38bdf8" : "rgba(255,255,255,0.06)",
-                          color: selectedEdge.pattern === "sync" ? "#080b12" : "white",
-                          fontSize: 10,
+                          border: selectedEdge.pattern === "sync" ? "1px solid #162A43" : "1px solid #E4E1DA",
+                          background: selectedEdge.pattern === "sync" ? "#162A43" : "#F6F5F1",
+                          color: selectedEdge.pattern === "sync" ? "#FFFFFF" : "#667085",
+                          fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer"
                         }}
@@ -2066,12 +1999,12 @@ function SystemDesignContent() {
                         onClick={() => setCanvasEdges(prev => prev.map(ed => ed.id === selectedEdge.id ? { ...ed, pattern: "async" } : ed))}
                         style={{
                           flex: 1,
-                          padding: "5px",
+                          padding: "6px",
                           borderRadius: 6,
-                          border: "none",
-                          background: selectedEdge.pattern === "async" ? "#a855f7" : "rgba(255,255,255,0.06)",
-                          color: "white",
-                          fontSize: 10,
+                          border: selectedEdge.pattern === "async" ? "1px solid #162A43" : "1px solid #E4E1DA",
+                          background: selectedEdge.pattern === "async" ? "#162A43" : "#F6F5F1",
+                          color: selectedEdge.pattern === "async" ? "#FFFFFF" : "#667085",
+                          fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer"
                         }}
@@ -2082,8 +2015,8 @@ function SystemDesignContent() {
                   </div>
 
                   <div>
-                    <label style={{ fontSize: 10, color: "#94a3b8", display: "block", marginBottom: 3, fontWeight: 700 }}>
-                      Purpose & Notes:
+                    <label style={{ fontSize: 11, color: "#475467", display: "block", marginBottom: 3, fontWeight: 700 }}>
+                      Purpose &amp; Notes:
                     </label>
                     <textarea
                       value={selectedEdge.purpose || ""}
@@ -2094,13 +2027,14 @@ function SystemDesignContent() {
                       rows={2}
                       style={{
                         width: "100%",
-                        background: "#080b12",
-                        border: "1px solid rgba(255,255,255,0.15)",
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
                         borderRadius: 6,
                         padding: 6,
-                        color: "white",
+                        color: "#17191C",
                         fontSize: 11,
-                        outline: "none"
+                        outline: "none",
+                        boxSizing: "border-box"
                       }}
                     />
                   </div>
@@ -2110,11 +2044,11 @@ function SystemDesignContent() {
                   onClick={handleDeleteSelectedEdge}
                   style={{
                     width: "100%",
-                    padding: "6px",
+                    padding: "7px",
                     borderRadius: 6,
                     border: "none",
-                    background: "rgba(239,68,68,0.2)",
-                    color: "#f87171",
+                    background: "#FDF2F2",
+                    color: "#C24141",
                     fontSize: 11,
                     fontWeight: 700,
                     cursor: "pointer",
@@ -2133,25 +2067,25 @@ function SystemDesignContent() {
             PHASE 3: STORAGE & DEEP DIVE (Contextual Checkpoints)
             ══════════════════════════════════════════════════════════════ */}
         {phase === "deep_dive" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: 14, padding: 20, marginBottom: 20 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, marginBottom: 20, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 10, color: "#a855f7", fontWeight: 800, textTransform: "uppercase" }}>
+                <div style={{ fontSize: 10, color: "#356AE6", fontWeight: 800, textTransform: "uppercase" }}>
                   Phase 3 of 5 • Contextual Architectural Checkpoints
                 </div>
-                <h2 style={{ fontSize: 16, fontWeight: 900, margin: "2px 0 0", color: "white" }}>
-                  Storage, Data Modeling & Eviction Strategy
+                <h2 style={{ fontSize: 16, fontWeight: 800, margin: "2px 0 0", color: "#162A43" }}>
+                  Storage, Data Modeling &amp; Eviction Strategy
                 </h2>
               </div>
 
               {/* Checkpoint Tabs */}
-              <div style={{ display: "flex", background: "rgba(0,0,0,0.4)", padding: 3, borderRadius: 8 }}>
+              <div style={{ display: "flex", background: "#F6F5F1", padding: 3, borderRadius: 7, border: "1px solid #E4E1DA", gap: 2 }}>
                 {[
-                  { id: "flow", label: "1. Request Flow", color: "#38bdf8" },
-                  { id: "db", label: "2. Storage & Sharding", color: "#34d399" },
-                  { id: "cache", label: "3. Caching & State", color: "#fbbf24" },
-                  { id: "bottlenecks", label: "4. Failure Resilience", color: "#f87171" }
+                  { id: "flow", label: "1. Request Flow" },
+                  { id: "db", label: "2. Storage & Sharding" },
+                  { id: "cache", label: "3. Caching & State" },
+                  { id: "bottlenecks", label: "4. Failure Resilience" }
                 ].map(t => (
                   <button
                     key={t.id}
@@ -2160,10 +2094,10 @@ function SystemDesignContent() {
                       padding: "5px 12px",
                       borderRadius: 6,
                       border: "none",
-                      background: activeDeepDiveTab === t.id ? "rgba(255,255,255,0.1)" : "transparent",
-                      color: activeDeepDiveTab === t.id ? t.color : "#94a3b8",
+                      background: activeDeepDiveTab === t.id ? "#162A43" : "transparent",
+                      color: activeDeepDiveTab === t.id ? "#FFFFFF" : "#667085",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: "pointer"
                     }}
                   >
@@ -2176,11 +2110,11 @@ function SystemDesignContent() {
             {/* Tab 1: Request Flow */}
             {activeDeepDiveTab === "flow" && (
               <div>
-                <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(56, 189, 248, 0.08)", border: "1px solid rgba(56, 189, 248, 0.2)", marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", marginBottom: 2 }}>
+                <div style={{ padding: "10px 14px", borderRadius: 7, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", marginBottom: 2 }}>
                     🎙️ Interviewer Prompt:
                   </div>
-                  <div style={{ fontSize: 12, color: "white", fontWeight: 600 }}>
+                  <div style={{ fontSize: 12, color: "#162A43", fontWeight: 600 }}>
                     &ldquo;Walk me through the exact path an incoming request takes from DNS through CDN, Gateway, and downstream services. Where is rate-limit check evaluated?&rdquo;
                   </div>
                 </div>
@@ -2189,7 +2123,7 @@ function SystemDesignContent() {
                   onChange={e => setCandidateArchitecture(e.target.value)}
                   placeholder="Clients -> Cloudflare CDN -> AWS ALB -> Node.js API Gateway -> Rate Limiter Middleware. The middleware queries an in-memory Redis cluster before proxying requests to internal backend microservices..."
                   rows={5}
-                  style={{ width: "100%", background: "#080b12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, color: "white", fontSize: 11, outline: "none", lineHeight: 1.5 }}
+                  style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, padding: 10, color: "#17191C", fontSize: 12, outline: "none", lineHeight: 1.5, boxSizing: "border-box" }}
                 />
               </div>
             )}
@@ -2197,11 +2131,11 @@ function SystemDesignContent() {
             {/* Tab 2: Database & Sharding */}
             {activeDeepDiveTab === "db" && (
               <div>
-                <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(52, 211, 153, 0.08)", border: "1px solid rgba(52, 211, 153, 0.2)", marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", marginBottom: 2 }}>
+                <div style={{ padding: "10px 14px", borderRadius: 7, background: "#EAF4EE", border: "1px solid #C8E4D3", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 2 }}>
                     🎙️ Interviewer Prompt:
                   </div>
-                  <div style={{ fontSize: 12, color: "white", fontWeight: 600 }}>
+                  <div style={{ fontSize: 12, color: "#14532D", fontWeight: 600 }}>
                     &ldquo;Why did you choose this storage layer? How is your data partitioned across shards, and what consistency model (ACID vs Eventual) do you maintain?&rdquo;
                   </div>
                 </div>
@@ -2210,7 +2144,7 @@ function SystemDesignContent() {
                   onChange={e => setDatabaseChoice(e.target.value)}
                   placeholder="Redis Cluster with Sentinel for automatic failover. For long-term audit logs and user plan quotas, PostgreSQL RDS with read replicas..."
                   rows={5}
-                  style={{ width: "100%", background: "#080b12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, color: "white", fontSize: 11, outline: "none", lineHeight: 1.5 }}
+                  style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, padding: 10, color: "#17191C", fontSize: 12, outline: "none", lineHeight: 1.5, boxSizing: "border-box" }}
                 />
               </div>
             )}
@@ -2218,11 +2152,11 @@ function SystemDesignContent() {
             {/* Tab 3: Caching & Eviction */}
             {activeDeepDiveTab === "cache" && (
               <div>
-                <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(251, 191, 36, 0.08)", border: "1px solid rgba(251, 191, 36, 0.2)", marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", marginBottom: 2 }}>
+                <div style={{ padding: "10px 14px", borderRadius: 7, background: "#FEF7ED", border: "1px solid #F8D8A7", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 2 }}>
                     🎙️ Interviewer Prompt:
                   </div>
-                  <div style={{ fontSize: 12, color: "white", fontWeight: 600 }}>
+                  <div style={{ fontSize: 12, color: "#78350F", fontWeight: 600 }}>
                     &ldquo;How do you avoid race conditions on high-frequency counter updates? What is your eviction policy when memory approaches capacity?&rdquo;
                   </div>
                 </div>
@@ -2231,7 +2165,7 @@ function SystemDesignContent() {
                   onChange={e => setCachingStrategy(e.target.value)}
                   placeholder="Redis sliding window counter using Redis Hashes. Set TTL on keys equal to rate limit window (60s). Check-and-increment executes atomically inside Lua scripts..."
                   rows={5}
-                  style={{ width: "100%", background: "#080b12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, color: "white", fontSize: 11, outline: "none", lineHeight: 1.5 }}
+                  style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, padding: 10, color: "#17191C", fontSize: 12, outline: "none", lineHeight: 1.5, boxSizing: "border-box" }}
                 />
               </div>
             )}
@@ -2239,11 +2173,11 @@ function SystemDesignContent() {
             {/* Tab 4: Bottlenecks & Resilience */}
             {activeDeepDiveTab === "bottlenecks" && (
               <div>
-                <div style={{ padding: "10px 14px", borderRadius: 8, background: "rgba(248, 113, 113, 0.08)", border: "1px solid rgba(248, 113, 113, 0.2)", marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: "#f87171", marginBottom: 2 }}>
+                <div style={{ padding: "10px 14px", borderRadius: 7, background: "#FDF2F2", border: "1px solid #F8C8C8", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: "#C24141", marginBottom: 2 }}>
                     🎙️ Interviewer Prompt:
                   </div>
-                  <div style={{ fontSize: 12, color: "white", fontWeight: 600 }}>
+                  <div style={{ fontSize: 12, color: "#7F1D1D", fontWeight: 600 }}>
                     &ldquo;What is the biggest Single Point of Failure (SPOF) in this system? If that node dies, how does the system recover without taking down customer APIs?&rdquo;
                   </div>
                 </div>
@@ -2252,7 +2186,7 @@ function SystemDesignContent() {
                   onChange={e => setBottleneckStrategy(e.target.value)}
                   placeholder="If Redis becomes unreachable, fail-open for tier-1 users to prevent complete platform downtime. Fallback to local in-memory token bucket on API Gateway instances..."
                   rows={5}
-                  style={{ width: "100%", background: "#080b12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, color: "white", fontSize: 11, outline: "none", lineHeight: 1.5 }}
+                  style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, padding: 10, color: "#17191C", fontSize: 12, outline: "none", lineHeight: 1.5, boxSizing: "border-box" }}
                 />
               </div>
             )}
@@ -2262,12 +2196,12 @@ function SystemDesignContent() {
                 onClick={() => setPhase("architecture")}
                 style={{
                   padding: "7px 14px",
-                  borderRadius: 6,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "transparent",
-                  color: "#94a3b8",
+                  borderRadius: 7,
+                  border: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
+                  color: "#475467",
                   fontSize: 11,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: "pointer"
                 }}
               >
@@ -2278,12 +2212,12 @@ function SystemDesignContent() {
                 onClick={handleTriggerIntelligentChaos}
                 style={{
                   padding: "8px 20px",
-                  borderRadius: 8,
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                  color: "white",
+                  background: "#B7791F",
+                  color: "#FFFFFF",
                   fontSize: 12,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
@@ -2295,17 +2229,17 @@ function SystemDesignContent() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            PHASE 4: CHAOS & DEFENSE (Section 27, 28, 29)
+            PHASE 4: CHAOS & DEFENSE
             ══════════════════════════════════════════════════════════════ */}
         {phase === "chaos" && (
-          <div style={{ background: "rgba(15, 23, 42, 0.85)", border: "1px solid rgba(245, 158, 11, 0.3)", borderRadius: 14, padding: 20, marginBottom: 20 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #F8D8A7", borderRadius: 10, padding: 20, marginBottom: 20, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <div>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(245,158,11,0.2)", color: "#fbbf24", borderRadius: 4, fontWeight: 800 }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", background: "#FEF7ED", color: "#B7791F", border: "1px solid #F8D8A7", borderRadius: 4, fontWeight: 800 }}>
                   PHASE 4: LIVE CHAOS DRILL
                 </span>
-                <h2 style={{ fontSize: 16, fontWeight: 900, margin: "4px 0 0", color: "white" }}>
+                <h2 style={{ fontSize: 16, fontWeight: 800, margin: "4px 0 0", color: "#162A43" }}>
                   Defend Architecture Under Simulated Catastrophe
                 </h2>
               </div>
@@ -2315,11 +2249,11 @@ function SystemDesignContent() {
                 style={{
                   padding: "5px 10px",
                   borderRadius: 6,
-                  border: "1px solid rgba(245,158,11,0.4)",
-                  background: "rgba(245,158,11,0.1)",
-                  color: "#fbbf24",
+                  border: "1px solid #F8D8A7",
+                  background: "#FEF7ED",
+                  color: "#B7791F",
                   fontSize: 11,
-                  fontWeight: 800,
+                  fontWeight: 700,
                   cursor: "pointer"
                 }}
               >
@@ -2329,7 +2263,7 @@ function SystemDesignContent() {
 
             {/* Quick Defense Templates */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700, marginBottom: 6 }}>
+              <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, marginBottom: 6 }}>
                 Quick Architectural Defense Strategies (Click to append):
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -2345,10 +2279,10 @@ function SystemDesignContent() {
                     style={{
                       padding: "4px 8px",
                       borderRadius: 6,
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      background: "rgba(255,255,255,0.04)",
-                      color: "rgba(255,255,255,0.85)",
-                      fontSize: 10,
+                      border: "1px solid #E4E1DA",
+                      background: "#F6F5F1",
+                      color: "#17191C",
+                      fontSize: 11,
                       cursor: "pointer"
                     }}
                   >
@@ -2363,12 +2297,12 @@ function SystemDesignContent() {
                 onClick={() => setPhase("architecture")}
                 style={{
                   padding: "7px 14px",
-                  borderRadius: 6,
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "transparent",
-                  color: "#94a3b8",
+                  borderRadius: 7,
+                  border: "1px solid #E4E1DA",
+                  background: "#FFFFFF",
+                  color: "#475467",
                   fontSize: 11,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   cursor: "pointer"
                 }}
               >
@@ -2380,17 +2314,17 @@ function SystemDesignContent() {
                 disabled={evaluating}
                 style={{
                   padding: "10px 24px",
-                  borderRadius: 8,
+                  borderRadius: 7,
                   border: "none",
-                  background: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
-                  color: "white",
+                  background: "#2E7D5B",
+                  color: "#FFFFFF",
                   fontSize: 12,
-                  fontWeight: 900,
+                  fontWeight: 700,
                   cursor: evaluating ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
                   gap: 8,
-                  boxShadow: "0 4px 15px rgba(16,185,129,0.3)"
+                  boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
                 }}
               >
                 <span>{evaluating ? "Evaluating System Design..." : "Finish Interview & Submit for Principal Review ➔"}</span>
@@ -2401,33 +2335,33 @@ function SystemDesignContent() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            PHASE 5: EVIDENCE-BASED DIAGNOSTIC DOSSIER (Section 45, 46)
+            PHASE 5: EVIDENCE-BASED DIAGNOSTIC DOSSIER
             ══════════════════════════════════════════════════════════════ */}
         {(phase === "review" || evalResult) && evalResult && (
-          <div style={{ background: "rgba(15, 23, 42, 0.95)", border: "1px solid rgba(168, 85, 247, 0.4)", borderRadius: 16, padding: 24, boxShadow: "0 20px 50px rgba(0,0,0,0.7)", marginBottom: 24 }}>
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(16,24,40,0.06)", marginBottom: 24 }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <span style={{ fontSize: 10, padding: "2px 8px", background: "rgba(16,185,129,0.2)", color: "#34d399", borderRadius: 6, fontWeight: 800, textTransform: "uppercase" }}>
+                  <span style={{ fontSize: 10, padding: "2px 8px", background: "#EAF4EE", color: "#2E7D5B", border: "1px solid #C8E4D3", borderRadius: 5, fontWeight: 800, textTransform: "uppercase" }}>
                     🏛️ VERDICT: {evalResult.verdict}
                   </span>
-                  <span style={{ fontSize: 10, padding: "2px 8px", background: mode === "learning" || hintUsed ? "rgba(245,158,11,0.2)" : "rgba(168,85,247,0.2)", color: mode === "learning" || hintUsed ? "#fbbf24" : "#c084fc", borderRadius: 6, fontWeight: 800 }}>
+                  <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 5, fontWeight: 700 }}>
                     {mode === "learning" || hintUsed ? "Demonstrated with Guidance" : "Independently Demonstrated"}
                   </span>
                 </div>
-                <h3 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: "white" }}>
-                  Principal Architect Critique & Evidence Dossier
+                <h3 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                  Principal Architect Critique &amp; Evidence Dossier
                 </h3>
               </div>
 
               {/* Secondary Score Display */}
-              <div style={{ textAlign: "right", background: "rgba(255,255,255,0.04)", padding: "6px 14px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div style={{ fontSize: 9, color: "#94a3b8", textTransform: "uppercase", fontWeight: 700 }}>
-                  Scalability Score (Secondary)
+              <div style={{ textAlign: "right", background: "#F6F5F1", padding: "6px 14px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 10, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>
+                  Scalability Score
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: "#38bdf8" }}>
-                  {evalResult.scalabilityScore || 82}<span style={{ fontSize: 12, color: "#94a3b8" }}>/100</span>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#356AE6" }}>
+                  {evalResult.scalabilityScore || 82}<span style={{ fontSize: 12, color: "#98A2B3" }}>/100</span>
                 </div>
               </div>
             </div>
@@ -2435,28 +2369,28 @@ function SystemDesignContent() {
             {/* WHAT YOU DEMONSTRATED vs ARCHITECTURAL BOTTLENECK */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 14, marginBottom: 16 }}>
               
-              <div style={{ padding: 14, borderRadius: 12, background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
-                <div style={{ fontSize: 11, fontWeight: 900, color: "#34d399", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ padding: 14, borderRadius: 8, background: "#EAF4EE", border: "1px solid #C8E4D3" }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
                   <span>✓</span>
                   <span>WHAT YOU DEMONSTRATED</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                   {(evalResult.demonstrated || evalResult.strengths || ["Requirement clarification established scope", "Separation of concerns across gateway & storage"]).map((item: string, idx: number) => (
-                    <div key={idx} style={{ fontSize: 11, color: "rgba(255,255,255,0.9)", lineHeight: 1.4 }}>
+                    <div key={idx} style={{ fontSize: 12, color: "#14532D", lineHeight: 1.4 }}>
                       • {item}
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div style={{ padding: 14, borderRadius: 12, background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.25)" }}>
-                <div style={{ fontSize: 11, fontWeight: 900, color: "#f87171", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ padding: 14, borderRadius: 8, background: "#FDF2F2", border: "1px solid #F8C8C8" }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#C24141", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
                   <span>⚠️</span>
                   <span>ARCHITECTURAL BOTTLENECK / UNPROVEN CLAIM</span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                   {(evalResult.developing || evalResult.architecturalBottlenecks || ["Missing failover latency bounds on primary cache tier"]).map((item: string, idx: number) => (
-                    <div key={idx} style={{ fontSize: 11, color: "rgba(255,255,255,0.9)", lineHeight: 1.4 }}>
+                    <div key={idx} style={{ fontSize: 12, color: "#7F1D1D", lineHeight: 1.4 }}>
                       • {item}
                     </div>
                   ))}
@@ -2466,37 +2400,37 @@ function SystemDesignContent() {
             </div>
 
             {/* WHY IT MATTERS */}
-            <div style={{ padding: 14, borderRadius: 10, background: "rgba(99, 102, 241, 0.08)", border: "1px solid rgba(99, 102, 241, 0.25)", marginBottom: 16 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#818cf8", textTransform: "uppercase", marginBottom: 3 }}>
+            <div style={{ padding: 14, borderRadius: 8, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 3 }}>
                 🔍 WHY IT MATTERS
               </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.9)", lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: "#162A43", lineHeight: 1.4 }}>
                 {evalResult.whyItMatters || "Your target tier expects candidates to reason about resilience and partial failures, not only happy-path functional throughput."}
               </div>
             </div>
 
             {/* Principal Advice */}
             {evalResult.principalAdvice && (
-              <div style={{ padding: 14, borderRadius: 10, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.08)", marginBottom: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", textTransform: "uppercase", marginBottom: 3 }}>
+              <div style={{ padding: 14, borderRadius: 8, background: "#F6F5F1", border: "1px solid #E4E1DA", marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 3 }}>
                   🎙️ Principal Architect Commentary
                 </div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)", lineHeight: 1.4 }}>
+                <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.4 }}>
                   {evalResult.principalAdvice}
                 </div>
               </div>
             )}
 
-            {/* RECOMMENDED NEXT PRACTICE ACTION & ADAPTIVE RETRY (Section 47, 48) */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px solid rgba(255,255,255,0.08)", flexWrap: "wrap", gap: 12 }}>
+            {/* RECOMMENDED NEXT PRACTICE ACTION & ADAPTIVE RETRY */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px solid #E4E1DA", flexWrap: "wrap", gap: 12 }}>
               <div>
-                <div style={{ fontSize: 9, color: "#94a3b8", textTransform: "uppercase", fontWeight: 800 }}>
+                <div style={{ fontSize: 10, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>
                   RECOMMENDED NEXT PRACTICE ACTION
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 900, color: "white", marginTop: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43", marginTop: 2 }}>
                   {evalResult.nextBestAction?.title || "15-Minute Failure-Recovery Drill"}
                 </div>
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
                   {evalResult.nextBestAction?.description || "Simulate a complete Redis partition with 500k req/s and implement tiered fail-open policies."}
                 </div>
               </div>
@@ -2507,12 +2441,12 @@ function SystemDesignContent() {
                     onClick={() => handleSelectChallenge(evalResult.transferTest.challengeId)}
                     style={{
                       padding: "8px 14px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(56,189,248,0.4)",
-                      background: "rgba(56,189,248,0.15)",
-                      color: "#38bdf8",
+                      borderRadius: 7,
+                      border: "1px solid #D2E0FB",
+                      background: "#EFF4FE",
+                      color: "#356AE6",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: "pointer"
                     }}
                   >
@@ -2524,12 +2458,12 @@ function SystemDesignContent() {
                   onClick={handleTriggerIntelligentChaos}
                   style={{
                     padding: "8px 16px",
-                    borderRadius: 8,
+                    borderRadius: 7,
                     border: "none",
-                    background: "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)",
-                    color: "white",
+                    background: "#356AE6",
+                    color: "#FFFFFF",
                     fontSize: 11,
-                    fontWeight: 800,
+                    fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
@@ -2543,40 +2477,40 @@ function SystemDesignContent() {
 
       </main>
 
-      {/* ── TECHNICAL SPEC SLIDE-OVER DRAWER (Section 35) ── */}
+      {/* ── TECHNICAL SPEC SLIDE-OVER DRAWER ── */}
       {isSpecDrawerOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 100, display: "flex", justifyContent: "flex-end" }}>
-          <div style={{ width: 440, background: "#0f172a", borderLeft: "1px solid rgba(255,255,255,0.15)", height: "100%", overflowY: "auto", padding: 22, boxShadow: "-10px 0 40px rgba(0,0,0,0.8)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(16,24,40,0.5)", zIndex: 100, display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ width: 440, background: "#FFFFFF", borderLeft: "1px solid #E4E1DA", height: "100%", overflowY: "auto", padding: 22, boxShadow: "-4px 0 24px rgba(16,24,40,0.1)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18 }}>📄</span>
-                <h3 style={{ fontSize: 15, fontWeight: 900, margin: 0, color: "white" }}>
+                <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#162A43" }}>
                   Technical Spec Sheet
                 </h3>
               </div>
               <button
                 onClick={() => setIsSpecDrawerOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 16 }}
+                style={{ background: "transparent", border: "none", color: "#667085", cursor: "pointer", fontSize: 16 }}
               >
                 ✕
               </button>
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase" }}>Problem</div>
-              <div style={{ fontSize: 13, fontWeight: 800, color: "white", marginTop: 2 }}>{activeChallenge.title}</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#356AE6", textTransform: "uppercase" }}>Problem</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43", marginTop: 2 }}>{activeChallenge.title}</div>
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", textTransform: "uppercase" }}>Scale Target</div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", marginTop: 2 }}>{activeChallenge.scale_metrics}</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#B7791F", textTransform: "uppercase" }}>Scale Target</div>
+              <div style={{ fontSize: 12, color: "#475467", marginTop: 2 }}>{activeChallenge.scale_metrics}</div>
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 4 }}>
                 Functional Requirements
               </div>
-              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
                 {activeChallenge.functional_requirements.map((r, i) => (
                   <li key={i}>{r}</li>
                 ))}
@@ -2584,10 +2518,10 @@ function SystemDesignContent() {
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#f87171", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#C24141", textTransform: "uppercase", marginBottom: 4 }}>
                 Non-Functional Requirements
               </div>
-              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
                 {activeChallenge.non_functional_requirements.map((r, i) => (
                   <li key={i}>{r}</li>
                 ))}
@@ -2595,10 +2529,10 @@ function SystemDesignContent() {
             </div>
 
             <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: "#c084fc", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 4 }}>
                 Architectural Hints
               </div>
-              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+              <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
                 {activeChallenge.architectural_hints.map((r, i) => (
                   <li key={i}>{r}</li>
                 ))}
@@ -2610,12 +2544,12 @@ function SystemDesignContent() {
               style={{
                 width: "100%",
                 padding: "9px",
-                borderRadius: 8,
+                borderRadius: 7,
                 border: "none",
-                background: "#a855f7",
-                color: "white",
+                background: "#356AE6",
+                color: "#FFFFFF",
                 fontSize: 11,
-                fontWeight: 800,
+                fontWeight: 700,
                 cursor: "pointer"
               }}
             >
@@ -2625,27 +2559,27 @@ function SystemDesignContent() {
         </div>
       )}
 
-      {/* ── REFERENCE BLUEPRINT STUDY DRAWER (Section 34, 70) ── */}
+      {/* ── REFERENCE BLUEPRINT STUDY DRAWER ── */}
       {isBlueprintDrawerOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 110, display: "flex", justifyContent: "flex-end" }}>
-          <div style={{ width: 480, background: "#0f172a", borderLeft: "1px solid rgba(245,158,11,0.4)", height: "100%", overflowY: "auto", padding: 22, boxShadow: "-10px 0 40px rgba(0,0,0,0.85)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(16,24,40,0.5)", zIndex: 110, display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ width: 480, background: "#FFFFFF", borderLeft: "1px solid #E4E1DA", height: "100%", overflowY: "auto", padding: 22, boxShadow: "-4px 0 24px rgba(16,24,40,0.1)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18 }}>💡</span>
-                <h3 style={{ fontSize: 15, fontWeight: 900, margin: 0, color: "#fbbf24" }}>
+                <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#162A43" }}>
                   Reference Architecture Blueprint
                 </h3>
               </div>
               <button
                 onClick={() => setIsBlueprintDrawerOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: 16 }}
+                style={{ background: "transparent", border: "none", color: "#667085", cursor: "pointer", fontSize: 16 }}
               >
                 ✕
               </button>
             </div>
 
-            <div style={{ padding: "8px 12px", borderRadius: 8, background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.25)", marginBottom: 14 }}>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.4 }}>
+            <div style={{ padding: "8px 12px", borderRadius: 7, background: "#FEF7ED", border: "1px solid #F8D8A7", marginBottom: 14 }}>
+              <div style={{ fontSize: 12, color: "#78350F", lineHeight: 1.4 }}>
                 This is a <strong>study reference</strong> for learning. It does NOT overwrite your active whiteboard canvas in Interview Mode.
               </div>
             </div>
@@ -2655,30 +2589,30 @@ function SystemDesignContent() {
               const bp = REFERENCE_BLUEPRINTS[selectedChallengeId] || REFERENCE_BLUEPRINTS["sd-1"];
               return (
                 <div>
-                  <div style={{ fontSize: 11, color: "white", lineHeight: 1.5, marginBottom: 14 }}>
+                  <div style={{ fontSize: 12, color: "#17191C", lineHeight: 1.5, marginBottom: 14 }}>
                     {bp.overview}
                   </div>
 
                   <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#38bdf8", textTransform: "uppercase", marginBottom: 6 }}>
-                      Components & Data Flow:
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 6 }}>
+                      Components &amp; Data Flow:
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                       {bp.nodes.map((n, i) => (
-                        <div key={n.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "rgba(255,255,255,0.04)", borderRadius: 6, fontSize: 11 }}>
+                        <div key={n.id} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 8px", background: "#F6F5F1", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 11 }}>
                           <span>{n.icon}</span>
-                          <span style={{ fontWeight: 800, color: "white" }}>{n.label}</span>
-                          <span style={{ color: "#94a3b8" }}>— {n.role}</span>
+                          <span style={{ fontWeight: 700, color: "#162A43" }}>{n.label}</span>
+                          <span style={{ color: "#667085" }}>— {n.role}</span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#fbbf24", textTransform: "uppercase", marginBottom: 6 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#B7791F", textTransform: "uppercase", marginBottom: 6 }}>
                       Key Architectural Trade-offs:
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
                       {bp.keyTradeoffs.map((t, idx) => (
                         <li key={idx} style={{ marginBottom: 4 }}>{t}</li>
                       ))}
@@ -2686,10 +2620,10 @@ function SystemDesignContent() {
                   </div>
 
                   <div style={{ marginBottom: 18 }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#34d399", textTransform: "uppercase", marginBottom: 6 }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 6 }}>
                       Failure Mitigations:
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 11, color: "rgba(255,255,255,0.8)", lineHeight: 1.5 }}>
+                    <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
                       {bp.failureMitigations.map((m, idx) => (
                         <li key={idx} style={{ marginBottom: 4 }}>{m}</li>
                       ))}
@@ -2708,12 +2642,12 @@ function SystemDesignContent() {
                       style={{
                         width: "100%",
                         padding: "9px",
-                        borderRadius: 8,
-                        border: "1px solid rgba(245,158,11,0.4)",
-                        background: "rgba(245,158,11,0.2)",
-                        color: "#fbbf24",
+                        borderRadius: 7,
+                        border: "1px solid #D2E0FB",
+                        background: "#EFF4FE",
+                        color: "#356AE6",
                         fontSize: 11,
-                        fontWeight: 800,
+                        fontWeight: 700,
                         cursor: "pointer",
                         marginBottom: 8
                       }}
@@ -2727,12 +2661,12 @@ function SystemDesignContent() {
                     style={{
                       width: "100%",
                       padding: "8px",
-                      borderRadius: 8,
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      background: "transparent",
-                      color: "#94a3b8",
+                      borderRadius: 7,
+                      border: "1px solid #E4E1DA",
+                      background: "#FFFFFF",
+                      color: "#667085",
                       fontSize: 11,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer"
                     }}
                   >
@@ -2748,27 +2682,27 @@ function SystemDesignContent() {
 
       {/* ── CONFIRM CLEAR CANVAS MODAL ── */}
       {isClearConfirmOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 120, display: "flex", justifyContent: "center", alignItems: "center", padding: 20 }}>
-          <div style={{ width: "100%", maxWidth: 400, background: "#0f172a", border: "1px solid rgba(239,68,68,0.4)", borderRadius: 14, padding: 20, boxShadow: "0 20px 40px rgba(0,0,0,0.8)" }}>
+        <div style={{ position: "fixed", inset: 0, background: "rgba(16,24,40,0.5)", zIndex: 120, display: "flex", justifyContent: "center", alignItems: "center", padding: 20 }}>
+          <div style={{ width: "100%", maxWidth: 400, background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, boxShadow: "0 10px 25px rgba(16,24,40,0.15)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <span style={{ fontSize: 20 }}>⚠️</span>
-              <h3 style={{ fontSize: 14, fontWeight: 900, margin: 0, color: "#f87171" }}>
+              <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#C24141" }}>
                 Clear Whiteboard Canvas?
               </h3>
             </div>
-            <p style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", margin: "0 0 14px", lineHeight: 1.4 }}>
+            <p style={{ fontSize: 12, color: "#475467", margin: "0 0 14px", lineHeight: 1.4 }}>
               This will remove all {canvasNodes.length} nodes and {canvasEdges.length} connections from your canvas. You can undo this action.
             </p>
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
               <button
                 onClick={() => setIsClearConfirmOpen(false)}
-                style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.15)", background: "transparent", color: "#94a3b8", fontSize: 11, cursor: "pointer" }}
+                style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#667085", fontSize: 11, cursor: "pointer" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmClearCanvas}
-                style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: "#ef4444", color: "white", fontSize: 11, fontWeight: 800, cursor: "pointer" }}
+                style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: "#C24141", color: "#FFFFFF", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
               >
                 Yes, Clear All
               </button>
@@ -2794,7 +2728,7 @@ function SystemDesignContent() {
 
 export default function SystemDesignPage() {
   return (
-    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#090d16" }} />}>
+    <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1" }} />}>
       <SystemDesignContent />
     </React.Suspense>
   );
