@@ -174,8 +174,8 @@ export default function RecruiterCommandCenterPage() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#F6F5F1",
-        color: "#17191C",
+        backgroundColor: "var(--bg-canvas)",
+        color: "var(--text-primary)",
         fontFamily: "var(--font-inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)",
       }}
     >
@@ -185,12 +185,12 @@ export default function RecruiterCommandCenterPage() {
         {/* ── COMMAND CENTER HERO ── */}
         <div
           style={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E4E1DA",
+            backgroundColor: "var(--surface)",
+            border: "1px solid var(--border-subtle)",
             borderRadius: 10,
             padding: "28px 32px",
             marginBottom: 24,
-            boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)",
+            boxShadow: "var(--shadow-subtle)",
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20 }}>
@@ -199,16 +199,16 @@ export default function RecruiterCommandCenterPage() {
                 <Badge variant="navy" icon={false}>
                   HIRING INTELLIGENCE WORKSPACE
                 </Badge>
-                <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 11, color: "var(--color-success)", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
                   <CheckCircle2 size={11} /> Evidence-Grounded Progressive Verification
                 </span>
               </div>
 
-              <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 700, margin: "0 0 8px", color: "#162A43", letterSpacing: "-0.5px" }}>
+              <h1 style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)", fontWeight: 700, margin: "0 0 8px", color: "var(--brand-navy)", letterSpacing: "-0.5px" }}>
                 What needs your attention today?
               </h1>
 
-              <p style={{ fontSize: 14, color: "#667085", lineHeight: 1.5, margin: "0 0 20px" }}>
+              <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.5, margin: "0 0 20px" }}>
                 Cognalyze investigates multi-source evidence across GitHub, project builds, and verified skills. You retain final decision authority.
               </p>
 
@@ -248,36 +248,36 @@ export default function RecruiterCommandCenterPage() {
 
             {/* Quick KPI Strip */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, minWidth: 300 }}>
-              <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>Action Required</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#B7791F", margin: "2px 0" }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>Action Required</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-warning)", margin: "2px 0" }}>
                   {kpis.pendingActionItems} Candidates
                 </div>
-                <div style={{ fontSize: 10, color: "#98A2B3" }}>Pending recruiter review</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Pending recruiter review</div>
               </div>
 
-              <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>Active Roles</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", margin: "2px 0" }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>Active Roles</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-navy)", margin: "2px 0" }}>
                   {openPositions.length} Open
                 </div>
-                <div style={{ fontSize: 10, color: "#98A2B3" }}>Role DNA configured</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Role DNA configured</div>
               </div>
 
-              <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>Rediscovery Pool</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#356AE6", margin: "2px 0" }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>Rediscovery Pool</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-cobalt)", margin: "2px 0" }}>
                   {rediscoveryMatches.length} Matches
                 </div>
-                <div style={{ fontSize: 10, color: "#98A2B3" }}>Previous evaluated talent</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Previous evaluated talent</div>
               </div>
 
-              <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>Decision Room</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: "#2E7D5B", margin: "2px 0" }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>Decision Room</div>
+                <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-success)", margin: "2px 0" }}>
                   {kpis.decisionRoomCount} Ready
                 </div>
-                <div style={{ fontSize: 10, color: "#98A2B3" }}>Final review journal</div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Final review journal</div>
               </div>
             </div>
           </div>
@@ -286,18 +286,18 @@ export default function RecruiterCommandCenterPage() {
         {/* ── SECTION 11 & 13: DECISION ROOM PROGRESSIVE SCREENING FUNNEL ── */}
         <section style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 12 }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", color: "#162A43", margin: 0 }}>
+            <h2 style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", color: "var(--brand-navy)", margin: 0 }}>
               Decision Room Screening Pipeline
             </h2>
-            <span style={{ fontSize: 11, color: "#667085" }}>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
               Progressive evidence filtering: 1,000 → 342 → 86 → 18 → 5
             </span>
           </div>
 
           <div
             style={{
-              background: "#FFFFFF",
-              border: "1px solid #E4E1DA",
+              background: "var(--surface)",
+              border: "1px solid var(--border-subtle)",
               borderRadius: 10,
               padding: "16px 20px",
               display: "grid",
@@ -307,23 +307,23 @@ export default function RecruiterCommandCenterPage() {
             }}
           >
             {[
-              { label: "1. Uploaded", count: pipelineFunnel.appliedCount, color: "#667085" },
-              { label: "2. Eligible", count: pipelineFunnel.initialEligibilityCount, color: "#162A43" },
-              { label: "3. Evidence-Match", count: pipelineFunnel.evidenceQualifiedCount, color: "#356AE6" },
-              { label: "4. Deep Review", count: pipelineFunnel.deepReviewCount, color: "#162A43" },
-              { label: "5. Verified", count: pipelineFunnel.verificationCount, color: "#B7791F" },
-              { label: "6. Finalists", count: pipelineFunnel.interviewShortlistCount, color: "#2E7D5B" },
+              { label: "1. Uploaded", count: pipelineFunnel.appliedCount, color: "var(--text-secondary)" },
+              { label: "2. Eligible", count: pipelineFunnel.initialEligibilityCount, color: "var(--brand-navy)" },
+              { label: "3. Evidence-Match", count: pipelineFunnel.evidenceQualifiedCount, color: "var(--brand-cobalt)" },
+              { label: "4. Deep Review", count: pipelineFunnel.deepReviewCount, color: "var(--brand-navy)" },
+              { label: "5. Verified", count: pipelineFunnel.verificationCount, color: "var(--color-warning)" },
+              { label: "6. Finalists", count: pipelineFunnel.interviewShortlistCount, color: "var(--color-success)" },
             ].map((stage) => (
               <div
                 key={stage.label}
                 style={{
-                  background: "#F6F5F1",
-                  border: "1px solid #E4E1DA",
+                  background: "var(--bg-canvas)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: 7,
                   padding: "10px 8px",
                 }}
               >
-                <div style={{ fontSize: 11, color: "#667085", fontWeight: 600 }}>{stage.label}</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>{stage.label}</div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: stage.color, marginTop: 4 }}>
                   {stage.count.toLocaleString()}
                 </div>
@@ -335,16 +335,16 @@ export default function RecruiterCommandCenterPage() {
         {/* ── PRIORITY ACTION QUEUE (Section 50) ── */}
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <h2 style={{ fontSize: 14, color: "#162A43", fontWeight: 700, margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+            <h2 style={{ fontSize: 14, color: "var(--brand-navy)", fontWeight: 700, margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
               Priority Action Queue ({actionQueue.length})
             </h2>
-            <span style={{ fontSize: 11, color: "#667085" }}>Real-time pending candidate verifications</span>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Real-time pending candidate verifications</span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {actionQueue.length === 0 ? (
               <Card>
-                <div style={{ textAlign: "center", color: "#667085", fontSize: 13, padding: 12 }}>
+                <div style={{ textAlign: "center", color: "var(--text-secondary)", fontSize: 13, padding: 12 }}>
                   ✓ Action queue is clear. All candidates are in stable stages.
                 </div>
               </Card>
@@ -357,8 +357,8 @@ export default function RecruiterCommandCenterPage() {
                   <div
                     key={item.id}
                     style={{
-                      background: "#FFFFFF",
-                      border: `1px solid ${isUrgent ? "#F5DFBA" : "#E4E1DA"}`,
+                      background: "var(--surface)",
+                      border: `1px solid ${isUrgent ? "var(--color-warning)" : "var(--border-subtle)"}`,
                       borderRadius: 10,
                       padding: "14px 20px",
                       display: "flex",
@@ -366,7 +366,7 @@ export default function RecruiterCommandCenterPage() {
                       alignItems: "center",
                       flexWrap: "wrap",
                       gap: 12,
-                      boxShadow: "0 1px 2px rgba(16, 24, 40, 0.02)",
+                      boxShadow: "var(--shadow-subtle)",
                     }}
                   >
                     <div>
@@ -374,14 +374,14 @@ export default function RecruiterCommandCenterPage() {
                         <Badge variant={isUrgent ? "limited" : isHigh ? "limited" : "cobalt"}>
                           {item.urgency.toUpperCase()}
                         </Badge>
-                        <span style={{ fontSize: 11, color: "#667085" }}>
-                          {item.dueText} • Candidate: <strong style={{ color: "#17191C" }}>{getDisplayName(item.candidateName, item.candidateId)}</strong>
+                        <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
+                          {item.dueText} • Candidate: <strong style={{ color: "var(--text-primary)" }}>{getDisplayName(item.candidateName, item.candidateId)}</strong>
                         </span>
                       </div>
-                      <h3 style={{ fontSize: 14, fontWeight: 600, color: "#162A43", margin: "0 0 2px" }}>
+                      <h3 style={{ fontSize: 14, fontWeight: 600, color: "var(--brand-navy)", margin: "0 0 2px" }}>
                         {item.title}
                       </h3>
-                      <div style={{ fontSize: 11, color: "#667085" }}>
+                      <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                         Role: {item.roleTitle}
                       </div>
                     </div>
@@ -412,10 +412,10 @@ export default function RecruiterCommandCenterPage() {
           <section>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#162A43", margin: "0 0 2px" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: "0 0 2px" }}>
                   Active Positions (Role DNA)
                 </h3>
-                <div style={{ fontSize: 11, color: "#667085" }}>Tiered requirements (Must Have vs Good to Have)</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Tiered requirements (Must Have vs Good to Have)</div>
               </div>
 
               <Link href="/recruiter/roles">
@@ -430,10 +430,10 @@ export default function RecruiterCommandCenterPage() {
                 <Card key={pos.id} style={{ padding: "16px 20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                     <div>
-                      <h4 style={{ fontSize: 14, fontWeight: 600, color: "#17191C", margin: 0 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", margin: 0 }}>
                         {pos.title}
                       </h4>
-                      <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
+                      <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
                         {pos.department} • Seniority: {pos.seniority} • Target: {pos.targetHires}
                       </div>
                     </div>
@@ -443,8 +443,8 @@ export default function RecruiterCommandCenterPage() {
                     </Badge>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
-                    <span style={{ fontSize: 11, color: "#B7791F", fontWeight: 600 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border-subtle)" }}>
+                    <span style={{ fontSize: 11, color: "var(--color-warning)", fontWeight: 600 }}>
                       ⚠ {pos.criticalRequirementsCount} Core Must-Haves
                     </span>
                     <Link href={`/recruiter/candidates?roleId=${pos.id}`}>
@@ -462,10 +462,10 @@ export default function RecruiterCommandCenterPage() {
           <section>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
               <div>
-                <h3 style={{ fontSize: 14, fontWeight: 700, color: "#162A43", margin: "0 0 2px" }}>
+                <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: "0 0 2px" }}>
                   Candidate Discovery Pool
                 </h3>
-                <div style={{ fontSize: 11, color: "#667085" }}>Verified applicant profiles & evidence signals</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>Verified applicant profiles & evidence signals</div>
               </div>
 
               <Link href="/recruiter/candidates">
@@ -483,14 +483,14 @@ export default function RecruiterCommandCenterPage() {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: "#17191C" }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
                             {getDisplayName(cand.name, cand.id)}
                           </span>
                           <Badge variant={isStudentApp ? "verified" : "neutral"} icon={false}>
                             {isStudentApp ? "DIRECT APP" : "INGESTED"}
                           </Badge>
                         </div>
-                        <div style={{ fontSize: 11, color: "#667085" }}>
+                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                           Applied for: {cand.roleTitle}
                         </div>
                       </div>
@@ -536,26 +536,26 @@ export default function RecruiterCommandCenterPage() {
             style={{
               width: "100%",
               maxWidth: 620,
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E4E1DA",
+              backgroundColor: "var(--surface)",
+              border: "1px solid var(--border-subtle)",
               borderRadius: 12,
               padding: "24px 28px",
-              boxShadow: "0 12px 32px rgba(16, 24, 40, 0.12)",
+              boxShadow: "var(--shadow-modal)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
               <div>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", color: "#356AE6" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.5px", textTransform: "uppercase", color: "var(--brand-cobalt)" }}>
                   TALENT INTELLIGENCE QUERY
                 </span>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 0", color: "#162A43" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 0", color: "var(--brand-navy)" }}>
                   Ask Cognalyze
                 </h3>
               </div>
               <button
                 onClick={() => setAskModalOpen(false)}
-                style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", color: "#667085", borderRadius: 6, width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)", borderRadius: 6, width: 28, height: 28, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 ✕
               </button>
@@ -572,9 +572,9 @@ export default function RecruiterCommandCenterPage() {
                     flex: 1,
                     padding: "9px 12px",
                     borderRadius: 7,
-                    background: "#F6F5F1",
-                    border: "1px solid #E4E1DA",
-                    color: "#17191C",
+                    background: "var(--bg-canvas)",
+                    border: "1px solid var(--border-subtle)",
+                    color: "var(--text-primary)",
                     fontSize: 12,
                     outline: "none",
                   }}
@@ -598,15 +598,15 @@ export default function RecruiterCommandCenterPage() {
                   type="button"
                   onClick={() => setAskQuery(s)}
                   style={{
-                    background: "#F6F5F1",
-                    border: "1px solid #E4E1DA",
+                    background: "var(--bg-canvas)",
+                    border: "1px solid var(--border-subtle)",
                     borderRadius: 5,
                     padding: "3px 8px",
-                    color: "#667085",
+                    color: "var(--text-secondary)",
                     fontSize: 11,
                     cursor: "pointer",
                   }}
-                  className="hover:bg-white hover:text-[#17191C]"
+                  className="hover:bg-[var(--surface)] hover:text-[var(--text-primary)]"
                 >
                   {s}
                 </button>
@@ -615,20 +615,20 @@ export default function RecruiterCommandCenterPage() {
 
             {/* Answer Display */}
             {askAnswer && (
-              <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
-                <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, marginBottom: 10 }}>
+              <div style={{ background: "var(--bg-canvas)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "14px 16px" }}>
+                <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5, marginBottom: 10 }}>
                   {askAnswer.answer}
                 </div>
 
                 {askAnswer.citedCandidates.length > 0 && (
                   <div>
-                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#356AE6", marginBottom: 4 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--brand-cobalt)", marginBottom: 4 }}>
                       Cited Evidence Records
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                       {askAnswer.citedCandidates.map((c, i) => (
-                        <div key={i} style={{ fontSize: 11, color: "#667085", background: "#FFFFFF", border: "1px solid #E4E1DA", padding: "6px 10px", borderRadius: 5 }}>
-                          <strong style={{ color: "#162A43" }}>{getDisplayName(c.name, c.id)}:</strong> {c.evidenceSnippet}
+                        <div key={i} style={{ fontSize: 11, color: "var(--text-secondary)", background: "var(--surface)", border: "1px solid var(--border-subtle)", padding: "6px 10px", borderRadius: 5 }}>
+                          <strong style={{ color: "var(--brand-navy)" }}>{getDisplayName(c.name, c.id)}:</strong> {c.evidenceSnippet}
                         </div>
                       ))}
                     </div>

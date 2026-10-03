@@ -255,7 +255,7 @@ export default function RecruiterOrganizationSetupPage() {
                   disabled={loading}
                   style={{
                     backgroundColor: "var(--accent)",
-                    color: "#FFFFFF",
+                    color: "var(--surface)",
                   }}
                   className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer disabled:opacity-50 hover:opacity-90"
                 >
@@ -376,7 +376,7 @@ export default function RecruiterOrganizationSetupPage() {
                   onClick={() => router.push("/recruiter/dashboard")}
                   style={{
                     backgroundColor: "var(--accent)",
-                    color: "#FFFFFF",
+                    color: "var(--surface)",
                   }}
                   className="w-full py-3 px-4 rounded-lg text-xs font-semibold shadow-sm transition-opacity hover:opacity-90 cursor-pointer flex items-center justify-center gap-2"
                 >

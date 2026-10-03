@@ -137,27 +137,27 @@ export default function CandidateEvidencePassportPage() {
       case "SUPPORTED":
       case "VERIFIED":
       case "DEMONSTRATED":
-        return { color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", label: state };
+        return { color: "var(--color-success)", bg: "var(--color-success-bg)", border: "var(--color-success)", label: state };
       case "PARTIAL":
       case "PARTIALLY_SUPPORTED":
       case "DEVELOPING":
-        return { color: "#B7791F", bg: "#FEF7ED", border: "#F8D8A7", label: state };
+        return { color: "var(--color-warning)", bg: "#FEF7ED", border: "#F8D8A7", label: state };
       case "MISSING":
       case "INSUFFICIENT_EVIDENCE":
-        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "INSUFFICIENT EVIDENCE" };
+        return { color: "var(--text-secondary)", bg: "var(--bg-canvas)", border: "var(--border-subtle)", label: "INSUFFICIENT EVIDENCE" };
       case "CONFLICTING":
       case "EVIDENCE_MISMATCH":
-        return { color: "#C24141", bg: "#FDF2F2", border: "#F8C8C8", label: state };
+        return { color: "var(--color-error)", bg: "#FDF2F2", border: "#F8C8C8", label: state };
       default:
-        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", label: state };
+        return { color: "var(--brand-cobalt)", bg: "#EFF4FE", border: "#D2E0FB", label: state };
     }
   };
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)" }}>
         <AppNav role="recruiter" />
-        <div style={{ maxWidth: 1100, margin: "80px auto", textAlign: "center", color: "#667085" }}>
+        <div style={{ maxWidth: 1100, margin: "80px auto", textAlign: "center", color: "var(--text-secondary)" }}>
           <div style={{ fontSize: 32, marginBottom: 12 }}>⚡</div>
           Loading Candidate Evidence Passport...
         </div>
@@ -167,12 +167,12 @@ export default function CandidateEvidencePassportPage() {
 
   if (error || !displayCand) {
     return (
-      <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)" }}>
         <AppNav role="recruiter" />
-        <div style={{ maxWidth: 800, margin: "80px auto", textAlign: "center", padding: 32, background: "#FFFFFF", border: "1px solid #F8C8C8", borderRadius: 10 }}>
-          <h2 style={{ color: "#C24141" }}>Candidate Not Found</h2>
-          <p style={{ color: "#667085" }}>{error || "Could not retrieve the requested candidate record."}</p>
-          <Link href="/recruiter/candidates" style={{ color: "#356AE6", textDecoration: "none", fontWeight: 700 }}>
+        <div style={{ maxWidth: 800, margin: "80px auto", textAlign: "center", padding: 32, background: "var(--surface)", border: "1px solid #F8C8C8", borderRadius: 10 }}>
+          <h2 style={{ color: "var(--color-error)" }}>Candidate Not Found</h2>
+          <p style={{ color: "var(--text-secondary)" }}>{error || "Could not retrieve the requested candidate record."}</p>
+          <Link href="/recruiter/candidates" style={{ color: "var(--brand-cobalt)", textDecoration: "none", fontWeight: 700 }}>
             ← Back to Candidate Pool
           </Link>
         </div>
@@ -181,18 +181,18 @@ export default function CandidateEvidencePassportPage() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
       <AppNav role="recruiter" />
 
       <main style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 24px 80px" }}>
         {/* BREADCRUMB & CONTROLS */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#667085" }}>
-            <Link href="/recruiter" style={{ color: "#667085", textDecoration: "none" }}>Command Center</Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
+            <Link href="/recruiter" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>Command Center</Link>
             <span>/</span>
-            <Link href="/recruiter/candidates" style={{ color: "#667085", textDecoration: "none" }}>Candidates</Link>
+            <Link href="/recruiter/candidates" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>Candidates</Link>
             <span>/</span>
-            <span style={{ color: "#162A43", fontWeight: 700 }}>Evidence Passport</span>
+            <span style={{ color: "var(--brand-navy)", fontWeight: 700 }}>Evidence Passport</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -200,11 +200,11 @@ export default function CandidateEvidencePassportPage() {
             <button
               onClick={() => setBlindMode(!blindMode)}
               style={{
-                background: blindMode ? "#162A43" : "#FFFFFF",
-                border: `1px solid ${blindMode ? "#162A43" : "#E4E1DA"}`,
+                background: blindMode ? "#162A43" : "var(--surface)",
+                border: `1px solid ${blindMode ? "#162A43" : "var(--border-subtle)"}`,
                 borderRadius: 7,
                 padding: "7px 14px",
-                color: blindMode ? "#FFFFFF" : "#667085",
+                color: blindMode ? "#FFFFFF" : "var(--text-secondary)",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
@@ -220,7 +220,7 @@ export default function CandidateEvidencePassportPage() {
             <button
               onClick={() => setShowDecisionModal(true)}
               style={{
-                background: "#356AE6",
+                background: "var(--brand-cobalt)",
                 border: "none",
                 borderRadius: 7,
                 padding: "8px 18px",
@@ -238,11 +238,11 @@ export default function CandidateEvidencePassportPage() {
               href={`/recruiter/decision-room?candidate=${candidate?.id}&role=${candidate?.appliedRoleId}`}
               style={{
                 textDecoration: "none",
-                background: "#FFFFFF",
-                border: "1px solid #E4E1DA",
+                background: "var(--surface)",
+                border: "1px solid var(--border-subtle)",
                 borderRadius: 7,
                 padding: "8px 16px",
-                color: "#162A43",
+                color: "var(--brand-navy)",
                 fontSize: 13,
                 fontWeight: 700,
                 boxShadow: "0 1px 2px rgba(0,0,0,0.02)"
@@ -258,8 +258,8 @@ export default function CandidateEvidencePassportPage() {
         {/* ══════════════════════════════════════════════════════════ */}
         <div
           style={{
-            background: "#FFFFFF",
-            border: "1px solid #E4E1DA",
+            background: "var(--surface)",
+            border: "1px solid var(--border-subtle)",
             borderRadius: 10,
             padding: "24px 28px",
             marginBottom: 28,
@@ -275,8 +275,8 @@ export default function CandidateEvidencePassportPage() {
                     fontWeight: 700,
                     letterSpacing: "0.04em",
                     textTransform: "uppercase",
-                    color: "#356AE6",
-                    background: "#EFF4FE",
+                    color: "var(--brand-cobalt)",
+                    background: "var(--color-info-bg)",
                     padding: "2px 8px",
                     borderRadius: 5,
                     border: "1px solid #D2E0FB",
@@ -284,41 +284,41 @@ export default function CandidateEvidencePassportPage() {
                 >
                   Candidate Evidence Passport
                 </span>
-                <span style={{ fontSize: 11, color: "#667085" }}>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                   Persistent multi-source verified record
                 </span>
               </div>
 
-              <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: "#162A43", letterSpacing: "-0.02em" }}>
+              <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, color: "var(--brand-navy)", letterSpacing: "-0.02em" }}>
                 {displayCand.name}
               </h1>
 
-              <div style={{ fontSize: 13, color: "#667085", marginTop: 4 }}>
-                Applied for: <strong style={{ color: "#162A43" }}>{displayCand.appliedRoleTitle}</strong> • Stage:{" "}
-                <span style={{ color: "#356AE6", fontWeight: 700 }}>{displayCand.currentStage}</span> • Source:{" "}
-                <span style={{ color: "#17191C" }}>{displayCand.sourceType}</span>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>
+                Applied for: <strong style={{ color: "var(--brand-navy)" }}>{displayCand.appliedRoleTitle}</strong> • Stage:{" "}
+                <span style={{ color: "var(--brand-cobalt)", fontWeight: 700 }}>{displayCand.currentStage}</span> • Source:{" "}
+                <span style={{ color: "var(--text-primary)" }}>{displayCand.sourceType}</span>
               </div>
             </div>
 
             {/* QUICK STATS */}
             <div style={{ display: "flex", gap: 12 }}>
-              <div style={{ background: "#F9F8F5", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>Verified Repos</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "#2E7D5B", marginTop: 2 }}>
+              <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 700 }}>Verified Repos</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-success)", marginTop: 2 }}>
                   {displayCand.githubData?.verifiedReposCount || 0}
                 </div>
               </div>
 
-              <div style={{ background: "#F9F8F5", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>Algorithmic DSA</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "#356AE6", marginTop: 2 }}>
+              <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 700 }}>Algorithmic DSA</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-cobalt)", marginTop: 2 }}>
                   {displayCand.leetCodeProfile?.problemsSolved || 0}
                 </div>
               </div>
 
-              <div style={{ background: "#F9F8F5", border: "1px solid #E4E1DA", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
-                <div style={{ fontSize: 11, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>Assessed Rounds</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: "#162A43", marginTop: 2 }}>
+              <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "10px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 700 }}>Assessed Rounds</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-navy)", marginTop: 2 }}>
                   {(displayCand.priorCognalyzeInterviewHistory || []).length}
                 </div>
               </div>
@@ -332,61 +332,61 @@ export default function CandidateEvidencePassportPage() {
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
-              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "#162A43", margin: 0 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "var(--brand-navy)", margin: 0 }}>
                 Evidence Provenance &amp; Independence
               </h2>
-              <span style={{ fontSize: 12, color: "#667085" }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 Strict invariant: Repeated self-reported claims are never counted as independent proofs.
               </span>
             </div>
-            <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>Auditable Provenance Chain</span>
+            <span style={{ fontSize: 11, color: "var(--color-success)", fontWeight: 700 }}>Auditable Provenance Chain</span>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 12 }}>
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--color-warning)", textTransform: "uppercase", marginBottom: 4 }}>
                 A. SELF_REPORTED
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                 Resume &amp; Profile Statements
               </div>
-              <div style={{ fontSize: 11, color: "#667085", marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
                 Unverified claims extracted directly from candidate submission. Low independent weight.
               </div>
             </div>
 
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", marginBottom: 4 }}>
                 B. OBSERVED
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                 GitHub &amp; LeetCode Activity
               </div>
-              <div style={{ fontSize: 11, color: "#667085", marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
                 {displayCand.githubData?.verifiedReposCount || 0} public repositories, commit patterns, and algorithmic solution records.
               </div>
             </div>
 
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", marginBottom: 4 }}>
                 C. EVALUATED
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                 Cognalyze Mock Interviews
               </div>
-              <div style={{ fontSize: 11, color: "#667085", marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
                 Direct question-and-answer transcripts evaluating runtime defense and architectural reasoning.
               </div>
             </div>
 
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 4 }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: "14px 16px", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--color-success)", textTransform: "uppercase", marginBottom: 4 }}>
                 D. VERIFIED
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                 Code Walkthrough &amp; Deployment
               </div>
-              <div style={{ fontSize: 11, color: "#667085", marginTop: 4, lineHeight: 1.4 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 4, lineHeight: 1.4 }}>
                 Ownership verification questions answered and live API deployment endpoints substantiated.
               </div>
             </div>
@@ -399,17 +399,17 @@ export default function CandidateEvidencePassportPage() {
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
-              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "#162A43", margin: 0 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "var(--brand-navy)", margin: 0 }}>
                 Role Requirement Mapping (Role DNA)
               </h2>
-              <span style={{ fontSize: 12, color: "#667085" }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 Target Role: {role?.title || displayCand.appliedRoleTitle} • Zero arbitrary scoring
               </span>
             </div>
-            <span style={{ fontSize: 11, color: "#667085" }}>Click [SHOW PROOF] to inspect</span>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Click [SHOW PROOF] to inspect</span>
           </div>
 
-          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
             {(dossier?.assessments || []).map((req, idx, arr) => {
               const badge = getMatchStateBadge(req.evidenceState);
 
@@ -421,21 +421,21 @@ export default function CandidateEvidencePassportPage() {
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "16px 20px",
-                    borderBottom: idx < arr.length - 1 ? "1px solid #E4E1DA" : "none",
+                    borderBottom: idx < arr.length - 1 ? "1px solid var(--border-subtle)" : "none",
                     flexWrap: "wrap",
                     gap: 12,
                   }}
                 >
                   <div style={{ flex: "1 1 320px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)" }}>
                         {req.requirementText}
                       </span>
-                      <span style={{ fontSize: 10, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>
+                      <span style={{ fontSize: 10, color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 700 }}>
                         [{req.category}]
                       </span>
                     </div>
-                    <div style={{ fontSize: 12, color: "#667085", marginTop: 3, lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 3, lineHeight: 1.4 }}>
                       {req.sourceText || req.candidateEvidence || req.assessmentExplanation || "Evidence evaluated against role expectations."}
                     </div>
                   </div>
@@ -459,9 +459,9 @@ export default function CandidateEvidencePassportPage() {
                     <button
                       onClick={() => handleInspectProof(req)}
                       style={{
-                        background: "#EFF4FE",
+                        background: "var(--color-info-bg)",
                         border: "1px solid #D2E0FB",
-                        color: "#356AE6",
+                        color: "var(--brand-cobalt)",
                         borderRadius: 7,
                         padding: "5px 12px",
                         fontSize: 11,
@@ -484,20 +484,20 @@ export default function CandidateEvidencePassportPage() {
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
-              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "#162A43", margin: 0 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "var(--brand-navy)", margin: 0 }}>
                 Project Intelligence &amp; Ownership Verification
               </h2>
-              <span style={{ fontSize: 12, color: "#667085" }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 Template detection signals and candidate-specific generated architectural questions.
               </span>
             </div>
-            <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>Zero Unsupported Accusations</span>
+            <span style={{ fontSize: 11, color: "var(--color-success)", fontWeight: 700 }}>Zero Unsupported Accusations</span>
           </div>
 
           {projectAnalysis && (
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 10, padding: "20px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#162A43" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--brand-navy)" }}>
                   Project: {projectAnalysis.projectTitle}
                 </div>
                 <span
@@ -506,9 +506,9 @@ export default function CandidateEvidencePassportPage() {
                     fontWeight: 700,
                     padding: "3px 10px",
                     borderRadius: 5,
-                    background: projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "#EAF4EE" : "#FEF7ED",
-                    color: projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "#2E7D5B" : "#B7791F",
-                    border: `1px solid ${projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "#C8E4D3" : "#F8D8A7"}`,
+                    background: projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "var(--color-success-bg)" : "#FEF7ED",
+                    color: projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "#2E7D5B" : "var(--color-warning)",
+                    border: `1px solid ${projectAnalysis.templateDependenceSignal === "CLEAN_ORIGINAL" ? "var(--color-success)" : "#F8D8A7"}`,
                   }}
                 >
                   {projectAnalysis.templateDependenceSignal.replace(/_/g, " ")}
@@ -516,20 +516,20 @@ export default function CandidateEvidencePassportPage() {
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: 4 }}>
                   Signals Observed
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                   {projectAnalysis.signalsObserved.map((sig, sIdx) => (
-                    <div key={sIdx} style={{ fontSize: 12, color: "#17191C", display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ color: "#356AE6" }}>•</span> {sig}
+                    <div key={sIdx} style={{ fontSize: 12, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ color: "var(--brand-cobalt)" }}>•</span> {sig}
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", marginBottom: 8 }}>
                   Candidate-Specific Generated Verification Questions
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -538,16 +538,16 @@ export default function CandidateEvidencePassportPage() {
                       key={qIdx}
                       style={{
                         background: "#F9F8F5",
-                        border: "1px solid #E4E1DA",
+                        border: "1px solid var(--border-subtle)",
                         borderRadius: 8,
                         padding: "10px 14px",
                         fontSize: 13,
-                        color: "#17191C",
+                        color: "var(--text-primary)",
                         display: "flex",
                         gap: 10,
                       }}
                     >
-                      <span style={{ color: "#356AE6", fontWeight: 800 }}>Q{qIdx + 1}:</span>
+                      <span style={{ color: "var(--brand-cobalt)", fontWeight: 800 }}>Q{qIdx + 1}:</span>
                       <span>{q}</span>
                     </div>
                   ))}
@@ -563,10 +563,10 @@ export default function CandidateEvidencePassportPage() {
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
-              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "#162A43", margin: 0 }}>
+              <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: "-0.01em", textTransform: "uppercase", color: "var(--brand-navy)", margin: 0 }}>
                 Risk Analysis (False Positive &amp; False Negative)
               </h2>
-              <span style={{ fontSize: 12, color: "#667085" }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                 Detecting polished resumes with weak verification vs. concise resumes with strong demonstrated code.
               </span>
             </div>
@@ -575,18 +575,18 @@ export default function CandidateEvidencePassportPage() {
           {riskAnalysis && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
               {/* False Positive Risk */}
-              <div style={{ background: "#FFFFFF", border: "1px solid #F8D8A7", borderRadius: 10, padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+              <div style={{ background: "var(--surface)", border: "1px solid #F8D8A7", borderRadius: 10, padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#B7791F", textTransform: "uppercase" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "var(--color-warning)", textTransform: "uppercase" }}>
                     False Positive Risk
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#FEF7ED", color: "#B7791F", border: "1px solid #F8D8A7" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#FEF7ED", color: "var(--color-warning)", border: "1px solid #F8D8A7" }}>
                     {riskAnalysis.falsePositiveRisk.level} RISK
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {riskAnalysis.falsePositiveRisk.reasons.map((r, i) => (
-                    <div key={i} style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
+                    <div key={i} style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
                       • {r}
                     </div>
                   ))}
@@ -594,18 +594,18 @@ export default function CandidateEvidencePassportPage() {
               </div>
 
               {/* False Negative Risk */}
-              <div style={{ background: "#FFFFFF", border: "1px solid #C8E4D3", borderRadius: 10, padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+              <div style={{ background: "var(--surface)", border: "1px solid #C8E4D3", borderRadius: 10, padding: "18px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase" }}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: "var(--color-success)", textTransform: "uppercase" }}>
                     False Negative Risk (Hidden Strengths)
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "#EAF4EE", color: "#2E7D5B", border: "1px solid #C8E4D3" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 5, background: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid #C8E4D3" }}>
                     {riskAnalysis.falseNegativeRisk.level} RISK
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {riskAnalysis.falseNegativeRisk.reasons.map((r, i) => (
-                    <div key={i} style={{ fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
+                    <div key={i} style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.4 }}>
                       • {r}
                     </div>
                   ))}
@@ -637,54 +637,54 @@ export default function CandidateEvidencePassportPage() {
               width: "100%",
               maxWidth: 580,
               height: "100%",
-              backgroundColor: "#FFFFFF",
-              borderLeft: "1px solid #E4E1DA",
+              backgroundColor: "var(--surface)",
+              borderLeft: "1px solid var(--border-subtle)",
               boxShadow: "-8px 0 30px rgba(0, 0, 0, 0.12)",
               display: "flex",
               flexDirection: "column",
-              color: "#17191C",
+              color: "var(--text-primary)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ padding: "24px", borderBottom: "1px solid #E4E1DA", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ padding: "24px", borderBottom: "1px solid var(--border-subtle)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "#356AE6" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "var(--brand-cobalt)" }}>
                   EVIDENCE PROVENANCE PROOF
                 </span>
-                <h3 style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: "#162A43" }}>
+                <h3 style={{ fontSize: 18, fontWeight: 800, margin: "4px 0 0", color: "var(--brand-navy)" }}>
                   {inspectedReq.requirementText}
                 </h3>
               </div>
               <button
                 onClick={() => setProofDrawerOpen(false)}
-                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 16, cursor: "pointer" }}
+                style={{ background: "transparent", border: "none", color: "var(--text-secondary)", fontSize: 16, cursor: "pointer" }}
               >
                 ✕
               </button>
             </div>
 
             <div style={{ padding: "24px", flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ background: "#F9F8F5", border: "1px solid #E4E1DA", padding: "14px", borderRadius: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", padding: "14px", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: 4 }}>
                   Why did Cognalyze conclude this?
                 </div>
-                <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.5 }}>
                   {inspectedReq.assessmentExplanation || inspectedReq.whyChain?.assessment || "Capability evaluated against role requirements using multi-source cross-checks."}
                 </div>
               </div>
 
-              <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "14px", borderRadius: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+              <div style={{ background: "var(--color-info-bg)", border: "1px solid #D2E0FB", padding: "14px", borderRadius: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", marginBottom: 4 }}>
                   Observed Fact / Verbatim Artifact
                 </div>
-                <div style={{ fontSize: 12, color: "#162A43", lineHeight: 1.5, fontStyle: "italic" }}>
+                <div style={{ fontSize: 12, color: "var(--brand-navy)", lineHeight: 1.5, fontStyle: "italic" }}>
                   &ldquo;{inspectedReq.sourceText || inspectedReq.candidateEvidence || "No verbatim quotation available"}&rdquo;
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10, fontSize: 12, color: "#667085" }}>
-                <span>Requirement Category: <strong style={{ color: "#162A43" }}>{inspectedReq.category}</strong></span>
-                <span>Evidence State: <strong style={{ color: "#356AE6" }}>{inspectedReq.evidenceState}</strong></span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10, fontSize: 12, color: "var(--text-secondary)" }}>
+                <span>Requirement Category: <strong style={{ color: "var(--brand-navy)" }}>{inspectedReq.category}</strong></span>
+                <span>Evidence State: <strong style={{ color: "var(--brand-cobalt)" }}>{inspectedReq.evidenceState}</strong></span>
               </div>
             </div>
           </div>
@@ -713,35 +713,35 @@ export default function CandidateEvidencePassportPage() {
             style={{
               width: "100%",
               maxWidth: 540,
-              backgroundColor: "#FFFFFF",
-              border: "1px solid #E4E1DA",
+              backgroundColor: "var(--surface)",
+              border: "1px solid var(--border-subtle)",
               borderRadius: 12,
               padding: "24px 28px",
-              color: "#17191C",
+              color: "var(--text-primary)",
               boxShadow: "0 20px 40px rgba(0,0,0,0.12)"
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "var(--brand-navy)" }}>
                 Log Recruiter Decision &amp; Audit Trail
               </h3>
               <button
                 onClick={() => setShowDecisionModal(false)}
-                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 16, cursor: "pointer" }}
+                style={{ background: "transparent", border: "none", color: "var(--text-secondary)", fontSize: 16, cursor: "pointer" }}
               >
                 ✕
               </button>
             </div>
 
             {decisionSuccess ? (
-              <div style={{ padding: "16px", background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 8, color: "#2E7D5B", textAlign: "center", fontWeight: 600 }}>
+              <div style={{ padding: "16px", background: "var(--color-success-bg)", border: "1px solid #C8E4D3", borderRadius: 8, color: "var(--color-success)", textAlign: "center", fontWeight: 600 }}>
                 ✓ {decisionSuccess}
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", display: "block", marginBottom: 6 }}>
                     Decision Verdict:
                   </label>
                   <div style={{ display: "flex", gap: 8 }}>
@@ -760,9 +760,9 @@ export default function CandidateEvidencePassportPage() {
                             flex: 1,
                             padding: "9px",
                             borderRadius: 7,
-                            border: isSelected ? `1px solid ${activeBg}` : "1px solid #E4E1DA",
-                            background: isSelected ? activeBg : "#F6F5F1",
-                            color: isSelected ? "#FFFFFF" : "#667085",
+                            border: isSelected ? `1px solid ${activeBg}` : "1px solid var(--border-subtle)",
+                            background: isSelected ? activeBg : "var(--bg-canvas)",
+                            color: isSelected ? "#FFFFFF" : "var(--text-secondary)",
                             fontWeight: 700,
                             fontSize: 13,
                             cursor: "pointer",
@@ -777,7 +777,7 @@ export default function CandidateEvidencePassportPage() {
                 </div>
 
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "#162A43", display: "block", marginBottom: 6 }}>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", display: "block", marginBottom: 6 }}>
                     Recruiter Override / Justification Reason (Required if overriding recommendation):
                   </label>
                   <textarea
@@ -789,9 +789,9 @@ export default function CandidateEvidencePassportPage() {
                       width: "100%",
                       padding: "10px",
                       borderRadius: 7,
-                      background: "#F6F5F1",
-                      border: "1px solid #E4E1DA",
-                      color: "#17191C",
+                      background: "var(--bg-canvas)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--text-primary)",
                       fontSize: 13,
                       fontFamily: "inherit",
                       boxSizing: "border-box",
@@ -803,7 +803,7 @@ export default function CandidateEvidencePassportPage() {
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
                   <button
                     onClick={() => setShowDecisionModal(false)}
-                    style={{ padding: "8px 16px", borderRadius: 7, background: "transparent", border: "1px solid #E4E1DA", color: "#667085", cursor: "pointer", fontWeight: 600 }}
+                    style={{ padding: "8px 16px", borderRadius: 7, background: "transparent", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)", cursor: "pointer", fontWeight: 600 }}
                   >
                     Cancel
                   </button>
@@ -813,7 +813,7 @@ export default function CandidateEvidencePassportPage() {
                     style={{
                       padding: "8px 20px",
                       borderRadius: 7,
-                      background: "#356AE6",
+                      background: "var(--brand-cobalt)",
                       border: "none",
                       color: "white",
                       fontWeight: 700,

@@ -545,7 +545,7 @@ Contradiction note:
   const selectedRoleObj = roles.find(r => r.id === selectedRoleId);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#F6F5F1", color: "#17191C" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg-canvas)", color: "var(--text-primary)" }}>
       <AppNav role="recruiter" />
 
       {/* Main Container */}
@@ -554,21 +554,21 @@ Contradiction note:
         {/* Top Header & Context */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 28 }}>
           <div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "2px 8px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "2px 8px", borderRadius: 5, background: "var(--color-info-bg)", border: "1px solid #D2E0FB", marginBottom: 10 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", letterSpacing: "0.5px", textTransform: "uppercase" }}>
                 CANDIDATE INTELLIGENCE
               </span>
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 600, color: "#162A43", margin: 0, letterSpacing: "-0.3px" }}>
+            <h1 style={{ fontSize: 26, fontWeight: 600, color: "var(--brand-navy)", margin: 0, letterSpacing: "-0.3px" }}>
               Candidate Pool & Screening
             </h1>
-            <p style={{ color: "#667085", fontSize: 13, margin: "6px 0 0", maxWidth: 740, lineHeight: 1.5 }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: 13, margin: "6px 0 0", maxWidth: 740, lineHeight: 1.5 }}>
               Evidence-grounded applicant screening against confirmed job requirements. Traceable assessments, section-level provenance quotes, zero arbitrary scores, zero autonomous hiring verdicts.
             </p>
           </div>
 
           {/* Mode Switcher */}
-          <div style={{ display: "flex", background: "#FFFFFF", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA" }}>
+          <div style={{ display: "flex", background: "var(--surface)", padding: 3, borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
             <button
               onClick={() => setActiveMode("open_roles")}
               style={{
@@ -578,7 +578,7 @@ Contradiction note:
                 fontWeight: 600,
                 cursor: "pointer",
                 background: activeMode === "open_roles" ? "#EFF4FE" : "transparent",
-                color: activeMode === "open_roles" ? "#356AE6" : "#667085",
+                color: activeMode === "open_roles" ? "#356AE6" : "var(--text-secondary)",
                 border: activeMode === "open_roles" ? "1px solid #D2E0FB" : "1px solid transparent",
                 transition: "all 0.15s ease"
               }}
@@ -594,7 +594,7 @@ Contradiction note:
                 fontWeight: 600,
                 cursor: "pointer",
                 background: activeMode === "analyze" ? "#EFF4FE" : "transparent",
-                color: activeMode === "analyze" ? "#356AE6" : "#667085",
+                color: activeMode === "analyze" ? "#356AE6" : "var(--text-secondary)",
                 border: activeMode === "analyze" ? "1px solid #D2E0FB" : "1px solid transparent",
                 transition: "all 0.15s ease"
               }}
@@ -610,18 +610,18 @@ Contradiction note:
         {activeMode === "open_roles" && (
           <div>
             {/* Role Selector & Metrics Banner */}
-            <div style={{ background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", padding: "18px 22px", marginBottom: 20 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, borderBottom: "1px solid #E4E1DA", paddingBottom: 16, marginBottom: 16 }}>
+            <div style={{ background: "var(--surface)", borderRadius: 10, border: "1px solid var(--border-subtle)", padding: "18px 22px", marginBottom: 20 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 16, marginBottom: 16 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <label htmlFor="role-select" style={{ fontSize: 13, fontWeight: 600, color: "#667085" }}>Active Position:</label>
+                  <label htmlFor="role-select" style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Active Position:</label>
                   <select
                     id="role-select"
                     value={selectedRoleId}
                     onChange={(e) => handleRoleChange(e.target.value)}
                     style={{
                       background: "#FAF9F6",
-                      color: "#162A43",
-                      border: "1px solid #E4E1DA",
+                      color: "var(--brand-navy)",
+                      border: "1px solid var(--border-subtle)",
                       padding: "8px 14px",
                       borderRadius: 7,
                       fontSize: 13,
@@ -643,11 +643,11 @@ Contradiction note:
                     href={`/recruiter/roles`}
                     style={{
                       fontSize: 12,
-                      color: "#356AE6",
+                      color: "var(--brand-cobalt)",
                       textDecoration: "none",
                       padding: "6px 12px",
                       borderRadius: 6,
-                      background: "#EFF4FE",
+                      background: "var(--color-info-bg)",
                       border: "1px solid #D2E0FB",
                       fontWeight: 600
                     }}
@@ -658,11 +658,11 @@ Contradiction note:
                     href={`/recruiter/decision-room`}
                     style={{
                       fontSize: 12,
-                      color: "#2E7D5B",
+                      color: "var(--color-success)",
                       textDecoration: "none",
                       padding: "6px 12px",
                       borderRadius: 6,
-                      background: "#EAF4EE",
+                      background: "var(--color-success-bg)",
                       border: "1px solid #C8E4D3",
                       fontWeight: 600
                     }}
@@ -674,40 +674,40 @@ Contradiction note:
 
               {/* Real Applicant Metrics Strip */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
-                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                  <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>Total Applicants</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Total Applicants</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-navy)", marginTop: 2 }}>
                     {roleMetrics?.totalApplicants ?? candidates.length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>Applied to position</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Applied to position</div>
                 </div>
 
-                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                  <div style={{ fontSize: 11, color: "#356AE6", fontWeight: 700, textTransform: "uppercase" }}>Analyzed Candidates</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#356AE6", marginTop: 2 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: 11, color: "var(--brand-cobalt)", fontWeight: 700, textTransform: "uppercase" }}>Analyzed Candidates</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-cobalt)", marginTop: 2 }}>
                     {roleMetrics?.analyzedCount ?? candidates.filter(c => !!c.screeningDossier).length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                     Screened against v{selectedRoleObj?.version || 1}
                   </div>
                 </div>
 
-                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                  <div style={{ fontSize: 11, color: "#B7791F", fontWeight: 700, textTransform: "uppercase" }}>Needs Attention</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#B7791F", marginTop: 2 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: 11, color: "var(--color-warning)", fontWeight: 700, textTransform: "uppercase" }}>Needs Attention</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-warning)", marginTop: 2 }}>
                     {roleMetrics?.needsAttentionCount ?? candidates.filter(c => (c.screeningDossier?.coverageCounts?.needsReviewCount || 0) > 0 || (c.screeningDossier?.coverageCounts?.conflictingCount || 0) > 0).length}
                   </div>
-                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                     Contradictions or gaps flagged
                   </div>
                 </div>
 
-                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                  <div style={{ fontSize: 11, color: "#667085", fontWeight: 700, textTransform: "uppercase" }}>Requirements Benchmark</div>
-                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                <div style={{ background: "#FAF9F6", padding: "12px 16px", borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Requirements Benchmark</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "var(--brand-navy)", marginTop: 2 }}>
                     {selectedRoleObj?.tieredRequirements?.length || 0}
                   </div>
-                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>Confirmed role requirements</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>Confirmed role requirements</div>
                 </div>
               </div>
             </div>
@@ -722,9 +722,9 @@ Contradiction note:
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{
                     width: "100%",
-                    background: "#FFFFFF",
-                    color: "#17191C",
-                    border: "1px solid #E4E1DA",
+                    background: "var(--surface)",
+                    color: "var(--text-primary)",
+                    border: "1px solid var(--border-subtle)",
                     padding: "8px 14px",
                     borderRadius: 7,
                     fontSize: 13,
@@ -739,9 +739,9 @@ Contradiction note:
                   value={coverageFilter}
                   onChange={(e) => setCoverageFilter(e.target.value)}
                   style={{
-                    background: "#FFFFFF",
-                    color: "#667085",
-                    border: "1px solid #E4E1DA",
+                    background: "var(--surface)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border-subtle)",
                     padding: "8px 12px",
                     borderRadius: 7,
                     fontSize: 13,
@@ -757,7 +757,7 @@ Contradiction note:
                 </select>
 
                 {/* Needs Attention Toggle */}
-                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#17191C", cursor: "pointer", background: "#FFFFFF", padding: "7px 12px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-primary)", cursor: "pointer", background: "var(--surface)", padding: "7px 12px", borderRadius: 7, border: "1px solid var(--border-subtle)" }}>
                   <input
                     type="checkbox"
                     checked={needsAttentionOnly}
@@ -776,11 +776,11 @@ Contradiction note:
                     alignItems: "center",
                     gap: 6,
                     fontSize: 12,
-                    color: blindMode ? "#356AE6" : "#667085",
-                    background: blindMode ? "#EFF4FE" : "#FFFFFF",
+                    color: blindMode ? "#356AE6" : "var(--text-secondary)",
+                    background: blindMode ? "#EFF4FE" : "var(--surface)",
                     padding: "7px 12px",
                     borderRadius: 7,
-                    border: `1px solid ${blindMode ? "#D2E0FB" : "#E4E1DA"}`,
+                    border: `1px solid ${blindMode ? "#D2E0FB" : "var(--border-subtle)"}`,
                     cursor: "pointer",
                     fontWeight: 600,
                     transition: "all 0.15s ease"
@@ -794,8 +794,8 @@ Contradiction note:
                   <button
                     onClick={handleOpenComparison}
                     style={{
-                      background: "#356AE6",
-                      color: "#FFFFFF",
+                      background: "var(--brand-cobalt)",
+                      color: "var(--surface)",
                       border: "none",
                       padding: "8px 16px",
                       borderRadius: 7,
@@ -814,10 +814,10 @@ Contradiction note:
             </div>
 
             {/* Candidate Pool Table — SECTION 19 SPEC */}
-            <div style={{ background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA", overflow: "hidden" }}>
+            <div style={{ background: "var(--surface)", borderRadius: 10, border: "1px solid var(--border-subtle)", overflow: "hidden" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: 13 }}>
                 <thead>
-                  <tr style={{ background: "#FAF9F6", borderBottom: "1px solid #E4E1DA", color: "#667085" }}>
+                  <tr style={{ background: "#FAF9F6", borderBottom: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}>
                     <th style={{ padding: "12px 16px", width: 44 }}>
                       <input
                         type="checkbox"
@@ -832,19 +832,19 @@ Contradiction note:
                         style={{ cursor: "pointer" }}
                       />
                     </th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Candidate</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Role Match</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Evidence</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Required Skills</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Gaps</th>
-                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "#162A43" }}>Verification</th>
-                    <th style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600, color: "#162A43" }}>Action</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Candidate</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Role Match</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Evidence</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Required Skills</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Gaps</th>
+                    <th style={{ padding: "12px 16px", fontWeight: 600, color: "var(--brand-navy)" }}>Verification</th>
+                    <th style={{ padding: "12px 16px", textAlign: "right", fontWeight: 600, color: "var(--brand-navy)" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCandidates.length === 0 ? (
                     <tr>
-                      <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "#667085" }}>
+                      <td colSpan={8} style={{ padding: "48px 24px", textAlign: "center", color: "var(--text-secondary)" }}>
                         No candidates match the current role or filter settings.
                       </td>
                     </tr>
@@ -858,7 +858,7 @@ Contradiction note:
                         <tr
                           key={cand.id}
                           style={{
-                            borderBottom: "1px solid #E4E1DA",
+                            borderBottom: "1px solid var(--border-subtle)",
                             background: isSelected ? "#EFF4FE" : "transparent",
                             transition: "background 0.15s ease"
                           }}
@@ -880,7 +880,7 @@ Contradiction note:
                                 href={`/recruiter/candidates/${cand.id}`}
                                 style={{
                                   fontWeight: 600,
-                                  color: "#162A43",
+                                  color: "var(--brand-navy)",
                                   fontSize: 14,
                                   textDecoration: "none"
                                 }}
@@ -888,47 +888,47 @@ Contradiction note:
                                 {blindMode ? `Candidate #${cand.id.slice(-4).toUpperCase()}` : cand.name}
                               </Link>
                             </div>
-                            <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                               {blindMode ? "Contact redacted" : cand.email}
                             </div>
                           </td>
 
                           {/* Role Match */}
                           <td style={{ padding: "12px 16px" }}>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)" }}>
                               {dossier?.overallCoverage === "STRONG EVIDENCE COVERAGE" ? "88%" : dossier?.overallCoverage === "PARTIAL EVIDENCE COVERAGE" ? "68%" : dossier?.overallCoverage === "LIMITED EVIDENCE" ? "52%" : "44%"}
                             </div>
-                            <div style={{ fontSize: 11, color: "#667085" }}>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                               {dossier?.overallCoverage?.toLowerCase().replace(/_/g, " ") || "Pending"}
                             </div>
                           </td>
 
                           {/* Evidence */}
                           <td style={{ padding: "12px 16px" }}>
-                            <div style={{ fontSize: 13, color: "#17191C" }}>
+                            <div style={{ fontSize: 13, color: "var(--text-primary)" }}>
                               {counts?.supportedCount || 0} signals
                             </div>
-                            <div style={{ fontSize: 11, color: "#667085" }}>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                               {cand.sourceType === "student_application" ? "App + GitHub" : "Direct Upload"}
                             </div>
                           </td>
 
                           {/* Required Skills */}
                           <td style={{ padding: "12px 16px" }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "#162A43" }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: "var(--brand-navy)" }}>
                               {counts?.supportedCount || 0} / {counts?.totalAssessed || 0}
                             </div>
-                            <div style={{ fontSize: 11, color: "#667085" }}>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                               supported
                             </div>
                           </td>
 
                           {/* Gaps */}
                           <td style={{ padding: "12px 16px" }}>
-                            <div style={{ fontSize: 13, color: (counts?.notFoundCount || 0) > 0 ? "#B7791F" : "#2E7D5B", fontWeight: 600 }}>
+                            <div style={{ fontSize: 13, color: (counts?.notFoundCount || 0) > 0 ? "#B7791F" : "var(--color-success)", fontWeight: 600 }}>
                               {counts?.notFoundCount || 0} open
                             </div>
-                            <div style={{ fontSize: 11, color: "#667085" }}>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                               {counts?.conflictingCount ? `${counts.conflictingCount} conflicts` : "0 conflicts"}
                             </div>
                           </td>
@@ -941,9 +941,9 @@ Contradiction note:
                                 fontWeight: 600,
                                 padding: "2px 7px",
                                 borderRadius: 5,
-                                background: (counts?.needsReviewCount || 0) > 0 ? "#FEF8EC" : "#EAF4EE",
-                                color: (counts?.needsReviewCount || 0) > 0 ? "#B7791F" : "#2E7D5B",
-                                border: `1px solid ${(counts?.needsReviewCount || 0) > 0 ? "#F9E4B7" : "#C8E4D3"}`
+                                background: (counts?.needsReviewCount || 0) > 0 ? "#FEF8EC" : "var(--color-success-bg)",
+                                color: (counts?.needsReviewCount || 0) > 0 ? "#B7791F" : "var(--color-success)",
+                                border: `1px solid ${(counts?.needsReviewCount || 0) > 0 ? "#F9E4B7" : "var(--color-success)"}`
                               }}
                             >
                               {(counts?.needsReviewCount || 0) > 0 ? `${counts?.needsReviewCount} pending` : "✓ Verified"}
@@ -958,9 +958,9 @@ Contradiction note:
                                 style={{
                                   padding: "6px 12px",
                                   borderRadius: 7,
-                                  background: "#356AE6",
+                                  background: "var(--brand-cobalt)",
                                   border: "none",
-                                  color: "#FFFFFF",
+                                  color: "var(--surface)",
                                   fontSize: 12,
                                   fontWeight: 600,
                                   cursor: "pointer",
@@ -1393,8 +1393,8 @@ Contradiction note:
                 width: "100%",
                 maxWidth: 780,
                 height: "100%",
-                background: "#FFFFFF",
-                borderLeft: "1px solid #E4E1DA",
+                background: "var(--surface)",
+                borderLeft: "1px solid var(--border-subtle)",
                 display: "flex",
                 flexDirection: "column",
                 overflow: "hidden",
@@ -1405,8 +1405,8 @@ Contradiction note:
               <div
                 style={{
                   padding: "20px 24px",
-                  borderBottom: "1px solid #E4E1DA",
-                  background: "#FFFFFF",
+                  borderBottom: "1px solid var(--border-subtle)",
+                  background: "var(--surface)",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "flex-start"
@@ -1414,18 +1414,18 @@ Contradiction note:
               >
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", letterSpacing: "0.5px", textTransform: "uppercase" }}>
                       EVIDENCE-GROUNDED CANDIDATE DOSSIER
                     </span>
-                    <span style={{ color: "#E4E1DA" }}>•</span>
-                    <span style={{ fontSize: 11, color: "#667085" }}>
+                    <span style={{ color: "var(--border-subtle)" }}>•</span>
+                    <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>
                       Target Role: {activeDossierCandidate.appliedRoleTitle} (v{activeDossierCandidate.screeningDossier?.roleVersion || 1})
                     </span>
                   </div>
-                  <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "#162A43" }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: "var(--brand-navy)" }}>
                     {activeDossierCandidate.name}
                   </h2>
-                  <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                     {activeDossierCandidate.email} {activeDossierCandidate.phone ? `• ${activeDossierCandidate.phone}` : ""}
                   </div>
                 </div>
@@ -1434,7 +1434,7 @@ Contradiction note:
                   onClick={() => setActiveDossierCandidate(null)}
                   style={{
                     background: "transparent",
-                    color: "#667085",
+                    color: "var(--text-secondary)",
                     border: "none",
                     fontSize: 20,
                     cursor: "pointer",
@@ -1446,9 +1446,9 @@ Contradiction note:
               </div>
 
               {/* Body */}
-              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", background: "#F6F5F1" }}>
+              <div style={{ flex: 1, overflowY: "auto", padding: "20px 24px", background: "var(--bg-canvas)" }}>
                 {/* View Switcher: Pipeline Evidence vs Screening Overview */}
-                <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid #E4E1DA", paddingBottom: 12 }}>
+                <div style={{ display: "flex", gap: 10, marginBottom: 20, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 12 }}>
                   <button
                     onClick={() => setDrawerTab("pipeline_evidence")}
                     style={{
@@ -1457,16 +1457,16 @@ Contradiction note:
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
-                      border: drawerTab === "pipeline_evidence" ? "1px solid #356AE6" : "1px solid #E4E1DA",
-                      background: drawerTab === "pipeline_evidence" ? "#EFF4FE" : "#FFFFFF",
-                      color: drawerTab === "pipeline_evidence" ? "#356AE6" : "#667085",
+                      border: drawerTab === "pipeline_evidence" ? "1px solid #356AE6" : "1px solid var(--border-subtle)",
+                      background: drawerTab === "pipeline_evidence" ? "#EFF4FE" : "var(--surface)",
+                      color: drawerTab === "pipeline_evidence" ? "#356AE6" : "var(--text-secondary)",
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
                     }}
                   >
                     <span>Fact-Level Evidence Pipeline</span>
-                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 4, background: "#EAF4EE", color: "#2E7D5B", fontWeight: 700 }}>
+                    <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 4, background: "var(--color-success-bg)", color: "var(--color-success)", fontWeight: 700 }}>
                       AUDITABLE
                     </span>
                   </button>
@@ -1478,9 +1478,9 @@ Contradiction note:
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
-                      border: drawerTab === "dossier" ? "1px solid #356AE6" : "1px solid #E4E1DA",
-                      background: drawerTab === "dossier" ? "#EFF4FE" : "#FFFFFF",
-                      color: drawerTab === "dossier" ? "#356AE6" : "#667085",
+                      border: drawerTab === "dossier" ? "1px solid #356AE6" : "1px solid var(--border-subtle)",
+                      background: drawerTab === "dossier" ? "#EFF4FE" : "var(--surface)",
+                      color: drawerTab === "dossier" ? "#356AE6" : "var(--text-secondary)",
                     }}
                   >
                     Screening Breakdown
