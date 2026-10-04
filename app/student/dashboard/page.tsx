@@ -194,7 +194,7 @@ export default function StudentDashboardOverview() {
   // Dynamic verified capabilities from Student DNA & Profile
   const dynamicCapabilities = Object.keys(intelligence?.capabilities || {});
   const profileSkills = ((profile as any).skills || []).map((s: any) => (typeof s === "string" ? s : s.name));
-  const verifiedSkills =
+  const verifiedSkills: string[] =
     dynamicCapabilities.length > 0
       ? dynamicCapabilities.slice(0, 5)
       : profileSkills.length > 0
@@ -615,7 +615,7 @@ export default function StudentDashboardOverview() {
 
             {/* Verified Skills Pills */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {verifiedSkills.map((skill) => (
+              {verifiedSkills.map((skill: string) => (
                 <span
                   key={skill}
                   style={{

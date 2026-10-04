@@ -770,7 +770,7 @@ export default function StudentOpportunitiesPage() {
                         opportunityId={rec.opportunity_id}
                         title={opp.title}
                         organizer={opp.organizer}
-                        status={opp.status || "ACTIVE"}
+                        status={(opp as any)?.status || "ACTIVE"}
                         label="Apply"
                         style={{ flex: 1.2, padding: "7px 10px", fontSize: 12 }}
                       />

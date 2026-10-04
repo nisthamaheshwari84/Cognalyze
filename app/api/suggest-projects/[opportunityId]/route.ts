@@ -75,11 +75,11 @@ export async function POST(
     } else {
       // Map to CanonicalOpportunity if we have opp from placement store
       canonicalOpp = {
-        id: opp.id,
+        id: opp.id || opportunityId,
         source: opp.extracted_context?.platform || "Cognalyze Verified",
         sourceType: "UNSTOP",
-        sourceUrl: opp.source_url,
-        applicationUrl: opp.source_url,
+        sourceUrl: opp.source_url || "",
+        applicationUrl: opp.source_url || "",
         companyId: "org-partner",
         companyName: opp.organizer,
         organizer: opp.organizer,

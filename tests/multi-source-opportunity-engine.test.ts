@@ -19,8 +19,7 @@ import {
 } from "@/lib/opportunities/types";
 import {
   StudentDNAProfile,
-  getStudentIntelligenceProfile,
-  invalidateStudentDNACache
+  getStudentIntelligenceProfile
 } from "@/lib/intelligence/student-intelligence";
 
 describe("Cognalyze Multi-Source Opportunity Discovery & Intelligence Engine (Section 88 Tests)", () => {
@@ -559,9 +558,9 @@ describe("Cognalyze Multi-Source Opportunity Discovery & Intelligence Engine (Se
       lastVerifiedAt: new Date().toISOString()
     };
 
-    const mockProfile: StudentDNAProfile = {
+    const mockProfile: any = {
       candidateId: "student-evidence-test",
-      intent: { primaryGoal: "AI/ML Engineer", experienceTarget: "Internship" },
+      intent: { primaryGoal: "AI/ML Engineer", experienceTarget: "Internship" } as any,
       capabilities: {
         Python: {
           name: "Python",
@@ -579,7 +578,7 @@ describe("Cognalyze Multi-Source Opportunity Discovery & Intelligence Engine (Se
           isDormant: false,
           evidenceBreakdown: { projectCount: 2, internshipCount: 0, hackathonCount: 0 }
         }
-      },
+      } as any,
       totalEvidenceCount: 15,
       lastCalculatedAt: new Date().toISOString(),
       graduationYear: 2026,
@@ -653,9 +652,9 @@ describe("Cognalyze Multi-Source Opportunity Discovery & Intelligence Engine (Se
       lastVerifiedAt: new Date().toISOString()
     };
 
-    const mockProfile: StudentDNAProfile = {
+    const mockProfile: any = {
       candidateId: "student-missing-test",
-      intent: { primaryGoal: "AI/ML Engineer" },
+      intent: { primaryGoal: "AI/ML Engineer" } as any,
       capabilities: {
         Python: {
           name: "Python",
@@ -663,7 +662,7 @@ describe("Cognalyze Multi-Source Opportunity Discovery & Intelligence Engine (Se
           confidenceScore: 0.9,
           evidenceLevel: 2,
           isDormant: false
-        }
+        } as any
         // Notice: ZERO PyTorch capability
       },
       totalEvidenceCount: 5,

@@ -21,7 +21,7 @@ import {
   ClaimType,
   OpportunityDNA
 } from "../types";
-import { StudentIntelligenceProfile } from "@/lib/intelligence/student-intelligence";
+import { StudentDNAProfile } from "@/lib/intelligence/student-intelligence";
 
 export class DynamicOpportunityPreparationEngine {
   private static instance: DynamicOpportunityPreparationEngine;
@@ -190,7 +190,7 @@ export class DynamicOpportunityPreparationEngine {
    */
   public generatePreparationPlan(
     opp: CanonicalOpportunity,
-    studentProfile?: StudentIntelligenceProfile | null
+    studentProfile?: StudentDNAProfile | any | null
   ): OpportunityPreparationPlan {
     const classification = this.classifyOpportunity(opp);
     const dna = opp.opportunityDNA || this.extractOpportunityDNA(opp);
@@ -198,10 +198,13 @@ export class DynamicOpportunityPreparationEngine {
     // Analyze student skills & evidence
     const studentSkills = new Set<string>();
     if (studentProfile?.verifiedSkills) {
-      studentProfile.verifiedSkills.forEach(s => studentSkills.add(s.name.toLowerCase()));
+      studentProfile.verifiedSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || ""));
     }
     if (studentProfile?.coreSkills) {
-      studentProfile.coreSkills.forEach(s => studentSkills.add(s.toLowerCase()));
+      studentProfile.coreSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || ""));
+    }
+    if (studentProfile?.capabilities) {
+      Object.keys(studentProfile.capabilities).forEach(c => studentSkills.add(c.toLowerCase()));
     }
 
     const whatYouAlreadyHave: string[] = [];

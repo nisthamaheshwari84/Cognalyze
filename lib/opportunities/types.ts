@@ -284,7 +284,7 @@ export interface CanonicalOpportunity {
 
   description: string;
   rawDescription?: string;
-  responsibilities: string[];
+  responsibilities?: string[];
 
   location: string;
   locations?: string[];

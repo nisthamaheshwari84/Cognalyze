@@ -327,7 +327,7 @@ export class LinkVerificationEngine {
 
     if (context?.organizer && context.organizer.length > 3) {
       const orgWord = context.organizer.toLowerCase().replace(/[^a-z0-9]/g, "");
-      organizerMatches = normalizedHtml.includes(orgWord) || (pageTitle && pageTitle.toLowerCase().includes(orgWord));
+      organizerMatches = normalizedHtml.includes(orgWord) || Boolean(pageTitle && pageTitle.toLowerCase().includes(orgWord));
     }
 
     // Check if redirected to a generic platform home page (e.g. hackathon was deleted and platform redirects to /)
