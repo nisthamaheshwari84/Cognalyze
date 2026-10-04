@@ -78,9 +78,36 @@ export async function POST(req: Request) {
       },
     ];
 
+    // Update Student DNA asynchronously with parsed skills and projects
+    const studentId = "student-demo";
+    try {
+      const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
+      const allExtractedSkills = (report.rewriter?.skills || []).flatMap((cat) =>
+        cat.items.map((name) => ({ name, level: "Claimed", proficiency: "Familiar" }))
+      );
+
+      const allExtractedProjects = (report.rewriter?.projects || []).map((p) => ({
+        title: p.title,
+        tech_stack: (p as any).technologies || p.tech || [],
+        description: p.bullets?.[0]?.rewrittenText || p.bullets?.[0]?.originalText || "Demonstrated project implementation",
+      }));
+
+      await recordStudentEvent({
+        studentId,
+        eventType: "resume_uploaded",
+        payload: {
+          skills: allExtractedSkills,
+          projects: allExtractedProjects,
+        },
+      });
+    } catch (dnaErr) {
+      console.warn("[API /api/candidate] Student DNA update warning:", dnaErr);
+    }
+
     return NextResponse.json({
       agents,
       report, // Complete canonical evidence report
+      studentId,
     });
   } catch (e: any) {
     console.error("[API /api/candidate] Error:", e);

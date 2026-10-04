@@ -439,12 +439,30 @@ export function computeFitEvidence(
   return { label, strengths, partial, gaps, whySummary, rawScore: match.fit_score, provenance };
 }
 
+export function isActionableOpportunityUrl(url?: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false;
+  // Generic portal homepages are discovery feeds, not actionable application endpoints
+  if (
+    trimmed === "https://unstop.com/competitions" ||
+    trimmed === "https://unstop.com/hackathons" ||
+    trimmed === "https://devpost.com/hackathons" ||
+    trimmed === "https://devfolio.co/hackathons" ||
+    trimmed === "https://hack2skill.com/hackathons" ||
+    trimmed.includes("search?searchTerm=") ||
+    trimmed.includes("searchTerm=")
+  ) {
+    return false;
+  }
+  return true;
+}
+
 export function getSafeOpportunityUrl(url?: string, organizer?: string, title?: string): string {
-  const org = (organizer || "").toLowerCase();
   const tit = (title || "").toLowerCase();
   const raw = (url || "").trim();
 
-  // 1. If direct valid URL is provided, prioritize it immediately
+  // 1. Direct valid URL provided from verified source ingestion
   if (raw && (raw.startsWith("http://") || raw.startsWith("https://"))) {
     try {
       const parsed = new URL(raw);
@@ -453,234 +471,42 @@ export function getSafeOpportunityUrl(url?: string, organizer?: string, title?: 
       const isLocal = host === "localhost" || host === "127.0.0.1";
       const isDummy = host.includes("example.com") || host.includes("dummy");
       if (!isSearch && !isLocal && !isDummy && host.includes(".")) {
-        if (host.includes("facebook.com") || host.includes("meta.com")) {
-          return "https://developers.facebook.com/community/hackathons/";
-        }
         return raw;
       }
     } catch {
-      // invalid URL structure, fallback to portal resolution
+      // Invalid URL syntax
     }
   }
 
-  // 2. Direct verified hackathon portals & live registrations
-  if (org.includes("luma") || tit.includes("luma") || raw.includes("lu.ma")) {
-    return "https://lu.ma/";
-  }
-  if (org.includes("hackerearth") || tit.includes("hackerearth") || raw.includes("hackerearth.com")) {
-    return "https://www.hackerearth.com/challenges/hackathon/";
-  }
-  if (org.includes("hack2skill") || tit.includes("hack2skill") || raw.includes("hack2skill.com")) {
-    return "https://hack2skill.com/hackathons";
-  }
-  if (tit.includes("grid") || (org.includes("flipkart") && (tit.includes("hackathon") || tit.includes("challenge")))) {
-    return "https://unstop.com/o/flipkart";
-  }
-  if (tit.includes("sih") || tit.includes("smart india") || org.includes("sih") || org.includes("smart india")) {
+  // 2. Verified standalone official portal domains for established annual fixtures
+  if (tit.includes("sih") || tit.includes("smart india")) {
     return "https://www.sih.gov.in/";
   }
-  if (tit.includes("ethindia") || (org.includes("devfolio") && tit.includes("eth"))) {
-    return "https://ethindia.devfolio.co/";
-  }
-  if (tit.includes("solution challenge") || (org.includes("google") && tit.includes("solution"))) {
-    return "https://developers.google.com/community/gdsc-solution-challenge";
-  }
-  if (tit.includes("girl hackathon") || (org.includes("google") && tit.includes("hackathon"))) {
-    return "https://buildyourfuture.withgoogle.com/events";
-  }
-  if (org.includes("google") || tit.includes("google")) {
-    return "https://careers.google.com/jobs/results/?q=software%20intern";
-  }
-  if (tit.includes("imagine cup") || (org.includes("microsoft") && tit.includes("cup"))) {
-    return "https://imaginecup.microsoft.com/";
-  }
-  if (tit.includes("hackon") || (org.includes("amazon") && tit.includes("hack"))) {
-    return "https://unstop.com/o/amazon";
-  }
-  if (org.includes("amazon") && tit.includes("ml")) {
-    return "https://www.amazon.science/";
-  }
-  if (org.includes("amazon") || org.includes("aws")) {
-    return "https://www.amazon.jobs/en/teams/internships-for-students";
-  }
-  if (tit.includes("hacktag") || (org.includes("uber") && tit.includes("hack"))) {
-    return "https://unstop.com/o/uber";
-  }
-  if (tit.includes("tata imagination") || org.includes("tata sons")) {
-    return "https://unstop.com/o/tata-sons";
-  }
-  if (tit.includes("hero campus") || org.includes("hero moto")) {
-    return "https://unstop.com/o/hero-motocorp";
-  }
-  if (tit.includes("codehers") || org.includes("walmart")) {
-    return "https://unstop.com/o/walmart-global-tech-india";
-  }
-  if (tit.includes("hackrx") || org.includes("bajaj")) {
-    return "https://unstop.com/o/bajaj-finserv";
-  }
-  if (tit.includes("reliance tup") || tit.includes("ultimate pitch") || org.includes("reliance")) {
-    return "https://unstop.com/o/reliance-industries-limited";
-  }
-  if (tit.includes("brandstorm") || org.includes("loreal") || org.includes("l'oréal")) {
-    return "https://unstop.com/o/loreal";
-  }
-  if (tit.includes("epic") || org.includes("tvs")) {
-    return "https://unstop.com/o/tvs-motor-company";
-  }
-  if (tit.includes("gogreen") || tit.includes("go green") || org.includes("schneider")) {
-    return "https://unstop.com/o/schneider-electric";
-  }
-  if (tit.includes("canvas") || org.includes("asian paints")) {
-    return "https://unstop.com/o/asian-paints";
-  }
-  if (tit.includes("hackerramp") || org.includes("myntra")) {
-    return "https://unstop.com/o/myntra";
-  }
-  if (tit.includes("techathon") || org.includes("ey") || org.includes("ernst")) {
-    return "https://unstop.com/o/ernst-young-gds-ey-gds";
-  }
-  if (tit.includes("stratos") || org.includes("aditya birla")) {
-    return "https://unstop.com/o/aditya-birla-group";
-  }
-  if (tit.includes("stratethon") || org.includes("optum")) {
-    return "https://unstop.com/o/optum";
-  }
-  if (tit.includes("devhack") || org.includes("juspay")) {
-    return "https://unstop.com/o/juspay";
-  }
-  if (tit.includes("zomato") || org.includes("zomato")) {
-    return "https://unstop.com/o/zomato";
-  }
-  if (tit.includes("paytm") || org.includes("paytm")) {
-    return "https://unstop.com/o/paytm";
-  }
-  if (tit.includes("techfest") || org.includes("iit bombay")) {
-    return "https://techfest.org/";
-  }
-  if (tit.includes("tryst") || org.includes("iit delhi")) {
-    return "https://tryst-iitd.org/";
-  }
-  if (tit.includes("shaastra") || org.includes("iit madras")) {
-    return "https://shaastra.org/";
-  }
-  if (tit.includes("kshitij") || org.includes("iit kharagpur")) {
-    return "https://ktj.in/";
-  }
-  if (tit.includes("apogee") || org.includes("bits pilani")) {
-    return "https://bits-apogee.org/";
-  }
-  if (tit.includes("cognizance") || org.includes("iit roorkee")) {
-    return "https://cognizance.org.in/";
-  }
-  if (tit.includes("technex") || org.includes("iit bhu")) {
-    return "https://technex.co.in/";
-  }
-  if (tit.includes("pragyan") || org.includes("nit trichy")) {
-    return "https://pragyan.org/";
-  }
-  if (tit.includes("hackverse") || org.includes("nitk")) {
-    return "https://hackverse.nitk.ac.in/";
-  }
-  if (tit.includes("hint") || tit.includes("hackinthenorth") || org.includes("iiit allahabad")) {
-    return "https://hackinthenorth.com/";
-  }
-  if (tit.includes("hack36") || org.includes("mnnit")) {
-    return "https://hack36.com/";
-  }
-  if (tit.includes("hackwithinfy") || org.includes("infosys")) {
-    return "https://www.infosys.com/careers/hackwithinfy.html";
-  }
-  if (tit.includes("codevita") || org.includes("tcs")) {
+  if (tit.includes("codevita") || tit.includes("tcs codevita")) {
     return "https://codevita.tcsapps.com/";
   }
-  if (tit.includes("code for good") || org.includes("jpmorgan") || org.includes("jpmc")) {
-    return "https://careers.jpmorgan.com/global/en/students/programs/code-for-good";
+  if (tit.includes("imagine cup")) {
+    return "https://imaginecup.microsoft.com/";
+  }
+  if (tit.includes("gsoc") || tit.includes("summer of code")) {
+    return "https://summerofcode.withgoogle.com";
   }
   if (tit.includes("kavach")) {
     return "https://kavach.mic.gov.in/";
   }
-  if (tit.includes("space apps") || org.includes("nasa")) {
-    return "https://www.spaceappschallenge.org/";
+  if (tit.includes("techfest") || (organizer || "").toLowerCase().includes("iit bombay")) {
+    return "https://techfest.org/";
   }
-  if (tit.includes("solana") || org.includes("solana")) {
-    return "https://solana.com/hackathon";
+  if (tit.includes("shaastra") || (organizer || "").toLowerCase().includes("iit madras")) {
+    return "https://shaastra.org/";
   }
-  if (tit.includes("mlh") || org.includes("mlh")) {
-    return "https://mlh.io/seasons/2026/events";
-  }
-  if (org.includes("devpost") || tit.includes("devpost")) {
-    return "https://devpost.com/hackathons";
-  }
-  if (org.includes("devfolio") || tit.includes("devfolio")) {
-    return "https://devfolio.co/hackathons";
-  }
-  if (org.includes("meta") || org.includes("facebook")) {
-    return "https://developers.facebook.com/community/hackathons/";
-  }
-  if (org.includes("apple")) {
-    return "https://www.apple.com/careers/in/students.html";
-  }
-  if (org.includes("uber")) {
-    return "https://unstop.com/o/uber";
-  }
-  if (org.includes("razorpay")) {
-    return "https://razorpay.com/careers";
-  }
-  if (org.includes("goldman sachs")) {
-    return "https://www.goldmansachs.com/careers/students/programs/";
-  }
-  if (org.includes("atlassian")) {
-    return "https://www.atlassian.com/company/careers/students";
-  }
-  if (org.includes("deshaw") || org.includes("de shaw")) {
-    return "https://www.deshawindia.com/careers";
-  }
-  if (tit.includes("servicenow") || org.includes("servicenow")) {
-    return "https://unstop.com/o/servicenow";
-  }
-  if (tit.includes("adobe") || org.includes("adobe")) {
-    return "https://unstop.com/o/adobe";
-  }
-  if (org.includes("hackerearth") || tit.includes("hackerearth") || raw.includes("hackerearth.com")) {
-    return "https://www.hackerearth.com/challenges/hackathon/";
-  }
-  if (org.includes("luma") || tit.includes("luma") || raw.includes("lu.ma")) {
-    return "https://lu.ma/";
-  }
-  if (org.includes("devnovate") || tit.includes("devnovate") || raw.includes("devnovate.com")) {
-    if (raw.startsWith("http")) return raw;
-    return "https://devnovate.com";
-  }
-  if (org.includes("devpost") || tit.includes("devpost") || raw.includes("devpost.com")) {
-    if (raw.startsWith("http")) return raw;
-    return "https://devpost.com";
-  }
-  if (org.includes("hack2skill") || tit.includes("hack2skill") || raw.includes("hack2skill.com")) {
-    if (raw.startsWith("http")) return raw;
-    return "https://hack2skill.com/hackathons";
-  }
-  if (tit.includes("microsoft") || org.includes("microsoft")) {
-    return "https://unstop.com/o/microsoft";
-  }
-  if (org.includes("unstop")) {
-    return "https://unstop.com/competitions";
+  if (tit.includes("tryst") || (organizer || "").toLowerCase().includes("iit delhi")) {
+    return "https://tryst-iitd.org/";
   }
 
-  if (raw && !raw.includes("/search?searchTerm=") && !raw.includes("searchTerm=")) {
-    try {
-      const parsed = new URL(raw);
-      if (parsed.hostname.includes("facebook.com") || parsed.hostname.includes("meta.com")) {
-        return "https://developers.facebook.com/community/hackathons/";
-      }
-      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-        return raw;
-      }
-    } catch {
-      // invalid URL
-    }
-  }
-
-  return "https://unstop.com/competitions";
+  // Rule 2 & Rule 7: NEVER invent or return generic directory URLs.
+  // If no direct verified application endpoint exists, return empty string.
+  return "";
 }
 
 export function getOpportunityPortalInfo(url?: string, organizer?: string, title?: string): {
@@ -715,6 +541,15 @@ export function getOpportunityPortalInfo(url?: string, organizer?: string, title
   }
   if (safeUrl.includes("hackerearth.com")) {
     return { name: "HackerEarth Verified", badgeColor: "#4ade80", badgeBg: "rgba(74,222,128,0.15)", isVerified: true };
+  }
+  if (safeUrl.includes("hackerrank.com")) {
+    return { name: "HackerRank Verified", badgeColor: "#00ea64", badgeBg: "rgba(0,234,100,0.15)", isVerified: true };
+  }
+  if (safeUrl.includes("codechef.com")) {
+    return { name: "CodeChef Verified", badgeColor: "#d97706", badgeBg: "rgba(217,119,6,0.15)", isVerified: true };
+  }
+  if (safeUrl.includes("summerofcode") || safeUrl.includes("linuxfoundation") || safeUrl.includes("lfx")) {
+    return { name: "Open Source Verified", badgeColor: "#8b5cf6", badgeBg: "rgba(139,92,246,0.15)", isVerified: true };
   }
   if (safeUrl.includes("kaggle.com")) {
     return { name: "Kaggle Verified", badgeColor: "#38bdf8", badgeBg: "rgba(56,189,248,0.15)", isVerified: true };

@@ -21,6 +21,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import CompanyLogo from "@/components/CompanyLogo";
+import { VerifiedApplyButton } from "@/components/opportunity/verification-trust-bar";
 
 interface Recommendation {
   opportunity_id: string;
@@ -640,9 +641,14 @@ export default function StudentOpportunitiesPage() {
                     <div style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 12 }}>
                       <CompanyLogo companyName={opp.organizer} sourceUrl={opp.source_url} size={36} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontSize: 15, fontWeight: 600, color: "#162A43", margin: "0 0 2px", lineHeight: 1.4 }}>
-                          {opp.title}
-                        </h3>
+                        <Link
+                          href={`/student/opportunities/${rec.opportunity_id}`}
+                          style={{ textDecoration: "none", color: "inherit" }}
+                        >
+                          <h3 style={{ fontSize: 15, fontWeight: 600, color: "#162A43", margin: "0 0 2px", lineHeight: 1.4, cursor: "pointer" }}>
+                            {opp.title}
+                          </h3>
+                        </Link>
                         <div style={{ fontSize: 12, color: "#667085" }}>
                           {opp.organizer} • <span style={{ color: schedule.isUpcoming ? "#356AE6" : "#667085", fontWeight: 500 }}>{schedule.label}</span>
                         </div>
@@ -742,7 +748,7 @@ export default function StudentOpportunitiesPage() {
                     {/* SECTION 16 SPEC: ACTION (APPLY OR BUILD EVIDENCE FIRST) */}
                     <div style={{ display: "flex", gap: 8, paddingTop: 10, borderTop: "1px solid #E4E1DA" }}>
                       <Link
-                        href="/student/dna?tab=gap_studio"
+                        href={`/student/opportunities/${rec.opportunity_id}`}
                         style={{
                           flex: 1,
                           padding: "7px 10px",
@@ -756,37 +762,18 @@ export default function StudentOpportunitiesPage() {
                           textAlign: "center"
                         }}
                       >
-                        Build evidence first
+                        Intelligence & Prep ↗
                       </Link>
-                      <a
-                        href={safeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => {
-                          if (!isApplied) {
-                            setTimeout(() => {
-                              handleMarkApplied(rec.opportunity_id, opp.title);
-                            }, 1000);
-                          }
-                        }}
-                        style={{
-                          flex: 1.2,
-                          padding: "7px 10px",
-                          borderRadius: 7,
-                          background: "#356AE6",
-                          color: "#FFFFFF",
-                          textDecoration: "none",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          textAlign: "center",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 4
-                        }}
-                      >
-                        Apply <ExternalLink size={12} />
-                      </a>
+                      <VerifiedApplyButton
+                        url={safeUrl}
+                        sourceUrl={opp.source_url}
+                        opportunityId={rec.opportunity_id}
+                        title={opp.title}
+                        organizer={opp.organizer}
+                        status={opp.status || "ACTIVE"}
+                        label="Apply"
+                        style={{ flex: 1.2, padding: "7px 10px", fontSize: 12 }}
+                      />
                     </div>
                   </div>
                 </div>

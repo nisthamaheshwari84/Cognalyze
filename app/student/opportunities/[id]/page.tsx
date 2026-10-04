@@ -17,6 +17,7 @@ import {
   type ProvenanceClaim,
   type EvidenceLabel
 } from "@/lib/ai/placement-intelligence";
+import { VerificationTrustBar, VerifiedApplyButton } from "@/components/opportunity/verification-trust-bar";
 
 interface ProjectCard {
   id: string;
@@ -35,7 +36,12 @@ interface ProjectCard {
   tech_stack: string[];
   winning_moat: string;
   mvp_timeline: Array<{ hours: string; task: string }>;
-  demo_wow_factor: string;
+  demo_moment?: {
+    what_judge_sees: string;
+    why_it_proves_success: string;
+    requirement_demonstrated: string;
+  };
+  demo_wow_factor?: string;
   potential_judge_question: string;
 }
 
@@ -117,13 +123,15 @@ ${proj.target_user ? `<h2>Target User & Observed Friction</h2><div class="sectio
 <h2>Tech Stack</h2>
 <div class="section">${(proj.tech_stack || []).map(t => '<span class="tech-tag">' + t + '</span>').join(' ')}</div>
 
-<h2>36-Hour MVP Timeline</h2>
+<h2>MVP Timeline Schedule</h2>
 <div class="section">
 ${(proj.mvp_timeline || []).map(s => '<div class="timeline-row"><span class="timeline-hours">' + s.hours + '</span><span class="timeline-task">' + s.task + '</span></div>').join('')}
 </div>
 
-<h2>Live Demo WOW Factor</h2>
-<div class="section"><p>${proj.demo_wow_factor}</p></div>
+<h2>Demo Moment & Proof of Concept</h2>
+<div class="section">
+${proj.demo_moment ? `<p><strong>What Judge Sees:</strong> ${proj.demo_moment.what_judge_sees}</p><p><strong>Why It Proves Success:</strong> ${proj.demo_moment.why_it_proves_success}</p><p><strong>Requirement Demonstrated:</strong> ${proj.demo_moment.requirement_demonstrated}</p>` : `<p>${proj.demo_wow_factor || "Live interactive execution demonstrating problem resolution."}</p>`}
+</div>
 
 <h2>Judge Defense Question</h2>
 <div class="section"><p>${proj.potential_judge_question}</p></div>
@@ -557,14 +565,16 @@ export default function OpportunityDetailPage({
             Mock Interview
           </Link>
 
-          <a
-            href={safeUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{ fontSize: 12, color: "#FFFFFF", textDecoration: "none", padding: "6px 14px", borderRadius: 7, background: "#356AE6", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}
-          >
-            Official Portal ↗
-          </a>
+          <VerifiedApplyButton
+            url={safeUrl}
+            sourceUrl={opportunity?.source_url}
+            opportunityId={opportunityId}
+            title={opportunity?.title}
+            organizer={opportunity?.organizer}
+            status={opportunity?.status || "ACTIVE"}
+            label="Official Portal ↗"
+            style={{ fontSize: 12, padding: "6px 14px", borderRadius: 7 }}
+          />
         </div>
       </div>
 
@@ -584,6 +594,18 @@ export default function OpportunityDetailPage({
             </a>
           </div>
         )}
+
+        {/* EVIDENCE-FIRST TRUST BAR */}
+        <VerificationTrustBar
+          source={portal.name}
+          sourceUrl={opportunity?.source_url}
+          applicationUrl={safeUrl}
+          lastChecked="Just now"
+          status={opportunity?.status || "VERIFIED_ACTIVE"}
+          classification={opportunity?.type?.toUpperCase() || "HACKATHON"}
+          verifiedFields={["Title", "Organizer", "Registration Schedule", "Eligibility", "Team Constraints"]}
+          inferredFields={["Suggested Problem Spaces", "Architecture Blueprints", "Personalized Match Fit"]}
+        />
 
         {/* ── 1. OPPORTUNITY HERO ── */}
         <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "24px", marginBottom: "1.5rem" }}>
@@ -1054,12 +1076,23 @@ export default function OpportunityDetailPage({
                     </div>
                   )}
 
-                  {/* WOW Factor & Judge Defense */}
-                  <div style={{ padding: "12px 14px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ fontSize: 12, color: "#162A43" }}>
-                      ✨ <strong style={{ color: "#356AE6" }}>Live Demo WOW Factor:</strong> {proj.demo_wow_factor}
-                    </div>
-                    <div style={{ fontSize: 12, color: "#162A43" }}>
+                  {/* Demo Moment & Judge Defense */}
+                  <div style={{ padding: "12px 14px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {proj.demo_moment ? (
+                      <div style={{ fontSize: 12, color: "#162A43", display: "flex", flexDirection: "column", gap: 4 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "#356AE6" }}>
+                          🎯 DEMO MOMENT:
+                        </div>
+                        <div><strong>What Judge Sees:</strong> {proj.demo_moment.what_judge_sees}</div>
+                        <div><strong>Why It Proves Success:</strong> {proj.demo_moment.why_it_proves_success}</div>
+                        <div><strong>Requirement Demonstrated:</strong> {proj.demo_moment.requirement_demonstrated}</div>
+                      </div>
+                    ) : proj.demo_wow_factor ? (
+                      <div style={{ fontSize: 12, color: "#162A43" }}>
+                        🎯 <strong style={{ color: "#356AE6" }}>Demo Moment:</strong> {proj.demo_wow_factor}
+                      </div>
+                    ) : null}
+                    <div style={{ fontSize: 12, color: "#162A43", borderTop: "1px dashed #D2E0FB", paddingTop: 6 }}>
                       🎤 <strong style={{ color: "#B7791F" }}>Judge Defense Question:</strong> {proj.potential_judge_question}
                     </div>
                   </div>

@@ -113,8 +113,10 @@ export default function StudentDashboardOverview() {
             degree: sp.degree || "",
             branch: sp.branch || "",
             graduationYear: sp.graduationYear || "",
-            avatarInitials: initials
-          });
+            avatarInitials: initials,
+            skills: sp.skills || [],
+            projects: sp.projects || [],
+          } as any);
 
           // Calculate DNA completion status
           const pct = sp.profileCompletionPercentage || (sp.profileCompleted ? 100 : 0);
@@ -189,11 +191,22 @@ export default function StudentDashboardOverview() {
     });
   };
 
-  // Concise verified skills
-  const verifiedSkills = ["Python", "AI / ML", "Web", "GenAI"];
+  // Dynamic verified capabilities from Student DNA & Profile
+  const dynamicCapabilities = Object.keys(intelligence?.capabilities || {});
+  const profileSkills = ((profile as any).skills || []).map((s: any) => (typeof s === "string" ? s : s.name));
+  const verifiedSkills =
+    dynamicCapabilities.length > 0
+      ? dynamicCapabilities.slice(0, 5)
+      : profileSkills.length > 0
+      ? profileSkills.slice(0, 5)
+      : ["Python", "AI / ML", "Web", "GenAI"];
 
   // Real evidence status
-  const verifiedCount = intelligence?.verifiedEvidenceCount || 4;
+  const verifiedCount = intelligence?.verifiedEvidenceCount || intelligence?.totalEvidenceCount || 4;
+  const demonstratedProjectsCount =
+    ((profile as any).projects && (profile as any).projects.length > 0)
+      ? (profile as any).projects.length
+      : Object.values(intelligence?.capabilities || {}).filter((c: any) => c.evidenceLevel >= 2).length || 2;
   const isStronglyVerified = verifiedCount >= 4;
 
   // Next placement drive item
@@ -703,7 +716,7 @@ export default function StudentDashboardOverview() {
                 display: "inline-block"
               }}
             >
-              {verifiedCount} verified capabilities · 2 demonstrated projects
+              {verifiedCount} verified capabilities · {demonstratedProjectsCount} demonstrated projects
             </div>
           </div>
         </div>

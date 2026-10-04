@@ -17,8 +17,13 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/post/") ||
     pathname.startsWith("/api/posts") ||
     pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/api/parse-resume") ||
     pathname.startsWith("/api/student/ai-mentor") ||
     pathname.startsWith("/student/ai-mentor") ||
+    pathname.startsWith("/api/opportunities") ||
+    pathname.startsWith("/api/recommendations") ||
+    pathname.startsWith("/api/internal/opportunities") ||
+    pathname.startsWith("/api/admin/opportunities") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/images/") ||
     pathname.startsWith("/models/") ||

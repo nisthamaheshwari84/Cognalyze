@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
-import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
+import { extractJSON } from "@/lib/ai/placement-intelligence";
 import {
   getOpportunityById,
   getStudentProfile,
@@ -10,6 +10,9 @@ import {
   getAllPreviousProjectTitles,
   DEMO_STUDENT_PROFILE
 } from "@/lib/placement-store";
+import { dynamicPreparationEngine } from "@/lib/opportunities/engines/dynamic-preparation-engine";
+import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { CanonicalOpportunity } from "@/lib/opportunities/types";
 
 export async function GET(
   req: Request,
@@ -41,227 +44,295 @@ export async function POST(
     const candidateId = body.candidateId || "student-demo";
     const opportunityId = params.opportunityId;
 
-    // 1. Fetch Opportunity & Student Profile (with fallback)
-    const [opp, rawProfile] = await Promise.all([
-      getOpportunityById(opportunityId),
-      getStudentProfile(candidateId)
-    ]);
+    // 1. Fetch Opportunity from placement store or OpportunityService
+    let opp = await getOpportunityById(opportunityId);
+    let canonicalOpp: CanonicalOpportunity | undefined;
 
     if (!opp) {
+      canonicalOpp = opportunityService.getAllOpportunities().find(o => o.id === opportunityId || o.sourceId === opportunityId);
+      if (canonicalOpp) {
+        opp = {
+          id: canonicalOpp.id,
+          title: canonicalOpp.title,
+          type: (canonicalOpp.opportunityType?.toLowerCase() as any) || "hackathon",
+          organizer: canonicalOpp.organizer || canonicalOpp.companyName,
+          organizer_type: "corporate",
+          tags: canonicalOpp.tags || [],
+          domain_tags: canonicalOpp.domains || [],
+          tier: "Tier 1",
+          deadline: canonicalOpp.deadline || new Date(Date.now() + 14 * 86400000).toISOString(),
+          eligibility: canonicalOpp.eligibilityRequirements?.[0] || "Open to eligible students",
+          source_url: canonicalOpp.sourceUrl,
+          extracted_context: {
+            platform: canonicalOpp.source,
+            summary: canonicalOpp.description,
+            prize_pool: canonicalOpp.prize,
+            tracks_or_themes: canonicalOpp.domains || [],
+            team_size: canonicalOpp.teamSize || "1-3 members"
+          }
+        };
+      }
+    } else {
+      // Map to CanonicalOpportunity if we have opp from placement store
+      canonicalOpp = {
+        id: opp.id,
+        source: opp.extracted_context?.platform || "Cognalyze Verified",
+        sourceType: "UNSTOP",
+        sourceUrl: opp.source_url,
+        applicationUrl: opp.source_url,
+        companyId: "org-partner",
+        companyName: opp.organizer,
+        organizer: opp.organizer,
+        title: opp.title,
+        normalizedTitle: opp.title.toLowerCase(),
+        description: opp.extracted_context?.summary || opp.eligibility,
+        responsibilities: [],
+        location: "Virtual",
+        country: "India",
+        city: "Online",
+        remoteType: "remote",
+        employmentType: "internship",
+        experienceLevel: "intern",
+        educationRequirements: { degreesAllowed: ["All"], fieldsAllowed: ["All"], isMandatory: false },
+        graduationRequirements: { isMandatory: false },
+        requiredSkills: opp.tags || [],
+        preferredSkills: [],
+        eligibilityRequirements: [opp.eligibility],
+        disqualifiers: [],
+        postedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deadline: opp.deadline,
+        status: "ACTIVE",
+        freshness: "FRESH",
+        roleDNA: {
+          roleCategory: "Engineering Challenge",
+          mustHaveSkills: opp.tags.slice(0, 3),
+          preferredSkills: [],
+          experienceYearsMin: 0,
+          experienceYearsMax: 2,
+          educationSummary: opp.eligibility,
+          graduationWindow: "Open",
+          locationMode: "Remote",
+          disqualifiers: []
+        },
+        createdAt: new Date().toISOString(),
+        lastVerifiedAt: new Date().toISOString()
+      };
+    }
+
+    if (!opp || !canonicalOpp) {
       return NextResponse.json({ error: "Opportunity not found" }, { status: 404 });
     }
 
+    const rawProfile = await getStudentProfile(candidateId);
     const profile = rawProfile || DEMO_STUDENT_PROFILE;
+
+    // 2. Generate Deterministic Evidence-First Preparation Plan
+    const deterministicPlan = dynamicPreparationEngine.generatePreparationPlan(canonicalOpp, null);
+    const classification = deterministicPlan.classification;
 
     // Build anti-repetition blocklist from all previously generated project titles
     const previousTitles = getAllPreviousProjectTitles(candidateId);
     const blocklist = previousTitles.length > 0
-      ? `\n\nDO NOT REPEAT BLOCKLIST — these projects have already been suggested before. Do NOT generate anything with the same title, concept, or core approach:\n${previousTitles.map((t, i) => `${i + 1}. "${t}"`).join("\n")}`
+      ? `\n\nDO NOT REPEAT BLOCKLIST:\n${previousTitles.map((t, i) => `${i + 1}. "${t}"`).join("\n")}`
       : "";
 
-    // Extract tracks_or_themes for per-hackathon anchoring
     const tracksOrThemes = opp.extracted_context?.tracks_or_themes || [];
     const tracksSection = tracksOrThemes.length > 0
-      ? `\n- SPECIFIC PROBLEM STATEMENTS / TRACKS from this hackathon (use these as DIRECT ANCHORS — at least 3 of 6 ideas must be directly inspired by one of these):\n${tracksOrThemes.map((t: string, i: number) => `  ${i + 1}. ${t}`).join("\n")}`
+      ? `\n- SPECIFIC PROBLEM STATEMENTS / TRACKS:\n${tracksOrThemes.map((t: string, i: number) => `  ${i + 1}. ${t}`).join("\n")}`
       : "";
 
-    // ── STAGE 1: Opportunity Context Deep Extraction (Cached) ──
+    // ── STAGE 1: Opportunity Context Deep Extraction ──
     let stage1Context = opp.extracted_context?.stage1_deep_context;
     let stage1Cached = true;
 
     if (!stage1Context) {
       stage1Cached = false;
-      console.log(`[suggest-projects] Running Stage 1 context extraction for ${opportunityId}...`);
-      
-      const stage1Prompt = `You are a Principal Hackathon & Placement Architect.
-Perform a deep analysis of this opportunity to identify core friction points, hidden themes, and high-scoring angles.
+      const stage1Prompt = `You are a Principal Technical Architect.
+Analyze this opportunity to identify core friction points, hidden constraints, and high-scoring angles.
 
 OPPORTUNITY:
 Title: ${opp.title} (${opp.type})
 Organizer: ${opp.organizer} (${opp.organizer_type})
+Classification: ${classification}
 Tags: ${opp.tags.join(", ")}
-Domain Tags: ${opp.domain_tags.join(", ")}
-Extracted Summary: ${opp.extracted_context?.summary || opp.eligibility}
+Summary: ${opp.extracted_context?.summary || opp.eligibility}
 Tracks: ${tracksOrThemes.join(", ")}
 
 Extract in JSON format:
 {
   "core_problem_spaces": ["Problem 1 with real friction", "Problem 2"],
   "judge_scoring_priorities": ["What judges actually reward most in this event"],
-  "technical_depth_requirements": "Level of architecture expected (e.g. distributed, real-time, high-accuracy ML, edge computing)",
-  "winning_moat": "What separates top 1% winning submissions from standard clones",
+  "technical_depth_requirements": "Level of architecture expected",
+  "winning_moat": "What separates top winning submissions from standard clones",
   "difficulty_tier": "high",
-  "deadline_if_mentioned": "ISO date string (e.g. YYYY-MM-DD) or null",
-  "assessment_dates": [
-    {"label": "Round 1 Coding or Quiz", "date_if_mentioned": "ISO date string or null"}
-  ]
+  "deadline_if_mentioned": "${opp.deadline || "null"}"
 }
+RULE FOR DATES: Never guess a date. If not clearly stated, use null.`;
 
-STRICT RULE FOR DATES: Never guess a date — if not clearly stated in the opportunity details, date_if_mentioned stays null. Only include dates explicitly stated.`;
+      try {
+        const s1Res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
+          body: JSON.stringify({
+            model: "openai/gpt-oss-120b",
+            messages: [{ role: "user", content: stage1Prompt }],
+            max_tokens: 1200,
+            temperature: 0.2,
+            response_format: { type: "json_object" }
+          })
+        });
 
-      const s1Res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
-        body: JSON.stringify({
-          model: "openai/gpt-oss-120b",
-          messages: [{ role: "user", content: stage1Prompt }],
-          max_tokens: 1500,
-          temperature: 0.2,
-          response_format: { type: "json_object" }
-        })
-      });
-
-      const s1Data = await s1Res.json();
-      stage1Context = extractJSON(s1Data.choices?.[0]?.message?.content || "{}");
-      await updateOpportunityExtractedContext(opportunityId, {
-        stage1_deep_context: stage1Context,
-        assessment_dates: stage1Context?.assessment_dates || [],
-        deadline_if_mentioned: stage1Context?.deadline_if_mentioned || null,
-        difficulty_tier: stage1Context?.difficulty_tier || "medium"
-      });
-    } else {
-      console.log(`[suggest-projects] Using cached Stage 1 context for ${opportunityId}`);
+        const s1Data = await s1Res.json();
+        stage1Context = extractJSON(s1Data.choices?.[0]?.message?.content || "{}");
+        await updateOpportunityExtractedContext(opportunityId, {
+          stage1_deep_context: stage1Context,
+          deadline_if_mentioned: stage1Context?.deadline_if_mentioned || opp.deadline || null,
+          difficulty_tier: stage1Context?.difficulty_tier || "medium"
+        });
+      } catch (e) {
+        console.warn("[suggest-projects] Groq Stage 1 fallback to deterministic context:", e);
+        stage1Context = {
+          core_problem_spaces: [deterministicPlan.whatOpportunityAsks],
+          judge_scoring_priorities: deterministicPlan.judgingAlignment.map(j => j.criterion),
+          technical_depth_requirements: deterministicPlan.architecture.overview,
+          winning_moat: deterministicPlan.demoMoment.whyItProvesSuccess,
+          difficulty_tier: "high",
+          deadline_if_mentioned: opp.deadline || null
+        };
+      }
     }
 
-    // ── STAGE 2: Personalized Project Idea Generation (6 raw ideas) ──
-    console.log(`[suggest-projects] Running Stage 2 idea generation for candidate ${candidateId}...`);
-    const stage2Prompt = `You are a 50-Year Veteran FAANG Talent Scout, Grand Hackathon Judge, and Principal Solutions Architect.
-Generate 6 distinct, authentic, high-impact project ideas tailored specifically to this student's skills and this opportunity.
+    // ── STAGE 2 & 3: Generate Opportunity-Specific Projects Grounded in Opportunity DNA ──
+    const isRazorpay = `${opp.title} ${opp.organizer}`.toLowerCase().includes("razorpay");
+    const isContest = classification === "CODING_CONTEST" || classification === "DSA_CONTEST";
+    const isKaggle = classification === "ML_COMPETITION";
+    const isOpenSource = classification === "OPEN_SOURCE_PROGRAM";
 
-STRICT RULES:
-1. Under NO circumstances generate toy apps, basic CRUD, or thin AI chatbot wrappers.
-2. Each project MUST tackle a critical, authentic real-world problem with serious engineering depth.
-3. Each project must name a SPECIFIC industry, company type, regulation, or infrastructure bottleneck it addresses (e.g., "RBI UPI mandate compliance", "HIPAA-compliant telemetry", "Tier-2 ISP peering congestion") — NOT generic concepts.
-4. No two projects may share the same core technical approach OR domain. Each must be genuinely different in both what it solves and how.
-5. At least 3 ideas must be DIRECTLY INSPIRED by one of the hackathon's specific problem statements/tracks listed below.
+    const stage3Prompt = `You are a Principal Solutions Architect generating evidence-first project blueprints tailored specifically for:
+Opportunity: ${opp.title} (${opp.organizer})
+Opportunity Classification: ${classification}
+${isRazorpay ? "CRITICAL RAZORPAY REQUIREMENT: The solution MUST integrate Razorpay Payment/Orders APIs or Webhooks. DO NOT inject Kafka or Kubernetes unless high throughput streaming is explicitly justified." : ""}
+${isContest ? "CRITICAL CONTEST REQUIREMENT: Focus on algorithmic test suites, asymptotic complexity O(N log N), fast I/O, and test case generators." : ""}
+${isKaggle ? "CRITICAL ML REQUIREMENT: Focus on cross-validation, feature engineering, and model ensemble pipelines optimizing the metric without leakage." : ""}
+${isOpenSource ? "CRITICAL OPEN SOURCE REQUIREMENT: Focus on upstream repository audit, PR workflow, unit test suites, and proposal milestones." : ""}
 
-STUDENT PROFILE:
-- Target Roles: ${profile.target_roles.join(", ")}
-- Skills: ${profile.skills.map(s => `${s.name} (${s.level})`).join(", ")}
-- Past Projects: ${profile.past_projects.map(p => p.title).join(", ")}
-
-OPPORTUNITY & PROBLEM CONTEXT:
-- Opportunity: ${opp.title} (${opp.organizer})
-- Core Problems: ${(stage1Context.core_problem_spaces || []).join("; ")}
-- Judge Priorities: ${(stage1Context.judge_scoring_priorities || []).join("; ")}${tracksSection}${blocklist}
-
-Generate 6 projects covering these categories:
-1. Idea A: High-utility Enterprise / B2B Real-World Infrastructure Solution
-2. Idea B: Novel DeepTech Developer Tool, Agentic Automation, or Systems Architecture
-3. Idea C: High-impact Critical Consumer / Public Infrastructure / Social Good Problem
-4. Idea D: Real-time Data Pipeline / Observability / Telemetry Engineering Challenge
-5. Idea E: Security / Compliance / Trust & Safety Engineering Solution
-6. Idea F: Cross-domain innovation (combining 2+ tracks from the hackathon in a novel way)
-
-Return JSON:
-{
-  "raw_ideas": [
-    {
-      "title": "Project Title",
-      "concept": "2 sentence description of the real-world problem and system solution",
-      "student_skill_alignment": "Which student skills this leverages",
-      "key_features": ["Feature 1", "Feature 2", "Feature 3"],
-      "inspired_by_track": "Which specific hackathon track this is inspired by, or 'original' if none"
-    }
-  ]
-}`;
-
-    const s2Res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-120b",
-        messages: [{ role: "user", content: stage2Prompt }],
-        max_tokens: 3200,
-        temperature: 0.45,
-        response_format: { type: "json_object" }
-      })
-    });
-
-    const s2Data = await s2Res.json();
-    const stage2Output = extractJSON(s2Data.choices?.[0]?.message?.content || "{}");
-
-    // ── STAGE 3: Self-Critique & Refinement (6 raw → 5 curated) ──
-    console.log(`[suggest-projects] Running Stage 3 self-critique & refinement...`);
-    const stage3Prompt = `You are a Principal Solutions Architect & Senior Hackathon Judge performing the research-first evaluation gate.
-Refine the candidate ideas into evidence-grounded problem blueprints.
-
-RESEARCH-FIRST & EVIDENCE RULES:
-1. REJECT toy wrappers, generic dashboards, or thin AI chatbot concepts.
-2. EVERY problem statement MUST articulate:
-   - Specific target user
-   - Concrete observed friction/pain
-   - Why existing solutions/open-source tools are insufficient
-   - Concrete technical architecture
-3. ZERO FABRICATED STATISTICS: Do NOT invent fake percentages like "affects 87% of users". If quantitative metrics are unverified, describe the qualitative bottleneck.
-4. GROUND IN STUDENT DNA: Explicitly derive "why_it_fits_you" from the student's actual declared and verified skills:
-   - Aligned verified skills
-   - Capabilities that must be built or bridged
-
-RAW IDEAS:
-${JSON.stringify(stage2Output.raw_ideas || [], null, 2)}
-
-STUDENT VERIFIED STACK:
+STUDENT SKILLS:
 ${profile.skills.map(s => `${s.name} (${s.level})`).join(", ")}
 
-Produce the final curated blueprints. Return ONLY this JSON:
+OPPORTUNITY CONTEXT:
+- Problem Spaces: ${(stage1Context?.core_problem_spaces || []).join("; ")}
+- Judge Priorities: ${(stage1Context?.judge_scoring_priorities || []).join("; ")}${tracksSection}${blocklist}
+
+RULES:
+1. NO GENERIC TEMPLATES: Every project must be genuinely designed for ${opp.title}.
+2. DEMO MOMENT: Replace generic "WOW Factor" with what the judge sees, why it proves success, and requirement demonstrated.
+3. TIMELINE: Produce a realistic milestone timeline (e.g. Phase 1, Phase 2, Phase 3).
+4. TECH STACK PROVENANCE: Distinguish between official requirements vs recommendations.
+
+Return JSON in this structure:
 {
   "projects": [
     {
       "id": "proj-1",
-      "title": "Clear Technical Blueprint Name",
-      "tagline": "One sentence punchy technical value proposition",
-      "problem_statement": "The exact painful problem being solved — names a specific industry, regulation, or infrastructure bottleneck",
-      "target_user": "Specific real-world stakeholder or operator",
-      "observed_pain": "Documented bottleneck or failure mode in current workflows",
-      "existing_gap": "Why existing tools or standard SaaS fail to resolve this",
+      "title": "Specific Project Blueprint Name",
+      "tagline": "One sentence technical proposition",
+      "problem_statement": "Specific problem statement addressing official requirements",
+      "target_user": "Specific stakeholder",
+      "observed_pain": "Documented friction or failure mode",
+      "existing_gap": "Why existing tools fail to solve this",
       "why_it_fits_you": {
-        "aligned_skills": ["TypeScript", "Python"],
-        "required_capabilities": ["Distributed Locking"],
-        "explanation": "Directly leverages your Python and backend project experience, while expanding into distributed state management."
+        "aligned_skills": ["Skill1", "Skill2"],
+        "required_capabilities": ["Capability1"],
+        "explanation": "Why this aligns with student evidence"
       },
-      "architecture": "Architecture and data flow overview",
-      "tech_stack": ["Next.js", "TypeScript", "Python", "FastAPI", "PostgreSQL"],
-      "winning_moat": "Why this beats standard submissions",
+      "architecture": "Architecture overview without fabricated complexity",
+      "tech_stack": ["Tech1", "Tech2", "Tech3"],
+      "winning_moat": "Why this fulfills the core judging criteria",
       "mvp_timeline": [
-        {"hours": "0-12h", "task": "Core pipeline setup and schema design"},
-        {"hours": "12-24h", "task": "AI agent loop and API integrations"},
-        {"hours": "24-36h", "task": "UI polish, demo script and edge-case testing"}
+        {"hours": "${deterministicPlan.mvpMilestones[0]?.targetDuration || "Sprint 1"}", "task": "${deterministicPlan.mvpMilestones[0]?.deliverable || "Scaffolding"}"},
+        {"hours": "${deterministicPlan.mvpMilestones[1]?.targetDuration || "Sprint 2"}", "task": "${deterministicPlan.mvpMilestones[1]?.deliverable || "Core Features"}"},
+        {"hours": "${deterministicPlan.mvpMilestones[2]?.targetDuration || "Sprint 3"}", "task": "${deterministicPlan.mvpMilestones[2]?.deliverable || "Demo & Verification"}"}
       ],
-      "demo_wow_factor": "The exact 30-second live demo moment that gets judges to vote YES",
-      "potential_judge_question": "What is the hardest technical challenge here and how do you defend it?"
+      "demo_moment": {
+        "what_judge_sees": "${deterministicPlan.demoMoment.whatJudgeSees}",
+        "why_it_proves_success": "${deterministicPlan.demoMoment.whyItProvesSuccess}",
+        "requirement_demonstrated": "${deterministicPlan.demoMoment.requirementDemonstrated}"
+      },
+      "potential_judge_question": "${deterministicPlan.judgeQuestions[0]?.question || "How do you defend this technical architecture?"}"
     }
   ]
 }`;
 
-    const s3Res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-120b",
-        messages: [{ role: "user", content: stage3Prompt }],
-        max_tokens: 4000,
-        temperature: 0.2,
-        response_format: { type: "json_object" }
-      })
-    });
+    let finalProjects: any[] = [];
 
-    const s3Data = await s3Res.json();
-    const finalResult = extractJSON(s3Data.choices?.[0]?.message?.content || "{}");
+    try {
+      const s3Res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.GROQ_API_KEY}` },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b",
+          messages: [{ role: "user", content: stage3Prompt }],
+          max_tokens: 3500,
+          temperature: 0.3,
+          response_format: { type: "json_object" }
+        })
+      });
+
+      const s3Data = await s3Res.json();
+      const parsed = extractJSON(s3Data.choices?.[0]?.message?.content || "{}");
+      if (parsed.projects && Array.isArray(parsed.projects) && parsed.projects.length > 0) {
+        finalProjects = parsed.projects;
+      }
+    } catch (llmErr) {
+      console.warn("[suggest-projects] Groq Stage 3 failed, using deterministic preparation blueprint:", llmErr);
+    }
+
+    // If LLM returned empty or failed, fallback gracefully to deterministic preparation plan!
+    if (finalProjects.length === 0) {
+      finalProjects = [
+        {
+          id: `proj-evidence-${opp.id}`,
+          title: deterministicPlan.headline,
+          tagline: `Evidence-backed architecture addressing ${opp.title} requirements`,
+          problem_statement: deterministicPlan.whatOpportunityAsks,
+          target_user: canonicalOpp.organizer || "System Operators",
+          observed_pain: `Manual or unverified integration workflows without end-to-end safeguards`,
+          existing_gap: `Existing implementations lack sub-second verification and cryptographic signature validation`,
+          why_it_fits_you: {
+            aligned_skills: deterministicPlan.whatYouAlreadyHave.slice(0, 3),
+            required_capabilities: deterministicPlan.whatYouAreMissing.slice(0, 2),
+            explanation: `Requirement Evidence Coverage: ${deterministicPlan.requirementEvidenceCoverage.coveragePercentage}% based on your Student DNA.`
+          },
+          architecture: deterministicPlan.architecture.overview,
+          tech_stack: deterministicPlan.architecture.components.map(c => c.technology),
+          winning_moat: deterministicPlan.demoMoment.whyItProvesSuccess,
+          mvp_timeline: deterministicPlan.mvpMilestones.map(m => ({ hours: m.targetDuration, task: m.deliverable })),
+          demo_moment: {
+            what_judge_sees: deterministicPlan.demoMoment.whatJudgeSees,
+            why_it_proves_success: deterministicPlan.demoMoment.whyItProvesSuccess,
+            requirement_demonstrated: deterministicPlan.demoMoment.requirementDemonstrated
+          },
+          potential_judge_question: deterministicPlan.judgeQuestions[0]?.question || "How do you defend this technical architecture?"
+        }
+      ];
+    }
 
     // Persist idempotently
     await saveProjectSuggestions(candidateId, opportunityId, {
       opportunity_id: opportunityId,
       stage1_cached: stage1Cached,
       generated_at: new Date().toISOString(),
-      projects: finalResult.projects || []
+      projects: finalProjects
     });
 
     return NextResponse.json({
       success: true,
       stage1Cached,
       opportunityTitle: opp.title,
-      projects: finalResult.projects || []
+      classification,
+      preparationPlan: deterministicPlan,
+      projects: finalProjects
     });
   } catch (err: any) {
     console.error("[suggest-projects POST] Error:", err.message);

@@ -77,5 +77,287 @@
     "status_reason": "Tourist’s Codeforces profile shows a current rating of 3307, max rating 4009, legendary grandmaster rank, 307 contests, and 674 solved problems, confirming strong competitive programming and algorithmic problem‑solving activity.",
     "role_relevance": "Competitive programming and algorithmic problem solving",
     "fetched_at": "2026-09-22T04:23:14.062Z"
+  },
+  {
+    "id": "ev-test-record-1",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "github",
+    "claim": "Python API development",
+    "raw_data": {
+      "repo_count": 8
+    },
+    "normalized_facts": {
+      "repo_count": 8,
+      "top_languages": [
+        "Python"
+      ],
+      "commits_last_6mo": 30,
+      "top_repos": []
+    },
+    "extracted_summary": "8 public repositories with active Python commits.",
+    "status": "established",
+    "status_reason": "Verified through 30 recent Python commits.",
+    "role_relevance": "Backend API requirement",
+    "fetched_at": "2026-10-04T18:23:31.545Z"
+  },
+  {
+    "id": "c59548ef-c49e-4a5f-8100-b91673121819",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "resume",
+    "claim": "Resume-documented experience & skills",
+    "raw_data": {
+      "text_length": 67,
+      "sections_found": {
+        "skills_lines": 0,
+        "experience_blocks": 0,
+        "project_blocks": 0,
+        "education_lines": 0
+      }
+    },
+    "normalized_facts": {
+      "skills_claimed": [],
+      "projects": [],
+      "companies": [],
+      "documented_experience_years": 0
+    },
+    "extracted_summary": "No records or evidence were returned from this source.",
+    "status": "unknown",
+    "status_reason": "No records or evidence were returned from this source.",
+    "role_relevance": "Resume-documented experience & skills",
+    "fetched_at": "2026-10-04T18:23:31.547Z"
+  },
+  {
+    "id": "81573171-91e7-4dcf-a5fb-51128ad0dbe9",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "github",
+    "claim": "Git repository activity & language proficiency",
+    "raw_data": {
+      "user": {
+        "login": "torvalds",
+        "public_repos": 12,
+        "followers": 326272
+      },
+      "repos_count": 12,
+      "events_count": 100
+    },
+    "normalized_facts": {
+      "repo_count": 12,
+      "top_languages": [
+        "C",
+        "C++",
+        "OpenSCAD"
+      ],
+      "commits_last_6mo": 84,
+      "top_repos": [
+        {
+          "name": "linux",
+          "is_fork": false,
+          "commit_count": 320057,
+          "commit_span_days": 5509,
+          "contributors": 1
+        },
+        {
+          "name": "GuitarPedal",
+          "is_fork": false,
+          "commit_count": 939,
+          "commit_span_days": 383,
+          "contributors": 1
+        },
+        {
+          "name": "HunspellColorize",
+          "is_fork": false,
+          "commit_count": 1,
+          "commit_span_days": 259,
+          "contributors": 1
+        },
+        {
+          "name": "AudioNoise",
+          "is_fork": false,
+          "commit_count": 71,
+          "commit_span_days": 269,
+          "contributors": 1
+        },
+        {
+          "name": "uemacs",
+          "is_fork": false,
+          "commit_count": 38,
+          "commit_span_days": 3182,
+          "contributors": 1
+        }
+      ]
+    },
+    "extracted_summary": "The source reports 12 repositories with top languages C, C++, and OpenSCAD, and 84 commits in the last 6 months. Top repositories include 'linux' (320,057 commits over 5,509 days, 1 contributor), 'GuitarPedal' (939 commits over 383 days, 1 contributor), 'HunspellColorize' (1 commit over 259 days, 1 contributor), 'AudioNoise' (71 commits over 269 days, 1 contributor), and 'uemacs' (38 commits over 3,182 days, 1 contributor). All listed top repositories are marked as non-forks.",
+    "status": "established",
+    "status_reason": "Source confirms 12 repositories with 84 commits in the last 6 months and top languages C, C++, and OpenSCAD, directly supporting the claim of Git activity and language proficiency.",
+    "role_relevance": "Git repository activity & language proficiency",
+    "fetched_at": "2026-10-04T18:23:31.547Z"
+  },
+  {
+    "id": "e69f6e35-7c1f-4deb-bd3d-a90a959b6cde",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "codeforces",
+    "claim": "Competitive programming and algorithmic problem solving",
+    "raw_data": {
+      "handle": "tourist",
+      "rating": 3384,
+      "maxRating": 4009,
+      "rank": "legendary grandmaster",
+      "contestCount": 308,
+      "submissions_sample_size": 677
+    },
+    "normalized_facts": {
+      "handle": "tourist",
+      "current_rating": 3384,
+      "max_rating": 4009,
+      "rank": "legendary grandmaster",
+      "contest_count": 308,
+      "total_solved": 677,
+      "solved_by_difficulty": {
+        "<1200": 170,
+        "1200-1599": 87,
+        "1600-1999": 111,
+        "2000+": 309
+      }
+    },
+    "extracted_summary": "The user \"tourist\" has a current rating of 3384, a maximum rating of 4009, holds the rank of legendary grandmaster, has participated in 308 contests, solved 677 problems in total, with 170 solved under 1200, 87 between 1200-1599, 111 between 1600-1999, and 309 at 2000+ difficulty.",
+    "status": "established",
+    "status_reason": "Current rating 3384, 308 contests, and 677 solved problems (including 309 at 2000+ difficulty) demonstrate competitive programming and algorithmic problem solving.",
+    "role_relevance": "Competitive programming and algorithmic problem solving",
+    "fetched_at": "2026-10-04T18:23:31.547Z"
+  },
+  {
+    "id": "43193de8-3b22-4016-8164-43450947bf88",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "leetcode",
+    "claim": "Data Structures & Algorithms problem-solving track record",
+    "raw_data": {
+      "error": "LeetCode user not found or private profile",
+      "data": {
+        "errors": [
+          {
+            "message": "That user does not exist.",
+            "locations": [
+              {
+                "line": 3,
+                "column": 3
+              }
+            ],
+            "path": [
+              "matchedUser"
+            ],
+            "extensions": {
+              "handled": true,
+              "skip_sentry": true
+            }
+          }
+        ],
+        "data": {
+          "matchedUser": null,
+          "userContestRanking": null
+        }
+      }
+    },
+    "normalized_facts": null,
+    "extracted_summary": "No records or evidence returned from source (leetcode).",
+    "status": "unknown",
+    "status_reason": "Available evidence does not currently confirm this claim. Source (leetcode) returned no data.",
+    "role_relevance": "Data Structures & Algorithms problem-solving track record",
+    "fetched_at": "2026-10-04T18:23:31.547Z"
+  },
+  {
+    "id": "29561b3f-0494-4396-bd10-cb6bedd77d18",
+    "candidate_id": "cand-test-evidence-uuid-001",
+    "role_id": "role-test-backend-uuid-001",
+    "source": "github",
+    "claim": "Production repository depth, incremental commits, and PR contribution history",
+    "raw_data": {
+      "repo_list": [
+        "linux",
+        "GuitarPedal",
+        "HunspellColorize"
+      ],
+      "analyses": {
+        "linux": {
+          "commits_fetched": 50,
+          "pulls_count": 0,
+          "issues_count": 0
+        },
+        "GuitarPedal": {
+          "commits_fetched": 50,
+          "pulls_count": 20,
+          "issues_count": 20
+        },
+        "HunspellColorize": {
+          "commits_fetched": 5,
+          "pulls_count": 7,
+          "issues_count": 10
+        }
+      }
+    },
+    "normalized_facts": {
+      "repo_analyses": [
+        {
+          "repo_name": "linux",
+          "commit_count": 50,
+          "is_incremental_work": true,
+          "first_commit_at": "2026-09-11T15:13:14.000Z",
+          "last_commit_at": "2026-10-04T16:38:11.000Z",
+          "commit_span_days": 23,
+          "commit_messages_sample": [
+            "Merge tag 'i2c-fixes-7.3-rc6' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux",
+            "Merge tag 'x86-urgent-2026-10-04' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip",
+            "Merge tag 'timers-urgent-2026-10-04' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip",
+            "Merge tag 'perf-urgent-2026-10-04' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip",
+            "Merge tag 'locking-urgent-2026-10-04' of git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip"
+          ],
+          "pr_count": 0,
+          "issue_activity_count": 0
+        },
+        {
+          "repo_name": "GuitarPedal",
+          "commit_count": 50,
+          "is_incremental_work": false,
+          "first_commit_at": "2026-10-02T21:04:46.000Z",
+          "last_commit_at": "2026-10-04T15:48:14.000Z",
+          "commit_span_days": 2,
+          "commit_messages_sample": [
+            "Merge first rough cut of BLE audio support",
+            "Misc trivial UI fixes",
+            "Stop the RAT's Filter knob turning backwards at the bright end",
+            "Give each of the phaser's three allpass stages its own state",
+            "Merge branch 'fix-bypass-fade' of https://github.com/JerimothLau/GuitarPedal"
+          ],
+          "pr_count": 20,
+          "issue_activity_count": 20
+        },
+        {
+          "repo_name": "HunspellColorize",
+          "commit_count": 5,
+          "is_incremental_work": false,
+          "first_commit_at": "2026-01-18T19:53:56.000Z",
+          "last_commit_at": "2026-01-19T20:19:39.000Z",
+          "commit_span_days": 1,
+          "commit_messages_sample": [
+            "Add local dictionaries if they exist",
+            "Use pkg-config to find hunspell instead of hardcoding it",
+            "Update README about colorization..",
+            "Stop being quite so lazy about line lengths and UTF-8",
+            "Do a really simple colorizing pager"
+          ],
+          "pr_count": 7,
+          "issue_activity_count": 10
+        }
+      ]
+    },
+    "extracted_summary": "The source lists three repositories: linux with 50 commits over 23 days, all incremental work; GuitarPedal with 50 commits over 2 days, not incremental, 20 PRs and 20 issue activities; HunspellColorize with 5 commits over 1 day, not incremental, 7 PRs and 10 issue activities.",
+    "status": "partial",
+    "status_reason": "Evidence confirms incremental work and PR history for specific repos (linux: 50 commits/23 days; GuitarPedal: 20 PRs; HunspellColorize: 7 PRs), but 'production repository depth' is not established as two repos show non-incremental work over short spans (2 days and 1 day) and the linux repo commits are primarily merge tags.",
+    "role_relevance": "Repository engineering depth",
+    "fetched_at": "2026-10-04T18:23:45.564Z"
   }
 ]

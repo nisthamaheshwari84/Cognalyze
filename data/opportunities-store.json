@@ -1,0 +1,5150 @@
+[
+  {
+    "id": "manual-import-1791135440300-jvg3el",
+    "source": "Admin Import (IIT Delhi Tryst)",
+    "sourceType": "ADMIN_IMPORT",
+    "sourceId": "manual-import-1791135440300-jvg3el",
+    "sourceUrl": "https://tryst-iitd.org/events/drone-hack",
+    "applicationUrl": "https://tryst-iitd.org/events/drone-hack",
+    "companyId": "org-iit-delhi-tryst",
+    "companyName": "IIT Delhi Tryst",
+    "organizer": "IIT Delhi Tryst",
+    "companyType": "enterprise",
+    "title": "IIT Delhi Tryst 2026 Autonomous Drone Hackathon",
+    "normalizedTitle": "IIT Delhi Tryst 2026 Autonomous Drone Hackathon",
+    "opportunityType": "HACKATHON",
+    "description": "Emergency manual import for IIT Delhi annual tech symposium hackathon.",
+    "rawDescription": "Emergency manual import for IIT Delhi annual tech symposium hackathon.",
+    "responsibilities": [
+      "Review guidelines and submit direct application before deadline"
+    ],
+    "location": "India",
+    "country": "India",
+    "city": "National Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees"
+      ],
+      "fieldsAllowed": [
+        "All Disciplines"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Python",
+      "ROS",
+      "Computer Vision"
+    ],
+    "preferredSkills": [],
+    "technologies": [
+      "Python",
+      "ROS",
+      "Computer Vision"
+    ],
+    "domains": [
+      "Curated Opportunity"
+    ],
+    "tags": [
+      "Python",
+      "ROS",
+      "Computer Vision"
+    ],
+    "eligibilityRequirements": [
+      "Open to eligible students"
+    ],
+    "disqualifiers": [],
+    "teamSize": "Individual / Team",
+    "postedAt": "2026-10-04T17:37:20.300Z",
+    "updatedAt": "2026-10-04T17:57:53.683Z",
+    "deadline": "2026-11-15T23:59:59Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Admin Verified Opportunity",
+      "mustHaveSkills": [
+        "Python",
+        "ROS",
+        "Computer Vision"
+      ],
+      "preferredSkills": [],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to eligible students",
+      "graduationWindow": "Any",
+      "locationMode": "hybrid",
+      "disqualifiers": []
+    },
+    "createdAt": "2026-10-04T17:37:20.300Z",
+    "lastFetchedAt": "2026-10-04T17:57:53.682Z",
+    "lastVerifiedAt": "2026-10-04T17:57:53.683Z",
+    "contentHash": "admin-manual-import-1791135440300-jvg3el-2026-11-15T23:59:59Z",
+    "rawSourceData": {
+      "importedBy": "admin",
+      "importedAt": "2026-10-04T17:37:20.300Z",
+      "isManualEmergencyFallback": true
+    },
+    "sourceInstances": [
+      {
+        "source": "Admin Import (IIT Delhi Tryst)",
+        "sourceType": "ADMIN_IMPORT",
+        "sourceUrl": "https://tryst-iitd.org/events/drone-hack",
+        "applicationUrl": "https://tryst-iitd.org/events/drone-hack",
+        "retrievedAt": "2026-10-04T17:57:53.682Z",
+        "lastVerifiedAt": "2026-10-04T17:57:53.682Z"
+      }
+    ]
+  },
+  {
+    "id": "unstop-retained-opp",
+    "source": "Unstop",
+    "sourceType": "UNSTOP",
+    "sourceUrl": "https://unstop.com/valid-opp",
+    "applicationUrl": "https://unstop.com/valid-opp/apply",
+    "companyId": "org-existing",
+    "companyName": "Retained Enterprise",
+    "title": "Existing Verified Unstop Challenge",
+    "normalizedTitle": "Existing Verified Unstop Challenge",
+    "opportunityType": "HACKATHON",
+    "description": "Existing challenge that should survive temporary empty sync.",
+    "responsibilities": [
+      "Build solution"
+    ],
+    "location": "India",
+    "country": "India",
+    "city": "Virtual",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech"
+      ],
+      "fieldsAllowed": [
+        "CS"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Python"
+    ],
+    "preferredSkills": [],
+    "eligibilityRequirements": [],
+    "disqualifiers": [],
+    "postedAt": "2026-10-04T17:36:30.281Z",
+    "updatedAt": "2026-10-04T17:36:30.281Z",
+    "deadline": "2026-10-14T17:36:30.281Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Hackathon",
+      "mustHaveSkills": [
+        "Python"
+      ],
+      "preferredSkills": [],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "All",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": []
+    },
+    "createdAt": "2026-10-04T17:36:30.281Z",
+    "lastVerifiedAt": "2026-10-04T17:36:30.281Z",
+    "sourceInstances": [
+      {
+        "source": "Unstop",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/valid-opp",
+        "applicationUrl": "https://unstop.com/valid-opp/apply",
+        "retrievedAt": "2026-10-04T17:36:30.281Z",
+        "lastVerifiedAt": "2026-10-04T17:36:30.281Z"
+      }
+    ]
+  },
+  {
+    "id": "unstop-flipkart-grid-7",
+    "source": "Unstop",
+    "sourceType": "UNSTOP",
+    "sourceId": "flipkart-grid-70",
+    "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
+    "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
+    "companyId": "org-flipkart",
+    "companyName": "Flipkart",
+    "organizer": "Flipkart",
+    "companyType": "enterprise",
+    "title": "Flipkart GRiD 7.0 — Software Development Track",
+    "normalizedTitle": "Flipkart GRiD 7.0",
+    "opportunityType": "HACKATHON",
+    "description": "Flipkart's flagship campus engineering competition. Offers direct PPIs (Pre-Placement Interviews) for SDE-1 roles and summer engineering internships. Problem statements focus on GenAI shopping assistants, high-concurrency checkout locking, and real-time inventory graph networks.",
+    "rawDescription": "Flipkart's flagship campus engineering competition. Offers direct PPIs (Pre-Placement Interviews) for SDE-1 roles and summer engineering internships. Problem statements focus on GenAI shopping assistants, high-concurrency checkout locking, and real-time inventory graph networks.",
+    "responsibilities": [
+      "Participate in online assessments and team rounds",
+      "Design, build, and submit working technical prototype",
+      "Pitch architecture and business feasibility to jury panel"
+    ],
+    "location": "Bengaluru, India (Online Assessments + Finale)",
+    "locations": [
+      "Bengaluru",
+      "National Virtual"
+    ],
+    "country": "India",
+    "city": "National Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/Data Science",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Algorithms",
+      "Distributed Systems",
+      "Java"
+    ],
+    "preferredSkills": [
+      "Python",
+      "System Design"
+    ],
+    "technologies": [
+      "Java",
+      "Python",
+      "Kafka",
+      "Redis",
+      "Docker"
+    ],
+    "domains": [
+      "E-Commerce",
+      "High Concurrency",
+      "GenAI"
+    ],
+    "tags": [
+      "Algorithms",
+      "Distributed Systems",
+      "Java",
+      "Python",
+      "System Design"
+    ],
+    "eligibilityRequirements": [
+      "B.Tech/B.E./M.Tech/MCA students graduating in 2026, 2027, or 2028. All engineering branches eligible."
+    ],
+    "disqualifiers": [
+      "Graduates working full-time in industry",
+      "Incomplete team submission"
+    ],
+    "teamSize": "2 - 3 Members",
+    "prize": "₹5,25,000 Cash Pool + Direct SDE-1 PPIs (CTC ₹32 LPA)",
+    "postedAt": "2026-10-01T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-18T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Engineering Challenge / Hackathon",
+      "mustHaveSkills": [
+        "Algorithms",
+        "Distributed Systems",
+        "Java"
+      ],
+      "preferredSkills": [
+        "Python",
+        "System Design"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech/B.E./M.Tech/MCA students graduating in 2026, 2027, or 2028. All engineering branches eligible.",
+      "graduationWindow": "2026-2028",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Prior disqualification"
+      ]
+    },
+    "createdAt": "2026-10-01T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "unstop-unstop-flipkart-grid-7-2026-10-18T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Unstop",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "Unstop",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
+        "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "unstop-walmart-codehers-2026",
+    "source": "Unstop",
+    "sourceType": "UNSTOP",
+    "sourceId": "walmart-codehers-2026",
+    "sourceUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
+    "applicationUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
+    "companyId": "org-walmart-global-tech-india",
+    "companyName": "Walmart Global Tech India",
+    "organizer": "Walmart",
+    "companyType": "enterprise",
+    "title": "Walmart CodeHers 2026 — Women in Tech Engineering Challenge",
+    "normalizedTitle": "Walmart CodeHers 2026",
+    "opportunityType": "HACKATHON",
+    "description": "India's premier campus diversity hackathon for women engineers. Finalists receive direct interview fast-tracks for full-time SDE-1 roles and pre-final year summer engineering internships.",
+    "rawDescription": "India's premier campus diversity hackathon for women engineers. Finalists receive direct interview fast-tracks for full-time SDE-1 roles and pre-final year summer engineering internships.",
+    "responsibilities": [
+      "Participate in online assessments and team rounds",
+      "Design, build, and submit working technical prototype",
+      "Pitch architecture and business feasibility to jury panel"
+    ],
+    "location": "Bengaluru / Chennai, India (Virtual Rounds)",
+    "locations": [
+      "Bengaluru",
+      "Chennai"
+    ],
+    "country": "India",
+    "city": "National Virtual",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/Data Science",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Algorithms",
+      "Problem Solving",
+      "Java"
+    ],
+    "preferredSkills": [
+      "Python",
+      "DSA"
+    ],
+    "technologies": [
+      "Python",
+      "Java",
+      "SQL"
+    ],
+    "domains": [
+      "Retail Tech",
+      "Diversity Hiring",
+      "Campus SDE"
+    ],
+    "tags": [
+      "Algorithms",
+      "Problem Solving",
+      "Java",
+      "Python",
+      "DSA"
+    ],
+    "eligibilityRequirements": [
+      "Female students currently enrolled in B.Tech / B.E. / M.Tech / Dual Degree graduating in 2026 or 2027."
+    ],
+    "disqualifiers": [
+      "Graduates working full-time in industry",
+      "Incomplete team submission"
+    ],
+    "teamSize": "Individual",
+    "prize": "₹3,00,000 Cash Prize + Direct PPIs for SDE-1 (CTC ₹24-30 LPA)",
+    "postedAt": "2026-10-02T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-24T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Engineering Challenge / Hackathon",
+      "mustHaveSkills": [
+        "Algorithms",
+        "Problem Solving",
+        "Java"
+      ],
+      "preferredSkills": [
+        "Python",
+        "DSA"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Female students currently enrolled in B.Tech / B.E. / M.Tech / Dual Degree graduating in 2026 or 2027.",
+      "graduationWindow": "2026-2028",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Prior disqualification"
+      ]
+    },
+    "createdAt": "2026-10-02T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "unstop-unstop-walmart-codehers-2026-2026-10-24T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Unstop",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Unstop",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
+        "applicationUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "unstop-tata-crucible-hackathon",
+    "source": "Unstop",
+    "sourceType": "UNSTOP",
+    "sourceId": "tata-crucible-hackathon-2026",
+    "sourceUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
+    "applicationUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
+    "companyId": "org-tata-group",
+    "companyName": "Tata Group",
+    "organizer": "Tata Sons",
+    "companyType": "enterprise",
+    "title": "Tata Crucible Campus Hackathon 2026",
+    "normalizedTitle": "Tata Crucible Campus Hackathon 2026",
+    "opportunityType": "HACKATHON",
+    "description": "National hackathon seeking breakthrough student solutions in Clean Energy, Industrial IoT, and AI-driven supply chains across Tata Group enterprises.",
+    "rawDescription": "National hackathon seeking breakthrough student solutions in Clean Energy, Industrial IoT, and AI-driven supply chains across Tata Group enterprises.",
+    "responsibilities": [
+      "Participate in online assessments and team rounds",
+      "Design, build, and submit working technical prototype",
+      "Pitch architecture and business feasibility to jury panel"
+    ],
+    "location": "Mumbai, India (Virtual Prelims)",
+    "locations": [
+      "Pan-India Virtual"
+    ],
+    "country": "India",
+    "city": "National Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/Data Science",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "IoT",
+      "Machine Learning",
+      "CleanTech"
+    ],
+    "preferredSkills": [
+      "Full Stack",
+      "Python"
+    ],
+    "technologies": [
+      "Python",
+      "TensorFlow",
+      "React",
+      "Node.js"
+    ],
+    "domains": [
+      "CleanTech",
+      "Sustainability",
+      "Enterprise AI"
+    ],
+    "tags": [
+      "IoT",
+      "Machine Learning",
+      "CleanTech",
+      "Full Stack",
+      "Python"
+    ],
+    "eligibilityRequirements": [
+      "Undergraduate and postgraduate students from recognized colleges across India."
+    ],
+    "disqualifiers": [
+      "Graduates working full-time in industry",
+      "Incomplete team submission"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹10,00,000 Grand Prize Pool + Incubation & Mentorship",
+    "postedAt": "2026-09-28T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-22T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Engineering Challenge / Hackathon",
+      "mustHaveSkills": [
+        "IoT",
+        "Machine Learning",
+        "CleanTech"
+      ],
+      "preferredSkills": [
+        "Full Stack",
+        "Python"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Undergraduate and postgraduate students from recognized colleges across India.",
+      "graduationWindow": "2026-2028",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Prior disqualification"
+      ]
+    },
+    "createdAt": "2026-09-28T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "unstop-unstop-tata-crucible-hackathon-2026-10-22T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Unstop",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "Unstop",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
+        "applicationUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "unstop-amazon-sambhav-hackathon",
+    "source": "Unstop",
+    "sourceType": "UNSTOP",
+    "sourceId": "amazon-sambhav-hackathon-2026",
+    "sourceUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
+    "applicationUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
+    "companyId": "org-amazon-india",
+    "companyName": "Amazon India",
+    "organizer": "Amazon",
+    "companyType": "enterprise",
+    "title": "Amazon Smbhav Tech Hackathon 2026",
+    "normalizedTitle": "Amazon Smbhav Tech Hackathon 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Build cutting-edge tech solutions to digitize small and medium businesses (SMBs) in India using Cloud, AI, and Vernacular Speech Interfaces.",
+    "rawDescription": "Build cutting-edge tech solutions to digitize small and medium businesses (SMBs) in India using Cloud, AI, and Vernacular Speech Interfaces.",
+    "responsibilities": [
+      "Participate in online assessments and team rounds",
+      "Design, build, and submit working technical prototype",
+      "Pitch architecture and business feasibility to jury panel"
+    ],
+    "location": "Bengaluru / Hyderabad (Virtual)",
+    "locations": [
+      "Pan-India"
+    ],
+    "country": "India",
+    "city": "National Virtual",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/Data Science",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "AWS",
+      "Cloud Native",
+      "NLP"
+    ],
+    "preferredSkills": [
+      "React",
+      "Python"
+    ],
+    "technologies": [
+      "AWS Lambda",
+      "DynamoDB",
+      "Python",
+      "React Native"
+    ],
+    "domains": [
+      "Fintech",
+      "SMB Digitization",
+      "Cloud"
+    ],
+    "tags": [
+      "AWS",
+      "Cloud Native",
+      "NLP",
+      "React",
+      "Python"
+    ],
+    "eligibilityRequirements": [
+      "Open to all college students (UG/PG) across India."
+    ],
+    "disqualifiers": [
+      "Graduates working full-time in industry",
+      "Incomplete team submission"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹7,50,000 + AWS Cloud Credits ($10,000) + Interview Fast-track",
+    "postedAt": "2026-09-30T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-29T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Engineering Challenge / Hackathon",
+      "mustHaveSkills": [
+        "AWS",
+        "Cloud Native",
+        "NLP"
+      ],
+      "preferredSkills": [
+        "React",
+        "Python"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Open to all college students (UG/PG) across India.",
+      "graduationWindow": "2026-2028",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Prior disqualification"
+      ]
+    },
+    "createdAt": "2026-09-30T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "unstop-unstop-amazon-sambhav-hackathon-2026-10-29T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Unstop",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Unstop",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
+        "applicationUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "devpost-gemini-developer-challenge",
+    "source": "Devpost",
+    "sourceType": "DEVPOST",
+    "sourceId": "gemini-developer-challenge",
+    "sourceUrl": "https://gemini.devpost.com",
+    "applicationUrl": "https://gemini.devpost.com",
+    "companyId": "org-google",
+    "companyName": "Google",
+    "organizer": "Google DeepMind & Cloud",
+    "companyType": "enterprise",
+    "title": "Google Gemini API Developer Competition",
+    "normalizedTitle": "Google Gemini API Developer Competition",
+    "opportunityType": "HACKATHON",
+    "description": "Build transformative multimodal AI applications leveraging Google Gemini 1.5 Pro and Gemini Flash models with long context windows, function calling, and agent workflows.",
+    "rawDescription": "Build transformative multimodal AI applications leveraging Google Gemini 1.5 Pro and Gemini Flash models with long context windows, function calling, and agent workflows.",
+    "responsibilities": [
+      "Build novel working software solution addressing hackathon theme",
+      "Host open source repository with clean code and instructions",
+      "Record 2-3 minute video demonstration of working prototype"
+    ],
+    "location": "Global Online / Worldwide",
+    "locations": [
+      "Worldwide Virtual"
+    ],
+    "country": "Worldwide",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees",
+        "B.Tech",
+        "B.S.",
+        "M.S.",
+        "Self-Taught"
+      ],
+      "fieldsAllowed": [
+        "All Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Gemini",
+      "LLM Agents",
+      "GenAI"
+    ],
+    "preferredSkills": [
+      "Python",
+      "TypeScript",
+      "Next.js"
+    ],
+    "technologies": [
+      "Gemini API",
+      "Python",
+      "TypeScript",
+      "Google Cloud"
+    ],
+    "domains": [
+      "Generative AI",
+      "Developer Tools",
+      "Multimodal Systems"
+    ],
+    "tags": [
+      "Gemini",
+      "LLM Agents",
+      "GenAI",
+      "Python",
+      "TypeScript",
+      "Next.js"
+    ],
+    "eligibilityRequirements": [
+      "Open to developers and students worldwide aged 18+. Void where prohibited."
+    ],
+    "disqualifiers": [
+      "Submitting existing pre-built projects without new code"
+    ],
+    "teamSize": "1 - 5 Members",
+    "prize": "$1,000,000 Total Prize Pool + Custom Electric DeLorean Winner Car",
+    "postedAt": "2026-09-29T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-25T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Global Software Hackathon",
+      "mustHaveSkills": [
+        "Gemini",
+        "LLM Agents",
+        "GenAI"
+      ],
+      "preferredSkills": [
+        "Python",
+        "TypeScript",
+        "Next.js"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to developers and students worldwide aged 18+. Void where prohibited.",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-09-29T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "devpost-devpost-gemini-developer-challenge-2026-10-25T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Devpost",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Devpost",
+        "sourceType": "DEVPOST",
+        "sourceUrl": "https://gemini.devpost.com",
+        "applicationUrl": "https://gemini.devpost.com",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "devpost-aws-serverless-hackathon",
+    "source": "Devpost",
+    "sourceType": "DEVPOST",
+    "sourceId": "aws-serverless-challenge",
+    "sourceUrl": "https://aws-serverless-2026.devpost.com",
+    "applicationUrl": "https://aws-serverless-2026.devpost.com",
+    "companyId": "org-amazon-web-services",
+    "companyName": "Amazon Web Services",
+    "organizer": "AWS Developer Relations",
+    "companyType": "enterprise",
+    "title": "AWS Serverless AI Hackathon 2026",
+    "normalizedTitle": "AWS Serverless AI Hackathon 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Design and deploy resilient serverless architectures combining AWS Lambda, EventBridge, Amazon Bedrock, and DynamoDB for autonomous event-driven processing.",
+    "rawDescription": "Design and deploy resilient serverless architectures combining AWS Lambda, EventBridge, Amazon Bedrock, and DynamoDB for autonomous event-driven processing.",
+    "responsibilities": [
+      "Build novel working software solution addressing hackathon theme",
+      "Host open source repository with clean code and instructions",
+      "Record 2-3 minute video demonstration of working prototype"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Worldwide",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees",
+        "B.Tech",
+        "B.S.",
+        "M.S.",
+        "Self-Taught"
+      ],
+      "fieldsAllowed": [
+        "All Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "AWS",
+      "Serverless",
+      "DynamoDB"
+    ],
+    "preferredSkills": [
+      "Bedrock",
+      "Python",
+      "TypeScript"
+    ],
+    "technologies": [
+      "AWS Lambda",
+      "Bedrock",
+      "Python",
+      "CDK"
+    ],
+    "domains": [
+      "Cloud Architecture",
+      "Event-Driven Systems",
+      "GenAI"
+    ],
+    "tags": [
+      "AWS",
+      "Serverless",
+      "DynamoDB",
+      "Bedrock",
+      "Python",
+      "TypeScript"
+    ],
+    "eligibilityRequirements": [
+      "Students and professional developers globally."
+    ],
+    "disqualifiers": [
+      "Submitting existing pre-built projects without new code"
+    ],
+    "teamSize": "1 - 4 Members",
+    "prize": "$50,000 Cash + $20,000 AWS Promotional Credits",
+    "postedAt": "2026-09-27T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-20T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Global Software Hackathon",
+      "mustHaveSkills": [
+        "AWS",
+        "Serverless",
+        "DynamoDB"
+      ],
+      "preferredSkills": [
+        "Bedrock",
+        "Python",
+        "TypeScript"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Students and professional developers globally.",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-09-27T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "devpost-devpost-aws-serverless-hackathon-2026-10-20T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Devpost",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Devpost",
+        "sourceType": "DEVPOST",
+        "sourceUrl": "https://aws-serverless-2026.devpost.com",
+        "applicationUrl": "https://aws-serverless-2026.devpost.com",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "devpost-solana-renaissance",
+    "source": "Devpost",
+    "sourceType": "DEVPOST",
+    "sourceId": "solana-renaissance-hackathon",
+    "sourceUrl": "https://solana.devpost.com",
+    "applicationUrl": "https://solana.devpost.com",
+    "companyId": "org-solana-foundation",
+    "companyName": "Solana Foundation",
+    "organizer": "Solana Foundation",
+    "companyType": "enterprise",
+    "title": "Solana Global Builder Hackathon",
+    "normalizedTitle": "Solana Global Builder Hackathon",
+    "opportunityType": "HACKATHON",
+    "description": "Flagship global Solana builder hackathon spanning Payments, Consumer Crypto, DePIN, Gaming, and Infrastructure with venture judge panels.",
+    "rawDescription": "Flagship global Solana builder hackathon spanning Payments, Consumer Crypto, DePIN, Gaming, and Infrastructure with venture judge panels.",
+    "responsibilities": [
+      "Build novel working software solution addressing hackathon theme",
+      "Host open source repository with clean code and instructions",
+      "Record 2-3 minute video demonstration of working prototype"
+    ],
+    "location": "Global Online",
+    "locations": [
+      "Worldwide Virtual"
+    ],
+    "country": "Worldwide",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees",
+        "B.Tech",
+        "B.S.",
+        "M.S.",
+        "Self-Taught"
+      ],
+      "fieldsAllowed": [
+        "All Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Rust",
+      "Solana",
+      "Web3"
+    ],
+    "preferredSkills": [
+      "Distributed Systems",
+      "TypeScript"
+    ],
+    "technologies": [
+      "Rust",
+      "TypeScript",
+      "Anchor",
+      "Next.js"
+    ],
+    "domains": [
+      "Web3",
+      "DeFi",
+      "Distributed Systems"
+    ],
+    "tags": [
+      "Rust",
+      "Solana",
+      "Web3",
+      "Distributed Systems",
+      "TypeScript"
+    ],
+    "eligibilityRequirements": [
+      "Open to individuals and teams worldwide."
+    ],
+    "disqualifiers": [
+      "Submitting existing pre-built projects without new code"
+    ],
+    "teamSize": "1 - 4 Members",
+    "prize": "$1,000,000 in Prizes & Seed Capital Investment Tracks",
+    "postedAt": "2026-09-24T18:13:59.098Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-16T18:13:59.098Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Global Software Hackathon",
+      "mustHaveSkills": [
+        "Rust",
+        "Solana",
+        "Web3"
+      ],
+      "preferredSkills": [
+        "Distributed Systems",
+        "TypeScript"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to individuals and teams worldwide.",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-09-24T18:13:59.098Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "devpost-devpost-solana-renaissance-2026-10-16T18:13:59.098Z",
+    "rawSourceData": {
+      "platform": "Devpost",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Devpost",
+        "sourceType": "DEVPOST",
+        "sourceUrl": "https://solana.devpost.com",
+        "applicationUrl": "https://solana.devpost.com",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "devfolio-ethindia-2026",
+    "source": "Devfolio",
+    "sourceType": "DEVFOLIO",
+    "sourceId": "ethindia-2026",
+    "sourceUrl": "https://ethindia.devfolio.co",
+    "applicationUrl": "https://ethindia.devfolio.co",
+    "companyId": "org-devfolio---ethglobal",
+    "companyName": "Devfolio / ETHGlobal",
+    "organizer": "ETHIndia Community",
+    "companyType": "scaleup",
+    "title": "ETHIndia 2026 — Asia's Biggest Ethereum Hackathon",
+    "normalizedTitle": "ETHIndia 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Asia's premier blockchain and smart contract hackathon bringing together 2,000+ top developers to build decentralised protocols, account abstraction, and zero-knowledge proofs.",
+    "rawDescription": "Asia's premier blockchain and smart contract hackathon bringing together 2,000+ top developers to build decentralised protocols, account abstraction, and zero-knowledge proofs.",
+    "responsibilities": [
+      "Build novel prototype during the hackathon period",
+      "Submit code repository with open documentation and README",
+      "Demonstrate working software to mentors and judges"
+    ],
+    "location": "Bengaluru, Karnataka, India (In-Person)",
+    "locations": [
+      "Bengaluru"
+    ],
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "onsite",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees",
+        "B.Tech",
+        "B.E.",
+        "B.S."
+      ],
+      "fieldsAllowed": [
+        "All Fields"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Solidity",
+      "Web3",
+      "Ethereum"
+    ],
+    "preferredSkills": [
+      "TypeScript",
+      "Next.js"
+    ],
+    "technologies": [
+      "Solidity",
+      "Next.js",
+      "Viem",
+      "Foundry"
+    ],
+    "domains": [
+      "Blockchain",
+      "Fintech",
+      "Decentralized Systems"
+    ],
+    "tags": [
+      "Solidity",
+      "Web3",
+      "Ethereum",
+      "TypeScript",
+      "Next.js"
+    ],
+    "eligibilityRequirements": [
+      "Students, builders, and developers globally. In-person attendance required for finale."
+    ],
+    "disqualifiers": [
+      "Submitting previously built or copyrighted code"
+    ],
+    "teamSize": "1 - 5 Members",
+    "prize": "$150,000+ Sponsor Bounties + Travel Grants",
+    "postedAt": "2026-09-30T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-23T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Community Developer Hackathon",
+      "mustHaveSkills": [
+        "Solidity",
+        "Web3",
+        "Ethereum"
+      ],
+      "preferredSkills": [
+        "TypeScript",
+        "Next.js"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Students, builders, and developers globally. In-person attendance required for finale.",
+      "graduationWindow": "Any",
+      "locationMode": "onsite",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-09-30T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "devfolio-devfolio-ethindia-2026-2026-10-23T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "Devfolio",
+      "tier": "Tier 1",
+      "mode": "onsite"
+    },
+    "sourceInstances": [
+      {
+        "source": "Devfolio",
+        "sourceType": "DEVFOLIO",
+        "sourceUrl": "https://ethindia.devfolio.co",
+        "applicationUrl": "https://ethindia.devfolio.co",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "devfolio-hackout-2026",
+    "source": "Devfolio",
+    "sourceType": "DEVFOLIO",
+    "sourceId": "hackout-2026",
+    "sourceUrl": "https://hackout-2026.devfolio.co",
+    "applicationUrl": "https://hackout-2026.devfolio.co",
+    "companyId": "org-da-iict",
+    "companyName": "DA-IICT",
+    "organizer": "DA-IICT Gandhinagar",
+    "companyType": "scaleup",
+    "title": "HackOut 2026 — DA-IICT Annual Engineering Hackathon",
+    "normalizedTitle": "HackOut 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Flagship 36-hour collegiate hackathon organized by DA-IICT featuring problem tracks in AI Agents, Cyber Resilience, and HealthTech.",
+    "rawDescription": "Flagship 36-hour collegiate hackathon organized by DA-IICT featuring problem tracks in AI Agents, Cyber Resilience, and HealthTech.",
+    "responsibilities": [
+      "Build novel prototype during the hackathon period",
+      "Submit code repository with open documentation and README",
+      "Demonstrate working software to mentors and judges"
+    ],
+    "location": "Gandhinagar, Gujarat / Hybrid",
+    "locations": [
+      "Gandhinagar",
+      "Online"
+    ],
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Degrees",
+        "B.Tech",
+        "B.E.",
+        "B.S."
+      ],
+      "fieldsAllowed": [
+        "All Fields"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Full Stack",
+      "AI Agents",
+      "React"
+    ],
+    "preferredSkills": [
+      "Node.js",
+      "Python"
+    ],
+    "technologies": [
+      "React",
+      "FastAPI",
+      "PostgreSQL",
+      "Python"
+    ],
+    "domains": [
+      "Campus Hackathon",
+      "AI Systems",
+      "HealthTech"
+    ],
+    "tags": [
+      "Full Stack",
+      "AI Agents",
+      "React",
+      "Node.js",
+      "Python"
+    ],
+    "eligibilityRequirements": [
+      "Undergraduate and postgraduate students enrolled in recognized universities."
+    ],
+    "disqualifiers": [
+      "Submitting previously built or copyrighted code"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹3,50,000 Prize Pool + Cloud Credits & Swag",
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-15T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Community Developer Hackathon",
+      "mustHaveSkills": [
+        "Full Stack",
+        "AI Agents",
+        "React"
+      ],
+      "preferredSkills": [
+        "Node.js",
+        "Python"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Undergraduate and postgraduate students enrolled in recognized universities.",
+      "graduationWindow": "Any",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-10-02T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "devfolio-devfolio-hackout-2026-2026-10-15T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "Devfolio",
+      "tier": "Tier 2",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "Devfolio",
+        "sourceType": "DEVFOLIO",
+        "sourceUrl": "https://hackout-2026.devfolio.co",
+        "applicationUrl": "https://hackout-2026.devfolio.co",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "mlh-hackmit-2026",
+    "source": "MLH",
+    "sourceType": "MLH",
+    "sourceId": "hackmit-2026",
+    "sourceUrl": "https://hackmit.org",
+    "applicationUrl": "https://hackmit.org",
+    "companyId": "org-mit-techx",
+    "companyName": "MIT TechX",
+    "organizer": "Massachusetts Institute of Technology (MLH Partner)",
+    "companyType": "university",
+    "title": "HackMIT 2026 — Collegiate Innovation Hackathon",
+    "normalizedTitle": "HackMIT 2026",
+    "opportunityType": "HACKATHON",
+    "description": "One of the world's most prestigious student hackathons. 1,000+ students gather at MIT campus and virtually to solve bold challenges in hardware, AI agents, healthcare, and human-computer interfaces.",
+    "rawDescription": "One of the world's most prestigious student hackathons. 1,000+ students gather at MIT campus and virtually to solve bold challenges in hardware, AI agents, healthcare, and human-computer interfaces.",
+    "responsibilities": [
+      "Collaborate in a collegiate team to build a working prototype in 24-36 hours",
+      "Adhere to MLH Code of Conduct and open submission criteria",
+      "Demo to collegiate mentors and engineering sponsors"
+    ],
+    "location": "Cambridge, MA, USA / Virtual Global Track",
+    "locations": [
+      "Cambridge, MA",
+      "Worldwide Virtual"
+    ],
+    "country": "Global",
+    "city": "Campus / Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Undergraduate & Graduate Degrees"
+      ],
+      "fieldsAllowed": [
+        "All Fields"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "AI",
+      "Hardware",
+      "Full Stack"
+    ],
+    "preferredSkills": [
+      "Python",
+      "Cloud",
+      "MLH"
+    ],
+    "technologies": [
+      "Python",
+      "React",
+      "Raspberry Pi",
+      "OpenAI API"
+    ],
+    "domains": [
+      "Collegiate Innovation",
+      "AI Systems",
+      "Human-Computer Interaction"
+    ],
+    "tags": [
+      "AI",
+      "Hardware",
+      "Full Stack",
+      "Python",
+      "Cloud",
+      "MLH"
+    ],
+    "eligibilityRequirements": [
+      "Currently enrolled undergraduate or high school students worldwide. Travel reimbursements available for select tracks."
+    ],
+    "disqualifiers": [
+      "Non-student participants",
+      "Code written before hackathon kick-off"
+    ],
+    "teamSize": "1 - 4 Members",
+    "prize": "$50,000+ in Grand Prizes, Sponsor Bounties, and Travel Grants",
+    "postedAt": "2026-09-28T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-19T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Collegiate Student Hackathon",
+      "mustHaveSkills": [
+        "AI",
+        "Hardware",
+        "Full Stack"
+      ],
+      "preferredSkills": [
+        "Python",
+        "Cloud",
+        "MLH"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Currently enrolled undergraduate or high school students worldwide. Travel reimbursements available for select tracks.",
+      "graduationWindow": "Currently Enrolled",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "MLH code of conduct violation"
+      ]
+    },
+    "createdAt": "2026-09-28T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "mlh-mlh-hackmit-2026-2026-10-19T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "MLH",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "MLH",
+        "sourceType": "MLH",
+        "sourceUrl": "https://hackmit.org",
+        "applicationUrl": "https://hackmit.org",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "mlh-calhacks-12",
+    "source": "MLH",
+    "sourceType": "MLH",
+    "sourceId": "calhacks-12",
+    "sourceUrl": "https://calhacks.io",
+    "applicationUrl": "https://calhacks.io",
+    "companyId": "org-uc-berkeley",
+    "companyName": "UC Berkeley",
+    "organizer": "Cal Hacks / UC Berkeley (MLH Member)",
+    "companyType": "university",
+    "title": "Cal Hacks 12.0 — World's Largest Collegiate Hackathon",
+    "normalizedTitle": "Cal Hacks 12.0",
+    "opportunityType": "HACKATHON",
+    "description": "2,500+ student hackers at the San Francisco Bay Area / Virtual arena building generation-defining apps with Silicon Valley venture judges and founders.",
+    "rawDescription": "2,500+ student hackers at the San Francisco Bay Area / Virtual arena building generation-defining apps with Silicon Valley venture judges and founders.",
+    "responsibilities": [
+      "Collaborate in a collegiate team to build a working prototype in 24-36 hours",
+      "Adhere to MLH Code of Conduct and open submission criteria",
+      "Demo to collegiate mentors and engineering sponsors"
+    ],
+    "location": "San Francisco, CA / Virtual",
+    "locations": [
+      "San Francisco",
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Campus / Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All Undergraduate & Graduate Degrees"
+      ],
+      "fieldsAllowed": [
+        "All Fields"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Full Stack",
+      "AI",
+      "Mobile"
+    ],
+    "preferredSkills": [
+      "TypeScript",
+      "Python"
+    ],
+    "technologies": [
+      "Next.js",
+      "Python",
+      "Docker",
+      "PyTorch"
+    ],
+    "domains": [
+      "Student Hackathon",
+      "Silicon Valley",
+      "DeepTech"
+    ],
+    "tags": [
+      "Full Stack",
+      "AI",
+      "Mobile",
+      "TypeScript",
+      "Python"
+    ],
+    "eligibilityRequirements": [
+      "Current university undergraduate and graduate students globally."
+    ],
+    "disqualifiers": [
+      "Non-student participants",
+      "Code written before hackathon kick-off"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "$100,000+ Total Prize Pool + Silicon Valley Incubator Fast-Tracks",
+    "postedAt": "2026-09-26T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-26T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Collegiate Student Hackathon",
+      "mustHaveSkills": [
+        "Full Stack",
+        "AI",
+        "Mobile"
+      ],
+      "preferredSkills": [
+        "TypeScript",
+        "Python"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Current university undergraduate and graduate students globally.",
+      "graduationWindow": "Currently Enrolled",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "MLH code of conduct violation"
+      ]
+    },
+    "createdAt": "2026-09-26T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "mlh-mlh-calhacks-12-2026-10-26T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "MLH",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "MLH",
+        "sourceType": "MLH",
+        "sourceUrl": "https://calhacks.io",
+        "applicationUrl": "https://calhacks.io",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "h2s-google-cloud-genai-2026",
+    "source": "Hack2Skill",
+    "sourceType": "HACK2SKILL",
+    "sourceId": "google-cloud-genai-sprint",
+    "sourceUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
+    "applicationUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
+    "companyId": "org-google-cloud-india",
+    "companyName": "Google Cloud India",
+    "organizer": "Google Cloud & Hack2Skill",
+    "companyType": "enterprise",
+    "title": "Google Cloud GenAI Community Sprint 2026",
+    "normalizedTitle": "Google Cloud GenAI Community Sprint 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Build enterprise solutions on Google Cloud Vertex AI, Vertex Agent Builder, and Cloud Run. Winning teams receive direct interview consideration and Google Cloud architect mentorship.",
+    "rawDescription": "Build enterprise solutions on Google Cloud Vertex AI, Vertex Agent Builder, and Cloud Run. Winning teams receive direct interview consideration and Google Cloud architect mentorship.",
+    "responsibilities": [
+      "Build enterprise-ready AI or cloud application addressing real-world problem statements",
+      "Deploy prototype to verified test environments",
+      "Submit repository, architecture diagram, and solution walkthrough"
+    ],
+    "location": "India (Virtual Hackathon)",
+    "locations": [
+      "Pan-India Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "B.Sc/M.Sc IT"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Google Cloud",
+      "Vertex AI",
+      "Python"
+    ],
+    "preferredSkills": [
+      "RAG",
+      "Docker",
+      "GenAI"
+    ],
+    "technologies": [
+      "Vertex AI",
+      "Python",
+      "Docker",
+      "GCP"
+    ],
+    "domains": [
+      "Cloud AI",
+      "Enterprise GenAI",
+      "Developer Community"
+    ],
+    "tags": [
+      "Google Cloud",
+      "Vertex AI",
+      "Python",
+      "RAG",
+      "Docker",
+      "GenAI"
+    ],
+    "eligibilityRequirements": [
+      "Students and professional developers residing in India."
+    ],
+    "disqualifiers": [
+      "Plagiarized submissions"
+    ],
+    "teamSize": "1 - 3 Members",
+    "prize": "₹6,00,000 Cash Prize + Google Cloud Credits ($5,000 / team)",
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-21T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Developer Sprint",
+      "mustHaveSkills": [
+        "Google Cloud",
+        "Vertex AI",
+        "Python"
+      ],
+      "preferredSkills": [
+        "RAG",
+        "Docker",
+        "GenAI"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Students and professional developers residing in India.",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-10-01T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "h2s-h2s-google-cloud-genai-2026-2026-10-21T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "Hack2Skill",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Hack2Skill",
+        "sourceType": "HACK2SKILL",
+        "sourceUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
+        "applicationUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "h2s-intel-oneapi-hackathon",
+    "source": "Hack2Skill",
+    "sourceType": "HACK2SKILL",
+    "sourceId": "intel-oneapi-challenge-2026",
+    "sourceUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
+    "applicationUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
+    "companyId": "org-intel-india",
+    "companyName": "Intel India",
+    "organizer": "Intel Software & Hack2Skill",
+    "companyType": "enterprise",
+    "title": "Intel oneAPI Student AI Acceleration Challenge",
+    "normalizedTitle": "Intel oneAPI Student AI Acceleration Challenge",
+    "opportunityType": "HACKATHON",
+    "description": "Optimize deep learning and computer vision pipelines using Intel oneAPI tools, OpenVINO, and SYCL on heterogeneous CPU/GPU/XPU clusters.",
+    "rawDescription": "Optimize deep learning and computer vision pipelines using Intel oneAPI tools, OpenVINO, and SYCL on heterogeneous CPU/GPU/XPU clusters.",
+    "responsibilities": [
+      "Build enterprise-ready AI or cloud application addressing real-world problem statements",
+      "Deploy prototype to verified test environments",
+      "Submit repository, architecture diagram, and solution walkthrough"
+    ],
+    "location": "Bengaluru / Virtual",
+    "locations": [
+      "Bengaluru",
+      "Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "B.Sc/M.Sc IT"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "All Engineering"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "C++",
+      "OpenVINO",
+      "Computer Vision"
+    ],
+    "preferredSkills": [
+      "Deep Learning",
+      "Intel"
+    ],
+    "technologies": [
+      "C++",
+      "Python",
+      "OpenVINO",
+      "oneAPI"
+    ],
+    "domains": [
+      "Edge AI",
+      "Heterogeneous Computing",
+      "Performance Optimization"
+    ],
+    "tags": [
+      "C++",
+      "OpenVINO",
+      "Computer Vision",
+      "Deep Learning",
+      "Intel"
+    ],
+    "eligibilityRequirements": [
+      "Currently enrolled B.Tech, M.Tech, MS, or PhD students across Indian technical colleges."
+    ],
+    "disqualifiers": [
+      "Plagiarized submissions"
+    ],
+    "teamSize": "1 - 4 Members",
+    "prize": "₹4,00,000 Prize Pool + Fast-Track Intel Internship Interviews",
+    "postedAt": "2026-09-29T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-17T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Developer Sprint",
+      "mustHaveSkills": [
+        "C++",
+        "OpenVINO",
+        "Computer Vision"
+      ],
+      "preferredSkills": [
+        "Deep Learning",
+        "Intel"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Currently enrolled B.Tech, M.Tech, MS, or PhD students across Indian technical colleges.",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Rule violations"
+      ]
+    },
+    "createdAt": "2026-09-29T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "h2s-h2s-intel-oneapi-hackathon-2026-10-17T18:13:59.099Z",
+    "rawSourceData": {
+      "platform": "Hack2Skill",
+      "tier": "Tier 1",
+      "mode": "online"
+    },
+    "sourceInstances": [
+      {
+        "source": "Hack2Skill",
+        "sourceType": "HACK2SKILL",
+        "sourceUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
+        "applicationUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
+        "retrievedAt": "2026-10-04T18:26:28.988Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+      }
+    ]
+  },
+  {
+    "id": "iit-bombay-techfest-hack",
+    "source": "IIT Bombay Techfest",
+    "sourceType": "IIT",
+    "sourceId": "techfest-2026-hackathon",
+    "sourceUrl": "https://techfest.org/competitions/international-hackathon",
+    "applicationUrl": "https://techfest.org/competitions/international-hackathon",
+    "companyId": "org-iit-bombay",
+    "companyName": "IIT Bombay",
+    "organizer": "IIT Bombay Techfest",
+    "companyType": "university",
+    "title": "IIT Bombay Techfest — International AI & Autonomous Systems Hackathon",
+    "normalizedTitle": "IIT Bombay Techfest",
+    "opportunityType": "HACKATHON",
+    "description": "Asia's largest science and technology festival hackathon. Build autonomous agents, edge computer vision, and high-concurrency robotics control software. Grand finale on IIT Bombay Powai campus.",
+    "rawDescription": "Asia's largest science and technology festival hackathon. Build autonomous agents, edge computer vision, and high-concurrency robotics control software. Grand finale on IIT Bombay Powai campus.",
+    "responsibilities": [
+      "Conduct rigorous scientific investigation or engineering design under faculty/student jury guidance",
+      "Publish technical report, prototype repository, or research findings",
+      "Present live demonstration and technical defense"
+    ],
+    "location": "Powai, Mumbai, India (Hybrid)",
+    "locations": [
+      "Mumbai",
+      "Pan-India"
+    ],
+    "country": "India",
+    "city": "Campus / Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "M.Sc",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Electrical",
+        "Mechanical",
+        "All Technical Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Robotics",
+      "Computer Vision",
+      "Python"
+    ],
+    "preferredSkills": [
+      "C++",
+      "IIT Bombay"
+    ],
+    "technologies": [
+      "Python",
+      "C++",
+      "ROS",
+      "OpenCV"
+    ],
+    "domains": [
+      "Autonomous Systems",
+      "Edge AI",
+      "Premier Institute"
+    ],
+    "tags": [
+      "Robotics",
+      "Computer Vision",
+      "Python",
+      "C++",
+      "IIT Bombay"
+    ],
+    "eligibilityRequirements": [
+      "Undergraduate and postgraduate students from any recognized university across India or abroad."
+    ],
+    "disqualifiers": [
+      "Academic malpractice or disciplinary probation"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹6,00,000 Cash Pool + Techfest Trophy + Research Fast-Track",
+    "postedAt": "2026-09-29T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-24T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Premier Institute Challenge / Research",
+      "mustHaveSkills": [
+        "Robotics",
+        "Computer Vision",
+        "Python"
+      ],
+      "preferredSkills": [
+        "C++",
+        "IIT Bombay"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Undergraduate and postgraduate students from any recognized university across India or abroad.",
+      "graduationWindow": "Currently Enrolled",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Disciplinary probation"
+      ]
+    },
+    "createdAt": "2026-09-29T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "iit-iit-bombay-techfest-hack-2026-10-24T18:13:59.099Z",
+    "rawSourceData": {
+      "institution": "IIT Bombay",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "IIT Bombay Techfest",
+        "sourceType": "IIT",
+        "sourceUrl": "https://techfest.org/competitions/international-hackathon",
+        "applicationUrl": "https://techfest.org/competitions/international-hackathon",
+        "retrievedAt": "2026-10-04T18:26:28.989Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+      }
+    ]
+  },
+  {
+    "id": "iit-madras-shaastra-ctf",
+    "source": "IIT Madras Shaastra",
+    "sourceType": "IIT",
+    "sourceId": "shaastra-cyber-2026",
+    "sourceUrl": "https://shaastra.org/events/cybersecurity-ctf",
+    "applicationUrl": "https://shaastra.org/events/cybersecurity-ctf",
+    "companyId": "org-iit-madras",
+    "companyName": "IIT Madras",
+    "organizer": "IIT Madras Shaastra",
+    "companyType": "university",
+    "title": "IIT Madras Shaastra — National Cybersecurity CTF & Systems Hackathon",
+    "normalizedTitle": "IIT Madras Shaastra",
+    "opportunityType": "COMPETITION",
+    "description": "IIT Madras annual student tech summit. Focuses on binary exploitation, reverse engineering, web application security, cryptography, and zero-day defense protocols.",
+    "rawDescription": "IIT Madras annual student tech summit. Focuses on binary exploitation, reverse engineering, web application security, cryptography, and zero-day defense protocols.",
+    "responsibilities": [
+      "Conduct rigorous scientific investigation or engineering design under faculty/student jury guidance",
+      "Publish technical report, prototype repository, or research findings",
+      "Present live demonstration and technical defense"
+    ],
+    "location": "Chennai, Tamil Nadu (Prelims Online)",
+    "locations": [
+      "Chennai",
+      "Online Virtual"
+    ],
+    "country": "India",
+    "city": "Campus / Virtual",
+    "remoteType": "hybrid",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "M.Sc",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Electrical",
+        "Mechanical",
+        "All Technical Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Cybersecurity",
+      "CTF",
+      "Linux"
+    ],
+    "preferredSkills": [
+      "Python",
+      "Networking",
+      "IIT Madras"
+    ],
+    "technologies": [
+      "Linux",
+      "Python",
+      "Wireshark",
+      "GDB"
+    ],
+    "domains": [
+      "Information Security",
+      "Systems Engineering"
+    ],
+    "tags": [
+      "Cybersecurity",
+      "CTF",
+      "Linux",
+      "Python",
+      "Networking",
+      "IIT Madras"
+    ],
+    "eligibilityRequirements": [
+      "Open to all enrolled college students in India."
+    ],
+    "disqualifiers": [
+      "Academic malpractice or disciplinary probation"
+    ],
+    "teamSize": "1 - 3 Members",
+    "prize": "₹3,00,000 Cash Awards + Certificate of Excellence",
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-19T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Premier Institute Challenge / Research",
+      "mustHaveSkills": [
+        "Cybersecurity",
+        "CTF",
+        "Linux"
+      ],
+      "preferredSkills": [
+        "Python",
+        "Networking",
+        "IIT Madras"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Open to all enrolled college students in India.",
+      "graduationWindow": "Currently Enrolled",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Disciplinary probation"
+      ]
+    },
+    "createdAt": "2026-10-01T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "iit-iit-madras-shaastra-ctf-2026-10-19T18:13:59.099Z",
+    "rawSourceData": {
+      "institution": "IIT Madras",
+      "tier": "Tier 1",
+      "mode": "hybrid"
+    },
+    "sourceInstances": [
+      {
+        "source": "IIT Madras Shaastra",
+        "sourceType": "IIT",
+        "sourceUrl": "https://shaastra.org/events/cybersecurity-ctf",
+        "applicationUrl": "https://shaastra.org/events/cybersecurity-ctf",
+        "retrievedAt": "2026-10-04T18:26:28.989Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+      }
+    ]
+  },
+  {
+    "id": "iit-roorkee-spark-internship",
+    "source": "IIT Roorkee SPARK",
+    "sourceType": "IIT",
+    "sourceId": "spark-summer-research-2026",
+    "sourceUrl": "https://spark.iitr.ac.in",
+    "applicationUrl": "https://spark.iitr.ac.in/apply",
+    "companyId": "org-iit-roorkee",
+    "companyName": "IIT Roorkee",
+    "organizer": "Dean of Resources and Alumni Affairs (DORA), IIT Roorkee",
+    "companyType": "university",
+    "title": "IIT Roorkee SPARK — Summer Undergraduate Research Fellowship",
+    "normalizedTitle": "IIT Roorkee SPARK",
+    "opportunityType": "RESEARCH",
+    "description": "Prestigious 8-week summer research fellowship at IIT Roorkee. Selected students collaborate directly with IIT faculty on fundamental AI, Quantum Computing, Structural Resilience, and Green Hydrogen.",
+    "rawDescription": "Prestigious 8-week summer research fellowship at IIT Roorkee. Selected students collaborate directly with IIT faculty on fundamental AI, Quantum Computing, Structural Resilience, and Green Hydrogen.",
+    "responsibilities": [
+      "Conduct rigorous scientific investigation or engineering design under faculty/student jury guidance",
+      "Publish technical report, prototype repository, or research findings",
+      "Present live demonstration and technical defense"
+    ],
+    "location": "Roorkee, Uttarakhand, India",
+    "locations": [
+      "Roorkee"
+    ],
+    "country": "India",
+    "city": "Campus / Virtual",
+    "remoteType": "onsite",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "M.Sc",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Electrical",
+        "Mechanical",
+        "All Technical Disciplines"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Research",
+      "Machine Learning",
+      "Python"
+    ],
+    "preferredSkills": [
+      "IIT Roorkee",
+      "Fellowship"
+    ],
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "MATLAB"
+    ],
+    "domains": [
+      "Academic Research",
+      "Scientific Computing"
+    ],
+    "tags": [
+      "Research",
+      "Machine Learning",
+      "Python",
+      "IIT Roorkee",
+      "Fellowship"
+    ],
+    "eligibilityRequirements": [
+      "Students in 2nd or 3rd year of B.Tech/B.E./Integrated M.Tech or 1st year of M.Tech/M.Sc."
+    ],
+    "disqualifiers": [
+      "Academic malpractice or disciplinary probation"
+    ],
+    "teamSize": "Individual",
+    "prize": "₹2,500 / week Research Fellowship Stipend + Free Campus Accommodation",
+    "postedAt": "2026-09-27T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-11-01T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Premier Institute Challenge / Research",
+      "mustHaveSkills": [
+        "Research",
+        "Machine Learning",
+        "Python"
+      ],
+      "preferredSkills": [
+        "IIT Roorkee",
+        "Fellowship"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Students in 2nd or 3rd year of B.Tech/B.E./Integrated M.Tech or 1st year of M.Tech/M.Sc.",
+      "graduationWindow": "Currently Enrolled",
+      "locationMode": "onsite",
+      "disqualifiers": [
+        "Disciplinary probation"
+      ]
+    },
+    "createdAt": "2026-09-27T18:13:59.099Z",
+    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "contentHash": "iit-iit-roorkee-spark-internship-2026-11-01T18:13:59.099Z",
+    "rawSourceData": {
+      "institution": "IIT Roorkee",
+      "tier": "Tier 1",
+      "mode": "onsite"
+    },
+    "sourceInstances": [
+      {
+        "source": "IIT Roorkee SPARK",
+        "sourceType": "IIT",
+        "sourceUrl": "https://spark.iitr.ac.in",
+        "applicationUrl": "https://spark.iitr.ac.in/apply",
+        "retrievedAt": "2026-10-04T18:26:28.989Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+      }
+    ]
+  },
+  {
+    "id": "corp-google-swe-intern-2027",
+    "source": "Google Careers",
+    "sourceType": "COMPANY_CAREER",
+    "sourceUrl": "https://careers.google.com/jobs/results/swe-intern-2027",
+    "applicationUrl": "https://careers.google.com/jobs/results/swe-intern-2027/apply",
+    "companyId": "comp-google",
+    "companyName": "Google",
+    "companyType": "enterprise",
+    "title": "Software Engineering Intern, Summer 2027",
+    "normalizedTitle": "Software Engineer Intern",
+    "opportunityType": "INTERNSHIP",
+    "description": "Join Google as a Software Engineering Intern. You will work on core distributed systems, scalable search infrastructure, or machine learning pipelines. Minimum qualifications: currently enrolled in a Bachelor's, Master's or PhD degree program in Computer Science or related technical field graduating between late 2026 and 2028. Experience with Python, C++, Java, or Go.",
+    "responsibilities": [
+      "Design, build, and deploy production-grade software features",
+      "Participate in design reviews, unit testing, and technical documentation",
+      "Collaborate cross-functionally with senior engineers and product managers"
+    ],
+    "location": "Bengaluru, Karnataka, India / Hyderabad",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/ML",
+        "Electronics",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Python, C++, Java, or Go programming proficiency",
+      "Data structures, algorithms, and complexity analysis",
+      "Object-Oriented Programming (OOP) principles"
+    ],
+    "preferredSkills": [
+      "Understanding of distributed systems or operating systems basics"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled in recognized undergraduate or postgraduate degree program",
+      "Graduating in 2026, 2027, 2028, or 2029",
+      "Able to commit to full-time internship duration (8-12 weeks)"
+    ],
+    "disqualifiers": [
+      "Candidates graduating before 2026 or after 2030",
+      "Candidates unable to work in India or lacking work authorization"
+    ],
+    "compensation": {
+      "stipendText": "₹1,15,000 / month + housing allowance"
+    },
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-29T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "createdAt": "2026-10-02T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "corp-google-swe-intern-2027",
+      "source": "Google Careers",
+      "sourceType": "COMPANY_CAREER",
+      "sourceUrl": "https://careers.google.com/jobs/results/swe-intern-2027",
+      "applicationUrl": "https://careers.google.com/jobs/results/swe-intern-2027/apply",
+      "companyName": "Google",
+      "title": "Software Engineering Intern, Summer 2027",
+      "description": "Join Google as a Software Engineering Intern. You will work on core distributed systems, scalable search infrastructure, or machine learning pipelines. Minimum qualifications: currently enrolled in a Bachelor's, Master's or PhD degree program in Computer Science or related technical field graduating between late 2026 and 2028. Experience with Python, C++, Java, or Go.",
+      "location": "Bengaluru, Karnataka, India / Hyderabad",
+      "remoteType": "hybrid",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Python, C++, Java, or Go programming proficiency",
+        "Data structures, algorithms, and complexity analysis",
+        "Object-Oriented Programming (OOP) principles",
+        "Understanding of distributed systems or operating systems basics"
+      ],
+      "eligibilityText": "Currently enrolled in a Bachelor's or Master's degree in Computer Science or related field. Expected graduation year: 2027 or 2028.",
+      "postedAt": "2026-10-02T18:13:59.099Z",
+      "deadline": "2026-10-29T18:13:59.099Z",
+      "compensationText": "₹1,15,000 / month + housing allowance",
+      "metadata": {
+        "companyType": "enterprise",
+        "tier": "Tier 1"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Google Careers",
+        "sourceType": "COMPANY_CAREER",
+        "sourceUrl": "https://careers.google.com/jobs/results/swe-intern-2027",
+        "applicationUrl": "https://careers.google.com/jobs/results/swe-intern-2027/apply",
+        "retrievedAt": "2026-10-04T18:26:28.989Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Software Engineering",
+      "mustHaveSkills": [
+        "Python, C++, Java, or Go programming proficiency",
+        "Data structures, algorithms, and complexity analysis",
+        "Object-Oriented Programming (OOP) principles"
+      ],
+      "preferredSkills": [
+        "Understanding of distributed systems or operating systems basics"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. / M.Tech in CS / IT / Related",
+      "graduationWindow": "2026–2029",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Graduation before 2026",
+        "Non-technical degree without coding background"
+      ]
+    }
+  },
+  {
+    "id": "corp-stripe-backend-intern",
+    "source": "Stripe Careers",
+    "sourceType": "COMPANY_CAREER",
+    "sourceUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend",
+    "applicationUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend/apply",
+    "companyId": "comp-stripe",
+    "companyName": "Stripe",
+    "companyType": "enterprise",
+    "title": "Software Engineer Intern — Backend Infrastructure",
+    "normalizedTitle": "Software Engineer Intern",
+    "opportunityType": "INTERNSHIP",
+    "description": "Build economic infrastructure for the internet. As a backend intern, you will write robust APIs, integrate distributed idempotency keys, and work on high-availability payment routing workers. Requires strong proficiency in Python, Ruby, or Go, solid SQL/Postgres knowledge, and demonstrated project implementation experience.",
+    "responsibilities": [
+      "Design, build, and deploy production-grade software features",
+      "Participate in design reviews, unit testing, and technical documentation",
+      "Collaborate cross-functionally with senior engineers and product managers"
+    ],
+    "location": "Bengaluru, India / Remote (India)",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/ML",
+        "Electronics",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Python, Go, or Ruby backend programming",
+      "REST API design and database query optimization (SQL)",
+      "Knowledge of idempotency, caching, and rate limiting"
+    ],
+    "preferredSkills": [
+      "Git version control and collaborative code review experience"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled in recognized undergraduate or postgraduate degree program",
+      "Graduating in 2026, 2027, 2028, or 2029",
+      "Able to commit to full-time internship duration (8-12 weeks)"
+    ],
+    "disqualifiers": [
+      "Candidates graduating before 2026 or after 2030",
+      "Candidates unable to work in India or lacking work authorization"
+    ],
+    "compensation": {
+      "stipendText": "₹1,25,000 / month stipend"
+    },
+    "postedAt": "2026-10-03T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-22T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "createdAt": "2026-10-03T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "corp-stripe-backend-intern",
+      "source": "Stripe Careers",
+      "sourceType": "COMPANY_CAREER",
+      "sourceUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend",
+      "applicationUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend/apply",
+      "companyName": "Stripe",
+      "title": "Software Engineer Intern — Backend Infrastructure",
+      "description": "Build economic infrastructure for the internet. As a backend intern, you will write robust APIs, integrate distributed idempotency keys, and work on high-availability payment routing workers. Requires strong proficiency in Python, Ruby, or Go, solid SQL/Postgres knowledge, and demonstrated project implementation experience.",
+      "location": "Bengaluru, India / Remote (India)",
+      "remoteType": "remote",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Python, Go, or Ruby backend programming",
+        "REST API design and database query optimization (SQL)",
+        "Knowledge of idempotency, caching, and rate limiting",
+        "Git version control and collaborative code review experience"
+      ],
+      "eligibilityText": "Students graduating in 2026, 2027, or 2028 with Computer Science or engineering degrees.",
+      "postedAt": "2026-10-03T18:13:59.099Z",
+      "deadline": "2026-10-22T18:13:59.099Z",
+      "compensationText": "₹1,25,000 / month stipend",
+      "metadata": {
+        "companyType": "enterprise",
+        "tier": "Tier 1"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Stripe Careers",
+        "sourceType": "COMPANY_CAREER",
+        "sourceUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend",
+        "applicationUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend/apply",
+        "retrievedAt": "2026-10-04T18:26:28.989Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Software Engineering",
+      "mustHaveSkills": [
+        "Python, Go, or Ruby backend programming",
+        "REST API design and database query optimization (SQL)",
+        "Knowledge of idempotency, caching, and rate limiting"
+      ],
+      "preferredSkills": [
+        "Git version control and collaborative code review experience"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. / M.Tech in CS / IT / Related",
+      "graduationWindow": "2026–2029",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Graduation before 2026",
+        "Non-technical degree without coding background"
+      ]
+    }
+  },
+  {
+    "id": "corp-razorpay-aiml-intern",
+    "source": "Razorpay Careers",
+    "sourceType": "COMPANY_CAREER",
+    "sourceUrl": "https://razorpay.com/jobs/ai-ml-intern",
+    "applicationUrl": "https://razorpay.com/jobs/ai-ml-intern/apply",
+    "companyId": "comp-razorpay",
+    "companyName": "Razorpay",
+    "companyType": "scaleup",
+    "title": "AI/ML Engineer Intern — Risk & Fraud Intelligence",
+    "normalizedTitle": "AI/ML Engineer Intern",
+    "opportunityType": "INTERNSHIP",
+    "description": "Razorpay is looking for an AI/ML Intern to build real-time transaction anomaly detection models. You will build and deploy inference endpoints with Python, FastAPI, and Scikit-Learn/PyTorch, evaluate false-positive trade-offs, and monitor latency under 50ms SLAs.",
+    "responsibilities": [
+      "Design, build, and deploy production-grade software features",
+      "Participate in design reviews, unit testing, and technical documentation",
+      "Collaborate cross-functionally with senior engineers and product managers"
+    ],
+    "location": "Bengaluru, Karnataka, India",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/ML",
+        "Electronics",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Python proficiency and Machine Learning fundamentals",
+      "FastAPI or Flask API development",
+      "SQL database queries and data preprocessing (Pandas, NumPy)"
+    ],
+    "preferredSkills": [
+      "PyTorch or Scikit-Learn model training and evaluation"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled in recognized undergraduate or postgraduate degree program",
+      "Graduating in 2026, 2027, 2028, or 2029",
+      "Able to commit to full-time internship duration (8-12 weeks)"
+    ],
+    "disqualifiers": [
+      "Candidates graduating before 2026 or after 2030",
+      "Candidates unable to work in India or lacking work authorization"
+    ],
+    "compensation": {
+      "stipendText": "₹65,000 / month stipend"
+    },
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-18T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "createdAt": "2026-10-01T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "corp-razorpay-aiml-intern",
+      "source": "Razorpay Careers",
+      "sourceType": "COMPANY_CAREER",
+      "sourceUrl": "https://razorpay.com/jobs/ai-ml-intern",
+      "applicationUrl": "https://razorpay.com/jobs/ai-ml-intern/apply",
+      "companyName": "Razorpay",
+      "title": "AI/ML Engineer Intern — Risk & Fraud Intelligence",
+      "description": "Razorpay is looking for an AI/ML Intern to build real-time transaction anomaly detection models. You will build and deploy inference endpoints with Python, FastAPI, and Scikit-Learn/PyTorch, evaluate false-positive trade-offs, and monitor latency under 50ms SLAs.",
+      "location": "Bengaluru, Karnataka, India",
+      "remoteType": "hybrid",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Python proficiency and Machine Learning fundamentals",
+        "FastAPI or Flask API development",
+        "SQL database queries and data preprocessing (Pandas, NumPy)",
+        "PyTorch or Scikit-Learn model training and evaluation"
+      ],
+      "eligibilityText": "Undergraduate or Graduate engineering students graduating in 2026, 2027, or 2028.",
+      "postedAt": "2026-10-01T18:13:59.099Z",
+      "deadline": "2026-10-18T18:13:59.099Z",
+      "compensationText": "₹65,000 / month stipend",
+      "metadata": {
+        "companyType": "scaleup",
+        "tier": "Tier 1"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Razorpay Careers",
+        "sourceType": "COMPANY_CAREER",
+        "sourceUrl": "https://razorpay.com/jobs/ai-ml-intern",
+        "applicationUrl": "https://razorpay.com/jobs/ai-ml-intern/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "AI/ML Engineering",
+      "mustHaveSkills": [
+        "Python proficiency and Machine Learning fundamentals",
+        "FastAPI or Flask API development",
+        "SQL database queries and data preprocessing (Pandas, NumPy)"
+      ],
+      "preferredSkills": [
+        "PyTorch or Scikit-Learn model training and evaluation"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. / M.Tech in CS / IT / Related",
+      "graduationWindow": "2026–2029",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Graduation before 2026",
+        "Non-technical degree without coding background"
+      ]
+    }
+  },
+  {
+    "id": "ats-postman-platform-intern",
+    "source": "Greenhouse (Postman)",
+    "sourceType": "ATS",
+    "sourceUrl": "https://boards.greenhouse.io/postman/jobs/5918231",
+    "applicationUrl": "https://boards.greenhouse.io/postman/jobs/5918231#app",
+    "companyId": "comp-postman",
+    "companyName": "Postman",
+    "companyType": "scaleup",
+    "title": "Software Engineering Intern — API Platform & Tooling",
+    "normalizedTitle": "Software Engineer Intern",
+    "opportunityType": "INTERNSHIP",
+    "description": "Postman is looking for a software engineering intern to help build the future of API collaboration. You will contribute to our core desktop/web clients and high-throughput backend services using TypeScript, Node.js, and React. Familiarity with REST, WebSockets, and Git is required.",
+    "responsibilities": [
+      "Develop test suites, benchmark pipelines, and core product modules",
+      "Write clean, idiomatic code adhering to team standards",
+      "Document API contracts and deployment runbooks"
+    ],
+    "location": "Bengaluru, India / Hybrid",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/ML",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "TypeScript and JavaScript programming",
+      "React and Node.js fundamentals",
+      "REST API protocols and HTTP concepts"
+    ],
+    "preferredSkills": [
+      "Git version control and automated testing"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled in degree program",
+      "Graduating between 2026 and 2029"
+    ],
+    "disqualifiers": [
+      "Graduation year before 2026"
+    ],
+    "compensation": {
+      "stipendText": "₹60,000 / month stipend"
+    },
+    "postedAt": "2026-09-30T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-24T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "createdAt": "2026-09-30T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "ats-postman-platform-intern",
+      "source": "Greenhouse (Postman)",
+      "sourceType": "ATS",
+      "sourceUrl": "https://boards.greenhouse.io/postman/jobs/5918231",
+      "applicationUrl": "https://boards.greenhouse.io/postman/jobs/5918231#app",
+      "companyName": "Postman",
+      "title": "Software Engineering Intern — API Platform & Tooling",
+      "description": "Postman is looking for a software engineering intern to help build the future of API collaboration. You will contribute to our core desktop/web clients and high-throughput backend services using TypeScript, Node.js, and React. Familiarity with REST, WebSockets, and Git is required.",
+      "location": "Bengaluru, India / Hybrid",
+      "remoteType": "hybrid",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "TypeScript and JavaScript programming",
+        "React and Node.js fundamentals",
+        "REST API protocols and HTTP concepts",
+        "Git version control and automated testing"
+      ],
+      "eligibilityText": "Students currently pursuing Bachelor's in CS/IT graduating in 2026, 2027, or 2028.",
+      "postedAt": "2026-09-30T18:13:59.099Z",
+      "deadline": "2026-10-24T18:13:59.099Z",
+      "compensationText": "₹60,000 / month stipend",
+      "metadata": {
+        "atsPlatform": "Greenhouse",
+        "atsJobId": "5918231",
+        "companyType": "scaleup"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Greenhouse (Postman)",
+        "sourceType": "ATS",
+        "sourceUrl": "https://boards.greenhouse.io/postman/jobs/5918231",
+        "applicationUrl": "https://boards.greenhouse.io/postman/jobs/5918231#app",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Software Engineering",
+      "mustHaveSkills": [
+        "TypeScript and JavaScript programming",
+        "React and Node.js fundamentals",
+        "REST API protocols and HTTP concepts"
+      ],
+      "preferredSkills": [
+        "Git version control and automated testing"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. in CS / IT",
+      "graduationWindow": "2026–2029",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Graduation before 2026"
+      ]
+    }
+  },
+  {
+    "id": "ats-scaleai-eval-intern",
+    "source": "Ashby (Scale AI)",
+    "sourceType": "ATS",
+    "sourceUrl": "https://jobs.ashbyhq.com/scaleai/3849102",
+    "applicationUrl": "https://jobs.ashbyhq.com/scaleai/3849102/application",
+    "companyId": "comp-scale-ai",
+    "companyName": "Scale AI",
+    "companyType": "scaleup",
+    "title": "AI Quality & Evaluation Engineering Intern",
+    "normalizedTitle": "AI/ML Engineer Intern",
+    "opportunityType": "INTERNSHIP",
+    "description": "Work on foundational LLM alignment, automated evaluation benchmarks, and fine-tuning pipelines. Requires strong Python, experience building with PyTorch, LangChain, or Hugging Face transformers, and analytical rigor in prompt evaluation.",
+    "responsibilities": [
+      "Develop test suites, benchmark pipelines, and core product modules",
+      "Write clean, idiomatic code adhering to team standards",
+      "Document API contracts and deployment runbooks"
+    ],
+    "location": "Remote (Global / India)",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "AI/ML",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Python and PyTorch / HuggingFace model evaluation",
+      "Prompt engineering and automated benchmarking",
+      "FastAPI or Flask for data processing services"
+    ],
+    "preferredSkills": [
+      "Statistics and data analysis (Pandas, NumPy)"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled in degree program",
+      "Graduating between 2026 and 2029"
+    ],
+    "disqualifiers": [
+      "Graduation year before 2026"
+    ],
+    "compensation": {
+      "stipendText": "$1,800 / month remote stipend (approx ₹1,50,000)"
+    },
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-19T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "createdAt": "2026-10-02T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "ats-scaleai-eval-intern",
+      "source": "Ashby (Scale AI)",
+      "sourceType": "ATS",
+      "sourceUrl": "https://jobs.ashbyhq.com/scaleai/3849102",
+      "applicationUrl": "https://jobs.ashbyhq.com/scaleai/3849102/application",
+      "companyName": "Scale AI",
+      "title": "AI Quality & Evaluation Engineering Intern",
+      "description": "Work on foundational LLM alignment, automated evaluation benchmarks, and fine-tuning pipelines. Requires strong Python, experience building with PyTorch, LangChain, or Hugging Face transformers, and analytical rigor in prompt evaluation.",
+      "location": "Remote (Global / India)",
+      "remoteType": "remote",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Python and PyTorch / HuggingFace model evaluation",
+        "Prompt engineering and automated benchmarking",
+        "FastAPI or Flask for data processing services",
+        "Statistics and data analysis (Pandas, NumPy)"
+      ],
+      "eligibilityText": "College students graduating in 2026, 2027, or 2028.",
+      "postedAt": "2026-10-02T18:13:59.099Z",
+      "deadline": "2026-10-19T18:13:59.099Z",
+      "compensationText": "$1,800 / month remote stipend (approx ₹1,50,000)",
+      "metadata": {
+        "atsPlatform": "Ashby",
+        "atsJobId": "3849102",
+        "companyType": "scaleup"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Ashby (Scale AI)",
+        "sourceType": "ATS",
+        "sourceUrl": "https://jobs.ashbyhq.com/scaleai/3849102",
+        "applicationUrl": "https://jobs.ashbyhq.com/scaleai/3849102/application",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "AI/ML Engineering",
+      "mustHaveSkills": [
+        "Python and PyTorch / HuggingFace model evaluation",
+        "Prompt engineering and automated benchmarking",
+        "FastAPI or Flask for data processing services"
+      ],
+      "preferredSkills": [
+        "Statistics and data analysis (Pandas, NumPy)"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. in CS / IT",
+      "graduationWindow": "2026–2029",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Graduation before 2026"
+      ]
+    }
+  },
+  {
+    "id": "startup-bifrost-ai-founding-intern",
+    "source": "YC Work at a Startup",
+    "sourceType": "STARTUP",
+    "sourceUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern",
+    "applicationUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern/apply",
+    "companyId": "comp-bifrost-ai",
+    "companyName": "Bifrost AI",
+    "companyType": "startup",
+    "startupStage": "Seed",
+    "title": "Founding AI Engineer Intern (YC W25)",
+    "normalizedTitle": "AI/ML Engineer Intern",
+    "description": "Bifrost is building autonomous agent evaluation pipelines for enterprise codebases. We are an early-stage YC-backed team (Seed, $3.2M) seeking an ambitious AI/ML engineering intern. You will build agent memory graphs, integrate LangGraph/FastAPI services, and work directly with the founders. Tech stack: Python, FastAPI, Docker, PyTorch, Supabase.",
+    "responsibilities": [
+      "Own end-to-end features from architecture to shipping in production",
+      "Experiment rapidly with prototype loops and user feedback",
+      "Maintain clean git commits, issue tracking, and testing"
+    ],
+    "location": "Bengaluru, India / Remote",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "BCA",
+        "MCA",
+        "Self-Taught / Open"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Engineering",
+        "Self-Directed"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Python and FastAPI backend engineering",
+      "LLM agent orchestration (LangChain, LangGraph, or LlamaIndex)",
+      "Docker containerization and local reproduction"
+    ],
+    "preferredSkills": [
+      "Vector databases (Qdrant, Pinecone, or pgvector)"
+    ],
+    "eligibilityRequirements": [
+      "Must demonstrate public projects or GitHub implementation evidence",
+      "Able to work autonomously in a fast-paced environment"
+    ],
+    "disqualifiers": [],
+    "compensation": {
+      "stipendText": "₹50,000 / month + equity upside"
+    },
+    "postedAt": "2026-10-03T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-14T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "createdAt": "2026-10-03T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "startup-bifrost-ai-founding-intern",
+      "source": "YC Work at a Startup",
+      "sourceType": "STARTUP",
+      "sourceUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern",
+      "applicationUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern/apply",
+      "companyName": "Bifrost AI",
+      "title": "Founding AI Engineer Intern (YC W25)",
+      "description": "Bifrost is building autonomous agent evaluation pipelines for enterprise codebases. We are an early-stage YC-backed team (Seed, $3.2M) seeking an ambitious AI/ML engineering intern. You will build agent memory graphs, integrate LangGraph/FastAPI services, and work directly with the founders. Tech stack: Python, FastAPI, Docker, PyTorch, Supabase.",
+      "location": "Bengaluru, India / Remote",
+      "remoteType": "remote",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Python and FastAPI backend engineering",
+        "LLM agent orchestration (LangChain, LangGraph, or LlamaIndex)",
+        "Docker containerization and local reproduction",
+        "Vector databases (Qdrant, Pinecone, or pgvector)"
+      ],
+      "eligibilityText": "Undergraduate or postgraduate students with proven GitHub projects. Open to 2026, 2027, 2028 graduates.",
+      "postedAt": "2026-10-03T18:13:59.099Z",
+      "deadline": "2026-10-14T18:13:59.099Z",
+      "compensationText": "₹50,000 / month + equity upside",
+      "metadata": {
+        "companyType": "startup",
+        "startupStage": "Seed",
+        "companySize": "4-10 employees",
+        "vcBacking": "Y Combinator"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "YC Work at a Startup",
+        "sourceType": "STARTUP",
+        "sourceUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern",
+        "applicationUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "AI/ML Engineering",
+      "mustHaveSkills": [
+        "Python and FastAPI backend engineering",
+        "LLM agent orchestration (LangChain, LangGraph, or LlamaIndex)",
+        "Docker containerization and local reproduction"
+      ],
+      "preferredSkills": [
+        "Vector databases (Qdrant, Pinecone, or pgvector)"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Open to passionate builders with strong GitHub evidence",
+      "graduationWindow": "2026–2029",
+      "locationMode": "remote",
+      "disqualifiers": [
+        "Zero demonstrable code artifacts"
+      ]
+    }
+  },
+  {
+    "id": "startup-hyperflow-fullstack-intern",
+    "source": "Peak XV Surge Portfolio",
+    "sourceType": "STARTUP",
+    "sourceUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern",
+    "applicationUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern/apply",
+    "companyId": "comp-hyperflow-data",
+    "companyName": "Hyperflow Data",
+    "companyType": "startup",
+    "startupStage": "Series A",
+    "title": "Fullstack Engineering Intern — Real-time Canvas",
+    "normalizedTitle": "Fullstack Engineer Intern",
+    "description": "Series A data infrastructure startup building low-latency visual pipeline editors. Looking for an intern who loves React, TypeScript, Next.js, and canvas / WebGL rendering. You'll build drag-and-drop state machines and collaborate with our distributed core team.",
+    "responsibilities": [
+      "Own end-to-end features from architecture to shipping in production",
+      "Experiment rapidly with prototype loops and user feedback",
+      "Maintain clean git commits, issue tracking, and testing"
+    ],
+    "location": "Bengaluru, Karnataka, India",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "BCA",
+        "MCA",
+        "Self-Taught / Open"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Engineering",
+        "Self-Directed"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2029,
+      "allowedYears": [
+        2026,
+        2027,
+        2028,
+        2029
+      ],
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "React, Next.js, and modern TypeScript",
+      "State management (Zustand, Redux, or Jotai)",
+      "CSS Modules / Tailwind and responsive UI design"
+    ],
+    "preferredSkills": [
+      "Canvas API or SVG interactive nodes"
+    ],
+    "eligibilityRequirements": [
+      "Must demonstrate public projects or GitHub implementation evidence",
+      "Able to work autonomously in a fast-paced environment"
+    ],
+    "disqualifiers": [],
+    "compensation": {
+      "stipendText": "₹55,000 / month stipend"
+    },
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-16T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "createdAt": "2026-10-01T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "startup-hyperflow-fullstack-intern",
+      "source": "Peak XV Surge Portfolio",
+      "sourceType": "STARTUP",
+      "sourceUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern",
+      "applicationUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern/apply",
+      "companyName": "Hyperflow Data",
+      "title": "Fullstack Engineering Intern — Real-time Canvas",
+      "description": "Series A data infrastructure startup building low-latency visual pipeline editors. Looking for an intern who loves React, TypeScript, Next.js, and canvas / WebGL rendering. You'll build drag-and-drop state machines and collaborate with our distributed core team.",
+      "location": "Bengaluru, Karnataka, India",
+      "remoteType": "hybrid",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "React, Next.js, and modern TypeScript",
+        "State management (Zustand, Redux, or Jotai)",
+        "CSS Modules / Tailwind and responsive UI design",
+        "Canvas API or SVG interactive nodes"
+      ],
+      "eligibilityText": "Students graduating in 2026, 2027, 2028.",
+      "postedAt": "2026-10-01T18:13:59.099Z",
+      "deadline": "2026-10-16T18:13:59.099Z",
+      "compensationText": "₹55,000 / month stipend",
+      "metadata": {
+        "companyType": "startup",
+        "startupStage": "Series A",
+        "companySize": "15-30 employees"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "Peak XV Surge Portfolio",
+        "sourceType": "STARTUP",
+        "sourceUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern",
+        "applicationUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Full-Stack Engineering",
+      "mustHaveSkills": [
+        "React, Next.js, and modern TypeScript",
+        "State management (Zustand, Redux, or Jotai)",
+        "CSS Modules / Tailwind and responsive UI design"
+      ],
+      "preferredSkills": [
+        "Canvas API or SVG interactive nodes"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Open to passionate builders with strong GitHub evidence",
+      "graduationWindow": "2026–2029",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Zero demonstrable code artifacts"
+      ]
+    }
+  },
+  {
+    "id": "campus-flipkart-grid-sde",
+    "source": "National Campus Drive (Flipkart GRiD)",
+    "sourceType": "UNIVERSITY",
+    "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70",
+    "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70/apply",
+    "companyId": "comp-flipkart",
+    "companyName": "Flipkart",
+    "companyType": "enterprise",
+    "title": "Flipkart Campus SDE-1 & Summer Internship Drive",
+    "normalizedTitle": "Software Engineer Intern",
+    "description": "Annual university flagship engineering challenge. Offers direct PPIs (Pre-Placement Interviews) and summer internships. Tracks include E-Commerce Flash Sale Architecture, Multimodal Search, and Supply Chain Optimization. Requires algorithms, data structures, and system modeling.",
+    "responsibilities": [
+      "Participate in campus coding and architectural problem sprints",
+      "Solve algorithmic test cases under time-bounded evaluation",
+      "Attend technical mentor reviews and system walkthroughs"
+    ],
+    "location": "Bengaluru, Karnataka, India",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "hybrid",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics & Communication"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2028,
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Data structures and algorithms (DSA)",
+      "Core computer science subjects (OS, DBMS, Networks)",
+      "Java, C++, or Python implementation skills"
+    ],
+    "preferredSkills": [
+      "System design and high-concurrency thinking"
+    ],
+    "eligibilityRequirements": [
+      "Strictly for students graduating in 2026, 2027, or 2028",
+      "No active backlogs at time of joining",
+      "Minimum 6.5 CGPA"
+    ],
+    "disqualifiers": [
+      "Graduation year before 2026 or after 2029",
+      "Non-engineering degree programs"
+    ],
+    "compensation": {
+      "stipendText": "₹1,00,000 / month internship + ₹32 LPA SDE-1 PPIs"
+    },
+    "postedAt": "2026-09-29T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-12T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "createdAt": "2026-09-29T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "campus-flipkart-grid-sde",
+      "source": "National Campus Drive (Flipkart GRiD)",
+      "sourceType": "UNIVERSITY",
+      "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70",
+      "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70/apply",
+      "companyName": "Flipkart",
+      "title": "Flipkart Campus SDE-1 & Summer Internship Drive",
+      "description": "Annual university flagship engineering challenge. Offers direct PPIs (Pre-Placement Interviews) and summer internships. Tracks include E-Commerce Flash Sale Architecture, Multimodal Search, and Supply Chain Optimization. Requires algorithms, data structures, and system modeling.",
+      "location": "Bengaluru, Karnataka, India",
+      "remoteType": "hybrid",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Data structures and algorithms (DSA)",
+        "Core computer science subjects (OS, DBMS, Networks)",
+        "Java, C++, or Python implementation skills",
+        "System design and high-concurrency thinking"
+      ],
+      "eligibilityText": "Students currently enrolled in B.Tech / B.E. / M.Tech / MCA graduating strictly in 2026, 2027, or 2028. Minimum 6.5 CGPA.",
+      "postedAt": "2026-09-29T18:13:59.099Z",
+      "deadline": "2026-10-12T18:13:59.099Z",
+      "compensationText": "₹1,00,000 / month internship + ₹32 LPA SDE-1 PPIs",
+      "metadata": {
+        "companyType": "enterprise",
+        "tier": "Tier 1",
+        "cgpaCutoff": 6.5
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "National Campus Drive (Flipkart GRiD)",
+        "sourceType": "UNIVERSITY",
+        "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70",
+        "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Software Engineering",
+      "mustHaveSkills": [
+        "Data structures and algorithms (DSA)",
+        "Core computer science subjects (OS, DBMS, Networks)",
+        "Java, C++, or Python implementation skills"
+      ],
+      "preferredSkills": [
+        "System design and high-concurrency thinking"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. / M.Tech in CS/IT/ECE",
+      "graduationWindow": "2026–2028",
+      "locationMode": "hybrid",
+      "disqualifiers": [
+        "Active academic backlogs",
+        "Graduation after 2028"
+      ]
+    }
+  },
+  {
+    "id": "campus-cisco-sec-intern",
+    "source": "University Pool Campus",
+    "sourceType": "UNIVERSITY",
+    "sourceUrl": "https://jobs.cisco.com/campus/intern-network-security",
+    "applicationUrl": "https://jobs.cisco.com/campus/intern-network-security/apply",
+    "companyId": "comp-cisco-systems",
+    "companyName": "Cisco Systems",
+    "companyType": "enterprise",
+    "title": "Campus Technical Intern — Cloud & Network Security",
+    "normalizedTitle": "Software Engineer Intern",
+    "description": "Cisco India campus recruitment drive for technical interns. Work on enterprise cloud security, VPN protocols, and automated telemetry collectors. Requires networking fundamentals (TCP/IP, DNS, SSL), Python scripting, and Linux command-line fluency.",
+    "responsibilities": [
+      "Participate in campus coding and architectural problem sprints",
+      "Solve algorithmic test cases under time-bounded evaluation",
+      "Attend technical mentor reviews and system walkthroughs"
+    ],
+    "location": "Bengaluru, Karnataka, India",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "onsite",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics & Communication"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2026,
+      "maxGradYear": 2028,
+      "allowedYears": [
+        2026,
+        2027,
+        2028
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Networking fundamentals (TCP/IP, Routing, DNS)",
+      "Python scripting and automation",
+      "Linux OS internals and shell scripting"
+    ],
+    "preferredSkills": [
+      "Problem solving and analytical debugging"
+    ],
+    "eligibilityRequirements": [
+      "Strictly for students graduating in 2026, 2027, or 2028",
+      "No active backlogs at time of joining",
+      "Minimum 7 CGPA"
+    ],
+    "disqualifiers": [
+      "Graduation year before 2026 or after 2029",
+      "Non-engineering degree programs"
+    ],
+    "compensation": {
+      "stipendText": "₹85,000 / month stipend"
+    },
+    "postedAt": "2026-09-28T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-10T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "ACTIVE",
+    "createdAt": "2026-09-28T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "campus-cisco-sec-intern",
+      "source": "University Pool Campus",
+      "sourceType": "UNIVERSITY",
+      "sourceUrl": "https://jobs.cisco.com/campus/intern-network-security",
+      "applicationUrl": "https://jobs.cisco.com/campus/intern-network-security/apply",
+      "companyName": "Cisco Systems",
+      "title": "Campus Technical Intern — Cloud & Network Security",
+      "description": "Cisco India campus recruitment drive for technical interns. Work on enterprise cloud security, VPN protocols, and automated telemetry collectors. Requires networking fundamentals (TCP/IP, DNS, SSL), Python scripting, and Linux command-line fluency.",
+      "location": "Bengaluru, Karnataka, India",
+      "remoteType": "onsite",
+      "employmentType": "internship",
+      "experienceLevel": "intern",
+      "requirements": [
+        "Networking fundamentals (TCP/IP, Routing, DNS)",
+        "Python scripting and automation",
+        "Linux OS internals and shell scripting",
+        "Problem solving and analytical debugging"
+      ],
+      "eligibilityText": "B.Tech / B.E. in CS, IT, ECE graduating in 2027 or 2028. No active backlogs. Minimum 7.0 CGPA.",
+      "postedAt": "2026-09-28T18:13:59.099Z",
+      "deadline": "2026-10-10T18:13:59.099Z",
+      "compensationText": "₹85,000 / month stipend",
+      "metadata": {
+        "companyType": "enterprise",
+        "tier": "Tier 1",
+        "cgpaCutoff": 7
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "University Pool Campus",
+        "sourceType": "UNIVERSITY",
+        "sourceUrl": "https://jobs.cisco.com/campus/intern-network-security",
+        "applicationUrl": "https://jobs.cisco.com/campus/intern-network-security/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Software Engineering",
+      "mustHaveSkills": [
+        "Networking fundamentals (TCP/IP, Routing, DNS)",
+        "Python scripting and automation",
+        "Linux OS internals and shell scripting"
+      ],
+      "preferredSkills": [
+        "Problem solving and analytical debugging"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech / B.E. / M.Tech in CS/IT/ECE",
+      "graduationWindow": "2026–2028",
+      "locationMode": "onsite",
+      "disqualifiers": [
+        "Active academic backlogs",
+        "Graduation after 2028"
+      ]
+    }
+  },
+  {
+    "id": "api-zepto-backend-engineer",
+    "source": "QuickCommerce Engineering API",
+    "sourceType": "JOB_API",
+    "sourceUrl": "https://zeptonow.com/careers/backend-sde-1",
+    "applicationUrl": "https://zeptonow.com/careers/backend-sde-1/apply",
+    "companyId": "comp-zepto",
+    "companyName": "Zepto",
+    "companyType": "scaleup",
+    "title": "Backend Engineer — Delivery Optimization (0-1 yr)",
+    "normalizedTitle": "Backend Software Engineer",
+    "description": "Zepto's Rider Fleet & Dispatch team is hiring a Backend Engineer. You will work on real-time driver dispatching, geo-spatial index caching (H3/Redis), and high-throughput order routing services. Requires solid knowledge of Golang or Python, PostgreSQL, and distributed caching.",
+    "responsibilities": [
+      "Build low-latency dispatch services and geospatial cache queries",
+      "Write integration tests, benchmark microservices, and optimize DB query plans",
+      "Participate in on-call rotation and root-cause incident analysis"
+    ],
+    "location": "Bengaluru, Karnataka, India",
+    "country": "India",
+    "city": "Bengaluru",
+    "remoteType": "onsite",
+    "employmentType": "full_time",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Related"
+      ],
+      "minEducationLevel": "bachelors",
+      "isMandatory": true
+    },
+    "graduationRequirements": {
+      "minGradYear": 2025,
+      "maxGradYear": 2027,
+      "allowedYears": [
+        2025,
+        2026,
+        2027
+      ],
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "workAuthRequirements": {
+      "country": "India",
+      "sponsorshipAvailable": false,
+      "requiresCitizenshipOrPR": false,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Go or Python backend engineering",
+      "PostgreSQL and Redis caching",
+      "Concurrency, mutexes, and goroutines/asyncio"
+    ],
+    "preferredSkills": [
+      "REST APIs and Microservices architecture"
+    ],
+    "eligibilityRequirements": [
+      "0-1 years of engineering experience or upcoming 2026/2027 graduate",
+      "Ability to work onsite in Bengaluru office"
+    ],
+    "disqualifiers": [
+      "Candidate strictly requiring remote work",
+      "Experience greater than 2 years (role is strictly entry-level/fresher)"
+    ],
+    "compensation": {
+      "min": 1800000,
+      "max": 2400000,
+      "currency": "INR",
+      "period": "year",
+      "stipendText": "₹18 – 24 LPA"
+    },
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-20T18:13:59.099Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "createdAt": "2026-10-02T18:13:59.099Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "rawSourceData": {
+      "id": "api-zepto-backend-engineer",
+      "source": "QuickCommerce Engineering API",
+      "sourceType": "JOB_API",
+      "sourceUrl": "https://zeptonow.com/careers/backend-sde-1",
+      "applicationUrl": "https://zeptonow.com/careers/backend-sde-1/apply",
+      "companyName": "Zepto",
+      "title": "Backend Engineer — Delivery Optimization (0-1 yr)",
+      "description": "Zepto's Rider Fleet & Dispatch team is hiring a Backend Engineer. You will work on real-time driver dispatching, geo-spatial index caching (H3/Redis), and high-throughput order routing services. Requires solid knowledge of Golang or Python, PostgreSQL, and distributed caching.",
+      "location": "Bengaluru, Karnataka, India",
+      "remoteType": "onsite",
+      "employmentType": "full_time",
+      "experienceLevel": "entry_level",
+      "requirements": [
+        "Go or Python backend engineering",
+        "PostgreSQL and Redis caching",
+        "Concurrency, mutexes, and goroutines/asyncio",
+        "REST APIs and Microservices architecture"
+      ],
+      "eligibilityText": "B.Tech/B.E. or equivalent. 0 to 1 year of experience or 2026 graduates with exceptional project depth.",
+      "postedAt": "2026-10-02T18:13:59.099Z",
+      "deadline": "2026-10-20T18:13:59.099Z",
+      "compensationText": "₹18 - 24 LPA CTC",
+      "metadata": {
+        "companyType": "scaleup",
+        "tier": "Tier 1"
+      }
+    },
+    "sourceInstances": [
+      {
+        "source": "QuickCommerce Engineering API",
+        "sourceType": "JOB_API",
+        "sourceUrl": "https://zeptonow.com/careers/backend-sde-1",
+        "applicationUrl": "https://zeptonow.com/careers/backend-sde-1/apply",
+        "retrievedAt": "2026-10-04T18:26:28.990Z",
+        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+      }
+    ],
+    "roleDNA": {
+      "roleCategory": "Backend Engineering",
+      "mustHaveSkills": [
+        "Go or Python backend engineering",
+        "PostgreSQL and Redis caching",
+        "Concurrency, mutexes, and goroutines/asyncio"
+      ],
+      "preferredSkills": [
+        "REST APIs and Microservices architecture"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "B.Tech/B.E. in CS/IT or strong project equivalent",
+      "graduationWindow": "2025–2027",
+      "locationMode": "onsite",
+      "disqualifiers": [
+        "Strict remote only preference"
+      ]
+    }
+  },
+  {
+    "id": "test-new-hackathon-2026",
+    "source": "Mock Source",
+    "sourceType": "UNSTOP",
+    "sourceUrl": "https://unstop.com/competitions/test-new-hackathon-2026",
+    "applicationUrl": "https://unstop.com/competitions/test-new-hackathon-2026/apply",
+    "companyId": "org-google-cloud",
+    "companyName": "Google Cloud Labs",
+    "organizer": "Google Cloud",
+    "title": "Google Cloud Next Gen Innovators Hackathon 2026",
+    "normalizedTitle": "Google Cloud Next Gen Innovators Hackathon 2026",
+    "opportunityType": "HACKATHON",
+    "description": "Build cutting-edge agentic workflows with Vertex AI and Kubernetes.",
+    "responsibilities": [
+      "Build agentic prototype",
+      "Submit repo and demo"
+    ],
+    "location": "India / Virtual",
+    "country": "India",
+    "city": "Virtual",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "M.Tech"
+      ],
+      "fieldsAllowed": [
+        "Computer Science"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "allowedYears": [
+        2026,
+        2027
+      ],
+      "currentlyEnrolledRequired": true,
+      "isMandatory": true
+    },
+    "requiredSkills": [
+      "Python",
+      "Kubernetes"
+    ],
+    "preferredSkills": [
+      "Vertex AI"
+    ],
+    "eligibilityRequirements": [
+      "Enrolled engineering students"
+    ],
+    "disqualifiers": [],
+    "prize": "₹5,00,000 + Google Cloud Credits",
+    "postedAt": "2026-10-04T17:36:30.284Z",
+    "updatedAt": "2026-10-04T17:36:30.284Z",
+    "deadline": "2026-10-19T17:36:30.284Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Engineering Challenge",
+      "mustHaveSkills": [
+        "Python",
+        "Kubernetes"
+      ],
+      "preferredSkills": [
+        "Vertex AI"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "Enrolled engineering students",
+      "graduationWindow": "2026-2027",
+      "locationMode": "remote",
+      "disqualifiers": []
+    },
+    "createdAt": "2026-10-04T17:36:30.284Z",
+    "lastVerifiedAt": "2026-10-04T17:36:30.284Z",
+    "sourceInstances": [
+      {
+        "source": "Mock Source",
+        "sourceType": "UNSTOP",
+        "sourceUrl": "https://unstop.com/competitions/test-new-hackathon-2026",
+        "applicationUrl": "https://unstop.com/competitions/test-new-hackathon-2026/apply",
+        "retrievedAt": "2026-10-04T17:36:30.284Z",
+        "lastVerifiedAt": "2026-10-04T17:36:30.284Z"
+      }
+    ]
+  },
+  {
+    "id": "healthy-devpost-item",
+    "source": "Devpost",
+    "sourceType": "DEVPOST",
+    "sourceUrl": "https://devpost.com/healthy",
+    "applicationUrl": "https://devpost.com/healthy/apply",
+    "companyId": "org-openai",
+    "companyName": "OpenAI",
+    "title": "OpenAI Agents Hackathon",
+    "normalizedTitle": "OpenAI Agents Hackathon",
+    "opportunityType": "HACKATHON",
+    "description": "Build autonomous multi-agent systems.",
+    "responsibilities": [
+      "Build agent system"
+    ],
+    "location": "Virtual",
+    "country": "Global",
+    "city": "Virtual",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "All"
+      ],
+      "fieldsAllowed": [
+        "All"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "currentlyEnrolledRequired": false,
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Python",
+      "Agents"
+    ],
+    "preferredSkills": [],
+    "eligibilityRequirements": [],
+    "disqualifiers": [],
+    "postedAt": "2026-10-04T17:36:30.288Z",
+    "updatedAt": "2026-10-04T17:36:30.288Z",
+    "deadline": "2026-10-14T17:36:30.287Z",
+    "status": "ACTIVE",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Hackathon",
+      "mustHaveSkills": [
+        "Python"
+      ],
+      "preferredSkills": [],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 1,
+      "educationSummary": "All",
+      "graduationWindow": "Any",
+      "locationMode": "remote",
+      "disqualifiers": []
+    },
+    "createdAt": "2026-10-04T17:36:30.288Z",
+    "lastVerifiedAt": "2026-10-04T17:36:30.288Z",
+    "sourceInstances": [
+      {
+        "source": "Devpost",
+        "sourceType": "DEVPOST",
+        "sourceUrl": "https://devpost.com/healthy",
+        "applicationUrl": "https://devpost.com/healthy/apply",
+        "retrievedAt": "2026-10-04T17:36:30.288Z",
+        "lastVerifiedAt": "2026-10-04T17:36:30.288Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerrank-world-codesprint-2026",
+    "canonicalOpportunityId": "hackerrank-world-codesprint-2026",
+    "source": "HackerRank",
+    "sourceType": "HACKERRANK",
+    "sourceId": "world-codesprint-2026",
+    "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "sourceUrls": [
+      "https://www.hackerrank.com/contests/world-codesprint-2026"
+    ],
+    "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "canonicalUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "companyId": "org-hackerrank",
+    "companyName": "HackerRank",
+    "organizer": "HackerRank Community",
+    "companyType": "enterprise",
+    "title": "HackerRank World CodeSprint 2026",
+    "normalizedTitle": "hackerrank world codesprint 2026",
+    "opportunityType": "COMPETITION",
+    "classification": "CODING_CONTEST",
+    "description": "Flagship global algorithmic sprint featuring 8 progressive problem sets spanning graph theory, dynamic programming, combinatorics, and computational geometry. Top performers earn global leaderboard rank and direct recruiter referrals.",
+    "responsibilities": [
+      "Solve algorithmic problem statements within the specified time constraints",
+      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
+      "Pass all hidden test cases including large-scale edge cases"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
+      "Advanced Dynamic Programming & State Compression",
+      "Graph Algorithms (Shortest Path, Max Flow, SCC)",
+      "Time & Space Complexity Optimization"
+    ],
+    "preferredSkills": [
+      "Competitive Programming",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Java",
+      "Python",
+      "Go"
+    ],
+    "domains": [
+      "Algorithms",
+      "Computer Science"
+    ],
+    "tags": [
+      "Algorithms",
+      "Data Structures",
+      "Competitive Programming",
+      "C++",
+      "Python",
+      "Java"
+    ],
+    "eligibilityRequirements": [
+      "Open to all students, competitive programmers, and developers globally. Individual participation only."
+    ],
+    "disqualifiers": [
+      "Plagiarism / code sharing between participants"
+    ],
+    "teamSize": "Individual (1 Member)",
+    "prize": "$15,000 USD Total Prize Pool + Gold Badges",
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-14T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
+        "Advanced Dynamic Programming & State Compression",
+        "Graph Algorithms (Shortest Path, Max Flow, SCC)"
+      ],
+      "preferredSkills": [
+        "Time Complexity Optimization",
+        "C++ STL"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Code plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerRank",
+      "classification": "CODING_CONTEST",
+      "contestDuration": "48 Hours",
+      "problemCount": 8
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerRank",
+        "sourceType": "HACKERRANK",
+        "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+        "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+        "retrievedAt": "2026-10-04T18:14:07.301Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.301Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerrank-hack-the-interview-vi",
+    "canonicalOpportunityId": "hackerrank-hack-the-interview-vi",
+    "source": "HackerRank",
+    "sourceType": "HACKERRANK",
+    "sourceId": "hack-the-interview-vi",
+    "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "sourceUrls": [
+      "https://www.hackerrank.com/contests/hack-the-interview-vi-apac"
+    ],
+    "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "canonicalUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "companyId": "org-hackerrank",
+    "companyName": "HackerRank Enterprise",
+    "organizer": "HackerRank APAC Hiring Network",
+    "companyType": "enterprise",
+    "title": "Hack the Interview VI — APAC Developer Hiring Challenge",
+    "normalizedTitle": "hack the interview vi   apac developer hiring challenge",
+    "opportunityType": "CHALLENGE",
+    "classification": "CODING_CONTEST",
+    "description": "Standardized technical assessment contest simulating premier enterprise engineering interviews. Scores are forwarded to participating tech sponsors across India and Southeast Asia for SDE-1 and Intern roles.",
+    "responsibilities": [
+      "Solve algorithmic problem statements within the specified time constraints",
+      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
+      "Pass all hidden test cases including large-scale edge cases"
+    ],
+    "location": "India & APAC (Virtual)",
+    "locations": [
+      "India",
+      "Singapore"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
+      "String Manipulation & Pattern Searching",
+      "Modular Arithmetic & Bit Manipulation",
+      "Clean, production-grade code structure"
+    ],
+    "preferredSkills": [
+      "Competitive Programming",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Python",
+      "Java"
+    ],
+    "domains": [
+      "Hiring Challenge",
+      "Software Engineering"
+    ],
+    "tags": [
+      "DSA",
+      "Interview Prep",
+      "Problem Solving",
+      "SDE"
+    ],
+    "eligibilityRequirements": [
+      "Graduating classes of 2026, 2027, and 2028 seeking software engineering roles."
+    ],
+    "disqualifiers": [
+      "Plagiarism / code sharing between participants"
+    ],
+    "teamSize": "1 Member",
+    "prize": "Direct SDE-1 Interviews with 25+ Tech Partners",
+    "postedAt": "2026-09-30T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-16T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
+        "String Manipulation & Pattern Searching",
+        "Modular Arithmetic & Bit Manipulation"
+      ],
+      "preferredSkills": [
+        "Time Complexity Optimization",
+        "C++ STL"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Code plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerRank",
+      "classification": "DSA_CONTEST",
+      "contestDuration": "3 Hours",
+      "problemCount": 4
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerRank",
+        "sourceType": "HACKERRANK",
+        "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+        "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+        "retrievedAt": "2026-10-04T18:14:07.301Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.301Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerearth-juspay-developer-challenge-2026",
+    "canonicalOpportunityId": "hackerearth-juspay-developer-challenge-2026",
+    "source": "HackerEarth",
+    "sourceType": "HACKEREARTH",
+    "sourceId": "juspay-developer-challenge-2026",
+    "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "sourceUrls": [
+      "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026"
+    ],
+    "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "canonicalUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "companyId": "org-juspay-technologies",
+    "companyName": "Juspay Technologies",
+    "organizer": "Juspay",
+    "companyType": "enterprise",
+    "title": "Juspay Developer Challenge 2026 — Distributed Systems & FP",
+    "normalizedTitle": "juspay developer challenge 2026   distributed systems   fp",
+    "opportunityType": "CHALLENGE",
+    "classification": "HIRING_CHALLENGE",
+    "description": "Juspay's signature engineering challenge evaluating functional programming, multi-threaded locking, and high-throughput transaction routing. Fast-tracks top rankers to Technical Architect and SDE interviews with CTC up to ₹27 LPA.",
+    "responsibilities": [
+      "Design scalable architecture directly addressing the challenge problem statement",
+      "Implement clean source code in specified languages/frameworks with test coverage",
+      "Demonstrate working integration and verifiable business metrics in final demo"
+    ],
+    "location": "Bengaluru, India (Virtual Preliminary + Hackathon)",
+    "locations": [
+      "Bengaluru",
+      "National Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "full_time",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "Related"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Concurrent programming, Mutexes, and Thread Pools",
+      "Functional Programming fundamentals (Pure functions, Immutability)",
+      "Data structures: Graphs, Hash Maps, Priority Queues",
+      "Low-latency API handling"
+    ],
+    "preferredSkills": [
+      "Containerization",
+      "API Integration",
+      "High Throughput"
+    ],
+    "technologies": [
+      "Java",
+      "Rust",
+      "Haskell",
+      "Go",
+      "PostgreSQL"
+    ],
+    "domains": [
+      "Fintech",
+      "Payments",
+      "Low Latency"
+    ],
+    "tags": [
+      "Distributed Systems",
+      "Concurrency",
+      "Functional Programming",
+      "Java",
+      "Haskell",
+      "Rust"
+    ],
+    "eligibilityRequirements": [
+      "Pre-final and final year B.Tech/B.E./Dual Degree engineering students."
+    ],
+    "disqualifiers": [
+      "Plagiarism / submitting prior commercial code"
+    ],
+    "teamSize": "Individual / 1 - 2 Members",
+    "prize": "₹3,00,000 Cash Pool + SDE Full-Time Offers (CTC ₹27 LPA)",
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-19T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Engineering & Hackathons",
+      "mustHaveSkills": [
+        "Concurrent programming, Mutexes, and Thread Pools",
+        "Functional Programming fundamentals (Pure functions, Immutability)",
+        "Data structures: Graphs, Hash Maps, Priority Queues"
+      ],
+      "preferredSkills": [
+        "Microservices",
+        "REST APIs"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Engineering students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Ineligible graduation year"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerEarth",
+      "classification": "HIRING_CHALLENGE",
+      "roundStructure": "Round 1: Online Coding -> Round 2: System Hackathon -> Interviews"
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerEarth",
+        "sourceType": "HACKEREARTH",
+        "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+        "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+        "retrievedAt": "2026-10-04T18:14:07.302Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerearth-siemens-ai-hackathon",
+    "canonicalOpportunityId": "hackerearth-siemens-ai-hackathon",
+    "source": "HackerEarth",
+    "sourceType": "HACKEREARTH",
+    "sourceId": "siemens-ai-innovation-2026",
+    "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "sourceUrls": [
+      "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026"
+    ],
+    "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "canonicalUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "companyId": "org-siemens-technology",
+    "companyName": "Siemens Technology",
+    "organizer": "Siemens Advanta",
+    "companyType": "enterprise",
+    "title": "Siemens Industrial AI & Edge Computing Hackathon",
+    "normalizedTitle": "siemens industrial ai   edge computing hackathon",
+    "opportunityType": "HACKATHON",
+    "classification": "AI_HACKATHON",
+    "description": "Build generative AI and edge computing solutions for industrial automation, predictive asset maintenance, and energy grid optimization using telemetry sensor streams.",
+    "responsibilities": [
+      "Design scalable architecture directly addressing the challenge problem statement",
+      "Implement clean source code in specified languages/frameworks with test coverage",
+      "Demonstrate working integration and verifiable business metrics in final demo"
+    ],
+    "location": "Bengaluru / Virtual",
+    "locations": [
+      "Bengaluru",
+      "Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "Related"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Time-series analysis and anomaly detection",
+      "Computer Vision or LLM integration with IoT streams",
+      "Docker containerization for edge inference",
+      "Python (FastAPI, PyTorch, Scikit-learn)"
+    ],
+    "preferredSkills": [
+      "Containerization",
+      "API Integration",
+      "High Throughput"
+    ],
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "Docker",
+      "FastAPI",
+      "MQTT"
+    ],
+    "domains": [
+      "Industrial Automation",
+      "Artificial Intelligence"
+    ],
+    "tags": [
+      "AI",
+      "Edge Computing",
+      "IoT",
+      "PyTorch",
+      "Docker"
+    ],
+    "eligibilityRequirements": [
+      "Students and professional developers interested in Industrial IoT and AI."
+    ],
+    "disqualifiers": [
+      "Plagiarism / submitting prior commercial code"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹4,50,000 Total Prizes + Fast-Track AI Internships",
+    "postedAt": "2026-09-29T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-22T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Engineering & Hackathons",
+      "mustHaveSkills": [
+        "Time-series analysis and anomaly detection",
+        "Computer Vision or LLM integration with IoT streams",
+        "Docker containerization for edge inference"
+      ],
+      "preferredSkills": [
+        "Microservices",
+        "REST APIs"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Engineering students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Ineligible graduation year"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerEarth",
+      "classification": "AI_HACKATHON",
+      "tracks": [
+        "Predictive Maintenance",
+        "Smart Grid AI",
+        "Edge Vision"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerEarth",
+        "sourceType": "HACKEREARTH",
+        "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+        "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+        "retrievedAt": "2026-10-04T18:14:07.302Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
+      }
+    ]
+  },
+  {
+    "id": "kaggle-llm-reasoning-challenge-2026",
+    "canonicalOpportunityId": "kaggle-llm-reasoning-challenge-2026",
+    "source": "Kaggle",
+    "sourceType": "KAGGLE",
+    "sourceId": "llm-reasoning-challenge-2026",
+    "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "sourceUrls": [
+      "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026"
+    ],
+    "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "canonicalUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "companyId": "org-kaggle",
+    "companyName": "Google DeepMind / Kaggle",
+    "organizer": "Kaggle Research",
+    "companyType": "enterprise",
+    "title": "LLM Science Reasoning & Self-Correction Challenge",
+    "normalizedTitle": "llm science reasoning   self correction challenge",
+    "opportunityType": "COMPETITION",
+    "classification": "ML_COMPETITION",
+    "description": "Develop lightweight open-weights LLM pipelines (<=9B parameters) capable of multi-step logical deduction, scientific hypothesis verification, and automated self-correction under strict inference runtime limits (<=9 hours GPU).",
+    "responsibilities": [
+      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
+      "Engineer domain features and build local cross-validation strategy aligned with official metric",
+      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Data Science",
+        "Mathematics",
+        "Statistics",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
+      "Evaluation metric: Exact Match + Weighted F1 score",
+      "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM",
+      "Kaggle Notebook submission runtime limits compliance"
+    ],
+    "preferredSkills": [
+      "PyTorch",
+      "Cross-Validation",
+      "Ensembling",
+      "Feature Engineering"
+    ],
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "Hugging Face",
+      "vLLM",
+      "Weights & Biases"
+    ],
+    "domains": [
+      "Machine Learning",
+      "Artificial Intelligence",
+      "NLP"
+    ],
+    "tags": [
+      "NLP",
+      "LLM",
+      "PyTorch",
+      "Transformers",
+      "Machine Learning"
+    ],
+    "eligibilityRequirements": [
+      "Open to researchers, students, and practitioners worldwide."
+    ],
+    "disqualifiers": [
+      "Private sharing of code or data outside team"
+    ],
+    "teamSize": "1 - 5 Members",
+    "prize": "$100,000 USD Total Prize Pool + Kaggle Grandmaster Medals",
+    "postedAt": "2026-09-28T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-28T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Machine Learning & Data Science Competitions",
+      "mustHaveSkills": [
+        "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
+        "Evaluation metric: Exact Match + Weighted F1 score",
+        "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM"
+      ],
+      "preferredSkills": [
+        "PyTorch",
+        "XGBoost",
+        "Cross-Validation"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all ML practitioners and students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "External code sharing violation"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Kaggle",
+      "classification": "ML_COMPETITION",
+      "evaluationMetric": "Macro F1 & Scientific Accuracy",
+      "hardwareConstraint": "Kaggle GPU T4/P100 (<=9 hours runtime)"
+    },
+    "sourceInstances": [
+      {
+        "source": "Kaggle",
+        "sourceType": "KAGGLE",
+        "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+        "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+        "retrievedAt": "2026-10-04T18:14:07.302Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
+      }
+    ]
+  },
+  {
+    "id": "kaggle-tabular-predictive-sprint-2026",
+    "canonicalOpportunityId": "kaggle-tabular-predictive-sprint-2026",
+    "source": "Kaggle",
+    "sourceType": "KAGGLE",
+    "sourceId": "tabular-predictive-sprint-2026",
+    "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "sourceUrls": [
+      "https://www.kaggle.com/competitions/tabular-playground-series-2026"
+    ],
+    "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "canonicalUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "companyId": "org-kaggle",
+    "companyName": "Kaggle Community",
+    "organizer": "Kaggle",
+    "companyType": "enterprise",
+    "title": "Kaggle Tabular Playground Series — High-Dimension Risk Prediction",
+    "normalizedTitle": "kaggle tabular playground series   high dimension risk prediction",
+    "opportunityType": "COMPETITION",
+    "classification": "ML_COMPETITION",
+    "description": "Predict customer credit default and transaction risk on 1.2M rows of anonymized transactional tabular features. Evaluated on Area Under the ROC Curve (ROC-AUC).",
+    "responsibilities": [
+      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
+      "Engineer domain features and build local cross-validation strategy aligned with official metric",
+      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Data Science",
+        "Mathematics",
+        "Statistics",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Feature engineering on tabular numerical and categorical data",
+      "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
+      "Stratified K-Fold cross-validation and out-of-fold ensembling",
+      "Metric: Area Under ROC Curve (ROC-AUC)"
+    ],
+    "preferredSkills": [
+      "PyTorch",
+      "Cross-Validation",
+      "Ensembling",
+      "Feature Engineering"
+    ],
+    "technologies": [
+      "Python",
+      "XGBoost",
+      "LightGBM",
+      "CatBoost",
+      "Pandas",
+      "Scikit-Learn"
+    ],
+    "domains": [
+      "Data Science",
+      "Machine Learning"
+    ],
+    "tags": [
+      "Tabular",
+      "XGBoost",
+      "LightGBM",
+      "Scikit-Learn",
+      "Feature Engineering"
+    ],
+    "eligibilityRequirements": [
+      "Open to all Kaggle participants."
+    ],
+    "disqualifiers": [
+      "Private sharing of code or data outside team"
+    ],
+    "teamSize": "1 - 3 Members",
+    "prize": "$25,000 USD Prize Pool + Kaggle Tier Badges",
+    "postedAt": "2026-10-02T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-20T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Machine Learning & Data Science Competitions",
+      "mustHaveSkills": [
+        "Feature engineering on tabular numerical and categorical data",
+        "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
+        "Stratified K-Fold cross-validation and out-of-fold ensembling"
+      ],
+      "preferredSkills": [
+        "PyTorch",
+        "XGBoost",
+        "Cross-Validation"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all ML practitioners and students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "External code sharing violation"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Kaggle",
+      "classification": "ML_COMPETITION",
+      "evaluationMetric": "ROC-AUC",
+      "datasetSize": "1.2 Million Rows"
+    },
+    "sourceInstances": [
+      {
+        "source": "Kaggle",
+        "sourceType": "KAGGLE",
+        "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+        "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+        "retrievedAt": "2026-10-04T18:14:07.302Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
+      }
+    ]
+  },
+  {
+    "id": "codechef-starters-150",
+    "canonicalOpportunityId": "codechef-starters-150",
+    "source": "CodeChef",
+    "sourceType": "CODECHEF",
+    "sourceId": "starters-150",
+    "sourceUrl": "https://www.codechef.com/START150",
+    "sourceUrls": [
+      "https://www.codechef.com/START150"
+    ],
+    "applicationUrl": "https://www.codechef.com/START150",
+    "canonicalUrl": "https://www.codechef.com/START150",
+    "companyId": "org-codechef",
+    "companyName": "CodeChef",
+    "organizer": "CodeChef Community",
+    "companyType": "enterprise",
+    "title": "CodeChef Starters 150 (Rated for Div 2, 3, 4)",
+    "normalizedTitle": "codechef starters 150  rated for div 2  3  4",
+    "opportunityType": "COMPETITION",
+    "classification": "CODING_CONTEST",
+    "description": "Weekly rated contest tailored for collegiate and early-career software engineers. Consists of 6-8 algorithmic problems testing mathematical reasoning, greedy strategies, binary search on answer, and tree traversals.",
+    "responsibilities": [
+      "Solve algorithmic questions within the 2-hour contest window",
+      "Implement optimal asymptotic time complexity to avoid Time Limit Exceeded (TLE)",
+      "Handle numeric edge cases, overflows, and large 64-bit integer ranges"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Engineering",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
+      "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
+      "Binary Search, Two Pointers, and Prefix Sums",
+      "Strict 1.0s time limit execution"
+    ],
+    "preferredSkills": [
+      "Binary Search",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Java",
+      "Python"
+    ],
+    "domains": [
+      "Competitive Programming",
+      "Algorithms"
+    ],
+    "tags": [
+      "Algorithms",
+      "Competitive Programming",
+      "C++",
+      "Math",
+      "DSA"
+    ],
+    "eligibilityRequirements": [
+      "Open to all registered CodeChef handles. Rated for Divisions 2, 3, and 4."
+    ],
+    "disqualifiers": [
+      "Sharing solutions during contest window"
+    ],
+    "teamSize": "1 Member",
+    "prize": "CodeChef Laddus + Global Rating Increment",
+    "postedAt": "2026-10-03T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-08T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
+        "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
+        "Binary Search, Two Pointers, and Prefix Sums"
+      ],
+      "preferredSkills": [
+        "C++ STL",
+        "Time Complexity Analysis"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "CodeChef",
+      "classification": "CODING_CONTEST",
+      "duration": "2 Hours",
+      "ratedDivisions": [
+        "Div 2",
+        "Div 3",
+        "Div 4"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "CodeChef",
+        "sourceType": "CODECHEF",
+        "sourceUrl": "https://www.codechef.com/START150",
+        "applicationUrl": "https://www.codechef.com/START150",
+        "retrievedAt": "2026-10-04T18:14:07.302Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
+      }
+    ]
+  },
+  {
+    "id": "opensource-gsoc-2026",
+    "canonicalOpportunityId": "opensource-gsoc-2026",
+    "source": "Google Open Source",
+    "sourceType": "OPEN_SOURCE",
+    "sourceId": "gsoc-2026",
+    "sourceUrl": "https://summerofcode.withgoogle.com",
+    "sourceUrls": [
+      "https://summerofcode.withgoogle.com"
+    ],
+    "applicationUrl": "https://summerofcode.withgoogle.com",
+    "canonicalUrl": "https://summerofcode.withgoogle.com",
+    "companyId": "org-google-open-source",
+    "companyName": "Google Open Source",
+    "organizer": "Google & Open Source Organizations",
+    "companyType": "scaleup",
+    "title": "Google Summer of Code (GSoC) 2026",
+    "normalizedTitle": "google summer of code  gsoc  2026",
+    "opportunityType": "FELLOWSHIP",
+    "classification": "OPEN_SOURCE_PROGRAM",
+    "description": "Google's global program bringing new contributors into open source software development. Contributors work with an open source mentoring organization (e.g. Apache, Linux, Python Software Foundation, CNCF) on a 12-to-22 week programming project under experienced mentorship.",
+    "responsibilities": [
+      "Audit existing codebase architecture, issue trackers, and developer documentation",
+      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
+      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
+      "Submit milestone evaluations and maintain continuous CI/CD green builds"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Git version control and collaborative GitHub/GitLab pull request workflows",
+      "Ability to analyze large existing open-source codebases and write unit tests",
+      "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)",
+      "Preparation of an in-depth technical project proposal with milestone deliverables"
+    ],
+    "preferredSkills": [
+      "Code Review",
+      "Unit Testing",
+      "Documentation",
+      "CI/CD"
+    ],
+    "technologies": [
+      "Git",
+      "GitHub",
+      "Python",
+      "Go",
+      "Rust",
+      "C++",
+      "Docker"
+    ],
+    "domains": [
+      "Open Source",
+      "Software Engineering"
+    ],
+    "tags": [
+      "Open Source",
+      "GSoC",
+      "Git",
+      "GitHub",
+      "Fellowship",
+      "Mentorship"
+    ],
+    "eligibilityRequirements": [
+      "Open to students and beginner/intermediate open source contributors aged 18+ globally."
+    ],
+    "disqualifiers": [
+      "Ghosting mentors / failing milestone progress deadlines"
+    ],
+    "teamSize": "Individual Contributor",
+    "prize": "$1,500 - $6,600 USD Tiered Stipend (based on country PPP) + Certificate",
+    "postedAt": "2026-09-29T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-24T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Open Source Fellowship & Mentorship",
+      "mustHaveSkills": [
+        "Git version control and collaborative GitHub/GitLab pull request workflows",
+        "Ability to analyze large existing open-source codebases and write unit tests",
+        "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)"
+      ],
+      "preferredSkills": [
+        "Documentation",
+        "Issue Triage",
+        "Pull Request Etiquette"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarized proposal"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Google Summer of Code",
+      "classification": "OPEN_SOURCE_PROGRAM",
+      "durationWeeks": "12 - 22 Weeks",
+      "stipendModel": "Tiered by Country PPP"
+    },
+    "sourceInstances": [
+      {
+        "source": "Google Open Source",
+        "sourceType": "OPEN_SOURCE",
+        "sourceUrl": "https://summerofcode.withgoogle.com",
+        "applicationUrl": "https://summerofcode.withgoogle.com",
+        "retrievedAt": "2026-10-04T18:14:07.303Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.303Z"
+      }
+    ]
+  },
+  {
+    "id": "opensource-lfx-mentorship-2026",
+    "canonicalOpportunityId": "opensource-lfx-mentorship-2026",
+    "source": "Linux Foundation",
+    "sourceType": "OPEN_SOURCE",
+    "sourceId": "lfx-mentorship-2026",
+    "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "sourceUrls": [
+      "https://mentorship.lfx.linuxfoundation.org"
+    ],
+    "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "canonicalUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "companyId": "org-linux-foundation",
+    "companyName": "Linux Foundation",
+    "organizer": "CNCF & Linux Foundation Projects",
+    "companyType": "scaleup",
+    "title": "LFX Mentorship 2026 — Cloud Native & Linux Kernel Projects",
+    "normalizedTitle": "lfx mentorship 2026   cloud native   linux kernel projects",
+    "opportunityType": "FELLOWSHIP",
+    "classification": "OPEN_SOURCE_PROGRAM",
+    "description": "Mentorship opportunity to contribute directly to foundational cloud-native infrastructure projects under the Linux Foundation (Kubernetes, Envoy, Prometheus, OpenTelemetry, Cilium). Top mentees are directly hired by cloud-native enterprises.",
+    "responsibilities": [
+      "Audit existing codebase architecture, issue trackers, and developer documentation",
+      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
+      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
+      "Submit milestone evaluations and maintain continuous CI/CD green builds"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
+      "Understanding of container runtimes, networking, or observability",
+      "Prior verifiable open source contributions / merged pull requests",
+      "Clear technical communication in English"
+    ],
+    "preferredSkills": [
+      "Code Review",
+      "Unit Testing",
+      "Documentation",
+      "CI/CD"
+    ],
+    "technologies": [
+      "Go",
+      "Rust",
+      "Kubernetes",
+      "Docker",
+      "Git"
+    ],
+    "domains": [
+      "Infrastructure",
+      "Cloud Native",
+      "Systems"
+    ],
+    "tags": [
+      "Cloud Native",
+      "Kubernetes",
+      "Go",
+      "Rust",
+      "LFX",
+      "Open Source"
+    ],
+    "eligibilityRequirements": [
+      "Open to all developers and students worldwide eligible to receive stipend."
+    ],
+    "disqualifiers": [
+      "Ghosting mentors / failing milestone progress deadlines"
+    ],
+    "teamSize": "Individual",
+    "prize": "$3,000 - $6,600 USD Stipend + KubeCon Pass & Recruiter Visibility",
+    "postedAt": "2026-10-01T18:13:59.099Z",
+    "updatedAt": "2026-10-04T18:26:28.990Z",
+    "deadline": "2026-10-22T18:13:59.099Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Open Source Fellowship & Mentorship",
+      "mustHaveSkills": [
+        "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
+        "Understanding of container runtimes, networking, or observability",
+        "Prior verifiable open source contributions / merged pull requests"
+      ],
+      "preferredSkills": [
+        "Documentation",
+        "Issue Triage",
+        "Pull Request Etiquette"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarized proposal"
+      ]
+    },
+    "createdAt": "2026-10-04T18:26:28.989Z",
+    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "LFX Mentorship",
+      "classification": "OPEN_SOURCE_PROGRAM",
+      "projectExamples": [
+        "Kubernetes SIGs",
+        "Prometheus Agent",
+        "Envoy Gateway"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "Linux Foundation",
+        "sourceType": "OPEN_SOURCE",
+        "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
+        "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
+        "retrievedAt": "2026-10-04T18:14:07.303Z",
+        "lastVerifiedAt": "2026-10-04T18:14:07.303Z"
+      }
+    ]
+  }
+]

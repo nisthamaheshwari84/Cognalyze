@@ -67,10 +67,10 @@ function Typewriter({ text, speed = 8, onDone }: { text: string; speed?: number;
 }
 
 type Step = "input" | "loading" | "results";
-type SectionFilter = "all" | "s1" | "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8" | "s9" | "s10" | "s11";
+type SectionFilter = "all" | "s1" | "s2" | "s3" | "s4" | "s5" | "s6" | "s7" | "s8" | "s9" | "s10" | "s11" | "s12";
 
 const SECTIONS = [
-  { id: "all", label: "📄 Full Dossier (All 11 Sections)" },
+  { id: "all", label: "📄 Full Dossier (All 12 Sections)" },
   { id: "s1", label: "1. Role Alignment" },
   { id: "s2", label: "2. Requirement Table" },
   { id: "s3", label: "3. Evidence Review" },
@@ -82,6 +82,7 @@ const SECTIONS = [
   { id: "s9", label: "9. Roadmap" },
   { id: "s10", label: "10. Interview Focus" },
   { id: "s11", label: "11. Final Verdict" },
+  { id: "s12", label: "12. Opportunities Found For You" },
 ];
 
 export default function ResumeIntelligenceView() {
@@ -125,13 +126,52 @@ export default function ResumeIntelligenceView() {
   const [copied, setCopied] = useState(false);
   const rawRef = useRef<FeedbackResult[]>([]);
 
+  // Automatic Opportunity Discovery State
+  const [oppLoading, setOppLoading] = useState(false);
+  const [oppData, setOppData] = useState<{
+    totalResearched: number;
+    totalMatched: number;
+    summaryText: string;
+    categories: {
+      strongOpportunities: any[];
+      opportunitiesWithGaps: any[];
+      otherOpportunities: any[];
+    };
+    sourcesCount: number;
+    lastResearchedAt: string;
+  } | null>(null);
+  const [oppStep, setOppStep] = useState<number>(0);
+  const [oppCategoryTab, setOppCategoryTab] = useState<"strong" | "gaps" | "other">("strong");
+
+  const triggerOpportunityDiscovery = async (sId: string = "student-demo") => {
+    setOppLoading(true);
+    setOppStep(1); // 1: Resume analyzed
+    setTimeout(() => setOppStep(2), 500); // 2: Student DNA updated
+    setTimeout(() => setOppStep(3), 1100); // 3: Candidate evidence understood
+    setTimeout(() => setOppStep(4), 1700); // 4: Researching current opportunities
+    setTimeout(() => setOppStep(5), 2300); // 5: Comparing opportunities with your evidence
+
+    try {
+      const res = await fetch(`/api/opportunities/auto-discover?studentId=${sId}`);
+      const data = await res.json();
+      if (data.success) {
+        setOppData(data);
+        setOppStep(6); // 6: Completed
+      }
+    } catch (e) {
+      console.error("Opportunity auto-discovery error:", e);
+    } finally {
+      setOppLoading(false);
+    }
+  };
+
   const msgs = [
     "Ingesting complete job description & extracting canonical requirements",
     "Ingesting full resume text & generating structured evidence inventory",
     "Building canonical evidence graph with source-level provenance",
     "Executing hybrid matching: exact, ontology bounds & semantic verification",
     "Calculating deterministic weighted score (Critical 60%, Important 30%, Preferred 10%)",
-    "Enforcing zero-fabrication validation gate & synthesizing 11-section panel review",
+    "Enforcing zero-fabrication validation gate & synthesizing 12-section panel review",
   ];
 
   const handleFileUpload = async (file: File) => {
@@ -187,6 +227,7 @@ export default function ResumeIntelligenceView() {
         setResults([]);
         setCurrentIdx(0);
         setStep("results");
+        triggerOpportunityDiscovery(data.studentId || "student-demo");
       } else {
         throw new Error(data.error || "Analysis could not be completed reliably.");
       }
@@ -237,6 +278,9 @@ export default function ResumeIntelligenceView() {
     setSelectedBullet(null);
     setInspectedEvidence(null);
     setActiveSection("all");
+    setOppData(null);
+    setOppStep(0);
+    setOppLoading(false);
   };
 
   const openInspectForMatch = (m: any) => {
@@ -1391,6 +1435,307 @@ export default function ResumeIntelligenceView() {
                   "Lead technical discussions with your verified project implementation workflows, and speak proactively to prototype deployments currently in progress."}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════
+            SECTION 12: OPPORTUNITIES FOUND FOR YOU (AUTOMATIC DISCOVERY)
+           ══════════════════════════════════════════════════════════════ */}
+        {showSection("s12") && (
+          <div className="glass" style={{ background: "#FFFFFF", borderRadius: "14px", padding: "2rem", marginBottom: "2rem", border: "1px solid #E4E1DA" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "6px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "10px", letterSpacing: "2px", color: "#162A43", fontWeight: 800 }}>SECTION 12</span>
+                <span style={{ fontSize: "10px", padding: "1px 6px", background: "#EAF4EE", borderRadius: "4px", color: "#2E7D5B", border: "1px solid #C8E4D3", fontWeight: 700 }}>
+                  AUTOMATIC OPPORTUNITY DISCOVERY
+                </span>
+              </div>
+              <a
+                href="/student/opportunities"
+                style={{
+                  fontSize: "12px",
+                  color: "#356AE6",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                Open Full Opportunity Agent ↗
+              </a>
+            </div>
+
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 0.5rem", color: "#162A43" }}>
+              Opportunities Found For You
+            </h3>
+
+            <p style={{ fontSize: "13px", color: "#667085", lineHeight: 1.6, margin: "0 0 1.5rem" }}>
+              Based on your newly updated Student DNA, Cognalyze researched current opportunities across corporate career pages, ATS feeds, campus drives, and startup directories and identified where your verified evidence gives you a legitimate reason to apply.
+            </p>
+
+            {/* Research Progress Indicators */}
+            {oppStep < 6 && (
+              <div style={{ background: "#FAF9F6", borderRadius: "12px", padding: "1.25rem", border: "1px solid #E4E1DA", marginBottom: "1.5rem" }}>
+                <div style={{ fontSize: "12px", fontWeight: 700, color: "#162A43", marginBottom: "10px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ display: "inline-block", width: "8px", height: "8px", borderRadius: "50%", background: "#356AE6" }} />
+                  Cognalyze is researching current opportunities based on your updated Student DNA...
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "8px", fontSize: "11px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 1 ? "#2E7D5B" : "#98A2B3" }}>
+                    <span>{oppStep >= 1 ? "✓" : "○"}</span>
+                    <span>Resume analyzed</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 2 ? "#2E7D5B" : "#98A2B3" }}>
+                    <span>{oppStep >= 2 ? "✓" : "○"}</span>
+                    <span>Student DNA updated</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 3 ? "#2E7D5B" : "#98A2B3" }}>
+                    <span>{oppStep >= 3 ? "✓" : "○"}</span>
+                    <span>Candidate evidence understood</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 4 ? "#356AE6" : "#98A2B3", fontWeight: oppStep === 4 ? 700 : 400 }}>
+                    <span>{oppStep > 4 ? "✓" : oppStep === 4 ? "⟳" : "○"}</span>
+                    <span>Researching current opportunities</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 5 ? "#356AE6" : "#98A2B3", fontWeight: oppStep === 5 ? 700 : 400 }}>
+                    <span>{oppStep > 5 ? "✓" : oppStep === 5 ? "⟳" : "○"}</span>
+                    <span>Comparing opportunities with your evidence</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", color: oppStep >= 6 ? "#2E7D5B" : "#98A2B3" }}>
+                    <span>{oppStep >= 6 ? "✓" : "○"}</span>
+                    <span>Preparing recommendations</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Opportunities List Once Ready */}
+            {oppData && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                {/* Summary Banner */}
+                <div style={{ background: "#EFF4FE", borderRadius: "10px", padding: "12px 16px", border: "1px solid #D2E0FB", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
+                  <div style={{ fontSize: "13px", color: "#162A43", fontWeight: 600 }}>
+                    ✨ {oppData.summaryText}
+                  </div>
+                  <span style={{ fontSize: "11px", color: "#356AE6", fontWeight: 700, background: "#FFFFFF", padding: "3px 8px", borderRadius: "6px", border: "1px solid #D2E0FB" }}>
+                    Across {oppData.sourcesCount} Verified Sources
+                  </span>
+                </div>
+
+                {/* Category Tabs */}
+                <div style={{ display: "flex", gap: "8px", borderBottom: "1px solid #E4E1DA", paddingBottom: "8px" }}>
+                  <button
+                    onClick={() => setOppCategoryTab("strong")}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      background: oppCategoryTab === "strong" ? "#2E7D5B" : "#FAF9F6",
+                      color: oppCategoryTab === "strong" ? "#FFFFFF" : "#667085",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    🟢 Strong Opportunities ({oppData.categories.strongOpportunities.length})
+                  </button>
+                  <button
+                    onClick={() => setOppCategoryTab("gaps")}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      background: oppCategoryTab === "gaps" ? "#B7791F" : "#FAF9F6",
+                      color: oppCategoryTab === "gaps" ? "#FFFFFF" : "#667085",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    🟡 Opportunities With Gaps ({oppData.categories.opportunitiesWithGaps.length})
+                  </button>
+                  <button
+                    onClick={() => setOppCategoryTab("other")}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      border: "none",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      background: oppCategoryTab === "other" ? "#356AE6" : "#FAF9F6",
+                      color: oppCategoryTab === "other" ? "#FFFFFF" : "#667085",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    ⚪ Other Relevant Opportunities ({oppData.categories.otherOpportunities.length})
+                  </button>
+                </div>
+
+                {/* Selected Category Cards */}
+                {(() => {
+                  const list =
+                    oppCategoryTab === "strong"
+                      ? oppData.categories.strongOpportunities
+                      : oppCategoryTab === "gaps"
+                      ? oppData.categories.opportunitiesWithGaps
+                      : oppData.categories.otherOpportunities;
+
+                  if (list.length === 0) {
+                    return (
+                      <div style={{ textAlign: "center", padding: "2rem", color: "#667085", fontSize: "13px" }}>
+                        No opportunities in this category currently.
+                      </div>
+                    );
+                  }
+
+                  return list.map((opp) => (
+                    <div
+                      key={opp.id}
+                      style={{
+                        background: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: "12px",
+                        padding: "1.25rem",
+                        boxShadow: "0 1px 3px rgba(16,24,40,0.04)",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
+                      {/* Top Row: Title, Company, Location, Badge */}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
+                        <div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <h4 style={{ fontSize: "16px", fontWeight: 800, color: "#162A43", margin: 0 }}>
+                              {opp.title}
+                            </h4>
+                            <span
+                              style={{
+                                fontSize: "10px",
+                                padding: "2px 8px",
+                                borderRadius: "5px",
+                                fontWeight: 700,
+                                background: oppCategoryTab === "strong" ? "#EAF4EE" : oppCategoryTab === "gaps" ? "#FEF7ED" : "#EFF4FE",
+                                color: oppCategoryTab === "strong" ? "#2E7D5B" : oppCategoryTab === "gaps" ? "#B7791F" : "#356AE6",
+                                border: `1px solid ${oppCategoryTab === "strong" ? "#C8E4D3" : oppCategoryTab === "gaps" ? "#F8D8A7" : "#D2E0FB"}`,
+                              }}
+                            >
+                              {opp.badge}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: "12px", color: "#667085", marginTop: "4px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <span style={{ fontWeight: 700, color: "#162A43" }}>{opp.company}</span>
+                            <span>•</span>
+                            <span>{opp.location} ({opp.remoteType})</span>
+                            <span>•</span>
+                            <span>{opp.stipend}</span>
+                          </div>
+                        </div>
+
+                        <div style={{ textAlign: "right" }}>
+                          <span style={{ fontSize: "11px", color: "#667085", background: "#FAF9F6", padding: "3px 8px", borderRadius: "5px", border: "1px solid #E4E1DA" }}>
+                            {opp.source} • {opp.freshness}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Why You Can Apply Box */}
+                      <div style={{ background: "#FAF9F6", borderRadius: "10px", padding: "10px 14px", border: "1px solid #E4E1DA", fontSize: "12px" }}>
+                        <div style={{ fontWeight: 700, color: "#2E7D5B", marginBottom: "4px" }}>
+                          Why you can apply:
+                        </div>
+                        <p style={{ color: "#17191C", margin: "0 0 6px", lineHeight: 1.5 }}>
+                          {opp.whyThisCandidate || opp.whySummary}
+                        </p>
+                        {opp.matchedEvidence?.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                            {opp.matchedEvidence.slice(0, 5).map((m: string, idx: number) => (
+                              <span key={idx} style={{ fontSize: "10px", padding: "2px 7px", background: "#EAF4EE", color: "#2E7D5B", borderRadius: "4px", border: "1px solid #C8E4D3", fontWeight: 700 }}>
+                                ✓ {m}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Evidence Gap (if any) */}
+                      {opp.evidenceGaps?.length > 0 && (
+                        <div style={{ background: "#FEF7ED", borderRadius: "10px", padding: "8px 12px", border: "1px solid #F8D8A7", fontSize: "11px" }}>
+                          <span style={{ color: "#B7791F", fontWeight: 700 }}>Evidence Gap: </span>
+                          <span style={{ color: "#17191C" }}>
+                            {opp.evidenceGaps.join(", ")} — not currently evidenced in candidate artifacts.
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Cognalyze Recommendation */}
+                      <div style={{ fontSize: "12px", color: "#162A43", fontWeight: 600 }}>
+                        <span style={{ color: "#356AE6", fontWeight: 700 }}>Cognalyze Recommendation: </span>
+                        <span>{opp.recommendation}</span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: "8px", paddingTop: "4px" }}>
+                        <a
+                          href={opp.applicationUrl || opp.sourceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            padding: "7px 16px",
+                            borderRadius: "7px",
+                            background: oppCategoryTab === "strong" ? "#2E7D5B" : "#356AE6",
+                            color: "#FFFFFF",
+                            textDecoration: "none",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          Apply on {opp.source.includes("Careers") ? "Company Website" : opp.source} ↗
+                        </a>
+                      </div>
+                    </div>
+                  ));
+                })()}
+
+                {/* "See All Opportunities" Handoff */}
+                <div style={{ background: "#FAF9F6", borderRadius: "12px", padding: "1rem", border: "1px solid #E4E1DA", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px", marginTop: "8px" }}>
+                  <div>
+                    <div style={{ fontSize: "13px", fontWeight: 700, color: "#162A43" }}>
+                      Want to search hundreds of jobs, track application pipelines, or customize criteria?
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#667085" }}>
+                      The Opportunity Agent has full live radar scans, filterable categories, and application stage tracking.
+                    </div>
+                  </div>
+                  <a
+                    href="/student/opportunities"
+                    style={{
+                      padding: "8px 18px",
+                      borderRadius: "7px",
+                      background: "#162A43",
+                      color: "#FFFFFF",
+                      textDecoration: "none",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    See All Opportunities in Opportunity Agent →
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

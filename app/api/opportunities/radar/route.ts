@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags, OpportunityData } from "@/lib/ai/placement-intelligence";
 import { insertOpportunity, setLastRadarScanTimestamp, getLastRadarScanTimestamp } from "@/lib/placement-store";
+import { opportunityService } from "@/lib/opportunities/opportunity-service";
 
 export async function GET() {
   return NextResponse.json({
@@ -160,6 +161,13 @@ function sanitizeVerifiedUrl(url: string | undefined, organizer: string): string
 
       const saved = await insertOpportunity(opp);
       savedItems.push(saved);
+    }
+
+    // Also trigger multi-source discovery sync across Unstop, Devpost, Devfolio, MLH, IITs, etc.
+    try {
+      await opportunityService.syncAllSources(true);
+    } catch (syncErr) {
+      console.warn("[radar] Multi-source sync error:", syncErr);
     }
 
     // Track last scan timestamp

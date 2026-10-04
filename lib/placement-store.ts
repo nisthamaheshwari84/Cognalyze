@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { StudentProfileData, OpportunityData, getSafeOpportunityUrl, getOpportunityPortalInfo } from "@/lib/ai/placement-intelligence";
 import { getCachedAggregatedHackathons, getLastAggregatorSyncTimestamp, fetchLiveAggregatorHackathons } from "@/lib/ai/hackathon-aggregator";
 import comprehensiveOpportunities from "@/data/comprehensive-opportunities.json";
+import { opportunityService } from "@/lib/opportunities/opportunity-service";
 export type { StudentProfileData, OpportunityData };
 export { getSafeOpportunityUrl, getOpportunityPortalInfo };
 
@@ -5962,6 +5963,42 @@ export async function getAllOpportunities(): Promise<OpportunityData[]> {
 
   for (const [id, opp] of inMemoryOpportunities.entries()) {
     combinedMap.set(id, { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) });
+  }
+
+  // Merge live multi-source canonical discovery opportunities (Unstop, Devpost, Devfolio, MLH, Hack2Skill, IITs, Company Careers, Startups)
+  try {
+    const liveCanonical = await opportunityService.ensureIngested();
+    for (const c of liveCanonical) {
+      if (c.status === "EXPIRED" || c.status === "REMOVED") continue;
+      const orgType: any = c.sourceType === "IIT" ? "IIT-fest" : c.sourceType === "UNIVERSITY" ? "university" : c.sourceType === "STARTUP" ? "startup" : "corporate";
+      const oppType: any = c.opportunityType === "INTERNSHIP" ? "internship" : c.opportunityType === "JOB" ? "job" : "hackathon";
+      const item: OpportunityData = {
+        id: c.id,
+        title: c.title,
+        type: oppType,
+        organizer: c.organizer || c.companyName,
+        organizer_type: orgType,
+        tags: c.tags || c.requiredSkills || [],
+        domain_tags: c.domains || ["Software Engineering"],
+        tier: "Tier 1",
+        deadline: c.deadline,
+        eligibility: c.eligibilityRequirements?.[0] || c.roleDNA?.educationSummary || "Eligible students",
+        source_url: getSafeOpportunityUrl(c.applicationUrl || c.sourceUrl, c.organizer || c.companyName, c.title),
+        extracted_context: {
+          platform: c.source,
+          summary: c.description,
+          prize_pool: c.prize,
+          team_size: c.teamSize,
+          mode: c.remoteType,
+          status_badge: c.freshness
+        },
+        is_active: c.status === "ACTIVE" || c.status === "DISCOVERED"
+      };
+      combinedMap.set(c.id, item);
+      if (c.title) combinedMap.set(`title:${c.title.toLowerCase().trim()}`, item);
+    }
+  } catch (liveErr) {
+    console.warn("[placement-store] Failed to merge live canonical opportunities:", liveErr);
   }
 
   // 2. Try Supabase and overlay
