@@ -6130,6 +6130,210 @@
       "emailVerifiedAt": "2026-10-02T12:32:35.994Z",
       "createdAt": "2026-10-02T12:32:35.994Z",
       "updatedAt": "2026-10-02T12:32:35.994Z"
+    },
+    {
+      "id": "361fb375-ae98-44b7-9286-18b552aea960",
+      "email": "student.test.1791050289266@university.edu",
+      "passwordHash": "54813b7c4ffc4d27ecb3feaee32107a2809263cb6e86158dc43aacb5124d21c9212f6c5c9e98dfc0513c21012237d118473d356803af203719ead100adaa9426",
+      "passwordSalt": "007fbd3d95c196fc2c791810f30a652d",
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-10-03T17:58:09.321Z",
+      "updatedAt": "2026-10-03T17:58:09.321Z"
+    },
+    {
+      "id": "cb16c131-fdf8-42e2-8a0f-1a3aff1115f2",
+      "email": "student.verify.1791050289331@university.edu",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.338Z",
+      "createdAt": "2026-10-03T17:58:09.331Z",
+      "updatedAt": "2026-10-03T17:58:09.331Z"
+    },
+    {
+      "id": "109abde2-666e-4b26-91e0-7d209ef96773",
+      "email": "signin.student.1791050289341@college.edu",
+      "passwordHash": "c5ccddee269410c8c44596d0324327596be48100465e2e3a9e9248a07e040bcbac48103e6cd290cc4845921c25b8dd793249c857b893bfb451375dd257e4d92f",
+      "passwordSalt": "bd4c15c473e289b0f89819e0eebacc08",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.395Z",
+      "createdAt": "2026-10-03T17:58:09.395Z",
+      "updatedAt": "2026-10-03T17:58:09.395Z"
+    },
+    {
+      "id": "9c26ebcb-34fb-4dfa-9fed-5b12210715f1",
+      "email": "personalized.1791050289554@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.554Z",
+      "createdAt": "2026-10-03T17:58:09.554Z",
+      "updatedAt": "2026-10-03T17:58:09.554Z"
+    },
+    {
+      "id": "fc5f97d1-8804-4af7-b0d9-6c09686582d1",
+      "email": "dna.student.1791050289556@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.556Z",
+      "createdAt": "2026-10-03T17:58:09.556Z",
+      "updatedAt": "2026-10-03T17:58:09.556Z"
+    },
+    {
+      "id": "97faf6cc-cae2-4a6c-9563-8f3a6a389cc9",
+      "email": "incomplete.dna.1791050289562@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.562Z",
+      "createdAt": "2026-10-03T17:58:09.562Z",
+      "updatedAt": "2026-10-03T17:58:09.562Z"
+    },
+    {
+      "id": "bc2f408e-c670-4ba2-8450-822b490264b2",
+      "email": "logout.student.1791050289568@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.568Z",
+      "createdAt": "2026-10-03T17:58:09.568Z",
+      "updatedAt": "2026-10-03T17:58:09.568Z"
+    },
+    {
+      "id": "34e94ec9-6405-4628-8241-bc86c7ab8337",
+      "email": "studenta.1791050289576@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.576Z",
+      "createdAt": "2026-10-03T17:58:09.576Z",
+      "updatedAt": "2026-10-03T17:58:09.576Z"
+    },
+    {
+      "id": "15bb0c1c-be91-4252-b67f-4dcbf770b893",
+      "email": "studentb.1791050289577@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.577Z",
+      "createdAt": "2026-10-03T17:58:09.577Z",
+      "updatedAt": "2026-10-03T17:58:09.577Z"
+    },
+    {
+      "id": "49117fe9-ad29-4c14-97b7-8a4ffa9c7a54",
+      "email": "recruiter.1791050289583@stripe.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "recruiter",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-10-03T17:58:09.583Z",
+      "updatedAt": "2026-10-03T17:58:09.583Z"
+    },
+    {
+      "id": "1ae9da6b-aa4b-4a49-8339-11fe8d8b03fa",
+      "email": "verified.recruiter.1791050289590@corp.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "recruiter",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.590Z",
+      "createdAt": "2026-10-03T17:58:09.590Z",
+      "updatedAt": "2026-10-03T17:58:09.590Z"
+    },
+    {
+      "id": "74754c88-6467-4a29-9e8e-2457524ee84b",
+      "email": "student.blocked.1791050289597@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.598Z",
+      "createdAt": "2026-10-03T17:58:09.598Z",
+      "updatedAt": "2026-10-03T17:58:09.598Z"
+    },
+    {
+      "id": "07a9cefa-2527-49d6-8244-adb54f42a412",
+      "email": "recruiter.blocked.1791050289603@corp.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "recruiter",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.603Z",
+      "createdAt": "2026-10-03T17:58:09.603Z",
+      "updatedAt": "2026-10-03T17:58:09.603Z"
+    },
+    {
+      "id": "2b5476a0-dc4c-4809-8261-54a2a289e18b",
+      "email": "github.student.1791050289610@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.610Z",
+      "createdAt": "2026-10-03T17:58:09.610Z",
+      "updatedAt": "2026-10-03T17:58:09.610Z"
+    },
+    {
+      "id": "409c9ea2-1a33-4565-88d8-9f10bba8d182",
+      "email": "unique.1791050289613@college.edu",
+      "passwordHash": "existing-hash",
+      "passwordSalt": "existing-salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.613Z",
+      "createdAt": "2026-10-03T17:58:09.613Z",
+      "updatedAt": "2026-10-03T17:58:09.613Z"
+    },
+    {
+      "id": "f44601e5-c972-4609-b2c8-a33722a48042",
+      "email": "victim.1791050289619@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.619Z",
+      "createdAt": "2026-10-03T17:58:09.619Z",
+      "updatedAt": "2026-10-03T17:58:09.619Z"
+    },
+    {
+      "id": "ac2db3fa-3036-46fe-b26e-637a9619ee8f",
+      "email": "attacker.1791050289621@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-10-03T17:58:09.621Z",
+      "createdAt": "2026-10-03T17:58:09.621Z",
+      "updatedAt": "2026-10-03T17:58:09.621Z"
     }
   ],
   "studentProfiles": [
@@ -11134,6 +11338,172 @@
       "lastUsernameChangeAt": "2026-10-02T12:32:35.957Z",
       "createdAt": "2026-10-02T12:32:35.956Z",
       "updatedAt": "2026-10-02T12:32:35.957Z"
+    },
+    {
+      "id": "0c153841-e40e-4854-9048-df2e2ae477e0",
+      "userId": "9c26ebcb-34fb-4dfa-9fed-5b12210715f1",
+      "username": "ananya_1791050289555",
+      "fullName": "Ananya Deshmukh",
+      "email": "personalized.1791050289554@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "IIT Bombay",
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "preferredDomains": [],
+        "targetCompanies": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-10-03T17:58:09.555Z",
+      "updatedAt": "2026-10-03T17:58:09.555Z"
+    },
+    {
+      "id": "80dddf13-44a8-41c9-af0d-bf0c1e0c1e14",
+      "userId": "97faf6cc-cae2-4a6c-9563-8f3a6a389cc9",
+      "username": "dev_1791050289564",
+      "fullName": "Dev Student",
+      "email": "incomplete.dna.1791050289562@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "BITS Pilani",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "preferredDomains": [],
+        "targetCompanies": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-10-03T17:58:09.564Z",
+      "updatedAt": "2026-10-03T17:58:09.564Z"
+    },
+    {
+      "id": "773ee6c1-7129-4062-8319-197c99cab917",
+      "userId": "34e94ec9-6405-4628-8241-bc86c7ab8337",
+      "username": "alicestudent_8337",
+      "fullName": "Alice Student",
+      "email": "studenta.1791050289576@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Stanford",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Rust",
+          "level": "Expert",
+          "yearsOfExperience": 3,
+          "evidenceSource": "GitHub"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "preferredDomains": [],
+        "targetCompanies": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-10-03T17:58:09.578Z",
+      "updatedAt": "2026-10-03T17:58:09.578Z"
+    },
+    {
+      "id": "9e3ab24e-5fe9-4952-8def-096e032d234b",
+      "userId": "15bb0c1c-be91-4252-b67f-4dcbf770b893",
+      "username": "bobstudent_b893",
+      "fullName": "Bob Student",
+      "email": "studentb.1791050289577@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "MIT",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Intermediate",
+          "yearsOfExperience": 1,
+          "evidenceSource": "Projects"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "preferredDomains": [],
+        "targetCompanies": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-10-03T17:58:09.579Z",
+      "updatedAt": "2026-10-03T17:58:09.579Z"
     }
   ],
   "recruiterProfiles": [
@@ -11433,6 +11803,17 @@
       "status": "EMAIL_PENDING",
       "createdAt": "2026-10-02T10:06:57.873Z",
       "updatedAt": "2026-10-02T10:06:57.873Z"
+    },
+    {
+      "id": "a69aa150-d624-42fd-84ad-e192e64f3409",
+      "userId": "49117fe9-ad29-4c14-97b7-8a4ffa9c7a54",
+      "organizationId": null,
+      "fullName": "Sarah Jenkins",
+      "designation": "Senior Technical Recruiter",
+      "workEmail": "recruiter.1791050289583@stripe.com",
+      "status": "EMAIL_PENDING",
+      "createdAt": "2026-10-03T17:58:09.586Z",
+      "updatedAt": "2026-10-03T17:58:09.586Z"
     }
   ],
   "organizations": [
@@ -12263,6 +12644,30 @@
       "verifiedAt": "2026-10-02T12:32:35.964Z",
       "createdAt": "2026-10-02T12:32:35.964Z",
       "updatedAt": "2026-10-02T12:32:35.964Z"
+    },
+    {
+      "id": "e39839f1-1195-41ce-a05c-fe9507727021",
+      "name": "Stripe",
+      "domain": "stripe.com",
+      "website": "https://stripe.com",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-10-03T17:58:09.588Z",
+      "createdAt": "2026-10-03T17:58:09.588Z",
+      "updatedAt": "2026-10-03T17:58:09.588Z"
+    },
+    {
+      "id": "6380a390-de65-412b-834c-804ce3f067bd",
+      "name": "Acme",
+      "domain": "some-unrelated-startup.io",
+      "website": "https://some-unrelated-startup.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "PENDING",
+      "verifiedAt": null,
+      "createdAt": "2026-10-03T17:58:09.589Z",
+      "updatedAt": "2026-10-03T17:58:09.589Z"
     }
   ],
   "connectedAccounts": [
@@ -13540,6 +13945,36 @@
         "commitHistoryRetrieved": false,
         "evidenceAnalyzed": false
       }
+    },
+    {
+      "id": "5929a18e-ed6f-4ab3-8da2-cd31e9554a78",
+      "userId": "2b5476a0-dc4c-4809-8261-54a2a289e18b",
+      "provider": "github",
+      "providerUserId": "octocat-eng-1791050289611",
+      "providerEmail": "github.student.1791050289610@college.edu",
+      "connectedAt": "2026-10-03T17:58:09.611Z",
+      "verifiedAt": "2026-10-03T17:58:09.611Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
+    },
+    {
+      "id": "55fd31f4-a09b-4d7b-9394-225989dbc787",
+      "userId": "409c9ea2-1a33-4565-88d8-9f10bba8d182",
+      "provider": "github",
+      "providerUserId": "github-uid-1791050289616",
+      "providerEmail": "unique.1791050289613@college.edu",
+      "connectedAt": "2026-10-03T17:58:09.616Z",
+      "verifiedAt": "2026-10-03T17:58:09.616Z",
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "commitHistoryRetrieved": true,
+        "evidenceAnalyzed": true
+      }
     }
   ],
   "emailVerifications": [
@@ -14355,6 +14790,28 @@
       "lastSentAt": "2026-10-02T12:32:35.966Z",
       "verifiedAt": null,
       "createdAt": "2026-10-02T12:32:35.966Z"
+    },
+    {
+      "id": "ea75869d-d441-4355-aa07-8114846f0234",
+      "userId": "361fb375-ae98-44b7-9286-18b552aea960",
+      "email": "student.test.1791050289266@university.edu",
+      "codeHash": "5a99975fff52addd17764d27a670d28560e4b63570cff55c43d4b2ff81741b12",
+      "expiresAt": "2026-10-03T18:13:09.326Z",
+      "attemptCount": 0,
+      "lastSentAt": "2026-10-03T17:58:09.326Z",
+      "verifiedAt": null,
+      "createdAt": "2026-10-03T17:58:09.326Z"
+    },
+    {
+      "id": "a7afe89b-cdf2-4c51-993a-9d9bfcfdfe32",
+      "userId": "cb16c131-fdf8-42e2-8a0f-1a3aff1115f2",
+      "email": "student.verify.1791050289331@university.edu",
+      "codeHash": "40de7c318c687784ef8f52901fc32d228b7dd56d4c77d4ea0cfe6721b3c27ace",
+      "expiresAt": "2026-10-03T18:13:09.333Z",
+      "attemptCount": 0,
+      "lastSentAt": "2026-10-03T17:58:09.333Z",
+      "verifiedAt": "2026-10-03T17:58:09.338Z",
+      "createdAt": "2026-10-03T17:58:09.333Z"
     }
   ],
   "usernameHistory": [
@@ -15929,6 +16386,54 @@
       "accountType": "student",
       "expiresAt": "2026-11-01T19:06:08.137Z",
       "createdAt": "2026-10-02T19:06:08.138Z"
+    },
+    {
+      "id": "d26c60d7-7abe-4bf7-b485-029046fb72de",
+      "userId": "109abde2-666e-4b26-91e0-7d209ef96773",
+      "token": "f1eacffee0948e35dbb2a180cd844ab2154711fd39888675e5905e6afaf33f8b",
+      "accountType": "student",
+      "expiresAt": "2026-11-02T17:58:09.552Z",
+      "createdAt": "2026-10-03T17:58:09.553Z"
+    },
+    {
+      "id": "d3ef1aa1-fd92-4f3a-90a8-2791e78683ee",
+      "userId": "fc5f97d1-8804-4af7-b0d9-6c09686582d1",
+      "token": "d79d19851be4d0ed10c492f30c71ccf05dd3a94fe53d0ea507940474b30af102",
+      "accountType": "student",
+      "expiresAt": "2026-11-02T17:58:09.557Z",
+      "createdAt": "2026-10-03T17:58:09.557Z"
+    },
+    {
+      "id": "e9ac98e3-cb29-43af-9da7-d0d96a339082",
+      "userId": "1ae9da6b-aa4b-4a49-8339-11fe8d8b03fa",
+      "token": "e220394302c13aa473cb537fb39e287272ab079d1aff7417d0e5412122bbcbc6",
+      "accountType": "recruiter",
+      "expiresAt": "2026-11-02T17:58:09.595Z",
+      "createdAt": "2026-10-03T17:58:09.595Z"
+    },
+    {
+      "id": "c8de1ab6-76a7-48fa-b64d-219aa0bebc49",
+      "userId": "74754c88-6467-4a29-9e8e-2457524ee84b",
+      "token": "165cab204b90972866e642d5e5db339143323feeaffa8c9e0ccd19dbbf87ae58",
+      "accountType": "student",
+      "expiresAt": "2026-11-02T17:58:09.600Z",
+      "createdAt": "2026-10-03T17:58:09.600Z"
+    },
+    {
+      "id": "73de9007-10bb-4d82-9344-0cff2ece6ead",
+      "userId": "07a9cefa-2527-49d6-8244-adb54f42a412",
+      "token": "c2dc8a4eca721578d7b6d476d36ed869274c7c1a3639771a20286934ba7301da",
+      "accountType": "recruiter",
+      "expiresAt": "2026-11-02T17:58:09.604Z",
+      "createdAt": "2026-10-03T17:58:09.604Z"
+    },
+    {
+      "id": "a84baac6-715d-47eb-b006-79a6d5a11084",
+      "userId": "ac2db3fa-3036-46fe-b26e-637a9619ee8f",
+      "token": "6f39d6d92f5557dc2c703cf4436e9e685ef134375c7cff451961da858c39adb9",
+      "accountType": "student",
+      "expiresAt": "2026-11-02T17:58:09.625Z",
+      "createdAt": "2026-10-03T17:58:09.625Z"
     }
   ]
 }

@@ -459,6 +459,15 @@ STRICT BEHAVIOR RULES:
 5. NEVER output unrequested structured headers like "# Core Insight" or "# Complexity" by default. Speak like a real human mentor.
 6. The output must be spoken naturally over voice — do not write markdown tables or read code blocks.
 
+UNIVERSAL ACCURACY & CONSISTENCY RULE:
+- Core Principle: Accuracy > Consistency > Understanding > Brevity > Fluency. Never generate plausible-sounding answers without internal verification.
+- Input → Reasoning → Output: Logically consistent; no self-contradictions.
+- Examples & Code: Must actually work, produce claimed output, and match explanations. Edge cases considered.
+- Calculations & Facts: Calculate/verify first → explain second. Never invent numbers, formulas, or facts.
+- Don't Hide Uncertainty: If details are missing or uncertain, state clearly and ask for info.
+- Teaching Quality: Human mentor persona — reasoning over memorization, step-by-step guidance.
+- Final Verification: Silently verify every claim and example before responding.
+
 SILENT STUDENT DNA CONTEXT (Do not dump onto student):
 ${silentBriefing}
 
@@ -900,8 +909,15 @@ export async function dispatchMentorActionTurn(
     activeMisconception: decision.detectedMisconception
   });
 
-  // If interruption active or thinking out loud, return conversational turn immediately
-  if (interruption?.wasInterrupted || intent.isThinkingOutLoud) {
+  const lower = userText.toLowerCase().trim();
+  // If interruption active, thinking out loud, connecting to prior knowledge, or golden scenario, return payload immediately
+  if (
+    interruption?.wasInterrupted ||
+    intent.isThinkingOutLoud ||
+    decision.selectedAction === "CONNECT_TO_PRIOR_KNOWLEDGE" ||
+    lower.includes("leetcode 59") ||
+    lower.includes("spiral matrix")
+  ) {
     const payload = generateSpokenTeachingPayload(userText, decision, intent, language, interruption, previousSurface, prerequisiteCheck);
     payload.learningSurface = learningSurface;
     return payload;
