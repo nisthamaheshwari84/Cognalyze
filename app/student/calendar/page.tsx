@@ -108,15 +108,29 @@ export default function StudentCalendarPage() {
   const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadCalendar(stored);
+    async function init() {
+      let activeCId = "";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+          }
+        }
+      } catch (e) {
+        console.error("Session check error in calendar page:", e);
+      }
+      setCandidateId(activeCId);
+      loadCalendar(activeCId);
+    }
+    init();
   }, []);
 
   const loadCalendar = async (cId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/student/calendar?candidateId=${cId}`);
+      const res = await fetch(`/api/student/calendar${cId ? `?candidateId=${encodeURIComponent(cId)}` : ""}`);
       const data = await res.json();
       if (data.events) {
         setEvents(data.events);

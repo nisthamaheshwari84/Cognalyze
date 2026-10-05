@@ -110,11 +110,17 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     setLoggingOut(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("cognalyze_student_id");
+        localStorage.removeItem("cognalyze_role");
+        sessionStorage.clear();
+      }
       setSession({ loading: false, authenticated: false });
-      router.push("/login");
+      router.push("/");
       router.refresh();
     } catch (err) {
       console.error("Logout failed:", err);
+      router.push("/");
     } finally {
       setLoggingOut(false);
     }
@@ -522,38 +528,60 @@ export default function AppNav({ role = "student" }: AppNavProps) {
             </Link>
 
             {/* Profile Info & Status Badge (Section 8) */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 6, borderLeft: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}` }}>
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: "50%",
-                  backgroundColor: "#162A43",
-                  color: "#FFFFFF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 600,
-                  fontSize: 11,
-                }}
-              >
-                {role === "recruiter"
-                  ? session.recruiterProfile?.company_name?.[0] || "R"
-                  : session.user?.name?.[0] || "S"}
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }} className="hidden sm:flex">
-                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#17191C" }}>
+            {session.authenticated ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 6, borderLeft: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}` }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    backgroundColor: "#162A43",
+                    color: "#FFFFFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontWeight: 600,
+                    fontSize: 11,
+                  }}
+                >
                   {role === "recruiter"
-                    ? session.recruiterProfile?.company_name || "Apex Hiring"
-                    : session.user?.name || "Student"}
-                </span>
-                <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
-                  <CheckCircle2 size={9} />
-                  {role === "recruiter" ? "Verified Recruiter" : "Active Profile"}
-                </span>
+                    ? session.recruiterProfile?.company_name?.[0] || "R"
+                    : session.user?.fullName?.[0] || session.user?.name?.[0] || "S"}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }} className="hidden sm:flex">
+                  <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#17191C" }}>
+                    {role === "recruiter"
+                      ? session.recruiterProfile?.company_name || "Apex Hiring"
+                      : session.user?.fullName || session.user?.name || "Student"}
+                  </span>
+                  <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
+                    <CheckCircle2 size={9} />
+                    {role === "recruiter" ? "Verified Recruiter" : "Active Profile"}
+                  </span>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 6, borderLeft: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}` }}>
+                <Link
+                  href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    padding: "6px 14px",
+                    borderRadius: 6,
+                    backgroundColor: isDark ? "#2563EB" : "#17191C",
+                    color: "#FFFFFF",
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6
+                  }}
+                >
+                  <span>Sign In</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -806,53 +834,79 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 </div>
               </div>
 
-              {/* Settings */}
-              <Link
-                href="/student/profile"
-                onClick={() => setSidebarOpen(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "8px 12px",
-                  borderRadius: 7,
-                  color: "#CBD5E1",
-                  fontSize: 13,
-                  fontWeight: 500,
-                  textDecoration: "none",
-                  transition: "all 150ms ease",
-                }}
-                className="hover:bg-[rgba(255,255,255,0.05)] hover:text-white"
-              >
-                <Settings size={16} className="text-[#94A3B8]" />
-                <span>Settings</span>
-              </Link>
+              {/* Auth-dependent Actions */}
+              {session.authenticated ? (
+                <>
+                  <Link
+                    href="/student/profile"
+                    onClick={() => setSidebarOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      color: "#CBD5E1",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      transition: "all 150ms ease",
+                    }}
+                    className="hover:bg-[rgba(255,255,255,0.05)] hover:text-white"
+                  >
+                    <Settings size={16} className="text-[#94A3B8]" />
+                    <span>Settings</span>
+                  </Link>
 
-              {/* Sign Out */}
-              <button
-                onClick={handleLogout}
-                disabled={loggingOut}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "8px 12px",
-                  borderRadius: 7,
-                  color: "#F87171",
-                  fontSize: 13,
-                  fontWeight: 500,
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  transition: "all 150ms ease",
-                }}
-                className="hover:bg-[rgba(255,255,255,0.05)]"
-              >
-                <LogOut size={16} />
-                <span>{loggingOut ? "Signing out..." : "Sign Out"}</span>
-              </button>
+                  <button
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "8px 12px",
+                      borderRadius: 7,
+                      color: "#F87171",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      width: "100%",
+                      transition: "all 150ms ease",
+                    }}
+                    className="hover:bg-[rgba(255,255,255,0.05)]"
+                  >
+                    <LogOut size={16} />
+                    <span>{loggingOut ? "Signing out..." : "Sign Out"}</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href={`/login?redirect=${encodeURIComponent(pathname)}`}
+                  onClick={() => setSidebarOpen(false)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    backgroundColor: "#2563EB",
+                    color: "#FFFFFF",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    transition: "all 150ms ease",
+                    justifyContent: "center",
+                    marginTop: 4
+                  }}
+                >
+                  <Sparkles size={16} />
+                  <span>Sign In / Sign Up</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>

@@ -81,11 +81,29 @@ export default function StudentOpportunitiesPage() {
   const [autoRefreshing, setAutoRefreshing] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadOpportunities(stored);
-    loadApplications(stored);
-    checkAndAutoRefresh(stored);
+    async function init() {
+      let activeCId = "";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+          }
+        }
+      } catch (e) {
+        console.error("Session check error in opportunities page:", e);
+      }
+      setCandidateId(activeCId);
+      loadOpportunities(activeCId);
+      if (activeCId) {
+        loadApplications(activeCId);
+      } else {
+        setApplicationsMap({});
+      }
+      checkAndAutoRefresh(activeCId);
+    }
+    init();
   }, []);
 
   const loadApplications = async (cId: string) => {

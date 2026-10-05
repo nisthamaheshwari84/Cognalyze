@@ -509,7 +509,7 @@ export async function POST(req: NextRequest) {
       if (auth?.user?.id) sessionUserId = auth.user.id;
     } catch {}
 
-    const activeStudentId = candidateId || sessionUserId || "student-demo";
+    const activeStudentId = sessionUserId || candidateId || "guest-student";
 
     // Update Student DNA via recordStudentEvent
     try {
@@ -522,46 +522,17 @@ export async function POST(req: NextRequest) {
           filename,
         },
       });
-
-      // Keep student-demo and demo student account synchronized
-      if (activeStudentId === "student-demo") {
-        await recordStudentEvent({
-          studentId: "u-student-nistha-001",
-          eventType: "resume_uploaded",
-          payload: {
-            skills: extractedData.skills,
-            projects: extractedData.projects,
-            filename,
-          },
-        }).catch(() => {});
-      } else if (activeStudentId === "u-student-nistha-001") {
-        await recordStudentEvent({
-          studentId: "student-demo",
-          eventType: "resume_uploaded",
-          payload: {
-            skills: extractedData.skills,
-            projects: extractedData.projects,
-            filename,
-          },
-        }).catch(() => {});
-      }
     } catch (dnaErr) {
       console.warn("[parse-resume] Student DNA recording error:", dnaErr);
     }
 
     // Invalidate cached Student DNA
     invalidateStudentDNACache(activeStudentId);
-    invalidateStudentDNACache("student-demo");
-    invalidateStudentDNACache("u-student-nistha-001");
 
     // Update Auth Store Profile
     try {
       const { upsertStudentProfileByUserId, getUserById } = await import("@/lib/auth/store");
-      const targetUserId = getUserById(activeStudentId)
-        ? activeStudentId
-        : getUserById("u-student-nistha-001")
-        ? "u-student-nistha-001"
-        : null;
+      const targetUserId = sessionUserId || (candidateId && getUserById(candidateId) ? candidateId : null);
 
       if (targetUserId) {
         const profileUpdates = {

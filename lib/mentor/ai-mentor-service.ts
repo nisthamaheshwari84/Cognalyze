@@ -290,13 +290,13 @@ export function getStudentMentorContext(studentId: string = "student-demo"): Stu
     ];
 
     return {
-      studentName: (profile as any)?.studentName || "Nistha Maheshwari",
-      college: (profile as any)?.college || "BMS College of Engineering",
+      studentName: (profile as any)?.studentName || (profile as any)?.fullName || "Student",
+      college: (profile as any)?.college || "",
       targetRole: intent?.primaryGoal || "Software Engineer",
-      verifiedSkills: verifiedSkills.length > 0 ? verifiedSkills : ["Python", "Problem Solving", "React / Next.js"],
-      assessedSkills: assessedSkills.length > 0 ? assessedSkills : ["PyTorch", "SQL"],
+      verifiedSkills: verifiedSkills.length > 0 ? verifiedSkills : ["Core CS", "Problem Solving"],
+      assessedSkills: assessedSkills.length > 0 ? assessedSkills : [],
       gaps: gaps.slice(0, 4).map((g) => g.capability),
-      projects: projectNames.length > 0 ? projectNames : ["Autonomous Payment Recovery Agent Project"],
+      projects: projectNames,
       todaysFocus
     };
   } catch (err) {

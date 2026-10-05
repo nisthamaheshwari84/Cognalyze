@@ -1301,7 +1301,7 @@ function getInitialDemoEvidence(studentId: string): EvidenceItem[] {
       id: "ev-demo-py-2",
       studentId,
       sourceType: "github",
-      sourceId: "gh-nisthamaheshwari85-py",
+      sourceId: "gh-sample-portfolio-py",
       capability: "Python",
       claim: "Public GitHub commits and repositories in Python",
       extractedEvidence: "Public repository contains Python implementations with test coverage.",
@@ -1310,7 +1310,7 @@ function getInitialDemoEvidence(studentId: string): EvidenceItem[] {
       createdAt: d2,
       updatedAt: d2,
       verificationStatus: "verified",
-      provenance: { sourceName: "GitHub: nisthamaheshwari85", sourceUrl: "https://github.com/nisthamaheshwari85", timestamp: d2 },
+      provenance: { sourceName: "GitHub: student-portfolio", sourceUrl: "https://github.com/sample-portfolio", timestamp: d2 },
       relatedArtifactId: "Autonomous Payment Recovery Agent",
       evidenceGroupId: "artifact-payment-agent" // Corroborates payment-agent without double counting!
     },

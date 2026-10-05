@@ -245,21 +245,32 @@ export default function StudentAiMentorPage() {
 
   // Initial load
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
-        : "student-demo";
-    setCandidateId(stored);
-
-    // Fetch live Student DNA Context
-    fetch(`/api/student/ai-mentor/context?studentId=${stored}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.context) {
-          setContext(data.context);
+    async function init() {
+      let activeSId = "student-demo";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeSId = sessionData.user.id;
+          }
         }
-      })
-      .catch((err) => console.warn("Failed to load mentor context:", err));
+      } catch (e) {
+        console.error("Session check error in AI mentor:", e);
+      }
+      setCandidateId(activeSId);
+
+      // Fetch live Student DNA Context
+      fetch(`/api/student/ai-mentor/context?studentId=${encodeURIComponent(activeSId)}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.context) {
+            setContext(data.context);
+          }
+        })
+        .catch((err) => console.warn("Failed to load mentor context:", err));
+    }
+    init();
 
     // Load saved conversations from localStorage
     if (typeof window !== "undefined") {
@@ -1013,7 +1024,7 @@ Would you like to try calculating the diameter of a binary tree next?`,
                 </div>
 
                 <h2 style={{ fontSize: 20, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43", margin: "0 0 6px" }}>
-                  Hi, {context?.studentName?.split(" ")[0] || "Nistha"} 👋
+                  Hi, {context?.studentName && context.studentName !== "Student" ? context.studentName.split(" ")[0] : "there"} 👋
                 </h2>
                 <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", marginBottom: 8 }}>
                   I’m your Cognalyze AI Mentor.

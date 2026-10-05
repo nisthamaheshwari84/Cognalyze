@@ -233,7 +233,7 @@ export default function LoginPage() {
                 <div className="flex items-center gap-1.5 font-bold text-xs text-[#162A43]">
                   <span>🎓</span> Student Mode
                 </div>
-                <span className="text-[10px] text-slate-600 mt-0.5">Nistha Maheshwari</span>
+                <span className="text-[10px] text-slate-600 mt-0.5">Sample Student</span>
               </button>
 
               <button
@@ -246,7 +246,7 @@ export default function LoginPage() {
                 <div className="flex items-center gap-1.5 font-bold text-xs text-[#162A43]">
                   <span>🏢</span> Recruiter Mode
                 </div>
-                <span className="text-[10px] text-slate-600 mt-0.5">Aarav Mehta (Acme)</span>
+                <span className="text-[10px] text-slate-600 mt-0.5">Partner Recruiter (Acme)</span>
               </button>
             </div>
 

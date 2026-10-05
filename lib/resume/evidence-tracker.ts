@@ -40,16 +40,16 @@ export interface EvidenceInspectorData {
  * Creates a complete, professionally typeset default ResumeDocument with verified data.
  * Occupies 85–95% page utilization with full coursework, projects, and skills.
  */
-export function createDefaultResumeDocument(name = 'Nishtha Maheshwari'): ResumeDocument {
+export function createDefaultResumeDocument(name = 'Sample Candidate'): ResumeDocument {
   const master = createMasterResumeProfile({
     candidateName: name,
-    title: name.includes('Nishtha') ? 'Computer Science & Engineering | AI/ML Specialization' : 'Software Engineer | Full Stack & AI Systems',
+    title: 'Computer Science & Engineering | Software Systems',
     contact: {
       name,
-      title: name.includes('Nishtha') ? 'Computer Science & Engineering | AI/ML Specialization' : 'Software Engineer | Full Stack & AI Systems',
-      email: name.includes('Nishtha') ? 'nisthamaheshwari84@gmail.com' : `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+      title: 'Computer Science & Engineering | Software Systems',
+      email: `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
       phone: '+91 98765 43210',
-      location: 'Ghaziabad, India',
+      location: 'Bengaluru, India',
       linkedin: `linkedin.com/in/${name.toLowerCase().replace(/\s+/g, '-')}`,
       github: `github.com/${name.toLowerCase().replace(/\s+/g, '')}`,
       portfolio: `${name.toLowerCase().replace(/\s+/g, '')}.dev`,

@@ -257,14 +257,14 @@ Built distributed training pipelines and low-latency LLM serving infrastructure.
     }
   },
   {
-    id: "cand-student-nistha",
-    name: "Nistha Maheshwari",
-    email: "nistha@example.com",
+    id: "cand-sample-applicant",
+    name: "Aanya Verma",
+    email: "aanya.verma@sample-university.edu",
     appliedRoleId: initialRoles[0].id,
     appliedRoleTitle: initialRoles[0].title,
     sourceType: "student_application", // Cross-system intake from Cognalyze Student Platform
     appliedAt: "2026-09-14T02:00:00Z",
-    resumeText: `Nistha Maheshwari
+    resumeText: `Aanya Verma
 Computer Science • Distributed Systems & AI Platforms
 Active builder on Cognalyze Platform.
 Projects:
@@ -273,28 +273,28 @@ Projects:
 - High-Throughput Event Broker simulation with partition isolation.
 Skills: Go, TypeScript, PostgreSQL, Docker, MQTT, Kafka primitives, Python.`,
     githubData: {
-      handle: "nisthamaheshwari85",
-      profileUrl: "https://github.com/nisthamaheshwari85",
+      handle: "aanya-dev",
+      profileUrl: "https://github.com/aanya-dev",
       verifiedReposCount: 8,
       repos: [
         {
           name: "automated-recovery-bot",
           description: "Intelligent recovery bot for recurring payment failures using webhooks and predictive retry delays",
           languages: ["TypeScript", "Node.js"],
-          url: "https://github.com/nisthamaheshwari85/automated-recovery-bot"
+          url: "https://github.com/aanya-dev/automated-recovery-bot"
         },
         {
           name: "edge-sensor-pipeline",
           description: "Telemetry ingestion pipeline in Go with time-series indexing and anomaly alarms",
           languages: ["Go", "SQL"],
-          url: "https://github.com/nisthamaheshwari85/edge-sensor-pipeline"
+          url: "https://github.com/aanya-dev/edge-sensor-pipeline"
         }
       ]
     },
-    linkedInUrl: "https://linkedin.com/in/nistha-maheshwari",
+    linkedInUrl: "https://linkedin.com/in/aanya-verma",
     leetCodeProfile: {
-      username: "nistha85",
-      profileUrl: "https://leetcode.com/nistha85",
+      username: "aanya_v",
+      profileUrl: "https://leetcode.com/aanya_v",
       problemsSolved: 310,
       rankingBadge: "Knight (Top 4%)"
     },

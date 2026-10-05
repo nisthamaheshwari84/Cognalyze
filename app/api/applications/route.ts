@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getApplicationsStore,
   upsertApplicationRecord,
@@ -6,12 +6,17 @@ import {
   deleteApplicationRecord
 } from "@/lib/placement-store";
 import { createNotification } from "@/lib/notifications";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const auth = await getAuthenticatedContext(req);
+    // Guest users see zero applications
+    if (!auth) {
+      return NextResponse.json({ applications: [] });
+    }
 
+    const candidateId = auth.user.id;
     const applications = await getApplicationsStore(candidateId);
     return NextResponse.json({ applications });
   } catch (err: any) {
@@ -19,10 +24,18 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
+    if (!auth) {
+      return NextResponse.json({
+        error: "Unauthorized. Tracking applications requires authentication.",
+        requiresAuth: true
+      }, { status: 401 });
+    }
+
+    const candidateId = auth.user.id;
     const body = await req.json();
-    const candidateId = body.candidateId || body.candidate_id || "student-demo";
     const opportunityId = body.opportunityId || body.opportunity_id;
     const stage = body.stage || "Bookmarked";
     const notes = body.notes || "";

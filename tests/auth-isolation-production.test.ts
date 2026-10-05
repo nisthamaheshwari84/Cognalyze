@@ -483,7 +483,7 @@ describe("Production Authentication & Authorization Architecture (24-Point Test 
     const expiredToken = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
     assert.equal(getSessionByToken(expiredToken), null, "Expired token must not resolve session in store");
 
-    const req = new NextRequest("https://cognalyze.com/student/dashboard");
+    const req = new NextRequest("https://cognalyze.com/student/dna");
     const res = middleware(req);
     assert.equal(res.status, 307, "Expired/unauthenticated session must redirect to /login");
     const location = res.headers.get("location") || "";

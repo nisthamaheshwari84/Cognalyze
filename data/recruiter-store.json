@@ -2641,17 +2641,17 @@
       }
     },
     {
-      "id": "cand-student-nistha",
-      "name": "Nistha Maheshwari",
-      "email": "nistha@example.com",
+      "id": "cand-sample-applicant",
+      "name": "Aanya Verma",
+      "email": "aanya.verma@sample-university.edu",
       "appliedRoleId": "role-senior-distributed-backend-engineer-4032",
       "appliedRoleTitle": "Senior Distributed Backend Engineer",
       "sourceType": "student_application",
       "appliedAt": "2026-09-14T02:00:00Z",
-      "resumeText": "Nistha Maheshwari\nComputer Science • Distributed Systems & AI Platforms\nActive builder on Cognalyze Platform.\nProjects:\n- Automated Customer Churn & Recovery Bot (Agentic AI + Node.js + Razorpay).\n- Distributed Edge Sensor Pipeline (Go, MQTT, PostgreSQL, Docker).\n- High-Throughput Event Broker simulation with partition isolation.\nSkills: Go, TypeScript, PostgreSQL, Docker, MQTT, Kafka primitives, Python.",
+      "resumeText": "Aanya Verma\nComputer Science • Distributed Systems & AI Platforms\nActive builder on Cognalyze Platform.\nProjects:\n- Automated Customer Churn & Recovery Bot (Agentic AI + Node.js + Razorpay).\n- Distributed Edge Sensor Pipeline (Go, MQTT, PostgreSQL, Docker).\n- High-Throughput Event Broker simulation with partition isolation.\nSkills: Go, TypeScript, PostgreSQL, Docker, MQTT, Kafka primitives, Python.",
       "githubData": {
-        "handle": "nisthamaheshwari85",
-        "profileUrl": "https://github.com/nisthamaheshwari85",
+        "handle": "aanya-dev",
+        "profileUrl": "https://github.com/aanya-dev",
         "verifiedReposCount": 8,
         "repos": [
           {
@@ -2661,7 +2661,7 @@
               "TypeScript",
               "Node.js"
             ],
-            "url": "https://github.com/nisthamaheshwari85/automated-recovery-bot"
+            "url": "https://github.com/aanya-dev/automated-recovery-bot"
           },
           {
             "name": "edge-sensor-pipeline",
@@ -2670,14 +2670,14 @@
               "Go",
               "SQL"
             ],
-            "url": "https://github.com/nisthamaheshwari85/edge-sensor-pipeline"
+            "url": "https://github.com/aanya-dev/edge-sensor-pipeline"
           }
         ]
       },
-      "linkedInUrl": "https://linkedin.com/in/nistha-maheshwari",
+      "linkedInUrl": "https://linkedin.com/in/aanya-verma",
       "leetCodeProfile": {
-        "username": "nistha85",
-        "profileUrl": "https://leetcode.com/nistha85",
+        "username": "aanya_v",
+        "profileUrl": "https://leetcode.com/aanya_v",
         "problemsSolved": 310,
         "rankingBadge": "Knight (Top 4%)"
       },

@@ -39,15 +39,30 @@ export default function StudentApplicationsPage() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadApplications(stored);
+    async function init() {
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            setCandidateId(sessionData.user.id);
+            loadApplications(sessionData.user.id);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("Session check error in applications page:", e);
+      }
+      setApplications([]);
+      setLoading(false);
+    }
+    init();
   }, []);
 
   const loadApplications = async (cId: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/applications?candidateId=${cId}`);
+      const res = await fetch(`/api/applications?candidateId=${encodeURIComponent(cId)}`);
       const data = await res.json();
       if (data.applications) {
         setApplications(data.applications);

@@ -41,18 +41,18 @@ interface AuthStoreData {
   sessions: AuthSession[];
 }
 
-// ─── INITIAL DEMO SEED DATA ───
-const demoStudentUserId = "u-student-nistha-001";
-const demoStudentProfileId = "sp-student-nistha-001";
-const demoRecruiterUserId = "u-recruiter-aarav-001";
-const demoRecruiterProfileId = "rp-recruiter-aarav-001";
+// ─── INITIAL DEMO SEED DATA (Isolated Generic Sandbox) ───
+const demoStudentUserId = "u-student-sample-001";
+const demoStudentProfileId = "sp-student-sample-001";
+const demoRecruiterUserId = "u-recruiter-demo-001";
+const demoRecruiterProfileId = "rp-recruiter-demo-001";
 const demoOrgId = "org-acme-tech-001";
 
 const initialData: AuthStoreData = {
   users: [
     {
       id: demoStudentUserId,
-      email: "nistha@cognalyze.com",
+      email: "sample.student@cognalyze.com",
       passwordHash: null,
       passwordSalt: null,
       accountType: "student",
@@ -77,11 +77,11 @@ const initialData: AuthStoreData = {
     {
       id: demoStudentProfileId,
       userId: demoStudentUserId,
-      username: "nistha",
-      fullName: "Nistha Maheshwari",
-      college: "BMS College of Engineering",
+      username: "sample_student",
+      fullName: "Sample Student",
+      college: "Institute of Technology",
       degree: "B.Tech",
-      branch: "Computer Science & AI",
+      branch: "Computer Science & Engineering",
       graduationYear: "2026",
       skills: [
         { name: "Python", level: "Advanced" },
@@ -143,11 +143,11 @@ const initialData: AuthStoreData = {
   ],
   connectedAccounts: [
     {
-      id: "ca-nistha-github",
+      id: "ca-sample-github",
       userId: demoStudentUserId,
       provider: "github",
-      providerUserId: "nistha-dev",
-      providerEmail: "nistha@cognalyze.com",
+      providerUserId: "sample-dev",
+      providerEmail: "sample.student@cognalyze.com",
       connectedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
       verifiedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
       syncStatus: {

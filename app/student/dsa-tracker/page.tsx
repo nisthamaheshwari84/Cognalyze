@@ -259,9 +259,23 @@ function DsaTrackerContent() {
   const [syncWithCalendar, setSyncWithCalendar] = useState<boolean>(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setStudentId(stored);
-    loadAllData(stored);
+    async function init() {
+      let activeSId = "student-demo";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeSId = sessionData.user.id;
+          }
+        }
+      } catch (e) {
+        console.error("Session check error in dsa-tracker page:", e);
+      }
+      setStudentId(activeSId);
+      loadAllData(activeSId);
+    }
+    init();
   }, [topicParam, opportunityParam]);
 
   // Handle timer interval

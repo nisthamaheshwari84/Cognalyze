@@ -183,24 +183,21 @@ export default function ResumeBuilderView() {
         }
       }
 
-      // If user is not logged in or profile is empty, provide authentic student defaults
+      // If user is not logged in or profile is empty, provide generic template defaults
       if (!loaded) {
-        setTargetRole("AI/ML Engineer & Full Stack Developer");
+        setTargetRole("Full Stack & AI Engineer");
         setExperience("Fresher (Final Year Student)");
         setCategory("fresher");
-        setKeywords("Python, Machine Learning, FastAPI, React, Next.js, PostgreSQL, PyTorch, Docker, System Design");
-        setLinkedin("linkedin.com/in/nistha-maheshwari");
-        setGithub("github.com/nisthamaheshwari");
-        setCertifications("AWS Certified Cloud Practitioner, DeepLearning.AI Machine Learning Specialization");
+        setKeywords("Python, TypeScript, React, Next.js, PostgreSQL, Docker, Data Structures, System Design");
+        setLinkedin("linkedin.com/in/sample-student");
+        setGithub("github.com/sample-student");
+        setCertifications("Cloud Fundamentals, Full Stack Development");
         setBackground(
-          "Name: Nishtha Maheshwari. 3rd Year B.Tech CSE (AI/ML) at ABES Engineering College, Ghaziabad (CGPA: 8.8 / 10.0).\n\n" +
-          "Experience:\n" +
-          "- AI Engineering Intern at Cognalyze (2024 - Present): Engineered full-stack recruitment intelligence platform, integrated multi-agent resume assessment pipelines, increased recruiter candidate evaluation speed by 35%.\n\n" +
+          "Education: B.Tech Computer Science & Engineering (Final Year).\n\n" +
           "Projects:\n" +
-          "- Cognalyze Recruitment Intelligence: Next.js, FastAPI, Vector Embeddings, PostgreSQL platform for real-time ATS scoring and factual candidate evaluation.\n" +
-          "- Real-Time Distributed Task Queue: High-throughput async task scheduler handling 10k+ req/sec using Redis, Go, and Docker.\n" +
-          "- Multi-Modal Healthcare Diagnostic AI: PyTorch & Vision Transformer model detecting pulmonary anomalies with 96.2% validation accuracy.\n\n" +
-          "Technical Skills: Python, C++, TypeScript, React, Next.js, FastAPI, PostgreSQL, Redis, Docker, PyTorch, LLMs."
+          "- Distributed Task Pipeline: High-throughput async scheduler handling concurrent message processing.\n" +
+          "- Cloud AI Assistant: Next.js and Python web platform for automated technical summarization.\n\n" +
+          "Technical Skills: Python, TypeScript, React, Next.js, PostgreSQL, Docker, Git."
         );
       }
     } catch (e) {

@@ -9,6 +9,7 @@ import ResumeUploadModal from "@/components/student/overview/ResumeUploadModal";
 import EditStudentDnaModal from "@/components/student/overview/EditStudentDnaModal";
 import UpdateProfileModal from "@/components/student/overview/UpdateProfileModal";
 import OpportunityMatchModal from "@/components/student/overview/OpportunityMatchModal";
+import AuthPromptModal from "@/components/auth/AuthPromptModal";
 import { StudentDNAProfile } from "@/lib/intelligence/student-intelligence";
 import { CalendarEventItem } from "@/app/api/student/calendar/route";
 
@@ -36,8 +37,17 @@ interface Recommendation {
 
 export default function StudentDashboardOverview() {
   const { isDark } = useTheme();
-  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [candidateId, setCandidateId] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authPromptOpen, setAuthPromptOpen] = useState<boolean>(false);
+  const [authPromptConfig, setAuthPromptConfig] = useState<{
+    title?: string;
+    description?: string;
+    feature?: "dna" | "profile" | "resume" | "application" | "general";
+    redirectPath?: string;
+  }>({});
+  const [userApplications, setUserApplications] = useState<any[]>([]);
 
   // Authenticated Student Profile State
   const [profile, setProfile] = useState({
@@ -65,7 +75,7 @@ export default function StudentDashboardOverview() {
   const [intelligence, setIntelligence] = useState<StudentDNAProfile | null>(null);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEventItem[]>([]);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [applicationsCount, setApplicationsCount] = useState<number>(12);
+  const [applicationsCount, setApplicationsCount] = useState<number>(0);
 
   // Modals State
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
@@ -74,23 +84,21 @@ export default function StudentDashboardOverview() {
   const [selectedOppForModal, setSelectedOppForModal] = useState<any | null>(null);
 
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("cognalyze_student_id") || "student-demo"
-        : "student-demo";
-    setCandidateId(stored);
-    loadAllData(stored);
+    loadAllData();
   }, []);
 
-  const loadAllData = async (cId: string) => {
+  const loadAllData = async (_cId?: string) => {
     setLoading(true);
     try {
       // 1. Session & Student Profile
-      let activeCId = cId;
+      let activeCId = "";
+      let isAuthed = false;
       const sessionRes = await fetch("/api/auth/session");
       if (sessionRes.ok) {
         const sessionData = await sessionRes.json();
         if (sessionData.authenticated && (sessionData.studentProfile || sessionData.user)) {
+          isAuthed = true;
+          setIsAuthenticated(true);
           if (sessionData.user?.id) {
             activeCId = sessionData.user.id;
             setCandidateId(activeCId);
@@ -128,17 +136,60 @@ export default function StudentDashboardOverview() {
         }
       }
 
-      // 2. Student DNA & Intelligence (Strictly authenticated session user)
-      const dnaRes = await fetch(`/api/student/dna?candidateId=${activeCId}`);
-      if (dnaRes.ok) {
-        const dnaData = await dnaRes.json();
-        if (dnaData.intelligence) {
-          setIntelligence(dnaData.intelligence);
+      if (!isAuthed) {
+        setIsAuthenticated(false);
+        setCandidateId("");
+        setProfile({
+          fullName: "Guest Student",
+          firstName: "",
+          college: "",
+          degree: "",
+          branch: "",
+          graduationYear: "",
+          avatarInitials: "GS"
+        });
+        setDnaStatus({
+          completionPercentage: 0,
+          profileCompleted: false,
+          status: "NOT_STARTED"
+        });
+        setIntelligence(null);
+        setApplicationsCount(0);
+        setUserApplications([]);
+      }
+
+      // 2. If authenticated, fetch private Student DNA & Intelligence
+      if (isAuthed && activeCId) {
+        try {
+          const dnaRes = await fetch(`/api/student/dna?candidateId=${activeCId}`);
+          if (dnaRes.ok) {
+            const dnaData = await dnaRes.json();
+            if (dnaData.intelligence) {
+              setIntelligence(dnaData.intelligence);
+            }
+          }
+        } catch (e) {
+          console.warn("Could not load private DNA:", e);
+        }
+
+        // 3. Applications Count & List
+        try {
+          const appRes = await fetch(`/api/applications?candidateId=${activeCId}`);
+          if (appRes.ok) {
+            const appData = await appRes.json();
+            const apps = appData.applications || appData;
+            if (Array.isArray(apps)) {
+              setApplicationsCount(apps.length);
+              setUserApplications(apps);
+            }
+          }
+        } catch (e) {
+          console.warn("Could not load private applications:", e);
         }
       }
 
-      // 3. Placement Calendar Events
-      const calRes = await fetch(`/api/student/calendar?candidateId=${activeCId}`);
+      // 4. Placement Calendar Events (public or scoped)
+      const calRes = await fetch(`/api/student/calendar${activeCId ? `?candidateId=${activeCId}` : ""}`);
       if (calRes.ok) {
         const calData = await calRes.json();
         if (calData.events) {
@@ -146,22 +197,12 @@ export default function StudentDashboardOverview() {
         }
       }
 
-      // 4. Opportunities Recommendations
-      const recRes = await fetch(`/api/recommendations?candidateId=${activeCId}&limit=3`);
+      // 5. Opportunities Recommendations
+      const recRes = await fetch(`/api/recommendations${activeCId ? `?candidateId=${activeCId}` : ""}&limit=3`);
       if (recRes.ok) {
         const recData = await recRes.json();
         if (recData.recommendations) {
           setRecommendations(recData.recommendations);
-        }
-      }
-
-      // 5. Applications Count
-      const appRes = await fetch(`/api/applications?candidateId=${activeCId}`);
-      if (appRes.ok) {
-        const appData = await appRes.json();
-        const apps = appData.applications || appData;
-        if (Array.isArray(apps)) {
-          setApplicationsCount(apps.length);
         }
       }
     } catch (err) {
@@ -282,7 +323,7 @@ export default function StudentDashboardOverview() {
                 letterSpacing: "-0.5px"
               }}
             >
-              Welcome, {profile.firstName || "Student"}
+              {isAuthenticated ? `Welcome, ${profile.firstName || "Student"}` : "Welcome to Cognalyze"}
             </h1>
             <p
               style={{
@@ -292,14 +333,28 @@ export default function StudentDashboardOverview() {
                 fontWeight: 500
               }}
             >
-              Your learning. Your evidence. Your future.
+              {isAuthenticated
+                ? "Your learning. Your evidence. Your future."
+                : "Explore career intelligence, verified opportunities, and personalized preparation."}
             </p>
           </div>
 
           {/* Header Action Controls */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <button
-              onClick={() => setUpdateProfileModalOpen(true)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setAuthPromptConfig({
+                    title: "Complete Your Student Profile",
+                    description: "Sign in or create an account to update your educational background, skills, and projects.",
+                    feature: "profile",
+                    redirectPath: "/student/dashboard"
+                  });
+                  setAuthPromptOpen(true);
+                  return;
+                }
+                setUpdateProfileModalOpen(true);
+              }}
               style={{
                 backgroundColor: isDark ? "#13243A" : "#FFFFFF",
                 border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
@@ -316,10 +371,23 @@ export default function StudentDashboardOverview() {
               Update Profile
             </button>
 
-            <Link
-              href="/student/dna"
+            <button
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setAuthPromptConfig({
+                    title: "View Student DNA",
+                    description: "Student DNA is a private intelligence profile. Sign in or create an account to view and verify your capabilities.",
+                    feature: "dna",
+                    redirectPath: "/student/dna"
+                  });
+                  setAuthPromptOpen(true);
+                  return;
+                }
+                window.location.href = "/student/dna";
+              }}
               style={{
-                textDecoration: "none",
+                border: "none",
+                cursor: "pointer",
                 backgroundColor: isDark ? "#3478F6" : "#356AE6",
                 color: "#ffffff",
                 borderRadius: 7,
@@ -334,9 +402,85 @@ export default function StudentDashboardOverview() {
               }}
             >
               View Student DNA →
-            </Link>
+            </button>
           </div>
         </div>
+
+        {/* ── GUEST EXPLORATION BANNER (When unauthenticated) ── */}
+        {!isAuthenticated && !loading && (
+          <div
+            style={{
+              backgroundColor: isDark ? "#0F1E33" : "#F0F5FF",
+              border: isDark ? "1px solid #1E3B66" : "1px solid #CFE0FC",
+              borderRadius: 10,
+              padding: "16px 22px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 14,
+              boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.18)" : "0 1px 3px rgba(16, 24, 40, 0.04)"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
+                  backgroundColor: isDark ? "#17335C" : "#E0EDFF",
+                  color: isDark ? "#60A5FA" : "#2563EB",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 20,
+                  flexShrink: 0
+                }}
+              >
+                🎓
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: isDark ? "#F2F6FC" : "#14253E" }}>
+                  You are exploring Cognalyze as a Guest Student
+                </div>
+                <div style={{ fontSize: 12.5, color: isDark ? "#9FB3CA" : "#556477", marginTop: 2 }}>
+                  Sign in or create a student account to unlock your private Student DNA, verified evidence mapping, and personal application tracker.
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <Link
+                href="/login?redirect=/student/dashboard"
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  backgroundColor: isDark ? "#2563EB" : "#17191C",
+                  color: "#FFFFFF",
+                  textDecoration: "none"
+                }}
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup?role=student&redirect=/student/dashboard"
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  fontSize: 12.5,
+                  fontWeight: 600,
+                  backgroundColor: isDark ? "#182C46" : "#FFFFFF",
+                  color: isDark ? "#D2E3F8" : "#233D63",
+                  border: isDark ? "1px solid #27456D" : "1px solid #CDDBEE",
+                  textDecoration: "none"
+                }}
+              >
+                Create Account
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* ── YOUR STUDENT DNA: CORE BUILDER CARD (Sections 5, 29, 37) ── */}
         <div
@@ -460,7 +604,37 @@ export default function StudentDashboardOverview() {
             </div>
 
             <div style={{ display: "flex", gap: 8 }}>
-              {dnaStatus.completionPercentage < 100 ? (
+              {!isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    setAuthPromptConfig({
+                      title: "Build Your Student DNA",
+                      description: "Create an account to benchmark your capabilities, upload evidence, and map skill gaps.",
+                      feature: "dna",
+                      redirectPath: "/student/onboarding"
+                    });
+                    setAuthPromptOpen(true);
+                  }}
+                  style={{
+                    border: "none",
+                    cursor: "pointer",
+                    background: isDark ? "#3478F6" : "#356AE6",
+                    color: "#ffffff",
+                    borderRadius: 7,
+                    padding: "9px 18px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.18)" : "0 1px 2px rgba(16, 24, 40, 0.05)",
+                    transition: "background 0.15s ease"
+                  }}
+                >
+                  <span>Build Student DNA</span>
+                  <span>→</span>
+                </button>
+              ) : dnaStatus.completionPercentage < 100 ? (
                 <Link
                   href="/student/onboarding"
                   style={{
@@ -600,22 +774,24 @@ export default function StudentDashboardOverview() {
                   flexShrink: 0
                 }}
               >
-                {profile.avatarInitials}
+                {isAuthenticated ? (profile.avatarInitials || "S") : "GS"}
               </div>
 
               <div>
                 <div style={{ fontSize: 18, fontWeight: 700, color: isDark ? "#F2F6FC" : "#17191C" }}>
-                  {profile.fullName}
+                  {isAuthenticated ? (profile.fullName || "Student") : "Guest Student"}
                 </div>
                 <div style={{ fontSize: 13, color: isDark ? "#9FB0C5" : "#667085", marginTop: 2 }}>
-                  {profile.branch} · {profile.college}
+                  {isAuthenticated
+                    ? `${profile.branch || "Computer Science"} · ${profile.college || "University"}`
+                    : "Public Mode · Sign in to link your university & verified skills"}
                 </div>
               </div>
             </div>
 
             {/* Verified Skills Pills */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {verifiedSkills.map((skill: string) => (
+              {(isAuthenticated ? verifiedSkills : ["Full Stack", "Problem Solving", "Evidence Intelligence", "System Design"]).map((skill: string) => (
                 <span
                   key={skill}
                   style={{
@@ -636,7 +812,19 @@ export default function StudentDashboardOverview() {
             {/* Action Buttons */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <button
-                onClick={() => setResumeModalOpen(true)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setAuthPromptConfig({
+                      title: "Upload & Verify Resume",
+                      description: "Sign in to extract verified evidence and automatically populate your Student DNA.",
+                      feature: "resume",
+                      redirectPath: "/resume"
+                    });
+                    setAuthPromptOpen(true);
+                    return;
+                  }
+                  setResumeModalOpen(true);
+                }}
                 style={{
                   backgroundColor: isDark ? "#3478F6" : "#356AE6",
                   color: "#ffffff",
@@ -654,7 +842,19 @@ export default function StudentDashboardOverview() {
               </button>
 
               <button
-                onClick={() => setEditDnaModalOpen(true)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    setAuthPromptConfig({
+                      title: "Edit Student DNA",
+                      description: "Sign in or create an account to customize your verified capabilities and project artifacts.",
+                      feature: "dna",
+                      redirectPath: "/student/dna"
+                    });
+                    setAuthPromptOpen(true);
+                    return;
+                  }
+                  setEditDnaModalOpen(true);
+                }}
                 style={{
                   backgroundColor: isDark ? "#13243A" : "#FFFFFF",
                   border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
@@ -1108,7 +1308,7 @@ export default function StudentDashboardOverview() {
                 </div>
                 <div style={{ borderLeft: isDark ? "1px solid #263D57" : "1px solid #E4E1DA", borderRight: isDark ? "1px solid #263D57" : "1px solid #E4E1DA" }}>
                   <div style={{ fontSize: 18, fontWeight: 700, color: isDark ? "#4C8DFF" : "#356AE6" }}>
-                    3
+                    {isAuthenticated ? Math.min(applicationsCount, 2) : 0}
                   </div>
                   <div style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase" }}>
                     Interviews
@@ -1116,7 +1316,7 @@ export default function StudentDashboardOverview() {
                 </div>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: isDark ? "#35B982" : "#2E7D5B" }}>
-                    1
+                    {isAuthenticated ? Math.min(applicationsCount, 1) : 0}
                   </div>
                   <div style={{ fontSize: 11, color: isDark ? "#8292A8" : "#667085", textTransform: "uppercase" }}>
                     Outcome
@@ -1126,90 +1326,150 @@ export default function StudentDashboardOverview() {
 
               {/* Active Items */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    borderRadius: 7,
-                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                    border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
-                    gap: 10
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <CompanyLogo companyName="Flipkart" size={26} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: isDark ? "#F2F6FC" : "#17191C" }}>
-                      Flipkart GRiD 7.0
-                    </span>
-                  </div>
-                  <span
+                {!isAuthenticated ? (
+                  <div
                     style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: isDark ? "#F0C978" : "#B7791F",
-                      backgroundColor: isDark ? "rgba(234,182,90,0.12)" : "#FEF7ED",
-                      border: isDark ? "1px solid rgba(234,182,90,0.25)" : "1px solid #FDE68A",
-                      padding: "2px 8px",
-                      borderRadius: 5
+                      padding: "16px 14px",
+                      borderRadius: 7,
+                      backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                      border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                      textAlign: "center"
                     }}
                   >
-                    Assessment pending
-                  </span>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "8px 12px",
-                    borderRadius: 7,
-                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                    border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
-                    gap: 10
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <CompanyLogo companyName="Google" size={26} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: isDark ? "#F2F6FC" : "#17191C" }}>
-                      Google STEP Intern
-                    </span>
+                    <p style={{ margin: "0 0 10px", fontSize: 12.5, color: isDark ? "#9FB0C5" : "#667085" }}>
+                      Sign in to track your opportunity applications and interview status.
+                    </p>
+                    <Link
+                      href="/login?redirect=/student/applications"
+                      style={{
+                        display: "inline-block",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        backgroundColor: isDark ? "#2563EB" : "#17191C",
+                        color: "#FFFFFF",
+                        textDecoration: "none"
+                      }}
+                    >
+                      Sign In to Track Applications
+                    </Link>
                   </div>
-                  <span
+                ) : userApplications.length === 0 ? (
+                  <div
                     style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: isDark ? "#73A6FF" : "#356AE6",
-                      backgroundColor: isDark ? "rgba(76,141,255,0.12)" : "#EEF4FD",
-                      border: isDark ? "1px solid rgba(76,141,255,0.25)" : "1px solid #D1E2FB",
-                      padding: "2px 8px",
-                      borderRadius: 5
+                      padding: "16px 14px",
+                      borderRadius: 7,
+                      backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                      border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                      textAlign: "center"
                     }}
                   >
-                    Application submitted
-                  </span>
-                </div>
+                    <p style={{ margin: "0 0 10px", fontSize: 12.5, color: isDark ? "#9FB0C5" : "#667085" }}>
+                      No active applications yet. Discover opportunities and apply with your verified Student DNA.
+                    </p>
+                    <Link
+                      href="/student/opportunities"
+                      style={{
+                        display: "inline-block",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: "6px 14px",
+                        borderRadius: 6,
+                        backgroundColor: isDark ? "#2563EB" : "#17191C",
+                        color: "#FFFFFF",
+                        textDecoration: "none"
+                      }}
+                    >
+                      Explore Opportunities →
+                    </Link>
+                  </div>
+                ) : (
+                  userApplications.slice(0, 3).map((app: any) => (
+                    <div
+                      key={app.id || app.opportunity_id}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "8px 12px",
+                        borderRadius: 7,
+                        backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                        border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                        gap: 10
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <CompanyLogo companyName={app.company_name || app.organizer || "Company"} size={26} />
+                        <span style={{ fontSize: 13, fontWeight: 600, color: isDark ? "#F2F6FC" : "#17191C" }}>
+                          {app.title || app.opportunity_title || "Opportunity"}
+                        </span>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: isDark ? "#73A6FF" : "#356AE6",
+                          backgroundColor: isDark ? "rgba(76,141,255,0.12)" : "#EEF4FD",
+                          border: isDark ? "1px solid rgba(76,141,255,0.25)" : "1px solid #D1E2FB",
+                          padding: "2px 8px",
+                          borderRadius: 5
+                        }}
+                      >
+                        {app.stage || "Applied"}
+                      </span>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
-            <Link
-              href="/student/applications"
-              style={{
-                textDecoration: "none",
-                fontSize: 13,
-                fontWeight: 600,
-                color: isDark ? "#4C8DFF" : "#356AE6",
-                paddingTop: 12,
-                borderTop: isDark ? "1px solid rgba(36, 58, 85, 0.7)" : "1px solid #E4E1DA",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4
-              }}
-            >
-              Open application pipeline →
-            </Link>
+            {isAuthenticated ? (
+              <Link
+                href="/student/applications"
+                style={{
+                  textDecoration: "none",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: isDark ? "#4C8DFF" : "#356AE6",
+                  paddingTop: 12,
+                  borderTop: isDark ? "1px solid rgba(36, 58, 85, 0.7)" : "1px solid #E4E1DA",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4
+                }}
+              >
+                Open application pipeline →
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setAuthPromptConfig({
+                    title: "Access Application Pipeline",
+                    description: "Sign in to track your stages, interview dates, and real-time outcomes.",
+                    feature: "application",
+                    redirectPath: "/student/applications"
+                  });
+                  setAuthPromptOpen(true);
+                }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: isDark ? "#4C8DFF" : "#356AE6",
+                  paddingTop: 12,
+                  borderTop: isDark ? "1px solid rgba(36, 58, 85, 0.7)" : "1px solid #E4E1DA",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  textAlign: "left"
+                }}
+              >
+                Open application pipeline →
+              </button>
+            )}
           </div>
 
           {/* Column 2: Interview / Preparation */}
@@ -1423,7 +1683,7 @@ export default function StudentDashboardOverview() {
         isOpen={resumeModalOpen}
         onClose={() => setResumeModalOpen(false)}
         candidateId={candidateId}
-        onSuccess={() => loadAllData(candidateId)}
+        onSuccess={() => loadAllData()}
       />
 
       {/* 2. Edit Student DNA Modal */}
@@ -1432,7 +1692,7 @@ export default function StudentDashboardOverview() {
         onClose={() => setEditDnaModalOpen(false)}
         candidateId={candidateId}
         currentGoal={intelligence?.intent?.primaryGoal || "AI/ML Engineer"}
-        onGoalUpdated={() => loadAllData(candidateId)}
+        onGoalUpdated={() => loadAllData()}
       />
 
       {/* 3. Update Profile Modal */}
@@ -1450,7 +1710,17 @@ export default function StudentDashboardOverview() {
         opportunity={selectedOppForModal}
       />
 
-      {/* 5. Floating Cognalyze AI Mentor Launcher */}
+      {/* 5. Auth Prompt Modal for Guests */}
+      <AuthPromptModal
+        isOpen={authPromptOpen}
+        onClose={() => setAuthPromptOpen(false)}
+        title={authPromptConfig.title}
+        description={authPromptConfig.description}
+        feature={authPromptConfig.feature}
+        redirectPath={authPromptConfig.redirectPath}
+      />
+
+      {/* 6. Floating Cognalyze AI Mentor Launcher */}
       <Link
         href="/student/ai-mentor"
         title="Cognalyze AI Mentor"

@@ -56,7 +56,7 @@ PROJECTS:
 });
 
 test("Student DNA & Evidence Sync: Updating resume evidence updates Student DNA capabilities", async () => {
-  const candidateId = "u-student-nistha-001";
+  const candidateId = "u-student-sample-001";
 
   const extracted = {
     skills: [
@@ -118,7 +118,7 @@ test("End-to-End API: POST /api/parse-resume parses multipart FormData and JSON"
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       resumeText: "Nistha Maheshwari\nSkills: Python, TypeScript, Docker\nProjects:\nTest Engine | Python, Docker\n- Built test project",
-      candidateId: "u-student-nistha-001",
+      candidateId: "u-student-sample-001",
     }),
   });
 
