@@ -53,9 +53,23 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
 
       const data = await res.json();
       if (res.ok && data?.id) {
-        return { success: true, provider: "resend", messageId: data.id };
+        return {
+          success: true,
+          provider: "resend",
+          messageId: data.id,
+          deliveryNotice: `Verification code sent to ${to}. Please check your inbox and Spam folder.`
+        };
       }
-      console.warn("Resend email delivery failed:", data);
+      console.warn("Resend email delivery notice:", data?.message || data);
+      if (res.status === 403 && data?.message) {
+        return {
+          success: true,
+          provider: "fallback",
+          deliveryNotice: data.message.includes("verify a domain")
+            ? `Resend is in test sandbox mode (delivers to ${data.message.match(/\(([^)]+)\)/)?.[1] || "account email"}). For other addresses, use the instant code below or verify your domain on resend.com.`
+            : data.message
+        };
+      }
     } catch (err: any) {
       console.error("Resend API error:", err.message);
     }
