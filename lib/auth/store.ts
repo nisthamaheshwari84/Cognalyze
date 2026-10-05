@@ -648,7 +648,7 @@ export function updateOrganization(
 
 // ─── EMAIL VERIFICATION (OTP) ───
 
-export function createEmailVerification(userId: string, email: string, codeHash: string): EmailVerification {
+export function createEmailVerification(userId: string, email: string, codeHash: string, rawCode?: string): EmailVerification {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString(); // 15 minutes
 
@@ -660,6 +660,7 @@ export function createEmailVerification(userId: string, email: string, codeHash:
     userId,
     email: email.toLowerCase().trim(),
     codeHash,
+    rawCode,
     expiresAt,
     attemptCount: 0,
     lastSentAt: now.toISOString(),

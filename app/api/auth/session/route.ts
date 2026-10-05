@@ -8,6 +8,20 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ authenticated: false });
     }
 
+    let pendingVerification = null;
+    if (auth.user.status === "EMAIL_PENDING") {
+      const { getPendingVerificationByUserId } = await import("@/lib/auth/store");
+      const pending = getPendingVerificationByUserId(auth.user.id);
+      if (pending) {
+        pendingVerification = {
+          email: pending.email,
+          expiresAt: pending.expiresAt,
+          attemptCount: pending.attemptCount,
+          fallbackCode: pending.rawCode,
+        };
+      }
+    }
+
     return NextResponse.json({
       authenticated: true,
       user: {
@@ -19,6 +33,7 @@ export async function GET(req: NextRequest) {
         profileCompleted: auth.user.profileCompleted || !!auth.studentProfile?.profileCompleted,
         emailVerifiedAt: auth.user.emailVerifiedAt
       },
+      pendingVerification,
       studentProfile: auth.studentProfile,
       recruiterProfile: auth.recruiterProfile,
       organization: auth.organization,

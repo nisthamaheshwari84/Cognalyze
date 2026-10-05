@@ -13,6 +13,7 @@ import {
   createSession,
   upsertStudentProfileByUserId
 } from "@/lib/auth/store";
+import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -79,10 +80,17 @@ export async function POST(req: NextRequest) {
       profileCompleted: false
     });
 
-    // 5. Generate 6-digit Verification Code
+    // 5. Generate 6-digit Verification Code & Dispatch Email
     const verificationCode = generateVerificationCode();
     const codeHash = hashCode(verificationCode);
-    createEmailVerification(user.id, user.email, codeHash);
+    createEmailVerification(user.id, user.email, codeHash, verificationCode);
+
+    let emailResult: EmailDispatchResult = { provider: "fallback", success: true, deliveryNotice: "" };
+    try {
+      emailResult = await sendVerificationOtpEmail(user.email, verificationCode, user.fullName);
+    } catch (err: any) {
+      console.error("Failed to dispatch verification email on signup:", err);
+    }
 
     // 6. Create Profile based on account type
     if (effectiveAccountType === "recruiter") {
@@ -120,8 +128,14 @@ export async function POST(req: NextRequest) {
       email: user.email,
       status: user.status,
       nextUrl: `/verify-email?role=${effectiveAccountType}`,
-      // Exposed for test/local demo verification
-      demoVerificationCode: process.env.NODE_ENV !== "production" ? verificationCode : undefined
+      emailDelivery: {
+        provider: emailResult.provider,
+        delivered: emailResult.success && emailResult.provider !== "fallback",
+        notice: emailResult.deliveryNotice
+      },
+      // If external email provider is unconfigured or in non-production, return code so user is never blocked
+      verificationCode: emailResult.provider === "fallback" || process.env.NODE_ENV !== "production" ? verificationCode : undefined,
+      demoVerificationCode: verificationCode
     });
 
     res.cookies.set("cognalyze_session", session.token, {

@@ -6,6 +6,7 @@ import {
   getPendingVerificationByUserId,
   createEmailVerification
 } from "@/lib/auth/store";
+import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,15 +46,28 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Issue new code
+    // Issue new code & dispatch email
     const newCode = generateVerificationCode();
     const codeHash = hashCode(newCode);
-    createEmailVerification(user.id, user.email, codeHash);
+    createEmailVerification(user.id, user.email, codeHash, newCode);
+
+    let emailResult: EmailDispatchResult = { provider: "fallback", success: true, deliveryNotice: "" };
+    try {
+      emailResult = await sendVerificationOtpEmail(user.email, newCode, user.fullName);
+    } catch (err: any) {
+      console.error("Failed to dispatch verification email on resend:", err);
+    }
 
     return NextResponse.json({
       success: true,
       message: "Verification code sent.",
-      demoVerificationCode: process.env.NODE_ENV !== "production" ? newCode : undefined
+      emailDelivery: {
+        provider: emailResult.provider,
+        delivered: emailResult.success && emailResult.provider !== "fallback",
+        notice: emailResult.deliveryNotice
+      },
+      verificationCode: emailResult.provider === "fallback" || process.env.NODE_ENV !== "production" ? newCode : undefined,
+      demoVerificationCode: newCode
     });
   } catch (err: any) {
     console.error("Resend code error:", err);

@@ -125,6 +125,34 @@ export async function createNotification(params: CreateNotificationParams): Prom
     // Supabase insert fallback handled gracefully
   }
 
+  // 3. Email Notification Dispatch to user's registered email
+  try {
+    const { getUserById, getStudentProfileById, getStudentProfileByUserId } = await import("@/lib/auth/store");
+    const { sendNotificationEmail } = await import("@/lib/email/email-service");
+
+    let recipientEmail = "";
+    const directUser = getUserById(resolvedId) || (studentId !== resolvedId ? getUserById(studentId) : null);
+    if (directUser?.email) {
+      recipientEmail = directUser.email;
+    } else {
+      const studentProfile = getStudentProfileById(resolvedId) || getStudentProfileByUserId(resolvedId) || getStudentProfileById(studentId);
+      if (studentProfile?.email) {
+        recipientEmail = studentProfile.email;
+      } else if (studentProfile?.userId) {
+        const u = getUserById(studentProfile.userId);
+        if (u?.email) recipientEmail = u.email;
+      }
+    }
+
+    if (recipientEmail) {
+      sendNotificationEmail(recipientEmail, title, body, linkUrl, priority).catch((err) => {
+        console.warn("Background notification email dispatch error:", err);
+      });
+    }
+  } catch (err) {
+    // Graceful background handling
+  }
+
   return newNotification;
 }
 

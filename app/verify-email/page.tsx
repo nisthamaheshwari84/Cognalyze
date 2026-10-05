@@ -17,6 +17,8 @@ function VerifyEmailContent() {
   const [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [deliveryNotice, setDeliveryNotice] = useState<string | null>(null);
+  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const [nextDestination, setNextDestination] = useState<string>("");
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -30,6 +32,9 @@ function VerifyEmailContent() {
         if (data.authenticated && data.user) {
           setEmail(data.user.email);
           setAccountType(data.user.accountType);
+          if (data.pendingVerification?.fallbackCode) {
+            setFallbackCode(data.pendingVerification.fallbackCode);
+          }
           if (data.user.emailVerifiedAt) {
             setSuccess(true);
             setNextDestination(data.user.accountType === "student" ? "/student/dashboard" : "/recruiter/organization/setup");
@@ -131,6 +136,15 @@ function VerifyEmailContent() {
         throw new Error(data.error || "Failed to resend code.");
       }
 
+      if (data.verificationCode || data.demoVerificationCode) {
+        setFallbackCode(data.verificationCode || data.demoVerificationCode);
+      }
+      if (data.emailDelivery?.notice) {
+        setDeliveryNotice(data.emailDelivery.notice);
+      } else {
+        setDeliveryNotice("A new 6-digit verification code has been dispatched to your email.");
+      }
+
       setCooldown(60);
       setDigits(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
@@ -139,6 +153,16 @@ function VerifyEmailContent() {
     } finally {
       setResending(false);
     }
+  };
+
+  const handleAutoFill = (codeToFill: string) => {
+    const chars = codeToFill.replace(/\D/g, "").slice(0, 6).split("");
+    const newDigits = ["", "", "", "", "", ""];
+    chars.forEach((c, i) => {
+      newDigits[i] = c;
+    });
+    setDigits(newDigits);
+    inputRefs.current[Math.min(5, chars.length - 1)]?.focus();
   };
 
   // Mask email for privacy (e.g. ni******@gmail.com)
@@ -240,6 +264,49 @@ function VerifyEmailContent() {
             </div>
           )}
 
+          {deliveryNotice && (
+            <div
+              style={{
+                backgroundColor: "#F0FDF4",
+                borderColor: "#BBF7D0",
+                color: "#166534",
+              }}
+              className="p-3.5 rounded-lg border text-xs leading-relaxed flex items-start gap-2"
+            >
+              <span className="text-sm">✉️</span>
+              <span className="flex-1">{deliveryNotice}</span>
+            </div>
+          )}
+
+          {fallbackCode && (
+            <div
+              style={{
+                backgroundColor: "#EFF4FE",
+                borderColor: "#D2E0FB",
+                color: "#1E40AF",
+              }}
+              className="p-3.5 rounded-lg border text-xs space-y-2"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-900">Verification Code:</span>
+                <span className="font-mono text-sm font-bold tracking-widest bg-white px-2.5 py-0.5 rounded border border-blue-200 text-blue-700 shadow-sm">
+                  {fallbackCode}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-600 pt-0.5">
+                <span>Instant code (in case of mail server delays):</span>
+                <button
+                  type="button"
+                  id="autofill-otp-btn"
+                  onClick={() => handleAutoFill(fallbackCode)}
+                  className="font-bold text-[#356AE6] hover:underline cursor-pointer bg-white px-2 py-0.5 rounded border border-blue-200 shadow-xs"
+                >
+                  ⚡ Auto-Fill
+                </button>
+              </div>
+            </div>
+          )}
+
           {!success ? (
             <form onSubmit={handleVerify} className="space-y-6">
               {/* 6 Digit OTP inputs */}
@@ -289,6 +356,10 @@ function VerifyEmailContent() {
                   {cooldown > 0 ? `Resend in ${cooldown}s` : resending ? "Sending..." : "Resend code"}
                 </button>
               </div>
+
+              <p style={{ color: "#98A2B3" }} className="text-[11px] text-center leading-normal">
+                Tip: If the email doesn&apos;t show in your Inbox, please check your <span className="font-medium text-slate-600">Spam or Promotions</span> folder.
+              </p>
             </form>
           ) : (
             <div className="space-y-4">

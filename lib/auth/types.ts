@@ -201,6 +201,7 @@ export interface EmailVerification {
   userId: string;
   email: string;
   codeHash: string;
+  rawCode?: string;
   expiresAt: string;
   attemptCount: number;
   lastSentAt: string;
