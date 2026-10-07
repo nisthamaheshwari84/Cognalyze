@@ -34,7 +34,50 @@ export interface SendEmailParams {
 export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchResult> {
   const { to, subject, html, text, from = process.env.EMAIL_FROM || "Cognalyze <auth@cognalyze.ai>" } = params;
 
-  // ─── 1. RESEND API DISPATCH (Primary modern standard) ───
+  const brevoKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
+  const preferBrevo = process.env.EMAIL_PROVIDER === "brevo" || (!process.env.RESEND_API_KEY && !!brevoKey);
+
+  async function dispatchBrevo(): Promise<EmailDispatchResult | null> {
+    if (!brevoKey) return null;
+    try {
+      const senderEmail = from.includes("<") ? from.split("<")[1].replace(">", "").trim() : from;
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoKey.trim(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { email: senderEmail, name: "Cognalyze" },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (res.ok && (data?.messageId || data?.id)) {
+        return {
+          success: true,
+          provider: "brevo",
+          messageId: data.messageId || data.id,
+          deliveryNotice: `Verification code sent to ${to}. Please check your inbox and Spam folder.`
+        };
+      }
+      return { success: false, provider: "brevo", error: data?.message || "Brevo delivery failed." };
+    } catch (err: any) {
+      return { success: false, provider: "brevo", error: err.message };
+    }
+  }
+
+  // ─── PRIORITIZED BREVO DISPATCH ───
+  if (preferBrevo) {
+    const brevoRes = await dispatchBrevo();
+    if (brevoRes?.success) return brevoRes;
+    if (brevoRes && !process.env.RESEND_API_KEY) return brevoRes;
+  }
+
+  // ─── 1. RESEND API DISPATCH ───
   if (process.env.RESEND_API_KEY) {
     try {
       const res = await fetch("https://api.resend.com/emails", {
@@ -63,6 +106,13 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
       }
 
       console.warn("Resend email delivery failure:", data?.message || data);
+
+      // Automatic fallback to Brevo if Resend encounters domain restrictions
+      if (brevoKey) {
+        const fallbackRes = await dispatchBrevo();
+        if (fallbackRes?.success) return fallbackRes;
+      }
+
       if (res.status === 403 && data?.message) {
         return {
           success: false,
@@ -78,6 +128,10 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
       };
     } catch (err: any) {
       console.error("Resend API network error:", err.message);
+      if (brevoKey) {
+        const fallbackRes = await dispatchBrevo();
+        if (fallbackRes?.success) return fallbackRes;
+      }
       return {
         success: false,
         provider: "resend",
@@ -86,32 +140,10 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
     }
   }
 
-  // ─── 2. BREVO / SENDINBLUE API DISPATCH ───
-  const brevoKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
+  // ─── 2. BREVO DISPATCH (if Resend not configured) ───
   if (brevoKey) {
-    try {
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          "api-key": brevoKey.trim(),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          sender: { email: from.includes("<") ? from.split("<")[1].replace(">", "").trim() : from, name: "Cognalyze" },
-          to: [{ email: to }],
-          subject,
-          htmlContent: html,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok && (data?.messageId || data?.id)) {
-        return { success: true, provider: "brevo", messageId: data.messageId || data.id };
-      }
-      return { success: false, provider: "brevo", error: data?.message || "Brevo delivery failed." };
-    } catch (err: any) {
-      return { success: false, provider: "brevo", error: err.message };
-    }
+    const brevoRes = await dispatchBrevo();
+    if (brevoRes) return brevoRes;
   }
 
   // ─── 3. SENDGRID API DISPATCH ───
