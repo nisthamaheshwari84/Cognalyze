@@ -6,13 +6,18 @@ import {
   markEmailVerified,
   getUserById,
   getSessionByToken,
-  createSession
+  createSession,
+  syncStoreWithCloud
 } from "@/lib/auth/store";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { code, userId: explicitUserId } = body;
+
+    // Sync cloud store first
+    await syncStoreWithCloud();
 
     // 1. Resolve User ID from session cookie or body
     let userId = explicitUserId;

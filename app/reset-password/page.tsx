@@ -7,13 +7,23 @@ import { useRouter, useSearchParams } from "next/navigation";
 function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const [token, setToken] = useState<string>(searchParams.get("token") || searchParams.get("code") || "");
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash.includes("access_token=")) {
+        const match = hash.match(/access_token=([^&]+)/);
+        if (match && match[1]) setToken(match[1]);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +47,17 @@ function ResetPasswordContent() {
     setLoading(true);
 
     try {
+      // 1. Try Supabase Auth password update
+      const { supabase } = await import("@/lib/supabase");
+      const sbRes = await supabase.auth.updateUser({ password });
+      if (!sbRes.error) {
+        setSuccess(true);
+        return;
+      }
+    } catch {}
+
+    try {
+      // 2. Try Cognalyze secure reset token endpoint
       const res = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

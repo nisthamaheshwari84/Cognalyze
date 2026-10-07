@@ -171,6 +171,90 @@ const initialData: AuthStoreData = {
   sessions: []
 };
 
+import { supabase } from "../supabase";
+
+const CLOUD_STORE_KEY = "cognalyze_auth_cloud_store";
+
+export async function syncStoreWithCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const { data } = await supabase
+      .from("analyses")
+      .select("full_report")
+      .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
+      .maybeSingle();
+
+    if (data?.full_report) {
+      const cloud = data.full_report;
+      if (cloud.users && Array.isArray(cloud.users)) {
+        for (const u of cloud.users) {
+          const idx = store.users.findIndex(x => x.id === u.id);
+          if (idx === -1) store.users.push(u);
+          else store.users[idx] = u;
+        }
+      }
+      if (cloud.studentProfiles && Array.isArray(cloud.studentProfiles)) {
+        for (const p of cloud.studentProfiles) {
+          const idx = store.studentProfiles.findIndex(x => x.id === p.id);
+          if (idx === -1) store.studentProfiles.push(p);
+          else store.studentProfiles[idx] = p;
+        }
+      }
+      if (cloud.recruiterProfiles && Array.isArray(cloud.recruiterProfiles)) {
+        for (const p of cloud.recruiterProfiles) {
+          const idx = store.recruiterProfiles.findIndex(x => x.id === p.id);
+          if (idx === -1) store.recruiterProfiles.push(p);
+          else store.recruiterProfiles[idx] = p;
+        }
+      }
+      if (cloud.organizations && Array.isArray(cloud.organizations)) {
+        for (const o of cloud.organizations) {
+          const idx = store.organizations.findIndex(x => x.id === o.id);
+          if (idx === -1) store.organizations.push(o);
+          else store.organizations[idx] = o;
+        }
+      }
+      if (cloud.connectedAccounts && Array.isArray(cloud.connectedAccounts)) {
+        for (const c of cloud.connectedAccounts) {
+          const idx = store.connectedAccounts.findIndex(x => x.id === c.id);
+          if (idx === -1) store.connectedAccounts.push(c);
+          else store.connectedAccounts[idx] = c;
+        }
+      }
+      if (cloud.sessions && Array.isArray(cloud.sessions)) {
+        for (const s of cloud.sessions) {
+          const idx = store.sessions.findIndex(x => x.token === s.token);
+          if (idx === -1) store.sessions.push(s);
+          else store.sessions[idx] = s;
+        }
+      }
+      if (cloud.emailVerifications && Array.isArray(cloud.emailVerifications)) {
+        for (const v of cloud.emailVerifications) {
+          const idx = store.emailVerifications.findIndex(x => x.id === v.id);
+          if (idx === -1) store.emailVerifications.push(v);
+          else store.emailVerifications[idx] = v;
+        }
+      }
+      if (cloud.passwordResetTokens && Array.isArray(cloud.passwordResetTokens)) {
+        for (const t of cloud.passwordResetTokens) {
+          const idx = store.passwordResetTokens.findIndex(x => x.id === t.id);
+          if (idx === -1) store.passwordResetTokens.push(t);
+          else store.passwordResetTokens[idx] = t;
+        }
+      }
+      if (cloud.usernameHistory && Array.isArray(cloud.usernameHistory)) {
+        for (const h of cloud.usernameHistory) {
+          const idx = store.usernameHistory.findIndex(x => x.id === h.id);
+          if (idx === -1) store.usernameHistory.push(h);
+          else store.usernameHistory[idx] = h;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("syncStoreWithCloud non-fatal:", err);
+  }
+}
+
 // Global in-memory cache and timestamp tracking
 let store: AuthStoreData = { ...initialData };
 let lastMtimeMs: number = 0;
@@ -231,6 +315,35 @@ export function persistStoreToDisk() {
       try {
         lastMtimeMs = fs.statSync(filePath).mtimeMs;
       } catch {}
+
+      // Asynchronously sync snapshot to Supabase PostgreSQL database so all serverless workers share state
+      try {
+        supabase
+          .from("analyses")
+          .select("id")
+          .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
+          .maybeSingle()
+          .then(({ data }: any) => {
+            if (data?.id) {
+              supabase
+                .from("analyses")
+                .update({ full_report: store, created_at: new Date().toISOString() })
+                .eq("id", data.id)
+                .then(() => {});
+            } else {
+              supabase
+                .from("analyses")
+                .insert({
+                  recruiter_clerk_id: CLOUD_STORE_KEY,
+                  job_description: "cognalyze_auth_cloud_store",
+                  final_verdict: "ACTIVE",
+                  full_report: store
+                })
+                .then(() => {});
+            }
+          })
+          .catch(() => {});
+      } catch {}
     }
   } catch (err) {
     console.error("Failed to persist auth store to disk:", err);
@@ -239,10 +352,12 @@ export function persistStoreToDisk() {
 
 // Initialize on server import
 loadStoreFromDisk();
+syncStoreWithCloud();
 
 // ─── USER OPERATIONS ───
 
 export function createUser(data: {
+  id?: string;
   email: string;
   fullName?: string;
   passwordHash: string | null;
@@ -260,7 +375,7 @@ export function createUser(data: {
 
   const now = new Date().toISOString();
   const user: User = {
-    id: crypto.randomUUID(),
+    id: data.id || crypto.randomUUID(),
     email: normalizedEmail,
     fullName: data.fullName ? data.fullName.trim() : undefined,
     passwordHash: data.passwordHash,

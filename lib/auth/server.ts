@@ -12,7 +12,8 @@ import {
   getStudentProfileByUserId,
   getRecruiterProfileByUserId,
   getOrganizationById,
-  getConnectedAccountsByUserId
+  getConnectedAccountsByUserId,
+  syncStoreWithCloud
 } from "./store";
 import { User, StudentProfile, RecruiterProfile, Organization, ConnectedAccount } from "./types";
 
@@ -26,12 +27,37 @@ export interface AuthenticatedContext {
 
 export async function getAuthenticatedContext(req: NextRequest): Promise<AuthenticatedContext | null> {
   const sessionToken = req.cookies.get("cognalyze_session")?.value;
-  if (!sessionToken) return null;
+  const sbAccessToken = req.cookies.get("sb-access-token")?.value;
+  const effectiveToken = sessionToken || sbAccessToken;
+  if (!effectiveToken) return null;
 
-  const session = getSessionByToken(sessionToken);
-  if (!session) return null;
+  let session = sessionToken ? getSessionByToken(sessionToken) : null;
+  if (!session && sessionToken) {
+    await syncStoreWithCloud();
+    session = getSessionByToken(sessionToken);
+  }
 
-  const user = getUserById(session.userId);
+  let userId = session?.userId;
+
+  // Support direct Supabase access token validation
+  if (!userId && effectiveToken) {
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data } = await supabase.auth.getUser(effectiveToken);
+      if (data?.user?.id) {
+        userId = data.user.id;
+      }
+    } catch {}
+  }
+
+  if (!userId) return null;
+
+  let user = getUserById(userId);
+  if (!user) {
+    await syncStoreWithCloud();
+    user = getUserById(userId);
+  }
+
   if (!user || user.status === "SUSPENDED" || user.status === "REVOKED") {
     return null;
   }

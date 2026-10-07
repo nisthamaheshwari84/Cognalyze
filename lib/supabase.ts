@@ -116,10 +116,15 @@ export const supabase: any = typeof window !== "undefined"
       from(table: string) {
         return createLazyChain(table);
       },
-      auth: {
-        getSession: async () => ({ data: { session: null }, error: null }),
-        getUser: async () => ({ data: { user: null }, error: null }),
-        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
-      }
+      auth: new Proxy({}, {
+        get(target, prop: string) {
+          const realAuth = getRealClient().auth;
+          const val = (realAuth as any)[prop];
+          if (typeof val === "function") {
+            return val.bind(realAuth);
+          }
+          return val;
+        }
+      })
     };
 

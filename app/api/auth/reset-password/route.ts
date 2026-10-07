@@ -5,11 +5,14 @@ import {
   getValidPasswordResetToken,
   markPasswordResetTokenUsed,
   resetUserPassword,
-  getUserById
+  getUserById,
+  syncStoreWithCloud
 } from "@/lib/auth/store";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
+    await syncStoreWithCloud();
     const body = await req.json();
     const { token, password, confirmPassword } = body;
 

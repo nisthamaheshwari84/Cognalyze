@@ -4,12 +4,14 @@ import {
   getUserById,
   getSessionByToken,
   getPendingVerificationByUserId,
-  createEmailVerification
+  createEmailVerification,
+  syncStoreWithCloud
 } from "@/lib/auth/store";
 import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
 
 export async function POST(req: NextRequest) {
   try {
+    await syncStoreWithCloud();
     const body = await req.json().catch(() => ({}));
     let userId = body.userId;
 

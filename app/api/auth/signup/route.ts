@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import {
   hashPassword,
   generateVerificationCode,
@@ -11,9 +12,11 @@ import {
   createEmailVerification,
   createRecruiterProfile,
   createSession,
-  upsertStudentProfileByUserId
+  upsertStudentProfileByUserId,
+  syncStoreWithCloud
 } from "@/lib/auth/store";
 import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,6 +59,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // Sync cloud store first
+    await syncStoreWithCloud();
+
     // 3. Existing User Check (Differentiate verified vs unverified)
     const existing = getUserByEmail(email);
     if (existing) {
@@ -84,9 +90,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4. Hash Password & Create User
+    // 4. Supabase Auth Registration
+    let permanentUserId = crypto.randomUUID();
+    try {
+      const sbRes = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            fullName: fullName.trim(),
+            role: effectiveAccountType
+          }
+        }
+      });
+      if (sbRes.data?.user?.id) {
+        permanentUserId = sbRes.data.user.id;
+      }
+    } catch (sbErr) {
+      console.warn("Supabase Auth signUp note:", sbErr);
+    }
+
+    // 5. Hash Password & Create User in synchronized store
     const { hash, salt } = hashPassword(password);
     const user = createUser({
+      id: permanentUserId,
       email,
       fullName: fullName.trim(),
       passwordHash: hash,
