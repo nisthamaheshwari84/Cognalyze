@@ -32,7 +32,7 @@ export interface SendEmailParams {
  * Universal email sender that routes through configured environment providers
  */
 export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchResult> {
-  const { to, subject, html, text, from = process.env.EMAIL_FROM || "Cognalyze <onboarding@resend.dev>" } = params;
+  const { to, subject, html, text, from = process.env.EMAIL_FROM || "Cognalyze <auth@cognalyze.ai>" } = params;
 
   // ─── 1. RESEND API DISPATCH (Primary modern standard) ───
   if (process.env.RESEND_API_KEY) {
@@ -64,13 +64,10 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
 
       console.warn("Resend email delivery failure:", data?.message || data);
       if (res.status === 403 && data?.message) {
-        const isDomainNotice = data.message.includes("verify a domain");
         return {
           success: false,
           provider: "resend",
-          error: isDomainNotice
-            ? `Email delivery restricted: Resend is in test sandbox mode and can only deliver to the account owner (nisthamaheshwari85@gmail.com). To deliver to ${to}, verify your sending domain on resend.com.`
-            : data.message
+          error: data.message
         };
       }
 
