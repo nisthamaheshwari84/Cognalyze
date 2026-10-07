@@ -15,15 +15,15 @@ function VerifyEmailContent() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [expiresInSeconds, setExpiresInSeconds] = useState<number>(15 * 60); // 15 mins default
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const [deliveryNotice, setDeliveryNotice] = useState<string | null>(null);
-  const [fallbackCode, setFallbackCode] = useState<string | null>(null);
   const [nextDestination, setNextDestination] = useState<string>("");
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Fetch current session email on mount
+  // Fetch current session email & verification status on mount
   useEffect(() => {
     async function checkSession() {
       try {
@@ -32,12 +32,16 @@ function VerifyEmailContent() {
         if (data.authenticated && data.user) {
           setEmail(data.user.email);
           setAccountType(data.user.accountType);
-          if (data.pendingVerification?.fallbackCode) {
-            setFallbackCode(data.pendingVerification.fallbackCode);
-          }
+
           if (data.user.emailVerifiedAt) {
             setSuccess(true);
             setNextDestination(data.user.accountType === "student" ? "/student/dashboard" : "/recruiter/organization/setup");
+          }
+
+          if (data.pendingVerification?.expiresAt) {
+            const expMs = new Date(data.pendingVerification.expiresAt).getTime();
+            const remaining = Math.max(0, Math.floor((expMs - Date.now()) / 1000));
+            setExpiresInSeconds(remaining);
           }
         }
       } catch (err) {
@@ -47,7 +51,16 @@ function VerifyEmailContent() {
     checkSession();
   }, []);
 
-  // Cooldown timer effect
+  // Expiry countdown timer
+  useEffect(() => {
+    if (expiresInSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setExpiresInSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [expiresInSeconds]);
+
+  // Resend cooldown timer
   useEffect(() => {
     if (cooldown <= 0) return;
     const timer = setInterval(() => {
@@ -55,6 +68,12 @@ function VerifyEmailContent() {
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
+
+  const formatTimer = (totalSeconds: number) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  };
 
   const handleDigitChange = (index: number, val: string) => {
     if (val.length > 1) {
@@ -91,7 +110,12 @@ function VerifyEmailContent() {
     if (e) e.preventDefault();
     const code = digits.join("");
     if (code.length < 6) {
-      setError("Please enter the full 6-digit code.");
+      setError("Please enter the full 6-digit verification code.");
+      return;
+    }
+
+    if (expiresInSeconds <= 0) {
+      setError("This code has expired. Request a new one.");
       return;
     }
 
@@ -106,7 +130,7 @@ function VerifyEmailContent() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Verification failed.");
+      if (!res.ok) throw new Error(data.error || "Incorrect verification code.");
 
       setSuccess(true);
       setNextDestination(data.nextUrl || (accountType === "student" ? "/student/dashboard" : "/recruiter/organization/setup"));
@@ -136,16 +160,9 @@ function VerifyEmailContent() {
         throw new Error(data.error || "Failed to resend code.");
       }
 
-      if (data.verificationCode || data.demoVerificationCode) {
-        setFallbackCode(data.verificationCode || data.demoVerificationCode);
-      }
-      if (data.emailDelivery?.notice) {
-        setDeliveryNotice(data.emailDelivery.notice);
-      } else {
-        setDeliveryNotice("A new 6-digit verification code has been dispatched to your email.");
-      }
-
-      setCooldown(60);
+      setDeliveryNotice(data.deliveryNotice || "A new 6-digit verification code has been dispatched to your email.");
+      setCooldown(30);
+      setExpiresInSeconds(15 * 60);
       setDigits(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
     } catch (err: any) {
@@ -155,17 +172,7 @@ function VerifyEmailContent() {
     }
   };
 
-  const handleAutoFill = (codeToFill: string) => {
-    const chars = codeToFill.replace(/\D/g, "").slice(0, 6).split("");
-    const newDigits = ["", "", "", "", "", ""];
-    chars.forEach((c, i) => {
-      newDigits[i] = c;
-    });
-    setDigits(newDigits);
-    inputRefs.current[Math.min(5, chars.length - 1)]?.focus();
-  };
-
-  // Mask email for privacy (e.g. ni******@gmail.com)
+  // Mask email for privacy (e.g. a********@gmail.com)
   const maskedEmail = email
     ? email.replace(/^(.)(.*)(@.*)$/, (_, first, middle, rest) => first + "*".repeat(Math.max(2, middle.length)) + rest)
     : accountType === "recruiter" ? "your company email" : "your email";
@@ -197,12 +204,10 @@ function VerifyEmailContent() {
                 style={{ color: "#162A43" }}
                 className="text-2xl sm:text-3xl font-bold tracking-tight"
               >
-                {accountType === "recruiter" ? "Verify your company email" : "Verify your email"}
+                Verify your email
               </h1>
               <p style={{ color: "#667085" }} className="text-xs sm:text-sm max-w-xs mx-auto">
-                {accountType === "recruiter"
-                  ? "We've sent a 6-digit verification code to your work email address:"
-                  : "One small step before we build your profile. We've sent a code to:"}
+                We&apos;ve sent a 6-digit verification code to:
               </p>
               <div
                 style={{
@@ -235,8 +240,8 @@ function VerifyEmailContent() {
               </h1>
               <p style={{ color: "#667085" }} className="text-xs sm:text-sm max-w-xs mx-auto">
                 {accountType === "recruiter"
-                  ? "Next, we'll verify your organization before you can access hiring workflows."
-                  : "You're ready to build your Cognalyze profile."}
+                  ? "Next, configure your organization workspace to access hiring workflows."
+                  : "Your email is confirmed. Proceed to your personalized student dashboard."}
               </p>
             </>
           )}
@@ -275,35 +280,6 @@ function VerifyEmailContent() {
             >
               <span className="text-sm">✉️</span>
               <span className="flex-1">{deliveryNotice}</span>
-            </div>
-          )}
-
-          {fallbackCode && (
-            <div
-              style={{
-                backgroundColor: "#EFF4FE",
-                borderColor: "#D2E0FB",
-                color: "#1E40AF",
-              }}
-              className="p-3.5 rounded-lg border text-xs space-y-2"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-900">Verification Code:</span>
-                <span className="font-mono text-sm font-bold tracking-widest bg-white px-2.5 py-0.5 rounded border border-blue-200 text-blue-700 shadow-sm">
-                  {fallbackCode}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-600 pt-0.5">
-                <span>Instant code (in case of mail server delays):</span>
-                <button
-                  type="button"
-                  id="autofill-otp-btn"
-                  onClick={() => handleAutoFill(fallbackCode)}
-                  className="font-bold text-[#356AE6] hover:underline cursor-pointer bg-white px-2 py-0.5 rounded border border-blue-200 shadow-xs"
-                >
-                  ⚡ Auto-Fill
-                </button>
-              </div>
             </div>
           )}
 
@@ -357,8 +333,20 @@ function VerifyEmailContent() {
                 </button>
               </div>
 
+              <div className="text-center">
+                {expiresInSeconds > 0 ? (
+                  <span style={{ color: "#667085" }} className="text-xs font-mono">
+                    Code expires in <span className="font-semibold text-slate-800">{formatTimer(expiresInSeconds)}</span>
+                  </span>
+                ) : (
+                  <span style={{ color: "#C24141" }} className="text-xs font-medium">
+                    This code has expired. Request a new one.
+                  </span>
+                )}
+              </div>
+
               <p style={{ color: "#98A2B3" }} className="text-[11px] text-center leading-normal">
-                Tip: If the email doesn&apos;t show in your Inbox, please check your <span className="font-medium text-slate-600">Spam or Promotions</span> folder.
+                Tip: If the email doesn&apos;t appear in your inbox within a minute, check your <span className="font-medium text-slate-600">Spam or Promotions</span> folder.
               </p>
             </form>
           ) : (
@@ -372,12 +360,12 @@ function VerifyEmailContent() {
                 className="p-4 rounded-lg border text-xs space-y-1"
               >
                 <div className="font-bold">
-                  {accountType === "recruiter" ? "✓ Work email confirmed" : "✓ Identity verified"}
+                  {accountType === "recruiter" ? "✓ Work email confirmed" : "✓ Email verified"}
                 </div>
                 <p className="text-[11px] opacity-90">
                   {accountType === "recruiter"
-                    ? "Status advanced to ORGANIZATION_PENDING. Proceed to set up your company profile."
-                    : "Your email is confirmed. Next, claim your unique username and profile details."}
+                    ? "Status advanced to ORGANIZATION_PENDING. Proceed to set up your company workspace."
+                    : "Your account is activated. Proceed to your dashboard."}
                 </p>
               </div>
 

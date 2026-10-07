@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sendVerificationOtpEmail, sendNotificationEmail, isEmailConfigured } from "../lib/email/email-service";
+import { sendVerificationOtpEmail, sendNotificationEmail, sendPasswordResetEmail, isEmailConfigured } from "../lib/email/email-service";
 import { createNotification, getNotifications } from "../lib/notifications";
 import { createUser, createEmailVerification, getPendingVerificationByUserId } from "../lib/auth/store";
 import { hashCode } from "../lib/auth/security";
@@ -11,10 +11,16 @@ test("Email Service & Notification Dispatch Engine", async (t) => {
     assert.equal(typeof configured, "boolean");
   });
 
-  await t.test("sendVerificationOtpEmail generates valid dispatch or fallback", async () => {
+  await t.test("sendVerificationOtpEmail generates valid dispatch result without leaking code", async () => {
     const result = await sendVerificationOtpEmail("test@example.com", "849201", "Test User");
-    assert.ok(result.success);
-    assert.ok(result.deliveryNotice.length > 0);
+    assert.equal(typeof result.success, "boolean");
+    assert.equal((result as any).code, undefined);
+    assert.ok(["resend", "brevo", "sendgrid", "postmark", "supabase", "fallback"].includes(result.provider));
+  });
+
+  await t.test("sendPasswordResetEmail generates valid dispatch result", async () => {
+    const result = await sendPasswordResetEmail("test@example.com", "https://cognalyze-gules.vercel.app/reset-password?token=sample", "Test User");
+    assert.equal(typeof result.success, "boolean");
     assert.ok(["resend", "brevo", "sendgrid", "postmark", "supabase", "fallback"].includes(result.provider));
   });
 
@@ -26,8 +32,7 @@ test("Email Service & Notification Dispatch Engine", async (t) => {
       "/student/opportunities",
       "high"
     );
-    assert.ok(result.success);
-    assert.ok(result.deliveryNotice.length > 0);
+    assert.equal(typeof result.success, "boolean");
   });
 
   await t.test("createNotification dispatches notification and attempts registered user email delivery", async () => {
@@ -61,14 +66,15 @@ test("Email Service & Notification Dispatch Engine", async (t) => {
     assert.ok(found);
   });
 
-  await t.test("Email verification OTP store saves raw code for fallback resilience", () => {
+  await t.test("Email verification OTP store securely hashes code and does NOT store raw code", () => {
     const code = "736192";
     const hash = hashCode(code);
-    const verif = createEmailVerification("user-999", "fallback@example.com", hash, code);
-    assert.equal(verif.rawCode, code);
+    const verif = createEmailVerification("user-999", "fallback@example.com", hash);
+    assert.ok(verif.codeHash);
+    assert.equal((verif as any).rawCode, undefined);
 
     const pending = getPendingVerificationByUserId("user-999");
     assert.ok(pending);
-    assert.equal(pending.rawCode, code);
+    assert.equal((pending as any).rawCode, undefined);
   });
 });

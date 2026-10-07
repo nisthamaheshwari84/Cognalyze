@@ -56,13 +56,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Existing User Check
+    // 3. Existing User Check (Differentiate verified vs unverified)
     const existing = getUserByEmail(email);
     if (existing) {
+      if (existing.status === "EMAIL_PENDING") {
+        return NextResponse.json(
+          {
+            error: "Your account exists but your email hasn't been verified yet.",
+            code: "ACCOUNT_EXISTS_UNVERIFIED",
+            userId: existing.id,
+            email: existing.email,
+            accountType: existing.accountType,
+            nextUrl: `/verify-email?role=${existing.accountType}`
+          },
+          { status: 409 }
+        );
+      }
+
       return NextResponse.json(
         {
           error: "An account already exists with this email address. Please sign in instead.",
-          code: "ACCOUNT_EXISTS"
+          code: "ACCOUNT_EXISTS",
+          email: existing.email,
+          nextUrl: "/login"
         },
         { status: 409 }
       );
@@ -80,12 +96,12 @@ export async function POST(req: NextRequest) {
       profileCompleted: false
     });
 
-    // 5. Generate 6-digit Verification Code & Dispatch Email
+    // 5. Generate 6-digit Verification Code & Dispatch Email Server-Side
     const verificationCode = generateVerificationCode();
     const codeHash = hashCode(verificationCode);
-    createEmailVerification(user.id, user.email, codeHash, verificationCode);
+    createEmailVerification(user.id, user.email, codeHash);
 
-    let emailResult: EmailDispatchResult = { provider: "fallback", success: true, deliveryNotice: "" };
+    let emailResult: EmailDispatchResult = { provider: "fallback", success: false };
     try {
       emailResult = await sendVerificationOtpEmail(user.email, verificationCode, user.fullName);
     } catch (err: any) {
@@ -101,7 +117,6 @@ export async function POST(req: NextRequest) {
         workEmail: user.email
       });
     } else if (effectiveAccountType === "student") {
-      // Create empty isolated student profile strictly bound to this user's ID
       upsertStudentProfileByUserId(user.id, {
         fullName: fullName.trim(),
         email: user.email,
@@ -129,13 +144,11 @@ export async function POST(req: NextRequest) {
       status: user.status,
       nextUrl: `/verify-email?role=${effectiveAccountType}`,
       emailDelivery: {
-        provider: emailResult.provider,
-        delivered: emailResult.success && emailResult.provider !== "fallback",
-        notice: emailResult.deliveryNotice
-      },
-      // If external email provider is unconfigured or in non-production, return code so user is never blocked
-      verificationCode: emailResult.provider === "fallback" || process.env.NODE_ENV !== "production" ? verificationCode : undefined,
-      demoVerificationCode: verificationCode
+        delivered: emailResult.success,
+        notice: emailResult.success
+          ? `Verification code sent to ${user.email}.`
+          : (emailResult.error || "Email delivery failed.")
+      }
     });
 
     res.cookies.set("cognalyze_session", session.token, {

@@ -201,11 +201,20 @@ export interface EmailVerification {
   userId: string;
   email: string;
   codeHash: string;
-  rawCode?: string;
   expiresAt: string;
   attemptCount: number;
   lastSentAt: string;
   verifiedAt: string | null;
+  createdAt: string;
+}
+
+export interface PasswordResetToken {
+  id: string;
+  userId: string;
+  email: string;
+  tokenHash: string;
+  expiresAt: string;
+  usedAt: string | null;
   createdAt: string;
 }
 

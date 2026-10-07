@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [unverifiedUrl, setUnverifiedUrl] = useState<string | null>(null);
 
   // Account Linking Modal State
   const [linkingData, setLinkingData] = useState<{
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUnverifiedUrl(null);
     setLoading(true);
 
     try {
@@ -35,17 +37,17 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || "Failed to sign in.");
-      }
-
-      if (data.user?.id && typeof window !== "undefined") {
-        localStorage.setItem("cognalyze_student_id", data.user.id);
+        if (data.code === "EMAIL_NOT_VERIFIED") {
+          setUnverifiedUrl(data.nextUrl || "/verify-email");
+          throw new Error("Please verify your email before signing in.");
+        }
+        throw new Error(data.error || "Incorrect email or password.");
       }
 
       const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
-      window.location.href = redirectUrl || data.nextUrl || (data.user?.role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
+      window.location.href = redirectUrl || data.nextUrl || (data.user?.accountType === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
     } catch (err: any) {
-      setError(err.message || "An error occurred during sign in.");
+      setError(err.message || "Incorrect email or password.");
     } finally {
       setLoading(false);
     }
@@ -53,9 +55,10 @@ export default function LoginPage() {
 
   const handleDemoLogin = async (role: "student" | "recruiter") => {
     setError(null);
+    setUnverifiedUrl(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/role", {
+      const res = await fetch("/api/auth/demo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role })
@@ -65,11 +68,7 @@ export default function LoginPage() {
         throw new Error(data.error || "Failed to switch role.");
       }
       const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-      } else {
-        window.location.href = role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard";
-      }
+      window.location.href = redirectUrl || data.nextUrl || (role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to activate demo session.");
       setLoading(false);
@@ -78,6 +77,7 @@ export default function LoginPage() {
 
   const handleOAuth = async (provider: "github" | "linkedin") => {
     setError(null);
+    setUnverifiedUrl(null);
     setOauthLoading(provider);
 
     if (!email.trim()) {
@@ -114,9 +114,6 @@ export default function LoginPage() {
           providerEmail: data.providerEmail
         });
       } else {
-        if (data.user?.id && typeof window !== "undefined") {
-          localStorage.setItem("cognalyze_student_id", data.user.id);
-        }
         router.push(data.nextUrl || "/");
       }
     } catch (err: any) {
@@ -200,13 +197,28 @@ export default function LoginPage() {
                 borderColor: "#F8C8C8",
                 color: "#C24141",
               }}
-              className="p-3.5 rounded-lg border text-xs leading-relaxed"
+              className="p-3.5 rounded-lg border text-xs leading-relaxed space-y-2"
             >
-              {error}
+              <div>{error}</div>
+              {unverifiedUrl && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => router.push(unverifiedUrl)}
+                    style={{
+                      backgroundColor: "#356AE6",
+                      color: "#FFFFFF",
+                    }}
+                    className="px-3 py-1.5 rounded text-xs font-semibold hover:bg-[#2858C7] transition-colors cursor-pointer"
+                  >
+                    Verify email now →
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Quick Demo Access */}
+          {/* Quick Demo Access (Isolated Sandbox) */}
           <div
             style={{
               backgroundColor: "#F8FAFC",
@@ -219,7 +231,7 @@ export default function LoginPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                 Quick Demo Access
               </span>
-              <span className="text-[10px] text-slate-500 font-mono">1-click instant login</span>
+              <span className="text-[10px] text-slate-500 font-mono">1-click preview</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2.5">
@@ -246,7 +258,7 @@ export default function LoginPage() {
                 <div className="flex items-center gap-1.5 font-bold text-xs text-[#162A43]">
                   <span>🏢</span> Recruiter Mode
                 </div>
-                <span className="text-[10px] text-slate-600 mt-0.5">Partner Recruiter (Acme)</span>
+                <span className="text-[10px] text-slate-600 mt-0.5">Partner Recruiter</span>
               </button>
             </div>
 
@@ -303,14 +315,14 @@ export default function LoginPage() {
                 >
                   Password
                 </label>
-                <button
-                  type="button"
-                  onClick={() => alert("Password reset link will be sent to your verified email.")}
+                <Link
+                  href="/forgot-password"
+                  id="login-forgot-password-link"
                   style={{ color: "#356AE6" }}
-                  className="text-[11px] hover:underline transition-colors cursor-pointer"
+                  className="text-[11px] hover:underline transition-colors"
                 >
                   Forgot password?
-                </button>
+                </Link>
               </div>
               <input
                 id="login-password"

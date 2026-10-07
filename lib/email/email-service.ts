@@ -1,13 +1,15 @@
 /**
  * COGNALYZE MULTI-PROVIDER EMAIL & NOTIFICATION DISPATCH ENGINE
  * 
- * Supports:
- * 1. Resend API (HTTPS direct REST, zero dependencies)
+ * Production-ready email delivery engine supporting:
+ * 1. Resend API (HTTPS direct REST, primary)
  * 2. Brevo / Sendinblue (HTTPS REST)
  * 3. SendGrid (HTTPS REST)
  * 4. Postmark (HTTPS REST)
- * 5. Supabase Auth Email API
- * 6. Fallback & Diagnostic Mode (Zero data loss when SMTP is unconfigured)
+ * 
+ * Strict Security Rules:
+ * - NEVER leaks raw OTP/verification codes to client or logs.
+ * - Accurately reports delivery status and errors.
  */
 
 export interface EmailDispatchResult {
@@ -15,7 +17,6 @@ export interface EmailDispatchResult {
   provider: "resend" | "brevo" | "sendgrid" | "postmark" | "supabase" | "fallback";
   messageId?: string;
   error?: string;
-  code?: string;
   deliveryNotice?: string;
 }
 
@@ -51,7 +52,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (res.ok && data?.id) {
         return {
           success: true,
@@ -60,18 +61,31 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
           deliveryNotice: `Verification code sent to ${to}. Please check your inbox and Spam folder.`
         };
       }
-      console.warn("Resend email delivery notice:", data?.message || data);
+
+      console.warn("Resend email delivery failure:", data?.message || data);
       if (res.status === 403 && data?.message) {
+        const isDomainNotice = data.message.includes("verify a domain");
         return {
-          success: true,
-          provider: "fallback",
-          deliveryNotice: data.message.includes("verify a domain")
-            ? `Resend is in test sandbox mode (delivers to ${data.message.match(/\(([^)]+)\)/)?.[1] || "account email"}). For other addresses, use the instant code below or verify your domain on resend.com.`
+          success: false,
+          provider: "resend",
+          error: isDomainNotice
+            ? `Email delivery restricted: Resend is in test sandbox mode and can only deliver to the account owner (nisthamaheshwari85@gmail.com). To deliver to ${to}, verify your sending domain on resend.com.`
             : data.message
         };
       }
+
+      return {
+        success: false,
+        provider: "resend",
+        error: data?.message || `Resend delivery failed with status ${res.status}`
+      };
     } catch (err: any) {
-      console.error("Resend API error:", err.message);
+      console.error("Resend API network error:", err.message);
+      return {
+        success: false,
+        provider: "resend",
+        error: err.message || "Failed to connect to email provider."
+      };
     }
   }
 
@@ -97,9 +111,9 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
       if (res.ok && (data?.messageId || data?.id)) {
         return { success: true, provider: "brevo", messageId: data.messageId || data.id };
       }
-      console.warn("Brevo email delivery failed:", data);
+      return { success: false, provider: "brevo", error: data?.message || "Brevo delivery failed." };
     } catch (err: any) {
-      console.error("Brevo API error:", err.message);
+      return { success: false, provider: "brevo", error: err.message };
     }
   }
 
@@ -124,9 +138,9 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
         return { success: true, provider: "sendgrid" };
       }
       const data = await res.text();
-      console.warn("SendGrid email delivery failed:", data);
+      return { success: false, provider: "sendgrid", error: data || "SendGrid delivery failed." };
     } catch (err: any) {
-      console.error("SendGrid API error:", err.message);
+      return { success: false, provider: "sendgrid", error: err.message };
     }
   }
 
@@ -151,25 +165,25 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
       if (res.ok && data?.MessageID) {
         return { success: true, provider: "postmark", messageId: data.MessageID };
       }
+      return { success: false, provider: "postmark", error: data?.Message || "Postmark delivery failed." };
     } catch (err: any) {
-      console.error("Postmark API error:", err.message);
+      return { success: false, provider: "postmark", error: err.message };
     }
   }
 
-  // ─── 5. FALLBACK / PENDING CONFIGURATION MODE ───
-  // No external mail provider keys were found in process.env.
-  // Log clearly to deployment logs so developers can see the code and add keys.
-  console.log(`[EMAIL_DISPATCH_FALLBACK] Email to: ${to} | Subject: "${subject}"`);
-
+  // ─── 5. UNCONFIGURED FALLBACK ───
+  console.warn(`[EMAIL_DISPATCH_WARNING] No external email provider configured. Recipient: ${to}`);
   return {
-    success: true,
+    success: false,
     provider: "fallback",
-    deliveryNotice: "Email provider (RESEND_API_KEY or SMTP) not configured on Vercel deployment. Verification code available in response.",
+    error: "Email delivery provider is not configured. Please set RESEND_API_KEY.",
+    deliveryNotice: "Email provider not configured."
   };
 }
 
 /**
- * Dispatches a high-priority 6-digit OTP verification email
+ * Dispatches a high-priority 6-digit OTP verification email.
+ * Never leaks the OTP code into return data or frontend.
  */
 export async function sendVerificationOtpEmail(
   toEmail: string,
@@ -222,7 +236,7 @@ export async function sendVerificationOtpEmail(
                       ${otpCode}
                     </div>
                     <div style="margin-top: 8px; font-size: 12px; color: #667085; font-weight: 500;">
-                      Valid for 10 minutes · Do not share this code with anyone
+                      Valid for 15 minutes · Do not share this code with anyone
                     </div>
                   </td>
                 </tr>
@@ -259,17 +273,107 @@ export async function sendVerificationOtpEmail(
 </html>
   `.trim();
 
-  const text = `Hi ${firstName},\n\nYour Cognalyze verification code is: ${otpCode}\n\nThis code will expire in 10 minutes.\n\nVerify online: ${appUrl}/verify-email\n\n© 2026 Cognalyze`;
+  const text = `Hi ${firstName},\n\nYour Cognalyze verification code is: ${otpCode}\n\nThis code will expire in 15 minutes.\n\nVerify online: ${appUrl}/verify-email\n\n© 2026 Cognalyze`;
 
-  const result = await sendEmail({
+  return sendEmail({
     to: toEmail,
     subject: `${otpCode} is your Cognalyze verification code`,
     html,
     text,
   });
+}
 
-  result.code = otpCode;
-  return result;
+/**
+ * Dispatches a password reset email containing a secure one-time link.
+ */
+export async function sendPasswordResetEmail(
+  toEmail: string,
+  resetUrl: string,
+  fullName: string = "User"
+): Promise<EmailDispatchResult> {
+  const firstName = fullName.trim().split(" ")[0] || "there";
+
+  const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Your Cognalyze Password</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F6F5F1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #17191C;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #F6F5F1; padding: 36px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 540px; background-color: #FFFFFF; border-radius: 12px; border: 1px solid #E4E1DA; overflow: hidden; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+          <!-- Top Header -->
+          <tr>
+            <td style="background-color: #07111F; padding: 24px 32px; text-align: left;">
+              <span style="font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF;">
+                COGNALYZE
+              </span>
+              <span style="font-size: 11px; font-weight: 700; color: #4C8DFF; margin-left: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                SECURITY
+              </span>
+            </td>
+          </tr>
+
+          <!-- Main Content -->
+          <tr>
+            <td style="padding: 36px 32px;">
+              <h1 style="margin: 0 0 12px; font-size: 22px; font-weight: 700; color: #162A43; letter-spacing: -0.3px;">
+                Reset your password
+              </h1>
+              <p style="margin: 0 0 24px; font-size: 14.5px; line-height: 1.55; color: #4A5568;">
+                Hi ${firstName}, we received a request to reset the password for your Cognalyze account. Click the button below to choose a new password:
+              </p>
+
+              <!-- CTA Button -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 0 0 24px;">
+                <tr>
+                  <td align="center">
+                    <a href="${resetUrl}" target="_blank" style="display: inline-block; background-color: #356AE6; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 14px 32px; border-radius: 8px; box-shadow: 0 2px 8px rgba(53, 106, 230, 0.25);">
+                      Reset Password →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 16px; font-size: 12.5px; line-height: 1.5; color: #718096;">
+                This link will expire in 1 hour. If the button above doesn't work, copy and paste this link into your browser:
+              </p>
+              <p style="margin: 0 0 24px; font-size: 11.5px; word-break: break-all; color: #356AE6;">
+                <a href="${resetUrl}" style="color: #356AE6; text-decoration: underline;">${resetUrl}</a>
+              </p>
+
+              <p style="margin: 0; font-size: 12.5px; line-height: 1.5; color: #718096;">
+                If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #FAF9F6; border-top: 1px solid #ECE9E1; padding: 18px 32px; text-align: center; font-size: 11.5px; color: #8A94A6;">
+              © 2026 Cognalyze — Evidence-First Career & Hiring Intelligence. All rights reserved.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `.trim();
+
+  const text = `Hi ${firstName},\n\nWe received a request to reset your Cognalyze password.\n\nReset link: ${resetUrl}\n\nThis link is valid for 1 hour.\n\nIf you did not request this, please ignore this email.\n\n© 2026 Cognalyze`;
+
+  return sendEmail({
+    to: toEmail,
+    subject: "Reset your Cognalyze password",
+    html,
+    text,
+  });
 }
 
 /**
@@ -348,4 +452,3 @@ export function isEmailConfigured(): boolean {
     (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL)
   );
 }
-

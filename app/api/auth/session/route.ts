@@ -16,8 +16,7 @@ export async function GET(req: NextRequest) {
         pendingVerification = {
           email: pending.email,
           expiresAt: pending.expiresAt,
-          attemptCount: pending.attemptCount,
-          fallbackCode: pending.rawCode,
+          attemptCount: pending.attemptCount
         };
       }
     }

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     // Check expiration
     if (new Date(pending.expiresAt).getTime() < Date.now()) {
       return NextResponse.json(
-        { error: "That code has expired. Request a new one." },
+        { error: "This code has expired. Request a new one." },
         { status: 400 }
       );
     }
@@ -60,11 +60,14 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Validate Code
-    const isValid = verifyCode(code || "", pending.codeHash);
+    const cleanCode = (code || "").trim();
+    const isValid = verifyCode(cleanCode, pending.codeHash);
     if (!isValid) {
       return NextResponse.json(
         {
-          error: `That code isn't valid. ${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} remaining.`,
+          error: attemptsLeft > 0
+            ? `Incorrect verification code. ${attemptsLeft} attempt${attemptsLeft === 1 ? "" : "s"} remaining.`
+            : "Incorrect verification code.",
           attemptsLeft
         },
         { status: 400 }

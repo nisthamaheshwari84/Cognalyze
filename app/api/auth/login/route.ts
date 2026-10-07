@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
-          error: `Too many failed login attempts. Please try again in ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutes.`,
+          error: `Too many attempts. Please try again in ${Math.ceil(rateLimit.retryAfterSeconds / 60)} minutes.`,
           code: "RATE_LIMITED"
         },
         { status: 429 }
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     const user = getUserByEmail(normalizedEmail);
     if (!user) {
       return NextResponse.json(
-        { error: "Invalid email or password. Please check your credentials." },
+        { error: "Incorrect email or password.", code: "INVALID_CREDENTIALS" },
         { status: 401 }
       );
     }
@@ -64,42 +64,65 @@ export async function POST(req: NextRequest) {
     const isValid = verifyPassword(password, user.passwordHash, user.passwordSalt);
     if (!isValid) {
       return NextResponse.json(
-        { error: "Invalid email or password. Please check your credentials." },
+        { error: "Incorrect email or password.", code: "INVALID_CREDENTIALS" },
         { status: 401 }
       );
     }
 
-    // 4. Compute Verified Post-Login Routing Server-Side
+    // 4. Handle Unverified Account with direct path to verification
+    if (user.status === "EMAIL_PENDING") {
+      const session = createSession(user.id, user.accountType);
+      const res = NextResponse.json(
+        {
+          error: "Please verify your email before signing in.",
+          code: "EMAIL_NOT_VERIFIED",
+          userId: user.id,
+          email: user.email,
+          accountType: user.accountType,
+          nextUrl: `/verify-email?role=${user.accountType}`
+        },
+        { status: 403 }
+      );
+
+      res.cookies.set("cognalyze_session", session.token, {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60
+      });
+
+      res.cookies.set("cognalyze_role", user.accountType, {
+        path: "/",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60
+      });
+
+      return res;
+    }
+
+    // 5. Compute Verified Post-Login Routing Server-Side
     let nextUrl = "/";
     let profile = null;
 
     if (user.accountType === "student") {
-      if (user.status === "EMAIL_PENDING") {
-        nextUrl = "/verify-email?role=student";
-      } else {
-        const studentProfile = getStudentProfileByUserId(user.id);
-        profile = studentProfile;
-        nextUrl = "/student/dashboard";
-      }
+      const studentProfile = getStudentProfileByUserId(user.id);
+      profile = studentProfile;
+      nextUrl = "/student/dashboard";
     } else if (user.accountType === "recruiter") {
-      if (user.status === "EMAIL_PENDING") {
-        nextUrl = "/verify-email?role=recruiter";
-      } else {
-        const recruiterProfile = getRecruiterProfileByUserId(user.id);
-        profile = recruiterProfile;
-        const org = recruiterProfile?.organizationId
-          ? getOrganizationById(recruiterProfile.organizationId)
-          : null;
+      const recruiterProfile = getRecruiterProfileByUserId(user.id);
+      profile = recruiterProfile;
+      const org = recruiterProfile?.organizationId
+        ? getOrganizationById(recruiterProfile.organizationId)
+        : null;
 
-        if (!org || org.verificationStatus === "PENDING") {
-          nextUrl = "/recruiter/organization/setup";
-        } else {
-          nextUrl = "/recruiter/dashboard";
-        }
+      if (!org || org.verificationStatus === "PENDING") {
+        nextUrl = "/recruiter/organization/setup";
+      } else {
+        nextUrl = "/recruiter/dashboard";
       }
     }
 
-    // 5. Establish Session
+    // 6. Establish Session
     const session = createSession(user.id, user.accountType);
 
     const res = NextResponse.json({

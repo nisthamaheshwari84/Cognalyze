@@ -31,6 +31,8 @@ export function proxy(req: NextRequest) {
     pathname === "/signup" ||
     pathname.startsWith("/signup/") ||
     pathname === "/verify-email" ||
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password" ||
     pathname === "/post" ||
     pathname.startsWith("/post/") ||
     pathname.startsWith("/api/posts") ||

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized session." }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized session. Please sign in or register." }, { status: 401 });
     }
 
     const user = getUserById(userId);
@@ -30,15 +30,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    // Check cooldown (60 seconds)
+    // Check cooldown (30 seconds per specification)
     const pending = getPendingVerificationByUserId(userId);
     if (pending) {
       const timeSinceLastSent = (Date.now() - new Date(pending.lastSentAt).getTime()) / 1000;
-      const cooldownRemaining = Math.ceil(60 - timeSinceLastSent);
+      const cooldownRemaining = Math.ceil(30 - timeSinceLastSent);
       if (cooldownRemaining > 0) {
         return NextResponse.json(
           {
-            error: `Please wait ${cooldownRemaining}s before requesting a new code.`,
+            error: `Resend available in ${cooldownRemaining} seconds.`,
             retryAfterSeconds: cooldownRemaining
           },
           { status: 429 }
@@ -46,28 +46,37 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Issue new code & dispatch email
+    // Invalidate previous OTP & issue new code
     const newCode = generateVerificationCode();
     const codeHash = hashCode(newCode);
-    createEmailVerification(user.id, user.email, codeHash, newCode);
+    createEmailVerification(user.id, user.email, codeHash);
 
-    let emailResult: EmailDispatchResult = { provider: "fallback", success: true, deliveryNotice: "" };
+    // Dispatch email
+    let emailResult: EmailDispatchResult = { provider: "fallback", success: false };
     try {
       emailResult = await sendVerificationOtpEmail(user.email, newCode, user.fullName);
     } catch (err: any) {
       console.error("Failed to dispatch verification email on resend:", err);
+      return NextResponse.json(
+        { error: "Failed to communicate with email provider. Please try again." },
+        { status: 502 }
+      );
+    }
+
+    if (!emailResult.success) {
+      return NextResponse.json(
+        {
+          error: emailResult.error || "We couldn't send the verification email. Please try again.",
+          deliveryNotice: emailResult.error
+        },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Verification code sent.",
-      emailDelivery: {
-        provider: emailResult.provider,
-        delivered: emailResult.success && emailResult.provider !== "fallback",
-        notice: emailResult.deliveryNotice
-      },
-      verificationCode: emailResult.provider === "fallback" || process.env.NODE_ENV !== "production" ? newCode : undefined,
-      demoVerificationCode: newCode
+      message: `A new verification code has been dispatched to ${user.email}.`,
+      deliveryNotice: `Verification code sent to ${user.email}.`
     });
   } catch (err: any) {
     console.error("Resend code error:", err);

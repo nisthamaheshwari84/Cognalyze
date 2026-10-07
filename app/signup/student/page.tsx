@@ -12,8 +12,11 @@ export default function StudentSignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [existingState, setExistingState] = useState<"EXISTS" | "UNVERIFIED" | null>(null);
+  const [unverifiedUserId, setUnverifiedUserId] = useState<string | null>(null);
 
   // Account Linking Modal State
   const [linkingData, setLinkingData] = useState<{
@@ -27,9 +30,15 @@ export default function StudentSignupPage() {
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setExistingState(null);
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long.");
       return;
     }
 
@@ -49,10 +58,17 @@ export default function StudentSignupPage() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to create student account.");
-
-      if (data.user?.id && typeof window !== "undefined") {
-        localStorage.setItem("cognalyze_student_id", data.user.id);
+      if (!res.ok) {
+        if (data.code === "ACCOUNT_EXISTS") {
+          setExistingState("EXISTS");
+          throw new Error("An account already exists with this email.");
+        }
+        if (data.code === "ACCOUNT_EXISTS_UNVERIFIED") {
+          setExistingState("UNVERIFIED");
+          setUnverifiedUserId(data.userId || null);
+          throw new Error("Your account exists but your email hasn't been verified yet.");
+        }
+        throw new Error(data.error || "Failed to create student account.");
       }
 
       router.push(data.nextUrl || "/verify-email?role=student");
@@ -63,8 +79,28 @@ export default function StudentSignupPage() {
     }
   };
 
+  const handleResendForUnverified = async () => {
+    setResending(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/resend-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: unverifiedUserId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to resend verification code.");
+      router.push("/verify-email?role=student");
+    } catch (err: any) {
+      setError(err.message || "Failed to resend verification code.");
+    } finally {
+      setResending(false);
+    }
+  };
+
   const handleOAuth = async (provider: "github" | "linkedin") => {
     setError(null);
+    setExistingState(null);
     setOauthLoading(provider);
 
     try {
@@ -169,7 +205,7 @@ export default function StudentSignupPage() {
           }}
           className="rounded-xl border p-6 sm:p-8 space-y-6"
         >
-          {error && (
+          {error && !existingState && (
             <div
               style={{
                 backgroundColor: "#FDF2F2",
@@ -179,6 +215,94 @@ export default function StudentSignupPage() {
               className="p-3.5 rounded-lg border text-xs leading-relaxed"
             >
               {error}
+            </div>
+          )}
+
+          {/* Section 5: Specific Existing Email State Cards */}
+          {existingState === "EXISTS" && (
+            <div
+              style={{
+                backgroundColor: "#EFF4FE",
+                borderColor: "#D2E0FB",
+                color: "#162A43",
+              }}
+              className="p-4 rounded-xl border space-y-3 text-xs"
+            >
+              <div className="font-bold flex items-center gap-1.5 text-sm text-[#1E40AF]">
+                <span>ℹ️</span> An account already exists with this email.
+              </div>
+              <p className="text-slate-600 leading-relaxed">
+                You already have a Cognalyze account registered with <strong>{email}</strong>. Please sign in to access your profile or reset your password if you forgot it.
+              </p>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => router.push("/login")}
+                  style={{
+                    backgroundColor: "#356AE6",
+                    color: "#FFFFFF",
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg hover:bg-[#2858C7] text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                >
+                  Sign in instead
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/forgot-password")}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    borderColor: "#D2E0FB",
+                    color: "#1E40AF",
+                  }}
+                  className="py-2 px-3 rounded-lg border hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            </div>
+          )}
+
+          {existingState === "UNVERIFIED" && (
+            <div
+              style={{
+                backgroundColor: "#FFFBEB",
+                borderColor: "#FDE68A",
+                color: "#92400E",
+              }}
+              className="p-4 rounded-xl border space-y-3 text-xs"
+            >
+              <div className="font-bold flex items-center gap-1.5 text-sm text-[#B45309]">
+                <span>⚠️</span> Email verification pending
+              </div>
+              <p className="text-amber-800 leading-relaxed">
+                Your account exists with <strong>{email}</strong>, but your email address hasn&apos;t been verified yet.
+              </p>
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => router.push("/verify-email?role=student")}
+                  style={{
+                    backgroundColor: "#D97706",
+                    color: "#FFFFFF",
+                  }}
+                  className="flex-1 py-2 px-3 rounded-lg hover:bg-[#B45309] text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                >
+                  Continue verification
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendForUnverified}
+                  disabled={resending}
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    borderColor: "#FDE68A",
+                    color: "#92400E",
+                  }}
+                  className="py-2 px-3 rounded-lg border hover:bg-amber-50 text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {resending ? "Sending..." : "Resend code"}
+                </button>
+              </div>
             </div>
           )}
 
@@ -217,7 +341,7 @@ export default function StudentSignupPage() {
                 <svg className="w-4 h-4 text-[#0a66c2]" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
                 </svg>
-                <span>{oauthLoading === "linkedin" ? "Connecting LinkedIn..." : "Continue with LinkedIn"}</span>
+                <span>{oauthLoading === "linkedin" ? "Continue with LinkedIn..." : "Continue with LinkedIn"}</span>
               </button>
 
               <div className="relative my-4">

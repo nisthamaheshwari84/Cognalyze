@@ -7,6 +7,7 @@
  * - RecruiterProfiles & Organizations (domain matching, verification states)
  * - ConnectedAccounts (GitHub, LinkedIn, Email)
  * - EmailVerifications (6-digit OTP, attempt limits, expiration)
+ * - PasswordResetTokens (secure token hash, 1-hour expiration)
  * - UsernameHistory (90-day cooldown enforcement)
  * - AuthSessions (cryptographically secure tokens)
  */
@@ -21,14 +22,19 @@ import {
   Organization,
   ConnectedAccount,
   EmailVerification,
+  PasswordResetToken,
   UsernameHistory,
   AuthSession,
   PublicStudentProfile
 } from "./types";
 import { validateUsername } from "./security";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const AUTH_FILE = path.join(DATA_DIR, "auth-store.json");
+function resolveAuthFilePath(): string {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join("/tmp", "cognalyze-auth-store.json");
+  }
+  return path.join(process.cwd(), "data", "auth-store.json");
+}
 
 interface AuthStoreData {
   users: User[];
@@ -37,6 +43,7 @@ interface AuthStoreData {
   organizations: Organization[];
   connectedAccounts: ConnectedAccount[];
   emailVerifications: EmailVerification[];
+  passwordResetTokens: PasswordResetToken[];
   usernameHistory: UsernameHistory[];
   sessions: AuthSession[];
 }
@@ -159,18 +166,39 @@ const initialData: AuthStoreData = {
     }
   ],
   emailVerifications: [],
+  passwordResetTokens: [],
   usernameHistory: [],
   sessions: []
 };
 
-// Global in-memory cache
+// Global in-memory cache and timestamp tracking
 let store: AuthStoreData = { ...initialData };
+let lastMtimeMs: number = 0;
 
-function loadStoreFromDisk() {
+function loadStoreFromDisk(force = false) {
   try {
     if (typeof window === "undefined") {
-      if (fs.existsSync(AUTH_FILE)) {
-        const raw = fs.readFileSync(AUTH_FILE, "utf-8");
+      const filePath = resolveAuthFilePath();
+
+      // If running in /tmp (e.g. serverless) and file doesn't exist yet, seed from repo data
+      if (!fs.existsSync(filePath)) {
+        const repoFile = path.join(process.cwd(), "data", "auth-store.json");
+        if (filePath !== repoFile && fs.existsSync(repoFile)) {
+          try {
+            const dir = path.dirname(filePath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+            fs.copyFileSync(repoFile, filePath);
+          } catch {}
+        }
+      }
+
+      if (fs.existsSync(filePath)) {
+        const stat = fs.statSync(filePath);
+        if (!force && stat.mtimeMs === lastMtimeMs) {
+          return;
+        }
+
+        const raw = fs.readFileSync(filePath, "utf-8");
         const parsed = JSON.parse(raw);
         if (parsed.users && Array.isArray(parsed.users)) store.users = parsed.users;
         if (parsed.studentProfiles && Array.isArray(parsed.studentProfiles)) store.studentProfiles = parsed.studentProfiles;
@@ -178,8 +206,10 @@ function loadStoreFromDisk() {
         if (parsed.organizations && Array.isArray(parsed.organizations)) store.organizations = parsed.organizations;
         if (parsed.connectedAccounts && Array.isArray(parsed.connectedAccounts)) store.connectedAccounts = parsed.connectedAccounts;
         if (parsed.emailVerifications && Array.isArray(parsed.emailVerifications)) store.emailVerifications = parsed.emailVerifications;
+        if (parsed.passwordResetTokens && Array.isArray(parsed.passwordResetTokens)) store.passwordResetTokens = parsed.passwordResetTokens;
         if (parsed.usernameHistory && Array.isArray(parsed.usernameHistory)) store.usernameHistory = parsed.usernameHistory;
         if (parsed.sessions && Array.isArray(parsed.sessions)) store.sessions = parsed.sessions;
+        lastMtimeMs = stat.mtimeMs;
       } else {
         persistStoreToDisk();
       }
@@ -192,10 +222,15 @@ function loadStoreFromDisk() {
 export function persistStoreToDisk() {
   try {
     if (typeof window === "undefined") {
-      if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+      const filePath = resolveAuthFilePath();
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
       }
-      fs.writeFileSync(AUTH_FILE, JSON.stringify(store, null, 2), "utf-8");
+      fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+      try {
+        lastMtimeMs = fs.statSync(filePath).mtimeMs;
+      } catch {}
     }
   } catch (err) {
     console.error("Failed to persist auth store to disk:", err);
@@ -216,6 +251,7 @@ export function createUser(data: {
   status?: "EMAIL_PENDING" | "ORGANIZATION_PENDING" | "ACTIVE";
   profileCompleted?: boolean;
 }): User {
+  loadStoreFromDisk();
   const normalizedEmail = data.email.toLowerCase().trim();
   const existing = store.users.find(u => u.email === normalizedEmail);
   if (existing) {
@@ -243,15 +279,18 @@ export function createUser(data: {
 }
 
 export function getUserById(id: string): User | null {
+  loadStoreFromDisk();
   return store.users.find(u => u.id === id) || null;
 }
 
 export function getUserByEmail(email: string): User | null {
+  loadStoreFromDisk();
   const normalized = email.toLowerCase().trim();
   return store.users.find(u => u.email === normalized) || null;
 }
 
 export function updateUser(id: string, updates: Partial<User>): User | null {
+  loadStoreFromDisk();
   const user = store.users.find(u => u.id === id);
   if (!user) return null;
 
@@ -268,6 +307,7 @@ export function checkUsernameAvailability(rawUsername: string): {
   reason?: string;
   suggestions?: string[];
 } {
+  loadStoreFromDisk();
   const validation = validateUsername(rawUsername);
   if (!validation.valid) {
     return {
@@ -281,7 +321,6 @@ export function checkUsernameAvailability(rawUsername: string): {
   const existing = store.studentProfiles.find(p => p.username === normalized);
 
   if (existing) {
-    // Generate intelligent, natural suggestions
     const suggestions: string[] = [
       `${normalized}-ai`,
       `${normalized}_dev`,
@@ -332,6 +371,7 @@ export function createStudentProfile(data: {
   profileCompletionPercentage?: number;
   primaryInterests?: string[];
 }): StudentProfile {
+  loadStoreFromDisk();
   const user = getUserById(data.userId);
   if (!user) {
     throw new Error("User does not exist.");
@@ -349,7 +389,7 @@ export function createStudentProfile(data: {
 
   const now = new Date().toISOString();
   const profile: StudentProfile = {
-    id: crypto.randomUUID(), // Immutable student_profile_id
+    id: crypto.randomUUID(),
     userId: data.userId,
     username: availability.normalized,
     fullName: data.fullName.trim(),
@@ -398,15 +438,18 @@ export function createStudentProfile(data: {
 }
 
 export function getStudentProfileByUserId(userId: string): StudentProfile | null {
+  loadStoreFromDisk();
   return store.studentProfiles.find(p => p.userId === userId) || null;
 }
 
 export function getStudentProfileByUsername(username: string): StudentProfile | null {
+  loadStoreFromDisk();
   const normalized = username.toLowerCase().trim().replace(/^@/, "");
   return store.studentProfiles.find(p => p.username === normalized) || null;
 }
 
 export function getStudentProfileById(id: string): StudentProfile | null {
+  loadStoreFromDisk();
   return store.studentProfiles.find(p => p.id === id) || null;
 }
 
@@ -414,6 +457,7 @@ export function updateStudentProfile(
   id: string,
   updates: Partial<Omit<StudentProfile, "id" | "userId" | "username">>
 ): StudentProfile | null {
+  loadStoreFromDisk();
   const profile = store.studentProfiles.find(p => p.id === id);
   if (!profile) return null;
 
@@ -429,6 +473,7 @@ export function upsertStudentProfileByUserId(
   userId: string,
   data: Partial<StudentProfile>
 ): StudentProfile {
+  loadStoreFromDisk();
   const existing = store.studentProfiles.find(p => p.userId === userId);
   const now = new Date().toISOString();
 
@@ -441,7 +486,6 @@ export function upsertStudentProfileByUserId(
     return existing;
   }
 
-  // Create new profile for this user
   const user = getUserById(userId);
   if (!user) throw new Error("User does not exist.");
 
@@ -504,12 +548,12 @@ export function changeUsername(studentProfileId: string, newRawUsername: string)
   newUsername?: string;
   error?: string;
 } {
+  loadStoreFromDisk();
   const profile = store.studentProfiles.find(p => p.id === studentProfileId);
   if (!profile) {
     return { success: false, error: "Profile not found." };
   }
 
-  // 90-day cooldown enforcement
   if (profile.lastUsernameChangeAt) {
     const lastChange = new Date(profile.lastUsernameChangeAt).getTime();
     const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
@@ -532,7 +576,6 @@ export function changeUsername(studentProfileId: string, newRawUsername: string)
   const newUsername = availability.normalized;
   const now = new Date().toISOString();
 
-  // Log in username history
   store.usernameHistory.push({
     id: crypto.randomUUID(),
     studentProfileId,
@@ -541,7 +584,6 @@ export function changeUsername(studentProfileId: string, newRawUsername: string)
     changedAt: now
   });
 
-  // Update profile handle while student_profile_id remains immutable
   profile.username = newUsername;
   profile.lastUsernameChangeAt = now;
   profile.updatedAt = now;
@@ -559,6 +601,7 @@ export function createRecruiterProfile(data: {
   workEmail: string;
   organizationId?: string | null;
 }): RecruiterProfile {
+  loadStoreFromDisk();
   const user = getUserById(data.userId);
   if (!user) throw new Error("User does not exist.");
 
@@ -581,6 +624,7 @@ export function createRecruiterProfile(data: {
 }
 
 export function getRecruiterProfileByUserId(userId: string): RecruiterProfile | null {
+  loadStoreFromDisk();
   return store.recruiterProfiles.find(p => p.userId === userId) || null;
 }
 
@@ -588,6 +632,7 @@ export function updateRecruiterProfile(
   userId: string,
   updates: Partial<RecruiterProfile>
 ): RecruiterProfile | null {
+  loadStoreFromDisk();
   const profile = store.recruiterProfiles.find(p => p.userId === userId);
   if (!profile) return null;
 
@@ -604,6 +649,7 @@ export function createOrganization(data: {
   companySize?: string;
   verificationStatus?: "PENDING" | "DOMAIN_MATCHED" | "VERIFIED";
 }): Organization {
+  loadStoreFromDisk();
   const normalizedDomain = data.domain.toLowerCase().trim();
   const now = new Date().toISOString();
 
@@ -626,10 +672,12 @@ export function createOrganization(data: {
 }
 
 export function getOrganizationById(id: string): Organization | null {
+  loadStoreFromDisk();
   return store.organizations.find(o => o.id === id) || null;
 }
 
 export function getOrganizationByDomain(domain: string): Organization | null {
+  loadStoreFromDisk();
   const normalized = domain.toLowerCase().trim();
   return store.organizations.find(o => o.domain === normalized) || null;
 }
@@ -638,6 +686,7 @@ export function updateOrganization(
   id: string,
   updates: Partial<Organization>
 ): Organization | null {
+  loadStoreFromDisk();
   const org = store.organizations.find(o => o.id === id);
   if (!org) return null;
 
@@ -648,7 +697,8 @@ export function updateOrganization(
 
 // ─── EMAIL VERIFICATION (OTP) ───
 
-export function createEmailVerification(userId: string, email: string, codeHash: string, rawCode?: string): EmailVerification {
+export function createEmailVerification(userId: string, email: string, codeHash: string): EmailVerification {
+  loadStoreFromDisk();
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString(); // 15 minutes
 
@@ -660,7 +710,6 @@ export function createEmailVerification(userId: string, email: string, codeHash:
     userId,
     email: email.toLowerCase().trim(),
     codeHash,
-    rawCode,
     expiresAt,
     attemptCount: 0,
     lastSentAt: now.toISOString(),
@@ -674,6 +723,7 @@ export function createEmailVerification(userId: string, email: string, codeHash:
 }
 
 export function getPendingVerificationByUserId(userId: string): EmailVerification | null {
+  loadStoreFromDisk();
   const now = new Date().getTime();
   return store.emailVerifications.find(
     v => v.userId === userId && !v.verifiedAt && new Date(v.expiresAt).getTime() > now
@@ -681,6 +731,7 @@ export function getPendingVerificationByUserId(userId: string): EmailVerificatio
 }
 
 export function incrementVerificationAttempt(id: string): { attemptsExceeded: boolean; attemptsLeft: number } {
+  loadStoreFromDisk();
   const verification = store.emailVerifications.find(v => v.id === id);
   if (!verification) return { attemptsExceeded: true, attemptsLeft: 0 };
 
@@ -693,13 +744,13 @@ export function incrementVerificationAttempt(id: string): { attemptsExceeded: bo
 }
 
 export function markEmailVerified(verificationId: string): void {
+  loadStoreFromDisk();
   const verification = store.emailVerifications.find(v => v.id === verificationId);
   if (!verification) return;
 
   const now = new Date().toISOString();
   verification.verifiedAt = now;
 
-  // Update user status
   const user = store.users.find(u => u.id === verification.userId);
   if (user) {
     user.emailVerifiedAt = now;
@@ -710,13 +761,66 @@ export function markEmailVerified(verificationId: string): void {
     }
   }
 
-  // Update recruiter profile status if exists
   const recruiter = store.recruiterProfiles.find(r => r.userId === verification.userId);
   if (recruiter) {
     recruiter.status = "ORGANIZATION_PENDING";
   }
 
   persistStoreToDisk();
+}
+
+// ─── PASSWORD RESET TOKENS ───
+
+export function createPasswordResetToken(userId: string, email: string, tokenHash: string): PasswordResetToken {
+  loadStoreFromDisk();
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + 60 * 60 * 1000).toISOString(); // 1 hour
+
+  // Invalidate previous unused reset tokens for this user
+  store.passwordResetTokens = (store.passwordResetTokens || []).filter(t => t.userId !== userId);
+
+  const resetToken: PasswordResetToken = {
+    id: crypto.randomUUID(),
+    userId,
+    email: email.toLowerCase().trim(),
+    tokenHash,
+    expiresAt,
+    usedAt: null,
+    createdAt: now.toISOString()
+  };
+
+  store.passwordResetTokens.push(resetToken);
+  persistStoreToDisk();
+  return resetToken;
+}
+
+export function getValidPasswordResetToken(tokenHash: string): PasswordResetToken | null {
+  loadStoreFromDisk();
+  const now = Date.now();
+  return (store.passwordResetTokens || []).find(
+    t => t.tokenHash === tokenHash && !t.usedAt && new Date(t.expiresAt).getTime() > now
+  ) || null;
+}
+
+export function markPasswordResetTokenUsed(tokenId: string): void {
+  loadStoreFromDisk();
+  const token = (store.passwordResetTokens || []).find(t => t.id === tokenId);
+  if (token) {
+    token.usedAt = new Date().toISOString();
+    persistStoreToDisk();
+  }
+}
+
+export function resetUserPassword(userId: string, passwordHash: string, passwordSalt: string): boolean {
+  loadStoreFromDisk();
+  const user = store.users.find(u => u.id === userId);
+  if (!user) return false;
+
+  user.passwordHash = passwordHash;
+  user.passwordSalt = passwordSalt;
+  user.updatedAt = new Date().toISOString();
+  persistStoreToDisk();
+  return true;
 }
 
 // ─── CONNECTED ACCOUNTS & ACCOUNT LINKING ───
@@ -727,6 +831,7 @@ export function addConnectedAccount(data: {
   providerUserId: string;
   providerEmail: string;
 }): ConnectedAccount {
+  loadStoreFromDisk();
   const existing = store.connectedAccounts.find(
     c => c.provider === data.provider && c.providerUserId === data.providerUserId
   );
@@ -760,6 +865,7 @@ export function addConnectedAccount(data: {
 }
 
 export function getConnectedAccountsByUserId(userId: string): ConnectedAccount[] {
+  loadStoreFromDisk();
   return store.connectedAccounts.filter(c => c.userId === userId);
 }
 
@@ -767,6 +873,7 @@ export function findUserByConnectedAccount(
   provider: "github" | "linkedin",
   providerUserId: string
 ): User | null {
+  loadStoreFromDisk();
   const connected = store.connectedAccounts.find(
     c => c.provider === provider && c.providerUserId === providerUserId
   );
@@ -777,8 +884,8 @@ export function findUserByConnectedAccount(
 // ─── SESSIONS ───
 
 export function createSession(userId: string, accountType: "student" | "recruiter"): AuthSession {
-  // 30 days session
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  loadStoreFromDisk();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
   const session: AuthSession = {
     id: crypto.randomUUID(),
     userId,
@@ -795,6 +902,7 @@ export function createSession(userId: string, accountType: "student" | "recruite
 
 export function getSessionByToken(token: string): AuthSession | null {
   if (!token) return null;
+  loadStoreFromDisk();
   const now = new Date().getTime();
   const session = store.sessions.find(s => s.token === token);
   if (!session) return null;
@@ -808,6 +916,7 @@ export function getSessionByToken(token: string): AuthSession | null {
 }
 
 export function deleteSession(token: string): void {
+  loadStoreFromDisk();
   store.sessions = store.sessions.filter(s => s.token !== token);
   persistStoreToDisk();
 }
@@ -815,6 +924,7 @@ export function deleteSession(token: string): void {
 // ─── PUBLIC PROFILE ACCESSOR (SANITIZED) ───
 
 export function getPublicProfileByUsername(username: string): PublicStudentProfile | null {
+  loadStoreFromDisk();
   const profile = getStudentProfileByUsername(username);
   if (!profile) return null;
 
@@ -824,7 +934,6 @@ export function getPublicProfileByUsername(username: string): PublicStudentProfi
   const hasGithub = connectedAccounts.some(c => c.provider === "github");
   const hasLinkedin = connectedAccounts.some(c => c.provider === "linkedin");
 
-  // Format public evidence signals with strict provenance
   const evidenceSignals = [
     {
       name: "Go Concurrency & Raft Consensus",
