@@ -8,14 +8,18 @@ import ResumeIntelligenceView from "@/components/resume/ResumeIntelligenceView";
 
 function StudentResumeContent() {
   const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab") === "intelligence" ? "intelligence" : "builder";
+  const tabParam = searchParams.get("tab");
+  const initialTab =
+    tabParam === "intelligence" || tabParam === "diagnostics" || tabParam === "ats"
+      ? "intelligence"
+      : "builder";
   const [activeTab, setActiveTab] = useState<"builder" | "intelligence">(initialTab);
 
   useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    if (tabParam === "intelligence") {
+    const currentTab = searchParams.get("tab");
+    if (currentTab === "intelligence" || currentTab === "diagnostics" || currentTab === "ats") {
       setActiveTab("intelligence");
-    } else if (tabParam === "builder") {
+    } else if (currentTab === "builder") {
       setActiveTab("builder");
     }
   }, [searchParams]);

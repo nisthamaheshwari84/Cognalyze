@@ -19,6 +19,8 @@ export function proxy(req: NextRequest) {
     pathname === "/student/gd-practice" ||
     pathname === "/student/simulation" ||
     pathname === "/student/practice-interview" ||
+    pathname === "/student/resume" ||
+    pathname === "/resume" ||
     pathname === "/student/ai-mentor" ||
     pathname.startsWith("/student/ai-mentor/");
 
