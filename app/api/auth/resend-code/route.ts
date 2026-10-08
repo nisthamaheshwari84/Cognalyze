@@ -5,7 +5,8 @@ import {
   getSessionByToken,
   getPendingVerificationByUserId,
   createEmailVerification,
-  syncStoreWithCloud
+  syncStoreWithCloud,
+  saveStoreToCloud
 } from "@/lib/auth/store";
 import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
 
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
     const newCode = generateVerificationCode();
     const codeHash = hashCode(newCode);
     createEmailVerification(user.id, user.email, codeHash);
+    await saveStoreToCloud();
 
     // Dispatch email
     let emailResult: EmailDispatchResult = { provider: "fallback", success: false };

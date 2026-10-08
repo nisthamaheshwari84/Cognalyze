@@ -119,6 +119,45 @@ const initialData: AuthStoreData = {
       lastUsernameChangeAt: null,
       createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       updatedAt: new Date().toISOString()
+    },
+    {
+      id: "sp-nistha-001",
+      userId: demoStudentUserId,
+      username: "nistha",
+      fullName: "Nistha Maheshwari",
+      college: "Institute of Technology",
+      degree: "B.Tech",
+      branch: "Computer Science & Engineering",
+      graduationYear: "2026",
+      skills: [
+        { name: "Python", level: "Advanced" },
+        { name: "PostgreSQL", level: "Intermediate" },
+        { name: "Next.js", level: "Advanced" },
+      ],
+      projects: [
+        {
+          title: "Automated Recovery Bot",
+          description: "Distributed recovery pipeline built with Python and PostgreSQL",
+          techStack: ["Python", "PostgreSQL", "Docker"],
+        },
+      ],
+      experience: [],
+      achievements: [],
+      certifications: [],
+      careerGoals: {
+        targetRoles: ["Backend Engineer", "Distributed Systems Engineer"],
+        preferredDomains: ["Fintech", "Developer Tools"],
+        targetCompanies: ["Stripe", "Datadog"],
+        preferredLocations: ["Bangalore", "Remote"],
+      },
+      profileCompleted: true,
+      profileCompletionPercentage: 100,
+      primaryInterests: ["Distributed Systems", "AI/ML", "Backend Engineering"],
+      profileStatus: "IDENTITY_VERIFIED",
+      privacySetting: "PUBLIC",
+      lastUsernameChangeAt: null,
+      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ],
   recruiterProfiles: [
@@ -178,77 +217,92 @@ const CLOUD_STORE_KEY = "cognalyze_auth_cloud_store";
 export async function syncStoreWithCloud(): Promise<void> {
   if (typeof window !== "undefined") return;
   try {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("analyses")
       .select("full_report")
       .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
-      .maybeSingle();
+      .order("created_at", { ascending: false })
+      .limit(1);
 
-    if (data?.full_report) {
-      const cloud = data.full_report;
+    if (error) {
+      console.warn("syncStoreWithCloud query warning:", error.message);
+      return;
+    }
+
+    const cloud = data?.[0]?.full_report;
+    if (cloud) {
       if (cloud.users && Array.isArray(cloud.users)) {
         for (const u of cloud.users) {
-          const idx = store.users.findIndex(x => x.id === u.id);
+          const idx = store.users.findIndex(x => x.id === u.id || (u.email && x.email.toLowerCase() === u.email.toLowerCase()));
           if (idx === -1) store.users.push(u);
-          else store.users[idx] = u;
+          else store.users[idx] = { ...store.users[idx], ...u };
         }
       }
       if (cloud.studentProfiles && Array.isArray(cloud.studentProfiles)) {
         for (const p of cloud.studentProfiles) {
-          const idx = store.studentProfiles.findIndex(x => x.id === p.id);
+          const idx = store.studentProfiles.findIndex(x => x.id === p.id || x.userId === p.userId);
           if (idx === -1) store.studentProfiles.push(p);
-          else store.studentProfiles[idx] = p;
+          else store.studentProfiles[idx] = { ...store.studentProfiles[idx], ...p };
         }
       }
       if (cloud.recruiterProfiles && Array.isArray(cloud.recruiterProfiles)) {
         for (const p of cloud.recruiterProfiles) {
-          const idx = store.recruiterProfiles.findIndex(x => x.id === p.id);
+          const idx = store.recruiterProfiles.findIndex(x => x.id === p.id || x.userId === p.userId);
           if (idx === -1) store.recruiterProfiles.push(p);
-          else store.recruiterProfiles[idx] = p;
+          else store.recruiterProfiles[idx] = { ...store.recruiterProfiles[idx], ...p };
         }
       }
       if (cloud.organizations && Array.isArray(cloud.organizations)) {
         for (const o of cloud.organizations) {
           const idx = store.organizations.findIndex(x => x.id === o.id);
           if (idx === -1) store.organizations.push(o);
-          else store.organizations[idx] = o;
+          else store.organizations[idx] = { ...store.organizations[idx], ...o };
         }
       }
       if (cloud.connectedAccounts && Array.isArray(cloud.connectedAccounts)) {
         for (const c of cloud.connectedAccounts) {
           const idx = store.connectedAccounts.findIndex(x => x.id === c.id);
           if (idx === -1) store.connectedAccounts.push(c);
-          else store.connectedAccounts[idx] = c;
+          else store.connectedAccounts[idx] = { ...store.connectedAccounts[idx], ...c };
         }
       }
       if (cloud.sessions && Array.isArray(cloud.sessions)) {
         for (const s of cloud.sessions) {
           const idx = store.sessions.findIndex(x => x.token === s.token);
           if (idx === -1) store.sessions.push(s);
-          else store.sessions[idx] = s;
+          else store.sessions[idx] = { ...store.sessions[idx], ...s };
         }
       }
       if (cloud.emailVerifications && Array.isArray(cloud.emailVerifications)) {
         for (const v of cloud.emailVerifications) {
           const idx = store.emailVerifications.findIndex(x => x.id === v.id);
           if (idx === -1) store.emailVerifications.push(v);
-          else store.emailVerifications[idx] = v;
+          else store.emailVerifications[idx] = { ...store.emailVerifications[idx], ...v };
         }
       }
       if (cloud.passwordResetTokens && Array.isArray(cloud.passwordResetTokens)) {
         for (const t of cloud.passwordResetTokens) {
           const idx = store.passwordResetTokens.findIndex(x => x.id === t.id);
           if (idx === -1) store.passwordResetTokens.push(t);
-          else store.passwordResetTokens[idx] = t;
+          else store.passwordResetTokens[idx] = { ...store.passwordResetTokens[idx], ...t };
         }
       }
       if (cloud.usernameHistory && Array.isArray(cloud.usernameHistory)) {
         for (const h of cloud.usernameHistory) {
           const idx = store.usernameHistory.findIndex(x => x.id === h.id);
           if (idx === -1) store.usernameHistory.push(h);
-          else store.usernameHistory[idx] = h;
+          else store.usernameHistory[idx] = { ...store.usernameHistory[idx], ...h };
         }
       }
+
+      // Sync updated store to local disk /tmp cache
+      try {
+        const filePath = resolveAuthFilePath();
+        const dir = path.dirname(filePath);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+        lastMtimeMs = fs.statSync(filePath).mtimeMs;
+      } catch {}
     }
   } catch (err) {
     console.warn("syncStoreWithCloud non-fatal:", err);
@@ -284,15 +338,83 @@ function loadStoreFromDisk(force = false) {
 
         const raw = fs.readFileSync(filePath, "utf-8");
         const parsed = JSON.parse(raw);
-        if (parsed.users && Array.isArray(parsed.users)) store.users = parsed.users;
-        if (parsed.studentProfiles && Array.isArray(parsed.studentProfiles)) store.studentProfiles = parsed.studentProfiles;
-        if (parsed.recruiterProfiles && Array.isArray(parsed.recruiterProfiles)) store.recruiterProfiles = parsed.recruiterProfiles;
-        if (parsed.organizations && Array.isArray(parsed.organizations)) store.organizations = parsed.organizations;
-        if (parsed.connectedAccounts && Array.isArray(parsed.connectedAccounts)) store.connectedAccounts = parsed.connectedAccounts;
-        if (parsed.emailVerifications && Array.isArray(parsed.emailVerifications)) store.emailVerifications = parsed.emailVerifications;
-        if (parsed.passwordResetTokens && Array.isArray(parsed.passwordResetTokens)) store.passwordResetTokens = parsed.passwordResetTokens;
-        if (parsed.usernameHistory && Array.isArray(parsed.usernameHistory)) store.usernameHistory = parsed.usernameHistory;
-        if (parsed.sessions && Array.isArray(parsed.sessions)) store.sessions = parsed.sessions;
+        if (parsed.users && Array.isArray(parsed.users)) {
+          for (const u of parsed.users) {
+            const idx = store.users.findIndex(x => x.id === u.id);
+            if (idx === -1) {
+              store.users.push(u);
+            } else {
+              const diskTime = u.updatedAt ? new Date(u.updatedAt).getTime() : 0;
+              const memTime = store.users[idx].updatedAt ? new Date(store.users[idx].updatedAt).getTime() : 0;
+              if (diskTime > memTime) {
+                store.users[idx] = { ...store.users[idx], ...u };
+              }
+            }
+          }
+        }
+        if (parsed.studentProfiles && Array.isArray(parsed.studentProfiles)) {
+          for (const p of parsed.studentProfiles) {
+            const idx = store.studentProfiles.findIndex(x => x.id === p.id);
+            if (idx === -1) {
+              store.studentProfiles.push(p);
+            } else {
+              const diskTime = p.updatedAt ? new Date(p.updatedAt).getTime() : 0;
+              const memTime = store.studentProfiles[idx].updatedAt ? new Date(store.studentProfiles[idx].updatedAt).getTime() : 0;
+              if (diskTime > memTime) {
+                store.studentProfiles[idx] = { ...store.studentProfiles[idx], ...p };
+              }
+            }
+          }
+        }
+        if (parsed.recruiterProfiles && Array.isArray(parsed.recruiterProfiles)) {
+          for (const p of parsed.recruiterProfiles) {
+            const idx = store.recruiterProfiles.findIndex(x => x.id === p.id);
+            if (idx === -1) store.recruiterProfiles.push(p);
+            else store.recruiterProfiles[idx] = { ...store.recruiterProfiles[idx], ...p };
+          }
+        }
+        if (parsed.organizations && Array.isArray(parsed.organizations)) {
+          for (const o of parsed.organizations) {
+            const idx = store.organizations.findIndex(x => x.id === o.id);
+            if (idx === -1) store.organizations.push(o);
+            else store.organizations[idx] = { ...store.organizations[idx], ...o };
+          }
+        }
+        if (parsed.connectedAccounts && Array.isArray(parsed.connectedAccounts)) {
+          for (const c of parsed.connectedAccounts) {
+            const idx = store.connectedAccounts.findIndex(x => x.id === c.id);
+            if (idx === -1) store.connectedAccounts.push(c);
+            else store.connectedAccounts[idx] = { ...store.connectedAccounts[idx], ...c };
+          }
+        }
+        if (parsed.emailVerifications && Array.isArray(parsed.emailVerifications)) {
+          for (const v of parsed.emailVerifications) {
+            const idx = store.emailVerifications.findIndex(x => x.id === v.id);
+            if (idx === -1) store.emailVerifications.push(v);
+            else store.emailVerifications[idx] = { ...store.emailVerifications[idx], ...v };
+          }
+        }
+        if (parsed.passwordResetTokens && Array.isArray(parsed.passwordResetTokens)) {
+          for (const t of parsed.passwordResetTokens) {
+            const idx = store.passwordResetTokens.findIndex(x => x.id === t.id);
+            if (idx === -1) store.passwordResetTokens.push(t);
+            else store.passwordResetTokens[idx] = { ...store.passwordResetTokens[idx], ...t };
+          }
+        }
+        if (parsed.usernameHistory && Array.isArray(parsed.usernameHistory)) {
+          for (const h of parsed.usernameHistory) {
+            const idx = store.usernameHistory.findIndex(x => x.id === h.id);
+            if (idx === -1) store.usernameHistory.push(h);
+            else store.usernameHistory[idx] = { ...store.usernameHistory[idx], ...h };
+          }
+        }
+        if (parsed.sessions && Array.isArray(parsed.sessions)) {
+          for (const s of parsed.sessions) {
+            const idx = store.sessions.findIndex(x => x.token === s.token);
+            if (idx === -1) store.sessions.push(s);
+            else store.sessions[idx] = { ...store.sessions[idx], ...s };
+          }
+        }
         lastMtimeMs = stat.mtimeMs;
       } else {
         persistStoreToDisk();
@@ -300,6 +422,49 @@ function loadStoreFromDisk(force = false) {
     }
   } catch (err) {
     console.error("Failed to load auth store from disk:", err);
+  }
+}
+
+export async function saveStoreToCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const filePath = resolveAuthFilePath();
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+    try {
+      lastMtimeMs = fs.statSync(filePath).mtimeMs;
+    } catch {}
+
+    const { data: existingRows } = await supabase
+      .from("analyses")
+      .select("id")
+      .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
+      await supabase
+        .from("analyses")
+        .update({
+          full_report: store,
+          created_at: new Date().toISOString()
+        })
+        .eq("id", existingRows[0].id);
+    } else {
+      await supabase
+        .from("analyses")
+        .insert({
+          recruiter_clerk_id: CLOUD_STORE_KEY,
+          job_description: "cognalyze_auth_cloud_store",
+          final_verdict: "ACTIVE",
+          full_report: store
+        });
+    }
+  } catch (err) {
+    console.error("saveStoreToCloud error:", err);
   }
 }
 
@@ -316,34 +481,8 @@ export function persistStoreToDisk() {
         lastMtimeMs = fs.statSync(filePath).mtimeMs;
       } catch {}
 
-      // Asynchronously sync snapshot to Supabase PostgreSQL database so all serverless workers share state
-      try {
-        supabase
-          .from("analyses")
-          .select("id")
-          .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
-          .maybeSingle()
-          .then(({ data }: any) => {
-            if (data?.id) {
-              supabase
-                .from("analyses")
-                .update({ full_report: store, created_at: new Date().toISOString() })
-                .eq("id", data.id)
-                .then(() => {});
-            } else {
-              supabase
-                .from("analyses")
-                .insert({
-                  recruiter_clerk_id: CLOUD_STORE_KEY,
-                  job_description: "cognalyze_auth_cloud_store",
-                  final_verdict: "ACTIVE",
-                  full_report: store
-                })
-                .then(() => {});
-            }
-          })
-          .catch(() => {});
-      } catch {}
+      // Fire saveStoreToCloud asynchronously
+      saveStoreToCloud().catch(() => {});
     }
   } catch (err) {
     console.error("Failed to persist auth store to disk:", err);

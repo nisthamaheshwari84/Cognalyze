@@ -7,7 +7,8 @@ import {
   getUserById,
   getSessionByToken,
   createSession,
-  syncStoreWithCloud
+  syncStoreWithCloud,
+  saveStoreToCloud
 } from "@/lib/auth/store";
 import { supabase } from "@/lib/supabase";
 
@@ -81,6 +82,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Success: Promote status
     markEmailVerified(pending.id);
+    await saveStoreToCloud();
 
     // Compute next URL based on account type
     const nextUrl = user.accountType === "student"

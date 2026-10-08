@@ -6,7 +6,8 @@ import {
   markPasswordResetTokenUsed,
   resetUserPassword,
   getUserById,
-  syncStoreWithCloud
+  syncStoreWithCloud,
+  saveStoreToCloud
 } from "@/lib/auth/store";
 import { supabase } from "@/lib/supabase";
 
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     }
 
     markPasswordResetTokenUsed(resetRecord.id);
+    await saveStoreToCloud();
 
     return NextResponse.json({
       success: true,

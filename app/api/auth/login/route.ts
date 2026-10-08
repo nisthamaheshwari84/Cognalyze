@@ -7,6 +7,7 @@ import {
   getOrganizationById,
   createSession,
   syncStoreWithCloud,
+  saveStoreToCloud,
   createUser,
   upsertStudentProfileByUserId,
   createRecruiterProfile
@@ -217,6 +218,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Establish Session
     const session = createSession(finalUserId, authenticatedUser.accountType);
+    await saveStoreToCloud();
 
 
     const res = NextResponse.json({

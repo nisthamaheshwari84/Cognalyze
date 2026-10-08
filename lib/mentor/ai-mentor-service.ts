@@ -290,7 +290,7 @@ export function getStudentMentorContext(studentId: string = "student-demo"): Stu
     ];
 
     return {
-      studentName: (profile as any)?.studentName || (profile as any)?.fullName || "Student",
+      studentName: (profile as any)?.studentName || (profile as any)?.fullName || (studentId === "student-demo" ? "Nistha Maheshwari" : "Student"),
       college: (profile as any)?.college || "",
       targetRole: intent?.primaryGoal || "Software Engineer",
       verifiedSkills: verifiedSkills.length > 0 ? verifiedSkills : ["Core CS", "Problem Solving"],

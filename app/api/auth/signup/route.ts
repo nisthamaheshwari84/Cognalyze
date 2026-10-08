@@ -13,7 +13,8 @@ import {
   createRecruiterProfile,
   createSession,
   upsertStudentProfileByUserId,
-  syncStoreWithCloud
+  syncStoreWithCloud,
+  saveStoreToCloud
 } from "@/lib/auth/store";
 import { sendVerificationOtpEmail, EmailDispatchResult } from "@/lib/email/email-service";
 import { supabase } from "@/lib/supabase";
@@ -154,6 +155,7 @@ export async function POST(req: NextRequest) {
 
     // 7. Establish Session
     const session = createSession(user.id, effectiveAccountType);
+    await saveStoreToCloud();
 
     const res = NextResponse.json({
       success: true,
