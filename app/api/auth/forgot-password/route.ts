@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { getUserByEmail, createPasswordResetToken, syncStoreWithCloud } from "@/lib/auth/store";
+import { getUserByEmail, createPasswordResetToken, syncStoreWithCloud, saveStoreToCloud } from "@/lib/auth/store";
 import { sendPasswordResetEmail, isEmailConfigured } from "@/lib/email/email-service";
 import { supabase } from "@/lib/supabase";
 
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
 
       createPasswordResetToken(user.id, user.email, tokenHash);
+      await saveStoreToCloud();
 
       const resetUrl = `${baseUrl}/reset-password?token=${rawToken}`;
 
