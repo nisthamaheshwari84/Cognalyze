@@ -69,4 +69,7 @@ If the answer is NO, fix the response before displaying it.
 # DEPLOYMENT CONSTRAINT
 - NEVER directly deploy to Vercel or push to remote main without explicit user confirmation and testing.
 - Always verify builds and tests locally first.
+- ONLY deploy to `https://cognalyze-gules.vercel.app`. NEVER deploy to `https://cognalyze.vercel.app` or any other domain.
+- Production deployments to `https://cognalyze-gules.vercel.app` are managed strictly via verified Git pushes to `origin main`.
+
 
