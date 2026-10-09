@@ -112,6 +112,75 @@ export default function CollaborationFeed({ onApplied }: CollaborationFeedProps)
   }
 
   if (error) {
+    const isAuthNotice = error.includes("Not authenticated") || error.includes("Only students") || error.includes("Unauthorized");
+    if (isAuthNotice) {
+      return (
+        <div
+          style={{
+            padding: "28px 24px",
+            borderRadius: 12,
+            background: cardBg,
+            border: `1px solid ${borderCol}`,
+            textAlign: "center",
+            boxShadow: isDark ? "0 4px 16px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.04)"
+          }}
+        >
+          <div style={{ fontSize: 30, marginBottom: 10 }}>🤝</div>
+          <h3 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 6px", color: headingCol }}>
+            Student Collaboration Network
+          </h3>
+          <p style={{ fontSize: 13, color: textSecondary, margin: "0 auto 18px", maxWidth: 460, lineHeight: 1.5 }}>
+            Verified enterprise collaboration squads and recruiter hackathon roles are exclusively accessible to verified student accounts. Sign in or switch to Student Mode to explore open roles and apply with your verified Cognalyze DNA.
+          </p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={async () => {
+                try {
+                  await fetch("/api/auth/demo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ role: "student" })
+                  });
+                  window.location.reload();
+                } catch {
+                  window.location.href = "/login?redirect=/post?type=collaboration";
+                }
+              }}
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                background: accent,
+                color: "#FFFFFF",
+                fontSize: 12,
+                fontWeight: 600,
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              🎓 1-Click Student Preview
+            </button>
+            <a
+              href="/login?redirect=/post?type=collaboration"
+              style={{
+                padding: "8px 18px",
+                borderRadius: 8,
+                background: chipBg,
+                border: `1px solid ${chipBorder}`,
+                color: headingCol,
+                fontSize: 12,
+                fontWeight: 600,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center"
+              }}
+            >
+              Sign In
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={{ padding: "20px", borderRadius: 10, background: isDark ? "rgba(230,57,70,0.1)" : "#FDF2F2", border: `1px solid ${isDark ? "rgba(230,57,70,0.25)" : "#F8C8C8"}`, color: "#E63946", fontSize: 13 }}>
         ⚠️ {error}

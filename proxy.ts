@@ -38,6 +38,7 @@ export function proxy(req: NextRequest) {
     pathname === "/post" ||
     pathname.startsWith("/post/") ||
     pathname.startsWith("/api/posts") ||
+    pathname.startsWith("/api/feed") ||
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/api/parse-resume") ||
     pathname.startsWith("/api/student/ai-mentor") ||
@@ -137,6 +138,20 @@ export function proxy(req: NextRequest) {
       const url = req.nextUrl.clone();
       url.pathname = "/recruiter/dashboard";
       url.searchParams.set("unauthorized", "student_restricted");
+      return NextResponse.redirect(url);
+    }
+
+    // Normalization for /recruiter -> /recruiter/dashboard
+    if (pathname === "/recruiter" && roleCookie !== "student") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/recruiter/dashboard";
+      return NextResponse.redirect(url);
+    }
+
+    // Normalization for /admin -> /admin/dashboard
+    if (pathname === "/admin") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/admin/dashboard";
       return NextResponse.redirect(url);
     }
   } else {

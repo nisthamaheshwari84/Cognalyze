@@ -60,11 +60,25 @@ export default function Home() {
   }, []);
 
   const handleSelect = async (section: "student" | "recruiter" | "post") => {
+    if (loadingSection !== null) return;
     setLoadingSection(section);
     try {
       if (section === "post") {
-        window.location.href = "/post";
+        router.push("/post");
         return;
+      }
+
+      if (section === "recruiter") {
+        // Initialize partner recruiter preview session if not already in recruiter mode
+        const demoRes = await fetch("/api/auth/demo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: "recruiter" }),
+        });
+        if (demoRes.ok) {
+          router.push("/recruiter/dashboard");
+          return;
+        }
       }
 
       await fetch("/api/auth/role", {
@@ -74,14 +88,16 @@ export default function Home() {
       });
 
       if (section === "student") {
-        window.location.href = "/student/dashboard";
+        router.push("/student/dashboard");
       } else {
-        window.location.href = "/recruiter/dashboard";
+        router.push("/recruiter/dashboard");
       }
     } catch {
-      if (section === "post") window.location.href = "/post";
-      else if (section === "student") window.location.href = "/student/dashboard";
-      else window.location.href = "/recruiter/dashboard";
+      if (section === "post") router.push("/post");
+      else if (section === "student") router.push("/student/dashboard");
+      else router.push("/recruiter/dashboard");
+    } finally {
+      setTimeout(() => setLoadingSection(null), 1200);
     }
   };
 
@@ -159,9 +175,9 @@ export default function Home() {
             {session.authenticated ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 12, color: "#667085" }}>
-                  Signed in as <strong>{session.user?.name || "Member"}</strong>
+                  Signed in as <strong>{session.user?.fullName || session.user?.name || "Member"}</strong>
                 </span>
-                <Link href={session.user?.role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard"}>
+                <Link href={session.user?.accountType === "recruiter" || session.user?.role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard"}>
                   <Button variant="primary" size="sm">
                     Open Workspace →
                   </Button>
@@ -308,6 +324,11 @@ export default function Home() {
             </div>
 
             <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelect("student");
+              }}
               disabled={loadingSection !== null}
               style={{
                 width: "100%",
@@ -409,6 +430,11 @@ export default function Home() {
             </div>
 
             <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelect("recruiter");
+              }}
               disabled={loadingSection !== null}
               style={{
                 width: "100%",
@@ -510,6 +536,11 @@ export default function Home() {
             </div>
 
             <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelect("post");
+              }}
               disabled={loadingSection !== null}
               style={{
                 width: "100%",

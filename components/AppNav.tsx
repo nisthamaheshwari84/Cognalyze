@@ -45,6 +45,11 @@ interface NavItem {
   badge?: string;
 }
 
+// Module-level in-memory session cache to prevent redundant HTTP waterfall on every route transition
+let cachedAppNavSession: any = null;
+let lastAppNavSessionFetch = 0;
+const SESSION_CACHE_TTL = 30_000; // 30 seconds
+
 export default function AppNav({ role = "student" }: AppNavProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -59,15 +64,35 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     user?: any;
     studentProfile?: any;
     recruiterProfile?: any;
-  }>({ loading: true, authenticated: false });
+  }>(() => {
+    if (cachedAppNavSession) {
+      return {
+        loading: false,
+        authenticated: !!cachedAppNavSession.authenticated,
+        user: cachedAppNavSession.user,
+        studentProfile: cachedAppNavSession.studentProfile,
+        recruiterProfile: cachedAppNavSession.recruiterProfile,
+      };
+    }
+    return { loading: true, authenticated: false };
+  });
 
   useEffect(() => {
     let isMounted = true;
+    const now = Date.now();
+
+    // Use cached session if fresh, avoiding redundant /api/auth/session requests on every route change
+    if (cachedAppNavSession && now - lastAppNavSessionFetch < SESSION_CACHE_TTL) {
+      return;
+    }
+
     async function checkSession() {
       try {
         const res = await fetch("/api/auth/session");
         if (res.ok) {
           const data = await res.json();
+          cachedAppNavSession = data;
+          lastAppNavSessionFetch = Date.now();
           if (isMounted) {
             setSession({
               loading: false,
@@ -88,7 +113,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     return () => {
       isMounted = false;
     };
-  }, [pathname]);
+  }, []); // Run on mount, not on every pathname change
 
   // Close sidebar on path change
   useEffect(() => {
@@ -108,6 +133,8 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const handleLogout = async () => {
     setLoggingOut(true);
+    cachedAppNavSession = null;
+    lastAppNavSessionFetch = 0;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       if (typeof window !== "undefined") {
@@ -128,7 +155,19 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const handleSwitchRole = async (targetRole: "student" | "recruiter") => {
     setSwitching(true);
+    cachedAppNavSession = null;
+    lastAppNavSessionFetch = 0;
     try {
+      const demoRes = await fetch("/api/auth/demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: targetRole }),
+      });
+      if (demoRes.ok) {
+        window.location.href = targetRole === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard";
+        return;
+      }
+
       await fetch("/api/auth/role", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

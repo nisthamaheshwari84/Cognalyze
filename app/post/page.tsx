@@ -49,37 +49,47 @@ function PostFeedContent() {
   const [joinNote, setJoinNote] = useState("");
   const [joinSuccess, setJoinSuccess] = useState(false);
 
-  // 1. Fetch Viewer Role & Initial Posts
+  // 1. Fetch Viewer Role & Initial Posts in Parallel (Zero Waterfall)
   useEffect(() => {
+    let isMounted = true;
     async function initFeed() {
       setLoading(true);
       try {
-        // Fetch role
-        const roleRes = await fetch("/api/auth/role");
+        const [roleRes, postsRes] = await Promise.all([
+          fetch("/api/auth/role"),
+          fetch(`/api/posts?type=all&candidateId=${encodeURIComponent(candidateId)}`)
+        ]);
         const roleData = await roleRes.json();
-        const role = roleData?.role || "student";
+        const postsData = await postsRes.json();
+        if (!isMounted) return;
+
+        const role = roleData?.role || postsData?.role || "student";
         setViewerRole(role);
 
-        // Fetch posts
-        const postsRes = await fetch(`/api/posts?type=${encodeURIComponent(activeFilter)}&role=${encodeURIComponent(role)}&candidateId=${encodeURIComponent(candidateId)}`);
-        const postsData = await postsRes.json();
         if (postsData?.posts) {
           setPosts(postsData.posts);
         }
       } catch (err) {
         console.error("Failed to load posts:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     initFeed();
-  }, [activeFilter, candidateId]);
+    return () => {
+      isMounted = false;
+    };
+  }, [candidateId]);
 
-  // Handle client-side search filtering
+  // Handle client-side type and keyword search filtering instantaneously in memory
   const filteredPosts = useMemo(() => {
-    if (!searchQuery.trim()) return posts;
+    let result = posts;
+    if (activeFilter && activeFilter !== "all") {
+      result = result.filter(p => p.type === activeFilter);
+    }
+    if (!searchQuery.trim()) return result;
     const q = searchQuery.toLowerCase().trim();
-    return posts.filter(p => {
+    return result.filter(p => {
       const matchTitle = p.title.toLowerCase().includes(q);
       const matchContent = p.content.toLowerCase().includes(q);
       const matchAuthor = p.author_name.toLowerCase().includes(q);
@@ -87,7 +97,7 @@ function PostFeedContent() {
       const matchTags = (p.tags || []).some(t => t.toLowerCase().includes(q));
       return matchTitle || matchContent || matchAuthor || matchCompany || matchTags;
     });
-  }, [posts, searchQuery]);
+  }, [posts, activeFilter, searchQuery]);
 
   const handleUpvote = (postId: string) => {
     setUpvotedIds(prev => {
@@ -220,8 +230,8 @@ function PostFeedContent() {
               </button>
             </Link>
 
-            {/* Switch Section Button */}
-            <Link href="/?switch=true" style={{ textDecoration: "none" }}>
+            {/* Switch Section / Return Home Link */}
+            <Link href="/" style={{ textDecoration: "none" }}>
               <button style={{ padding: "7px 14px", borderRadius: 7, background: accentLight, border: `1px solid ${accentBorder}`, color: accent, fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
                 <span>⇄</span>
                 <span>Switch Section</span>
@@ -370,16 +380,18 @@ function PostFeedContent() {
         </div>
 
         {/* ── POSTS FEED LIST ── */}
-        {activeFilter === "collaboration" ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        {activeFilter === "collaboration" && (
+          <div style={{ marginBottom: 20 }}>
             <CollaborationFeed />
           </div>
-        ) : loading ? (
+        )}
+
+        {loading ? (
           <div style={{ textAlign: "center", padding: "60px 0", color: textSecondary }}>
             <div style={{ fontSize: 28, marginBottom: 12 }}>⚡</div>
             <p style={{ margin: 0, fontWeight: 600 }}>Aggregating unified feed across hiring, opportunities, and community...</p>
           </div>
-        ) : filteredPosts.length === 0 ? (
+        ) : filteredPosts.length === 0 && activeFilter !== "collaboration" ? (
           <div style={{ textAlign: "center", padding: "60px 0", background: bgCard, borderRadius: 10, border: `1px solid ${borderSubtle}` }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
             <h3 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 6px", color: headingColor }}>No posts matched your criteria</h3>
@@ -393,6 +405,14 @@ function PostFeedContent() {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {activeFilter === "collaboration" && filteredPosts.length > 0 && (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "8px 0 4px" }}>
+                <span style={{ height: 8, width: 8, borderRadius: "50%", background: accent }} />
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: 1, color: headingColor }}>
+                  Community Collaboration Posts ({filteredPosts.length})
+                </span>
+              </div>
+            )}
             {filteredPosts.map(post => {
               const isUpvoted = upvotedIds.has(post.id);
               const upvoteCount = (post.metadata?.upvotes || 0) + (isUpvoted ? 1 : 0);
