@@ -6,6 +6,7 @@ import {
   addEvidenceItem,
   normalizeCapabilityName,
 } from "@/lib/intelligence/student-intelligence";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export interface EvidenceMarker {
   id: string;
@@ -24,13 +25,16 @@ export interface RepeatedGapAlert {
 
 export async function POST(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const {
       messages = [],
       jd = "",
       resume = "",
       bodyLanguage = null,
-      studentId = "student-demo",
+      studentId: reqStudentId,
     } = await req.json();
+
+    const studentId = auth?.user?.id || reqStudentId || "student-demo";
 
     const userMsgs = messages.filter((m: any) => m.role === "user");
     const n = userMsgs.length;

@@ -162,9 +162,11 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
 
   // 1. Fetch Student Profile
   const rawProfile = await getStudentProfile(candidateId);
-  const profile = rawProfile || (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE : null);
+  const profile = (candidateId === "student-demo")
+    ? (rawProfile || DEMO_STUDENT_PROFILE)
+    : rawProfile;
 
-  if (!profile) {
+  if (!profile || (!profile.skills?.length && !profile.past_projects?.length)) {
     const emptyDNA: StudentDNA = {
       candidate_id: candidateId,
       skills: [],

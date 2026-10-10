@@ -291,7 +291,22 @@ export default function AssessmentArenaPage() {
     });
 
     try {
-      const candidateId = localStorage.getItem("cognalyze_student_id") || "student-demo";
+      let candidateId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "" : "";
+      if (!candidateId) {
+        try {
+          const sRes = await fetch("/api/auth/session");
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            if (sData.authenticated && sData.user?.id) {
+              candidateId = sData.user.id;
+            }
+          }
+        } catch {}
+      }
+      if (!candidateId) {
+        candidateId = `guest_${Date.now()}`;
+      }
+
       const saved = await saveSession({
         candidate_id: candidateId,
         session_type: "assessment_arena",

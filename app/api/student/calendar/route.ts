@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 import {
   getApplicationsStore,
   getPersonalEvents,
@@ -96,9 +97,31 @@ function subtractDays(dateStr: string, days: number): string {
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
     const todayStr = new Date().toISOString().split("T")[0];
+
+    // Priority 1: Authenticated student context
+    // Priority 2: Explicit student-demo guest sandbox only if requested
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return NextResponse.json({
+        success: true,
+        candidate_id: "",
+        today: todayStr,
+        timezone: "Asia/Kolkata (IST)",
+        total_events: 0,
+        events: [],
+        next_7_days: [],
+        top_priority_item: null,
+        digest: {
+          date: todayStr,
+          count: 0,
+          events: []
+        }
+      });
+    }
 
     // 1. Fetch Student Profile for dynamic fit calculation
     const profile = await getStudentProfile(candidateId);

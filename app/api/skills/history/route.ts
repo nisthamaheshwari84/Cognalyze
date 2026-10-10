@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordCandidateAttempt, getCandidateAttempts, getCandidateDomainSummary } from "@/lib/skills/candidate-history";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || searchParams.get("candidateId") || "student-demo";
     const domain = searchParams.get("domain") || undefined;
 
     const attempts = getCandidateAttempts(candidateId, domain);
@@ -24,9 +26,10 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const body = await req.json();
+    const candidateId = auth?.user?.id || body.candidateId || "student-demo";
     const {
-      candidateId = "student-demo",
       domain,
       topic = "General Practice",
       mode = "practice",

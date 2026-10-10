@@ -5860,13 +5860,30 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
     // Continue to default
   }
 
-  // 4. Default student profile for any candidate ID so opportunities are never blocked
-  const fallbackProfile: StudentProfileData = {
-    ...DEMO_STUDENT_PROFILE,
-    candidate_id: candidateId
+  // 4. Default student profile: ONLY student-demo gets seed profile
+  if (candidateId === "student-demo") {
+    const fallbackProfile: StudentProfileData = {
+      ...DEMO_STUDENT_PROFILE,
+      candidate_id: candidateId
+    };
+    inMemoryProfiles.set(candidateId, fallbackProfile);
+    return fallbackProfile;
+  }
+
+  // Real registered candidates with no onboarded profile start with clean, isolated profile
+  const cleanProfile: StudentProfileData = {
+    candidate_id: candidateId,
+    skills: [],
+    past_projects: [],
+    target_roles: [],
+    target_companies_or_events: [],
+    availability: "Immediate",
+    risk_appetite: "Moderate",
+    profile_summary: "",
+    experience_level: "fresher"
   };
-  inMemoryProfiles.set(candidateId, fallbackProfile);
-  return fallbackProfile;
+  inMemoryProfiles.set(candidateId, cleanProfile);
+  return cleanProfile;
 }
 
 export async function upsertStudentProfile(profile: StudentProfileData): Promise<StudentProfileData> {
@@ -6474,7 +6491,7 @@ export async function dismissPersonalEvent(id: string): Promise<boolean> {
 }
 
 export async function getApplicationsStore(candidateId: string): Promise<ApplicationRecord[]> {
-  // 1. Try Supabase
+  // 1. Try Supabase with strict student_id scoping
   try {
     const { data, error } = await supabase
       .from("applications")
@@ -6486,7 +6503,8 @@ export async function getApplicationsStore(candidateId: string): Promise<Applica
         notes,
         deadline_reminder_at,
         updated_at
-      `);
+      `)
+      .eq("student_id", candidateId);
 
     if (data && !error && data.length > 0) {
       const enriched = await Promise.all(
@@ -6501,9 +6519,9 @@ export async function getApplicationsStore(candidateId: string): Promise<Applica
     // fall back
   }
 
-  // 2. Memory fallback & Auto-seed for newly onboarded students
+  // 2. Memory fallback: Only student-demo gets initial mock seed. Real users start with empty applications pipeline.
   let apps = inMemoryApplicationsStore.get(candidateId) || [];
-  if (apps.length === 0) {
+  if (apps.length === 0 && candidateId === "student-demo") {
     // Auto-seed Flipkart GRiD (Bookmarked), Walmart SDE Sprint (Applied), Walmart CodeHers (Bookmarked), and Tata Imagination
     const gridOpp = await getOpportunityById("opp-flipkart-grid");
     const walmartSdeOpp = await getOpportunityById("opp-walmart-sde-sprint");
@@ -6549,6 +6567,8 @@ export async function getApplicationsStore(candidateId: string): Promise<Applica
       }
     ];
     inMemoryApplicationsStore.set(candidateId, apps);
+  } else if (apps.length === 0) {
+    return [];
   } else {
     // Always refresh linked opportunity object to ensure zero date lag or stale cached deadlines
     apps = await Promise.all(

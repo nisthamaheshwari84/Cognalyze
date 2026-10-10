@@ -88,6 +88,9 @@ export function getLocalSessions(): InterviewSession[] {
 
 export async function getSessionHistory(candidateId?: string): Promise<InterviewSession[]> {
   const localList = getLocalSessions();
+  const filteredLocal = candidateId
+    ? localList.filter((s) => s.candidate_id === candidateId)
+    : localList;
 
   try {
     let query = supabase
@@ -102,10 +105,10 @@ export async function getSessionHistory(candidateId?: string): Promise<Interview
 
     const { data, error } = await query;
     if (!error && data && data.length > 0) {
-      // Merge with local sessions, removing duplicates
+      // Merge with local sessions scoped to this candidate, removing duplicates
       const seen = new Set<string>();
       const combined: InterviewSession[] = [];
-      for (const item of [...data, ...localList]) {
+      for (const item of [...data, ...filteredLocal]) {
         if (!seen.has(item.id)) {
           seen.add(item.id);
           combined.push(item);
@@ -119,10 +122,7 @@ export async function getSessionHistory(candidateId?: string): Promise<Interview
     console.warn("[interview-session-store] Could not load from Supabase, using local fallback:", e.message);
   }
 
-  if (candidateId) {
-    return localList.filter((s) => !s.candidate_id || s.candidate_id === candidateId);
-  }
-  return localList;
+  return filteredLocal;
 }
 
 export async function getAccumulatedWeakTopics(candidateId?: string): Promise<string[]> {

@@ -11,11 +11,13 @@ import {
   getCachedRecommendations
 } from "@/lib/placement-store";
 import { createNotification } from "@/lib/notifications";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-default";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : searchParams.get("candidateId") || "student-demo");
     const limitParam = searchParams.get("limit");
     const limit = limitParam && limitParam !== "all" ? parseInt(limitParam, 10) : undefined;
 
@@ -45,23 +47,20 @@ export async function GET(req: Request) {
 
     if (!fetchedProfile || !fetchedProfile.skills || fetchedProfile.skills.length === 0) {
       needsOnboarding = true;
-      fetchedProfile = await getStudentProfile("student-demo");
+      if (candidateId === "student-demo") {
+        fetchedProfile = await getStudentProfile("student-demo");
+      }
     }
 
     const activeProfile: StudentProfileData = fetchedProfile || {
       candidate_id: candidateId,
-      skills: [
-        { name: "Python", level: "Intermediate" },
-        { name: "React", level: "Intermediate" },
-        { name: "AI/ML", level: "Intermediate" },
-        { name: "Data Structures", level: "Advanced" }
-      ],
+      skills: [],
       past_projects: [],
-      target_roles: ["Software Engineer", "AI/ML Engineer"],
-      target_companies_or_events: ["Flipkart GRiD", "Google", "Smart India Hackathon"],
+      target_roles: ["Software Engineer"],
+      target_companies_or_events: [],
       availability: "Immediate",
       risk_appetite: "Moderate",
-      profile_summary: "Student interested in Software Engineering and AI/ML.",
+      profile_summary: "",
       experience_level: "fresher"
     };
 

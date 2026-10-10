@@ -191,11 +191,38 @@ export default function OpportunityDetailPage({
   const [teamInviteSent, setTeamInviteSent] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadOpportunity(stored);
-    loadApplicationStatus(stored);
-    loadStudentDNA(stored);
+    let isMounted = true;
+    async function initUser() {
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            const uid = sessionData.user.id;
+            if (isMounted) {
+              setCandidateId(uid);
+              loadOpportunity(uid);
+              loadApplicationStatus(uid);
+              loadStudentDNA(uid);
+            }
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Session check error:", e);
+      }
+      if (isMounted) {
+        const stored = (typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") : null) || "";
+        setCandidateId(stored);
+        loadOpportunity(stored);
+        if (stored) {
+          loadApplicationStatus(stored);
+          loadStudentDNA(stored);
+        }
+      }
+    }
+    initUser();
+    return () => { isMounted = false; };
   }, [opportunityId]);
 
   const loadStudentDNA = async (cId: string) => {

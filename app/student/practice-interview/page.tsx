@@ -82,14 +82,13 @@ function PracticeInterviewContent() {
 
   // Load student profile & target opportunity
   useEffect(() => {
-    const cId = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    fetch(`/api/student/onboarding?candidateId=${cId}`)
+    fetch("/api/student/profile")
       .then((res) => res.json())
       .then((data) => {
         if (data.profile) {
           setStudentProfile(data.profile);
-          if (data.profile.target_roles?.[0]) {
-            setRole(data.profile.target_roles[0]);
+          if (data.profile.targetRoles?.[0]) {
+            setRole(data.profile.targetRoles[0]);
           }
           if (data.profile.experience_level) {
             setExperienceMode(data.profile.experience_level);
@@ -321,7 +320,22 @@ function PracticeInterviewContent() {
 
   const handleEndAndSave = async () => {
     setEnded(true);
-    const candidateId = localStorage.getItem("cognalyze_student_id") || "student-demo";
+    let candidateId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "" : "";
+    if (!candidateId) {
+      try {
+        const sRes = await fetch("/api/auth/session");
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (sData.authenticated && sData.user?.id) {
+            candidateId = sData.user.id;
+          }
+        }
+      } catch {}
+    }
+    if (!candidateId) {
+      candidateId = `guest_${Date.now()}`;
+    }
+
     const distribution = sessionState?.answer_distribution || {
       strong: 0,
       adequate: 0,

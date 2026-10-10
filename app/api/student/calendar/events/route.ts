@@ -1,13 +1,23 @@
 import { NextResponse } from "next/server";
 import { createPersonalEvent } from "@/lib/placement-store";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function POST(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Unauthorized. Creating calendar events requires authentication." },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
-    const studentId = body.student_id || body.candidateId || "student-demo";
+    const studentId = auth.user.id;
     const title = body.title;
-    const eventDate = body.event_date;
-    const eventType = body.event_type || "practice_session";
+    const eventDate = body.event_date || body.date;
+    let eventType = body.event_type || "practice_session";
+    if (eventType === "interview") eventType = "practice_session";
     const notes = body.notes || "";
     const linkedOpportunityId = body.linked_opportunity_id || null;
 

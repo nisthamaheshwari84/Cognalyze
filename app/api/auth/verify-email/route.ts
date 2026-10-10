@@ -95,6 +95,11 @@ export async function POST(req: NextRequest) {
       success: true,
       email: user.email,
       accountType: user.accountType,
+      user: {
+        id: user.id,
+        email: user.email,
+        accountType: user.accountType,
+      },
       status: user.accountType === "student" ? "ACTIVE" : "ORGANIZATION_PENDING",
       nextUrl
     });

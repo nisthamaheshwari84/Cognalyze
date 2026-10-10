@@ -92,8 +92,13 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized. Updating applications requires authentication." }, { status: 401 });
+    }
+
+    const candidateId = auth.user.id;
     const body = await req.json();
-    const candidateId = body.candidateId || body.candidate_id || "student-demo";
     const appIdOrOppId = body.id || body.opportunityId || body.opportunity_id;
     const stage = body.stage;
     const notes = body.notes;
@@ -145,15 +150,19 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
+    if (!auth) {
+      return NextResponse.json({ error: "Unauthorized. Deleting applications requires authentication." }, { status: 401 });
+    }
+
+    const candidateId = auth.user.id;
     const { searchParams } = new URL(req.url);
-    let candidateId = searchParams.get("candidateId") || "student-demo";
     let targetId = searchParams.get("id") || searchParams.get("opportunityId");
 
     // Also check body if query params are missing
     if (!targetId) {
       try {
         const body = await req.json();
-        candidateId = body.candidateId || candidateId;
         targetId = body.id || body.opportunityId || body.opportunity_id;
       } catch {
         // no body

@@ -23,16 +23,39 @@ interface Metrics {
 }
 
 export default function CalendarHistoryPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [filter, setFilter] = useState<"all" | "hit" | "missed" | "completed">("all");
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadHistory(stored);
+    let isMounted = true;
+    async function init() {
+      let activeCId = "";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+          }
+        }
+      } catch (err) {
+        console.warn("Session check error in calendar history:", err);
+      }
+
+      if (!activeCId && typeof window !== "undefined") {
+        activeCId = localStorage.getItem("cognalyze_student_id") || "";
+      }
+
+      if (isMounted) {
+        setCandidateId(activeCId);
+        loadHistory(activeCId);
+      }
+    }
+    init();
+    return () => { isMounted = false; };
   }, []);
 
   const loadHistory = async (cId: string) => {

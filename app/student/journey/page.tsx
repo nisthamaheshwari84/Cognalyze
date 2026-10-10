@@ -35,9 +35,36 @@ export default function StudentJourneyPage() {
   const [askModalOpen, setAskModalOpen] = useState(false);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
-    setCandidateId(stored);
-    loadData(stored);
+    let isMounted = true;
+    async function init() {
+      let activeCId = "";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+          }
+        }
+      } catch (err) {
+        console.warn("Session check error in journey:", err);
+      }
+
+      if (!activeCId && typeof window !== "undefined") {
+        activeCId = localStorage.getItem("cognalyze_student_id") || "";
+      }
+
+      if (isMounted) {
+        setCandidateId(activeCId);
+        if (activeCId) {
+          loadData(activeCId);
+        } else {
+          setLoading(false);
+        }
+      }
+    }
+    init();
+    return () => { isMounted = false; };
   }, []);
 
   const loadData = async (cId: string) => {

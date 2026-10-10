@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { clearUserSessionStorage } from "@/lib/client-storage-cleanup";
 import {
   LayoutDashboard,
   GitPullRequest,
@@ -138,9 +139,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       if (typeof window !== "undefined") {
-        localStorage.removeItem("cognalyze_student_id");
-        localStorage.removeItem("cognalyze_role");
-        sessionStorage.clear();
+        clearUserSessionStorage();
       }
       setSession({ loading: false, authenticated: false });
       router.push("/");

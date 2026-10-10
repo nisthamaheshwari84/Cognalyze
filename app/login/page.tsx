@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { clearUserSessionStorage } from "@/lib/client-storage-cleanup";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
@@ -42,6 +43,10 @@ export default function LoginPage() {
           throw new Error("Please verify your email before signing in.");
         }
         throw new Error(data.error || "Incorrect email or password.");
+      }
+
+      if (data.user?.id) {
+        clearUserSessionStorage(data.user.id);
       }
 
       const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
@@ -67,6 +72,13 @@ export default function LoginPage() {
       if (!res.ok) {
         throw new Error(data.error || "Failed to switch role.");
       }
+
+      if (role === "student") {
+        clearUserSessionStorage("student-demo");
+      } else {
+        clearUserSessionStorage();
+      }
+
       const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
       window.location.href = redirectUrl || data.nextUrl || (role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
     } catch (err: any) {

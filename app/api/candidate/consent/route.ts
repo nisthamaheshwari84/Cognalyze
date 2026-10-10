@@ -5,11 +5,13 @@ import {
   listActiveConsentGrants,
   generatePassportShareableLink
 } from "@/lib/privacy/consent";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "default_candidate";
+    const candidateId = auth?.user?.id || searchParams.get("candidateId") || "default_candidate";
 
     const grants = await listActiveConsentGrants(candidateId);
     const shareableLink = generatePassportShareableLink(candidateId, false);
@@ -29,8 +31,10 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const body = await req.json();
-    const { candidateId, granteeOrgId, granteeOrgName, scopes, isAnonymous, durationDays } = body;
+    const candidateId = auth?.user?.id || body.candidateId;
+    const { granteeOrgId, granteeOrgName, scopes, isAnonymous, durationDays } = body;
 
     if (!candidateId || !granteeOrgId) {
       return NextResponse.json(

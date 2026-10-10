@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { clearUserSessionStorage } from "@/lib/client-storage-cleanup";
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -131,6 +132,10 @@ function VerifyEmailContent() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Incorrect verification code.");
+
+      if (data.user?.id) {
+        clearUserSessionStorage(data.user.id);
+      }
 
       setSuccess(true);
       setNextDestination(data.nextUrl || (accountType === "student" ? "/student/dashboard" : "/recruiter/organization/setup"));

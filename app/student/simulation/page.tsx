@@ -117,17 +117,16 @@ function SimulationContent() {
 
   // Load student profile if available
   useEffect(() => {
-    const cId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
-    fetch(`/api/student/onboarding?candidateId=${cId}`)
+    fetch("/api/student/profile")
       .then((res) => res.json())
       .then((data) => {
         if (data.profile) {
           setStudentProfile(data.profile);
-          if (data.profile.target_roles?.[0]) setTargetRole(data.profile.target_roles[0]);
+          if (data.profile.targetRoles?.[0]) setTargetRole(data.profile.targetRoles[0]);
           if (data.profile.skills?.length > 0) {
-            const skillStr = data.profile.skills.map((s: any) => s.name).join(", ");
-            const projStr = data.profile.past_projects?.map((p: any) => `${p.title} (${p.tech_stack?.join(", ") || ""})`).join("; ") || "Real-world payment pipeline";
-            setResumeText(`Candidate: Alex Rivera\nSkills: ${skillStr}\nProjects: ${projStr}\nTarget Role: ${data.profile.target_roles?.[0] || targetRole}`);
+            const skillStr = data.profile.skills.map((s: any) => s.name || s).join(", ");
+            const projStr = data.profile.projects?.map((p: any) => `${p.title} (${p.techStack?.join(", ") || ""})`).join("; ") || "";
+            setResumeText(`Candidate: ${data.profile.fullName || "Student"}\nSkills: ${skillStr}\nProjects: ${projStr}\nTarget Role: ${data.profile.targetRoles?.[0] || targetRole}`);
           }
         }
       })

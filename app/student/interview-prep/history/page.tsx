@@ -11,14 +11,34 @@ export default function InterviewPrepHistoryPage() {
   const [selectedFilter, setSelectedFilter] = useState<"all" | "mock_interview" | "assessment_arena">("all");
 
   useEffect(() => {
+    let isMounted = true;
     async function loadHistory() {
       setLoading(true);
-      const candidateId = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
-      const data = await getSessionHistory(candidateId);
-      setSessions(data);
-      setLoading(false);
+      let candidateId = "";
+      try {
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            candidateId = sessionData.user.id;
+          }
+        }
+      } catch (err) {
+        console.warn("Session check error in interview history:", err);
+      }
+
+      if (!candidateId && typeof window !== "undefined") {
+        candidateId = localStorage.getItem("cognalyze_student_id") || "";
+      }
+
+      const data = candidateId ? await getSessionHistory(candidateId) : [];
+      if (isMounted) {
+        setSessions(data);
+        setLoading(false);
+      }
     }
     loadHistory();
+    return () => { isMounted = false; };
   }, []);
 
   const filteredSessions = sessions.filter((s) => {

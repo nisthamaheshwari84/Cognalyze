@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 import {
   getApplicationsStore,
   getPersonalEvents,
@@ -9,8 +10,25 @@ import { computeMatchScore } from "@/lib/ai/placement-intelligence";
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return NextResponse.json({
+        success: true,
+        candidate_id: "",
+        today: new Date().toISOString().split("T")[0],
+        metrics: {
+          high_fit_passed_deadlines: 0,
+          high_fit_applied_before_deadline: 0,
+          percentage_applied_before_deadline: 100.0,
+          headline_stat: "No application history found."
+        },
+        history: []
+      });
+    }
+
     const todayStr = new Date().toISOString().split("T")[0];
 
     const profile = await getStudentProfile(candidateId);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
 import { ApplicationStage } from "@/lib/opportunities/types";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 /**
  * GET /api/opportunities/track
@@ -8,8 +9,17 @@ import { ApplicationStage } from "@/lib/opportunities/types";
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(request);
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get("studentId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("studentId") === "student-demo" ? "student-demo" : null);
+
+    if (!studentId) {
+      return NextResponse.json({
+        success: true,
+        applications: [],
+        saved: [],
+      });
+    }
 
     const applications = opportunityService.getStudentApplications(studentId);
     const savedMatches = await opportunityService.getSavedOpportunities(studentId);
@@ -34,8 +44,10 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(request);
     const body = await request.json();
-    const { studentId = "student-demo", opportunityId, action, stage, notes, outcomeReason, feedbackNotes } = body;
+    const studentId = auth?.user?.id || body.studentId || "student-demo";
+    const { opportunityId, action, stage, notes, outcomeReason, feedbackNotes } = body;
 
     if (!opportunityId) {
       return NextResponse.json(

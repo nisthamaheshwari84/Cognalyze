@@ -56,9 +56,11 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
   }
 
   const rawList: RawSourceData[] = [];
-  const profile = await getStudentProfile(userId) || (userId === "student-demo" ? DEMO_STUDENT_PROFILE : null);
+  const profile = (userId === "student-demo")
+    ? (await getStudentProfile(userId) || DEMO_STUDENT_PROFILE)
+    : await getStudentProfile(userId);
 
-  if (profile) {
+  if (profile && (profile.skills?.length > 0 || profile.past_projects?.length > 0)) {
     // 1. Resume / Profile Skills (Claimed)
     if (profile.skills) {
       profile.skills.forEach((s, idx) => {

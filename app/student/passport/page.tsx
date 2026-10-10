@@ -90,25 +90,50 @@ export default function StudentPassportPage() {
   ]);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") || "student-demo" : "student-demo";
-    setCandidateId(stored);
-
+    let isMounted = true;
     async function loadConsent() {
+      let activeCId = "";
       try {
-        const res = await fetch(`/api/candidate/consent?candidateId=${stored}`);
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.authenticated && sessionData.user?.id) {
+            activeCId = sessionData.user.id;
+          }
+        }
+      } catch (err) {
+        console.warn("Session check error in passport:", err);
+      }
+
+      if (!activeCId && typeof window !== "undefined") {
+        activeCId = localStorage.getItem("cognalyze_student_id") || "";
+      }
+
+      if (isMounted) {
+        setCandidateId(activeCId);
+      }
+
+      if (!activeCId) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/candidate/consent?candidateId=${activeCId}`);
         const data = await res.json();
-        if (data.success) {
-          setShareableLink(data.shareableLink || window.location.origin + `/passport/share/${stored}`);
-          setAnonymousLink(data.anonymousLink || window.location.origin + `/passport/share/${stored}?anon=true`);
+        if (data.success && isMounted) {
+          setShareableLink(data.shareableLink || window.location.origin + `/passport/share/${activeCId}`);
+          setAnonymousLink(data.anonymousLink || window.location.origin + `/passport/share/${activeCId}?anon=true`);
           setActiveGrants(data.grants || []);
         }
       } catch (err) {
         console.error("Failed to load passport consent:", err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
     loadConsent();
+    return () => { isMounted = false; };
   }, []);
 
   const copyToClipboard = (text: string, label: string) => {
