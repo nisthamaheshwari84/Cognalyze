@@ -7,13 +7,37 @@ import type { FullStudentDNAResponse } from "@/lib/dna/store";
 import type { StudentSkill } from "@/lib/dna/profile-engine";
 import type { SkillGapItem, GapStatus } from "@/lib/dna/gap-engine";
 import type { DNAEvidence } from "@/lib/dna/evidence-pipeline";
-import { CheckCircle2, AlertTriangle, HelpCircle, ArrowRight, ExternalLink, RefreshCw, Layers, ShieldCheck, GitBranch, Terminal, Award, FolderGit2 } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  ArrowRight,
+  ExternalLink,
+  RefreshCw,
+  Layers,
+  ShieldCheck,
+  GitBranch,
+  Terminal,
+  Award,
+  FolderGit2,
+  Briefcase,
+  Bookmark,
+  Sparkles,
+  Clock,
+  Compass,
+  Search,
+  Building2,
+  MapPin,
+  TrendingUp,
+  Check,
+  X
+} from "lucide-react";
 
 export default function StudentDNAPage() {
   const [candidateId, setCandidateId] = useState("student-demo");
   const [dnaData, setDnaData] = useState<FullStudentDNAResponse | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"snapshot" | "capabilities" | "gap_studio" | "evidence_vault" | "audit">("snapshot");
+  const [activeTab, setActiveTab] = useState<"snapshot" | "capabilities" | "gap_studio" | "evidence_vault" | "audit" | "opportunity_intelligence">("snapshot");
 
   // Selected skill for the interactive "Why?" Modal
   const [selectedWhySkill, setSelectedWhySkill] = useState<StudentSkill | null>(null);
@@ -31,9 +55,86 @@ export default function StudentDNAPage() {
   // Evidence Vault Filter
   const [vaultSourceFilter, setVaultSourceFilter] = useState<string>("ALL");
 
+  // Opportunity Intelligence State
+  const [oppsData, setOppsData] = useState<any | null>(null);
+  const [oppsLoading, setOppsLoading] = useState(false);
+  const [oppCategoryTab, setOppCategoryTab] = useState<
+    "recommended" | "jobs" | "hackathons" | "research" | "freelance" | "other" | "saved" | "tracker"
+  >("recommended");
+  const [oppSearch, setOppSearch] = useState("");
+  const [oppModeFilter, setOppModeFilter] = useState("ALL");
+  const [oppMatchFilter, setOppMatchFilter] = useState("ALL");
+  const [selectedWhyOpp, setSelectedWhyOpp] = useState<any | null>(null);
+  const [selectedImproveFitOpp, setSelectedImproveFitOpp] = useState<any | null>(null);
+  const [savingOppId, setSavingOppId] = useState<string | null>(null);
+
   useEffect(() => {
     loadDNA();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "opportunity_intelligence" && !oppsData) {
+      loadOpportunities();
+    }
+  }, [activeTab]);
+
+  const loadOpportunities = async () => {
+    setOppsLoading(true);
+    try {
+      const res = await fetch("/api/student-dna/opportunities");
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setOppsData(json);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load personalized opportunities:", err);
+    } finally {
+      setOppsLoading(false);
+    }
+  };
+
+  const handleToggleSaveOpp = async (oppId: string, currentSaved: boolean) => {
+    setSavingOppId(oppId);
+    try {
+      const res = await fetch("/api/student-dna/opportunities/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          opportunityId: oppId,
+          action: currentSaved ? "UNSAVE" : "SAVE",
+        }),
+      });
+      if (res.ok) {
+        await loadOpportunities();
+      }
+    } catch (e) {
+      console.error("Error updating saved status:", e);
+    } finally {
+      setSavingOppId(null);
+    }
+  };
+
+  const handleUpdateStage = async (oppId: string, stage: string, notes?: string) => {
+    try {
+      const res = await fetch("/api/student-dna/opportunities/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          opportunityId: oppId,
+          action: "UPDATE_STAGE",
+          stage,
+          notes,
+        }),
+      });
+      if (res.ok) {
+        await loadOpportunities();
+      }
+    } catch (e) {
+      console.error("Error updating application stage:", e);
+    }
+  };
 
   const loadDNA = async () => {
     setLoading(true);
@@ -144,6 +245,66 @@ export default function StudentDNAPage() {
     }
   };
 
+  const getVerificationStateBadge = (state: string) => {
+    switch (state) {
+      case "VERIFIED":
+        return { color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", label: "VERIFIED" };
+      case "DEMONSTRATED":
+        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", label: "DEMONSTRATED" };
+      case "DEVELOPING":
+        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", label: "DEVELOPING" };
+      case "EVIDENCE_FOUND":
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "EVIDENCE FOUND" };
+      case "CLAIMED":
+        return { color: "#B7791F", bg: "#FEF8EC", border: "#F9E4B7", label: "CLAIMED" };
+      case "GAP":
+        return { color: "#C24141", bg: "#FDF2F2", border: "#F8D7DA", label: "GAP" };
+      case "REPEATED_GAP":
+        return { color: "#C24141", bg: "#FDF2F2", border: "#F8D7DA", label: "REPEATED GAP" };
+      case "EVIDENCE_MISMATCH":
+        return { color: "#B7791F", bg: "#FEF8EC", border: "#F9E4B7", label: "EVIDENCE MISMATCH" };
+      case "STALE_EVIDENCE":
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "STALE EVIDENCE" };
+      case "UNKNOWN":
+      default:
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "UNKNOWN" };
+    }
+  };
+
+  const getFreshnessBadge = (state: string) => {
+    switch (state) {
+      case "OPEN — VERIFIED":
+        return { color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", label: "OPEN — VERIFIED" };
+      case "RECENTLY CHECKED":
+        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", label: "RECENTLY CHECKED" };
+      case "CLOSING SOON":
+        return { color: "#B7791F", bg: "#FEF8EC", border: "#F9E4B7", label: "CLOSING SOON" };
+      case "STATUS UNCERTAIN":
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "STATUS UNCERTAIN" };
+      case "CLOSED / EXPIRED":
+        return { color: "#C24141", bg: "#FDF2F2", border: "#F8D7DA", label: "CLOSED / EXPIRED" };
+      case "SOURCE UNAVAILABLE":
+      default:
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "SOURCE UNAVAILABLE" };
+    }
+  };
+
+  const getMatchCategoryBadge = (category: string) => {
+    switch (category) {
+      case "STRONG MATCH":
+        return { color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3" };
+      case "POTENTIAL MATCH":
+        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB" };
+      case "STRETCH OPPORTUNITY":
+        return { color: "#8E44AD", bg: "#F4ECF7", border: "#D7BDE2" };
+      case "ELIGIBILITY CONCERN":
+        return { color: "#C24141", bg: "#FDF2F2", border: "#F8D7DA" };
+      case "INSUFFICIENT INFORMATION":
+      default:
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA" };
+    }
+  };
+
   const snapshot = dnaData?.snapshot;
   const skills = dnaData?.skills || [];
   const gapReport = dnaData?.gapReport;
@@ -199,6 +360,7 @@ export default function StudentDNAPage() {
               { key: "gap_studio", label: "Target Role & Gap Studio" },
               { key: "evidence_vault", label: "Evidence Vault" },
               { key: "audit", label: "Audit Trail" },
+              { key: "opportunity_intelligence", label: "Opportunity Intelligence" },
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -785,6 +947,7 @@ export default function StudentDNAPage() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
                   {catSkills.map((skill) => {
                     const badge = getStudentLabelBadge(skill.studentFacingLabel);
+                    const vBadge = getVerificationStateBadge(skill.verificationState || "UNKNOWN");
                     return (
                       <div
                         key={skill.skillId}
@@ -804,25 +967,62 @@ export default function StudentDNAPage() {
                             <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43" }}>
                               {skill.skillName}
                             </div>
-                            <span
-                              style={{
-                                fontSize: 10,
-                                fontWeight: 600,
-                                color: badge.color,
-                                backgroundColor: badge.bg,
-                                border: `1px solid ${badge.border}`,
-                                padding: "2px 7px",
-                                borderRadius: 5,
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {skill.studentFacingLabel}
-                            </span>
+                            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                              <span
+                                style={{
+                                  fontSize: 9,
+                                  fontWeight: 700,
+                                  color: vBadge.color,
+                                  backgroundColor: vBadge.bg,
+                                  border: `1px solid ${vBadge.border}`,
+                                  padding: "2px 6px",
+                                  borderRadius: 4,
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {skill.verificationState || "UNKNOWN"}
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 600,
+                                  color: badge.color,
+                                  backgroundColor: badge.bg,
+                                  border: `1px solid ${badge.border}`,
+                                  padding: "2px 7px",
+                                  borderRadius: 5,
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {skill.studentFacingLabel}
+                              </span>
+                            </div>
                           </div>
 
-                          <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>
-                            {skill.estimatedLevel === 0 ? "Not enough evidence yet" : `${skill.levelLabel} • Coverage: ${skill.evidenceCoverage}`}
+                          {/* CANONICAL SEPARATED DIMENSIONS */}
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, margin: "8px 0 6px", fontSize: 11, background: "#FFFFFF", padding: "6px 8px", borderRadius: 6, border: "1px solid #EFECE6" }}>
+                            <div>
+                              <span style={{ color: "#667085" }}>Claimed:</span>{" "}
+                              <strong style={{ color: "#162A43" }}>{skill.selfReportedLevel || "None"}</strong>
+                            </div>
+                            <div>
+                              <span style={{ color: "#667085" }}>Demonstrated:</span>{" "}
+                              <strong style={{ color: skill.demonstratedLevel > 0 ? "#2E7D5B" : "#667085" }}>
+                                {skill.demonstratedLevel > 0 ? `Lvl ${skill.demonstratedLevel}/5` : "Unproven"}
+                              </strong>
+                            </div>
                           </div>
+
+                          <div style={{ fontSize: 11, color: "#667085", display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+                            <span>Coverage: <strong style={{ color: "#162A43" }}>{skill.evidenceCoverage}</strong></span>
+                            <span>Recency: <strong style={{ color: "#162A43" }}>{skill.recency || "RECENT"}</strong></span>
+                          </div>
+
+                          {skill.remainingUncertainty && (
+                            <div style={{ fontSize: 11, color: "#667085", fontStyle: "italic", marginTop: 6, lineHeight: 1.3 }}>
+                              Limitation: {skill.remainingUncertainty}
+                            </div>
+                          )}
 
                           {skill.contradiction && (
                             <div style={{ fontSize: 11, color: "#B7791F", backgroundColor: "#FEF8EC", padding: "6px 8px", borderRadius: 5, marginTop: 8, border: "1px solid #F9E4B7" }}>
@@ -1338,10 +1538,640 @@ export default function StudentDNAPage() {
             </div>
           </div>
         )}
+
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* VIEW 6 — PERSONALIZED OPPORTUNITY INTELLIGENCE             */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeTab === "opportunity_intelligence" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {/* HERO / INTRO */}
+            <div
+              style={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 10,
+                padding: "24px 28px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+                gap: 16,
+              }}
+            >
+              <div style={{ maxWidth: 740 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      color: "#356AE6",
+                      background: "#EFF4FE",
+                      border: "1px solid #D2E0FB",
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                    }}
+                  >
+                    DNA Intelligence Engine
+                  </span>
+                  <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 4 }}>
+                    <ShieldCheck size={13} /> Strict Account Isolation Active
+                  </span>
+                </div>
+                <h1 style={{ fontSize: 22, fontWeight: 700, color: "#162A43", margin: 0 }}>
+                  Personalized Opportunity Intelligence
+                </h1>
+                <p style={{ fontSize: 13, color: "#667085", margin: "6px 0 0", lineHeight: 1.5 }}>
+                  Discover jobs, internships, hackathons, fellowships, research opportunities, and open projects strictly evaluated against your verified Student DNA. Every recommendation includes factual proof citations and honest limitations.
+                </p>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <button
+                  onClick={loadOpportunities}
+                  disabled={oppsLoading}
+                  style={{
+                    background: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    color: "#162A43",
+                    padding: "7px 12px",
+                    borderRadius: 7,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <RefreshCw size={13} className={oppsLoading ? "animate-spin" : ""} />
+                  {oppsLoading ? "Refreshing..." : "Sync Intelligence"}
+                </button>
+              </div>
+            </div>
+
+            {/* KPI METRIC CARDS */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 12 }}>
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase" }}>Strong Matches</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                  {oppsData?.stats?.strongMatchCount || 0}
+                </div>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>High DNA requirement alignment</div>
+              </div>
+
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase" }}>Potential Matches</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                  {oppsData?.stats?.potentialMatchCount || 0}
+                </div>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Partial evidence or developing fit</div>
+              </div>
+
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8E44AD", textTransform: "uppercase" }}>Saved Opportunities</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                  {oppsData?.stats?.savedCount || 0}
+                </div>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Private to your student account</div>
+              </div>
+
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase" }}>In Application Tracker</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                  {oppsData?.stats?.appliedCount || 0}
+                </div>
+                <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Tracked lifecycle stages</div>
+              </div>
+            </div>
+
+            {/* CATEGORY SUB-NAV TABS */}
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                borderBottom: "1px solid #E4E1DA",
+                paddingBottom: 10,
+              }}
+            >
+              {[
+                { key: "recommended", label: "Recommended for You" },
+                { key: "jobs", label: "Jobs & Internships" },
+                { key: "hackathons", label: "Hackathons & Fellowships" },
+                { key: "research", label: "Research Programs" },
+                { key: "freelance", label: "Freelance & Projects" },
+                { key: "other", label: "Explore Other Fields" },
+                { key: "saved", label: `Saved (${oppsData?.stats?.savedCount || 0})` },
+                { key: "tracker", label: `Application Tracker (${oppsData?.buckets?.trackedApplications?.length || 0})` },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setOppCategoryTab(tab.key as any)}
+                  style={{
+                    background: oppCategoryTab === tab.key ? "#162A43" : "#FFFFFF",
+                    border: `1px solid ${oppCategoryTab === tab.key ? "#162A43" : "#E4E1DA"}`,
+                    color: oppCategoryTab === tab.key ? "#FFFFFF" : "#162A43",
+                    padding: "7px 14px",
+                    borderRadius: 7,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* SEARCH & FILTER BAR (FOR NON-TRACKER TABS) */}
+            {oppCategoryTab !== "tracker" && (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                  backgroundColor: "#FFFFFF",
+                  padding: "10px 14px",
+                  borderRadius: 8,
+                  border: "1px solid #E4E1DA",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 220 }}>
+                  <Search size={14} color="#667085" />
+                  <input
+                    type="text"
+                    value={oppSearch}
+                    onChange={(e) => setOppSearch(e.target.value)}
+                    placeholder="Search by title, organization, or skill..."
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: 13,
+                      width: "100%",
+                      color: "#162A43",
+                      background: "transparent",
+                    }}
+                  />
+                  {oppSearch && (
+                    <button
+                      onClick={() => setOppSearch("")}
+                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "#667085" }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <select
+                    value={oppModeFilter}
+                    onChange={(e) => setOppModeFilter(e.target.value)}
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #E4E1DA",
+                      fontSize: 12,
+                      color: "#162A43",
+                      background: "#FFFFFF",
+                    }}
+                  >
+                    <option value="ALL">All Work Modes</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Onsite">Onsite</option>
+                  </select>
+
+                  <select
+                    value={oppMatchFilter}
+                    onChange={(e) => setOppMatchFilter(e.target.value)}
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #E4E1DA",
+                      fontSize: 12,
+                      color: "#162A43",
+                      background: "#FFFFFF",
+                    }}
+                  >
+                    <option value="ALL">All Match Categories</option>
+                    <option value="STRONG MATCH">Strong Match</option>
+                    <option value="POTENTIAL MATCH">Potential Match</option>
+                    <option value="STRETCH OPPORTUNITY">Stretch Opportunity</option>
+                    <option value="ELIGIBILITY CONCERN">Eligibility Concern</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* MAIN CONTENT: OPPORTUNITY CARDS OR APPLICATION TRACKER */}
+            {oppsLoading && !oppsData ? (
+              <div style={{ textAlign: "center", padding: "60px 0", color: "#667085" }}>
+                <RefreshCw size={24} className="animate-spin" style={{ margin: "0 auto 12px" }} />
+                <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43" }}>
+                  Evaluating multi-source catalog against Student DNA...
+                </div>
+              </div>
+            ) : oppCategoryTab === "tracker" ? (
+              /* APPLICATION TRACKER VIEW */
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div
+                  style={{
+                    backgroundColor: "#FFFFFF",
+                    border: "1px solid #E4E1DA",
+                    borderRadius: 10,
+                    padding: "16px 20px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 700, color: "#162A43", margin: 0 }}>
+                        Private Application Tracker
+                      </h3>
+                      <p style={{ fontSize: 12, color: "#667085", margin: "2px 0 0" }}>
+                        Manage direct or external applications. Status changes are strictly isolated to your account.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {(oppsData?.buckets?.trackedApplications || []).map((app: any) => (
+                      <div
+                        key={app.id}
+                        style={{
+                          backgroundColor: "#FAF9F6",
+                          border: "1px solid #E4E1DA",
+                          borderRadius: 8,
+                          padding: "12px 16px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          flexWrap: "wrap",
+                          gap: 10,
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>
+                            {app.opportunityTitle}
+                          </div>
+                          <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                            {app.organization} • Saved on {new Date(app.savedAt).toLocaleDateString()}
+                            {app.appliedAt ? ` • Applied on ${new Date(app.appliedAt).toLocaleDateString()}` : ""}
+                          </div>
+                          {app.notes && (
+                            <div style={{ fontSize: 11, color: "#356AE6", marginTop: 4 }}>
+                              Note: {app.notes}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: "#667085" }}>Stage:</span>
+                          <select
+                            value={app.stage}
+                            onChange={(e) => handleUpdateStage(app.opportunityId, e.target.value)}
+                            style={{
+                              padding: "5px 10px",
+                              borderRadius: 6,
+                              border: "1px solid #D2E0FB",
+                              backgroundColor: "#EFF4FE",
+                              color: "#356AE6",
+                              fontSize: 12,
+                              fontWeight: 700,
+                            }}
+                          >
+                            <option value="SAVED">SAVED</option>
+                            <option value="PLANNED">PLANNED</option>
+                            <option value="APPLIED">APPLIED</option>
+                            <option value="ASSESSMENT">ASSESSMENT</option>
+                            <option value="INTERVIEW">INTERVIEW</option>
+                            <option value="OFFER">OFFER</option>
+                            <option value="REJECTED">REJECTED</option>
+                            <option value="WITHDRAWN">WITHDRAWN</option>
+                            <option value="CLOSED">CLOSED</option>
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+
+                    {(!oppsData?.buckets?.trackedApplications || oppsData.buckets.trackedApplications.length === 0) && (
+                      <div style={{ textAlign: "center", padding: "36px 0", color: "#667085", fontSize: 13 }}>
+                        No tracked applications yet. Click "Save Opportunity" or transition any recommended role to track it here.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* OPPORTUNITY CARDS GRID */
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {(() => {
+                  let list: any[] = [];
+                  if (oppCategoryTab === "recommended") list = oppsData?.buckets?.recommendedForYou || [];
+                  else if (oppCategoryTab === "jobs") list = oppsData?.buckets?.jobsAndInternships || [];
+                  else if (oppCategoryTab === "hackathons") list = oppsData?.buckets?.hackathonsAndFellowships || [];
+                  else if (oppCategoryTab === "research") list = oppsData?.buckets?.researchOpportunities || [];
+                  else if (oppCategoryTab === "freelance") list = oppsData?.buckets?.freelanceAndProjects || [];
+                  else if (oppCategoryTab === "other") list = oppsData?.buckets?.otherFields || [];
+                  else if (oppCategoryTab === "saved") list = oppsData?.buckets?.savedOpportunities || [];
+
+                  if (oppSearch.trim()) {
+                    const q = oppSearch.toLowerCase();
+                    list = list.filter((i) =>
+                      i.opportunity.title.toLowerCase().includes(q) ||
+                      i.opportunity.organization.toLowerCase().includes(q) ||
+                      i.opportunity.requiredSkills.some((s: string) => s.toLowerCase().includes(q))
+                    );
+                  }
+                  if (oppModeFilter !== "ALL") {
+                    list = list.filter((i) => i.opportunity.workMode === oppModeFilter);
+                  }
+                  if (oppMatchFilter !== "ALL") {
+                    list = list.filter((i) => i.evaluation.matchCategory === oppMatchFilter);
+                  }
+
+                  if (list.length === 0) {
+                    return (
+                      <div
+                        style={{
+                          backgroundColor: "#FFFFFF",
+                          border: "1px solid #E4E1DA",
+                          borderRadius: 10,
+                          padding: "48px 24px",
+                          textAlign: "center",
+                          color: "#667085",
+                        }}
+                      >
+                        <Compass size={32} style={{ margin: "0 auto 12px", color: "#98A2B3" }} />
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#162A43" }}>
+                          No opportunities matching these criteria
+                        </div>
+                        <div style={{ fontSize: 13, marginTop: 4 }}>
+                          Try clearing filters or checking other categories.
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: 16 }}>
+                      {list.map((item) => {
+                        const opp = item.opportunity;
+                        const ev = item.evaluation;
+                        const fBadge = getFreshnessBadge(opp.freshnessState);
+                        const mBadge = getMatchCategoryBadge(ev.matchCategory);
+
+                        return (
+                          <div
+                            key={opp.id}
+                            style={{
+                              backgroundColor: "#FFFFFF",
+                              border: "1px solid #E4E1DA",
+                              borderRadius: 10,
+                              padding: "20px 22px",
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
+                              gap: 14,
+                              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.02)",
+                            }}
+                          >
+                            <div>
+                              {/* CARD HEADER: ORG & BADGES */}
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+                                <div>
+                                  <div style={{ fontSize: 12, fontWeight: 700, color: "#356AE6" }}>
+                                    {opp.organization} <span style={{ color: "#98A2B3", fontWeight: 400 }}>• [{opp.sourceName}]</span>
+                                  </div>
+                                  <h3 style={{ fontSize: 16, fontWeight: 700, color: "#162A43", margin: "3px 0 0" }}>
+                                    {opp.title}
+                                  </h3>
+                                </div>
+
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                                  <span
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      color: fBadge.color,
+                                      backgroundColor: fBadge.bg,
+                                      border: `1px solid ${fBadge.border}`,
+                                      padding: "2px 7px",
+                                      borderRadius: 4,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {fBadge.label}
+                                  </span>
+                                  <span
+                                    style={{
+                                      fontSize: 10,
+                                      fontWeight: 700,
+                                      color: mBadge.color,
+                                      backgroundColor: mBadge.bg,
+                                      border: `1px solid ${mBadge.border}`,
+                                      padding: "2px 7px",
+                                      borderRadius: 4,
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {ev.matchCategory} ({ev.dnaAlignmentScore}%)
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* METADATA ROW */}
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, fontSize: 11, color: "#667085", marginBottom: 12 }}>
+                                <span>📍 {opp.location} ({opp.workMode})</span>
+                                <span>💼 {opp.experienceLevel}</span>
+                                {opp.compensation ? (
+                                  <span style={{ color: "#2E7D5B", fontWeight: 600 }}>💰 {opp.compensation}</span>
+                                ) : (
+                                  <span>💰 Compensation Undisclosed</span>
+                                )}
+                                <span>📅 {opp.deadline ? `Deadline: ${opp.deadline}` : "Rolling"}</span>
+                              </div>
+
+                              {/* GROUNDED EVIDENCE-BACKED WHY */}
+                              <div
+                                style={{
+                                  backgroundColor: "#FAF9F6",
+                                  border: "1px solid #E4E1DA",
+                                  borderRadius: 7,
+                                  padding: "10px 12px",
+                                  fontSize: 12,
+                                  color: "#162A43",
+                                  lineHeight: 1.45,
+                                  marginBottom: 12,
+                                }}
+                              >
+                                <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#667085", marginBottom: 4 }}>
+                                  Why Recommended (Grounded in DNA):
+                                </div>
+                                {ev.evidenceBackedWhy}
+                              </div>
+
+                              {/* SATISFIED MUST-HAVES */}
+                              {ev.satisfiedMustHaves.length > 0 && (
+                                <div style={{ marginBottom: 10 }}>
+                                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#2E7D5B", marginBottom: 4 }}>
+                                    ✓ Satisfied Must-Haves:
+                                  </div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                    {ev.satisfiedMustHaves.map((m: any) => (
+                                      <span
+                                        key={m.skill}
+                                        style={{
+                                          fontSize: 11,
+                                          fontWeight: 600,
+                                          color: "#2E7D5B",
+                                          backgroundColor: "#EAF4EE",
+                                          border: "1px solid #C8E4D3",
+                                          padding: "2px 7px",
+                                          borderRadius: 5,
+                                        }}
+                                        title={m.evidenceSnippet}
+                                      >
+                                        ✓ {m.skill}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* UNCERTAIN OR MISSING REQUIREMENTS */}
+                              {ev.uncertainRequirements.length > 0 && (
+                                <div style={{ marginBottom: 8 }}>
+                                  <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#B7791F", marginBottom: 4 }}>
+                                    ⚠ Uncertain / Missing Requirements:
+                                  </div>
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                    {ev.uncertainRequirements.map((u: any) => (
+                                      <span
+                                        key={u.skill}
+                                        style={{
+                                          fontSize: 11,
+                                          color: "#B7791F",
+                                          backgroundColor: "#FEF8EC",
+                                          border: "1px solid #F9E4B7",
+                                          padding: "2px 7px",
+                                          borderRadius: 5,
+                                        }}
+                                        title={u.reason}
+                                      >
+                                        ○ {u.skill}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* CARD ACTION BUTTONS */}
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                borderTop: "1px solid #E4E1DA",
+                                paddingTop: 12,
+                                flexWrap: "wrap",
+                                gap: 8,
+                              }}
+                            >
+                              <div style={{ display: "flex", gap: 8 }}>
+                                <button
+                                  onClick={() => setSelectedWhyOpp(item)}
+                                  style={{
+                                    background: "#EFF4FE",
+                                    border: "1px solid #D2E0FB",
+                                    color: "#356AE6",
+                                    padding: "5px 10px",
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Why This?
+                                </button>
+                                <button
+                                  onClick={() => setSelectedImproveFitOpp(item)}
+                                  style={{
+                                    background: "#FAF9F6",
+                                    border: "1px solid #E4E1DA",
+                                    color: "#162A43",
+                                    padding: "5px 10px",
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Improve My Fit
+                                </button>
+                              </div>
+
+                              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                                <button
+                                  onClick={() => handleToggleSaveOpp(opp.id, item.isSaved)}
+                                  disabled={savingOppId === opp.id}
+                                  style={{
+                                    background: item.isSaved ? "#EFF4FE" : "#FFFFFF",
+                                    border: `1px solid ${item.isSaved ? "#356AE6" : "#E4E1DA"}`,
+                                    color: item.isSaved ? "#356AE6" : "#667085",
+                                    padding: "5px 10px",
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                  }}
+                                >
+                                  <Bookmark size={12} fill={item.isSaved ? "#356AE6" : "none"} />
+                                  {item.isSaved ? "Saved" : "Save"}
+                                </button>
+
+                                <a
+                                  href={opp.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    background: "#162A43",
+                                    color: "#FFFFFF",
+                                    padding: "6px 12px",
+                                    borderRadius: 6,
+                                    fontSize: 11,
+                                    fontWeight: 600,
+                                    textDecoration: "none",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 4,
+                                  }}
+                                >
+                                  Apply Now <ExternalLink size={11} />
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* ══════════════════════════════════════════════════════════ */}
-      {/* INTERACTIVE "WHY?" EXPLANATION MODAL                       */}
+      {/* INTERACTIVE "WHY?" EXPLANATION MODAL (SKILL & GAP)         */}
       {/* ══════════════════════════════════════════════════════════ */}
       {(selectedWhySkill || selectedWhyGap) && (
         <div
@@ -1437,18 +2267,26 @@ export default function StudentDNAPage() {
               )}
             </div>
 
-            {/* LEVEL & COVERAGE STATS */}
+            {/* CANONICAL LEVEL & SEPARATED DIMENSIONS */}
             {selectedWhySkill && (
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 12 }}>
                 <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
-                  <div style={{ color: "#667085" }}>Evidence Coverage</div>
-                  <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhySkill.evidenceCoverage}</div>
+                  <div style={{ color: "#667085" }}>Claimed Level</div>
+                  <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhySkill.selfReportedLevel || "Not claimed"}</div>
                 </div>
                 <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
-                  <div style={{ color: "#667085" }}>Last Demonstrated</div>
-                  <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>
-                    {selectedWhySkill.lastDemonstratedAt ? new Date(selectedWhySkill.lastDemonstratedAt).toLocaleDateString() : "Pending demonstration"}
+                  <div style={{ color: "#667085" }}>Demonstrated Level</div>
+                  <div style={{ fontWeight: 700, color: selectedWhySkill.demonstratedLevel > 0 ? "#2E7D5B" : "#667085", marginTop: 2 }}>
+                    {selectedWhySkill.demonstratedLevel > 0 ? `Level ${selectedWhySkill.demonstratedLevel} / 5` : "Pending Demonstration"}
                   </div>
+                </div>
+                <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                  <div style={{ color: "#667085" }}>Verification State</div>
+                  <div style={{ fontWeight: 700, color: "#356AE6", marginTop: 2 }}>{selectedWhySkill.verificationState}</div>
+                </div>
+                <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                  <div style={{ color: "#667085" }}>Evidence Recency</div>
+                  <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhySkill.recency || "RECENT"}</div>
                 </div>
               </div>
             )}
@@ -1489,6 +2327,262 @@ export default function StudentDNAPage() {
                   {selectedWhyGap.actionRecommendation.ctaLabel}
                 </Link>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* "WHY THIS OPPORTUNITY?" MODAL                              */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {selectedWhyOpp && (
+        <div
+          onClick={() => setSelectedWhyOpp(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(22, 42, 67, 0.45)",
+            backdropFilter: "blur(4px)",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
+              maxWidth: 600,
+              width: "100%",
+              padding: "24px 28px",
+              boxShadow: "0 16px 32px rgba(22, 42, 67, 0.12)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              maxHeight: "88vh",
+              overflowY: "auto",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", color: "#667085" }}>
+                  OPPORTUNITY MATCH REASONING
+                </div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "4px 0 0" }}>
+                  {selectedWhyOpp.opportunity.title}
+                </h3>
+                <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                  {selectedWhyOpp.opportunity.organization} • Source: {selectedWhyOpp.opportunity.sourceName}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedWhyOpp(null)}
+                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 18, cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ backgroundColor: "#FAF9F6", padding: "14px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "#356AE6", marginBottom: 4 }}>
+                DNA Alignment Explanation:
+              </div>
+              <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5 }}>
+                {selectedWhyOpp.evaluation.evidenceBackedWhy}
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, fontSize: 12 }}>
+              <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                <div style={{ color: "#667085" }}>Match Category</div>
+                <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhyOpp.evaluation.matchCategory}</div>
+              </div>
+              <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                <div style={{ color: "#667085" }}>DNA Alignment Score</div>
+                <div style={{ fontWeight: 700, color: "#2E7D5B", marginTop: 2 }}>{selectedWhyOpp.evaluation.dnaAlignmentScore}%</div>
+              </div>
+              <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                <div style={{ color: "#667085" }}>Eligibility Assessment</div>
+                <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhyOpp.evaluation.eligibilityStatus}</div>
+              </div>
+              <div style={{ backgroundColor: "#F6F5F1", padding: "10px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
+                <div style={{ color: "#667085" }}>Listing Freshness</div>
+                <div style={{ fontWeight: 700, color: "#162A43", marginTop: 2 }}>{selectedWhyOpp.opportunity.freshnessState}</div>
+              </div>
+            </div>
+
+            {selectedWhyOpp.evaluation.satisfiedMustHaves.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#2E7D5B", marginBottom: 6 }}>
+                  Verified Must-Have Evidence:
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {selectedWhyOpp.evaluation.satisfiedMustHaves.map((m: any) => (
+                    <div key={m.skill} style={{ fontSize: 12, background: "#EAF4EE", border: "1px solid #C8E4D3", borderRadius: 6, padding: "6px 10px", color: "#162A43" }}>
+                      <strong>✓ {m.skill}:</strong> <span style={{ color: "#2E7D5B" }}>{m.evidenceSnippet}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {selectedWhyOpp.evaluation.uncertainRequirements.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#B7791F", marginBottom: 6 }}>
+                  Remaining Uncertainties / Limitations:
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {selectedWhyOpp.evaluation.uncertainRequirements.map((u: any) => (
+                    <div key={u.skill} style={{ fontSize: 12, background: "#FEF8EC", border: "1px solid #F9E4B7", borderRadius: 6, padding: "6px 10px", color: "#162A43" }}>
+                      <strong>○ {u.skill}:</strong> <span style={{ color: "#B7791F" }}>{u.reason}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 8 }}>
+              <button
+                onClick={() => setSelectedWhyOpp(null)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
+                  padding: "7px 14px",
+                  borderRadius: 7,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+              <a
+                href={selectedWhyOpp.opportunity.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  background: "#162A43",
+                  color: "#FFFFFF",
+                  padding: "7px 16px",
+                  borderRadius: 7,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                View Official Listing ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* "IMPROVE MY FIT" MODAL                                     */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {selectedImproveFitOpp && (
+        <div
+          onClick={() => setSelectedImproveFitOpp(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(22, 42, 67, 0.45)",
+            backdropFilter: "blur(4px)",
+            zIndex: 100,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
+              maxWidth: 540,
+              width: "100%",
+              padding: "24px 28px",
+              boxShadow: "0 16px 32px rgba(22, 42, 67, 0.12)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.8px", color: "#356AE6" }}>
+                  TAILORED FIT ACCELERATOR
+                </div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#162A43", margin: "4px 0 0" }}>
+                  {selectedImproveFitOpp.evaluation.tailoredImproveFitAction.actionTitle}
+                </h3>
+                <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                  For: {selectedImproveFitOpp.opportunity.title} at {selectedImproveFitOpp.opportunity.organization}
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedImproveFitOpp(null)}
+                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 18, cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ backgroundColor: "#FAF9F6", padding: "14px 16px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#667085", marginBottom: 6 }}>
+                Target Requirement Gap:
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#356AE6", marginBottom: 8 }}>
+                {selectedImproveFitOpp.evaluation.tailoredImproveFitAction.targetSkill}
+              </div>
+              <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5 }}>
+                {selectedImproveFitOpp.evaluation.tailoredImproveFitAction.description}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4 }}>
+              <button
+                onClick={() => setSelectedImproveFitOpp(null)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
+                  padding: "7px 14px",
+                  borderRadius: 7,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+              <Link
+                href={selectedImproveFitOpp.evaluation.tailoredImproveFitAction.actionUrl}
+                style={{
+                  background: "#356AE6",
+                  color: "#FFFFFF",
+                  padding: "7px 16px",
+                  borderRadius: 7,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  textDecoration: "none",
+                }}
+              >
+                Start Practice Module →
+              </Link>
             </div>
           </div>
         </div>

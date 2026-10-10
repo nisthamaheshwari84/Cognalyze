@@ -14,6 +14,18 @@ import {
   CandidateRiskAnalysis,
   ProjectOwnershipAnalysis,
 } from "@/lib/recruiter/recruiter-intelligence";
+import {
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  RefreshCw,
+  ShieldCheck,
+  GitBranch,
+  ExternalLink,
+  Layers,
+  FileText,
+  Sparkles
+} from "lucide-react";
 
 export default function CandidateEvidencePassportPage() {
   const params = useParams();
@@ -25,6 +37,14 @@ export default function CandidateEvidencePassportPage() {
   const [dossier, setDossier] = useState<CandidateScreeningDossier | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Section 20-23: Role-Specific Student DNA Snapshot & Controlled Refresh
+  const [dnaSnapshot, setDnaSnapshot] = useState<any | null>(null);
+  const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [snapshotRefreshing, setSnapshotRefreshing] = useState(false);
+  const [showRefreshModal, setShowRefreshModal] = useState(false);
+  const [refreshReason, setRefreshReason] = useState("");
+  const [activeSnapshotTab, setActiveSnapshotTab] = useState<"snapshot" | "passport">("snapshot");
 
   // Section 40: Blind Technical Screening (PII-Minimized Review)
   const [blindMode, setBlindMode] = useState(false);
@@ -89,6 +109,52 @@ export default function CandidateEvidencePassportPage() {
     } finally {
       setLoading(false);
     }
+
+    // Load point-in-time role-specific Student DNA snapshot
+    loadDNASnapshot();
+  }
+
+  async function loadDNASnapshot() {
+    setSnapshotLoading(true);
+    try {
+      const snapRes = await fetch(`/api/recruiter/candidates/${candidateId}/dna-snapshot`);
+      const snapData = await snapRes.json();
+      if (snapData.success && snapData.snapshot) {
+        setDnaSnapshot(snapData.snapshot);
+      }
+    } catch (e) {
+      console.error("Error loading Student DNA Snapshot:", e);
+    } finally {
+      setSnapshotLoading(false);
+    }
+  }
+
+  async function handleRefreshSnapshot() {
+    if (!dnaSnapshot) return;
+    setSnapshotRefreshing(true);
+    try {
+      const res = await fetch(`/api/recruiter/candidates/${candidateId}/dna-snapshot`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          roleId: candidate?.appliedRoleId,
+          reason: refreshReason.trim() || "Candidate updated verified GitHub codebase and completed assessments."
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.snapshot) {
+        setDnaSnapshot(data.snapshot);
+        setShowRefreshModal(false);
+        setRefreshReason("");
+        alert(`Snapshot refreshed to Version ${data.snapshot.snapshotVersion}! Historical version audit trail appended.`);
+      } else {
+        alert(data.error || "Failed to refresh snapshot");
+      }
+    } catch (e: any) {
+      alert("Error refreshing snapshot: " + e.message);
+    } finally {
+      setSnapshotRefreshing(false);
+    }
   }
 
   const handleInspectProof = (req: RequirementAssessmentItem) => {
@@ -131,6 +197,27 @@ export default function CandidateEvidencePassportPage() {
   };
 
   const displayCand = candidate ? (blindMode ? getPiiMinimizedProfile(candidate) : candidate) : null;
+
+  const getSnapshotStatusBadge = (status: string) => {
+    switch (status) {
+      case "VERIFIED":
+        return { color: "#2E7D5B", bg: "#EAF4EE", border: "#C8E4D3", label: "VERIFIED" };
+      case "DEMONSTRATED":
+        return { color: "#356AE6", bg: "#EFF4FE", border: "#D2E0FB", label: "DEMONSTRATED" };
+      case "PARTIALLY_CORROBORATED":
+        return { color: "#B7791F", bg: "#FEF8EC", border: "#F9E4B7", label: "PARTIAL PROOF" };
+      case "SELF-REPORTED":
+      case "SELF_REPORTED":
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "SELF-REPORTED" };
+      case "UNVERIFIED":
+        return { color: "#667085", bg: "#F6F5F1", border: "#E4E1DA", label: "UNVERIFIED" };
+      case "CONFLICTING":
+        return { color: "#C24141", bg: "#FDF2F2", border: "#F8D7DA", label: "CONFLICTING" };
+      case "UNKNOWN":
+      default:
+        return { color: "#98A2B3", bg: "#FAFAFA", border: "#E4E1DA", label: "UNKNOWN" };
+    }
+  };
 
   const getMatchStateBadge = (state: string) => {
     switch (state) {
@@ -326,9 +413,423 @@ export default function CandidateEvidencePassportPage() {
           </div>
         </div>
 
+        {/* SNAPSHOT VS PASSPORT TABS */}
+        <div style={{ display: "flex", gap: 10, marginBottom: 24, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10, flexWrap: "wrap", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setActiveSnapshotTab("snapshot")}
+              style={{
+                background: activeSnapshotTab === "snapshot" ? "var(--brand-navy)" : "var(--surface)",
+                border: `1px solid ${activeSnapshotTab === "snapshot" ? "var(--brand-navy)" : "var(--border-subtle)"}`,
+                color: activeSnapshotTab === "snapshot" ? "#FFFFFF" : "var(--brand-navy)",
+                padding: "8px 16px",
+                borderRadius: 7,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              🧬 Role-Specific Student DNA Snapshot
+              {dnaSnapshot && (
+                <span style={{ fontSize: 10, background: activeSnapshotTab === "snapshot" ? "#356AE6" : "#EAF4EE", color: activeSnapshotTab === "snapshot" ? "#FFFFFF" : "#2E7D5B", padding: "1px 6px", borderRadius: 4 }}>
+                  v{dnaSnapshot.snapshotVersion}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveSnapshotTab("passport")}
+              style={{
+                background: activeSnapshotTab === "passport" ? "var(--brand-navy)" : "var(--surface)",
+                border: `1px solid ${activeSnapshotTab === "passport" ? "var(--brand-navy)" : "var(--border-subtle)"}`,
+                color: activeSnapshotTab === "passport" ? "#FFFFFF" : "var(--brand-navy)",
+                padding: "8px 16px",
+                borderRadius: 7,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              📑 Multi-Source Screening Passport
+            </button>
+          </div>
+
+          {activeSnapshotTab === "snapshot" && dnaSnapshot && (
+            <button
+              onClick={() => setShowRefreshModal(true)}
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--brand-cobalt)",
+                color: "var(--brand-cobalt)",
+                padding: "6px 14px",
+                borderRadius: 7,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <RefreshCw size={13} className={snapshotRefreshing ? "animate-spin" : ""} />
+              Controlled Refresh (v{dnaSnapshot.snapshotVersion + 1})
+            </button>
+          )}
+        </div>
+
         {/* ══════════════════════════════════════════════════════════ */}
+        {/* VIEW A: ROLE-SPECIFIC STUDENT DNA SNAPSHOT (SECTION 20-23) */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeSnapshotTab === "snapshot" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {snapshotLoading && !dnaSnapshot ? (
+              <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-secondary)" }}>
+                <RefreshCw size={24} className="animate-spin" style={{ margin: "0 auto 12px" }} />
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)" }}>
+                  Retrieving Point-in-Time Student DNA Snapshot...
+                </div>
+              </div>
+            ) : dnaSnapshot ? (
+              <>
+                {/* 1. SNAPSHOT PROVENANCE & SUMMARY CARD */}
+                <div
+                  style={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: 10,
+                    padding: "22px 26px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 16,
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", background: "#EAF4EE", border: "1px solid #C8E4D3", padding: "2px 8px", borderRadius: 4, textTransform: "uppercase" }}>
+                          Frozen Point-in-Time Snapshot
+                        </span>
+                        <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                          Snapshot ID: <strong style={{ color: "var(--brand-navy)" }}>{dnaSnapshot.id}</strong>
+                        </span>
+                      </div>
+                      <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-navy)", margin: 0 }}>
+                        Candidate DNA Alignment for {displayCand.appliedRoleTitle}
+                      </h2>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 4 }}>
+                        Applied on {new Date(dnaSnapshot.createdAt).toLocaleString()} • Student DNA v{dnaSnapshot.studentDNAVersion} • Resume: {dnaSnapshot.resumeRef}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 7, padding: "8px 14px", textAlign: "center" }}>
+                        <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Alignment Score</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--brand-cobalt)", marginTop: 2 }}>{dnaSnapshot.roleAlignmentScore}%</div>
+                      </div>
+                      <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 7, padding: "8px 14px", textAlign: "center" }}>
+                        <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Confidence</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--color-success)", marginTop: 2 }}>{dnaSnapshot.assessmentConfidence}%</div>
+                      </div>
+                      <div style={{ background: "#F9F8F5", border: "1px solid var(--border-subtle)", borderRadius: 7, padding: "8px 14px", textAlign: "center" }}>
+                        <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Evidence Coverage</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: "var(--brand-navy)", marginTop: 2 }}>{dnaSnapshot.evidenceCoverage}%</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ backgroundColor: "#F9F8F5", padding: "14px 16px", borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: 4 }}>
+                      Role-Specific Candidate Summary:
+                    </div>
+                    <div style={{ fontSize: 13, color: "var(--brand-navy)", lineHeight: 1.5 }}>
+                      {dnaSnapshot.candidateSummary}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. REQUIREMENT-BY-REQUIREMENT ALIGNMENT TABLE */}
+                <div
+                  style={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: 10,
+                    padding: "22px 26px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                    <div>
+                      <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase" }}>
+                        Requirement-by-Requirement Technical Alignment
+                      </h3>
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "3px 0 0" }}>
+                        Evidence-evaluated status for each requirement specified in the job description.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {dnaSnapshot.requirementAssessments.map((req: any, idx: number) => {
+                      const sBadge = getSnapshotStatusBadge(req.alignmentStatus);
+                      return (
+                        <div
+                          key={idx}
+                          style={{
+                            backgroundColor: "#FAF9F6",
+                            border: "1px solid var(--border-subtle)",
+                            borderRadius: 8,
+                            padding: "12px 16px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                            flexWrap: "wrap",
+                            gap: 12,
+                          }}
+                        >
+                          <div style={{ maxWidth: 640 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <span style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)" }}>
+                                {req.requirementName}
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 700,
+                                  color: req.requirementType === "MUST_HAVE" ? "var(--color-error)" : "var(--brand-cobalt)",
+                                  background: req.requirementType === "MUST_HAVE" ? "#FDF2F2" : "#EFF4FE",
+                                  border: `1px solid ${req.requirementType === "MUST_HAVE" ? "#F8C8C8" : "#D2E0FB"}`,
+                                  padding: "1px 6px",
+                                  borderRadius: 4,
+                                }}
+                              >
+                                {req.requirementType === "MUST_HAVE" ? "Must-Have" : "Preferred"}
+                              </span>
+                            </div>
+
+                            <div style={{ fontSize: 12, color: "var(--brand-navy)", marginTop: 6, lineHeight: 1.4 }}>
+                              <strong>Evidence Citation:</strong> {req.supportingEvidence}
+                            </div>
+
+                            {req.uncertaintyOrLimitation && (
+                              <div style={{ fontSize: 11, color: "var(--color-warning)", marginTop: 4, fontStyle: "italic" }}>
+                                Note: {req.uncertaintyOrLimitation}
+                              </div>
+                            )}
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                            <span
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 800,
+                                color: sBadge.color,
+                                backgroundColor: sBadge.bg,
+                                border: `1px solid ${sBadge.border}`,
+                                padding: "3px 8px",
+                                borderRadius: 5,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {sBadge.label}
+                            </span>
+                            <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>
+                              Confidence: {req.confidence}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. TWO COLUMNS: VERIFIED CAPABILITIES VS SELF-REPORTED (UNVERIFIED) CLAIMS */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+                  {/* LEFT: VERIFIED SKILLS */}
+                  <div
+                    style={{
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: 10,
+                      padding: "20px 22px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "var(--color-success)", textTransform: "uppercase" }}>
+                        ✓ Relevant Demonstrated Skills
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Artifact-backed</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {dnaSnapshot.relevantDemonstratedSkills.map((s: any, idx: number) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: "#FBFDFB",
+                            border: "1px solid #C8E4D3",
+                            borderRadius: 6,
+                            padding: "8px 12px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>{s.skillName}</div>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
+                              Level: {s.demonstratedLevel}/5 • {s.evidenceCount} proof signals
+                            </div>
+                          </div>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: "#2E7D5B", background: "#EAF4EE", border: "1px solid #C8E4D3", padding: "2px 6px", borderRadius: 4 }}>
+                            {s.verificationState}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* RIGHT: SELF-REPORTED (UNVERIFIED) CLAIMS */}
+                  <div
+                    style={{
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: 10,
+                      padding: "20px 22px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-subtle)", paddingBottom: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: "var(--color-warning)", textTransform: "uppercase" }}>
+                        ○ Unverified Claims &amp; Resume Statements
+                      </span>
+                      <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Pending Corroboration</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {dnaSnapshot.unverifiedClaims.map((c: any, idx: number) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: "#FEF8EC",
+                            border: "1px solid #F9E4B7",
+                            borderRadius: 6,
+                            padding: "8px 12px",
+                            fontSize: 12,
+                            color: "var(--brand-navy)",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          <strong>{c.claim}:</strong> <span style={{ color: "var(--text-secondary)" }}>{c.source} ({c.status})</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. UNCERTAIN REQUIREMENTS & LIMITATIONS */}
+                {dnaSnapshot.missingOrUncertainRequirements.length > 0 && (
+                  <div
+                    style={{
+                      background: "#FDFDFD",
+                      border: "1px solid var(--border-subtle)",
+                      borderRadius: 10,
+                      padding: "18px 22px",
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 800, color: "var(--brand-navy)", textTransform: "uppercase", marginBottom: 6 }}>
+                      Uncertain / Unassessed Requirements
+                    </div>
+                    <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 10px", lineHeight: 1.4 }}>
+                      The following requirements lack sufficient concrete evidence in the candidate's public artifacts. Cognalyze treats these as unknown opportunities for interview probing, rather than proven incompetence.
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {dnaSnapshot.missingOrUncertainRequirements.map((u: any, idx: number) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: "#F6F5F1",
+                            border: "1px solid #E4E1DA",
+                            borderRadius: 6,
+                            padding: "6px 10px",
+                            fontSize: 11,
+                            color: "var(--brand-navy)",
+                          }}
+                        >
+                          <strong>○ {u.requirement}:</strong> <span style={{ color: "var(--text-secondary)" }}>{u.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 5. HISTORICAL REFRESH AUDIT TRAIL */}
+                <div
+                  style={{
+                    background: "var(--surface)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: 10,
+                    padding: "20px 24px",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div>
+                      <h4 style={{ fontSize: 14, fontWeight: 800, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase" }}>
+                        Snapshot Version History &amp; Controlled Refresh Audit Trail
+                      </h4>
+                      <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "2px 0 0" }}>
+                        Strict historical immutability: Snapshot versions are frozen at trigger-time and never overwritten silently.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {dnaSnapshot.refreshAuditHistory.map((h: any, idx: number) => (
+                      <div
+                        key={idx}
+                        style={{
+                          background: "#FAF9F6",
+                          border: "1px solid var(--border-subtle)",
+                          borderRadius: 6,
+                          padding: "8px 12px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontSize: 11,
+                          flexWrap: "wrap",
+                          gap: 6,
+                        }}
+                      >
+                        <div>
+                          <span style={{ fontWeight: 800, color: "var(--brand-cobalt)", marginRight: 8 }}>
+                            v{h.version}
+                          </span>
+                          <span style={{ color: "var(--brand-navy)" }}>{h.reason}</span>
+                        </div>
+                        <div style={{ color: "var(--text-secondary)" }}>
+                          Triggered by {h.triggeredBy} • {new Date(h.timestamp).toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════ */}
+        {/* VIEW B: SCREENING PASSPORT & PROVENANCE (ORIGINAL VIEWS)   */}
+        {/* ══════════════════════════════════════════════════════════ */}
+        {activeSnapshotTab === "passport" && (
+          <div>
         {/* SECTION 2: EVIDENCE PROVENANCE & INDEPENDENCE              */}
-        {/* ══════════════════════════════════════════════════════════ */}
         <section style={{ marginBottom: 32 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
             <div>
@@ -614,6 +1115,8 @@ export default function CandidateEvidencePassportPage() {
             </div>
           )}
         </section>
+      </div>
+    )}
       </main>
 
       {/* ══════════════════════════════════════════════════════════ */}
@@ -826,6 +1329,111 @@ export default function CandidateEvidencePassportPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* CONTROLLED SNAPSHOT REFRESH MODAL (HISTORICAL VERSIONING)  */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {showRefreshModal && dnaSnapshot && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: "rgba(22, 42, 67, 0.45)",
+            backdropFilter: "blur(4px)",
+            padding: 20,
+          }}
+          onClick={() => setShowRefreshModal(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 520,
+              backgroundColor: "var(--surface)",
+              borderRadius: 12,
+              border: "1px solid var(--border-subtle)",
+              padding: "24px 28px",
+              boxShadow: "0 16px 36px rgba(0, 0, 0, 0.16)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+              <div>
+                <span style={{ fontSize: 10, fontWeight: 800, color: "var(--brand-cobalt)", textTransform: "uppercase" }}>
+                  Controlled Snapshot Re-Assessment
+                </span>
+                <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--brand-navy)", margin: "4px 0 0" }}>
+                  Refresh Student DNA Snapshot to v{dnaSnapshot.snapshotVersion + 1}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowRefreshModal(false)}
+                style={{ background: "transparent", border: "none", color: "var(--text-secondary)", fontSize: 18, cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, margin: "0 0 16px" }}>
+              In accordance with historical integrity rules, the current snapshot (v{dnaSnapshot.snapshotVersion}) will be preserved in the audit trail. Re-evaluating now will pull the candidate's latest verified artifacts and recalculate role alignment.
+            </p>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", display: "block", marginBottom: 6 }}>
+                Reason for Re-Assessment (Audit Logged):
+              </label>
+              <textarea
+                value={refreshReason}
+                onChange={(e) => setRefreshReason(e.target.value)}
+                placeholder="e.g., Candidate pushed new production repository, finished interview round, or updated portfolio."
+                rows={3}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  borderRadius: 7,
+                  border: "1px solid var(--border-subtle)",
+                  padding: "10px",
+                  fontSize: 12,
+                  color: "var(--text-primary)",
+                  backgroundColor: "var(--bg-canvas)",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button
+                onClick={() => setShowRefreshModal(false)}
+                style={{ padding: "8px 16px", borderRadius: 7, background: "transparent", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)", cursor: "pointer", fontWeight: 600 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRefreshSnapshot}
+                disabled={snapshotRefreshing}
+                style={{
+                  padding: "8px 20px",
+                  borderRadius: 7,
+                  background: "var(--brand-cobalt)",
+                  border: "none",
+                  color: "white",
+                  fontWeight: 700,
+                  cursor: snapshotRefreshing ? "not-allowed" : "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <RefreshCw size={13} className={snapshotRefreshing ? "animate-spin" : ""} />
+                {snapshotRefreshing ? "Re-Evaluating Evidence..." : "Commit Re-Assessment"}
+              </button>
+            </div>
           </div>
         </div>
       )}

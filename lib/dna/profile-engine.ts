@@ -24,10 +24,26 @@ export interface StudentSkill {
   skillName: string;
   category: string;
   estimatedLevel: 0 | 1 | 2 | 3 | 4 | 5;
+  demonstratedLevel: 0 | 1 | 2 | 3 | 4 | 5;
+  selfReportedLevel?: "Beginner" | "Intermediate" | "Advanced" | "Expert" | "Claimed" | null;
   levelLabel: "Unknown" | "Familiar" | "Beginner" | "Intermediate" | "Advanced" | "Strongly Demonstrated";
   studentFacingLabel: "Strong" | "Developing" | "Needs Practice" | "Not enough evidence";
+  verificationState:
+    | "CLAIMED"
+    | "EVIDENCE_FOUND"
+    | "DEVELOPING"
+    | "DEMONSTRATED"
+    | "VERIFIED"
+    | "GAP"
+    | "REPEATED_GAP"
+    | "EVIDENCE_MISMATCH"
+    | "STALE_EVIDENCE"
+    | "UNKNOWN";
   confidence: "HIGH" | "MEDIUM" | "LOW";
   evidenceCoverage: "HIGH" | "MEDIUM" | "LOW" | "NONE";
+  recency: "CURRENT" | "RECENT" | "AGING" | "STALE";
+  ownershipConfidence: "HIGH" | "MEDIUM" | "LOW";
+  remainingUncertainty: string;
   evidenceCount: number;
   verifiedEvidenceCount: number;
   recentEvidenceCount: number;
@@ -79,10 +95,16 @@ export function computeStudentSkillProfile(
       skillName: canonical.name,
       category: canonical.category,
       estimatedLevel: 0,
+      demonstratedLevel: 0,
+      selfReportedLevel: null,
       levelLabel: "Unknown",
       studentFacingLabel: "Not enough evidence",
+      verificationState: "UNKNOWN",
       confidence: "LOW",
       evidenceCoverage: "NONE",
+      recency: "CURRENT",
+      ownershipConfidence: "LOW",
+      remainingUncertainty: "No observed evidence or demonstration recorded yet.",
       evidenceCount: 0,
       verifiedEvidenceCount: 0,
       recentEvidenceCount: 0,
@@ -217,16 +239,66 @@ export function computeStudentSkillProfile(
     ? "Solid foundational and project usage; ready for advanced challenge."
     : "Basic exposure observed; further practical tasks recommended to verify higher depth.";
 
+  // ── 7. COMPUTE SEPARATED PROFICIENCY & VERIFICATION DIMENSIONS (Prompt Requirements) ──
+  const claimEv = matchingEvidence.find(e => e.sourceType === "resume" || e.sourceType === "self_declared");
+  const selfReportedLevel = (claimEv?.metadata?.declaredLevel || claimEv?.extractedValue || (claimEv ? "Claimed" : null)) as any;
+  const demonstratedLevel = estimatedLevel;
+
+  let verificationState: StudentSkill["verificationState"] = "CLAIMED";
+  if (contradiction) {
+    verificationState = "EVIDENCE_MISMATCH";
+  } else if (recentCount === 0 && matchingEvidence.some(e => e.recency === "STALE")) {
+    verificationState = "STALE_EVIDENCE";
+  } else if (verifiedCount >= 2) {
+    verificationState = "VERIFIED";
+  } else if (verifiedCount >= 1 || matchingEvidence.some(e => e.verificationStatus === "DEMONSTRATED")) {
+    verificationState = "DEMONSTRATED";
+  } else if (matchingEvidence.some(e => e.sourceType === "project" || e.sourceType === "github")) {
+    verificationState = "EVIDENCE_FOUND";
+  } else if (estimatedLevel >= 2) {
+    verificationState = "DEVELOPING";
+  } else {
+    verificationState = "CLAIMED";
+  }
+
+  const recency: StudentSkill["recency"] = (sorted[0]?.recency as any) || "CURRENT";
+
+  const ownershipConfidence: "HIGH" | "MEDIUM" | "LOW" =
+    provenanceSources.includes("github") || provenanceSources.includes("interview") || verifiedCount >= 1
+      ? "HIGH"
+      : provenanceSources.includes("project")
+      ? "MEDIUM"
+      : "LOW";
+
+  let remainingUncertainty = "";
+  if (verifiedCount === 0 && provenanceSources.length === 1 && provenanceSources[0] === "resume") {
+    remainingUncertainty = "Stated on resume without independent codebase artifact or assessment verification.";
+  } else if (verifiedCount === 0) {
+    remainingUncertainty = "Demonstrated in student projects; pending independent assessment verification.";
+  } else if (contradiction) {
+    remainingUncertainty = "Conflicting results observed between self-reported claim and live assessment.";
+  } else if (confidence === "MEDIUM") {
+    remainingUncertainty = "Partially corroborated; additional multi-source proofs will elevate confidence to High.";
+  } else {
+    remainingUncertainty = "Well-substantiated capability across multiple independent evidence sources.";
+  }
+
   return {
     userId,
     skillId: canonical.skillId,
     skillName: canonical.name,
     category: canonical.category,
     estimatedLevel,
+    demonstratedLevel,
+    selfReportedLevel,
     levelLabel,
     studentFacingLabel,
+    verificationState,
     confidence,
     evidenceCoverage,
+    recency,
+    ownershipConfidence,
+    remainingUncertainty,
     evidenceCount,
     verifiedEvidenceCount: verifiedCount,
     recentEvidenceCount: recentCount,
