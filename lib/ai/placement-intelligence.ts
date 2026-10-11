@@ -25,6 +25,9 @@ export interface StudentProfileData {
   risk_appetite: "Conservative" | "Moderate" | "Aggressive";
   profile_summary: string;
   experience_level?: "fresher" | "1-3yr" | "experienced" | "career-switcher";
+  achievements?: any[];
+  certifications?: any[];
+  github_url?: string;
 }
 
 export interface OpportunityData {

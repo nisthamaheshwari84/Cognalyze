@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
+import SourceIntelligenceHub from "@/components/dna/SourceIntelligenceHub";
 import type { FullStudentDNAResponse } from "@/lib/dna/store";
 import type { StudentSkill } from "@/lib/dna/profile-engine";
 import type { SkillGapItem, GapStatus } from "@/lib/dna/gap-engine";
@@ -38,6 +39,7 @@ export default function StudentDNAPage() {
   const [dnaData, setDnaData] = useState<FullStudentDNAResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"snapshot" | "capabilities" | "gap_studio" | "evidence_vault" | "audit" | "opportunity_intelligence">("snapshot");
+  const [vaultSubMode, setVaultSubMode] = useState<"hub" | "signals">("hub");
 
   // Selected skill for the interactive "Why?" Modal
   const [selectedWhySkill, setSelectedWhySkill] = useState<StudentSkill | null>(null);
@@ -148,11 +150,13 @@ export default function StudentDNAPage() {
     }
   };
 
-  const loadDNA = async () => {
+  const loadDNA = async (refresh?: boolean | unknown) => {
+    const isRefresh = refresh === true;
     setLoading(true);
     setLoadError(null);
     try {
-      const res = await fetch("/api/student-dna");
+      const url = isRefresh ? "/api/student-dna?refresh=true" : "/api/student-dna";
+      const res = await fetch(url);
       if (res.status === 401) {
         window.location.href = "/login";
         return;
@@ -322,10 +326,25 @@ export default function StudentDNAPage() {
     }
   };
 
+  const formatRelativeDate = (dateStr?: string) => {
+    if (!dateStr) return "Recently";
+    try {
+      const diffMs = Date.now() - new Date(dateStr).getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (diffHours < 1) return "Just now";
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return "1 day ago";
+      return `${diffDays} days ago`;
+    } catch {
+      return "Recently";
+    }
+  };
+
   const snapshot = dnaData?.snapshot;
-  const skills = dnaData?.skills || [];
+  const skills = dnaData?.skillsBreakdown || dnaData?.skills || [];
   const gapReport = dnaData?.gapReport;
-  const evidenceList = dnaData?.evidence || [];
+  const evidenceList = dnaData?.recentProofItems || dnaData?.evidence || [];
   const auditLogs = dnaData?.auditLogs || [];
 
   const filteredEvidence = vaultSourceFilter === "ALL"
@@ -417,7 +436,6 @@ export default function StudentDNAPage() {
               <ShieldCheck size={13} /> Verified Intelligence
             </span>
             <button
-              onClick={loadDNA}
               disabled={loading}
               style={{
                 background: "#FFFFFF",
@@ -432,7 +450,8 @@ export default function StudentDNAPage() {
                 alignItems: "center",
                 gap: 5,
               }}
-              title="Refresh DNA State"
+              title="Refresh DNA State from authentic sources"
+              onClick={() => loadDNA(true)}
             >
               <RefreshCw size={12} className={loading ? "animate-spin" : ""} /> {loading ? "Syncing..." : "Refresh"}
             </button>
@@ -468,7 +487,7 @@ export default function StudentDNAPage() {
             </div>
             <div style={{ color: "#667085", fontSize: 13, marginBottom: 20 }}>{loadError}</div>
             <button
-              onClick={loadDNA}
+              onClick={() => loadDNA()}
               style={{
                 background: "#162A43",
                 color: "#FFFFFF",
@@ -736,7 +755,7 @@ export default function StudentDNAPage() {
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: 12, fontWeight: 500, color: "#667085" }}>
-                    DNA updated: <span style={{ fontWeight: 600, color: "#17191C" }}>2 days ago</span>
+                    DNA updated: <span style={{ fontWeight: 600, color: "#17191C" }}>{formatRelativeDate(snapshot?.generatedAt || dnaData?.lastUpdatedAt)}</span>
                   </div>
                   <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
                     Continuous evidence aggregation
@@ -753,7 +772,7 @@ export default function StudentDNAPage() {
                       Career Intent
                     </div>
                     <div style={{ fontSize: 16, fontWeight: 600, color: "#162A43", marginTop: 4 }}>
-                      {gapReport?.targetRoleTitle || "AI/ML Engineer"}
+                      {gapReport?.targetRoleTitle || "Software Engineer"}
                     </div>
                   </div>
 
@@ -762,7 +781,7 @@ export default function StudentDNAPage() {
                       Target Roles
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
-                      {["ML Engineer", "Backend Engineer", "Software Engineer"].map((role) => (
+                      {(dnaData?.availableRoles?.map((r: any) => r.title) || (gapReport?.targetRoleTitle ? [gapReport.targetRoleTitle] : ["Software Engineer"])).slice(0, 3).map((role: string) => (
                         <span
                           key={role}
                           style={{
@@ -785,10 +804,25 @@ export default function StudentDNAPage() {
                     <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                       Recent Evidence
                     </div>
-                    <div style={{ fontSize: 13, color: "#17191C", marginTop: 6, background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 7, padding: "10px 12px" }}>
-                      <div style={{ fontWeight: 600, color: "#162A43" }}>Built Cognalyze recruiter engine</div>
-                      <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>TypeScript, PostgreSQL, Next.js • 3 days ago</div>
-                    </div>
+                    {(dnaData?.recentProofItems && dnaData.recentProofItems.length > 0) ? (
+                      <div style={{ fontSize: 13, color: "#17191C", marginTop: 6, background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 7, padding: "10px 12px" }}>
+                        <div style={{ fontWeight: 600, color: "#162A43" }}>{dnaData.recentProofItems[0].claim}</div>
+                        <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
+                          {dnaData.recentProofItems[0].skillId || dnaData.recentProofItems[0].sourceType} • {formatRelativeDate(dnaData.recentProofItems[0].observedAt || dnaData.recentProofItems[0].createdAt)}
+                        </div>
+                      </div>
+                    ) : (evidenceList.length > 0) ? (
+                      <div style={{ fontSize: 13, color: "#17191C", marginTop: 6, background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 7, padding: "10px 12px" }}>
+                        <div style={{ fontWeight: 600, color: "#162A43" }}>{evidenceList[0].claim}</div>
+                        <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
+                          {evidenceList[0].skillId || evidenceList[0].sourceType} • {formatRelativeDate(evidenceList[0].observedAt || evidenceList[0].createdAt)}
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 12, color: "#667085", fontStyle: "italic", marginTop: 6, background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 7, padding: "10px 12px" }}>
+                        No recent evidence recorded. Connect a project or complete an assessment to record evidence.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -798,12 +832,10 @@ export default function StudentDNAPage() {
                     Verified Skills
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                    {(snapshot.strongestSkills.length > 0 ? snapshot.strongestSkills.slice(0, 4) : [
-                      { skillName: "Python", evidenceCount: 6 },
-                      { skillName: "C++", evidenceCount: 4 },
-                      { skillName: "SQL", evidenceCount: 3 },
-                      { skillName: "Machine Learning", evidenceCount: 5 }
-                    ]).map((s: any) => (
+                    {((snapshot?.strongestSkills && snapshot.strongestSkills.length > 0)
+                      ? snapshot.strongestSkills.slice(0, 4)
+                      : (snapshot?.growingSkills || []).slice(0, 4)
+                    ).map((s: any) => (
                       <div
                         key={s.skillName}
                         style={{
@@ -818,13 +850,24 @@ export default function StudentDNAPage() {
                       >
                         <span style={{ fontSize: 13, fontWeight: 600, color: "#17191C" }}>{s.skillName}</span>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
-                            <CheckCircle2 size={12} /> Verified
+                          <span style={{ fontSize: 11, color: s.verificationState === "INDEPENDENTLY_VERIFIED" || s.verifiedEvidenceCount > 0 ? "#2E7D5B" : "#356AE6", fontWeight: 600, display: "inline-flex", alignItems: "center", gap: 3 }}>
+                            {s.verificationState === "INDEPENDENTLY_VERIFIED" || s.verifiedEvidenceCount > 0 ? (
+                              <><CheckCircle2 size={12} /> Verified</>
+                            ) : s.verificationState === "SOURCE_OBSERVED" ? (
+                              "Observed"
+                            ) : (
+                              "Self-Reported"
+                            )}
                           </span>
-                          <span style={{ fontSize: 11, color: "#667085" }}>{s.evidenceCount || 3} signals</span>
+                          <span style={{ fontSize: 11, color: "#667085" }}>{s.evidenceCount} signals</span>
                         </div>
                       </div>
                     ))}
+                    {(!snapshot?.strongestSkills || snapshot.strongestSkills.length === 0) && (!snapshot?.growingSkills || snapshot.growingSkills.length === 0) && (
+                      <div style={{ fontSize: 12, color: "#667085", fontStyle: "italic", padding: "10px 0" }}>
+                        No verified skills established yet. Connect repositories or complete practice assessments to verify skills.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -836,19 +879,27 @@ export default function StudentDNAPage() {
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
                       <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43" }}>{snapshot.proofSummary.projectsCount || 8}</div>
+                        <div style={{ fontSize: snapshot?.proofSummary?.projectsDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.projectsDetail?.status === "READY" ? "#162A43" : "#667085" }}>
+                          {snapshot?.proofSummary?.projectsDetail?.displayText || (snapshot?.proofSummary?.projectsCount ? String(snapshot.proofSummary.projectsCount) : "No records found")}
+                        </div>
                         <div style={{ fontSize: 11, color: "#667085" }}>Projects Built</div>
                       </div>
                       <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43" }}>{snapshot.proofSummary.hackathonsCount || 3}</div>
+                        <div style={{ fontSize: snapshot?.proofSummary?.hackathonsDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.hackathonsDetail?.status === "READY" ? "#162A43" : "#667085" }}>
+                          {snapshot?.proofSummary?.hackathonsDetail?.displayText || (snapshot?.proofSummary?.hackathonsCount ? String(snapshot.proofSummary.hackathonsCount) : "No records found")}
+                        </div>
                         <div style={{ fontSize: 11, color: "#667085" }}>Hackathons</div>
                       </div>
                       <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43" }}>{snapshot.proofSummary.githubRepoCount || 14}</div>
+                        <div style={{ fontSize: snapshot?.proofSummary?.githubDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.githubDetail?.status === "READY" ? "#162A43" : "#667085" }}>
+                          {snapshot?.proofSummary?.githubDetail?.displayText || (snapshot?.proofSummary?.githubRepoCount ? String(snapshot.proofSummary.githubRepoCount) : "Not connected")}
+                        </div>
                         <div style={{ fontSize: 11, color: "#667085" }}>GitHub Repos</div>
                       </div>
                       <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43" }}>{snapshot.proofSummary.leetcodeSolvedCount || 186}</div>
+                        <div style={{ fontSize: snapshot?.proofSummary?.leetcodeDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.leetcodeDetail?.status === "READY" ? "#162A43" : "#667085" }}>
+                          {snapshot?.proofSummary?.leetcodeDetail?.displayText || (snapshot?.proofSummary?.leetcodeSolvedCount ? String(snapshot.proofSummary.leetcodeSolvedCount) : "Not connected")}
+                        </div>
                         <div style={{ fontSize: 11, color: "#667085" }}>Coding Solved</div>
                       </div>
                     </div>
@@ -859,26 +910,29 @@ export default function StudentDNAPage() {
                       Current Gaps
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                      {(gapReport?.focusFirst && gapReport.focusFirst.length > 0 ? gapReport.focusFirst.slice(0, 2) : [
-                        { skillName: "System Design", summary: "Distributed systems architecture" },
-                        { skillName: "Cloud Deployment", summary: "Production AWS / Docker infrastructure" }
-                      ]).map((gap: any) => (
-                        <div
-                          key={gap.skillName}
-                          style={{
-                            padding: "6px 10px",
-                            background: "#FEF8EC",
-                            border: "1px solid #F9E4B7",
-                            borderRadius: 6,
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                          }}
-                        >
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#B7791F" }}>{gap.skillName}</span>
-                          <span style={{ fontSize: 11, color: "#667085" }}>Unproven</span>
+                      {(gapReport?.focusFirst && gapReport.focusFirst.length > 0) ? (
+                        gapReport.focusFirst.slice(0, 2).map((gap: any) => (
+                          <div
+                            key={gap.skillName}
+                            style={{
+                              padding: "6px 10px",
+                              background: "#FEF8EC",
+                              border: "1px solid #F9E4B7",
+                              borderRadius: 6,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <span style={{ fontSize: 12, fontWeight: 600, color: "#B7791F" }}>{gap.skillName}</span>
+                            <span style={{ fontSize: 11, color: "#667085" }}>Unproven</span>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ fontSize: 12, color: "#2E7D5B", fontStyle: "italic", padding: "6px 0" }}>
+                          No critical skill gaps identified for current role benchmark.
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1630,118 +1684,158 @@ export default function StudentDNAPage() {
         {/* ══════════════════════════════════════════════════════════ */}
         {activeTab === "evidence_vault" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
-              <div>
-                <h1 style={{ fontSize: 22, fontWeight: 600, color: "#162A43", margin: 0 }}>
-                  Multi-Source Evidence Vault
-                </h1>
-                <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
-                  Auditable repository of raw-to-normalized signals. Every item has provenance, reliability weighting, and verification status.
-                </p>
-              </div>
-
-              {/* FILTER BUTTONS */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {["ALL", "GITHUB", "LEETCODE", "PROJECT", "ASSESSMENT", "INTERVIEW", "RESUME"].map((src) => (
-                  <button
-                    key={src}
-                    onClick={() => setVaultSourceFilter(src)}
-                    style={{
-                      background: vaultSourceFilter === src ? "#EFF4FE" : "#FFFFFF",
-                      border: vaultSourceFilter === src ? "1px solid #356AE6" : "1px solid #E4E1DA",
-                      color: vaultSourceFilter === src ? "#356AE6" : "#667085",
-                      borderRadius: 6,
-                      padding: "4px 10px",
-                      fontSize: 11,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {src}
-                  </button>
-                ))}
-              </div>
+            {/* SUB-VIEW TOGGLE */}
+            <div style={{ display: "flex", gap: 8, borderBottom: "1px solid #E4E1DA", paddingBottom: 10 }}>
+              <button
+                onClick={() => setVaultSubMode("hub")}
+                style={{
+                  background: vaultSubMode === "hub" ? "#EFF4FE" : "#FFFFFF",
+                  border: vaultSubMode === "hub" ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                  color: vaultSubMode === "hub" ? "#356AE6" : "#667085",
+                  borderRadius: 6,
+                  padding: "6px 14px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Source Intelligence Hub (Section 16 Audit)
+              </button>
+              <button
+                onClick={() => setVaultSubMode("signals")}
+                style={{
+                  background: vaultSubMode === "signals" ? "#EFF4FE" : "#FFFFFF",
+                  border: vaultSubMode === "signals" ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                  color: vaultSubMode === "signals" ? "#356AE6" : "#667085",
+                  borderRadius: 6,
+                  padding: "6px 14px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Itemized Signals & Provenance
+              </button>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {filteredEvidence.map((ev) => (
-                <div
-                  key={ev.id}
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    border: "1px solid #E4E1DA",
-                    borderRadius: 8,
-                    padding: "14px 18px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                    gap: 12,
-                  }}
-                >
-                  <div style={{ maxWidth: 740 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <span
+            {vaultSubMode === "hub" ? (
+              <SourceIntelligenceHub dossier={dnaData?.sourceIntelligence} onRefresh={loadDNA} isLoading={loading} />
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
+                  <div>
+                    <h1 style={{ fontSize: 22, fontWeight: 600, color: "#162A43", margin: 0 }}>
+                      Multi-Source Evidence Vault
+                    </h1>
+                    <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
+                      Auditable repository of raw-to-normalized signals. Every item has provenance, reliability weighting, and verification status.
+                    </p>
+                  </div>
+
+                  {/* FILTER BUTTONS */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {["ALL", "GITHUB", "LEETCODE", "PROJECT", "ASSESSMENT", "INTERVIEW", "RESUME"].map((src) => (
+                      <button
+                        key={src}
+                        onClick={() => setVaultSourceFilter(src)}
                         style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          color: "#356AE6",
-                          backgroundColor: "#EFF4FE",
-                          border: "1px solid #D2E0FB",
-                          padding: "2px 6px",
-                          borderRadius: 4,
-                          textTransform: "uppercase",
+                          background: vaultSourceFilter === src ? "#EFF4FE" : "#FFFFFF",
+                          border: vaultSourceFilter === src ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                          color: vaultSourceFilter === src ? "#356AE6" : "#667085",
+                          borderRadius: 6,
+                          padding: "4px 10px",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
                         }}
                       >
-                        {ev.sourceType}
-                      </span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: "#162A43" }}>
-                        Skill: {ev.skillId}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#667085" }}>
-                        • Provenance: {ev.provenance}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
-                      "{ev.claim}"
-                    </div>
-
-                    {ev.extractedValue && typeof ev.extractedValue === "string" && (
-                      <div style={{ fontSize: 12, color: "#667085", marginTop: 4, fontStyle: "italic", background: "#FAF9F6", padding: "4px 8px", borderRadius: 4, border: "1px solid #E4E1DA" }}>
-                        Extracted snippet: {ev.extractedValue}
-                      </div>
-                    )}
-
-                    <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 6 }}>
-                      Observed: {new Date(ev.observedAt).toLocaleDateString()} • Recency: {ev.recency} • Reliability: {(ev.reliability * 100).toFixed(0)}%
-                    </div>
+                        {src}
+                      </button>
+                    ))}
                   </div>
+                </div>
 
-                  <div>
-                    <span
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {filteredEvidence.map((ev) => (
+                    <div
+                      key={ev.id}
                       style={{
-                        fontSize: 11,
-                        fontWeight: 600,
-                        padding: "3px 8px",
-                        borderRadius: 5,
-                        color: ev.verificationStatus === "VERIFIED" ? "#2E7D5B" : ev.verificationStatus === "DEMONSTRATED" ? "#356AE6" : "#667085",
-                        backgroundColor: ev.verificationStatus === "VERIFIED" ? "#EAF4EE" : ev.verificationStatus === "DEMONSTRATED" ? "#EFF4FE" : "#F6F5F1",
-                        border: `1px solid ${ev.verificationStatus === "VERIFIED" ? "#C8E4D3" : ev.verificationStatus === "DEMONSTRATED" ? "#D2E0FB" : "#E4E1DA"}`,
+                        backgroundColor: "#FFFFFF",
+                        border: "1px solid #E4E1DA",
+                        borderRadius: 8,
+                        padding: "14px 18px",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        flexWrap: "wrap",
+                        gap: 12,
                       }}
                     >
-                      {ev.verificationStatus === "VERIFIED" ? "✓ Verified" : ev.verificationStatus}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                      <div style={{ maxWidth: 740 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 700,
+                              color: "#356AE6",
+                              backgroundColor: "#EFF4FE",
+                              border: "1px solid #D2E0FB",
+                              padding: "2px 6px",
+                              borderRadius: 4,
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {ev.sourceType}
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: "#162A43" }}>
+                            Skill: {ev.skillId}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#667085" }}>
+                            • Provenance: {ev.provenance}
+                          </span>
+                        </div>
 
-              {filteredEvidence.length === 0 && (
-                <div style={{ textAlign: "center", padding: "40px 0", color: "#667085", background: "#FFFFFF", borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                  No evidence items matching this filter.
+                        <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
+                          "{ev.claim}"
+                        </div>
+
+                        {ev.extractedValue && typeof ev.extractedValue === "string" && (
+                          <div style={{ fontSize: 12, color: "#667085", marginTop: 4, fontStyle: "italic", background: "#FAF9F6", padding: "4px 8px", borderRadius: 4, border: "1px solid #E4E1DA" }}>
+                            Extracted snippet: {ev.extractedValue}
+                          </div>
+                        )}
+
+                        <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 6 }}>
+                          Observed: {new Date(ev.observedAt).toLocaleDateString()} • Recency: {ev.recency} • Reliability: {(ev.reliability * 100).toFixed(0)}%
+                        </div>
+                      </div>
+
+                      <div>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            padding: "3px 8px",
+                            borderRadius: 5,
+                            color: ev.verificationStatus === "VERIFIED" ? "#2E7D5B" : ev.verificationStatus === "DEMONSTRATED" ? "#356AE6" : "#667085",
+                            backgroundColor: ev.verificationStatus === "VERIFIED" ? "#EAF4EE" : ev.verificationStatus === "DEMONSTRATED" ? "#EFF4FE" : "#F6F5F1",
+                            border: `1px solid ${ev.verificationStatus === "VERIFIED" ? "#C8E4D3" : ev.verificationStatus === "DEMONSTRATED" ? "#D2E0FB" : "#E4E1DA"}`,
+                          }}
+                        >
+                          {ev.verificationStatus === "VERIFIED" ? "✓ Verified" : ev.verificationStatus}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {filteredEvidence.length === 0 && (
+                    <div style={{ textAlign: "center", padding: "40px 0", color: "#667085", background: "#FFFFFF", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                      No evidence items matching this filter.
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 

@@ -56,6 +56,18 @@ export interface StudentSkill {
   updatedAt: string;
 }
 
+export type MetricDataStatus = "NOT_CONNECTED" | "UNABLE_TO_RETRIEVE" | "NO_RECORDS" | "PENDING" | "READY";
+
+export interface MetricProofDetail {
+  value: number | null;
+  status: MetricDataStatus;
+  displayText: string;
+  retrievedAt?: string | null;
+  sourceName?: string;
+  scopeNote?: string;
+  breakdown?: Record<string, any>;
+}
+
 export interface StudentDNASnapshot {
   userId: string;
   headline: string;
@@ -71,6 +83,11 @@ export interface StudentDNASnapshot {
     assessmentsCount: number;
     interviewsCount: number;
     hackathonsCount: number;
+    projectsDetail?: MetricProofDetail;
+    hackathonsDetail?: MetricProofDetail;
+    githubDetail?: MetricProofDetail;
+    leetcodeDetail?: MetricProofDetail;
+    assessmentsDetail?: MetricProofDetail;
   };
   overallCoverage: "HIGH" | "MEDIUM" | "LOW";
   generatedAt: string;
@@ -337,6 +354,11 @@ export function generateStudentDNASnapshot(
     assessmentsCount?: number;
     interviewsCount?: number;
     hackathonsCount?: number;
+    projectsDetail?: MetricProofDetail;
+    hackathonsDetail?: MetricProofDetail;
+    githubDetail?: MetricProofDetail;
+    leetcodeDetail?: MetricProofDetail;
+    assessmentsDetail?: MetricProofDetail;
   }
 ): StudentDNASnapshot {
   const skillsWithEvidence = skills.filter(s => s.estimatedLevel > 0);
@@ -369,7 +391,12 @@ export function generateStudentDNASnapshot(
     projectsCount: rawSources?.projectsCount || 0,
     assessmentsCount: rawSources?.assessmentsCount || 0,
     interviewsCount: rawSources?.interviewsCount || 0,
-    hackathonsCount: rawSources?.hackathonsCount || 0
+    hackathonsCount: rawSources?.hackathonsCount || 0,
+    projectsDetail: rawSources?.projectsDetail,
+    hackathonsDetail: rawSources?.hackathonsDetail,
+    githubDetail: rawSources?.githubDetail,
+    leetcodeDetail: rawSources?.leetcodeDetail,
+    assessmentsDetail: rawSources?.assessmentsDetail
   };
 
   const overallCoverage =

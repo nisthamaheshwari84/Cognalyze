@@ -5846,7 +5846,8 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
           ? authProfile.projects.map((proj: any) => ({
               title: proj.title || "Project",
               tech_stack: Array.isArray(proj.techStack) ? proj.techStack : (proj.tech_stack || ["Software Engineering"]),
-              description: proj.description || ""
+              description: proj.description || "",
+              github_url: proj.githubUrl || proj.github_url
             }))
           : (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE.past_projects : []),
         target_roles: authProfile.careerGoals?.targetRoles?.length
@@ -5858,7 +5859,10 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
         availability: "Immediate",
         risk_appetite: "Moderate",
         profile_summary: `${authProfile.degree || "B.Tech"} in ${authProfile.branch || "CSE"} at ${authProfile.college || "University"}`,
-        experience_level: "fresher"
+        experience_level: "fresher",
+        achievements: authProfile.achievements || [],
+        certifications: authProfile.certifications || [],
+        github_url: authProfile.githubUrl
       };
       inMemoryProfiles.set(candidateId, p);
       return p;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
-import { getStudentDNAFull, setUserTargetRole, getUserTargetRole } from "@/lib/dna/store";
+import { getStudentDNAFull, setUserTargetRole, getUserTargetRole, invalidateUserDNAScope } from "@/lib/dna/store";
 
 import { getStudentProfileCompletionState } from "@/lib/auth/store";
 
@@ -23,6 +23,11 @@ export async function GET(req: NextRequest) {
 
     // Strictly scope query to the authenticated student's permanent user ID
     const candidateId = auth.user.id;
+    const isRefresh = req.nextUrl.searchParams.get("refresh") === "true";
+    if (isRefresh) {
+      invalidateUserDNAScope(candidateId);
+    }
+
     const completion = getStudentProfileCompletionState(candidateId);
 
     // Profile Completion Gate: If student has not filled or completed the profile,

@@ -11,12 +11,17 @@
  */
 
 import { DNAEvidence, RawSourceData, validateRawSourceData, processEvidencePipeline, detectContradictions, EvidenceFilter } from "./evidence-pipeline";
-import { StudentSkill, StudentDNASnapshot, calculateStudentSkillProfile, generateStudentDNASnapshot, getExplainableWhyForSkill } from "./profile-engine";
+import { StudentSkill, StudentDNASnapshot, calculateStudentSkillProfile, generateStudentDNASnapshot, getExplainableWhyForSkill, MetricDataStatus, MetricProofDetail } from "./profile-engine";
 import { RequirementProfile, getBenchmarkProfile, extractRequirementsFromJD } from "./requirement-engine";
 import { GapReport, runDeterministicGapAnalysis, PrioritizedGapAction } from "./gap-engine";
 import { getCandidateAttempts, CandidateAttempt } from "@/lib/skills/candidate-history";
 import { getStudentProfile, DEMO_STUDENT_PROFILE } from "@/lib/placement-store";
 import { getStudentProfileByUserId } from "@/lib/auth/store";
+import {
+  CandidateUnifiedEvidenceDossier,
+  buildCandidateUnifiedEvidenceDossier,
+  invalidateCandidateEvidence
+} from "@/lib/evidence/candidate-evidence-engine";
 
 export interface DNAAuditLog {
   id: string;
@@ -34,10 +39,16 @@ export interface FullStudentDNAResponse {
   userId: string;
   snapshot: StudentDNASnapshot;
   skills: StudentSkill[];
+  skillsBreakdown?: StudentSkill[];
   evidence: DNAEvidence[];
+  recentProofItems?: DNAEvidence[];
   auditLogs: DNAAuditLog[];
   activeTargetProfile: RequirementProfile;
+  targetRoleKey?: string;
+  targetRoleTitle?: string;
+  availableRoles?: Array<{ key: string; title: string }>;
   gapReport: GapReport;
+  sourceIntelligence?: CandidateUnifiedEvidenceDossier;
   lastUpdatedAt: string;
 }
 
@@ -52,6 +63,7 @@ const USER_TARGET_ROLES: Map<string, string> = new Map();
 export function invalidateUserDNAScope(userId: string): void {
   USER_EVIDENCE_STORE.delete(userId);
   USER_AUDIT_LOGS.delete(userId);
+  invalidateCandidateEvidence(userId);
 }
 
 /**
@@ -182,15 +194,18 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
   // 5. Achievements & Hackathons
   if (authProfile?.achievements?.length) {
     authProfile.achievements.forEach((ach: any, achIdx: number) => {
+      const isHack = (ach.type || "").toLowerCase().includes("hackathon") || (ach.title || "").toLowerCase().includes("hackathon");
+      const isContest = (ach.type || "").toLowerCase().includes("contest") || (ach.title || "").toLowerCase().includes("contest") || (ach.title || "").toLowerCase().includes("olympiad");
+      
       rawList.push({
-        sourceType: "hackathon",
+        sourceType: isHack ? "hackathon" : (isContest ? "assessment" : "project"),
         sourceId: `ach_${achIdx}`,
         userId,
-        skillRaw: ach.type === "Hackathon" ? "System Design" : "Problem Solving",
+        skillRaw: isHack ? "System Design" : (isContest ? "Competitive Programming" : "Problem Solving"),
         evidenceType: "competitive_event",
         claim: `Achieved '${ach.title}' (${ach.type}): ${ach.description || ""}`,
         extractedValue: ach.description || ach.title,
-        strength: 0.8,
+        strength: isHack ? 0.8 : 0.7,
         timestamp: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
         metadata: { achievementTitle: ach.title, type: ach.type, date: ach.date }
       });
@@ -214,78 +229,7 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
     });
   }
 
-  // 3. GitHub repository seed for demo/active student
-  if (userId === "student-demo") {
-    rawList.push({
-      sourceType: "github",
-      sourceId: "gh_repo_fastapi_agent",
-      sourceUrl: "https://github.com/student-demo/autonomous-payment-agent",
-      userId,
-      skillRaw: "Python",
-      evidenceType: "public_repo",
-      claim: "Production repository: 84 commits, modular service architecture, unit tests",
-      extractedValue: "84 commits, 92% test coverage, FastAPI & LangChain pipeline",
-      strength: 0.85,
-      timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: { commits: 84, language: "Python", stars: 12, canonicalProjectId: "Autonomous Payment Recovery Agent" }
-    });
 
-    rawList.push({
-      sourceType: "github",
-      sourceId: "gh_repo_react_next",
-      sourceUrl: "https://github.com/student-demo/cognalyze-web",
-      userId,
-      skillRaw: "React",
-      evidenceType: "public_repo",
-      claim: "Fullstack Next.js 15 application with React 19 Server Components",
-      extractedValue: "Interactive client dashboards, state management, Tailwind & CSS modules",
-      strength: 0.85,
-      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: { commits: 42, language: "TypeScript", stars: 5 }
-    });
-
-    // 4. LeetCode / Coding Practice seed
-    rawList.push({
-      sourceType: "leetcode",
-      sourceId: "lc_profile_summary",
-      sourceUrl: "https://leetcode.com/u/student-demo",
-      userId,
-      skillRaw: "Data Structures & Algorithms",
-      evidenceType: "verified_assessment",
-      claim: "Solved 142 LeetCode problems (68 Medium, 14 Hard) in Trees, Graphs, and DP",
-      extractedValue: "142 problems solved, 1680 contest rating, 74% medium solve rate",
-      strength: 0.8,
-      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: { totalSolved: 142, mediumSolved: 68, hardSolved: 14, contestRating: 1680 }
-    });
-
-    // 5. Practical Assessment seed
-    rawList.push({
-      sourceType: "assessment",
-      sourceId: "cognalyze_dsa_exam_01",
-      userId,
-      skillRaw: "Data Structures & Algorithms",
-      evidenceType: "practical_task",
-      claim: "Scored 84% on Algorithmic Coding Challenge (Graph Traversal & Two-Pointer)",
-      extractedValue: "84% correctness, optimal time complexity O(V+E)",
-      strength: 0.9,
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: { score: 84, maxScore: 100, passed: true }
-    });
-
-    rawList.push({
-      sourceType: "interview",
-      sourceId: "mock_tech_interview_01",
-      userId,
-      skillRaw: "Python",
-      evidenceType: "interview_signal",
-      claim: "Technical Interviewer verified Python concurrency & generator mechanics",
-      extractedValue: "Demonstrated clear understanding of asyncio event loops and GIL behavior",
-      strength: 0.95,
-      timestamp: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
-      metadata: { interviewerRole: "Senior Engineer", outcome: "Passed" }
-    });
-  }
 
   // 4. Include any real Candidate Attempts logged in candidate-history.ts
   const candidateAttempts: CandidateAttempt[] = getCandidateAttempts(userId);
@@ -386,6 +330,7 @@ export async function addStudentEvidenceRecord(
   const currentLogs = USER_AUDIT_LOGS.get(userId) || [];
   currentLogs.unshift(auditLog);
   USER_AUDIT_LOGS.set(userId, currentLogs);
+  invalidateCandidateEvidence(userId);
 
   return { success: true, evidence: newEv, auditLog };
 }
@@ -414,6 +359,7 @@ export async function retractEvidenceBySource(
   const currentLogs = USER_AUDIT_LOGS.get(userId) || [];
   currentLogs.unshift(auditLog);
   USER_AUDIT_LOGS.set(userId, currentLogs);
+  invalidateCandidateEvidence(userId);
 
   return { success: true, removedCount };
 }
@@ -442,30 +388,137 @@ export async function getStudentDNAFull(
   const evidence = await initializeUserEvidenceIfEmpty(userId);
   const skills = calculateStudentSkillProfile(userId, evidence);
   
-  const leetcodeEv = evidence.find(e => e.sourceType === "leetcode");
-  const leetcodeSolvedCount = typeof leetcodeEv?.metadata?.totalSolved === "number"
-    ? leetcodeEv.metadata.totalSolved
-    : (leetcodeEv ? 1 : 0);
+  // 1. Build unified evidence dossier across 8 source streams with zero fabrication
+  const sourceIntelligence = await buildCandidateUnifiedEvidenceDossier(userId);
+
+  // 2. Derive projects metrics
+  const submittedProjects = new Set(
+    evidence
+      .filter(e => e.sourceType === "project" || e.sourceType === "github")
+      .map(e => e.metadata?.canonicalProjectId || e.metadata?.projectTitle || e.sourceId)
+  );
+  const projectsCount = submittedProjects.size;
+  const projectsStatus: MetricDataStatus = projectsCount === 0 ? "NO_RECORDS" : "READY";
+  const projectsDetail: MetricProofDetail = {
+    value: projectsCount,
+    status: projectsStatus,
+    displayText: projectsCount === 0 ? "No records found" : String(projectsCount),
+    sourceName: "Candidate Submitted Project Artifacts",
+    scopeNote: "Calculated from authentic candidate project submissions. Deduplicated by canonical project entity.",
+    breakdown: {
+      submittedCount: projectsCount,
+      withAccessibleRepo: sourceIntelligence.github.accessible_repos.length,
+      withAccessibleDeploy: sourceIntelligence.deployments.deployments.filter(d => d.accessible).length,
+      withInspectedCode: sourceIntelligence.github.accessible_repos.filter(r => r.languages_in_code.length > 0).length
+    }
+  };
+
+  // 3. Derive hackathons metrics
+  const hackathonList = sourceIntelligence.hackathons.hackathons;
+  const hackathonsCount = hackathonList.length;
+  const hackathonsStatus: MetricDataStatus = hackathonsCount === 0 ? "NO_RECORDS" : "READY";
+  const hackathonsDetail: MetricProofDetail = {
+    value: hackathonsCount,
+    status: hackathonsStatus,
+    displayText: hackathonsCount === 0 ? "No records found" : String(hackathonsCount),
+    sourceName: "Candidate Hackathon & Competition Records",
+    scopeNote: "Calculated from authentic competition records. Distinguishes student-reported vs independently verified results.",
+    breakdown: {
+      totalCount: hackathonsCount,
+      studentReportedCount: hackathonList.filter(h => h.reported_by_student).length,
+      independentlySupportedCount: hackathonList.filter(h => h.url_verified).length,
+      verifiedAwardsCount: hackathonList.filter(h => h.official_result_status === "WINNER").length
+    }
+  };
+
+  // 4. Derive GitHub metrics
+  const ghStatus = sourceIntelligence.github.retrieval_status;
+  const ghRepos = sourceIntelligence.github.repos_count;
+  let githubMetricStatus: MetricDataStatus = "NOT_CONNECTED";
+  let githubDisplayText = "Not connected";
+  if (ghStatus === "NOT_CONNECTED" || ghStatus === "NOT_PROVIDED") {
+    githubMetricStatus = "NOT_CONNECTED";
+    githubDisplayText = "Not connected";
+  } else if (ghStatus === "RETRIEVAL_FAILED" || ghStatus === "ACCESS_RESTRICTED" || ghStatus === "EXTRACTION_FAILED") {
+    githubMetricStatus = "UNABLE_TO_RETRIEVE";
+    githubDisplayText = "Unable to retrieve data";
+  } else if (ghRepos === 0 || ghStatus === "INSUFFICIENT_EVIDENCE") {
+    githubMetricStatus = "NO_RECORDS";
+    githubDisplayText = "No records found";
+  } else if (ghRepos !== null) {
+    githubMetricStatus = "READY";
+    githubDisplayText = String(ghRepos);
+  }
+  const githubDetail: MetricProofDetail = {
+    value: ghRepos,
+    status: githubMetricStatus,
+    displayText: githubDisplayText,
+    sourceName: "Public GitHub REST API",
+    scopeNote: "Inspected via public GitHub API. Excludes unauthorized private repositories.",
+    breakdown: {
+      retrievalStatus: ghStatus,
+      accessibleReposCount: sourceIntelligence.github.accessible_repos.length,
+      languages: sourceIntelligence.github.top_languages
+    }
+  };
+
+  // 5. Derive LeetCode metrics
+  const lcStatus = sourceIntelligence.leetcode.retrieval_status;
+  const lcSolved = sourceIntelligence.leetcode.total_solved;
+  let leetcodeMetricStatus: MetricDataStatus = "NOT_CONNECTED";
+  let leetcodeDisplayText = "Not connected";
+  if (lcStatus === "NOT_CONNECTED" || lcStatus === "NOT_PROVIDED") {
+    leetcodeMetricStatus = "NOT_CONNECTED";
+    leetcodeDisplayText = "Not connected";
+  } else if (lcStatus === "RETRIEVAL_FAILED" || lcStatus === "ACCESS_RESTRICTED" || lcStatus === "EXTRACTION_FAILED") {
+    leetcodeMetricStatus = "UNABLE_TO_RETRIEVE";
+    leetcodeDisplayText = "Unable to retrieve data";
+  } else if (lcSolved === 0 || lcStatus === "INSUFFICIENT_EVIDENCE") {
+    leetcodeMetricStatus = "NO_RECORDS";
+    leetcodeDisplayText = "No records found";
+  } else if (lcSolved !== null) {
+    leetcodeMetricStatus = "READY";
+    leetcodeDisplayText = String(lcSolved);
+  }
+  const leetcodeDetail: MetricProofDetail = {
+    value: lcSolved,
+    status: leetcodeMetricStatus,
+    displayText: leetcodeDisplayText,
+    retrievedAt: sourceIntelligence.leetcode.retrieved_at,
+    sourceName: "LeetCode Public Profile",
+    scopeNote: "Live statistics extracted directly from official LeetCode endpoints without estimation.",
+    breakdown: {
+      easySolved: sourceIntelligence.leetcode.easy_solved,
+      mediumSolved: sourceIntelligence.leetcode.medium_solved,
+      hardSolved: sourceIntelligence.leetcode.hard_solved,
+      contestRating: sourceIntelligence.leetcode.contest_rating
+    }
+  };
 
   const proofCounts = {
-    githubVerified: evidence.some(e => e.sourceType === "github"),
-    githubRepoCount: evidence.filter(e => e.sourceType === "github").length,
-    leetcodeSolvedCount,
-    projectsCount: new Set(evidence.filter(e => e.sourceType === "project" || e.sourceType === "github").map(e => e.metadata?.canonicalProjectId || e.sourceId)).size,
+    githubVerified: sourceIntelligence.github.accessible_repos.length > 0 || evidence.some(e => e.sourceType === "github"),
+    githubRepoCount: ghRepos ?? 0,
+    leetcodeSolvedCount: lcSolved ?? 0,
+    projectsCount,
     assessmentsCount: evidence.filter(e => e.sourceType === "assessment" || e.sourceType === "practice").length,
     interviewsCount: evidence.filter(e => e.sourceType === "interview").length,
-    hackathonsCount: evidence.filter(e => e.sourceType === "hackathon").length
+    hackathonsCount,
+    projectsDetail,
+    hackathonsDetail,
+    githubDetail,
+    leetcodeDetail
   };
+
   const snapshot = generateStudentDNASnapshot(userId, skills, proofCounts);
   const auditLogs = USER_AUDIT_LOGS.get(userId) || [];
 
   // Determine Target Requirement Profile
+  const activeRoleKey = getUserTargetRole(userId);
   let targetProfile: RequirementProfile;
   if (customTargetProfile) {
     targetProfile = customTargetProfile;
   } else {
-    const roleKey = getUserTargetRole(userId);
-    targetProfile = getBenchmarkProfile(roleKey) || getBenchmarkProfile("sde_intern")!;
+    targetProfile = getBenchmarkProfile(activeRoleKey) || getBenchmarkProfile("sde_intern")!;
   }
 
   // Run deterministic gap engine
@@ -475,10 +528,21 @@ export async function getStudentDNAFull(
     userId,
     snapshot,
     skills,
+    skillsBreakdown: skills,
     evidence,
+    recentProofItems: evidence.slice(0, 5),
     auditLogs,
     activeTargetProfile: targetProfile,
+    targetRoleKey: targetProfile.id || activeRoleKey,
+    targetRoleTitle: targetProfile.roleTitle,
+    availableRoles: [
+      { key: "sde_intern", title: "Software Engineer Intern" },
+      { key: "fullstack_junior", title: "Junior Full Stack Engineer" },
+      { key: "ai_ml_engineer", title: "AI/ML Engineer" },
+      { key: "backend_systems", title: "Backend Systems Engineer" }
+    ],
     gapReport,
+    sourceIntelligence,
     lastUpdatedAt: new Date().toISOString()
   };
 }

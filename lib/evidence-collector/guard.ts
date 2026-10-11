@@ -67,21 +67,35 @@ export function hasCorroboratingFacts(
     if (facts.repo_count === 0 && facts.top_repos.length === 0) {
       return false;
     }
-    // If claim mentions specific language (e.g. Python, TypeScript)
-    const matchingLang = (facts.top_languages || []).some((lang: string) =>
-      claimLower.includes(lang.toLowerCase())
-    );
-    // Or if claim is generic git/coding and there are commits or repos
-    const hasActiveRepos = facts.commits_last_6mo > 0 || facts.top_repos.length > 0;
-    return matchingLang || hasActiveRepos;
+    // If claim mentions specific language (e.g. Python, TypeScript) or repo name
+    const matchingLang = (facts.top_languages || []).some((lang: any) => {
+      const langName = typeof lang === "string" ? lang : lang?.name || "";
+      if (!langName) return false;
+      return claimLower.includes(langName.toLowerCase()) || langName.toLowerCase().includes(claimLower);
+    });
+    const matchingRepo = (facts.top_repos || []).some((repo: any) => {
+      const repoName = typeof repo === "string" ? repo : repo?.name || "";
+      if (!repoName) return false;
+      return claimLower.includes(repoName.toLowerCase()) || repoName.toLowerCase().includes(claimLower);
+    });
+    // Generic coding claims (git, github, programming)
+    const isGenericClaim = /\b(git|github|coding|programming|open source)\b/i.test(claimLower);
+    const hasActiveRepos = isGenericClaim && (facts.commits_last_6mo > 0 || facts.top_repos.length > 0);
+
+    return matchingLang || matchingRepo || Boolean(hasActiveRepos);
   }
 
   // 2. GitHub Deep Facts
   if ("repo_analyses" in facts && Array.isArray(facts.repo_analyses)) {
     if (facts.repo_analyses.length === 0) return false;
-    return facts.repo_analyses.some(
-      (r) => r.commit_count > 0 || r.pr_count > 0 || r.commit_span_days > 0
-    );
+    const matchingRepo = facts.repo_analyses.some((r) => {
+      const nameMatch = claimLower.includes((r.name || "").toLowerCase());
+      const techMatch = (r.languages || []).some((l: string) => claimLower.includes(l.toLowerCase()));
+      return (nameMatch || techMatch) && (r.commit_count > 0 || r.pr_count > 0 || r.commit_span_days > 0);
+    });
+    const isGenericClaim = /\b(git|github|coding|programming|open source)\b/i.test(claimLower);
+    const hasActivity = isGenericClaim && facts.repo_analyses.some((r) => r.commit_count > 0 || r.pr_count > 0);
+    return matchingRepo || Boolean(hasActivity);
   }
 
   // 3. Codeforces Facts
@@ -107,7 +121,7 @@ export function hasCorroboratingFacts(
         (p.technologies || []).some((t: string) => claimLower.includes(t.toLowerCase())) ||
         Boolean(p.name && claimLower.includes(p.name.toLowerCase()))
     );
-    return hasClaimedSkill || hasProject || (facts.documented_experience_years || 0) > 0;
+    return hasClaimedSkill || hasProject;
   }
 
   return false;

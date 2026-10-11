@@ -122,3 +122,67 @@ export function validateUploadFile(file?: { name?: string; size?: number; type?:
 
   return { valid: true };
 }
+
+/**
+ * SSRF Safety Validator (Section 20 Requirement)
+ * Blocks loopback, internal private subnets, cloud metadata endpoints, and non-http(s) protocols.
+ */
+export function isSafePublicUrl(rawUrl: string): { safe: boolean; reason?: string } {
+  if (!rawUrl || typeof rawUrl !== "string") {
+    return { safe: false, reason: "Empty or invalid URL" };
+  }
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl.trim());
+  } catch {
+    return { safe: false, reason: "Malformed URL format" };
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    return { safe: false, reason: `Disallowed protocol: ${parsed.protocol}` };
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  // Loopback / Localhost
+  if (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "::1" ||
+    hostname === "0.0.0.0" ||
+    hostname.endsWith(".localhost") ||
+    hostname.endsWith(".local") ||
+    hostname.endsWith(".internal") ||
+    hostname.endsWith(".lan") ||
+    hostname.endsWith(".localdomain")
+  ) {
+    return { safe: false, reason: "Restricted local destination (SSRF Protection)" };
+  }
+
+  // AWS / GCP / Azure Cloud Metadata
+  if (hostname === "169.254.169.254" || hostname.startsWith("169.254.")) {
+    return { safe: false, reason: "Restricted cloud metadata service (SSRF Protection)" };
+  }
+
+  // IPv4 Private subnets
+  const ipMatch = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipMatch) {
+    const oct1 = parseInt(ipMatch[1], 10);
+    const oct2 = parseInt(ipMatch[2], 10);
+
+    if (oct1 === 10) {
+      return { safe: false, reason: "Restricted private RFC1918 subnet (10.0.0.0/8)" };
+    }
+    if (oct1 === 172 && oct2 >= 16 && oct2 <= 31) {
+      return { safe: false, reason: "Restricted private RFC1918 subnet (172.16.0.0/12)" };
+    }
+    if (oct1 === 192 && oct2 === 168) {
+      return { safe: false, reason: "Restricted private RFC1918 subnet (192.168.0.0/16)" };
+    }
+    if (oct1 === 127 || oct1 === 0) {
+      return { safe: false, reason: "Restricted loopback/zero subnet" };
+    }
+  }
+
+  return { safe: true };
+}

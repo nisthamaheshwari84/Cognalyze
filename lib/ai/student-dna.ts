@@ -300,24 +300,29 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
   }
 
   // 8. Hackathon & Collaboration history
-  const hackathons = inMemoryHackathons.get(candidateId) || [
-    {
-      hackathon_id: "opp-flipkart-grid",
-      hackathon_title: "Flipkart GRiD 7.0 — Software Development Track",
-      date: "2026-08-15",
-      role: "Backend Architect",
-      status: "completed",
-      skills_practiced: ["Distributed Systems", "Java", "PostgreSQL"]
+  let hackathons = inMemoryHackathons.get(candidateId) || [];
+  if (hackathons.length === 0 && Array.isArray((profile as any).achievements)) {
+    for (const ach of (profile as any).achievements) {
+      const isHack = ach.type?.toLowerCase().includes("hackathon") || ach.title?.toLowerCase().includes("hackathon");
+      if (isHack) {
+        hackathons.push({
+          hackathon_id: `ach_${ach.id || Math.random().toString(36).substring(2, 8)}`,
+          hackathon_title: ach.title,
+          date: ach.date || new Date().toISOString().split("T")[0],
+          role: "Participant",
+          status: "completed",
+          skills_practiced: []
+        });
+      }
     }
-  ];
-
+  }
   const collaborations = inMemoryCollaborations.get(candidateId) || [];
 
-  // 9. PS Interactions summary (will link to Phase 2 store)
+  // 9. PS Interactions summary (strictly grounded)
   const interactionsSummary = {
-    shown_count: 5,
-    viewed_count: 3,
-    saved_count: 1,
+    shown_count: 0,
+    viewed_count: 0,
+    saved_count: 0,
     rejected_count: 0,
     applied_count: 0,
     selected_count: 0
