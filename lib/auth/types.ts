@@ -150,6 +150,9 @@ export interface StudentProfile {
   profileStatus: ProfileStatus;
   privacySetting: PrivacySetting;
   primaryInterests?: string[];
+  currentStep?: number;
+  savedOpportunities?: string[];
+  trackedApplications?: any[];
   lastUsernameChangeAt: string | null;
   createdAt: string;
   updatedAt: string;

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
-import { getStudentProfileByUserId, upsertStudentProfileByUserId } from "@/lib/auth/store";
-import { upsertStudentProfile } from "@/lib/placement-store";
+import { getStudentProfileByUserId, upsertStudentProfileByUserId, saveStoreToCloud } from "@/lib/auth/store";
+import { upsertStudentProfile, invalidatePlacementProfile } from "@/lib/placement-store";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
+import { invalidateUserDNAScope } from "@/lib/dna/store";
 
 export async function GET(req: NextRequest) {
   try {
@@ -51,9 +52,9 @@ export async function POST(req: NextRequest) {
       }));
 
       const placementSkills = (body.skills || []).map((s: any) => ({
-        name: s.name || s,
-        level: s.level || "Intermediate",
-        evidence: s.evidence || undefined
+        name: typeof s === "string" ? s : (s.name || ""),
+        level: (typeof s === "object" && s.level) ? s.level : "Intermediate",
+        evidence: (typeof s === "object" && s.evidence) ? s.evidence : undefined
       }));
 
       await upsertStudentProfile({
@@ -66,9 +67,15 @@ export async function POST(req: NextRequest) {
         risk_appetite: "Moderate",
         profile_summary: `${updated.degree || "Student"} in ${updated.branch || "Engineering"} at ${updated.college || "University"}`
       });
-
-      invalidateStudentDNACache(auth.user.id);
     }
+
+    // Invalidate scopes across placement, DNA, and AI cache
+    invalidateStudentDNACache(auth.user.id);
+    invalidatePlacementProfile(auth.user.id);
+    invalidateUserDNAScope(auth.user.id);
+
+    // Persist to Supabase cloud store
+    await saveStoreToCloud();
 
     return NextResponse.json({
       success: true,

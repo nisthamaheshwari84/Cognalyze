@@ -68,6 +68,18 @@ export default function StudentDNAPage() {
   const [selectedImproveFitOpp, setSelectedImproveFitOpp] = useState<any | null>(null);
   const [savingOppId, setSavingOppId] = useState<string | null>(null);
 
+  // Profile Completion Gate State (Section 4 Spec)
+  const [profileState, setProfileState] = useState<"NO_PROFILE" | "PARTIAL_PROFILE" | "COMPLETED_PROFILE" | null>(null);
+  const [completionProgress, setCompletionProgress] = useState<any | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Job-Specific Application Assistant Modal (Section 20-22 Spec)
+  const [selectedApplyOpp, setSelectedApplyOpp] = useState<any | null>(null);
+  const [applyTrackerStage, setApplyTrackerStage] = useState<string>("APPLIED");
+  const [applyTrackerNotes, setApplyTrackerNotes] = useState<string>("");
+  const [applySaving, setApplySaving] = useState<boolean>(false);
+  const [applySuccessMsg, setApplySuccessMsg] = useState<string | null>(null);
+
   useEffect(() => {
     loadDNA();
   }, []);
@@ -138,6 +150,7 @@ export default function StudentDNAPage() {
 
   const loadDNA = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const res = await fetch("/api/student-dna");
       if (res.status === 401) {
@@ -145,18 +158,22 @@ export default function StudentDNAPage() {
         return;
       }
       const data = await res.json();
-      if (data.success && data.data) {
-        setDnaData(data.data);
-        if (data.data.userId) setCandidateId(data.data.userId);
-      } else {
-        const fallbackRes = await fetch("/api/student/dna");
-        const fallbackData = await fallbackRes.json();
-        if (fallbackData.dnaFull) {
-          setDnaData(fallbackData.dnaFull);
+      if (data.success) {
+        const state = data.profileState || (data.data ? "COMPLETED_PROFILE" : "NO_PROFILE");
+        setProfileState(state);
+        if (data.completion) setCompletionProgress(data.completion);
+        if (data.data) {
+          setDnaData(data.data);
+          if (data.data.userId) setCandidateId(data.data.userId);
+        } else {
+          setDnaData(null);
         }
+      } else {
+        setLoadError(data.error || "Failed to load Student DNA Intelligence.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load Student DNA data:", err);
+      setLoadError(err?.message || "An unexpected error occurred while loading Student DNA.");
     } finally {
       setLoading(false);
     }
@@ -424,12 +441,275 @@ export default function StudentDNAPage() {
       </div>
 
       <main style={{ maxWidth: 1180, margin: "0 auto", padding: "32px 32px 96px" }}>
-        {loading && !dnaData ? (
+        {/* ── STATE D: LOADING STATE ── */}
+        {loading && (
           <div style={{ textAlign: "center", padding: "80px 0", color: "#667085" }}>
-            <div style={{ fontSize: 15, fontWeight: 600, color: "#162A43" }}>Synthesizing Student DNA Intelligence...</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43" }}>Synthesizing Student DNA Intelligence...</div>
             <div style={{ fontSize: 13, marginTop: 4 }}>Aggregating multi-source evidence and evaluating capability models</div>
           </div>
-        ) : null}
+        )}
+
+        {/* ── STATE D: ERROR STATE ── */}
+        {!loading && loadError && (
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #F8C8C8",
+              borderRadius: 10,
+              padding: "40px 28px",
+              textAlign: "center",
+              maxWidth: 600,
+              margin: "40px auto",
+            }}
+          >
+            <div style={{ fontSize: 24, marginBottom: 8 }}>⚠</div>
+            <div style={{ color: "#C24141", fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
+              Unable to Load Student DNA
+            </div>
+            <div style={{ color: "#667085", fontSize: 13, marginBottom: 20 }}>{loadError}</div>
+            <button
+              onClick={loadDNA}
+              style={{
+                background: "#162A43",
+                color: "#FFFFFF",
+                border: "none",
+                borderRadius: 7,
+                padding: "9px 20px",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              Retry Loading ↻
+            </button>
+          </div>
+        )}
+
+        {/* ── STATE A: NO PROFILE COMPLETION GATE (SECTION 4 SPEC) ── */}
+        {!loading && !loadError && profileState === "NO_PROFILE" && (
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
+              padding: "52px 36px",
+              textAlign: "center",
+              maxWidth: 820,
+              margin: "20px auto",
+              boxShadow: "0 2px 12px rgba(22, 42, 67, 0.04)",
+            }}
+          >
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "#EFF4FE",
+                color: "#356AE6",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 28,
+                margin: "0 auto 20px",
+                border: "1px solid #D2E0FB",
+              }}
+            >
+              🧬
+            </div>
+            <h2 style={{ fontSize: 28, fontWeight: 800, color: "#162A43", marginBottom: 12, letterSpacing: "-0.5px" }}>
+              Build Your Student DNA
+            </h2>
+            <p style={{ fontSize: 15, color: "#475467", maxWidth: 620, margin: "0 auto 32px", lineHeight: 1.6 }}>
+              Complete your Student DNA profile so Cognalyze can analyze your skills, projects, achievements, career goals, and supporting evidence.
+            </p>
+
+            <div style={{ display: "flex", justifyContent: "center", gap: 14, marginBottom: 44 }}>
+              <Link
+                href="/student/onboarding"
+                style={{
+                  background: "#356AE6",
+                  color: "#FFFFFF",
+                  padding: "13px 32px",
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  boxShadow: "0 2px 8px rgba(53, 106, 230, 0.25)",
+                }}
+              >
+                Fill Your Student DNA ➔
+              </Link>
+            </div>
+
+            <div
+              style={{
+                borderTop: "1px solid #E4E1DA",
+                paddingTop: 32,
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                gap: 16,
+                textAlign: "left",
+              }}
+            >
+              <div style={{ background: "#FAF9F6", padding: "16px 18px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+                  1. Evidence Provenance
+                </div>
+                <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
+                  Skills are evaluated solely through inspectable codebase artifacts, practical tasks, and corroborated claims.
+                </div>
+              </div>
+              <div style={{ background: "#FAF9F6", padding: "16px 18px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 4 }}>
+                  2. Zero Fabrication
+                </div>
+                <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
+                  We never generate fake metrics, phantom hackathon trophies, or ungrounded readiness scores for new accounts.
+                </div>
+              </div>
+              <div style={{ background: "#FAF9F6", padding: "16px 18px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#8E44AD", textTransform: "uppercase", marginBottom: 4 }}>
+                  3. Opportunity Radar
+                </div>
+                <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.5 }}>
+                  Discover verified jobs, internships, hackathons, and research fellowships tailored to your proven capabilities.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── STATE B: PARTIAL PROFILE COMPLETION GATE (SECTION 4 SPEC) ── */}
+        {!loading && !loadError && profileState === "PARTIAL_PROFILE" && (
+          <div
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
+              padding: "44px 36px",
+              maxWidth: 860,
+              margin: "20px auto",
+              boxShadow: "0 2px 12px rgba(22, 42, 67, 0.04)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                flexWrap: "wrap",
+                gap: 16,
+                marginBottom: 24,
+                borderBottom: "1px solid #E4E1DA",
+                paddingBottom: 22,
+              }}
+            >
+              <div style={{ maxWidth: 580 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "#B7791F",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.8px",
+                    marginBottom: 4,
+                  }}
+                >
+                  STUDENT DNA IN PROGRESS
+                </div>
+                <h2 style={{ fontSize: 26, fontWeight: 800, color: "#162A43", margin: "4px 0 8px" }}>
+                  Continue Your Student DNA
+                </h2>
+                <p style={{ fontSize: 14, color: "#475467", margin: 0, lineHeight: 1.5 }}>
+                  Your profile is currently partially saved. Complete the remaining sections so Cognalyze can benchmark your capabilities against industry requirements and discover matched opportunities.
+                </p>
+              </div>
+
+              <Link
+                href="/student/onboarding"
+                style={{
+                  background: "#356AE6",
+                  color: "#FFFFFF",
+                  padding: "11px 24px",
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  boxShadow: "0 2px 6px rgba(53, 106, 230, 0.25)",
+                }}
+              >
+                Continue Your Student DNA ➔
+              </Link>
+            </div>
+
+            {/* Live Saved Progress Bar */}
+            <div style={{ marginBottom: 28, background: "#FAF9F6", padding: "18px 22px", borderRadius: 8, border: "1px solid #E4E1DA" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, fontSize: 13, fontWeight: 600 }}>
+                <span style={{ color: "#162A43" }}>Saved Progress: Step {completionProgress?.currentStep || 1} of 9</span>
+                <span style={{ color: "#356AE6", fontWeight: 700 }}>{completionProgress?.completionPercentage || 0}% Completed</span>
+              </div>
+              <div style={{ height: 8, backgroundColor: "#E4E1DA", borderRadius: 4, overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${completionProgress?.completionPercentage || 0}%`,
+                    background: "#356AE6",
+                    transition: "width 0.3s ease",
+                  }}
+                />
+              </div>
+              <div style={{ fontSize: 11, color: "#667085", marginTop: 8 }}>
+                ☁ All your previously entered answers are securely saved in the database. You will not lose your progress.
+              </div>
+            </div>
+
+            {/* Two-Column Section Status Breakdown */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 18 }}>
+              {/* Completed Sections */}
+              <div style={{ background: "#F9FDF9", border: "1px solid #C8E4D3", borderRadius: 8, padding: "18px 20px" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>✓</span> Completed Sections ({completionProgress?.completedSections?.length || 0})
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {(completionProgress?.completedSections || []).map((sec: string) => (
+                    <div key={sec} style={{ fontSize: 13, color: "#162A43", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ color: "#2E7D5B", fontWeight: 700 }}>✓</span>
+                      <span>{sec}</span>
+                    </div>
+                  ))}
+                  {(!completionProgress?.completedSections || completionProgress.completedSections.length === 0) && (
+                    <div style={{ fontSize: 12, color: "#667085" }}>No sections fully completed yet.</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Remaining Sections */}
+              <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 8, padding: "18px 20px" }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                  <span>○</span> Remaining Required Sections ({completionProgress?.remainingSections?.length || 0})
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {(completionProgress?.remainingSections || []).map((sec: string) => (
+                    <div key={sec} style={{ fontSize: 13, color: "#667085", display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ color: "#B7791F" }}>○</span>
+                      <span>{sec}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── STATE C: COMPLETED PROFILE DASHBOARD ── */}
+        {!loading && !loadError && profileState === "COMPLETED_PROFILE" && (
+          <>
 
         {/* ══════════════════════════════════════════════════════════ */}
         {/* VIEW 1 — STUDENT DNA STRUCTURED PROFILE (SECTION 14 SPEC)  */}
@@ -2136,26 +2416,29 @@ export default function StudentDNAPage() {
                                   <Bookmark size={12} fill={item.isSaved ? "#356AE6" : "none"} />
                                   {item.isSaved ? "Saved" : "Save"}
                                 </button>
-
-                                <a
-                                  href={opp.sourceUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
+                                <button
+                                  onClick={() => {
+                                    setSelectedApplyOpp(item);
+                                    setApplyTrackerStage(item.trackedStage || "APPLIED");
+                                    setApplyTrackerNotes(item.trackedApplication?.notes || "");
+                                    setApplySuccessMsg(null);
+                                  }}
                                   style={{
                                     background: "#162A43",
                                     color: "#FFFFFF",
-                                    padding: "6px 12px",
+                                    border: "none",
+                                    padding: "6px 14px",
                                     borderRadius: 6,
                                     fontSize: 11,
                                     fontWeight: 600,
-                                    textDecoration: "none",
+                                    cursor: "pointer",
                                     display: "inline-flex",
                                     alignItems: "center",
-                                    gap: 4,
+                                    gap: 5,
                                   }}
                                 >
-                                  Apply Now <ExternalLink size={11} />
-                                </a>
+                                  Apply & Track ➔
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -2167,6 +2450,8 @@ export default function StudentDNAPage() {
               </div>
             )}
           </div>
+        )}
+        </>
         )}
       </main>
 
@@ -2553,15 +2838,15 @@ export default function StudentDNAPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 4 }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button
                 onClick={() => setSelectedImproveFitOpp(null)}
                 style={{
-                  background: "#FFFFFF",
-                  border: "1px solid #E4E1DA",
-                  color: "#667085",
-                  padding: "7px 14px",
-                  borderRadius: 7,
+                  background: "#162A43",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "7px 16px",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -2569,20 +2854,251 @@ export default function StudentDNAPage() {
               >
                 Close
               </button>
-              <Link
-                href={selectedImproveFitOpp.evaluation.tailoredImproveFitAction.actionUrl}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════ */}
+      {/* JOB-SPECIFIC APPLICATION ASSISTANT MODAL (SPEC SEC 20-22) */}
+      {/* ══════════════════════════════════════════════════════════ */}
+      {selectedApplyOpp && (
+        <div
+          onClick={() => setSelectedApplyOpp(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(22, 42, 67, 0.45)",
+            backdropFilter: "blur(4px)",
+            zIndex: 110,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "20px",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "#FFFFFF",
+              border: "1px solid #E4E1DA",
+              borderRadius: 12,
+              maxWidth: 640,
+              width: "100%",
+              padding: "26px 30px",
+              boxShadow: "0 20px 40px rgba(22, 42, 67, 0.16)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 18,
+              maxHeight: "90vh",
+              overflowY: "auto",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#356AE6", letterSpacing: 0.8 }}>
+                  APPLICATION ASSISTANT • {selectedApplyOpp.opportunity.categoryLabel}
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: "#162A43", margin: "4px 0 2px" }}>
+                  {selectedApplyOpp.opportunity.title}
+                </h3>
+                <div style={{ fontSize: 13, color: "#667085", fontWeight: 500 }}>
+                  {selectedApplyOpp.opportunity.organization} • {selectedApplyOpp.opportunity.location} ({selectedApplyOpp.opportunity.workMode})
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedApplyOpp(null)}
+                style={{ background: "transparent", border: "none", color: "#667085", fontSize: 18, cursor: "pointer" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* DIRECT ACTION 1: OFFICIAL APPLICATION PORTAL */}
+            <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, padding: "16px 18px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+                MODE A & B • OFFICIAL CAREERS PORTAL
+              </div>
+              <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5, marginBottom: 12 }}>
+                Verified source: <strong>{selectedApplyOpp.opportunity.sourceName}</strong>. Proceed directly to the company's official posting to complete your submission.
+              </div>
+              <a
+                href={selectedApplyOpp.opportunity.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   background: "#356AE6",
                   color: "#FFFFFF",
-                  padding: "7px 16px",
-                  borderRadius: 7,
+                  padding: "8px 18px",
+                  borderRadius: 6,
                   fontSize: 12,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-                Start Practice Module →
+                Open Official Application Page <ExternalLink size={12} />
+              </a>
+            </div>
+
+            {/* DIRECT ACTION 2: JOB-SPECIFIC RESUME ALIGNMENT */}
+            <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 8, padding: "16px 18px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#162A43", textTransform: "uppercase", marginBottom: 6 }}>
+                RESUME ALIGNMENT & REQUIREMENTS
+              </div>
+              <div style={{ fontSize: 12, color: "#475467", lineHeight: 1.5, marginBottom: 10 }}>
+                {selectedApplyOpp.evaluation.evidenceBackedWhy}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                {selectedApplyOpp.opportunity.requiredSkills.map((req: string) => {
+                  const isSatisfied = selectedApplyOpp.evaluation.satisfiedMustHaves?.some((s: any) => s.skill === req);
+                  return (
+                    <span
+                      key={req}
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: "3px 8px",
+                        borderRadius: 4,
+                        background: isSatisfied ? "#EAF4EE" : "#FEF8EC",
+                        color: isSatisfied ? "#2E7D5B" : "#B7791F",
+                        border: `1px solid ${isSatisfied ? "#C8E4D3" : "#F9E4B7"}`,
+                      }}
+                    >
+                      {isSatisfied ? "✓ " : "○ "} {req}
+                    </span>
+                  );
+                })}
+              </div>
+              <Link
+                href="/student/resume"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "#356AE6",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                Open Resume Intelligence & Tailor Document ➔
               </Link>
+            </div>
+
+            {/* DIRECT ACTION 3: APPLICATION STAGE TRACKER (SECTION 22 SPEC) */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "16px 18px" }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: "#162A43", textTransform: "uppercase", marginBottom: 8 }}>
+                MODE C • UPDATE APPLICATION STATUS
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#667085", marginBottom: 4 }}>
+                    Current Application Stage:
+                  </label>
+                  <select
+                    value={applyTrackerStage}
+                    onChange={(e) => setApplyTrackerStage(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #E4E1DA",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: "#162A43",
+                      background: "#FFFFFF",
+                    }}
+                  >
+                    <option value="SAVED">Saved for Later</option>
+                    <option value="PLANNED">Planned to Apply</option>
+                    <option value="APPLIED">Applied (Submitted)</option>
+                    <option value="ASSESSMENT">Online Assessment (OA)</option>
+                    <option value="INTERVIEW">Interview Scheduled</option>
+                    <option value="OFFER">Job Offer Received</option>
+                    <option value="REJECTED">Declined / Closed</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 600, color: "#667085", marginBottom: 4 }}>
+                    Private Personal Notes:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Applied via Google portal with Resume v2"
+                    value={applyTrackerNotes}
+                    onChange={(e) => setApplyTrackerNotes(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: 6,
+                      border: "1px solid #E4E1DA",
+                      fontSize: 12,
+                      color: "#162A43",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                </div>
+              </div>
+
+              {applySuccessMsg && (
+                <div style={{ color: "#2E7D5B", fontSize: 12, fontWeight: 600, marginBottom: 10 }}>
+                  ✓ {applySuccessMsg}
+                </div>
+              )}
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+                <button
+                  type="button"
+                  disabled={applySaving}
+                  onClick={async () => {
+                    setApplySaving(true);
+                    try {
+                      await handleUpdateStage(selectedApplyOpp.opportunity.id, applyTrackerStage, applyTrackerNotes);
+                      setApplySuccessMsg(`Application updated to '${applyTrackerStage}' and synced to database.`);
+                    } catch (err: any) {
+                      console.error("Failed to update stage:", err);
+                    } finally {
+                      setApplySaving(false);
+                    }
+                  }}
+                  style={{
+                    background: "#162A43",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "7px 16px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: applySaving ? "wait" : "pointer",
+                  }}
+                >
+                  {applySaving ? "Saving..." : "Save Application Status"}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setSelectedApplyOpp(null)}
+                style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  color: "#667085",
+                  padding: "7px 16px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
-import { upsertStudentProfileByUserId, getUserById } from "@/lib/auth/store";
-import { upsertStudentProfile } from "@/lib/placement-store";
+import { upsertStudentProfileByUserId, getUserById, saveStoreToCloud } from "@/lib/auth/store";
+import { upsertStudentProfile, invalidatePlacementProfile } from "@/lib/placement-store";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
+import { invalidateUserDNAScope } from "@/lib/dna/store";
 
 export async function POST(req: NextRequest) {
   try {
@@ -47,10 +48,13 @@ export async function POST(req: NextRequest) {
       careerGoals,
       resumeUrl,
       resumeFileName,
+      currentStep,
+      isPartialSave,
+      isFinalSubmit,
     } = body;
 
-    const effectiveFullName = (fullName || user.fullName || "").trim();
-    if (!effectiveFullName || effectiveFullName.length < 2) {
+    const effectiveFullName = (fullName || user.fullName || user.email.split("@")[0] || "Student").trim();
+    if (!isPartialSave && (!effectiveFullName || effectiveFullName.length < 2)) {
       return NextResponse.json({ error: "Full Name is required." }, { status: 400 });
     }
 
@@ -69,23 +73,24 @@ export async function POST(req: NextRequest) {
     if (resumeUrl || resumeFileName) completedSections++;
 
     const completionPercentage = Math.round((completedSections / totalSections) * 100);
+    const isCompleted = isFinalSubmit || (!isPartialSave && completionPercentage >= 50);
 
     // 2. Upsert comprehensive Student Profile in auth store
     const studentProfile = upsertStudentProfileByUserId(targetUserId, {
       fullName: effectiveFullName,
       username: username ? username.trim().toLowerCase() : undefined,
       email: email || user.email,
-      phone: phone || "",
-      location: location || "",
-      linkedinUrl: linkedinUrl || "",
-      githubUrl: githubUrl || "",
-      portfolioUrl: portfolioUrl || "",
-      college: (college || "Not Specified").trim(),
-      degree: (degree || "B.Tech").trim(),
-      branch: (branch || "Computer Science").trim(),
-      year: (year || "3rd Year").trim(),
-      graduationYear: (graduationYear || "2026").trim(),
-      cgpa: (cgpa || "").trim(),
+      phone: phone !== undefined ? phone : "",
+      location: location !== undefined ? location : "",
+      linkedinUrl: linkedinUrl !== undefined ? linkedinUrl : "",
+      githubUrl: githubUrl !== undefined ? githubUrl : "",
+      portfolioUrl: portfolioUrl !== undefined ? portfolioUrl : "",
+      college: college !== undefined ? college.trim() : "",
+      degree: degree !== undefined ? degree.trim() : "",
+      branch: branch !== undefined ? branch.trim() : "",
+      year: year !== undefined ? year.trim() : "",
+      graduationYear: graduationYear !== undefined ? graduationYear.trim() : "",
+      cgpa: cgpa !== undefined ? cgpa.trim() : "",
       coursework: Array.isArray(coursework) ? coursework : [],
       skills: Array.isArray(skills) ? skills : [],
       projects: Array.isArray(projects) ? projects : [],
@@ -100,8 +105,9 @@ export async function POST(req: NextRequest) {
       },
       resumeUrl: resumeUrl || "",
       resumeFileName: resumeFileName || "",
-      profileCompleted: true,
-      profileCompletionPercentage: Math.max(completionPercentage, 50), // At least 50% when onboarding submitted
+      currentStep: typeof currentStep === "number" ? currentStep : 1,
+      profileCompleted: isCompleted,
+      profileCompletionPercentage: Math.max(completionPercentage, isCompleted ? 50 : 10),
     });
 
     // 3. Mirror into placement-store so AI Student DNA & Opportunity matching engine use this user's data
@@ -113,9 +119,9 @@ export async function POST(req: NextRequest) {
     }));
 
     const placementSkills = (Array.isArray(skills) ? skills : []).map((s: any) => ({
-      name: s.name || s,
-      level: s.level || "Intermediate",
-      evidence: s.evidence || undefined
+      name: typeof s === "string" ? s : (s.name || ""),
+      level: (typeof s === "object" && s.level) ? s.level : "Intermediate",
+      evidence: (typeof s === "object" && s.evidence) ? s.evidence : undefined
     }));
 
     await upsertStudentProfile({
@@ -129,14 +135,20 @@ export async function POST(req: NextRequest) {
       profile_summary: `${degree || "Student"} in ${branch || "Engineering"} at ${college || "University"}. ${projects?.length ? `Built ${projects.map((p: any) => p.title).join(", ")}.` : ""}`
     });
 
-    // 4. Invalidate any cached Student DNA for this user
+    // 4. Invalidate all cached DNA & placement scopes for this user
     invalidateStudentDNACache(targetUserId);
+    invalidatePlacementProfile(targetUserId);
+    invalidateUserDNAScope(targetUserId);
+
+    // 5. CRITICAL: Persist to Supabase Cloud Store so serverless invocations retain data
+    await saveStoreToCloud();
 
     return NextResponse.json({
       success: true,
       profile: studentProfile,
       completionPercentage,
-      nextUrl: "/student/dashboard"
+      currentStep: studentProfile.currentStep || 1,
+      nextUrl: isCompleted ? "/student/dashboard?dna=ready" : undefined
     });
   } catch (err: any) {
     console.error("Student onboarding error:", err);

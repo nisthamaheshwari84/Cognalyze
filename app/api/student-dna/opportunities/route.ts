@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import { getStudentDNAFull } from "@/lib/dna/store";
 import {
-  REAL_OPPORTUNITY_CATALOG,
+  getAllPersonalizedOpportunities,
   evaluateOpportunityAgainstStudentDNA,
   getStudentSavedOpportunityIds,
   getStudentTrackedApplications,
@@ -10,6 +10,8 @@ import {
   GroundedOpportunityEvaluation,
   StudentTrackedApplication
 } from "@/lib/dna/opportunity-intelligence";
+
+import { getStudentProfileCompletionState } from "@/lib/auth/store";
 
 export async function GET(req: NextRequest) {
   try {
@@ -34,6 +36,37 @@ export async function GET(req: NextRequest) {
     const freshnessFilter = searchParams.get("freshness");
     const matchFilter = searchParams.get("matchCategory");
 
+    // Profile Completion Gate: If student has not filled Student DNA form,
+    // do not show opportunities matched against fake profiles.
+    const completion = getStudentProfileCompletionState(candidateId);
+    if (completion.state !== "COMPLETED_PROFILE") {
+      return NextResponse.json({
+        success: true,
+        candidateId,
+        profileState: completion.state,
+        requiresCompletion: true,
+        message: "Complete your Student DNA profile to activate personalized opportunities matched against your verified skills and goals.",
+        totalCount: 0,
+        opportunities: [],
+        buckets: {
+          recommendedForYou: [],
+          jobsAndInternships: [],
+          hackathonsAndFellowships: [],
+          researchOpportunities: [],
+          freelanceAndProjects: [],
+          otherFields: [],
+          savedOpportunities: [],
+          trackedApplications: []
+        },
+        stats: {
+          strongMatchCount: 0,
+          potentialMatchCount: 0,
+          savedCount: 0,
+          appliedCount: 0
+        }
+      });
+    }
+
     // 1. Fetch Student DNA canonical profile
     const dnaFull = await getStudentDNAFull(candidateId);
     const savedIds = new Set(getStudentSavedOpportunityIds(candidateId));
@@ -44,7 +77,8 @@ export async function GET(req: NextRequest) {
     }
 
     // 2. Evaluate all catalog opportunities against this student's DNA
-    const evaluatedOpportunities = REAL_OPPORTUNITY_CATALOG.map((opp) => {
+    const catalog = getAllPersonalizedOpportunities();
+    const evaluatedOpportunities = catalog.map((opp) => {
       const evaluation = evaluateOpportunityAgainstStudentDNA(dnaFull.skills, dnaFull.snapshot, opp);
       const isSaved = savedIds.has(opp.id);
       const tracked = trackedMap.get(opp.id);

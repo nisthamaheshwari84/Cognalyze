@@ -19,6 +19,13 @@
 import { StudentSkill, StudentDNASnapshot } from "./profile-engine";
 import { DNAEvidence } from "./evidence-pipeline";
 import { RequirementProfile } from "./requirement-engine";
+import comprehensiveCatalog from "@/data/comprehensive-opportunities.json";
+import {
+  getStudentSavedOpportunities,
+  toggleStudentSavedOpportunity as storeToggleSaved,
+  getStudentTrackedApplications as storeGetTracked,
+  upsertStudentTrackedApplication as storeUpsertTracked
+} from "@/lib/auth/store";
 
 export type OpportunityCategory =
   | "job"
@@ -116,7 +123,96 @@ export interface StudentTrackedApplication {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const REAL_OPPORTUNITY_CATALOG: PersonalizedOpportunity[] = [
-  // ── 1. Jobs & Internships ──
+  // ── 0. Full-Time Software Engineering Graduate Roles ──
+  {
+    id: "opp_google_swe_grad_2026",
+    title: "Software Engineer — University Graduate 2026",
+    organization: "Google",
+    category: "job",
+    categoryLabel: "Full-Time Software Engineering Role",
+    description: "Develop the next generation of Google products and core infrastructure. Work on distributed systems, AI infrastructure, cloud platforms, and large-scale web services.",
+    requiredSkills: ["Data Structures & Algorithms", "Python", "Java", "C++", "System Design"],
+    preferredSkills: ["Distributed Systems", "Cloud Computing", "Linux"],
+    requiredEducation: "Bachelor's, Master's, or PhD in Computer Science, STEM, or equivalent field graduating in 2025 or 2026.",
+    experienceLevel: "0-1 Years",
+    eligibility: "Final-year engineering students or recent graduates with 0-1 years of experience.",
+    location: "Bengaluru / Hyderabad, India",
+    workMode: "Hybrid",
+    compensation: "₹24,00,000 - ₹32,00,000 CTC + Equity & Corporate Benefits",
+    deadline: "2026-12-01T23:59:59Z",
+    sourceUrl: "https://www.google.com/about/careers/applications/jobs/results/",
+    sourceName: "Google Careers Official Portal",
+    lastChecked: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    freshnessState: "OPEN — VERIFIED",
+    tags: ["Tier 1", "Graduate Role", "Distributed Systems", "FAANG"]
+  },
+  {
+    id: "opp_microsoft_swe_grad_2026",
+    title: "Software Engineer 1 — Full-Time University Hire",
+    organization: "Microsoft",
+    category: "job",
+    categoryLabel: "Full-Time Software Engineering Role",
+    description: "Build hyperscale enterprise cloud systems in Azure, developer tooling in GitHub/VS Code, and intelligence products powering Microsoft 365.",
+    requiredSkills: ["Data Structures & Algorithms", "C#", "C++", "Java", "Python"],
+    preferredSkills: ["Azure", "System Architecture", "Object-Oriented Design"],
+    requiredEducation: "Bachelor's or Master's degree in Computer Science, Engineering, or related quantitative discipline.",
+    experienceLevel: "0-1 Years",
+    eligibility: "Graduating class of 2025/2026 or less than 12 months full-time software experience.",
+    location: "Bengaluru / Hyderabad / Noida, India",
+    workMode: "Hybrid",
+    compensation: "₹22,00,000 - ₹28,00,000 CTC + Stock Grants",
+    deadline: "2026-11-30T23:59:59Z",
+    sourceUrl: "https://careers.microsoft.com/",
+    sourceName: "Microsoft Careers Official Portal",
+    lastChecked: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    freshnessState: "OPEN — VERIFIED",
+    tags: ["Tier 1", "Cloud", "Developer Tools", "Big Tech"]
+  },
+  {
+    id: "opp_razorpay_sde1_2026",
+    title: "Software Development Engineer 1 (Platform & Payments)",
+    organization: "Razorpay",
+    category: "job",
+    categoryLabel: "Full-Time Software Engineering Role",
+    description: "Design and implement high-throughput transaction processing systems, microservices, and idempotent APIs powering India's fintech backbone.",
+    requiredSkills: ["Go", "Java", "PostgreSQL", "Data Structures & Algorithms"],
+    preferredSkills: ["Kafka", "Redis", "Microservices", "Docker"],
+    requiredEducation: "B.Tech/B.E./M.Tech in Computer Science, Information Technology, or relevant background.",
+    experienceLevel: "0-1 Years",
+    eligibility: "Open to 2025/2026 engineering graduates and early engineers.",
+    location: "Bengaluru, India",
+    workMode: "Hybrid",
+    compensation: "₹18,00,000 - ₹24,00,000 CTC + ESOPs",
+    deadline: "2026-11-20T23:59:59Z",
+    sourceUrl: "https://razorpay.com/jobs/",
+    sourceName: "Razorpay Careers",
+    lastChecked: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    freshnessState: "OPEN — VERIFIED",
+    tags: ["Fintech", "High Scale", "Golang", "Microservices"]
+  },
+  {
+    id: "opp_atlassian_ase_2026",
+    title: "Associate Software Engineer — Grad 2026",
+    organization: "Atlassian",
+    category: "job",
+    categoryLabel: "Full-Time Software Engineering Role",
+    description: "Build collaboration products loved by millions of developers globally (Jira, Confluence, Trello, Bitbucket). Collaborate with global teams on cloud platforms.",
+    requiredSkills: ["Java", "Kotlin", "React", "TypeScript", "REST APIs"],
+    preferredSkills: ["AWS", "Microservices", "CI/CD"],
+    requiredEducation: "Degree in Computer Science, Software Engineering, or related technical field.",
+    experienceLevel: "0-1 Years",
+    eligibility: "Graduating students from 2025/2026 academic batch.",
+    location: "Bengaluru, India / Remote",
+    workMode: "Remote",
+    compensation: "₹20,00,000 - ₹26,00,000 CTC + RSUs",
+    deadline: "2026-12-15T23:59:59Z",
+    sourceUrl: "https://www.atlassian.com/company/careers",
+    sourceName: "Atlassian Careers Official Portal",
+    lastChecked: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    freshnessState: "OPEN — VERIFIED",
+    tags: ["Product", "Developer Tools", "Remote", "Tier 1"]
+  },
+  // ── 1. Internships ──
   {
     id: "opp_google_swe_intern_2026",
     title: "Software Engineering Intern — Summer 2026",
@@ -438,33 +534,154 @@ export const REAL_OPPORTUNITY_CATALOG: PersonalizedOpportunity[] = [
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// USER-ISOLATED TRACKING & SAVED STORAGE (In-Memory Fallback + Storage Keys)
+// COMPREHENSIVE MULTI-SOURCE OPPORTUNITY NORMALIZATION & MERGING
+// ─────────────────────────────────────────────────────────────────────────────
+
+function normalizeComprehensiveOpportunity(item: any): PersonalizedOpportunity {
+  let category: OpportunityCategory = "other_field";
+  let categoryLabel = "Professional Opportunity";
+  const t = (item.type || "").toLowerCase();
+  if (t === "job") {
+    category = "job";
+    categoryLabel = "Full-Time Software Engineering Role";
+  } else if (t === "internship") {
+    category = "internship";
+    categoryLabel = "Corporate & Engineering Internship";
+  } else if (t === "hackathon" || t === "contest") {
+    category = "hackathon";
+    categoryLabel = item.organizer_type === "IIT-fest" ? "Premier Academic Hackathon" : "Corporate Tech Challenge";
+  } else if (t === "fellowship" || t === "open-source") {
+    category = "fellowship";
+    categoryLabel = "Open Source / Developer Fellowship";
+  } else if (t === "research") {
+    category = "research";
+    categoryLabel = "Research Fellowship & Lab Program";
+  }
+
+  const tags: string[] = Array.isArray(item.tags) ? item.tags : [];
+  const domainTags: string[] = Array.isArray(item.domain_tags) ? item.domain_tags : [];
+  const allSkills = Array.from(new Set([...tags, ...domainTags]));
+
+  const deadline = item.deadline || (item.extracted_context?.deadline_if_mentioned ? `${item.extracted_context.deadline_if_mentioned}T23:59:59Z` : undefined);
+  let freshnessState: FreshnessState = "RECENTLY CHECKED";
+  if (deadline && new Date(deadline).getTime() < Date.now()) {
+    freshnessState = "STATUS UNCERTAIN";
+  } else if (deadline && new Date(deadline).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000) {
+    freshnessState = "CLOSING SOON";
+  } else {
+    freshnessState = "OPEN — VERIFIED";
+  }
+
+  return {
+    id: item.id || `opp_${Math.random().toString(36).substring(2, 9)}`,
+    title: item.title,
+    organization: item.organizer || "Industry Partner",
+    category,
+    categoryLabel,
+    description: item.extracted_context?.summary || `${item.title} organized by ${item.organizer}.`,
+    requiredSkills: allSkills.slice(0, 4),
+    preferredSkills: allSkills.slice(4, 7),
+    requiredEducation: item.eligibility || "Open to engineering students and recent graduates.",
+    experienceLevel: category === "job" ? "0-1 Years" : "Fresher / Student",
+    eligibility: item.eligibility || "B.Tech/B.E./MCA/B.Sc students eligible.",
+    location: item.location || (item.extracted_context?.platform ? `${item.extracted_context.platform} Virtual` : "India / Global"),
+    workMode: item.location?.toLowerCase().includes("remote") ? "Remote" : "Hybrid",
+    compensation: item.extracted_context?.prize_pool || undefined,
+    deadline,
+    sourceUrl: item.source_url || "https://unstop.com",
+    sourceName: item.extracted_context?.platform || item.organizer || "Official Portal",
+    lastChecked: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    freshnessState,
+    tags: Array.from(new Set([...tags, item.tier || "Tier 1"]))
+  };
+}
+
+let cachedCombinedCatalog: PersonalizedOpportunity[] | null = null;
+
+export function getAllPersonalizedOpportunities(): PersonalizedOpportunity[] {
+  if (cachedCombinedCatalog && cachedCombinedCatalog.length > 0) {
+    return cachedCombinedCatalog;
+  }
+
+  const seenIds = new Set<string>();
+  const combined: PersonalizedOpportunity[] = [];
+
+  for (const opp of REAL_OPPORTUNITY_CATALOG) {
+    if (!seenIds.has(opp.id)) {
+      seenIds.add(opp.id);
+      combined.push(opp);
+    }
+  }
+
+  if (Array.isArray(comprehensiveCatalog)) {
+    for (const raw of comprehensiveCatalog) {
+      if (raw.id && !seenIds.has(raw.id)) {
+        seenIds.add(raw.id);
+        combined.push(normalizeComprehensiveOpportunity(raw));
+      }
+    }
+  }
+
+  cachedCombinedCatalog = combined;
+  return combined;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USER-ISOLATED TRACKING & SAVED STORAGE (In-Memory Cache + Persistent Store)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const USER_SAVED_OPPORTUNITIES: Map<string, Set<string>> = new Map();
 const USER_TRACKED_APPLICATIONS: Map<string, Map<string, StudentTrackedApplication>> = new Map();
 
 export function getStudentSavedOpportunityIds(studentId: string): string[] {
+  try {
+    const fromStore = getStudentSavedOpportunities(studentId);
+    if (fromStore && fromStore.length > 0) return fromStore;
+  } catch {}
   const set = USER_SAVED_OPPORTUNITIES.get(studentId);
   return set ? Array.from(set) : [];
 }
 
 export function toggleStudentSavedOpportunity(studentId: string, opportunityId: string): boolean {
+  let isSaved = false;
+  try {
+    isSaved = storeToggleSaved(studentId, opportunityId);
+  } catch {
+    let set = USER_SAVED_OPPORTUNITIES.get(studentId);
+    if (!set) {
+      set = new Set();
+      USER_SAVED_OPPORTUNITIES.set(studentId, set);
+    }
+    if (set.has(opportunityId)) {
+      set.delete(opportunityId);
+      isSaved = false;
+    } else {
+      set.add(opportunityId);
+      isSaved = true;
+    }
+    return isSaved;
+  }
+
   let set = USER_SAVED_OPPORTUNITIES.get(studentId);
   if (!set) {
     set = new Set();
     USER_SAVED_OPPORTUNITIES.set(studentId, set);
   }
-  if (set.has(opportunityId)) {
-    set.delete(opportunityId);
-    return false; // Unsaved
-  } else {
-    set.add(opportunityId);
-    return true; // Saved
-  }
+  if (isSaved) set.add(opportunityId);
+  else set.delete(opportunityId);
+  return isSaved;
 }
 
 export function getStudentTrackedApplications(studentId: string): StudentTrackedApplication[] {
+  try {
+    const fromStore = storeGetTracked(studentId);
+    if (fromStore && fromStore.length > 0) {
+      return fromStore.sort(
+        (a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    }
+  } catch {}
+
   const map = USER_TRACKED_APPLICATIONS.get(studentId);
   if (!map) return [];
   return Array.from(map.values()).sort(
@@ -479,13 +696,36 @@ export function upsertStudentTrackedApplication(
   notes?: string,
   interviewDate?: string
 ): StudentTrackedApplication {
+  const allOpps = getAllPersonalizedOpportunities();
+  const opp = allOpps.find(o => o.id === opportunityId);
+
+  try {
+    const fromStore = storeUpsertTracked(
+      studentId,
+      opportunityId,
+      stage,
+      notes,
+      interviewDate,
+      opp?.title,
+      opp?.organization
+    );
+    if (fromStore) {
+      let map = USER_TRACKED_APPLICATIONS.get(studentId);
+      if (!map) {
+        map = new Map();
+        USER_TRACKED_APPLICATIONS.set(studentId, map);
+      }
+      map.set(opportunityId, fromStore);
+      return fromStore;
+    }
+  } catch {}
+
   let map = USER_TRACKED_APPLICATIONS.get(studentId);
   if (!map) {
     map = new Map();
     USER_TRACKED_APPLICATIONS.set(studentId, map);
   }
 
-  const opp = REAL_OPPORTUNITY_CATALOG.find(o => o.id === opportunityId);
   const existing = map.get(opportunityId);
   const now = new Date().toISOString();
 

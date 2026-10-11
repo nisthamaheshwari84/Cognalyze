@@ -16,6 +16,7 @@ import { RequirementProfile, getBenchmarkProfile, extractRequirementsFromJD } fr
 import { GapReport, runDeterministicGapAnalysis, PrioritizedGapAction } from "./gap-engine";
 import { getCandidateAttempts, CandidateAttempt } from "@/lib/skills/candidate-history";
 import { getStudentProfile, DEMO_STUDENT_PROFILE } from "@/lib/placement-store";
+import { getStudentProfileByUserId } from "@/lib/auth/store";
 
 export interface DNAAuditLog {
   id: string;
@@ -46,8 +47,17 @@ const USER_AUDIT_LOGS: Map<string, DNAAuditLog[]> = new Map();
 const USER_TARGET_ROLES: Map<string, string> = new Map();
 
 /**
+ * Invalidate in-memory evidence and audit logs for a user so changes recompute immediately.
+ */
+export function invalidateUserDNAScope(userId: string): void {
+  USER_EVIDENCE_STORE.delete(userId);
+  USER_AUDIT_LOGS.delete(userId);
+}
+
+/**
  * Initialize baseline evidence for a candidate if empty.
- * Combines profile data (resume claims, past projects) with candidate attempts.
+ * Combines full profile data across all sections (resume claims, past projects, experience,
+ * achievements, certifications, GitHub proof) with candidate practice/assessment attempts.
  */
 export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNAEvidence[]> {
   let existing = USER_EVIDENCE_STORE.get(userId);
@@ -56,54 +66,152 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
   }
 
   const rawList: RawSourceData[] = [];
+  const authProfile = getStudentProfileByUserId(userId);
   const profile = (userId === "student-demo")
     ? (await getStudentProfile(userId) || DEMO_STUDENT_PROFILE)
     : await getStudentProfile(userId);
 
-  if (profile && (profile.skills?.length > 0 || profile.past_projects?.length > 0)) {
-    // 1. Resume / Profile Skills (Claimed)
-    if (profile.skills) {
-      profile.skills.forEach((s, idx) => {
-        rawList.push({
-          sourceType: "resume",
-          sourceId: `resume_skill_${idx}`,
-          userId,
-          skillRaw: s.name,
-          evidenceType: "claim",
-          claim: `Resume lists proficiency as ${s.level} in ${s.name}`,
-          extractedValue: s.level,
-          strength: s.level.toLowerCase() === "advanced" ? 0.7 : 0.5,
-          timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-          metadata: { declaredLevel: s.level }
-        });
-      });
-    }
+  // 1. Technical Skills from Auth Profile / Placement Profile
+  const skillsList = authProfile?.skills?.length ? authProfile.skills : (profile?.skills || []);
+  if (skillsList.length > 0) {
+    skillsList.forEach((s: any, idx: number) => {
+      const skillName = typeof s === "string" ? s : s.name;
+      const rawLevel = (typeof s === "object" && s.level) ? s.level : "Intermediate";
+      let strength = 0.5;
+      if (rawLevel.toLowerCase() === "expert") strength = 0.95;
+      else if (rawLevel.toLowerCase() === "advanced") strength = 0.8;
+      else if (rawLevel.toLowerCase() === "intermediate") strength = 0.6;
+      else strength = 0.4;
 
-    // 2. Projects
-    if (profile.past_projects) {
-      profile.past_projects.forEach((proj, pIdx) => {
-        const techList = proj.tech_stack || [];
-        techList.forEach(tech => {
-          rawList.push({
-            sourceType: "project",
-            sourceId: `proj_${pIdx}_${tech.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
-            sourceUrl: "https://github.com/student-demo/project-repo",
-            userId,
-            skillRaw: tech,
-            evidenceType: "project_artifact",
-            claim: `Built project '${proj.title}' utilizing ${tech}`,
-            extractedValue: proj.description,
-            strength: 0.8,
-            timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-            metadata: {
-              projectTitle: proj.title,
-              techStack: proj.tech_stack,
-              canonicalProjectId: proj.title
-            }
-          });
+      const evidenceSource = (typeof s === "object" && s.evidenceSource) ? s.evidenceSource : "Self-Declared Skill Claim";
+
+      rawList.push({
+        sourceType: "resume",
+        sourceId: `profile_skill_${idx}_${skillName.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+        userId,
+        skillRaw: skillName,
+        evidenceType: "claim",
+        claim: `Student declared proficiency as ${rawLevel} in ${skillName} (${evidenceSource})`,
+        extractedValue: rawLevel,
+        strength,
+        timestamp: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        metadata: { declaredLevel: rawLevel, source: evidenceSource }
+      });
+    });
+  }
+
+  // 2. Projects & Codebase Artifacts
+  const projectList = authProfile?.projects?.length ? authProfile.projects : (profile?.past_projects || []);
+  if (projectList.length > 0) {
+    projectList.forEach((proj: any, pIdx: number) => {
+      const techList: string[] = Array.isArray(proj.techStack) ? proj.techStack : (Array.isArray(proj.tech_stack) ? proj.tech_stack : []);
+      const title = proj.title || "Project";
+      const desc = proj.description || "";
+      const projUrl = proj.githubUrl || proj.github_url || "https://github.com/repository";
+
+      techList.forEach(tech => {
+        rawList.push({
+          sourceType: "project",
+          sourceId: `proj_${pIdx}_${tech.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+          sourceUrl: projUrl,
+          userId,
+          skillRaw: tech,
+          evidenceType: "project_artifact",
+          claim: `Implemented project '${title}' utilizing ${tech}`,
+          extractedValue: desc || `Fullstack implementation with ${tech}`,
+          strength: 0.8,
+          timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+          metadata: {
+            projectTitle: title,
+            techStack: techList,
+            canonicalProjectId: title,
+            role: proj.role || "Developer"
+          }
         });
       });
-    }
+    });
+  }
+
+  // 3. Work Experience & Internships
+  if (authProfile?.experience?.length) {
+    authProfile.experience.forEach((exp: any, expIdx: number) => {
+      const techList: string[] = Array.isArray(exp.technologies) ? exp.technologies : [];
+      const org = exp.organization || "Company";
+      const role = exp.role || "Intern";
+      techList.forEach(tech => {
+        rawList.push({
+          sourceType: "project",
+          sourceId: `exp_${expIdx}_${tech.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+          userId,
+          skillRaw: tech,
+          evidenceType: "project_artifact",
+          claim: `Professional exposure as ${role} at ${org} with ${tech}`,
+          extractedValue: exp.responsibilities || `Worked as ${role} utilizing ${tech}`,
+          strength: 0.85,
+          timestamp: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+          metadata: {
+            organization: org,
+            role,
+            technologies: techList
+          }
+        });
+      });
+    });
+  }
+
+  // 4. Certifications
+  if (authProfile?.certifications?.length) {
+    authProfile.certifications.forEach((cert: any, certIdx: number) => {
+      const certTitle = cert.title || "Certification";
+      rawList.push({
+        sourceType: "certification",
+        sourceId: `cert_${certIdx}`,
+        sourceUrl: cert.credentialUrl || undefined,
+        userId,
+        skillRaw: certTitle,
+        evidenceType: "credential",
+        claim: `Certified in ${certTitle} by ${cert.issuer || "Accredited Body"}`,
+        extractedValue: cert.date || "Completed",
+        strength: 0.75,
+        timestamp: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        metadata: { issuer: cert.issuer, credentialUrl: cert.credentialUrl }
+      });
+    });
+  }
+
+  // 5. Achievements & Hackathons
+  if (authProfile?.achievements?.length) {
+    authProfile.achievements.forEach((ach: any, achIdx: number) => {
+      rawList.push({
+        sourceType: "hackathon",
+        sourceId: `ach_${achIdx}`,
+        userId,
+        skillRaw: ach.type === "Hackathon" ? "System Design" : "Problem Solving",
+        evidenceType: "competitive_event",
+        claim: `Achieved '${ach.title}' (${ach.type}): ${ach.description || ""}`,
+        extractedValue: ach.description || ach.title,
+        strength: 0.8,
+        timestamp: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+        metadata: { achievementTitle: ach.title, type: ach.type, date: ach.date }
+      });
+    });
+  }
+
+  // 6. Connected GitHub Profile
+  if (authProfile?.githubUrl) {
+    rawList.push({
+      sourceType: "github",
+      sourceId: `gh_profile_${userId}`,
+      sourceUrl: authProfile.githubUrl,
+      userId,
+      skillRaw: "Git",
+      evidenceType: "public_repo",
+      claim: `Verified GitHub profile connected: ${authProfile.githubUrl}`,
+      extractedValue: "Public repositories and contribution history",
+      strength: 0.8,
+      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      metadata: { githubUrl: authProfile.githubUrl }
+    });
   }
 
   // 3. GitHub repository seed for demo/active student
@@ -334,10 +442,15 @@ export async function getStudentDNAFull(
   const evidence = await initializeUserEvidenceIfEmpty(userId);
   const skills = calculateStudentSkillProfile(userId, evidence);
   
+  const leetcodeEv = evidence.find(e => e.sourceType === "leetcode");
+  const leetcodeSolvedCount = typeof leetcodeEv?.metadata?.totalSolved === "number"
+    ? leetcodeEv.metadata.totalSolved
+    : (leetcodeEv ? 1 : 0);
+
   const proofCounts = {
     githubVerified: evidence.some(e => e.sourceType === "github"),
     githubRepoCount: evidence.filter(e => e.sourceType === "github").length,
-    leetcodeSolvedCount: evidence.some(e => e.sourceType === "leetcode") ? 142 : 0,
+    leetcodeSolvedCount,
     projectsCount: new Set(evidence.filter(e => e.sourceType === "project" || e.sourceType === "github").map(e => e.metadata?.canonicalProjectId || e.sourceId)).size,
     assessmentsCount: evidence.filter(e => e.sourceType === "assessment" || e.sourceType === "practice").length,
     interviewsCount: evidence.filter(e => e.sourceType === "interview").length,

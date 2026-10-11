@@ -5837,17 +5837,24 @@ export async function getStudentProfile(candidateId: string): Promise<StudentPro
       const p: StudentProfileData = {
         candidate_id: candidateId,
         skills: Array.isArray(authProfile.skills) && authProfile.skills.length > 0
-          ? authProfile.skills.map((s: any) => ({ name: typeof s === "string" ? s : s.name, level: "Intermediate" }))
-          : DEMO_STUDENT_PROFILE.skills,
+          ? authProfile.skills.map((s: any) => ({
+              name: typeof s === "string" ? s : s.name,
+              level: (typeof s === "object" && s.level) ? s.level : "Intermediate"
+            }))
+          : (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE.skills : []),
         past_projects: Array.isArray(authProfile.projects) && authProfile.projects.length > 0
           ? authProfile.projects.map((proj: any) => ({
               title: proj.title || "Project",
-              tech_stack: Array.isArray(proj.techStack) ? proj.techStack : ["Python", "React"],
+              tech_stack: Array.isArray(proj.techStack) ? proj.techStack : (proj.tech_stack || ["Software Engineering"]),
               description: proj.description || ""
             }))
-          : DEMO_STUDENT_PROFILE.past_projects,
-        target_roles: authProfile.careerGoals?.targetRoles?.length ? authProfile.careerGoals.targetRoles : DEMO_STUDENT_PROFILE.target_roles,
-        target_companies_or_events: authProfile.careerGoals?.targetCompanies?.length ? authProfile.careerGoals.targetCompanies : DEMO_STUDENT_PROFILE.target_companies_or_events,
+          : (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE.past_projects : []),
+        target_roles: authProfile.careerGoals?.targetRoles?.length
+          ? authProfile.careerGoals.targetRoles
+          : (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE.target_roles : []),
+        target_companies_or_events: authProfile.careerGoals?.targetCompanies?.length
+          ? authProfile.careerGoals.targetCompanies
+          : (candidateId === "student-demo" ? DEMO_STUDENT_PROFILE.target_companies_or_events : []),
         availability: "Immediate",
         risk_appetite: "Moderate",
         profile_summary: `${authProfile.degree || "B.Tech"} in ${authProfile.branch || "CSE"} at ${authProfile.college || "University"}`,
@@ -5922,6 +5929,10 @@ export async function upsertStudentProfile(profile: StudentProfileData): Promise
 }
 
 export const saveStudentProfile = upsertStudentProfile;
+
+export function invalidatePlacementProfile(candidateId: string): void {
+  inMemoryProfiles.delete(candidateId);
+}
 
 
 function getOpportunityDeduplicationKey(opp: OpportunityData): string {

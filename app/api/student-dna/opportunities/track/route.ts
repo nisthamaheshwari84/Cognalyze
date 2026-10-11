@@ -34,13 +34,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Action 1: Toggle Bookmark / Save
-    if (action === "save" || action === "toggle_save") {
+    const normalizedAction = (action || "").toLowerCase().trim();
+
+    // Action 1: Toggle Bookmark / Save / Unsave
+    if (normalizedAction === "save" || normalizedAction === "unsave" || normalizedAction === "toggle_save") {
       const isSaved = toggleStudentSavedOpportunity(candidateId, opportunityId);
       if (isSaved) {
         // Also ensure tracker entry exists as SAVED if not already in later stage
         upsertStudentTrackedApplication(candidateId, opportunityId, "SAVED", notes);
       }
+      
+      const { saveStoreToCloud } = await import("@/lib/auth/store");
+      await saveStoreToCloud();
+
       return NextResponse.json({
         success: true,
         action: "save",
@@ -51,7 +57,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Action 2: Update Application Tracker Lifecycle Stage
-    if (action === "track" || action === "update_stage") {
+    if (normalizedAction === "track" || normalizedAction === "update_stage") {
       const validStages: ApplicationTrackerStage[] = [
         "SAVED",
         "PLANNED",
@@ -64,7 +70,7 @@ export async function POST(req: NextRequest) {
         "CLOSED"
       ];
 
-      const targetStage: ApplicationTrackerStage = stage || "APPLIED";
+      const targetStage: ApplicationTrackerStage = (stage || "APPLIED").toUpperCase();
       if (!validStages.includes(targetStage)) {
         return NextResponse.json(
           { success: false, error: `Invalid stage. Must be one of: ${validStages.join(", ")}` },
@@ -79,6 +85,9 @@ export async function POST(req: NextRequest) {
         notes,
         interviewDate
       );
+
+      const { saveStoreToCloud } = await import("@/lib/auth/store");
+      await saveStoreToCloud();
 
       return NextResponse.json({
         success: true,

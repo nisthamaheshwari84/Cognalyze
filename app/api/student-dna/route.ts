@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import { getStudentDNAFull, setUserTargetRole, getUserTargetRole } from "@/lib/dna/store";
 
+import { getStudentProfileCompletionState } from "@/lib/auth/store";
+
 export async function GET(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
@@ -21,10 +23,27 @@ export async function GET(req: NextRequest) {
 
     // Strictly scope query to the authenticated student's permanent user ID
     const candidateId = auth.user.id;
+    const completion = getStudentProfileCompletionState(candidateId);
+
+    // Profile Completion Gate: If student has not filled or completed the profile,
+    // do not fabricate fake skills or readiness data.
+    if (completion.state === "NO_PROFILE" || completion.state === "PARTIAL_PROFILE") {
+      return NextResponse.json({
+        success: true,
+        candidateId,
+        profileState: completion.state,
+        completion,
+        data: null
+      });
+    }
+
     const dna = await getStudentDNAFull(candidateId);
 
     return NextResponse.json({
       success: true,
+      candidateId,
+      profileState: "COMPLETED_PROFILE",
+      completion,
       data: dna
     });
   } catch (error: any) {

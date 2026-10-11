@@ -12,6 +12,9 @@ export default function StudentOnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [savingProgress, setSavingProgress] = useState(false);
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error" | "unsaved">("idle");
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [githubConnectedHandle, setGithubConnectedHandle] = useState<string | null>(null);
 
@@ -153,16 +156,22 @@ export default function StudentOnboardingPage() {
         // If partial profile exists, populate
         if (data.studentProfile) {
           const sp = data.studentProfile;
+          if (sp.currentStep && typeof sp.currentStep === "number" && sp.currentStep >= 1 && sp.currentStep <= totalSteps) {
+            setCurrentStep(sp.currentStep);
+          }
           if (sp.fullName) setFullName(sp.fullName);
           if (sp.phone) setPhone(sp.phone);
           if (sp.location) setLocation(sp.location);
           if (sp.githubUrl) setGithubUrl(sp.githubUrl);
           if (sp.linkedinUrl) setLinkedinUrl(sp.linkedinUrl);
+          if (sp.portfolioUrl) setPortfolioUrl(sp.portfolioUrl);
           if (sp.college) setCollege(sp.college);
           if (sp.degree) setDegree(sp.degree);
           if (sp.branch) setBranch(sp.branch);
+          if (sp.year) setYear(sp.year);
           if (sp.graduationYear) setGraduationYear(sp.graduationYear);
           if (sp.cgpa) setCgpa(sp.cgpa);
+          if (Array.isArray(sp.coursework)) setCoursework(sp.coursework);
           if (sp.skills?.length) setSkills(sp.skills);
           if (sp.projects?.length) setProjects(sp.projects);
           if (sp.experience?.length) setExperience(sp.experience);
@@ -175,11 +184,14 @@ export default function StudentOnboardingPage() {
             setResumeFileName(sp.resumeFileName);
             setResumeUploaded(true);
           }
+          setSaveStatus("saved");
+          setLastSavedAt("Restored from database");
         }
       } catch (err) {
         console.error("Session load error:", err);
       } finally {
         setSessionLoading(false);
+        setIsHydrated(true);
       }
     }
     loadAuth();
@@ -298,46 +310,92 @@ export default function StudentOnboardingPage() {
     }
   };
 
-  // Helper to save current progress without forcing completion
-  const handleSaveAndReturn = async () => {
-    setSavingProgress(true);
-    try {
-      const payload = {
-        fullName: fullName || "Student",
-        email,
-        phone,
-        location,
-        linkedinUrl,
-        githubUrl,
-        portfolioUrl,
-        college,
-        degree,
-        branch,
-        year,
-        graduationYear,
-        cgpa,
-        coursework,
-        skills,
-        projects,
-        experience,
-        achievements,
-        certifications,
-        careerGoals: {
-          targetRoles,
-          preferredDomains: [],
-          targetCompanies,
-          preferredLocations: [],
-          careerGoals,
-        },
-        resumeFileName: resumeFileName || undefined,
-      };
+  // Build standard payload
+  const buildPayload = (stepToSave?: number, isFinal: boolean = false) => {
+    return {
+      fullName: fullName.trim() || (isFinal ? "Student" : undefined),
+      email: email || undefined,
+      phone: phone || undefined,
+      location: location || undefined,
+      linkedinUrl: linkedinUrl || undefined,
+      githubUrl: githubUrl || undefined,
+      portfolioUrl: portfolioUrl || undefined,
+      college: college || undefined,
+      degree: degree || undefined,
+      branch: branch || undefined,
+      year: year || undefined,
+      graduationYear: graduationYear || undefined,
+      cgpa: cgpa || undefined,
+      coursework: coursework || [],
+      skills: skills || [],
+      projects: projects || [],
+      experience: experience || [],
+      achievements: achievements || [],
+      certifications: certifications || [],
+      careerGoals: {
+        targetRoles,
+        preferredDomains: [],
+        targetCompanies,
+        preferredLocations: [],
+        careerGoals,
+      },
+      resumeFileName: resumeFileName || (isFinal ? `${(fullName || "student").toLowerCase().replace(/[^a-z0-9]/g, "_")}_resume.pdf` : undefined),
+      resumeUrl: resumeUploaded ? `/uploads/resumes/${userId}.pdf` : undefined,
+      currentStep: typeof stepToSave === "number" ? stepToSave : currentStep,
+      isPartialSave: !isFinal,
+      isFinalSubmit: isFinal,
+    };
+  };
 
-      await fetch("/api/student/onboarding", {
+  // Dedicated save handler for step transitions and manual saves
+  const saveCurrentProfile = async (stepToSave?: number, isFinal: boolean = false, silent: boolean = false) => {
+    if (!silent) setSaveStatus("saving");
+    try {
+      const payload = buildPayload(stepToSave, isFinal);
+      const res = await fetch("/api/student/onboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save profile.");
+      }
+      setSaveStatus("saved");
+      const now = new Date();
+      setLastSavedAt(`Saved at ${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`);
+      return { success: true, data };
+    } catch (err: any) {
+      console.error("Save profile error:", err);
+      if (!silent) {
+        setSaveStatus("error");
+      }
+      return { success: false, error: err?.message };
+    }
+  };
 
+  // Debounced Autosave: Automatically persist changes to DB 2.5s after editing
+  useEffect(() => {
+    if (!isHydrated) return;
+    setSaveStatus("unsaved");
+    const timer = setTimeout(() => {
+      saveCurrentProfile(currentStep, false, false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [
+    fullName, phone, location, githubUrl, linkedinUrl, portfolioUrl,
+    college, degree, branch, year, graduationYear, cgpa, coursework,
+    skills, projects, experience, achievements, certifications,
+    targetRoles, targetCompanies, careerGoals, resumeFileName, resumeUploaded,
+    isHydrated
+  ]);
+
+  // Helper to save current progress without forcing completion
+  const handleSaveAndReturn = async () => {
+    setSavingProgress(true);
+    try {
+      await saveCurrentProfile(currentStep, false, false);
       router.push("/student/dashboard");
       router.refresh();
     } catch (err) {
@@ -354,46 +412,9 @@ export default function StudentOnboardingPage() {
     setError(null);
 
     try {
-      const payload = {
-        fullName,
-        email,
-        phone,
-        location,
-        linkedinUrl,
-        githubUrl,
-        portfolioUrl,
-        college,
-        degree,
-        branch,
-        year,
-        graduationYear,
-        cgpa,
-        coursework,
-        skills,
-        projects,
-        experience,
-        achievements,
-        certifications,
-        careerGoals: {
-          targetRoles,
-          preferredDomains: [],
-          targetCompanies,
-          preferredLocations: [],
-          careerGoals,
-        },
-        resumeFileName: resumeFileName || `${(fullName || "student").toLowerCase().replace(/[^a-z0-9]/g, "_")}_resume.pdf`,
-        resumeUrl: resumeUploaded ? `/uploads/resumes/${userId}.pdf` : undefined,
-      };
-
-      const res = await fetch("/api/student/onboarding", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to generate Student DNA.");
+      const result = await saveCurrentProfile(totalSteps, true, false);
+      if (!result.success) {
+        throw new Error(result.error || "Failed to generate Student DNA.");
       }
 
       router.push("/student/dashboard?dna=ready");
@@ -604,7 +625,92 @@ export default function StudentOnboardingPage() {
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {/* Persistence / Autosave Status Pill */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 11,
+              fontWeight: 600,
+              padding: "4px 10px",
+              borderRadius: 6,
+              background:
+                saveStatus === "saving"
+                  ? "#EFF4FE"
+                  : saveStatus === "saved"
+                  ? "#EAF4EE"
+                  : saveStatus === "error"
+                  ? "#FDF2F2"
+                  : "#F6F5F2",
+              color:
+                saveStatus === "saving"
+                  ? "#356AE6"
+                  : saveStatus === "saved"
+                  ? "#2E7D5B"
+                  : saveStatus === "error"
+                  ? "#C24141"
+                  : "#667085",
+              border: `1px solid ${
+                saveStatus === "saving"
+                  ? "#D2E0FB"
+                  : saveStatus === "saved"
+                  ? "#C8E4D3"
+                  : saveStatus === "error"
+                  ? "#F8C8C8"
+                  : "#E4E1DA"
+              }`,
+            }}
+          >
+            {saveStatus === "saving" && (
+              <>
+                <span>🔄</span>
+                <span>Saving to database...</span>
+              </>
+            )}
+            {saveStatus === "saved" && (
+              <>
+                <span>✓</span>
+                <span>{lastSavedAt || "Saved to database"}</span>
+              </>
+            )}
+            {saveStatus === "unsaved" && (
+              <>
+                <span style={{ color: "#D97706" }}>●</span>
+                <span>Unsaved changes</span>
+              </>
+            )}
+            {saveStatus === "error" && (
+              <>
+                <span>⚠</span>
+                <span>Save failed</span>
+                <button
+                  type="button"
+                  onClick={() => saveCurrentProfile(currentStep, false, false)}
+                  style={{
+                    marginLeft: 4,
+                    background: "#C24141",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 4,
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                    fontSize: 10,
+                  }}
+                >
+                  Retry
+                </button>
+              </>
+            )}
+            {saveStatus === "idle" && (
+              <>
+                <span>☁</span>
+                <span>Cloud persistence active</span>
+              </>
+            )}
+          </div>
+
           <div style={{ fontSize: 12, color: "#667085", fontWeight: 600 }}>
             Step <span style={{ color: "#356AE6", fontWeight: 800 }}>{currentStep}</span> of {totalSteps}
           </div>
@@ -1398,7 +1504,11 @@ export default function StudentOnboardingPage() {
             <button
               type="button"
               disabled={currentStep === 1}
-              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+              onClick={async () => {
+                const prev = Math.max(1, currentStep - 1);
+                setCurrentStep(prev);
+                await saveCurrentProfile(prev, false, true);
+              }}
               style={{
                 backgroundColor: "#FFFFFF",
                 color: currentStep === 1 ? "#98A2B3" : "#162A43",
@@ -1417,7 +1527,11 @@ export default function StudentOnboardingPage() {
             {!currentMeta.isRequired && currentStep < totalSteps && (
               <button
                 type="button"
-                onClick={() => setCurrentStep(currentStep + 1)}
+                onClick={async () => {
+                  const next = currentStep + 1;
+                  setCurrentStep(next);
+                  await saveCurrentProfile(next, false, false);
+                }}
                 style={{
                   backgroundColor: "transparent",
                   color: "#667085",
@@ -1437,7 +1551,7 @@ export default function StudentOnboardingPage() {
             {currentStep < totalSteps ? (
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   if (currentStep === 1 && !fullName.trim()) {
                     setError("Please enter your full name.");
                     return;
@@ -1447,7 +1561,9 @@ export default function StudentOnboardingPage() {
                     return;
                   }
                   setError(null);
-                  setCurrentStep(currentStep + 1);
+                  const next = currentStep + 1;
+                  setCurrentStep(next);
+                  await saveCurrentProfile(next, false, false);
                 }}
                 style={{
                   backgroundColor: "#356AE6",

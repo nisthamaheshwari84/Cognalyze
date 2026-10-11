@@ -732,6 +732,12 @@ export function upsertStudentProfileByUserId(
   const now = new Date().toISOString();
 
   if (existing) {
+    if (data.careerGoals && existing.careerGoals) {
+      data.careerGoals = {
+        ...existing.careerGoals,
+        ...data.careerGoals
+      };
+    }
     Object.assign(existing, data, { updatedAt: now });
     if (data.profileCompleted !== undefined) {
       updateUser(userId, { profileCompleted: data.profileCompleted });
@@ -765,6 +771,7 @@ export function upsertStudentProfileByUserId(
     year: data.year || "",
     graduationYear: data.graduationYear || "",
     cgpa: data.cgpa || "",
+    currentStep: data.currentStep || 1,
     coursework: data.coursework || [],
     skills: data.skills || [],
     projects: data.projects || [],
@@ -777,6 +784,8 @@ export function upsertStudentProfileByUserId(
       targetCompanies: [],
       preferredLocations: []
     },
+    savedOpportunities: data.savedOpportunities || [],
+    trackedApplications: data.trackedApplications || [],
     resumeUrl: data.resumeUrl,
     resumeFileName: data.resumeFileName,
     profileCompleted: data.profileCompleted || false,
@@ -795,6 +804,296 @@ export function upsertStudentProfileByUserId(
   }
   persistStoreToDisk();
   return newProfile;
+}
+
+export function getStudentSavedOpportunities(userId: string): string[] {
+  loadStoreFromDisk();
+  const profile = store.studentProfiles.find(p => p.userId === userId);
+  return profile?.savedOpportunities || [];
+}
+
+export function toggleStudentSavedOpportunity(userId: string, opportunityId: string): boolean {
+  loadStoreFromDisk();
+  const profile = store.studentProfiles.find(p => p.userId === userId);
+  if (!profile) return false;
+  if (!Array.isArray(profile.savedOpportunities)) {
+    profile.savedOpportunities = [];
+  }
+  const idx = profile.savedOpportunities.indexOf(opportunityId);
+  let saved = false;
+  if (idx >= 0) {
+    profile.savedOpportunities.splice(idx, 1);
+    saved = false;
+  } else {
+    profile.savedOpportunities.push(opportunityId);
+    saved = true;
+  }
+  profile.updatedAt = new Date().toISOString();
+  persistStoreToDisk();
+  return saved;
+}
+
+export function getStudentTrackedApplications(userId: string): any[] {
+  loadStoreFromDisk();
+  const profile = store.studentProfiles.find(p => p.userId === userId);
+  return profile?.trackedApplications || [];
+}
+
+export function upsertStudentTrackedApplication(
+  userId: string,
+  opportunityIdOrData: string | { opportunityId: string; stage: string; notes?: string; interviewDate?: string; opportunityTitle?: string; organization?: string },
+  stageParam?: string,
+  notesParam?: string,
+  interviewDateParam?: string,
+  opportunityTitleParam?: string,
+  organizationParam?: string
+): any {
+  loadStoreFromDisk();
+  const profile = store.studentProfiles.find(p => p.userId === userId);
+  if (!profile) return null;
+  if (!Array.isArray(profile.trackedApplications)) {
+    profile.trackedApplications = [];
+  }
+
+  let opportunityId: string;
+  let stage: string;
+  let notes: string | undefined;
+  let interviewDate: string | undefined;
+  let opportunityTitle: string | undefined;
+  let organization: string | undefined;
+
+  if (typeof opportunityIdOrData === "object" && opportunityIdOrData !== null) {
+    opportunityId = opportunityIdOrData.opportunityId;
+    stage = opportunityIdOrData.stage;
+    notes = opportunityIdOrData.notes;
+    interviewDate = opportunityIdOrData.interviewDate;
+    opportunityTitle = opportunityIdOrData.opportunityTitle;
+    organization = opportunityIdOrData.organization;
+  } else {
+    opportunityId = opportunityIdOrData;
+    stage = stageParam || "SAVED";
+    notes = notesParam;
+    interviewDate = interviewDateParam;
+    opportunityTitle = opportunityTitleParam;
+    organization = organizationParam;
+  }
+  const now = new Date().toISOString();
+  let existing = profile.trackedApplications.find((a: any) => a.opportunityId === opportunityId);
+  if (existing) {
+    existing.stage = stage;
+    if (notes !== undefined) existing.notes = notes;
+    if (interviewDate !== undefined) existing.interviewDate = interviewDate;
+    if (stage === "APPLIED" && !existing.appliedAt) existing.appliedAt = now;
+    existing.updatedAt = now;
+  } else {
+    existing = {
+      id: `track_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      studentId: userId,
+      opportunityId,
+      opportunityTitle: opportunityTitle || "Tracked Opportunity",
+      organization: organization || "Organization",
+      stage,
+      notes: notes || "",
+      interviewDate: interviewDate || undefined,
+      savedAt: now,
+      appliedAt: stage === "APPLIED" ? now : undefined,
+      updatedAt: now
+    };
+    profile.trackedApplications.push(existing);
+  }
+  profile.updatedAt = now;
+  persistStoreToDisk();
+  return existing;
+}
+
+export interface ProfileCompletionProgress {
+  state: "NO_PROFILE" | "PARTIAL_PROFILE" | "COMPLETED_PROFILE";
+  currentStep: number;
+  totalSteps: number;
+  completedStepsCount: number;
+  completionPercentage: number;
+  completedSections: string[];
+  remainingSections: string[];
+  isCompleted: boolean;
+  profileSummary: {
+    fullName?: string;
+    college?: string;
+    degree?: string;
+    skillsCount: number;
+    projectsCount: number;
+    experienceCount: number;
+    achievementsCount: number;
+    certificationsCount: number;
+    hasResume: boolean;
+  };
+}
+
+export function getStudentProfileCompletionState(userId: string): ProfileCompletionProgress {
+  loadStoreFromDisk();
+  const totalSteps = 9;
+
+  // Demo student is always treated as completed for platform inspection
+  if (userId === "student-demo") {
+    return {
+      state: "COMPLETED_PROFILE",
+      currentStep: 9,
+      totalSteps,
+      completedStepsCount: 9,
+      completionPercentage: 100,
+      completedSections: [
+        "Personal Information",
+        "Education & Academics",
+        "Technical Skills",
+        "Projects & Codebase Proof",
+        "Experience & Internships",
+        "Achievements & Contests",
+        "Certifications",
+        "Career Goals & Target Roles",
+        "Resume & Evidence Synthesis"
+      ],
+      remainingSections: [],
+      isCompleted: true,
+      profileSummary: {
+        fullName: "Alex Chen",
+        college: "Indian Institute of Technology, Delhi",
+        degree: "B.Tech Computer Science & Engineering",
+        skillsCount: 6,
+        projectsCount: 2,
+        experienceCount: 1,
+        achievementsCount: 2,
+        certificationsCount: 1,
+        hasResume: true
+      }
+    };
+  }
+
+  const profile = store.studentProfiles.find(p => p.userId === userId);
+
+  if (!profile) {
+    return {
+      state: "NO_PROFILE",
+      currentStep: 1,
+      totalSteps,
+      completedStepsCount: 0,
+      completionPercentage: 0,
+      completedSections: [],
+      remainingSections: [
+        "Personal Information",
+        "Education & Academics",
+        "Technical Skills",
+        "Projects & Codebase Proof",
+        "Experience & Internships",
+        "Achievements & Contests",
+        "Certifications",
+        "Career Goals & Target Roles",
+        "Resume & Evidence Synthesis"
+      ],
+      isCompleted: false,
+      profileSummary: {
+        skillsCount: 0,
+        projectsCount: 0,
+        experienceCount: 0,
+        achievementsCount: 0,
+        certificationsCount: 0,
+        hasResume: false
+      }
+    };
+  }
+
+  // Section verification based strictly on actual persisted data
+  const hasPersonalInfo = Boolean(profile.fullName && profile.fullName.trim() && profile.fullName !== "Candidate");
+  const hasEducation = Boolean(profile.college && profile.college.trim());
+  const hasSkills = Boolean(Array.isArray(profile.skills) && profile.skills.length > 0);
+  const hasProjects = Boolean(Array.isArray(profile.projects) && profile.projects.length > 0);
+  const hasExperience = Boolean(Array.isArray(profile.experience) && profile.experience.length > 0);
+  const hasAchievements = Boolean(Array.isArray(profile.achievements) && profile.achievements.length > 0);
+  const hasCertifications = Boolean(Array.isArray(profile.certifications) && profile.certifications.length > 0);
+  const hasCareerGoals = Boolean(profile.careerGoals?.targetRoles && profile.careerGoals.targetRoles.length > 0);
+  const hasResume = Boolean(profile.resumeFileName || profile.resumeUrl);
+
+  const completedSections: string[] = [];
+  const remainingSections: string[] = [];
+
+  if (hasPersonalInfo) completedSections.push("Personal Information");
+  else remainingSections.push("Personal Information");
+
+  if (hasEducation) completedSections.push("Education & Academics");
+  else remainingSections.push("Education & Academics");
+
+  if (hasSkills) completedSections.push("Technical Skills");
+  else remainingSections.push("Technical Skills");
+
+  if (hasProjects) completedSections.push("Projects & Codebase Proof");
+  else remainingSections.push("Projects & Codebase Proof");
+
+  if (hasExperience) completedSections.push("Experience & Internships");
+  else remainingSections.push("Experience & Internships");
+
+  if (hasAchievements) completedSections.push("Achievements & Contests");
+  else remainingSections.push("Achievements & Contests");
+
+  if (hasCertifications) completedSections.push("Certifications");
+  else remainingSections.push("Certifications");
+
+  if (hasCareerGoals) completedSections.push("Career Goals & Target Roles");
+  else remainingSections.push("Career Goals & Target Roles");
+
+  if (hasResume) completedSections.push("Resume & Evidence Synthesis");
+  else remainingSections.push("Resume & Evidence Synthesis");
+
+  const completedStepsCount = completedSections.length;
+  const completionPercentage = Math.round((completedStepsCount / totalSteps) * 100);
+
+  // If user has virtually no info:
+  if (!hasPersonalInfo && !hasEducation && completedStepsCount <= 1) {
+    return {
+      state: "NO_PROFILE",
+      currentStep: profile.currentStep || 1,
+      totalSteps,
+      completedStepsCount: 0,
+      completionPercentage: 0,
+      completedSections: [],
+      remainingSections,
+      isCompleted: false,
+      profileSummary: {
+        fullName: profile.fullName,
+        college: profile.college,
+        skillsCount: profile.skills?.length || 0,
+        projectsCount: profile.projects?.length || 0,
+        experienceCount: profile.experience?.length || 0,
+        achievementsCount: profile.achievements?.length || 0,
+        certificationsCount: profile.certifications?.length || 0,
+        hasResume
+      }
+    };
+  }
+
+  // Check if fully completed
+  const isCompleted = profile.profileCompleted === true || (hasPersonalInfo && hasEducation && ((profile.currentStep ?? 0) >= 9 || completedStepsCount >= 6));
+
+  const state = isCompleted ? "COMPLETED_PROFILE" : "PARTIAL_PROFILE";
+
+  return {
+    state,
+    currentStep: profile.currentStep || (isCompleted ? 9 : Math.max(1, completedStepsCount + 1)),
+    totalSteps,
+    completedStepsCount,
+    completionPercentage,
+    completedSections,
+    remainingSections,
+    isCompleted,
+    profileSummary: {
+      fullName: profile.fullName,
+      college: profile.college,
+      degree: profile.degree,
+      skillsCount: profile.skills?.length || 0,
+      projectsCount: profile.projects?.length || 0,
+      experienceCount: profile.experience?.length || 0,
+      achievementsCount: profile.achievements?.length || 0,
+      certificationsCount: profile.certifications?.length || 0,
+      hasResume
+    }
+  };
 }
 
 export function changeUsername(studentProfileId: string, newRawUsername: string): {
