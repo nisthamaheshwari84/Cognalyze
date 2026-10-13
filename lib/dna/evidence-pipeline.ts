@@ -45,6 +45,8 @@ export interface DNAEvidence {
   sourceId: string;
   sourceUrl?: string;
   skillId: string; // Canonical skill id
+  skillName?: string;
+  category?: string;
   evidenceType: string;
   claim: string;
   extractedValue?: any;
@@ -56,6 +58,7 @@ export interface DNAEvidence {
   provenance: string; // e.g. "Resume -> Projects -> L12"
   createdAt: string;
   observedAt: string;
+  timestamp?: string;
   expiresAt?: string;
   metadata?: Record<string, any>;
 }
@@ -343,8 +346,8 @@ export function processEvidencePipeline(rawItems: RawSourceData[]): DNAEvidence[
         existing.verificationStatus = "REPEATED";
         existing.confidence = "HIGH";
         existing.strength = Math.min(1.0, existing.strength + 0.1);
-        if (!existing.provenance.toLowerCase().includes(raw.sourceType.toLowerCase())) {
-          existing.provenance += ` + ${raw.sourceType}`;
+        if (!existing.provenance || !existing.provenance.toLowerCase().includes(raw.sourceType.toLowerCase())) {
+          existing.provenance = (existing.provenance ? `${existing.provenance} + ` : "") + raw.sourceType;
         }
         continue;
       }

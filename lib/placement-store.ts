@@ -5798,6 +5798,7 @@ export async function syncAggregatedHackathons(): Promise<{ count: number; synce
 }
 
 export async function getStudentProfile(candidateId: string): Promise<StudentProfileData | null> {
+  loadPlacementStoreFromDisk();
   // 1. Check in-memory cache first
   const mem = inMemoryProfiles.get(candidateId);
   if (mem) return mem;
@@ -5921,14 +5922,16 @@ export async function upsertStudentProfile(profile: StudentProfileData): Promise
 
     if (data && !error) {
       inMemoryProfiles.set(profile.candidate_id, profile);
+      persistPlacementStoreToDisk();
       return profile;
     }
   } catch (err) {
     // Fallback to memory
   }
 
-  // 2. Fallback to memory
+  // 2. Fallback to memory & disk
   inMemoryProfiles.set(profile.candidate_id, profile);
+  persistPlacementStoreToDisk();
   return profile;
 }
 
@@ -6347,11 +6350,184 @@ export interface ApplicationRecord {
   opportunity?: OpportunityData | null;
 }
 
-// Global in-memory storage fallback for resilient execution across API calls
+// Global in-memory storage containers
 const inMemoryPersonalEvents: Map<string, PersonalEvent[]> = new Map();
 const inMemoryApplicationsStore: Map<string, ApplicationRecord[]> = new Map();
 
+// ─── PLACEMENT DATA PERSISTENCE ENGINE (ACID Disk + Supabase Cloud Mirror) ───
+const CLOUD_PLACEMENT_KEY = "cognalyze_placement_cloud_store";
+
+function getPlacementStoreFilePath(): string {
+  if (typeof window === "undefined") {
+    const path = require("path");
+    return path.join(process.cwd(), "data", "placement-store.json");
+  }
+  return "";
+}
+
+let isPlacementStoreLoaded = false;
+
+export function loadPlacementStoreFromDisk(force = false): void {
+  if (typeof window === "undefined") {
+    if (isPlacementStoreLoaded && !force) return;
+    try {
+      const fs = require("fs");
+      const filePath = getPlacementStoreFilePath();
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (parsed.profiles && typeof parsed.profiles === "object") {
+          for (const [k, v] of Object.entries(parsed.profiles)) {
+            inMemoryProfiles.set(k, v as StudentProfileData);
+          }
+        }
+        if (parsed.personalEvents && typeof parsed.personalEvents === "object") {
+          for (const [k, v] of Object.entries(parsed.personalEvents)) {
+            inMemoryPersonalEvents.set(k, v as PersonalEvent[]);
+          }
+        }
+        if (parsed.applications && typeof parsed.applications === "object") {
+          for (const [k, v] of Object.entries(parsed.applications)) {
+            inMemoryApplicationsStore.set(k, v as ApplicationRecord[]);
+          }
+        }
+        isPlacementStoreLoaded = true;
+      }
+    } catch (err) {
+      console.warn("[placement-store] Failed to load from disk:", err);
+    }
+  }
+}
+
+export function persistPlacementStoreToDisk(): void {
+  if (typeof window === "undefined") {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const filePath = getPlacementStoreFilePath();
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      const profilesObj: Record<string, StudentProfileData> = {};
+      for (const [k, v] of inMemoryProfiles.entries()) {
+        if (k !== "student-demo") profilesObj[k] = v;
+      }
+
+      const eventsObj: Record<string, PersonalEvent[]> = {};
+      for (const [k, v] of inMemoryPersonalEvents.entries()) {
+        eventsObj[k] = v;
+      }
+
+      const appsObj: Record<string, ApplicationRecord[]> = {};
+      for (const [k, v] of inMemoryApplicationsStore.entries()) {
+        if (k !== "student-demo") appsObj[k] = v;
+      }
+
+      const payload = {
+        profiles: profilesObj,
+        personalEvents: eventsObj,
+        applications: appsObj,
+        updatedAt: new Date().toISOString()
+      };
+
+      const tmpFile = `${filePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmpFile, JSON.stringify(payload, null, 2), "utf-8");
+      fs.renameSync(tmpFile, filePath);
+
+      savePlacementStoreToCloud(payload).catch(() => {});
+    } catch (err) {
+      console.warn("[placement-store] Failed to persist to disk:", err);
+    }
+  }
+}
+
+export async function savePlacementStoreToCloud(payload?: any): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const dataToSave = payload || {
+      profiles: Object.fromEntries(Array.from(inMemoryProfiles.entries()).filter(([k]) => k !== "student-demo")),
+      personalEvents: Object.fromEntries(inMemoryPersonalEvents.entries()),
+      applications: Object.fromEntries(Array.from(inMemoryApplicationsStore.entries()).filter(([k]) => k !== "student-demo")),
+      updatedAt: new Date().toISOString()
+    };
+
+    const { data: existingRows } = await supabase
+      .from("analyses")
+      .select("id")
+      .eq("recruiter_clerk_id", CLOUD_PLACEMENT_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
+      await supabase
+        .from("analyses")
+        .update({
+          full_report: dataToSave,
+          created_at: new Date().toISOString()
+        })
+        .eq("id", existingRows[0].id);
+    } else {
+      await supabase
+        .from("analyses")
+        .insert({
+          recruiter_clerk_id: CLOUD_PLACEMENT_KEY,
+          job_description: "cognalyze_placement_cloud_store",
+          final_verdict: "ACTIVE",
+          full_report: dataToSave
+        });
+    }
+  } catch (err) {
+    // Non-fatal cloud mirror
+  }
+}
+
+export async function syncPlacementStoreWithCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const { data, error } = await supabase
+      .from("analyses")
+      .select("full_report")
+      .eq("recruiter_clerk_id", CLOUD_PLACEMENT_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (!error && data?.[0]?.full_report) {
+      const cloud = data[0].full_report;
+      if (cloud.profiles && typeof cloud.profiles === "object") {
+        for (const [k, v] of Object.entries(cloud.profiles)) {
+          if (!inMemoryProfiles.has(k)) inMemoryProfiles.set(k, v as StudentProfileData);
+        }
+      }
+      if (cloud.personalEvents && typeof cloud.personalEvents === "object") {
+        for (const [k, v] of Object.entries(cloud.personalEvents)) {
+          const local = inMemoryPersonalEvents.get(k) || [];
+          const merged = new Map<string, PersonalEvent>();
+          for (const ev of (v as PersonalEvent[])) merged.set(ev.id, ev);
+          for (const ev of local) merged.set(ev.id, ev);
+          inMemoryPersonalEvents.set(k, Array.from(merged.values()));
+        }
+      }
+      if (cloud.applications && typeof cloud.applications === "object") {
+        for (const [k, v] of Object.entries(cloud.applications)) {
+          const local = inMemoryApplicationsStore.get(k) || [];
+          const merged = new Map<string, ApplicationRecord>();
+          for (const a of (v as ApplicationRecord[])) merged.set(a.id, a);
+          for (const a of local) merged.set(a.id, a);
+          inMemoryApplicationsStore.set(k, Array.from(merged.values()));
+        }
+      }
+    }
+  } catch (err) {
+    // Non-fatal
+  }
+}
+
+// Initial load
+loadPlacementStoreFromDisk();
+syncPlacementStoreWithCloud().catch(() => {});
+
 export async function getPersonalEvents(studentId: string): Promise<PersonalEvent[]> {
+  loadPlacementStoreFromDisk();
   // 1. Try Supabase
   try {
     const { data: profile } = await supabase
@@ -6411,9 +6587,10 @@ export async function createPersonalEvent(
     created_at: new Date().toISOString()
   };
 
-  // 1. Save in memory
+  // 1. Save in memory & disk
   const existing = inMemoryPersonalEvents.get(eventData.student_id) || [];
   inMemoryPersonalEvents.set(eventData.student_id, [...existing, newEvent]);
+  persistPlacementStoreToDisk();
 
   // 2. Try Supabase
   try {
@@ -6460,6 +6637,7 @@ export async function snoozePersonalEvent(id: string, untilDate: string): Promis
     if (idx !== -1) {
       list[idx].snoozed_until = untilDate;
       inMemoryPersonalEvents.set(studentId, [...list]);
+      persistPlacementStoreToDisk();
       break;
     }
   }
@@ -6486,6 +6664,7 @@ export async function dismissPersonalEvent(id: string): Promise<boolean> {
     if (idx !== -1) {
       list[idx].is_dismissed = true;
       inMemoryPersonalEvents.set(studentId, [...list]);
+      persistPlacementStoreToDisk();
       break;
     }
   }
@@ -6506,6 +6685,7 @@ export async function dismissPersonalEvent(id: string): Promise<boolean> {
 }
 
 export async function getApplicationsStore(candidateId: string): Promise<ApplicationRecord[]> {
+  loadPlacementStoreFromDisk();
   // 1. Try Supabase with strict student_id scoping
   try {
     const { data, error } = await supabase
@@ -6621,6 +6801,7 @@ export async function upsertApplicationRecord(
   const existing = inMemoryApplicationsStore.get(candidateId) || [];
   const filtered = existing.filter(a => a.opportunity_id !== opportunityId);
   inMemoryApplicationsStore.set(candidateId, [...filtered, updatedApp]);
+  persistPlacementStoreToDisk();
 
   // Update Supabase if possible
   try {
@@ -6654,6 +6835,7 @@ export async function deleteApplicationRecord(
     a => a.id !== appIdOrOppId && a.opportunity_id !== appIdOrOppId
   );
   inMemoryApplicationsStore.set(candidateId, updated);
+  persistPlacementStoreToDisk();
 
   try {
     if (appIdOrOppId.match(/^[0-9a-fA-F-]{36}$/)) {
@@ -6686,6 +6868,7 @@ export async function updateApplicationStage(
     if (notes !== undefined) target.notes = notes;
     target.updated_at = new Date().toISOString();
     inMemoryApplicationsStore.set(candidateId, [...existing]);
+    persistPlacementStoreToDisk();
     return target;
   }
 

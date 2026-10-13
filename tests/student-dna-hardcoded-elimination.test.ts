@@ -193,8 +193,8 @@ describe("COGNALYZE STUDENT DNA — ELIMINATION OF HARDCODED METRICS (TEST A - T
         githubPayload: {
           accessible: true,
           repos: [
-            { name: "repo-1", url: "https://github.com/u/repo-1", languages: ["Go"], commits: 40, isTemplate: false },
-            { name: "repo-2", url: "https://github.com/u/repo-2", languages: ["Python"], commits: 15, isTemplate: false }
+            { name: "repo-1", url: "https://github.com/u/repo-1", files: { "main.go": "package main" }, commits: 40 },
+            { name: "repo-2", url: "https://github.com/u/repo-2", files: { "app.py": "print('hello')" }, commits: 15 }
           ]
         }
       }

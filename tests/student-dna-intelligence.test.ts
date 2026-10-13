@@ -365,7 +365,7 @@ async function runAllTests() {
 
     assert(matching.length === 1, "Deduplicated to exactly 1 underlying entity (not 3)", `Got length: ${matching.length}`);
     assert(matching[0].verificationStatus === "REPEATED", "Verification status elevated to REPEATED", `Got: ${matching[0].verificationStatus}`);
-    assert(matching[0].provenance.includes("RESUME") && matching[0].provenance.includes("github"), "Provenance captures corroboration across sources");
+    assert((matching[0].provenance || "").includes("RESUME") && (matching[0].provenance || "").includes("github"), "Provenance captures corroboration across sources");
   }
 
   // ─────────────────────────────────────────────────────────────

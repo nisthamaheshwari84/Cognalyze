@@ -26,6 +26,48 @@ export interface InterviewSession {
 
 const STORAGE_KEY = "cognalyze_interview_sessions";
 
+function getDataFilePath(): string {
+  if (typeof window === "undefined") {
+    const path = require("path");
+    return path.join(process.cwd(), "data", "interview-sessions.json");
+  }
+  return "";
+}
+
+let inMemorySessions: InterviewSession[] = [];
+let isLoaded = false;
+
+function loadSessionsFromDisk(): void {
+  if (typeof window === "undefined" && !isLoaded) {
+    try {
+      const fs = require("fs");
+      const filePath = getDataFilePath();
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, "utf-8");
+        inMemorySessions = JSON.parse(raw);
+      }
+    } catch {
+      inMemorySessions = [];
+    }
+    isLoaded = true;
+  }
+}
+
+function persistSessionsToDisk(): void {
+  if (typeof window === "undefined") {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const filePath = getDataFilePath();
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(filePath, JSON.stringify(inMemorySessions, null, 2), "utf-8");
+    } catch (err) {
+      console.warn("[interview-session-store] Failed to persist to disk:", err);
+    }
+  }
+}
+
 export async function saveSession(
   sessionData: Omit<InterviewSession, "id" | "created_at"> & { id?: string; created_at?: string }
 ): Promise<InterviewSession> {
@@ -35,7 +77,17 @@ export async function saveSession(
     ...sessionData,
   };
 
-  // 1. Save to LocalStorage (client side fallback/cache)
+  // 1. Save to in-memory & disk store
+  loadSessionsFromDisk();
+  const existingIdx = inMemorySessions.findIndex((s) => s.id === session.id);
+  if (existingIdx >= 0) {
+    inMemorySessions[existingIdx] = session;
+  } else {
+    inMemorySessions.unshift(session);
+  }
+  persistSessionsToDisk();
+
+  // 2. Client-side LocalStorage cache
   if (typeof window !== "undefined") {
     try {
       const existing = getLocalSessions();
@@ -46,9 +98,34 @@ export async function saveSession(
     }
   }
 
-  // 2. Try saving to Supabase
+  // 3. Persist directly to Supabase
   try {
-    const { error } = await supabase.from("interview_sessions").upsert([
+    // If candidate_id is a UUID, ensure candidate exists in candidates table
+    if (session.candidate_id && session.candidate_id.match(/^[0-9a-fA-F-]{36}$/)) {
+      await supabase.from("candidates").upsert({
+        id: session.candidate_id,
+        clerk_user_id: session.candidate_id,
+        name: session.candidate_id
+      }, { onConflict: "id" });
+
+      // Save to real Supabase interviews table
+      const sessionUuid = session.id.match(/^[0-9a-fA-F-]{36}$/)
+        ? session.id
+        : undefined;
+
+      await supabase.from("interviews").insert({
+        ...(sessionUuid ? { id: sessionUuid } : {}),
+        candidate_id: session.candidate_id,
+        type: session.session_type,
+        scores: session.answer_distribution,
+        trust_score: Math.round(session.overall_score),
+        verdict: session.overall_score >= 70 ? "STRONG_PASS" : "NEEDS_PRACTICE",
+        created_at: session.created_at
+      });
+    }
+
+    // Also attempt interview_sessions table if migrated
+    await supabase.from("interview_sessions").upsert([
       {
         id: session.id,
         candidate_id: session.candidate_id,
@@ -65,18 +142,18 @@ export async function saveSession(
         created_at: session.created_at,
       },
     ]);
-    if (error) {
-      console.warn("[interview-session-store] Supabase upsert notice:", error.message);
-    }
   } catch (e: any) {
-    console.warn("[interview-session-store] Supabase request error:", e.message);
+    console.warn("[interview-session-store] Supabase persist non-fatal notice:", e.message);
   }
 
   return session;
 }
 
 export function getLocalSessions(): InterviewSession[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") {
+    loadSessionsFromDisk();
+    return inMemorySessions;
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -87,7 +164,8 @@ export function getLocalSessions(): InterviewSession[] {
 }
 
 export async function getSessionHistory(candidateId?: string): Promise<InterviewSession[]> {
-  const localList = getLocalSessions();
+  loadSessionsFromDisk();
+  const localList = typeof window !== "undefined" ? getLocalSessions() : inMemorySessions;
   const filteredLocal = candidateId
     ? localList.filter((s) => s.candidate_id === candidateId)
     : localList;
@@ -105,7 +183,6 @@ export async function getSessionHistory(candidateId?: string): Promise<Interview
 
     const { data, error } = await query;
     if (!error && data && data.length > 0) {
-      // Merge with local sessions scoped to this candidate, removing duplicates
       const seen = new Set<string>();
       const combined: InterviewSession[] = [];
       for (const item of [...data, ...filteredLocal]) {
@@ -119,7 +196,7 @@ export async function getSessionHistory(candidateId?: string): Promise<Interview
       );
     }
   } catch (e: any) {
-    console.warn("[interview-session-store] Could not load from Supabase, using local fallback:", e.message);
+    // Handled
   }
 
   return filteredLocal;
@@ -140,3 +217,4 @@ export async function getAccumulatedWeakTopics(candidateId?: string): Promise<st
     .sort((a, b) => b[1] - a[1])
     .map(([topic]) => topic);
 }
+

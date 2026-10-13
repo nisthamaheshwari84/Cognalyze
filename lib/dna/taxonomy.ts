@@ -248,7 +248,7 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
   sql: {
     skillId: "sql",
     name: "SQL & Relational Databases",
-    aliases: ["sql", "postgresql", "postgres", "mysql", "sqlite", "relational database", "rdbms"],
+    aliases: ["sql", "sqlite", "relational database", "rdbms"],
     category: "Data & Databases",
     proficiencyLevels: {
       1: { label: "Familiar", description: "Basic SELECT, WHERE, INSERT, UPDATE, DELETE queries." },
@@ -256,6 +256,34 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
       3: { label: "Intermediate", description: "Subqueries, transactions, indexes, normalization (1NF-3NF)." },
       4: { label: "Advanced", description: "Window functions, query execution plan analysis, index optimization, locking." },
       5: { label: "Strongly Demonstrated", description: "Tuned complex relational databases under high concurrency with verified proofs." }
+    }
+  },
+  postgresql: {
+    skillId: "postgresql",
+    name: "PostgreSQL",
+    aliases: ["postgresql", "postgres", "psql"],
+    category: "Data & Databases",
+    parentSkillId: "sql",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Basic PostgreSQL schemas, psql CLI, data types." },
+      2: { label: "Beginner", description: "Foreign keys, constraints, JSONB column querying, basic indexes." },
+      3: { label: "Intermediate", description: "EXPLAIN ANALYZE, vacuuming, CTEs, window functions, migration scripts." },
+      4: { label: "Advanced", description: "Partial indexes, partitioning, connection pooling (PgBouncer), MVCC concurrency." },
+      5: { label: "Strongly Demonstrated", description: "Production PostgreSQL architecture with replication, WAL management, and benchmarks." }
+    }
+  },
+  mysql: {
+    skillId: "mysql",
+    name: "MySQL",
+    aliases: ["mysql", "mariadb"],
+    category: "Data & Databases",
+    parentSkillId: "sql",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Basic MySQL installation and standard SQL syntax." },
+      2: { label: "Beginner", description: "InnoDB tables, indexes, constraints, character encodings." },
+      3: { label: "Intermediate", description: "Replication basics, slow query log analysis, optimizer hints." },
+      4: { label: "Advanced", description: "InnoDB buffer pool tuning, transactions, deadlock debugging." },
+      5: { label: "Strongly Demonstrated", description: "High-scale MySQL clustering and query optimization verified in production." }
     }
   },
   nosql: {
@@ -326,6 +354,19 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
       3: { label: "Intermediate", description: "Multi-stage builds, docker-compose for multi-service apps, volumes." },
       4: { label: "Advanced", description: "Image optimization, security scanning, container networking, non-root users." },
       5: { label: "Strongly Demonstrated", description: "Deployed containerized production services with automated CI/CD pipelines." }
+    }
+  },
+  aws: {
+    skillId: "aws",
+    name: "Amazon Web Services (AWS)",
+    aliases: ["aws", "amazon web services", "ec2", "s3", "lambda"],
+    category: "DevOps & Cloud",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "AWS console navigation, basic S3 or EC2 instance creation." },
+      2: { label: "Beginner", description: "Deploying basic web services, security groups, IAM roles." },
+      3: { label: "Intermediate", description: "Lambda, API Gateway, RDS, CloudWatch monitoring, VPC basics." },
+      4: { label: "Advanced", description: "Infrastructure as Code (Terraform/CloudFormation), ECS/EKS, auto-scaling." },
+      5: { label: "Strongly Demonstrated", description: "Architected high-availability cloud solutions with verified certifications or deployments." }
     }
   },
 

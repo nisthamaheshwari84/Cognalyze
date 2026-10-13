@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 /**
  * POST /api/admin/opportunities/import
  * 
- * Emergency manual import fallback endpoint:
- * Allows administrators to directly import or verify high-priority opportunities.
- * Normalizes, validates, and incorporates into the live canonical database.
+ * Secure manual import endpoint for administrators:
+ * Requires verified administrator identity or authorized admin key header.
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(request);
+    const adminKeyHeader = request.headers.get("x-admin-key");
+    const configuredAdminKey = process.env.ADMIN_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const isAuthorizedByHeader = Boolean(configuredAdminKey && adminKeyHeader && adminKeyHeader === configuredAdminKey);
+    const isAuthorizedBySession = Boolean(
+      auth && (
+        (auth.user as any).role === "admin" ||
+        auth.user.email.endsWith("@cognalyze.com") ||
+        auth.user.email === "nisthamaheshwari85@gmail.com"
+      )
+    );
+
+    if (!isAuthorizedByHeader && !isAuthorizedBySession) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden. Administrative authorization required." },
+        { status: 403 }
+      );
+    }
     const body = await request.json();
 
     if (!body.title || !body.sourceUrl || (!body.organizer && !body.companyName)) {

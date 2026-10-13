@@ -3,6 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { 
+  validateIndianPhoneNumber, 
+  validateCgpa, 
+  validateGraduationYear, 
+  validateUrl,
+  type GradingScale 
+} from "@/lib/validation/student-dna-validation";
 
 export default function StudentOnboardingPage() {
   const router = useRouter();
@@ -25,18 +32,25 @@ export default function StudentOnboardingPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [location, setLocation] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState<Array<{ displayName: string; city: string; state: string; country?: string }>>([]);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
 
   // SECTION 2: Education
   const [college, setCollege] = useState("");
+  const [institutionSuggestions, setInstitutionSuggestions] = useState<Array<{ name: string; city: string; state: string; type: string }>>([]);
+  const [showInstitutionDropdown, setShowInstitutionDropdown] = useState(false);
   const [degree, setDegree] = useState("B.Tech");
   const [branch, setBranch] = useState("Computer Science & Engineering");
   const [year, setYear] = useState("3rd Year");
   const [graduationYear, setGraduationYear] = useState("2026");
+  const [gradingScale, setGradingScale] = useState<GradingScale>("10");
   const [cgpa, setCgpa] = useState("");
+  const [cgpaError, setCgpaError] = useState<string | null>(null);
   const [coursework, setCoursework] = useState<string[]>([]);
   const [courseInput, setCourseInput] = useState("");
 
@@ -46,10 +60,13 @@ export default function StudentOnboardingPage() {
     level: "Beginner" | "Intermediate" | "Advanced" | "Expert";
     yearsOfExperience: number;
     evidenceSource: string;
+    learningMethod?: string;
+    claimStatus?: string;
   }>>([]);
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillLevel, setNewSkillLevel] = useState<"Beginner" | "Intermediate" | "Advanced" | "Expert">("Intermediate");
   const [newSkillYears, setNewSkillYears] = useState<number>(1);
+  const [newSkillMethod, setNewSkillMethod] = useState<"Self-learned" | "Coursework" | "Bootcamp" | "On-the-job" | "Open Source">("Self-learned");
   const [newSkillSource, setNewSkillSource] = useState("");
 
   // SECTION 4: Projects
@@ -197,20 +214,62 @@ export default function StudentOnboardingPage() {
     loadAuth();
   }, [router]);
 
+  // Location Autocomplete Search
+  const handleLocationSearch = async (val: string) => {
+    if (!val || val.trim().length < 2) {
+      setLocationSuggestions([]);
+      setShowLocationDropdown(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/student/location/search?q=${encodeURIComponent(val)}`);
+      if (res.ok) {
+        const json = await res.json();
+        setLocationSuggestions(json.results || []);
+        setShowLocationDropdown((json.results || []).length > 0);
+      }
+    } catch {}
+  };
+
+  // Institution Autocomplete Search
+  const handleInstitutionSearch = async (val: string) => {
+    if (!val || val.trim().length < 2) {
+      setInstitutionSuggestions([]);
+      setShowInstitutionDropdown(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/student/institution/search?q=${encodeURIComponent(val)}`);
+      if (res.ok) {
+        const json = await res.json();
+        setInstitutionSuggestions(json.results || []);
+        setShowInstitutionDropdown((json.results || []).length > 0);
+      }
+    } catch {}
+  };
+
   // Skill Add
   const handleAddSkill = () => {
     if (!newSkillName.trim()) return;
+    const cleanName = newSkillName.trim();
+    if (skills.some((s) => s.name.toLowerCase() === cleanName.toLowerCase())) {
+      setError("This skill has already been added.");
+      return;
+    }
     setSkills([
       ...skills,
       {
-        name: newSkillName.trim(),
+        name: cleanName,
         level: newSkillLevel,
         yearsOfExperience: Number(newSkillYears) || 1,
-        evidenceSource: newSkillSource.trim() || "Self-Reported & Projects",
+        learningMethod: newSkillMethod,
+        evidenceSource: `Self-Reported (${newSkillMethod})`,
+        claimStatus: "SELF_REPORTED",
       },
     ]);
     setNewSkillName("");
     setNewSkillSource("");
+    setError(null);
   };
 
   // Project Add
@@ -325,6 +384,7 @@ export default function StudentOnboardingPage() {
       branch: branch || undefined,
       year: year || undefined,
       graduationYear: graduationYear || undefined,
+      gradingScale: gradingScale || "10",
       cgpa: cgpa || undefined,
       coursework: coursework || [],
       skills: skills || [],
@@ -894,25 +954,88 @@ export default function StudentOnboardingPage() {
               </div>
 
               <div>
-                <label style={labelStyle}>Phone Number (Optional)</label>
+                <label style={labelStyle}>Phone Number (Optional - 10-digit Indian Mobile)</label>
                 <input
                   type="tel"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPhone(val);
+                    if (val.trim()) {
+                      const res = validateIndianPhoneNumber(val, true);
+                      setPhoneError(res.isValid ? null : (res.error || "Invalid phone number"));
+                    } else {
+                      setPhoneError(null);
+                    }
+                  }}
                   placeholder="+91 98765 43210"
-                  style={inputStyle}
+                  style={{
+                    ...inputStyle,
+                    borderColor: phoneError ? "#C24141" : "#E4E1DA",
+                  }}
                 />
+                {phoneError && (
+                  <div style={{ fontSize: 11, color: "#C24141", marginTop: 4, fontWeight: 500 }}>
+                    ⚠ {phoneError}
+                  </div>
+                )}
               </div>
 
-              <div>
+              <div style={{ position: "relative" }}>
                 <label style={labelStyle}>Current Location (Optional)</label>
                 <input
                   type="text"
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. New Delhi, India"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLocation(val);
+                    handleLocationSearch(val);
+                  }}
+                  onFocus={() => {
+                    if (locationSuggestions.length > 0) setShowLocationDropdown(true);
+                  }}
+                  placeholder="e.g. Ghaziabad, Uttar Pradesh, India"
                   style={inputStyle}
                 />
+                {showLocationDropdown && locationSuggestions.length > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      zIndex: 50,
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 6,
+                      marginTop: 4,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      maxHeight: 200,
+                      overflowY: "auto",
+                    }}
+                  >
+                    {locationSuggestions.map((loc, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setLocation(loc.displayName);
+                          setShowLocationDropdown(false);
+                        }}
+                        style={{
+                          padding: "8px 12px",
+                          fontSize: 12,
+                          cursor: "pointer",
+                          borderBottom: "1px solid #F6F5F1",
+                          color: "#162A43",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F6F5F1")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+                      >
+                        📍 <span style={{ fontWeight: 600 }}>{loc.city}</span>, {loc.state}, {loc.country}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -944,17 +1067,66 @@ export default function StudentOnboardingPage() {
         {currentStep === 2 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div style={{ gridColumn: "span 2" }}>
+              <div style={{ gridColumn: "span 2", position: "relative" }}>
                 <label style={labelStyle}>
                   College / University Name <span style={{ color: "#C24141" }}>*</span>
                 </label>
                 <input
                   type="text"
                   value={college}
-                  onChange={(e) => setCollege(e.target.value)}
-                  placeholder="e.g. Indian Institute of Technology / Delhi Technological University"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCollege(val);
+                    handleInstitutionSearch(val);
+                  }}
+                  onFocus={() => {
+                    if (institutionSuggestions.length > 0) setShowInstitutionDropdown(true);
+                  }}
+                  placeholder="e.g. ABES Engineering College, Ghaziabad / IIT Delhi"
                   style={inputStyle}
                 />
+                {showInstitutionDropdown && institutionSuggestions.length > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      right: 0,
+                      zIndex: 50,
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 6,
+                      marginTop: 4,
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                      maxHeight: 220,
+                      overflowY: "auto",
+                    }}
+                  >
+                    {institutionSuggestions.map((inst, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setCollege(inst.name);
+                          setShowInstitutionDropdown(false);
+                        }}
+                        style={{
+                          padding: "8px 12px",
+                          fontSize: 12,
+                          cursor: "pointer",
+                          borderBottom: "1px solid #F6F5F1",
+                          color: "#162A43",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F6F5F1")}
+                        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#FFFFFF")}
+                      >
+                        🏛️ <span style={{ fontWeight: 600 }}>{inst.name}</span>
+                        <span style={{ fontSize: 11, color: "#667085", marginLeft: 6 }}>
+                          ({inst.city}, {inst.state})
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -991,14 +1163,51 @@ export default function StudentOnboardingPage() {
               </div>
 
               <div>
+                <label style={labelStyle}>Grading Scale</label>
+                <select
+                  value={gradingScale}
+                  onChange={(e: any) => {
+                    const newScale = e.target.value as GradingScale;
+                    setGradingScale(newScale);
+                    if (cgpa.trim()) {
+                      const res = validateCgpa(cgpa, newScale, true);
+                      setCgpaError(res.isValid ? null : (res.error || "Invalid score"));
+                    }
+                  }}
+                  style={inputStyle}
+                >
+                  <option value="10">10-point Scale (Standard Indian CGPA)</option>
+                  <option value="4">4-point Scale (US / International GPA)</option>
+                  <option value="percentage">Percentage (0% – 100%)</option>
+                </select>
+              </div>
+
+              <div style={{ gridColumn: "span 2" }}>
                 <label style={labelStyle}>CGPA / Score (Optional)</label>
                 <input
                   type="text"
                   value={cgpa}
-                  onChange={(e) => setCgpa(e.target.value)}
-                  placeholder="e.g. 8.6 / 10.0"
-                  style={inputStyle}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCgpa(val);
+                    if (val.trim()) {
+                      const res = validateCgpa(val, gradingScale, true);
+                      setCgpaError(res.isValid ? null : (res.error || "Invalid CGPA"));
+                    } else {
+                      setCgpaError(null);
+                    }
+                  }}
+                  placeholder={gradingScale === "percentage" ? "e.g. 85.5%" : gradingScale === "4" ? "e.g. 3.7 / 4.0" : "e.g. 8.6 / 10.0"}
+                  style={{
+                    ...inputStyle,
+                    borderColor: cgpaError ? "#C24141" : "#E4E1DA",
+                  }}
                 />
+                {cgpaError && (
+                  <div style={{ fontSize: 11, color: "#C24141", marginTop: 4, fontWeight: 500 }}>
+                    ⚠ {cgpaError}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1016,9 +1225,17 @@ export default function StudentOnboardingPage() {
                     style={itemStyle}
                   >
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43" }}>{s.name}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43", display: "flex", alignItems: "center", gap: 8 }}>
+                        {s.name}
+                        <span style={{ fontSize: 10, fontWeight: 600, padding: "2px 6px", borderRadius: 4, backgroundColor: "#E4E1DA", color: "#162A43" }}>
+                          Self-Reported Claim
+                        </span>
+                      </div>
                       <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
-                        {s.level} • {s.yearsOfExperience} yr(s) • Source: {s.evidenceSource}
+                        {s.level} • {s.yearsOfExperience} yr(s) • Method: {s.learningMethod || "Self-learned"}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2, fontStyle: "italic" }}>
+                        Self-reported. Supporting evidence has not been inspected.
                       </div>
                     </div>
                     <button
@@ -1037,7 +1254,7 @@ export default function StudentOnboardingPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: "#162A43", textTransform: "uppercase", letterSpacing: 0.5 }}>
                 + Add a Technical Skill
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={labelStyle}>Skill Name</label>
                   <input
@@ -1062,6 +1279,20 @@ export default function StudentOnboardingPage() {
                   </select>
                 </div>
                 <div>
+                  <label style={labelStyle}>Learning Method</label>
+                  <select
+                    value={newSkillMethod}
+                    onChange={(e: any) => setNewSkillMethod(e.target.value)}
+                    style={inputStyle}
+                  >
+                    <option value="Self-learned">Self-learned</option>
+                    <option value="Coursework">Coursework</option>
+                    <option value="Bootcamp">Bootcamp</option>
+                    <option value="On-the-job">On-the-job</option>
+                    <option value="Open Source">Open Source</option>
+                  </select>
+                </div>
+                <div>
                   <label style={labelStyle}>Years</label>
                   <input
                     type="number"
@@ -1072,6 +1303,9 @@ export default function StudentOnboardingPage() {
                     style={inputStyle}
                   />
                 </div>
+              </div>
+              <div style={{ fontSize: 11, color: "#667085", marginTop: 6 }}>
+                Note: Skills entered here are recorded as candidate-reported claims. They will not be marked as demonstrated or verified until evidence is inspected.
               </div>
               <button
                 type="button"
@@ -1552,13 +1786,38 @@ export default function StudentOnboardingPage() {
               <button
                 type="button"
                 onClick={async () => {
-                  if (currentStep === 1 && !fullName.trim()) {
-                    setError("Please enter your full name.");
-                    return;
+                  if (currentStep === 1) {
+                    if (!fullName.trim()) {
+                      setError("Please enter your full name.");
+                      return;
+                    }
+                    if (phone.trim()) {
+                      const pCheck = validateIndianPhoneNumber(phone, true);
+                      if (!pCheck.isValid) {
+                        setError(pCheck.error || "Please enter a valid 10-digit Indian mobile number.");
+                        return;
+                      }
+                    }
                   }
-                  if (currentStep === 2 && !college.trim()) {
-                    setError("Please enter your college / university name.");
-                    return;
+                  if (currentStep === 2) {
+                    if (!college.trim()) {
+                      setError("Please enter your college / university name.");
+                      return;
+                    }
+                    if (cgpa.trim()) {
+                      const cCheck = validateCgpa(cgpa, gradingScale, true);
+                      if (!cCheck.isValid) {
+                        setError(cCheck.error || "Please enter a valid CGPA / score.");
+                        return;
+                      }
+                    }
+                    if (graduationYear.trim()) {
+                      const gCheck = validateGraduationYear(graduationYear);
+                      if (!gCheck.isValid) {
+                        setError(gCheck.error || "Please enter a valid graduation year.");
+                        return;
+                      }
+                    }
                   }
                   setError(null);
                   const next = currentStep + 1;

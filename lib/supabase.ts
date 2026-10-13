@@ -33,13 +33,27 @@ export async function isSupabaseAvailable(): Promise<boolean> {
   checkPromise = (async () => {
     try {
       const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-      if (!rawUrl || rawUrl.includes("placeholder")) {
+      const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+      if (!rawUrl || rawUrl.includes("placeholder") || !rawKey || rawKey.includes("placeholder")) {
         isAvailable = false;
         return false;
       }
       const host = new URL(rawUrl).hostname;
       const dns = require("dns").promises;
       await dns.resolve(host);
+
+      // Fast HTTP health probe with 1500ms timeout: validates key and unpaused status
+      const res = await fetch(`${rawUrl}/rest/v1/`, {
+        method: "HEAD",
+        headers: { apikey: rawKey },
+        signal: AbortSignal.timeout(1500)
+      }).catch(() => null);
+
+      if (!res || res.status === 401 || res.status === 403 || res.status >= 500) {
+        isAvailable = false;
+        return false;
+      }
+
       isAvailable = true;
       return true;
     } catch {
@@ -58,12 +72,33 @@ if (typeof window === "undefined") {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
 
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+
+const boundedFetch = (url: any, opts: any) =>
+  fetch(url, { ...opts, signal: opts?.signal || AbortSignal.timeout(3000) });
+
 let realClient: any = null;
 function getRealClient() {
   if (!realClient) {
-    realClient = createClient(supabaseUrl, supabaseAnonKey);
+    realClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { fetch: boundedFetch }
+    });
   }
   return realClient;
+}
+
+let realAdminClient: any = null;
+export function getAdminClient() {
+  if (!realAdminClient) {
+    if (supabaseServiceKey && !supabaseServiceKey.includes("placeholder")) {
+      realAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
+        global: { fetch: boundedFetch }
+      });
+    } else {
+      realAdminClient = getRealClient();
+    }
+  }
+  return realAdminClient;
 }
 
 function createLazyChain(tableName: string) {
@@ -112,19 +147,20 @@ function createLazyChain(tableName: string) {
 
 export const supabase: any = typeof window !== "undefined"
   ? createClient(supabaseUrl, supabaseAnonKey)
-  : {
-      from(table: string) {
-        return createLazyChain(table);
-      },
-      auth: new Proxy({}, {
-        get(target, prop: string) {
-          const realAuth = getRealClient().auth;
-          const val = (realAuth as any)[prop];
-          if (typeof val === "function") {
-            return val.bind(realAuth);
-          }
-          return val;
+  : new Proxy({}, {
+      get(target, prop: string) {
+        if (prop === "from") {
+          return (tableName: string) => createLazyChain(tableName);
         }
-      })
-    };
+        const client = getRealClient();
+        const val = client[prop];
+        if (typeof val === "function") {
+          return val.bind(client);
+        }
+        return val;
+      }
+    });
+
+export const supabaseAdmin = typeof window === "undefined" ? getAdminClient() : supabase;
+
 

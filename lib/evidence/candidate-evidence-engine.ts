@@ -688,7 +688,7 @@ export async function buildCandidateUnifiedEvidenceDossier(
           languages_in_code: languagesInCode,
           frameworks_in_deps: Array.from(new Set(frameworksInDeps)),
           frameworks_in_source: Array.from(new Set(frameworksInSource)),
-          commit_count: r.commits ?? 12,
+          commit_count: r.commits ?? 0,
           has_tests: Boolean(r.hasTests),
           has_ci: false,
           template_signal: templateSignal,
@@ -890,36 +890,38 @@ export async function buildCandidateUnifiedEvidenceDossier(
       leetcodeAnalysis = {
         username: "candidate",
         retrieval_status: "CONTENT_RETRIEVED",
-        total_solved: lc.totalSolved ?? 142,
-        easy_solved: lc.easySolved ?? 60,
-        medium_solved: lc.mediumSolved ?? 68,
-        hard_solved: lc.hardSolved ?? 14,
-        contest_rating: lc.contestRating ?? 1680,
-        global_ranking: 42000,
+        total_solved: lc.totalSolved !== undefined ? lc.totalSolved : null,
+        easy_solved: lc.easySolved !== undefined ? lc.easySolved : null,
+        medium_solved: lc.mediumSolved !== undefined ? lc.mediumSolved : null,
+        hard_solved: lc.hardSolved !== undefined ? lc.hardSolved : null,
+        contest_rating: lc.contestRating !== undefined ? lc.contestRating : null,
+        global_ranking: null,
         retrieved_at: now,
         source_url: "https://leetcode.com/candidate",
         limitations: ["Public statistics reflect solved problem counts up to retrieval timestamp."]
       };
 
-      allEvidence.push({
-        evidence_id: `ev_lc_${studentId}_solved`,
-        authenticated_student_id: studentId,
-        source_type: "leetcode",
-        source_title: "LeetCode Public Profile",
-        source_url: "https://leetcode.com/candidate",
-        extracted_claim: `Solved ${leetcodeAnalysis.total_solved} problems`,
-        supporting_excerpt: `Total Solved: ${leetcodeAnalysis.total_solved} (Easy: ${leetcodeAnalysis.easy_solved}, Medium: ${leetcodeAnalysis.medium_solved}, Hard: ${leetcodeAnalysis.hard_solved})`,
-        artifact_type: "leetcode_stats",
-        retrieved_at: now,
-        extraction_status: "SUCCESS",
-        verification_status: "INDEPENDENTLY_VERIFIED",
-        verification_method: "LeetCode public GraphQL query",
-        verification_timestamp: now,
-        confidence: "HIGH",
-        confidence_rationale: "Retrieved directly from official public platform endpoint.",
-        limitations: ["Public platform statistics."],
-        analysis_version: "2.0.0"
-      });
+      if (leetcodeAnalysis.total_solved !== null) {
+        allEvidence.push({
+          evidence_id: `ev_lc_${studentId}_solved`,
+          authenticated_student_id: studentId,
+          source_type: "leetcode",
+          source_title: "LeetCode Public Profile",
+          source_url: "https://leetcode.com/candidate",
+          extracted_claim: `Solved ${leetcodeAnalysis.total_solved} problems`,
+          supporting_excerpt: `Total Solved: ${leetcodeAnalysis.total_solved} (Easy: ${leetcodeAnalysis.easy_solved ?? 0}, Medium: ${leetcodeAnalysis.medium_solved ?? 0}, Hard: ${leetcodeAnalysis.hard_solved ?? 0})`,
+          artifact_type: "leetcode_stats",
+          retrieved_at: now,
+          extraction_status: "SUCCESS",
+          verification_status: "INDEPENDENTLY_VERIFIED",
+          verification_method: "LeetCode public GraphQL query",
+          verification_timestamp: now,
+          confidence: "HIGH",
+          confidence_rationale: "Retrieved directly from official public platform endpoint.",
+          limitations: ["Public platform statistics."],
+          analysis_version: "2.0.0"
+        });
+      }
     }
   } else {
     // If student has no leetcode account connected

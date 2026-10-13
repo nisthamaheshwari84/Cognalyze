@@ -325,14 +325,83 @@ Skills: Go, TypeScript, PostgreSQL, Docker, MQTT, Kafka primitives, Python.`,
 
 import fs from "fs";
 import path from "path";
+import { supabase } from "./supabase";
 
 const STORE_DIR = path.join(process.cwd(), "data");
 const STORE_FILE = path.join(STORE_DIR, "recruiter-store.json");
+const CLOUD_RECRUITER_KEY = "cognalyze_recruiter_cloud_store";
 
 // Global storage containers initialized with defaults
 let rolesStore: RoleDNA[] = [...initialRoles];
 let candidatesStore: MultiSourceCandidateProfile[] = [...initialCandidates];
 let hireRecordsStore: HireOutcomeRecord[] = [];
+
+export async function saveRecruiterStoreToCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const payload = {
+      roles: rolesStore,
+      candidates: candidatesStore,
+      hireRecords: hireRecordsStore,
+      updatedAt: new Date().toISOString()
+    };
+    const { data: existingRows } = await supabase
+      .from("analyses")
+      .select("id")
+      .eq("recruiter_clerk_id", CLOUD_RECRUITER_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
+      await supabase
+        .from("analyses")
+        .update({
+          full_report: payload,
+          created_at: new Date().toISOString()
+        })
+        .eq("id", existingRows[0].id);
+    } else {
+      await supabase
+        .from("analyses")
+        .insert({
+          recruiter_clerk_id: CLOUD_RECRUITER_KEY,
+          job_description: "cognalyze_recruiter_cloud_store",
+          final_verdict: "ACTIVE",
+          full_report: payload
+        });
+    }
+  } catch {}
+}
+
+export async function syncRecruiterStoreWithCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const { data, error } = await supabase
+      .from("analyses")
+      .select("full_report")
+      .eq("recruiter_clerk_id", CLOUD_RECRUITER_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (!error && data?.[0]?.full_report) {
+      const cloud = data[0].full_report;
+      if (cloud.roles && Array.isArray(cloud.roles) && cloud.roles.length > 0) {
+        for (const r of cloud.roles) {
+          const idx = rolesStore.findIndex(x => x.id === r.id);
+          if (idx === -1) rolesStore.push(r);
+          else rolesStore[idx] = { ...rolesStore[idx], ...r };
+        }
+      }
+      if (cloud.candidates && Array.isArray(cloud.candidates) && cloud.candidates.length > 0) {
+        for (const c of cloud.candidates) {
+          const idx = candidatesStore.findIndex(x => x.id === c.id);
+          if (idx === -1) candidatesStore.push(c);
+          else candidatesStore[idx] = { ...candidatesStore[idx], ...c };
+        }
+      }
+    }
+  } catch {}
+}
 
 function loadStoreFromDisk() {
   try {
@@ -359,6 +428,7 @@ export function persistStoreToDisk() {
         candidates: candidatesStore,
         hireRecords: hireRecordsStore
       }, null, 2), "utf-8");
+      saveRecruiterStoreToCloud().catch(() => {});
     }
   } catch (err) {
     console.error("Failed to persist recruiter store to disk:", err);
@@ -366,6 +436,7 @@ export function persistStoreToDisk() {
 }
 
 loadStoreFromDisk();
+syncRecruiterStoreWithCloud().catch(() => {});
 
 // ─────────────────────────────────────────────────────────────
 // STORE OPERATIONS

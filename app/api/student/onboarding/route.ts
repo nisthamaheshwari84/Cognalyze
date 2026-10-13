@@ -4,6 +4,9 @@ import { upsertStudentProfileByUserId, getUserById, saveStoreToCloud } from "@/l
 import { upsertStudentProfile, invalidatePlacementProfile } from "@/lib/placement-store";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { invalidateUserDNAScope } from "@/lib/dna/store";
+import { validateStudentDnaPayload } from "@/lib/validation/student-dna-validation";
+import { normalizeLocation } from "@/lib/geo/location-service";
+import { normalizeInstitution } from "@/lib/institution/institution-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,6 +27,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
+    const isPartialSave = Boolean(body.isPartialSave);
+    const isFinalSubmit = Boolean(body.isFinalSubmit);
+
+    // 1. Centralized Backend Validation Guard
+    const valReport = validateStudentDnaPayload(body, isPartialSave);
+    if (!valReport.isValid) {
+      return NextResponse.json({
+        success: false,
+        error: "Validation failed on submitted Student DNA fields.",
+        fieldErrors: valReport.errors
+      }, { status: 400 });
+    }
+
+    const sanitized = valReport.sanitized;
     const {
       fullName,
       username,
@@ -49,14 +66,16 @@ export async function POST(req: NextRequest) {
       resumeUrl,
       resumeFileName,
       currentStep,
-      isPartialSave,
-      isFinalSubmit,
-    } = body;
+    } = sanitized;
 
     const effectiveFullName = (fullName || user.fullName || user.email.split("@")[0] || "Student").trim();
     if (!isPartialSave && (!effectiveFullName || effectiveFullName.length < 2)) {
       return NextResponse.json({ error: "Full Name is required." }, { status: 400 });
     }
+
+    // Normalized location and institution
+    const normalizedLoc = location ? normalizeLocation(location).displayName : "";
+    const normalizedInst = college ? normalizeInstitution(college).name : "";
 
     // 1. Calculate profile completion percentage based on provided sections
     let completedSections = 0;
@@ -81,11 +100,11 @@ export async function POST(req: NextRequest) {
       username: username ? username.trim().toLowerCase() : undefined,
       email: email || user.email,
       phone: phone !== undefined ? phone : "",
-      location: location !== undefined ? location : "",
+      location: normalizedLoc || location || "",
       linkedinUrl: linkedinUrl !== undefined ? linkedinUrl : "",
       githubUrl: githubUrl !== undefined ? githubUrl : "",
       portfolioUrl: portfolioUrl !== undefined ? portfolioUrl : "",
-      college: college !== undefined ? college.trim() : "",
+      college: normalizedInst || college || "",
       degree: degree !== undefined ? degree.trim() : "",
       branch: branch !== undefined ? branch.trim() : "",
       year: year !== undefined ? year.trim() : "",

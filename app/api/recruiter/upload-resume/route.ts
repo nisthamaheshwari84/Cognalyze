@@ -62,27 +62,34 @@ export async function POST(req: Request) {
       githubData: githubMatch ? {
         handle: githubMatch[1],
         profileUrl: `https://github.com/${githubMatch[1]}`,
-        verifiedReposCount: 6,
-        repos: [
-          {
-            name: `${githubMatch[1]}-core-service`,
-            description: "Core backend architecture and transaction engine",
-            languages: ["Go", "TypeScript"],
-            url: `https://github.com/${githubMatch[1]}/${githubMatch[1]}-core-service`
-          }
-        ]
+        verifiedReposCount: 0,
+        repos: []
       } : undefined,
       linkedInUrl: linkedInMatch ? `https://linkedin.com/in/${linkedInMatch[1]}` : undefined,
       leetCodeProfile: leetCodeMatch ? {
         username: leetCodeMatch[1],
         profileUrl: `https://leetcode.com/${leetCodeMatch[1]}`,
-        problemsSolved: 240,
-        rankingBadge: "Knight"
+        problemsSolved: 0,
+        rankingBadge: "Pending Verification"
       } : undefined,
       currentStage: "Applied"
     };
 
     const saved = await addCandidate(cand);
+
+    // Also persist resume to persistent Resume Vault and Supabase
+    try {
+      const { saveResumeRecord } = await import("@/lib/resume/store");
+      await saveResumeRecord({
+        candidateId: saved.id,
+        candidateName: saved.name,
+        candidateEmail: saved.email,
+        fileName: file?.name || "Uploaded Resume.txt",
+        parsedText: resumeText,
+        skills: [],
+        projects: []
+      });
+    } catch {}
 
     return NextResponse.json({
       success: true,

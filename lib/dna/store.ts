@@ -10,6 +10,7 @@
  * 5. AUDIT TRAIL: History of DNA state changes.
  */
 
+import { supabase } from "@/lib/supabase";
 import { DNAEvidence, RawSourceData, validateRawSourceData, processEvidencePipeline, detectContradictions, EvidenceFilter } from "./evidence-pipeline";
 import { StudentSkill, StudentDNASnapshot, calculateStudentSkillProfile, generateStudentDNASnapshot, getExplainableWhyForSkill, MetricDataStatus, MetricProofDetail } from "./profile-engine";
 import { RequirementProfile, getBenchmarkProfile, extractRequirementsFromJD } from "./requirement-engine";
@@ -22,6 +23,9 @@ import {
   buildCandidateUnifiedEvidenceDossier,
   invalidateCandidateEvidence
 } from "@/lib/evidence/candidate-evidence-engine";
+import { evaluateStudentSkillIntelligence, EvaluatedCanonicalSkill } from "./skill-intelligence-engine";
+import { calculateStudentDNAMetrics, StudentDNAMetricsSummary } from "./metric-proof";
+import { evaluateRoleGaps, RoleGapAnalysisReport } from "./role-gap-engine";
 
 export interface DNAAuditLog {
   id: string;
@@ -35,11 +39,32 @@ export interface DNAAuditLog {
   evidenceId?: string;
 }
 
+export type DNAProfileLifecycleStatus =
+  | "NOT_STARTED"
+  | "MISSING_ESSENTIAL_INFO"
+  | "AWAITING_RETRIEVAL"
+  | "AWAITING_INSPECTION"
+  | "PARTIALLY_ASSESSED"
+  | "READY_FOR_REVIEW"
+  | "UP_TO_DATE"
+  | "STALE";
+
 export interface FullStudentDNAResponse {
   userId: string;
+  profileStatus?: DNAProfileLifecycleStatus;
+  profileStatusReason?: string;
   snapshot: StudentDNASnapshot;
   skills: StudentSkill[];
   skillsBreakdown?: StudentSkill[];
+  canonicalSkillIntelligence?: {
+    evaluatedSkills: EvaluatedCanonicalSkill[];
+    supportedSkillsCount: number;
+    selfReportedOnlyCount: number;
+    unassessedCount: number;
+    conflictingCount: number;
+  };
+  metricsProof?: StudentDNAMetricsSummary;
+  roleGapIntelligence?: RoleGapAnalysisReport;
   evidence: DNAEvidence[];
   recentProofItems?: DNAEvidence[];
   auditLogs: DNAAuditLog[];
@@ -57,6 +82,174 @@ const USER_EVIDENCE_STORE: Map<string, DNAEvidence[]> = new Map();
 const USER_AUDIT_LOGS: Map<string, DNAAuditLog[]> = new Map();
 const USER_TARGET_ROLES: Map<string, string> = new Map();
 
+// ─── DNA DATA PERSISTENCE ENGINE (ACID Disk + Supabase Cloud Mirror) ───
+const CLOUD_DNA_KEY = "cognalyze_dna_cloud_store";
+let isDNAStoreLoaded = false;
+
+function getDNAFilePath(): string {
+  if (typeof window === "undefined") {
+    const path = require("path");
+    return path.join(process.cwd(), "data", "dna-store.json");
+  }
+  return "";
+}
+
+export function loadDNAStoreFromDisk(force = false): void {
+  if (typeof window === "undefined") {
+    if (isDNAStoreLoaded && !force) return;
+    try {
+      const fs = require("fs");
+      const filePath = getDNAFilePath();
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (parsed.evidence && typeof parsed.evidence === "object") {
+          for (const [k, v] of Object.entries(parsed.evidence)) {
+            USER_EVIDENCE_STORE.set(k, v as DNAEvidence[]);
+          }
+        }
+        if (parsed.auditLogs && typeof parsed.auditLogs === "object") {
+          for (const [k, v] of Object.entries(parsed.auditLogs)) {
+            USER_AUDIT_LOGS.set(k, v as DNAAuditLog[]);
+          }
+        }
+        if (parsed.targetRoles && typeof parsed.targetRoles === "object") {
+          for (const [k, v] of Object.entries(parsed.targetRoles)) {
+            USER_TARGET_ROLES.set(k, v as string);
+          }
+        }
+        isDNAStoreLoaded = true;
+      }
+    } catch (err) {
+      console.warn("[dna-store] Failed to load from disk:", err);
+    }
+  }
+}
+
+export function persistDNAStoreToDisk(): void {
+  if (typeof window === "undefined") {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const filePath = getDNAFilePath();
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      const evidenceObj: Record<string, DNAEvidence[]> = {};
+      for (const [k, v] of USER_EVIDENCE_STORE.entries()) {
+        evidenceObj[k] = v;
+      }
+
+      const logsObj: Record<string, DNAAuditLog[]> = {};
+      for (const [k, v] of USER_AUDIT_LOGS.entries()) {
+        logsObj[k] = v;
+      }
+
+      const rolesObj: Record<string, string> = {};
+      for (const [k, v] of USER_TARGET_ROLES.entries()) {
+        rolesObj[k] = v;
+      }
+
+      const payload = {
+        evidence: evidenceObj,
+        auditLogs: logsObj,
+        targetRoles: rolesObj,
+        updatedAt: new Date().toISOString()
+      };
+
+      const tmpFile = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      fs.writeFileSync(tmpFile, JSON.stringify(payload, null, 2), "utf-8");
+      try {
+        fs.renameSync(tmpFile, filePath);
+      } catch {
+        fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), "utf-8");
+        if (fs.existsSync(tmpFile)) try { fs.unlinkSync(tmpFile); } catch {}
+      }
+
+      saveDNAStoreToCloud(payload).catch(() => {});
+    } catch (err) {
+      console.warn("[dna-store] Failed to persist to disk:", err);
+    }
+  }
+}
+
+export async function saveDNAStoreToCloud(payload?: any): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const dataToSave = payload || {
+      evidence: Object.fromEntries(USER_EVIDENCE_STORE.entries()),
+      auditLogs: Object.fromEntries(USER_AUDIT_LOGS.entries()),
+      targetRoles: Object.fromEntries(USER_TARGET_ROLES.entries()),
+      updatedAt: new Date().toISOString()
+    };
+
+    const { data: existingRows } = await supabase
+      .from("analyses")
+      .select("id")
+      .eq("recruiter_clerk_id", CLOUD_DNA_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
+      await supabase
+        .from("analyses")
+        .update({
+          full_report: dataToSave,
+          created_at: new Date().toISOString()
+        })
+        .eq("id", existingRows[0].id);
+    } else {
+      await supabase
+        .from("analyses")
+        .insert({
+          recruiter_clerk_id: CLOUD_DNA_KEY,
+          job_description: "cognalyze_dna_cloud_store",
+          final_verdict: "ACTIVE",
+          full_report: dataToSave
+        });
+    }
+  } catch (err) {
+    // Non-fatal cloud mirror
+  }
+}
+
+export async function syncDNAStoreWithCloud(): Promise<void> {
+  if (typeof window !== "undefined") return;
+  try {
+    const { data, error } = await supabase
+      .from("analyses")
+      .select("full_report")
+      .eq("recruiter_clerk_id", CLOUD_DNA_KEY)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    if (!error && data?.[0]?.full_report) {
+      const cloud = data[0].full_report;
+      if (cloud.evidence && typeof cloud.evidence === "object") {
+        for (const [k, v] of Object.entries(cloud.evidence)) {
+          if (!USER_EVIDENCE_STORE.has(k)) USER_EVIDENCE_STORE.set(k, v as DNAEvidence[]);
+        }
+      }
+      if (cloud.auditLogs && typeof cloud.auditLogs === "object") {
+        for (const [k, v] of Object.entries(cloud.auditLogs)) {
+          if (!USER_AUDIT_LOGS.has(k)) USER_AUDIT_LOGS.set(k, v as DNAAuditLog[]);
+        }
+      }
+      if (cloud.targetRoles && typeof cloud.targetRoles === "object") {
+        for (const [k, v] of Object.entries(cloud.targetRoles)) {
+          if (!USER_TARGET_ROLES.has(k)) USER_TARGET_ROLES.set(k, v as string);
+        }
+      }
+    }
+  } catch (err) {
+    // Non-fatal
+  }
+}
+
+// Initial load
+loadDNAStoreFromDisk();
+syncDNAStoreWithCloud().catch(() => {});
+
 /**
  * Invalidate in-memory evidence and audit logs for a user so changes recompute immediately.
  */
@@ -72,6 +265,7 @@ export function invalidateUserDNAScope(userId: string): void {
  * achievements, certifications, GitHub proof) with candidate practice/assessment attempts.
  */
 export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNAEvidence[]> {
+  loadDNAStoreFromDisk();
   let existing = USER_EVIDENCE_STORE.get(userId);
   if (existing && existing.length > 0) {
     return existing;
@@ -262,6 +456,7 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
 
   const processed = processEvidencePipeline(rawList);
   USER_EVIDENCE_STORE.set(userId, processed);
+  persistDNAStoreToDisk();
   return processed;
 }
 
@@ -330,6 +525,7 @@ export async function addStudentEvidenceRecord(
   const currentLogs = USER_AUDIT_LOGS.get(userId) || [];
   currentLogs.unshift(auditLog);
   USER_AUDIT_LOGS.set(userId, currentLogs);
+  persistDNAStoreToDisk();
   invalidateCandidateEvidence(userId);
 
   return { success: true, evidence: newEv, auditLog };
@@ -359,6 +555,7 @@ export async function retractEvidenceBySource(
   const currentLogs = USER_AUDIT_LOGS.get(userId) || [];
   currentLogs.unshift(auditLog);
   USER_AUDIT_LOGS.set(userId, currentLogs);
+  persistDNAStoreToDisk();
   invalidateCandidateEvidence(userId);
 
   return { success: true, removedCount };
@@ -376,6 +573,7 @@ export function getUserTargetRole(userId: string): string {
  */
 export function setUserTargetRole(userId: string, roleKey: string): void {
   USER_TARGET_ROLES.set(userId, roleKey);
+  persistDNAStoreToDisk();
 }
 
 /**
@@ -524,11 +722,54 @@ export async function getStudentDNAFull(
   // Run deterministic gap engine
   const gapReport = runDeterministicGapAnalysis(skills, targetProfile);
 
+  // ── PHASE 3 INTELLIGENCE ENGINE COMPUTATIONS ──
+  const authProfile = getStudentProfileByUserId(userId);
+  const studentClaims = (authProfile?.skills || []).map((s: any) => ({
+    skillName: typeof s === "string" ? s : s.name,
+    claimedLevel: (typeof s === "object" && s.level) ? s.level : "Intermediate"
+  }));
+
+  const canonicalSkillIntelligence = evaluateStudentSkillIntelligence(userId, evidence, studentClaims);
+  const metricsProof = await calculateStudentDNAMetrics(userId, evidence, studentClaims);
+  const roleGapIntelligence = evaluateRoleGaps(userId, targetProfile, evidence, studentClaims);
+
+  // Derive Profile Lifecycle Status honestly
+  let profileStatus: DNAProfileLifecycleStatus = "NOT_STARTED";
+  let profileStatusReason = "No student profile or evidence recorded yet.";
+
+  if (!authProfile && evidence.length === 0) {
+    profileStatus = "NOT_STARTED";
+    profileStatusReason = "Candidate has not created a profile or connected any data sources.";
+  } else if (!authProfile?.resumeUrl && (authProfile?.projects || []).length === 0 && evidence.length === 0) {
+    profileStatus = "MISSING_ESSENTIAL_INFO";
+    profileStatusReason = "Essential profile information (resume or project links) has not been provided.";
+  } else if (metricsProof.sourceCoverage.numerator === 0 && (metricsProof.sourceCoverage.denominator ?? 0) > 0) {
+    profileStatus = "AWAITING_INSPECTION";
+    profileStatusReason = "Connected sources have been queued and are awaiting deep code inspection.";
+  } else if (canonicalSkillIntelligence.supportedSkillsCount === 0 && canonicalSkillIntelligence.selfReportedOnlyCount > 0) {
+    profileStatus = "PARTIALLY_ASSESSED";
+    profileStatusReason = "Skills are self-reported from resume; code inspection or assessment is required to verify capabilities.";
+  } else if (evidence.every(e => e.recency === "STALE")) {
+    profileStatus = "STALE";
+    profileStatusReason = "Inspected evidence is older than 12 months; refresh connected repositories or complete new assessments.";
+  } else if (canonicalSkillIntelligence.supportedSkillsCount > 0) {
+    profileStatus = "UP_TO_DATE";
+    profileStatusReason = "Profile is grounded in recent inspected codebase artifacts and verified records.";
+  } else {
+    profileStatus = "READY_FOR_REVIEW";
+    profileStatusReason = "Profile has sufficient evidence for review and gap analysis.";
+  }
+
   return {
     userId,
+    profileStatus,
+    profileStatusReason,
     snapshot,
     skills,
     skillsBreakdown: skills,
+    canonicalSkillIntelligence,
+    metricsProof,
+    roleGapIntelligence,
     evidence,
     recentProofItems: evidence.slice(0, 5),
     auditLogs,

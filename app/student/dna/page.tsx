@@ -4,10 +4,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
 import SourceIntelligenceHub from "@/components/dna/SourceIntelligenceHub";
+import MetricProofModal from "@/components/dna/MetricProofModal";
+import ActionCompletionModal from "@/components/dna/ActionCompletionModal";
 import type { FullStudentDNAResponse } from "@/lib/dna/store";
 import type { StudentSkill } from "@/lib/dna/profile-engine";
 import type { SkillGapItem, GapStatus } from "@/lib/dna/gap-engine";
 import type { DNAEvidence } from "@/lib/dna/evidence-pipeline";
+import type { MetricProof } from "@/lib/dna/metric-proof";
+import type { PersonalizedActionRecommendation } from "@/lib/dna/role-gap-engine";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -81,6 +85,10 @@ export default function StudentDNAPage() {
   const [applyTrackerNotes, setApplyTrackerNotes] = useState<string>("");
   const [applySaving, setApplySaving] = useState<boolean>(false);
   const [applySuccessMsg, setApplySuccessMsg] = useState<string | null>(null);
+
+  // Phase 3 Metric Proof & Action Completion Modals
+  const [selectedMetricProof, setSelectedMetricProof] = useState<MetricProof | null>(null);
+  const [selectedActionRec, setSelectedActionRec] = useState<PersonalizedActionRecommendation | null>(null);
 
   useEffect(() => {
     loadDNA();
@@ -753,13 +761,53 @@ export default function StudentDNAPage() {
                     STUDENT DNA
                   </h1>
                 </div>
-                <div style={{ textAlign: "right" }}>
+                <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {dnaData?.profileStatus && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          background: dnaData.profileStatus === "UP_TO_DATE" ? "#DCFCE7" : (dnaData.profileStatus === "PARTIALLY_ASSESSED" ? "#FEF9C3" : "#F1F5F9"),
+                          color: dnaData.profileStatus === "UP_TO_DATE" ? "#166534" : (dnaData.profileStatus === "PARTIALLY_ASSESSED" ? "#854D0E" : "#475569"),
+                          border: "1px solid rgba(0,0,0,0.06)"
+                        }}
+                      >
+                        Status: {dnaData.profileStatus}
+                      </span>
+                    )}
+                    {dnaData?.metricsProof?.evidenceCoveragePct && (
+                      <button
+                        onClick={() => setSelectedMetricProof(dnaData.metricsProof!.evidenceCoveragePct)}
+                        style={{
+                          background: "#EFF6FF",
+                          border: "1px solid #BFDBFE",
+                          color: "#1D4ED8",
+                          borderRadius: 6,
+                          padding: "3px 8px",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4
+                        }}
+                        title="Click to view Evidence Coverage formula and calculation proof"
+                      >
+                        Coverage: {dnaData.metricsProof.evidenceCoveragePct.displayText} ℹ
+                      </button>
+                    )}
+                  </div>
                   <div style={{ fontSize: 12, fontWeight: 500, color: "#667085" }}>
                     DNA updated: <span style={{ fontWeight: 600, color: "#17191C" }}>{formatRelativeDate(snapshot?.generatedAt || dnaData?.lastUpdatedAt)}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 2 }}>
-                    Continuous evidence aggregation
-                  </div>
+                  {dnaData?.profileStatusReason && (
+                    <div style={{ fontSize: 11, color: "#64748B", maxWidth: 360, textAlign: "right" }}>
+                      {dnaData.profileStatusReason}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -878,29 +926,73 @@ export default function StudentDNAPage() {
                       Evidence
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 8 }}>
-                      <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
+                      <div
+                        onClick={() => {
+                          if (dnaData?.metricsProof?.inspectedProjectsCount) {
+                            setSelectedMetricProof(dnaData.metricsProof.inspectedProjectsCount);
+                          }
+                        }}
+                        style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", cursor: "pointer" }}
+                        title="Click to view metric proof and formula"
+                      >
                         <div style={{ fontSize: snapshot?.proofSummary?.projectsDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.projectsDetail?.status === "READY" ? "#162A43" : "#667085" }}>
                           {snapshot?.proofSummary?.projectsDetail?.displayText || (snapshot?.proofSummary?.projectsCount ? String(snapshot.proofSummary.projectsCount) : "No records found")}
                         </div>
-                        <div style={{ fontSize: 11, color: "#667085" }}>Projects Built</div>
+                        <div style={{ fontSize: 11, color: "#667085", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span>Projects Built</span>
+                          <span style={{ fontSize: 9, color: "#356AE6", fontWeight: 600 }}>Proof ℹ</span>
+                        </div>
                       </div>
-                      <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
+                      <div
+                        onClick={() => {
+                          if (dnaData?.metricsProof?.hackathonsCount) {
+                            setSelectedMetricProof(dnaData.metricsProof.hackathonsCount);
+                          }
+                        }}
+                        style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", cursor: "pointer" }}
+                        title="Click to view metric proof and formula"
+                      >
                         <div style={{ fontSize: snapshot?.proofSummary?.hackathonsDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.hackathonsDetail?.status === "READY" ? "#162A43" : "#667085" }}>
                           {snapshot?.proofSummary?.hackathonsDetail?.displayText || (snapshot?.proofSummary?.hackathonsCount ? String(snapshot.proofSummary.hackathonsCount) : "No records found")}
                         </div>
-                        <div style={{ fontSize: 11, color: "#667085" }}>Hackathons</div>
+                        <div style={{ fontSize: 11, color: "#667085", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span>Hackathons</span>
+                          <span style={{ fontSize: 9, color: "#356AE6", fontWeight: 600 }}>Proof ℹ</span>
+                        </div>
                       </div>
-                      <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
+                      <div
+                        onClick={() => {
+                          if (dnaData?.metricsProof?.inspectedReposCount) {
+                            setSelectedMetricProof(dnaData.metricsProof.inspectedReposCount);
+                          }
+                        }}
+                        style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", cursor: "pointer" }}
+                        title="Click to view metric proof and formula"
+                      >
                         <div style={{ fontSize: snapshot?.proofSummary?.githubDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.githubDetail?.status === "READY" ? "#162A43" : "#667085" }}>
                           {snapshot?.proofSummary?.githubDetail?.displayText || (snapshot?.proofSummary?.githubRepoCount ? String(snapshot.proofSummary.githubRepoCount) : "Not connected")}
                         </div>
-                        <div style={{ fontSize: 11, color: "#667085" }}>GitHub Repos</div>
+                        <div style={{ fontSize: 11, color: "#667085", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span>GitHub Repos</span>
+                          <span style={{ fontSize: 9, color: "#356AE6", fontWeight: 600 }}>Proof ℹ</span>
+                        </div>
                       </div>
-                      <div style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA" }}>
+                      <div
+                        onClick={() => {
+                          if (dnaData?.metricsProof?.assessmentsCount) {
+                            setSelectedMetricProof(dnaData.metricsProof.assessmentsCount);
+                          }
+                        }}
+                        style={{ background: "#F6F5F1", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", cursor: "pointer" }}
+                        title="Click to view metric proof and formula"
+                      >
                         <div style={{ fontSize: snapshot?.proofSummary?.leetcodeDetail?.status === "READY" ? 16 : 12, fontWeight: 700, color: snapshot?.proofSummary?.leetcodeDetail?.status === "READY" ? "#162A43" : "#667085" }}>
                           {snapshot?.proofSummary?.leetcodeDetail?.displayText || (snapshot?.proofSummary?.leetcodeSolvedCount ? String(snapshot.proofSummary.leetcodeSolvedCount) : "Not connected")}
                         </div>
-                        <div style={{ fontSize: 11, color: "#667085" }}>Coding Solved</div>
+                        <div style={{ fontSize: 11, color: "#667085", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <span>Coding Solved</span>
+                          <span style={{ fontSize: 9, color: "#356AE6", fontWeight: 600 }}>Proof ℹ</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1806,7 +1898,7 @@ export default function StudentDNAPage() {
                         )}
 
                         <div style={{ fontSize: 11, color: "#98A2B3", marginTop: 6 }}>
-                          Observed: {new Date(ev.observedAt).toLocaleDateString()} • Recency: {ev.recency} • Reliability: {(ev.reliability * 100).toFixed(0)}%
+                          Observed: {ev.observedAt ? new Date(ev.observedAt).toLocaleDateString() : "Recent"} • Recency: {ev.recency} • Reliability: {(ev.reliability * 100).toFixed(0)}%
                         </div>
                       </div>
 
@@ -3197,6 +3289,19 @@ export default function StudentDNAPage() {
           </div>
         </div>
       )}
+
+      {/* PHASE 3 METRIC PROOF MODAL */}
+      <MetricProofModal
+        proof={selectedMetricProof}
+        onClose={() => setSelectedMetricProof(null)}
+      />
+
+      {/* PHASE 3 ACTION COMPLETION MODAL */}
+      <ActionCompletionModal
+        recommendation={selectedActionRec}
+        onClose={() => setSelectedActionRec(null)}
+        onCompleted={() => loadDNA(true)}
+      />
     </div>
   );
 }

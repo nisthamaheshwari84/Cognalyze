@@ -6,6 +6,7 @@ import { recordStudentEvent } from "@/lib/intelligence/student-intelligence";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { upsertStudentProfileByUserId } from "@/lib/auth/store";
 import { upsertStudentProfile } from "@/lib/placement-store";
+import { saveResumeRecord } from "@/lib/resume/store";
 
 // ============================================================
 // 1. HELPER: EXTRACT TEXT FROM DOCX BUFFER (USING YAUZL)
@@ -504,9 +505,10 @@ export async function POST(req: NextRequest) {
 
     // ── E. Determine Target Candidate IDs & Sync with Student DNA ──
     let sessionUserId: string | null = null;
+    let authContext: any = null;
     try {
-      const auth = await getAuthenticatedContext(req);
-      if (auth?.user?.id) sessionUserId = auth.user.id;
+      authContext = await getAuthenticatedContext(req);
+      if (authContext?.user?.id) sessionUserId = authContext.user.id;
     } catch {}
 
     const activeStudentId = sessionUserId || candidateId || "guest-student";
@@ -580,6 +582,23 @@ export async function POST(req: NextRequest) {
       console.warn("[parse-resume] placement store update error:", placeErr);
     }
 
+    // Persist to Resume Vault (disk and Supabase resumes table)
+    let savedResumeId: string | undefined;
+    try {
+      const saved = await saveResumeRecord({
+        candidateId: activeStudentId,
+        candidateName: authContext?.user?.fullName,
+        candidateEmail: authContext?.user?.email,
+        fileName: filename,
+        parsedText: sanitizedText,
+        skills: extractedData.skills,
+        projects: extractedData.projects,
+      });
+      savedResumeId = saved.id;
+    } catch (vaultErr) {
+      console.warn("[parse-resume] resume vault persist error:", vaultErr);
+    }
+
     // Trigger Opportunity Matching in background against current live database (non-blocking, no external refetch)
     try {
       const { opportunityService } = await import("@/lib/opportunities/opportunity-service");
@@ -597,6 +616,7 @@ export async function POST(req: NextRequest) {
       pages: pageTexts.length > 0 ? pageTexts : [sanitizedText],
       pageCount: pageTexts.length || 1,
       filename,
+      resumeId: savedResumeId,
       skillsCount: extractedData.skills.length,
       projectsCount: extractedData.projects.length,
       extractedSkills: extractedData.skills,

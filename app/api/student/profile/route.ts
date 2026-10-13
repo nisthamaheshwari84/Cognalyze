@@ -4,6 +4,9 @@ import { getStudentProfileByUserId, upsertStudentProfileByUserId, saveStoreToClo
 import { upsertStudentProfile, invalidatePlacementProfile } from "@/lib/placement-store";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { invalidateUserDNAScope } from "@/lib/dna/store";
+import { validateStudentDnaPayload } from "@/lib/validation/student-dna-validation";
+import { normalizeLocation } from "@/lib/geo/location-service";
+import { normalizeInstitution } from "@/lib/institution/institution-service";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,7 +43,26 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const updated = upsertStudentProfileByUserId(auth.user.id, body);
+
+    // Centralized validation check
+    const valReport = validateStudentDnaPayload(body, true);
+    if (!valReport.isValid) {
+      return NextResponse.json({
+        success: false,
+        error: "Validation failed on submitted profile fields.",
+        fieldErrors: valReport.errors
+      }, { status: 400 });
+    }
+
+    const sanitized = valReport.sanitized;
+    if (sanitized.location) {
+      sanitized.location = normalizeLocation(sanitized.location).displayName;
+    }
+    if (sanitized.college) {
+      sanitized.college = normalizeInstitution(sanitized.college).name;
+    }
+
+    const updated = upsertStudentProfileByUserId(auth.user.id, sanitized);
 
     // Sync with placement store
     if (body.skills || body.projects) {

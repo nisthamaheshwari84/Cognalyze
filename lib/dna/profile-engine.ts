@@ -140,7 +140,7 @@ export function computeStudentSkillProfile(
 
   // Sort by observation date (most recent first)
   const sorted = [...matchingEvidence].sort(
-    (a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()
+    (a, b) => new Date(b.observedAt || 0).getTime() - new Date(a.observedAt || 0).getTime()
   );
   const lastDemonstratedAt = sorted[0]?.observedAt;
 
