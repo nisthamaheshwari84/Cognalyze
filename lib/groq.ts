@@ -140,21 +140,31 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
     const hasImage = JSON.stringify(bodyObj).includes("image_url");
 
     let groqModelsToTry: string[];
+    const requested = (bodyObj.model || "").trim();
+
+    const realGroqCatalog = [
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b",
+      "qwen/qwen3.8-27b",
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant"
+    ];
+
     if (hasImage) {
-      groqModelsToTry = ["qwen/qwen3.8-27b", "qwen/qwen3.6-27b"];
+      groqModelsToTry = ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview"];
+    } else if (requested) {
+      groqModelsToTry = [requested, ...realGroqCatalog.filter(m => m !== requested)];
     } else {
-      const requested = (bodyObj.model || "").toLowerCase();
-      if (requested.includes("instant") || requested.includes("8b")) {
-        groqModelsToTry = ["openai/gpt-oss-20b", "openai/gpt-oss-120b", "qwen/qwen3.8-27b"];
-      } else {
-        groqModelsToTry = ["openai/gpt-oss-120b", "qwen/qwen3.8-27b", "openai/gpt-oss-20b"];
-      }
+      groqModelsToTry = realGroqCatalog;
     }
+
+    // Bound retries: try models with active keys, max 2 keys per model to avoid retry storms
+    const maxKeysToTry = Math.min(groqKeys.length, 2);
 
     for (let modelIdx = 0; modelIdx < groqModelsToTry.length; modelIdx++) {
       const model = groqModelsToTry[modelIdx];
 
-      for (let keyIdx = 0; keyIdx < groqKeys.length; keyIdx++) {
+      for (let keyIdx = 0; keyIdx < maxKeysToTry; keyIdx++) {
         const key = groqKeys[keyIdx];
         const tempBody = { ...bodyObj, model };
         
@@ -165,37 +175,39 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
           ...options,
           headers: modifiedHeaders,
           body: JSON.stringify(tempBody),
+          signal: options.signal || AbortSignal.timeout(8000),
         };
 
-        console.log(`[groqFetch] Attempting Groq key index ${keyIdx} with model: ${model}`);
         try {
           const res = await fetch(url, modifiedOptions);
           lastResponse = res;
 
           if (res.ok) {
-            console.log(`[groqFetch] Success with Groq key index ${keyIdx} (model: ${model})`);
             return res;
           }
 
-          const clone = res.clone();
-          let errorData: any = {};
-          try { errorData = await clone.json(); } catch (_) {}
-
           if (res.status === 401) {
-            console.warn(`[groqFetch] Groq key index ${keyIdx} unauthorized (status: 401). Skipping to next key.`);
+            console.warn(`[groqFetch] Key index ${keyIdx} unauthorized (401). Trying next key.`);
             continue;
           }
 
           if (res.status === 429) {
-            console.warn(`[groqFetch] Groq key index ${keyIdx} model ${model} rate-limited (status: 429). Trying next key...`);
+            console.warn(`[groqFetch] Key index ${keyIdx} model ${model} rate-limited (429). Trying next key.`);
             continue;
           }
 
-          // Proceed to next key for any failure to guarantee max robustness
-          console.warn(`[groqFetch] Groq model ${model} failed on key index ${keyIdx}. Trying next key...`);
+          if (res.status === 404 || res.status === 400) {
+            // Model doesn't exist or bad request: skip to next model immediately, don't burn other keys
+            break;
+          }
+
           continue;
-        } catch (err) {
-          console.error(`[groqFetch] Groq key index ${keyIdx} network error with model ${model}:`, err);
+        } catch (err: any) {
+          if (err.name === "TimeoutError") {
+            console.warn(`[groqFetch] Request timed out for model ${model} on key ${keyIdx}.`);
+          } else {
+            console.warn(`[groqFetch] Network error for model ${model}:`, err.message);
+          }
           lastError = err;
           continue;
         }
@@ -229,4 +241,25 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
 
   if (lastResponse) return lastResponse;
   throw lastError || new Error("All AI provider attempts and keys failed. Check credentials and limits.");
+}
+
+export async function callGroqCatalog(payload: {
+  model?: string;
+  messages: Array<{ role: string; content: string }>;
+  temperature?: number;
+  max_tokens?: number;
+  response_format?: any;
+}): Promise<{ text: string; raw: any }> {
+  const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    throw new Error(`Groq catalog call failed with status ${res.status}`);
+  }
+  const data = await res.json();
+  const msg = data.choices?.[0]?.message;
+  const text = (msg?.content || msg?.reasoning || "").trim();
+  return { text, raw: data };
 }

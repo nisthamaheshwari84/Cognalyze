@@ -151,9 +151,15 @@ export function normalizeCanonicalSkill(rawInput: string): {
  * Derives observable rubric criteria for a given canonical skill based on inspected evidence.
  */
 function buildSkillRubric(skill: CanonicalSkill, relevantEvidence: DNAEvidence[]): SkillCriterionRubric[] {
-  const codeEvidence = relevantEvidence.filter(e => e.sourceType === "github" || e.sourceType === "project");
-  const assessmentEvidence = relevantEvidence.filter(e => e.sourceType === "practice" || e.sourceType === "assessment");
-  const certEvidence = relevantEvidence.filter(e => e.sourceType === "certification");
+  const codeEvidence = relevantEvidence.filter(e => {
+    const s = e.sourceType?.toLowerCase();
+    return s === "github" || s === "project";
+  });
+  const assessmentEvidence = relevantEvidence.filter(e => {
+    const s = e.sourceType?.toLowerCase();
+    return s === "practice" || s === "assessment" || s === "cog_assessment";
+  });
+  const certEvidence = relevantEvidence.filter(e => e.sourceType?.toLowerCase() === "certification");
 
   const passingAssessments = assessmentEvidence.filter(a => (a.metadata?.score ?? 100) >= 50);
 
@@ -162,7 +168,7 @@ function buildSkillRubric(skill: CanonicalSkill, relevantEvidence: DNAEvidence[]
       criterionId: "claim_declared",
       label: "Declared in Profile / Resume",
       description: "Student has self-reported this skill or it was extracted from their uploaded resume.",
-      satisfied: relevantEvidence.some(e => e.sourceType === "resume" || e.metadata?.declaredLevel),
+      satisfied: relevantEvidence.some(e => e.sourceType?.toLowerCase() === "resume" || e.metadata?.declaredLevel),
       satisfyingEvidenceIds: relevantEvidence
         .filter(e => e.sourceType === "resume" || e.metadata?.declaredLevel)
         .map(e => e.id),
@@ -220,12 +226,18 @@ export function evaluateSkillEvidence(
   const limitations: string[] = [];
   const conflictingSignals: string[] = [];
 
-  const resumeOnly = relevantEvidence.every(e => e.sourceType === "resume");
-  const codeEvidence = relevantEvidence.filter(e => e.sourceType === "github" || e.sourceType === "project");
-  const assessments = relevantEvidence.filter(e => e.sourceType === "practice" || e.sourceType === "assessment");
+  const resumeOnly = relevantEvidence.every(e => e.sourceType?.toLowerCase() === "resume");
+  const codeEvidence = relevantEvidence.filter(e => {
+    const s = e.sourceType?.toLowerCase();
+    return s === "github" || s === "project";
+  });
+  const assessments = relevantEvidence.filter(e => {
+    const s = e.sourceType?.toLowerCase();
+    return s === "practice" || s === "assessment" || s === "cog_assessment";
+  });
   const passingAssessments = assessments.filter(a => (a.metadata?.score ?? 100) >= 50);
   const failingAssessments = assessments.filter(a => (a.metadata?.score ?? 100) < 50);
-  const certified = relevantEvidence.filter(e => e.sourceType === "certification");
+  const certified = relevantEvidence.filter(e => e.sourceType?.toLowerCase() === "certification");
 
   // Determine recency
   let recencyState: "CURRENT" | "RECENT" | "AGING" | "STALE" | "UNKNOWN" = "UNKNOWN";

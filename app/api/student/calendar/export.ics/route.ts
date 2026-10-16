@@ -4,6 +4,8 @@ import {
   getPersonalEvents
 } from "@/lib/placement-store";
 
+import { getAuthenticatedContext } from "@/lib/auth/server";
+
 function formatIcsDate(dateStr: string): string {
   // Converts YYYY-MM-DD to YYYYMMDD for all-day events
   return dateStr.replace(/[^0-9]/g, "").slice(0, 8);
@@ -23,8 +25,13 @@ function generateUid(id: string): string {
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return new Response("Unauthorized. Please sign in to export your placement calendar.", { status: 401 });
+    }
 
     // 1. Fetch applications and personal events
     const applications = await getApplicationsStore(candidateId);

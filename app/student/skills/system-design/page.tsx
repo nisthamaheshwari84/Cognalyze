@@ -201,7 +201,7 @@ const CHALLENGE_CLARIFICATIONS: Record<string, ClarificationItem[]> = {
 
 function SystemDesignContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
   const [challenges, setChallenges] = useState<SystemDesignChallenge[]>(SEED_SYSTEM_DESIGN_CHALLENGES);
@@ -331,16 +331,28 @@ function SystemDesignContent() {
 
   // Initialize
   useEffect(() => {
-    const storedId = searchParams.get("candidateId") || localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(storedId);
+    async function resolveUser() {
+      let storedId = searchParams.get("candidateId") || "";
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sess = await sessRes.json();
+          if (sess.authenticated && sess.user?.id) {
+            storedId = sess.user.id;
+          }
+        }
+      } catch {}
+      setCandidateId(storedId);
 
-    const rawTrack = searchParams.get("track");
-    const validTracks = ["service_mass", "service_elite", "product_mid", "product_faang"];
-    const paramTrack = (validTracks.includes(rawTrack || "") ? rawTrack : "product_mid") as "service_mass" | "service_elite" | "product_mid" | "product_faang";
-    setTrackSlug(paramTrack);
+      const rawTrack = searchParams.get("track");
+      const validTracks = ["service_mass", "service_elite", "product_mid", "product_faang"];
+      const paramTrack = (validTracks.includes(rawTrack || "") ? rawTrack : "product_mid") as "service_mass" | "service_elite" | "product_mid" | "product_faang";
+      setTrackSlug(paramTrack);
 
-    const brief = generateSessionBrief(paramTrack, "system_design", storedId);
-    setSessionBrief(brief);
+      const brief = generateSessionBrief(paramTrack, "system_design", storedId);
+      setSessionBrief(brief);
+    }
+    resolveUser();
 
     const queryMode = searchParams.get("mode");
     if (queryMode === "learn" || queryMode === "learning") {

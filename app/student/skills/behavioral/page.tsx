@@ -14,7 +14,7 @@ import {
 
 function BehavioralHRContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
   // Core Modes: Home, Learn, Practice, Coach, Interview, Bank
@@ -114,12 +114,6 @@ function BehavioralHRContent() {
 
   // Initial Data Load
   useEffect(() => {
-    const storedId =
-      searchParams.get("candidateId") ||
-      (typeof window !== "undefined" ? localStorage.getItem("cognalyze_student_id") : null) ||
-      "student-demo";
-    setCandidateId(storedId);
-
     const paramTrack = (searchParams.get("track") as any) || "product_mid";
     setTrackSlug(paramTrack);
     if (paramTrack === "service_mass" || paramTrack === "service_elite") {
@@ -133,13 +127,25 @@ function BehavioralHRContent() {
       setMode(queryMode);
     }
 
-    async function loadData() {
+    async function resolveUserAndLoad() {
+      let storedId = searchParams.get("candidateId") || "";
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sess = await sessRes.json();
+          if (sess.authenticated && sess.user?.id) {
+            storedId = sess.user.id;
+          }
+        }
+      } catch {}
+      setCandidateId(storedId);
+
       setLoading(true);
       try {
         const [homeRes, scenariosRes, bankRes] = await Promise.all([
-          fetch(`/api/skills/behavioral?mode=home&candidateId=${storedId}`),
+          fetch(`/api/skills/behavioral?mode=home${storedId ? `&candidateId=${encodeURIComponent(storedId)}` : ""}`),
           fetch(`/api/skills/behavioral?mode=learn_scenarios`),
-          fetch(`/api/skills/behavioral?mode=bank&candidateId=${storedId}`)
+          fetch(`/api/skills/behavioral?mode=bank${storedId ? `&candidateId=${encodeURIComponent(storedId)}` : ""}`)
         ]);
 
         const homeData = await homeRes.json();
@@ -170,7 +176,7 @@ function BehavioralHRContent() {
         setLoading(false);
       }
     }
-    loadData();
+    resolveUserAndLoad();
   }, [searchParams]);
 
   // Tab switch detection (proctoring during interview)

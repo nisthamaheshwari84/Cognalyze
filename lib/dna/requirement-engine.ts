@@ -285,8 +285,25 @@ export const PRESET_REQUIREMENT_PROFILES: Record<string, RequirementProfile> = {
   }
 };
 
+export const ROLE_ALIASES: Record<string, string> = {
+  sde_intern: "sde_intern",
+  swe: "sde_intern",
+  software_engineer: "sde_intern",
+  full_stack: "full_stack",
+  fullstack: "full_stack",
+  fullstack_dev: "full_stack",
+  backend_sde: "backend_sde",
+  backend_sde1: "backend_sde",
+  backend: "backend_sde",
+  ai_ml_engineer: "ai_ml_engineer",
+  aiml: "ai_ml_engineer",
+  ai_ml: "ai_ml_engineer",
+};
+
 export function getBenchmarkProfile(roleKey: string): RequirementProfile | undefined {
-  return PRESET_REQUIREMENT_PROFILES[roleKey] || PRESET_REQUIREMENT_PROFILES["sde_intern"];
+  if (!roleKey) return undefined;
+  const canonicalKey = ROLE_ALIASES[roleKey.toLowerCase().trim()] || roleKey;
+  return PRESET_REQUIREMENT_PROFILES[canonicalKey];
 }
 
 // ── 2. DETERMINISTIC JD SKILL EXTRACTOR (Section 23, 24) ────────────────────

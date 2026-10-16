@@ -1,14 +1,33 @@
-/* eslint-disable */
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
+import { getAuthenticatedContext } from "@/lib/auth/server";
+import {
+  buildCandidateInterviewDossier,
+  generateInterviewBlueprint,
+  createAdvancedSessionState,
+  assessCandidateAnswer,
+  generateNextAdaptiveQuestion,
+  assessAndGenerateAdaptiveTurn,
+  generateOpeningGreeting,
+  generateIntroductionTransition,
+  stripThink,
+  AdvancedSessionState,
+  InterviewTurn,
+  GeneratedQuestion
+} from "@/lib/ai/interview-engine";
+import {
+  getActiveSessionState,
+  saveActiveSessionState
+} from "@/lib/interview-session-store";
 
-function trimMessages(messages: Array<{ role: string; content: string }>, maxMessages = 10) {
+function trimMessages(messages: Array<{ role: string; content: string }>, maxMessages = 12) {
   if (messages.length <= maxMessages) return messages;
   return [messages[0], ...messages.slice(-(maxMessages - 1))];
 }
 
 export async function POST(req: Request) {
-  // ── Parse body ONCE — store qNumber outside try/catch so fallback can use it ──
+  const t0 = Date.now();
+  const correlationId = req.headers.get("x-correlation-id") || `chat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+
   let body: any = {};
   try {
     body = await req.json();
@@ -16,7 +35,25 @@ export async function POST(req: Request) {
     body = {};
   }
 
-  const { messages, jd, resume, qNumber = 0, githubData, linkedinAnalysis } = body;
+  const {
+    messages = [],
+    jd,
+    resume,
+    qNumber = 0,
+    sessionId: reqSessionId,
+    candidateId: reqCandidateId,
+    durationMinutes = 45,
+    experienceMode: reqExperienceMode
+  } = body;
+
+  // 1. Authenticate candidate with strict server-side validation
+  const auth = await getAuthenticatedContext(req as any);
+  const candidateId = auth?.user?.id || reqCandidateId || body.studentId || "student-demo";
+
+  // Prevent cross-user leakage: if authenticated, candidateId MUST match auth.user.id
+  if (auth?.user?.id && reqCandidateId && reqCandidateId !== auth.user.id) {
+    return NextResponse.json({ error: "Access denied. Candidate identity mismatch." }, { status: 403 });
+  }
 
   const defaultJd = "Full-Stack Software Engineer (General SWE at FAANG level). Core skills: Algorithms, Data Structures, System Design, React/Next.js, Node.js/Python, and scalable cloud architecture.";
   const defaultResume = "Candidate Software Engineer applying for SWE roles. Experience in computer science, full-stack development, distributed systems, and collaborative engineering.";
@@ -24,136 +61,259 @@ export async function POST(req: Request) {
   const effectiveJd = (jd && String(jd).trim().length > 0) ? jd : defaultJd;
   const effectiveResume = (resume && String(resume).trim().length > 0) ? resume : defaultResume;
 
-  // First greeting only when conversation has zero messages and qNumber is 0
-  if ((!messages || messages.length === 0) && qNumber === 0) {
-    return NextResponse.json({
-      message: "Hello! I'm Alex, Staff Engineer. Welcome to today's interview! To kick things off, could you tell me a bit about yourself and what you've been working on recently?",
-    });
-  }
+  const sessionId = reqSessionId || `sess_${candidateId}_${Math.floor(Date.now() / 3600000)}`;
 
   try {
-    const trimmedMessages = trimMessages(messages || [], 10);
+    // 2. Load or Initialize Advanced Session State
+    let sessionState: AdvancedSessionState | null = getActiveSessionState(sessionId, candidateId);
 
-    // Build conversation history as text (Groq doesn't have native multi-turn chat object like Gemini)
-    const historyText = trimmedMessages
-      .map((m: { role: string; content: string }) =>
-        `${m.role === "assistant" ? "Alex (Interviewer)" : "Candidate"}: ${m.content}`
-      )
-      .join("\n");
+    // Reuse session-cached dossier if present to avoid repeated 200ms+ disk/evidence parsing
+    let dossier = sessionState?.dossier;
+    let dossierCacheHit = Boolean(dossier);
 
-    // Build profile intelligence context
-    let profileContext = "";
-
-    if (githubData) {
-      const g = githubData;
-      profileContext += `
-\n=== CANDIDATE'S GITHUB PROFILE ===
-Username: ${g.profile.username} | Followers: ${g.profile.followers} | Public Repos: ${g.repoCount} | Total Stars: ${g.totalStars}
-Bio: ${g.profile.bio || "none"}
-Top Languages: ${g.topLanguages.map((l: any) => `${l.lang}(${l.count})`).join(", ")}
-Recent Activity (last 30 events): ${g.activity.commitCount} pushes, ${g.activity.prCount} PRs, ${g.activity.issueCount} issues
-
-TOP REPOS BY STARS:
-${g.topRepos.map((r: any) => `- ${r.name} (⭐${r.stars}, ${r.language || "unknown"}): ${r.description || "no description"}`).join("\n")}
-
-RECENTLY ACTIVE REPOS:
-${g.recentRepos.map((r: any) => `- ${r.name} (${r.language || "?"}) — last pushed ${new Date(r.updated).toLocaleDateString()}`).join("\n")}
-`;
+    if (!dossier) {
+      dossier = await buildCandidateInterviewDossier(candidateId, effectiveResume, effectiveJd);
     }
 
-    if (linkedinAnalysis) {
-      const l = linkedinAnalysis;
-      profileContext += `
-\n=== LINKEDIN ANALYSIS ===
-Current Role: ${l.currentRole} | Experience: ${l.totalExperience}
-Career Trajectory: ${l.careerTrajectory}
-Key Skills: ${l.keySkills?.join(", ")}
-Red Flags: ${l.redFlags?.join(" | ")}
-Green Flags: ${l.greenFlags?.join(" | ")}
-Gaps/Concerns: ${l.gapsOrConcerns?.join(" | ")}
-Fit Score for this role: ${l.fitScore}/100 — ${l.fitReason}
-Interview angles from LinkedIn: ${l.interviewAngles?.join(" | ")}
-`;
+    if (!sessionState) {
+      const blueprint = generateInterviewBlueprint(
+        dossier,
+        effectiveJd.split("\n")[0] || dossier.targetRole,
+        Number(durationMinutes) || 45,
+        reqExperienceMode || dossier.experienceMode,
+        sessionId,
+        effectiveJd
+      );
+      sessionState = createAdvancedSessionState(blueprint, dossier);
+    } else if (!sessionState.dossier) {
+      sessionState.dossier = dossier;
     }
 
-    const systemPrompt = `You are Alex, a Staff Engineer at Google with 12 years of FAANG experience. You are conducting a real technical interview. You are direct, sharp, and thorough — exactly like a real FAANG interviewer.
+    const userMessages = messages.filter((m: any) => m.role === "user");
+    const assistantMessages = messages.filter((m: any) => m.role === "assistant");
 
-JOB DESCRIPTION:
-${effectiveJd}
+    // 4. STEP 1: Kickoff Turn (0 user messages)
+    if (userMessages.length === 0) {
+      // Idempotency: If greeting already generated, return it without re-generating (React StrictMode / retries)
+      if (sessionState.openingState === "AWAITING_CANDIDATE_INTRO" && sessionState.questionsAsked.length > 0) {
+        const existingGreeting = sessionState.questionsAsked[0];
+        return NextResponse.json({
+          message: existingGreeting.question,
+          questionTargets: existingGreeting.targets,
+          section: existingGreeting.section,
+          difficulty: "easy",
+          isFollowUp: false,
+          sessionId,
+          turnIndex: 0,
+          openingState: sessionState.openingState,
+          meta: {
+            correlationId,
+            latencyMs: Date.now() - t0,
+            dossierCacheHit,
+          }
+        });
+      }
 
-CANDIDATE RESUME:
-${effectiveResume}
-${profileContext}
+      // If session was already in progress (resumed session), do NOT restart greeting
+      if (sessionState.openingState === "INTERVIEW_IN_PROGRESS" && sessionState.questionsAsked.length > 0) {
+        const lastQ = sessionState.questionsAsked[sessionState.questionsAsked.length - 1];
+        return NextResponse.json({
+          message: lastQ.question,
+          questionTargets: lastQ.targets,
+          section: lastQ.section,
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: false,
+          sessionId,
+          turnIndex: sessionState.turns.length,
+          openingState: sessionState.openingState,
+          currentSection: sessionState.blueprint.currentSection,
+          meta: {
+            correlationId,
+            latencyMs: Date.now() - t0,
+            dossierCacheHit,
+          }
+        });
+      }
 
-INTERVIEW RULES:
-- Ask ONE question at a time. Never two questions in one message.
-- Questions 1-2: Warm-up + intro, ask about their background
-- Questions 3-5: Behavioral (use STAR method, probe deeply)
-- Questions 6-9: Technical — if GitHub is available, ask about SPECIFIC repos/projects you can see ("I noticed your repo X uses Y approach — walk me through why")
-- Questions 10-11: System design or architecture
-- Question 12: Culture fit / "why this role"
-- If LinkedIn shows gaps, career switches, or red flags — probe those directly and professionally
-- If GitHub shows low activity or missing skills claimed in resume — call it out naturally ("Your resume mentions X but I don't see much of that in your GitHub...")
-- Cross-reference GitHub + LinkedIn + Resume actively. Real recruiters do this.
-- Keep responses under 80 words. Be conversational but precise.
-- Never reveal scores, analysis, or that you're an AI during the interview.
+      // Generate concise, professional opening greeting (warm, natural, < 45 words)
+      const greetingQ = generateOpeningGreeting(dossier);
+      sessionState.openingState = "AWAITING_CANDIDATE_INTRO";
+      sessionState.questionsAsked.push({
+        question: greetingQ.question,
+        targets: greetingQ.question_targets,
+        section: "introduction",
+        competency: greetingQ.competency_targeted || "Background & Career Orientation",
+        turnIndex: 0,
+      });
+      saveActiveSessionState(sessionId, sessionState);
 
-Current question number: ${qNumber}
+      return NextResponse.json({
+        message: greetingQ.question,
+        questionTargets: greetingQ.question_targets,
+        section: "introduction",
+        difficulty: "easy",
+        isFollowUp: false,
+        sessionId,
+        turnIndex: 0,
+        openingState: "AWAITING_CANDIDATE_INTRO",
+        meta: {
+          correlationId,
+          latencyMs: Date.now() - t0,
+          dossierCacheHit,
+        }
+      });
+    }
 
-CONVERSATION SO FAR:
-${historyText || "(This is the first message — no prior conversation yet.)"}
+    const lastUserMsg = userMessages.length > 0 ? userMessages[userMessages.length - 1].content : "";
+    const lastAssistantMsg = assistantMessages.length > 0 ? assistantMessages[assistantMessages.length - 1].content : "";
 
-Now generate your NEXT message as Alex. It must be a NEW question or reaction — do not repeat anything from the conversation above.`;
+    // 5. STEP 2 & 3: Candidate Introduction Received -> Acknowledge & Transition to Question 1
+    if (sessionState.openingState === "AWAITING_CANDIDATE_INTRO") {
+      const candidateIntro = (lastUserMsg || "").trim();
+      sessionState.candidateIntroduction = candidateIntro || "Candidate provided introduction.";
+      sessionState.openingState = "INTERVIEW_IN_PROGRESS";
+      sessionState.blueprint.currentSection = "resume_projects";
 
-    const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: qNumber === 0 ? "Please begin the interview." : "Continue the interview with your next message." },
-        ],
-        max_tokens: 200,
-        temperature: 0.7,
-      }),
+      // Brief personalized transition (1 sentence)
+      const transition = generateIntroductionTransition(candidateIntro, dossier);
+
+      // Generate Question 1 of actual interview grounded in dossier & candidate introduction
+      const firstQ = await generateNextAdaptiveQuestion(sessionState, dossier, candidateIntro, null);
+
+      // Crisp combined message: [Acknowledgment & Transition] + [Question 1]
+      const combinedMessage = `${transition} ${firstQ.question}`;
+
+      sessionState.questionsAsked.push({
+        question: combinedMessage,
+        targets: firstQ.question_targets,
+        section: firstQ.section || "resume_projects",
+        competency: firstQ.competency_targeted || "Project Ownership & Architecture",
+        turnIndex: 1,
+      });
+
+      saveActiveSessionState(sessionId, sessionState);
+
+      return NextResponse.json({
+        message: combinedMessage,
+        questionTargets: firstQ.question_targets,
+        section: firstQ.section || "resume_projects",
+        difficulty: firstQ.difficulty_level,
+        isFollowUp: false,
+        sessionId,
+        turnIndex: 1,
+        openingState: "INTERVIEW_IN_PROGRESS",
+        currentSection: sessionState.blueprint.currentSection,
+        meta: {
+          correlationId,
+          latencyMs: Date.now() - t0,
+          dossierCacheHit,
+        }
+      });
+    }
+
+    // 6. Live Turn: Evaluate candidate's latest substantive answer & generate next adaptive question
+    if (lastUserMsg && lastAssistantMsg) {
+      // 7. Build recent conversation history
+      const trimmed = trimMessages(messages, 10);
+      const historyText = trimmed
+        .map((m: any) => `${m.role === "assistant" ? "Alex (Interviewer)" : "Candidate"}: ${m.content}`)
+        .join("\n");
+
+      // Unified Accelerator: evaluates answer + generates next question in ONE model call
+      const { assessment, nextQuestion, timingMs } = await assessAndGenerateAdaptiveTurn(
+        sessionState,
+        dossier,
+        historyText,
+        lastAssistantMsg,
+        lastUserMsg
+      );
+
+      sessionState.lastAssessment = assessment;
+
+      // Update answer distribution
+      const qKey = assessment.answer_quality === "off-topic" ? "off_topic" : assessment.answer_quality;
+      if (qKey in sessionState.answerDistribution) {
+        (sessionState.answerDistribution as any)[qKey] = ((sessionState.answerDistribution as any)[qKey] || 0) + 1;
+      }
+
+      if (assessment.answer_quality === "shallow") {
+        sessionState.consecutiveShallow++;
+      } else {
+        sessionState.consecutiveShallow = 0;
+      }
+
+      for (const top of assessment.topics_demonstrated) {
+        if (!sessionState.topicsCovered.includes(top)) {
+          sessionState.topicsCovered.push(top);
+        }
+      }
+
+      // Record Turn
+      const turnRecord: InterviewTurn = {
+        turnIndex: sessionState.turns.length + 1,
+        question: {
+          question: lastAssistantMsg,
+          question_targets: "Live evaluation",
+          question_type: "technical",
+          difficulty_level: sessionState.currentDifficulty,
+          is_follow_up: assessment.next_action === "follow_up_probe",
+          section: sessionState.blueprint.currentSection,
+        },
+        answer: lastUserMsg,
+        assessment,
+        timestamp: new Date().toISOString(),
+      };
+      sessionState.turns.push(turnRecord);
+
+      // Track asked question for anti-repetition
+      sessionState.questionsAsked.push({
+        question: nextQuestion.question,
+        targets: nextQuestion.question_targets,
+        section: nextQuestion.section || sessionState.blueprint.currentSection,
+        competency: nextQuestion.competency_targeted || "Technical Competency",
+        turnIndex: sessionState.turns.length + 1,
+      });
+
+      saveActiveSessionState(sessionId, sessionState);
+
+      const totalDuration = Date.now() - t0;
+      console.log(`[interview-chat][${correlationId}] Turn ${sessionState.turns.length} completed in ${totalDuration}ms (LLM: ${timingMs}ms, dossierCache: ${dossierCacheHit})`);
+
+      return NextResponse.json({
+        message: nextQuestion.question,
+        questionTargets: nextQuestion.question_targets,
+        section: nextQuestion.section,
+        difficulty: nextQuestion.difficulty_level,
+        isFollowUp: nextQuestion.is_follow_up,
+        assessment,
+        sessionId,
+        turnIndex: sessionState.turns.length,
+        openingState: sessionState.openingState,
+        currentSection: sessionState.blueprint.currentSection,
+        meta: {
+          correlationId,
+          latencyMs: totalDuration,
+          dossierCacheHit,
+          llmTimingMs: timingMs
+        }
+      });
+    }
+
+  } catch (err: any) {
+    console.error("[interview-chat] Elite Engine Error:", err.message);
+
+    // Fallback: contextual question from candidate's resume/project
+    const targetProj = effectiveResume.match(/(?:project|built|developed|created)\s+([A-Za-z0-9_-]+)/i)?.[1] || "your primary project";
+    const contextualFallback = qNumber <= 1
+      ? `To begin, walk me through the architecture of ${targetProj} and the specific technical components you personally implemented.`
+      : qNumber <= 4
+      ? `In ${targetProj}, how did you handle data consistency, failure recovery, or error handling when external services or databases failed?`
+      : `Let's discuss computer science fundamentals. How do you analyze time and space complexity when scaling an in-memory caching layer?`;
+
+    return NextResponse.json({
+      message: contextualFallback,
+      fallback: true,
+      error: err.message
     });
-
-    if (!res.ok) {
-      const errBody = await res.json().catch(() => ({}));
-      throw new Error((errBody as any)?.error?.message || `Groq API ${res.status}`);
-    }
-
-    const data = await res.json();
-    const text = data.choices?.[0]?.message?.content?.trim();
-
-    if (!text || text.length === 0) {
-      throw new Error("Empty response from Groq");
-    }
-
-    return NextResponse.json({ message: text });
-
-  } catch (e: any) {
-    console.error("[interview-chat] Error:", e.message);
-
-    // ── Fallback — uses qNumber that we ALREADY parsed above ──
-    const fallbacks = [
-      "Thanks for being here today. Could you walk me through your background and what led you to apply for this role?",
-      "That's interesting. Can you tell me about a challenging technical problem you solved recently?",
-      "I'd love to understand your approach to problem-solving. Walk me through a project you're particularly proud of.",
-      "How do you handle disagreements with team members or stakeholders on technical decisions?",
-      "Let's talk about system design. How would you design a URL shortening service like bit.ly?",
-      "Tell me about your experience with scalable architecture. What's the largest system you've worked on?",
-      "How do you stay current with new technologies and decide which ones to adopt?",
-      "What's your approach to code reviews? What do you look for?",
-      "Describe a time when you had to make a difficult technical tradeoff. What was the outcome?",
-      "We're nearing the end — do you have any questions for me about the role or the team?",
-    ];
-
-    const fallback = fallbacks[Math.min(qNumber, fallbacks.length - 1)];
-    return NextResponse.json({ message: fallback, fallback: true });
   }
 }

@@ -297,8 +297,8 @@ function PracticeInterviewContent() {
         is_follow_up: chatData.is_follow_up,
       });
 
-      // Fetch live evaluation
-      const scoreRes = await fetch("/api/interview-score", {
+      // Fetch live evaluation in background without blocking turn completion
+      fetch("/api/interview-score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -306,11 +306,9 @@ function PracticeInterviewContent() {
           jd: jdContext,
           resume: resumeContext,
         }),
-      });
-      if (scoreRes.ok) {
-        const scoreData = await scoreRes.json();
-        setCurrentScore(scoreData);
-      }
+      }).then(r => r.ok ? r.json() : null).then(scoreData => {
+        if (scoreData) setCurrentScore(scoreData);
+      }).catch(err => console.warn("[PRACTICE INTERVIEW] Score update failed:", err));
     } catch (err) {
       console.error(err);
     } finally {

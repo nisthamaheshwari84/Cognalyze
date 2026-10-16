@@ -716,6 +716,9 @@ export default function InterviewPage() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [lifecycleState, setLifecycleState] = useState<"IDLE" | "SUBMITTING" | "PROCESSING" | "RECEIVING_RESPONSE" | "COMPLETE" | "ERROR">("IDLE");
+  const [turnError, setTurnError] = useState<string | null>(null);
+  const isSubmittingRef = useRef(false);
   const [qNum, setQNum] = useState(0);
   const [stage, setStage] = useState("intro");
   const [ended, setEnded] = useState(false);
@@ -1422,8 +1425,17 @@ export default function InterviewPage() {
 
   const send = async (text?: string) => {
     const content = (text || input).trim();
-    if (!content || loading || ended) return;
-    if (secureModeRef.current) await analyzeAnswerForAI(content);
+    if (!content || isSubmittingRef.current || loading || ended) return;
+    isSubmittingRef.current = true;
+    setTurnError(null);
+    setLifecycleState("SUBMITTING");
+    setLoading(true);
+
+    // Decoupled AI telemetry in background (non-blocking)
+    if (secureModeRef.current) {
+      analyzeAnswerForAI(content).catch(() => {});
+    }
+
     setInput("");
     const newQ = qNumRef.current + 1;
     qNumRef.current = newQ;
@@ -1434,22 +1446,76 @@ export default function InterviewPage() {
     const explicitMsgs = [...msgsRef.current, userMsg];
     msgsRef.current = explicitMsgs;
     setMsgs([...explicitMsgs]);
+
+    // Asynchronous scoring update without blocking conversational turn
     refreshScore(explicitMsgs);
-    setLoading(true);
+
+    setLifecycleState("PROCESSING");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+
     try {
       const res = await fetch("/api/interview-chat", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: explicitMsgs.map(m => ({ role: m.role, content: m.content })), jd: jdRef.current, resume: resumeRef.current, qNumber: newQ })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: explicitMsgs.map(m => ({ role: m.role, content: m.content })),
+          jd: jdRef.current,
+          resume: resumeRef.current,
+          qNumber: newQ
+        }),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
+      setLifecycleState("RECEIVING_RESPONSE");
+
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
+
       const d = await res.json();
+      if (!d.message) {
+        throw new Error("Invalid response received from interviewer");
+      }
+
       lastQuestionRef.current = d.message;
-      const aiMsg: Msg = { role: "assistant", content: d.message, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+      const aiMsg: Msg = {
+        role: "assistant",
+        content: d.message,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      };
       const finalMsgs = [...explicitMsgs, aiMsg];
       msgsRef.current = finalMsgs;
       setMsgs([...finalMsgs]);
+      setLifecycleState("COMPLETE");
+
       if (modeRef.current === "voice") speak(d.message);
-    } catch {}
-    setLoading(false);
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      console.warn("[interview] Turn response error:", err);
+      setLifecycleState("ERROR");
+      const isTimeout = err.name === "AbortError" || err.message?.includes("abort");
+      const errorText = isTimeout
+        ? "Alex is taking longer than usual to respond. Please tap below to retry."
+        : "Alex experienced a brief connection delay. Please tap below to retry.";
+      setTurnError(errorText);
+
+      const fallbackPrompt: Msg = {
+        role: "assistant",
+        content: errorText,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+      const errorMsgs = [...explicitMsgs, fallbackPrompt];
+      msgsRef.current = errorMsgs;
+      setMsgs([...errorMsgs]);
+    } finally {
+      clearTimeout(timeoutId);
+      isSubmittingRef.current = false;
+      setLoading(false);
+      setTimeout(() => setLifecycleState("IDLE"), 600);
+    }
   };
 
   const sc = stage === "intro" ? "#a5b4fc" : stage === "behavioral" ? "#6366f1" : stage === "technical" ? "#00ff88" : stage === "system-design" ? "#fbbf24" : "#38bdf8";
@@ -1903,7 +1969,7 @@ export default function InterviewPage() {
           {/* Status */}
           <div style={{ padding: "8px 12px", background: "#111C2E", border: "1px solid #233752", borderRadius: 8, flexShrink: 0 }}>
             <div style={{ color: speaking ? "#60A5FA" : listening ? "#34D399" : loading ? "#94A3B8" : "#64748B", fontWeight: 600, fontSize: 11 }}>
-              {speaking ? "🔊 Alex speaking..." : listening ? "🎤 Listening..." : loading ? "💭 Processing response..." : "✓ Ready"}
+              {speaking ? "🔊 Alex speaking..." : listening ? "🎤 Listening..." : lifecycleState === "PROCESSING" ? "💭 Alex analyzing & preparing question..." : lifecycleState === "SUBMITTING" ? "📤 Sending response..." : lifecycleState === "RECEIVING_RESPONSE" ? "📥 Receiving question..." : loading ? "💭 Processing response..." : "✓ Ready"}
             </div>
             <div style={{ color: "#64748B", fontSize: 10, marginTop: 2 }}>{mode === "voice" ? "Voice mode" : "Text mode"} · Question {qNum}</div>
           </div>
@@ -1944,6 +2010,25 @@ export default function InterviewPage() {
                 <div style={{ padding: "10px 14px", background: "#1E293B", border: "1px solid #334155", borderRadius: "2px 10px 10px 10px", display: "flex", gap: 5, alignItems: "center" }}>
                   {[0, 1, 2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: "#60A5FA", animation: `blink 1.2s infinite ${i * 0.25}s` }} />)}
                 </div>
+              </div>
+            )}
+            {turnError && !loading && (
+              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12, padding: "8px 12px", background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.25)", borderRadius: 8 }}>
+                <span style={{ fontSize: 12, color: "#F87171", flex: 1 }}>{turnError}</span>
+                <button
+                  onClick={() => {
+                    const lastUser = msgsRef.current.filter(m => m.role === "user").slice(-1)[0]?.content;
+                    if (lastUser) {
+                      const cleaned = msgsRef.current.filter(m => !m.content.includes("Please tap below"));
+                      msgsRef.current = cleaned.slice(0, -1);
+                      setMsgs([...msgsRef.current]);
+                      send(lastUser);
+                    }
+                  }}
+                  style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, background: "#EF4444", color: "#FFFFFF", border: "none", borderRadius: 5, cursor: "pointer" }}
+                >
+                  ↻ Retry
+                </button>
               </div>
             )}
             <div ref={bottomRef} />

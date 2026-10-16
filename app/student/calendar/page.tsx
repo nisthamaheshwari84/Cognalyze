@@ -81,7 +81,7 @@ export function getGoogleCalendarUrl(event: CalendarEventItem): string {
 }
 
 export default function StudentCalendarPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState<CalendarEventItem[]>([]);
   const [next7Days, setNext7Days] = useState<CalendarEventItem[]>([]);

@@ -30,7 +30,7 @@ export type DSAMode = "learn" | "practice" | "coach" | "interview";
 
 function DSACodingArenaContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
   // Mode Selector: Learn | Practice | Coach | Interview
@@ -45,8 +45,8 @@ function DSACodingArenaContent() {
   const [activeProblem, setActiveProblem] = useState<StriverProblemFull>(() => getStriverProblemById("maximum-subarray-sum-kadane-s-algorithm"));
 
   // Dynamic Candidate State & Striver Progress
-  const [dsaSummary, setDsaSummary] = useState(() => getStudentDsaSummary("student-demo"));
-  const [currentFocus, setCurrentFocus] = useState(() => getStudentDsaFocus("student-demo"));
+  const [dsaSummary, setDsaSummary] = useState(() => getStudentDsaSummary(""));
+  const [currentFocus, setCurrentFocus] = useState(() => getStudentDsaFocus(""));
   const [candidateProgressMap, setCandidateProgressMap] = useState<Record<string, any>>({});
 
   // Learn Mode State
@@ -109,9 +109,6 @@ function DSACodingArenaContent() {
 
   // ── 1. INITIALIZATION ──────────────────────────────────────────────────────
   useEffect(() => {
-    const storedId = searchParams.get("candidateId") || localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(storedId);
-
     const paramTrack = (searchParams.get("track") as any) || "product_mid";
     setTrackSlug(paramTrack);
 
@@ -127,11 +124,33 @@ function DSACodingArenaContent() {
       setSelectedStepId(p.step_id);
     }
 
-    // Refresh dynamic focus & progress
-    refreshCandidateData(storedId);
+    async function initUser() {
+      let resolvedId = searchParams.get("candidateId");
+      if (!resolvedId) {
+        try {
+          const sessionRes = await fetch("/api/auth/session");
+          if (sessionRes.ok) {
+            const data = await sessionRes.json();
+            if (data.authenticated && data.user?.id) {
+              resolvedId = data.user.id;
+              if (resolvedId && typeof window !== "undefined") {
+                localStorage.setItem("cognalyze_student_id", resolvedId);
+              }
+            }
+          }
+        } catch {}
+      }
+      if (!resolvedId && typeof window !== "undefined") {
+        resolvedId = localStorage.getItem("cognalyze_student_id");
+      }
+      const finalId = resolvedId || "";
+      setCandidateId(finalId);
+      refreshCandidateData(finalId);
+      const brief = generateSessionBrief(paramTrack, "dsa_coding", finalId);
+      setSessionBrief(brief);
+    }
 
-    const brief = generateSessionBrief(paramTrack, "dsa_coding", storedId);
-    setSessionBrief(brief);
+    initUser();
   }, [searchParams]);
 
   const refreshCandidateData = (cid: string) => {

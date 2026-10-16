@@ -6,7 +6,17 @@ export async function GET(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = auth?.user?.id || searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return NextResponse.json({
+        success: true,
+        candidateId: "",
+        attempts: [],
+        summary: {}
+      });
+    }
+
     const domain = searchParams.get("domain") || undefined;
 
     const attempts = getCandidateAttempts(candidateId, domain);
@@ -28,7 +38,11 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const body = await req.json();
-    const candidateId = auth?.user?.id || body.candidateId || "student-demo";
+    const candidateId = auth?.user?.id || (body.candidateId === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return NextResponse.json({ success: false, error: "Unauthorized. Please sign in to record skill attempts." }, { status: 401 });
+    }
     const {
       domain,
       topic = "General Practice",

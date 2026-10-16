@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { markAllNotificationsRead } from "@/lib/notifications";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function POST(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     let body: any = {};
     try {
       body = await req.json();
@@ -11,7 +13,11 @@ export async function POST(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-    const studentId = body.studentId || body.candidateId || searchParams.get("candidateId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
+    if (!studentId) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
+    }
 
     const count = await markAllNotificationsRead(studentId);
 

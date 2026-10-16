@@ -6,10 +6,10 @@ export async function GET(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = auth?.user?.id || searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
 
     const allTracks = skillHubStore.getTracks();
-    const studentTracks = skillHubStore.getStudentTracks(candidateId);
+    const studentTracks = candidateId ? skillHubStore.getStudentTracks(candidateId) : [];
 
     return NextResponse.json({
       success: true,
@@ -27,7 +27,11 @@ export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const body = await req.json();
-    const candidateId = auth?.user?.id || body.candidateId || "student-demo";
+    const candidateId = auth?.user?.id || (body.candidateId === "student-demo" ? "student-demo" : null);
+
+    if (!candidateId) {
+      return NextResponse.json({ success: false, error: "Unauthorized. Please sign in to configure tracks." }, { status: 401 });
+    }
     const { targetTracks } = body;
 
     if (!Array.isArray(targetTracks) || targetTracks.length === 0) {

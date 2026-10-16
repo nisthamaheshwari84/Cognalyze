@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearUserSessionStorage } from "@/lib/client-storage-cleanup";
+import CognalyzeLogo from "@/components/CognalyzeLogo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -175,13 +176,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <Link
-            href="/"
-            style={{ color: "#162A43" }}
-            className="inline-block font-extrabold text-xl tracking-tight mb-1"
-          >
-            COGNALYZE
-          </Link>
+          <div className="flex justify-center mb-2">
+            <CognalyzeLogo
+              variant="stacked"
+              size="md"
+              href="/"
+              priority
+            />
+          </div>
           <h1
             style={{ color: "#162A43" }}
             className="text-2xl sm:text-3xl font-bold tracking-tight"

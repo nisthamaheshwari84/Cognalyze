@@ -42,10 +42,13 @@ export async function isSupabaseAvailable(): Promise<boolean> {
       const dns = require("dns").promises;
       await dns.resolve(host);
 
+      const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+      const probeKey = rawServiceKey || rawKey;
+
       // Fast HTTP health probe with 1500ms timeout: validates key and unpaused status
       const res = await fetch(`${rawUrl}/rest/v1/`, {
         method: "HEAD",
-        headers: { apikey: rawKey },
+        headers: { apikey: probeKey, Authorization: `Bearer ${probeKey}` },
         signal: AbortSignal.timeout(1500)
       }).catch(() => null);
 
@@ -80,7 +83,10 @@ const boundedFetch = (url: any, opts: any) =>
 let realClient: any = null;
 function getRealClient() {
   if (!realClient) {
-    realClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const keyToUse = (typeof window === "undefined" && supabaseServiceKey)
+      ? supabaseServiceKey
+      : supabaseAnonKey;
+    realClient = createClient(supabaseUrl, keyToUse, {
       global: { fetch: boundedFetch }
     });
   }

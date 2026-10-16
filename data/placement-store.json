@@ -1,6 +1,3900 @@
 {
-  "profiles": [],
-  "personalEvents": [],
-  "applications": [],
-  "updatedAt": "2026-10-13T10:54:00.787Z"
+  "profiles": {
+    "student_a_1791914768450": {
+      "candidate_id": "student_a_1791914768450",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791914768450": {
+      "candidate_id": "student_b_1791914768450",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "u-student-sample-001": {
+      "candidate_id": "u-student-sample-001",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Intermediate"
+        },
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "Docker",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Test Engine",
+          "tech_stack": [
+            "Python",
+            "Docker"
+          ],
+          "description": "Built test project"
+        }
+      ],
+      "target_roles": [
+        "Software Engineer",
+        "AI/ML Engineer"
+      ],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Resume parsed: resume.pdf. 3 skills, 1 demonstrated projects."
+    },
+    "student_a_1791917712758": {
+      "candidate_id": "student_a_1791917712758",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791917712758": {
+      "candidate_id": "student_b_1791917712758",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "student_a_1791917816432": {
+      "candidate_id": "student_a_1791917816432",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791917816432": {
+      "candidate_id": "student_b_1791917816432",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "student_a_1791919391965": {
+      "candidate_id": "student_a_1791919391965",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791919391965": {
+      "candidate_id": "student_b_1791919391965",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "student_a_1791919885590": {
+      "candidate_id": "student_a_1791919885590",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791919885590": {
+      "candidate_id": "student_b_1791919885590",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "user-nistha-84-1791921818603": {
+      "candidate_id": "user-nistha-84-1791921818603",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "B.Tech in Computer Science & Engineering at University",
+      "experience_level": "fresher",
+      "achievements": [],
+      "certifications": [],
+      "github_url": ""
+    },
+    "student_a_1791922339215": {
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "availability": "Immediate",
+      "candidate_id": "student_a_1791922339215",
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr",
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ]
+    },
+    "student_b_1791922339215": {
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "availability": "Immediate",
+      "candidate_id": "student_b_1791922339215",
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails.",
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ]
+    },
+    "student_a_1791924856367": {
+      "candidate_id": "student_a_1791924856367",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791924856367": {
+      "candidate_id": "student_b_1791924856367",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "isolated_user_a_1791925191776": {
+      "candidate_id": "isolated_user_a_1791925191776",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ]
+    },
+    "isolated_user_c_1791925191776": {
+      "candidate_id": "isolated_user_c_1791925191776",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Low",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791925191776": {
+      "candidate_id": "isolated_user_b_1791925191776",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "non-existent-user-id": {
+      "candidate_id": "non-existent-user-id",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791925269584": {
+      "candidate_id": "isolated_user_a_1791925269584",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ]
+    },
+    "isolated_user_c_1791925269584": {
+      "candidate_id": "isolated_user_c_1791925269584",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Low",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791925269584": {
+      "candidate_id": "isolated_user_b_1791925269584",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791925952909": {
+      "candidate_id": "isolated_user_a_1791925952909",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ]
+    },
+    "isolated_user_c_1791925952909": {
+      "candidate_id": "isolated_user_c_1791925952909",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Low",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791925952909": {
+      "candidate_id": "isolated_user_b_1791925952909",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791926018265": {
+      "candidate_id": "isolated_user_a_1791926018265",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ]
+    },
+    "isolated_user_c_1791926018265": {
+      "candidate_id": "isolated_user_c_1791926018265",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Low",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791926018265": {
+      "candidate_id": "isolated_user_b_1791926018265",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791926186635": {
+      "candidate_id": "isolated_user_a_1791926186635",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1791926186635": {
+      "candidate_id": "isolated_user_c_1791926186635",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791926186635": {
+      "candidate_id": "isolated_user_b_1791926186635",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791928289762": {
+      "candidate_id": "isolated_user_a_1791928289762",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1791928289762": {
+      "candidate_id": "isolated_user_c_1791928289762",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791928289762": {
+      "candidate_id": "isolated_user_b_1791928289762",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "student_a_1791928756766": {
+      "candidate_id": "student_a_1791928756766",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1791928756766": {
+      "candidate_id": "student_b_1791928756766",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "isolated_user_a_1791928760898": {
+      "candidate_id": "isolated_user_a_1791928760898",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "PyTorch",
+          "level": "Advanced"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed LLM Serving Engine",
+          "tech_stack": [
+            "Python",
+            "PyTorch"
+          ],
+          "description": "4,000 LOC distributed serving pipeline"
+        }
+      ],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google",
+        "DeepMind"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer with distributed inference experience.",
+      "experience_level": "1-3yr"
+    },
+    "isolated_user_c_1791928760898": {
+      "candidate_id": "isolated_user_c_1791928760898",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791929905130": {
+      "candidate_id": "isolated_user_a_1791929905130",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1791929905130": {
+      "candidate_id": "isolated_user_c_1791929905130",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791929905130": {
+      "candidate_id": "isolated_user_b_1791929905130",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1791940349345": {
+      "candidate_id": "isolated_user_a_1791940349345",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1791940349345": {
+      "candidate_id": "isolated_user_c_1791940349345",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1791940349345": {
+      "candidate_id": "isolated_user_b_1791940349345",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "student_a_1792175596044": {
+      "candidate_id": "student_a_1792175596044",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "Distributed Message Broker",
+          "tech_stack": [
+            "Python",
+            "gRPC",
+            "Raft"
+          ],
+          "description": "High concurrency messaging queue with Raft consensus."
+        }
+      ],
+      "target_roles": [
+        "Backend Engineer",
+        "Infrastructure Engineer"
+      ],
+      "target_companies_or_events": [
+        "Uber",
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Infrastructure engineer specializing in distributed systems.",
+      "experience_level": "1-3yr"
+    },
+    "student_b_1792175596044": {
+      "candidate_id": "student_b_1792175596044",
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Expert"
+        },
+        {
+          "name": "Spring Boot",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [
+        {
+          "title": "PCI-DSS Payment Gateway",
+          "tech_stack": [
+            "Java",
+            "Spring Boot",
+            "PostgreSQL"
+          ],
+          "description": "High throughput payment processing gateway."
+        }
+      ],
+      "target_roles": [
+        "Fintech Backend Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe",
+        "Visa"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "Fintech engineer specializing in secure transaction rails."
+    },
+    "isolated_user_a_1792175609097": {
+      "candidate_id": "isolated_user_a_1792175609097",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1792175609097": {
+      "candidate_id": "isolated_user_c_1792175609097",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1792175609097": {
+      "candidate_id": "isolated_user_b_1792175609097",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    },
+    "isolated_user_a_1792176686483": {
+      "candidate_id": "isolated_user_a_1792176686483",
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        },
+        {
+          "name": "FastAPI",
+          "level": "Advanced"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "AI/ML Systems Engineer"
+      ],
+      "target_companies_or_events": [
+        "Google"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "AI systems engineer."
+    },
+    "isolated_user_c_1792176686483": {
+      "candidate_id": "isolated_user_c_1792176686483",
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "CSS Architecture",
+          "level": "Intermediate"
+        }
+      ],
+      "past_projects": [],
+      "target_roles": [
+        "Frontend UX Engineer"
+      ],
+      "target_companies_or_events": [
+        "Stripe"
+      ],
+      "availability": "Immediate",
+      "risk_appetite": "Conservative",
+      "profile_summary": "Frontend developer focused on accessibility and design systems.",
+      "experience_level": "fresher"
+    },
+    "isolated_user_b_1792176686483": {
+      "candidate_id": "isolated_user_b_1792176686483",
+      "skills": [],
+      "past_projects": [],
+      "target_roles": [],
+      "target_companies_or_events": [],
+      "availability": "Immediate",
+      "risk_appetite": "Moderate",
+      "profile_summary": "",
+      "experience_level": "fresher"
+    }
+  },
+  "personalEvents": {
+    "student_a_1791914768450": [
+      {
+        "student_id": "student_a_1791914768450",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791914768956-uyeqt",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:06:08.956Z"
+      }
+    ],
+    "student_b_1791914768450": [
+      {
+        "student_id": "student_b_1791914768450",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791914768972-wecks",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:06:08.972Z"
+      }
+    ],
+    "student_a_1791917712758": [
+      {
+        "student_id": "student_a_1791917712758",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791917712984-7mzbt",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:55:12.984Z"
+      }
+    ],
+    "student_b_1791917712758": [
+      {
+        "student_id": "student_b_1791917712758",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791917712990-ivkqn",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:55:12.990Z"
+      }
+    ],
+    "student_a_1791917816432": [
+      {
+        "student_id": "student_a_1791917816432",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791917817050-2fvlg",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:56:57.050Z"
+      }
+    ],
+    "student_b_1791917816432": [
+      {
+        "student_id": "student_b_1791917816432",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791917817063-v4cok",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T18:56:57.063Z"
+      }
+    ],
+    "student_a_1791919391965": [
+      {
+        "student_id": "student_a_1791919391965",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791919394249-ikfm3",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T19:23:14.249Z"
+      }
+    ],
+    "student_b_1791919391965": [
+      {
+        "student_id": "student_b_1791919391965",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791919394995-e7s7g",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T19:23:14.995Z"
+      }
+    ],
+    "student_a_1791919885590": [
+      {
+        "student_id": "student_a_1791919885590",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791919886625-bcd0v",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T19:31:26.625Z"
+      }
+    ],
+    "student_b_1791919885590": [
+      {
+        "student_id": "student_b_1791919885590",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791919892783-lh8u1",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T19:31:32.783Z"
+      }
+    ],
+    "student_a_1791922339215": [
+      {
+        "id": "pevt-1791922342554-lvu6o",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "created_at": "2026-10-13T20:12:22.554Z",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "student_id": "student_a_1791922339215",
+        "is_dismissed": false,
+        "snoozed_until": null
+      }
+    ],
+    "student_b_1791922339215": [
+      {
+        "id": "pevt-1791922348127-ghjm6",
+        "title": "Priya's Codeforces Contest Round #980",
+        "created_at": "2026-10-13T20:12:28.127Z",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "student_id": "student_b_1791922339215",
+        "is_dismissed": false,
+        "snoozed_until": null
+      }
+    ],
+    "student_a_1791924856367": [
+      {
+        "student_id": "student_a_1791924856367",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791924859225-1f7mz",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T20:54:19.225Z"
+      }
+    ],
+    "student_b_1791924856367": [
+      {
+        "student_id": "student_b_1791924856367",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791924862670-k7yao",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T20:54:22.670Z"
+      }
+    ],
+    "isolated_user_a_1791925191776": [
+      {
+        "student_id": "isolated_user_a_1791925191776",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791925193225-bce9f",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T20:59:53.225Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791925191776",
+        "title": "Google Mock Interview",
+        "event_type": "assessment",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791925196807-9gq1i",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T20:59:56.807Z"
+      }
+    ],
+    "isolated_user_a_1791925269584": [
+      {
+        "student_id": "isolated_user_a_1791925269584",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791925270598-r3u5w",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:01:10.598Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791925269584",
+        "title": "Google Mock Interview",
+        "event_type": "assessment",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791925276004-5mv4x",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:01:16.004Z"
+      }
+    ],
+    "isolated_user_a_1791925952909": [
+      {
+        "student_id": "isolated_user_a_1791925952909",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791925954525-qdyk8",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:12:34.525Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791925952909",
+        "title": "Google Mock Interview",
+        "event_type": "assessment",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791925959896-kg9ou",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:12:39.896Z"
+      }
+    ],
+    "isolated_user_a_1791926018265": [
+      {
+        "student_id": "isolated_user_a_1791926018265",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791926019486-gximu",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:13:39.486Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791926018265",
+        "title": "Google Mock Interview",
+        "event_type": "assessment",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791926024491-p5ku8",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:13:44.491Z"
+      }
+    ],
+    "isolated_user_a_1791926186635": [
+      {
+        "student_id": "isolated_user_a_1791926186635",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791926187880-9a5zd",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:16:27.880Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791926186635",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791926195584-nw5gv",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:16:35.584Z"
+      }
+    ],
+    "isolated_user_a_1791928289762": [
+      {
+        "student_id": "isolated_user_a_1791928289762",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791928291043-godov",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:51:31.043Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791928289762",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791928303983-rf0k9",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:51:43.983Z"
+      }
+    ],
+    "student_a_1791928756766": [
+      {
+        "student_id": "student_a_1791928756766",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1791928758292-ikcmy",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:59:18.293Z"
+      }
+    ],
+    "student_b_1791928756766": [
+      {
+        "student_id": "student_b_1791928756766",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1791928758313-bn6oz",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:59:18.313Z"
+      }
+    ],
+    "isolated_user_a_1791928760898": [
+      {
+        "student_id": "isolated_user_a_1791928760898",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791928762194-sht3j",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T21:59:22.194Z"
+      }
+    ],
+    "isolated_user_a_1791929905130": [
+      {
+        "student_id": "isolated_user_a_1791929905130",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791929906331-0dq0l",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T22:18:26.331Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791929905130",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791929918693-mi1eo",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-13T22:18:38.693Z"
+      }
+    ],
+    "isolated_user_a_1791940349345": [
+      {
+        "student_id": "isolated_user_a_1791940349345",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1791940350093-f70p0",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-14T01:12:30.093Z"
+      },
+      {
+        "student_id": "isolated_user_a_1791940349345",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1791940354829-tpq6s",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-14T01:12:34.830Z"
+      }
+    ],
+    "student_a_1792175596044": [
+      {
+        "student_id": "student_a_1792175596044",
+        "title": "Peer Mock Interview - Distributed Systems",
+        "event_date": "2026-10-25",
+        "event_type": "practice_session",
+        "notes": "Focus on Raft leader election and log compaction.",
+        "id": "pevt-1792175597233-2y5li",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:33:17.233Z"
+      }
+    ],
+    "student_b_1792175596044": [
+      {
+        "student_id": "student_b_1792175596044",
+        "title": "Priya's Codeforces Contest Round #980",
+        "event_date": "2026-10-28",
+        "event_type": "exam",
+        "id": "pevt-1792175602988-r7mpz",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:33:22.988Z"
+      }
+    ],
+    "isolated_user_a_1792175609097": [
+      {
+        "student_id": "isolated_user_a_1792175609097",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1792175609741-t6niu",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:33:29.741Z"
+      },
+      {
+        "student_id": "isolated_user_a_1792175609097",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1792175620566-gml5q",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:33:40.566Z"
+      }
+    ],
+    "isolated_user_a_1792176686483": [
+      {
+        "student_id": "isolated_user_a_1792176686483",
+        "title": "Alpha Systems Interview Prep",
+        "event_type": "practice_session",
+        "event_date": "2026-10-25",
+        "id": "pevt-1792176686951-5wev4",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:51:26.951Z"
+      },
+      {
+        "student_id": "isolated_user_a_1792176686483",
+        "title": "Google Mock Interview",
+        "event_type": "practice_session",
+        "event_date": "2026-10-30",
+        "id": "pevt-1792176691222-6f0nk",
+        "is_dismissed": false,
+        "snoozed_until": null,
+        "created_at": "2026-10-16T18:51:31.222Z"
+      }
+    ]
+  },
+  "applications": {
+    "student_a_1791914768450": [
+      {
+        "id": "app-1791914768955",
+        "student_id": "student_a_1791914768450",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T18:06:08.955Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791914768450": [
+      {
+        "id": "app-1791914768968",
+        "student_id": "student_b_1791914768450",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T18:06:08.968Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791917712758": [
+      {
+        "id": "app-1791917712984",
+        "student_id": "student_a_1791917712758",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T18:55:12.984Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791917712758": [
+      {
+        "id": "app-1791917712990",
+        "student_id": "student_b_1791917712758",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T18:55:12.990Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791917816432": [
+      {
+        "id": "app-1791917817049",
+        "student_id": "student_a_1791917816432",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T18:56:57.049Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791917816432": [
+      {
+        "id": "app-1791917817061",
+        "student_id": "student_b_1791917816432",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T18:56:57.061Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791919391965": [
+      {
+        "id": "app-1791919394248",
+        "student_id": "student_a_1791919391965",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T19:23:14.248Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791919391965": [
+      {
+        "id": "app-1791919394995",
+        "student_id": "student_b_1791919391965",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T19:23:14.995Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791919885590": [
+      {
+        "id": "app-1791919886624",
+        "student_id": "student_a_1791919885590",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T19:31:26.624Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791919885590": [
+      {
+        "id": "app-1791919892783",
+        "student_id": "student_b_1791919885590",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T19:31:32.783Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "user-nistha-84-1791921818603": [
+      {
+        "id": "app-1791923618711",
+        "student_id": "user-nistha-84-1791921818603",
+        "opportunity_id": "opp-bajaj-hackrx",
+        "stage": "Applied",
+        "notes": "",
+        "updated_at": "2026-10-13T20:33:38.711Z",
+        "opportunity": {
+          "id": "opp-bajaj-hackrx",
+          "title": "Bajaj Finserv HackRx 5.0 — Nationwide FinTech Hackathon",
+          "type": "hackathon",
+          "organizer": "Bajaj Finserv (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Fintech",
+            "Next.js",
+            "Python",
+            "Fraud Detection",
+            "Microservices",
+            "AI/ML"
+          ],
+          "domain_tags": [
+            "Fintech",
+            "Risk Tech",
+            "Payment Gateways"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-18T23:59:59Z",
+          "eligibility": "All undergraduate and postgraduate tech students across India",
+          "source_url": "https://unstop.com/o/bajaj-finserv",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "High-adrenaline 36-hour hackathon to build intelligent financial lending, automated credit risk, and conversational insurance bots.",
+            "prize_pool": "INR 10,00,000 Total Cash Prizes + SDE Internships",
+            "tracks_or_themes": [
+              "Agentic Underwriting: AI Loan Decision Pipeline",
+              "Real-Time Fraud Prevention with Graph Analytics",
+              "Voice-First Financial Inclusion for Rural India",
+              "Conversational Insurance Claims Bot with LLM",
+              "Credit Risk Scoring with Alternative Data Sources",
+              "EMI Default Prediction using Behavioral Signals",
+              "KYC Document Verification with Multi-Modal AI",
+              "Micro-Investment Portfolio Optimizer for Gen-Z"
+            ],
+            "team_size": "2-4 members",
+            "schedule_label": "Registrations: Aug 20 – Oct 18, 2026 | Round 1 Quiz: Oct 25, 2026 | Hackathon: Nov 14–15, 2026",
+            "perks": [
+              "Cash Prizes up to ₹5 Lakhs",
+              "Direct Job Offers",
+              "Industry Jury Critique"
+            ],
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Quiz",
+                "date_if_mentioned": "2026-10-25"
+              },
+              {
+                "label": "Grand Finale: 36-Hour FinTech Hackathon",
+                "date_if_mentioned": "2026-11-14"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      },
+      {
+        "id": "app-1791923632000",
+        "student_id": "user-nistha-84-1791921818603",
+        "opportunity_id": "opp-hero-campus-challenge",
+        "stage": "Bookmarked",
+        "notes": "",
+        "updated_at": "2026-10-13T20:33:52.000Z",
+        "opportunity": {
+          "id": "opp-hero-campus-challenge",
+          "title": "Hero Campus Challenge Season 10 — Tech Track",
+          "type": "hackathon",
+          "organizer": "Hero MotoCorp (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Embedded Systems",
+            "Connected Vehicles",
+            "Python",
+            "Full Stack",
+            "IoT"
+          ],
+          "domain_tags": [
+            "EV & Mobility",
+            "Embedded IoT",
+            "AI Edge Computing"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-11-05T23:59:59Z",
+          "eligibility": "Engineering students in 3rd & 4th year from accredited institutes",
+          "source_url": "https://unstop.com/o/hero-motocorp",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flagship engineering challenge testing innovative connected-vehicle telemetry, batter management, and customer mobile experiences.",
+            "prize_pool": "INR 4,00,000 + PPIs for Management & Tech Trainee roles",
+            "tracks_or_themes": [
+              "EV Battery Swapping Station Network Optimizer",
+              "Smart Instrument Cluster with Augmented Navigation",
+              "Predictive Battery Health & Range Anxiety Reducer",
+              "Connected Vehicle Telemetry Dashboard (MQTT + Kafka)",
+              "AI-based Rider Safety Alert from Helmet Accelerometer",
+              "Electric Scooter Regenerative Braking Efficiency ML Model",
+              "Fleet Management & Geo-fencing for Commercial EVs"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: September – November 5, 2026 | Finale: December 2026",
+            "perks": [
+              "PPI Opportunities",
+              "Cash Grants",
+              "Prototyping Lab Access"
+            ],
+            "assessment_dates": [
+              {
+                "label": "Round 1: Engineering Assessment & Quiz",
+                "date_if_mentioned": "2026-11-12"
+              },
+              {
+                "label": "Grand Finale at Hero Centre of Innovation, Jaipur",
+                "date_if_mentioned": "2026-12-15"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791922339215": [
+      {
+        "id": "app-1791922342553",
+        "notes": "Submitted algorithmic round code.",
+        "stage": "Applied",
+        "student_id": "student_a_1791922339215",
+        "updated_at": "2026-10-13T20:12:22.553Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "tier": "Tier 1",
+          "type": "internship",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "deadline": "2026-09-28T23:59:59Z",
+          "is_active": true,
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "organizer_type": "corporate",
+          "extracted_context": {
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "platform": "Unstop",
+            "team_size": "Individual",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "status_badge": "Fall Campus SDE Track",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "difficulty_tier": "high",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ],
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "deadline_if_mentioned": "2026-09-28"
+          }
+        },
+        "opportunity_id": "opp-walmart-sde-sprint"
+      }
+    ],
+    "student_b_1791922339215": [
+      {
+        "id": "app-1791922348127",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "stage": "Bookmarked",
+        "student_id": "student_b_1791922339215",
+        "updated_at": "2026-10-13T20:12:28.127Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "tier": "Tier 1",
+          "type": "hackathon",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "deadline": "2026-10-15T18:30:00Z",
+          "is_active": true,
+          "organizer": "Flipkart (via Unstop)",
+          "source_url": "https://unstop.com/o/flipkart",
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "organizer_type": "corporate",
+          "extracted_context": {
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "platform": "Unstop",
+            "team_size": "2-3 members",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "difficulty_tier": "high",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ],
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "deadline_if_mentioned": "2026-10-15"
+          }
+        },
+        "opportunity_id": "opp-flipkart-grid"
+      }
+    ],
+    "student_a_1791924856367": [
+      {
+        "id": "app-1791924859224",
+        "student_id": "student_a_1791924856367",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T20:54:19.224Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791924856367": [
+      {
+        "id": "app-1791924862670",
+        "student_id": "student_b_1791924856367",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T20:54:22.670Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791925191776": [
+      {
+        "id": "app-1791925193732",
+        "student_id": "isolated_user_a_1791925191776",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T20:59:53.732Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791925269584": [
+      {
+        "id": "app-1791925271305",
+        "student_id": "isolated_user_a_1791925269584",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:01:11.305Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791925952909": [
+      {
+        "id": "app-1791925955373",
+        "student_id": "isolated_user_a_1791925952909",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:12:35.373Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791926018265": [
+      {
+        "id": "app-1791926019938",
+        "student_id": "isolated_user_a_1791926018265",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:13:39.938Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791926186635": [
+      {
+        "id": "app-1791926188561",
+        "student_id": "isolated_user_a_1791926186635",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:16:28.561Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791928289762": [
+      {
+        "id": "app-1791928292226",
+        "student_id": "isolated_user_a_1791928289762",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:51:32.226Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1791928756766": [
+      {
+        "id": "app-1791928758290",
+        "student_id": "student_a_1791928756766",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-13T21:59:18.290Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1791928756766": [
+      {
+        "id": "app-1791928758313",
+        "student_id": "student_b_1791928756766",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-13T21:59:18.313Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791928760898": [
+      {
+        "id": "app-1791928764105",
+        "student_id": "isolated_user_a_1791928760898",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T21:59:24.105Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791929905130": [
+      {
+        "id": "app-1791929906934",
+        "student_id": "isolated_user_a_1791929905130",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-13T22:18:26.934Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1791940349345": [
+      {
+        "id": "app-1791940350618",
+        "student_id": "isolated_user_a_1791940349345",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-14T01:12:30.618Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_a_1792175596044": [
+      {
+        "id": "app-1792175597232",
+        "student_id": "student_a_1792175596044",
+        "opportunity_id": "opp-walmart-sde-sprint",
+        "stage": "Applied",
+        "notes": "Submitted algorithmic round code.",
+        "updated_at": "2026-10-16T18:33:17.232Z",
+        "opportunity": {
+          "id": "opp-walmart-sde-sprint",
+          "title": "Walmart Global Tech — Campus SDE Hiring Sprint 2026",
+          "type": "internship",
+          "organizer": "Walmart Global Tech (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Data Structures",
+            "Algorithms",
+            "Java",
+            "Python",
+            "Cloud",
+            "Problem Solving"
+          ],
+          "domain_tags": [
+            "Retail Tech",
+            "Cloud Architecture",
+            "Supply Chain"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-09-28T23:59:59Z",
+          "eligibility": "B.Tech/B.E./M.Tech students graduating in 2026 & 2027",
+          "source_url": "https://unstop.com/o/walmart-global-tech-india",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Exclusive campus software engineering hiring sprint for full-time SDE-1 and summer 2027 internship roles at Walmart Global Tech Bangalore & Chennai.",
+            "prize_pool": "Direct SDE-1 Offers (₹24 - 32 LPA) & Summer Internships",
+            "tracks_or_themes": [
+              "Distributed Microservice Health Monitoring at Scale",
+              "Cloud-Native Retail POS Resilience Architecture",
+              "Automated Supplier Quality Scoring with NLP",
+              "Real-Time Store Heatmap Analytics using Edge Vision",
+              "Dynamic Pricing Engine for Omnichannel Retail",
+              "Inventory Redistribution Optimization across 10,000+ Stores"
+            ],
+            "team_size": "Individual",
+            "schedule_label": "Registrations: September 1 – 28, 2026 | Online Assessment: October 4, 2026",
+            "status_badge": "Fall Campus SDE Track",
+            "perks": [
+              "Direct SDE-1 Interview",
+              "₹1,00,000/mo Internship",
+              "Global Tech Mentorship"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-09-28",
+            "assessment_dates": [
+              {
+                "label": "Round 1: Online Technical Assessment",
+                "date_if_mentioned": "2026-10-04"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "student_b_1792175596044": [
+      {
+        "id": "app-1792175602986",
+        "student_id": "student_b_1792175596044",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Bookmarked",
+        "notes": "Targeting SDE-1 PPI via GenAI track.",
+        "updated_at": "2026-10-16T18:33:22.986Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1792175609097": [
+      {
+        "id": "app-1792175610149",
+        "student_id": "isolated_user_a_1792175609097",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-16T18:33:30.149Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ],
+    "isolated_user_a_1792176686483": [
+      {
+        "id": "app-1792176687281",
+        "student_id": "isolated_user_a_1792176686483",
+        "opportunity_id": "opp-flipkart-grid",
+        "stage": "Applied",
+        "notes": "Direct application submitted",
+        "updated_at": "2026-10-16T18:51:27.281Z",
+        "opportunity": {
+          "id": "opp-flipkart-grid",
+          "title": "Flipkart GRiD 7.0 — Software Development Track",
+          "type": "hackathon",
+          "organizer": "Flipkart (via Unstop)",
+          "organizer_type": "corporate",
+          "tags": [
+            "Algorithms",
+            "Distributed Systems",
+            "Java",
+            "Node.js",
+            "React",
+            "System Design"
+          ],
+          "domain_tags": [
+            "E-Commerce",
+            "Logistics",
+            "GenAI",
+            "Fintech"
+          ],
+          "tier": "Tier 1",
+          "deadline": "2026-10-15T18:30:00Z",
+          "eligibility": "B.Tech/B.E./M.Tech/MCA students graduating in 2026 or 2027",
+          "source_url": "https://unstop.com/o/flipkart",
+          "extracted_context": {
+            "platform": "Unstop",
+            "summary": "Flipkart's flagship campus engineering competition offering direct PPIs (Pre-Placement Interviews) for SDE-1 roles.",
+            "prize_pool": "INR 5,25,000 + SDE-1 PPIs (CTC ₹32 LPA)",
+            "tracks_or_themes": [
+              "GenAI-Powered Personalized Shopping Assistants",
+              "High-Concurrency Flash Sale Inventory Locking",
+              "Autonomous Warehouse Robotic Pick Optimization",
+              "Real-Time Product Recommendation Graph Neural Networks",
+              "Multi-Modal Search: Image + Voice + Text Product Discovery",
+              "Hyperlocal Delivery Route Optimization under Traffic Constraints",
+              "Anti-Fraud Transaction Risk Scoring with Sub-50ms SLA",
+              "Supply Chain Demand Forecasting using Temporal Transformers"
+            ],
+            "team_size": "2-3 members",
+            "schedule_label": "Registrations: August 2026 | Assessments: September 2026 | Finale: October 15, 2026",
+            "status_badge": "Annual SDE-1 PPI Track",
+            "perks": [
+              "Direct SDE-1 PPIs",
+              "MacBook Pro for Winners",
+              "National Finalist Trophy"
+            ],
+            "difficulty_tier": "high",
+            "deadline_if_mentioned": "2026-10-15",
+            "assessment_dates": [
+              {
+                "label": "Round 1: E-Commerce Tech Quiz",
+                "date_if_mentioned": "2026-09-18"
+              },
+              {
+                "label": "Round 2: Algorithmic Coding Challenge",
+                "date_if_mentioned": "2026-09-28"
+              }
+            ]
+          },
+          "is_active": true
+        }
+      }
+    ]
+  },
+  "updatedAt": "2026-10-16T18:51:31.222Z"
 }

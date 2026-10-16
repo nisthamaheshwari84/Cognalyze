@@ -36,6 +36,25 @@ function getDataFilePath(): string {
 
 let inMemorySessions: InterviewSession[] = [];
 let isLoaded = false;
+const activeLiveSessions: Map<string, any> = new Map();
+
+export function saveActiveSessionState(sessionId: string, state: any): void {
+  activeLiveSessions.set(sessionId, state);
+}
+
+export function getActiveSessionState(sessionId: string, candidateId?: string): any | null {
+  const state = activeLiveSessions.get(sessionId);
+  if (!state) return null;
+  // Multi-tenant isolation: verify candidate ownership
+  if (candidateId && state.candidateId && state.candidateId !== candidateId) {
+    return null;
+  }
+  return state;
+}
+
+export function clearActiveSessionState(sessionId: string): void {
+  activeLiveSessions.delete(sessionId);
+}
 
 function loadSessionsFromDisk(): void {
   if (typeof window === "undefined" && !isLoaded) {

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AptitudeQuestion } from "@/lib/skill-hub-store";
 
 export default function AptitudeSimulatorPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [questions, setQuestions] = useState<AptitudeQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCompany, setSelectedCompany] = useState<string>("all");
@@ -97,9 +97,21 @@ export default function AptitudeSimulatorPage() {
   ];
 
   useEffect(() => {
-    const stored = localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
-    loadQuestions(selectedCompany, activeCategory);
+    async function resolveUser() {
+      let stored = "";
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sess = await sessRes.json();
+          if (sess.authenticated && sess.user?.id) {
+            stored = sess.user.id;
+          }
+        }
+      } catch {}
+      setCandidateId(stored);
+      loadQuestions(selectedCompany, activeCategory, stored);
+    }
+    resolveUser();
   }, [selectedCompany, activeCategory]);
 
   // Mark first question as visited
@@ -126,10 +138,11 @@ export default function AptitudeSimulatorPage() {
     return () => clearInterval(timer);
   }, [examStarted, examSubmitted, timeLeft]);
 
-  const loadQuestions = async (company: string, category: string) => {
+  const loadQuestions = async (company: string, category: string, cId?: string) => {
     setLoading(true);
     try {
-      let url = `/api/skills/aptitude?company=${encodeURIComponent(company)}&candidateId=${encodeURIComponent(candidateId || "student-demo")}`;
+      const activeId = cId !== undefined ? cId : candidateId;
+      let url = `/api/skills/aptitude?company=${encodeURIComponent(company)}${activeId ? `&candidateId=${encodeURIComponent(activeId)}` : ""}`;
       if (category && category !== "all") {
         url += `&category=${encodeURIComponent(category)}`;
       }

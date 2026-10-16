@@ -17,32 +17,15 @@ export async function GET(req: Request) {
   try {
     const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : searchParams.get("candidateId") || "student-demo");
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+
     const limitParam = searchParams.get("limit");
     const limit = limitParam && limitParam !== "all" ? parseInt(limitParam, 10) : undefined;
 
     const refresh = searchParams.get("refresh") === "true";
 
-    // Check memory cache first (only if not forcing refresh and cache has sufficient depth)
-    const cached = !refresh ? getCachedRecommendations(candidateId) : null;
-    if (cached && cached.length > 0) {
-      // If no limit was requested, ensure cache isn't just a small slice
-      const isSufficient = limit ? cached.length >= limit : cached.length >= 30;
-      if (isSufficient) {
-        const sliced = limit ? cached.slice(0, limit) : cached;
-        return NextResponse.json({
-          success: true,
-          candidateId,
-          needsOnboarding: false,
-          count: sliced.length,
-          recommendations: sliced,
-          from_cache: true
-        });
-      }
-    }
-
     // 1. Fetch Student Profile
-    let fetchedProfile = await getStudentProfile(candidateId);
+    let fetchedProfile = candidateId ? await getStudentProfile(candidateId) : null;
     let needsOnboarding = false;
 
     if (!fetchedProfile || !fetchedProfile.skills || fetchedProfile.skills.length === 0) {
@@ -52,8 +35,26 @@ export async function GET(req: Request) {
       }
     }
 
+    // Check memory cache first (only if not forcing refresh and cache has sufficient depth)
+    const cached = (!refresh && candidateId) ? getCachedRecommendations(candidateId) : null;
+    if (cached && cached.length > 0) {
+      // If no limit was requested, ensure cache isn't just a small slice
+      const isSufficient = limit ? cached.length >= limit : cached.length >= 30;
+      if (isSufficient) {
+        const sliced = limit ? cached.slice(0, limit) : cached;
+        return NextResponse.json({
+          success: true,
+          candidateId: candidateId || "",
+          needsOnboarding,
+          count: sliced.length,
+          recommendations: sliced,
+          from_cache: true
+        });
+      }
+    }
+
     const activeProfile: StudentProfileData = fetchedProfile || {
-      candidate_id: candidateId,
+      candidate_id: candidateId || "",
       skills: [],
       past_projects: [],
       target_roles: ["Software Engineer"],
@@ -108,28 +109,32 @@ export async function GET(req: Request) {
     });
 
     // 5. Persist the FULL recommendations array so subsequent calls have full depth
-    await saveRecommendations(candidateId, allRecommendations);
+    if (candidateId) {
+      await saveRecommendations(candidateId, allRecommendations);
+    }
 
     const recommendations = limit ? allRecommendations.slice(0, limit) : allRecommendations;
 
     // Unified Notification Hook: If top recommendation has high fit score (>= 85)
-    const topMatch = recommendations.find(r => r.fit_score >= 85);
-    if (topMatch) {
-      await createNotification({
-        studentId: candidateId,
-        sourceFeature: "matching",
-        notificationType: "new_high_fit_match",
-        title: `🎯 New High-Fit Match: ${topMatch.opportunity.title} (${Math.round(topMatch.fit_score)}%)`,
-        body: `Top placement match from ${topMatch.opportunity.organizer} with ${topMatch.matching_tags?.length || 0} overlapping skills.`,
-        linkUrl: `/student/opportunities/${topMatch.opportunity.id}`,
-        priority: "normal"
-      });
+    if (candidateId) {
+      const topMatch = recommendations.find(r => r.fit_score >= 85);
+      if (topMatch) {
+        await createNotification({
+          studentId: candidateId,
+          sourceFeature: "matching",
+          notificationType: "new_high_fit_match",
+          title: `🎯 New High-Fit Match: ${topMatch.opportunity.title} (${Math.round(topMatch.fit_score)}%)`,
+          body: `Top placement match from ${topMatch.opportunity.organizer} with ${topMatch.matching_tags?.length || 0} overlapping skills.`,
+          linkUrl: `/student/opportunities/${topMatch.opportunity.id}`,
+          priority: "normal"
+        });
+      }
     }
 
     return NextResponse.json({
       success: true,
-      candidateId,
-      needsOnboarding: false,
+      candidateId: candidateId || "",
+      needsOnboarding,
       count: recommendations.length,
       recommendations
     });

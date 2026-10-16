@@ -15,7 +15,7 @@ import {
 
 function CommunicationArenaContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [activeMode, setActiveMode] = useState<"learn" | "practice" | "coach" | "interview">("practice");
 
   // ── LEARN MODE STATE ──
@@ -52,9 +52,21 @@ function CommunicationArenaContent() {
 
   // Initialize candidate & query mode
   useEffect(() => {
-    const queryCandidateId = searchParams.get("candidateId");
-    const stored = queryCandidateId || localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(stored);
+    async function resolveUser() {
+      const queryCandidateId = searchParams.get("candidateId");
+      let stored = queryCandidateId || "";
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sess = await sessRes.json();
+          if (sess.authenticated && sess.user?.id) {
+            stored = sess.user.id;
+          }
+        }
+      } catch {}
+      setCandidateId(stored);
+    }
+    resolveUser();
 
     const queryMode = searchParams.get("mode") as any;
     if (queryMode && ["learn", "practice", "coach", "interview"].includes(queryMode)) {

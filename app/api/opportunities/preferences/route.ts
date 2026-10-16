@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 /**
  * GET /api/opportunities/preferences
@@ -7,8 +8,13 @@ import { opportunityService } from "@/lib/opportunities/opportunity-service";
  */
 export async function GET(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(request);
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get("studentId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("studentId") === "student-demo" ? "student-demo" : null);
+
+    if (!studentId) {
+      return NextResponse.json({ success: true, preferences: null });
+    }
 
     const preferences = opportunityService.getPreferences(studentId);
     return NextResponse.json({ success: true, preferences });
@@ -27,8 +33,18 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(request);
     const body = await request.json();
-    const { studentId = "student-demo", preferences } = body;
+    const studentId = auth?.user?.id || (body.studentId === "student-demo" ? "student-demo" : null);
+
+    if (!studentId) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Please sign in to save preferences." },
+        { status: 401 }
+      );
+    }
+
+    const { preferences } = body;
 
     if (!preferences || typeof preferences !== "object") {
       return NextResponse.json(

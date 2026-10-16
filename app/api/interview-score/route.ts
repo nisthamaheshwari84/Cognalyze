@@ -77,6 +77,100 @@ export async function POST(req: Request) {
     const lastQ =
       messages.filter((m: any) => m.role === "assistant").slice(-1)[0]?.content || "";
     const lastA = userMsgs[n - 1].content.trim();
+
+    // Guard: Opening introduction turn is not scored as a technical competency
+    const isOpeningGreeting =
+      /quick introduction|tell me about yourself|welcome to cognalyze/i.test(lastQ) ||
+      /your ai interviewer today/i.test(lastQ);
+
+    if (n === 1 && isOpeningGreeting) {
+      return NextResponse.json({
+        evidenceMarkers: [],
+        repeatedGapAlert: null,
+        overall: 80,
+        timestamp: Date.now(),
+        breakdown: {
+          relevance: 16,
+          technicalAccuracy: 15,
+          communicationClarity: 13,
+          problemSolving: 12,
+          depth: 11,
+          examples: 8,
+          confidence: 5,
+        },
+        evidence: {
+          strengths: ["Candidate introduction received clearly"],
+          improvements: [],
+          suggestedAnswer: "",
+          scoreReason: "Candidate introduction received. Technical evaluation begins on Question 1.",
+        },
+        strengths: ["Candidate introduction received clearly"],
+        improvements: [],
+        suggestedAnswer: "",
+        verdict: "Introduction received. Technical rounds commencing.",
+        hiringSignal: "NEUTRAL",
+        bodyLanguage: bodyLanguage || {
+          posture: "Neutral",
+          eyeContact: "Direct",
+          confidence: "Calm",
+          notes: "Ready for first technical question",
+        },
+      });
+    }
+
+    // Guard: Candidate decline or pass handling (Phase 7)
+    const isDeclined =
+      /^(no|nope|nah|pass|skip|negative)(\.|\!|\s|$)/i.test(lastA) ||
+      /\b(i'?d|i would) rather not\b/i.test(lastA) ||
+      /\bprefer not to\b/i.test(lastA) ||
+      /\b(can we|could we|let'?s) (skip|move on|pass)\b/i.test(lastA) ||
+      /\bdon'?t (remember|recall)\b/i.test(lastA);
+
+    if (isDeclined) {
+      return NextResponse.json({
+        evidenceMarkers: [
+          {
+            id: `ev_decline_${Date.now()}`,
+            type: "partial",
+            competency: "Candidate Topic Deferral",
+            detail: "Candidate respectfully deferred this topic. Alternative question explored without penalty.",
+            quote: lastA.slice(0, 100),
+          }
+        ],
+        repeatedGapAlert: null,
+        overall: 70,
+        isProvisional: true,
+        provisionalStage: n <= 2 ? "INITIAL_EVALUATION" : "ALTERNATIVE_PROBED",
+        timestamp: Date.now(),
+        breakdown: {
+          relevance: 14,
+          technicalAccuracy: 14,
+          communicationClarity: 14,
+          problemSolving: 10,
+          depth: 8,
+          examples: 5,
+          confidence: 5,
+        },
+        evidence: {
+          strengths: ["Clear and upfront communication regarding topic preference"],
+          improvements: ["Alternative competency evaluated to preserve complete coverage"],
+          suggestedAnswer: "",
+          scoreReason: "Candidate deferred this question. Evaluator pivoted to preserve comprehensive coverage without penalty.",
+        },
+        strengths: ["Clear and candid communication"],
+        improvements: [],
+        suggestedAnswer: "",
+        verdict: "Candidate deferred question; alternative competency being explored.",
+        hiringSignal: "NEUTRAL",
+        bodyLanguage: bodyLanguage || {
+          posture: "Neutral",
+          eyeContact: "Direct",
+          confidence: "Calm",
+          notes: "Ready for alternative question",
+        },
+      });
+    }
+
     const wordCount = lastA.split(/\s+/).filter(Boolean).length;
     const allAnswers = userMsgs
       .map((m: any, i: number) => `Answer ${i + 1}: "${m.content.slice(0, 300)}"`)
@@ -363,6 +457,8 @@ RETURN RAW JSON ONLY:
       overall,
       breakdown,
       hiringSignal,
+      isProvisional: n <= 2,
+      provisionalStage: n <= 2 ? "INITIAL_EVALUATION" : "CONSOLIDATING_EVIDENCE",
       evidenceMarkers: processedMarkers,
       repeatedGapAlert,
       strengths,
@@ -377,7 +473,7 @@ RETURN RAW JSON ONLY:
         strengths,
         improvements,
         suggestedAnswer,
-        scoreReason,
+        scoreReason: n <= 2 ? `[Provisional Early Assessment] ${scoreReason}` : scoreReason,
       },
     });
   } catch (e: any) {

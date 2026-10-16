@@ -376,8 +376,17 @@ export async function GET(req: Request) {
     // ─────────────────────────────────────────────────────────────
     // Subsets: Full Calendar vs Next 7 Days Widget vs Retrospective
     // ─────────────────────────────────────────────────────────────
-    // Full Calendar: non-dismissed (includes snoozed, per spec)
-    const calendarEvents = rawEvents.filter(e => !e.is_dismissed);
+    // Full Calendar: non-dismissed, sorted chronologically ascending by event_date
+    const calendarEvents = rawEvents
+      .filter(e => !e.is_dismissed)
+      .sort((a, b) => {
+        if (a.event_date !== b.event_date) {
+          return a.event_date.localeCompare(b.event_date);
+        }
+        return b.priority_score - a.priority_score;
+      });
+
+    const upcomingEvents = calendarEvents.filter(e => e.days_until_date >= 0);
 
     // Next 7 Days Widget: non-dismissed, non-snoozed, within [today, today + 7]
     const next7DaysEvents = rawEvents
@@ -400,6 +409,7 @@ export async function GET(req: Request) {
       email_infra_status: "flagged_as_gap",
       email_gap_notice: "Cognalyze email delivery service is flagged as a future gap. In-app 'Today's Placement Digest' provides real-time proactive briefing.",
       total_events: calendarEvents.length,
+      upcoming_count: upcomingEvents.length,
       events: calendarEvents,
       next_7_days: next7DaysEvents,
       top_priority_item: topRecommendedAction,

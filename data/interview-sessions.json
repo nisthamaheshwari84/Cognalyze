@@ -1,1 +1,270 @@
-[]
+[
+  {
+    "id": "session_1792175606158_rbx8px362",
+    "created_at": "2026-10-16T18:33:26.158Z",
+    "candidate_id": "student_a_1792175596044",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_user-nistha-84-1791921818603_1791930516277",
+    "created_at": "2026-10-13T22:28:42.062Z",
+    "candidate_id": "user-nistha-84-1791921818603",
+    "session_type": "mock_interview",
+    "experience_mode": "fresher",
+    "target_role": "Position: Software Engineering Intern",
+    "topics_covered": [],
+    "answer_distribution": {
+      "strong": 0,
+      "adequate": 0,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 45,
+    "weak_topics_identified": [
+      "Inability to discuss concrete technical details",
+      "Lack of demonstrable ownership of code",
+      "Shallow understanding of core systems concepts"
+    ]
+  },
+  {
+    "id": "session_1791928758333_8tzjj9ca1",
+    "created_at": "2026-10-13T21:59:18.333Z",
+    "candidate_id": "student_a_1791928756766",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791924864781_6vuznlqam",
+    "created_at": "2026-10-13T20:54:24.781Z",
+    "candidate_id": "student_a_1791924856367",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791922350533_qs2j6dsko",
+    "created_at": "2026-10-13T20:12:30.533Z",
+    "candidate_id": "student_a_1791922339215",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791919896221_gvodp6my2",
+    "created_at": "2026-10-13T19:31:36.221Z",
+    "candidate_id": "student_a_1791919885590",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791919396180_lz7mrbtsl",
+    "created_at": "2026-10-13T19:23:16.180Z",
+    "candidate_id": "student_a_1791919391965",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791917817091_ms4hvtnty",
+    "created_at": "2026-10-13T18:56:57.091Z",
+    "candidate_id": "student_a_1791917816432",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791917712999_3r09ya2si",
+    "created_at": "2026-10-13T18:55:12.999Z",
+    "candidate_id": "student_a_1791917712758",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  },
+  {
+    "id": "session_1791914768990_et7imyloe",
+    "created_at": "2026-10-13T18:06:08.990Z",
+    "candidate_id": "student_a_1791914768450",
+    "session_type": "mock_interview",
+    "experience_mode": "standard",
+    "target_role": "Backend Infrastructure Engineer",
+    "topics_covered": [
+      "Distributed Systems",
+      "Concurrency",
+      "Raft Consensus"
+    ],
+    "answer_distribution": {
+      "strong": 3,
+      "adequate": 1,
+      "shallow": 0,
+      "off_topic": 0
+    },
+    "security_flags": {
+      "tab_switches": 0,
+      "face_violations": 0
+    },
+    "overall_score": 88,
+    "weak_topics_identified": [
+      "Log Compaction Under High I/O"
+    ]
+  }
+]

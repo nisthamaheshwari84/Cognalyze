@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function PwaProvider({ children }: { children: React.ReactNode }) {
   const [isOnline, setIsOnline] = useState(true);
@@ -151,16 +152,18 @@ export default function PwaProvider({ children }: { children: React.ReactNode })
                 width: 42,
                 height: 42,
                 borderRadius: 10,
-                background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 20,
+                overflow: "hidden",
                 flexShrink: 0,
-                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.4)"
+                boxShadow: "0 4px 12px rgba(21, 44, 76, 0.4)"
               }}
             >
-              ⚡
+              <Image
+                src="/cognalyze-symbol.png"
+                alt="Cognalyze App"
+                width={42}
+                height={42}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div style={{ minWidth: 0 }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -178,13 +181,13 @@ export default function PwaProvider({ children }: { children: React.ReactNode })
               style={{
                 padding: "8px 14px",
                 borderRadius: 8,
-                border: "none",
-                background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
+                border: "1px solid rgba(246, 189, 94, 0.4)",
+                background: "linear-gradient(135deg, #152C4B 0%, #1E3A5F 100%)",
                 color: "#ffffff",
                 fontSize: 12,
                 fontWeight: 700,
                 cursor: "pointer",
-                boxShadow: "0 2px 10px rgba(99, 102, 241, 0.3)",
+                boxShadow: "0 2px 10px rgba(21, 44, 76, 0.3)",
                 minHeight: 36
               }}
             >

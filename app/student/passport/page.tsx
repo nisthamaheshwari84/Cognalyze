@@ -24,7 +24,7 @@ interface ActiveGrant {
 }
 
 export default function StudentPassportPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [shareableLink, setShareableLink] = useState("");
   const [anonymousLink, setAnonymousLink] = useState("");
   const [copied, setCopied] = useState<string | null>(null);

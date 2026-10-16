@@ -6360,6 +6360,9 @@ const CLOUD_PLACEMENT_KEY = "cognalyze_placement_cloud_store";
 function getPlacementStoreFilePath(): string {
   if (typeof window === "undefined") {
     const path = require("path");
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      return path.join("/tmp", "cognalyze-placement-store.json");
+    }
     return path.join(process.cwd(), "data", "placement-store.json");
   }
   return "";

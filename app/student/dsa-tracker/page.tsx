@@ -182,7 +182,7 @@ function DsaTrackerContent() {
   const topicParam = searchParams.get("topic");
   const opportunityParam = searchParams.get("for_opportunity");
 
-  const [studentId, setStudentId] = useState("student-demo");
+  const [studentId, setStudentId] = useState("");
   const [topics, setTopics] = useState<DsaTopic[]>([]);
   const [problems, setProblems] = useState<DsaProblem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -260,7 +260,7 @@ function DsaTrackerContent() {
 
   useEffect(() => {
     async function init() {
-      let activeSId = "student-demo";
+      let activeSId = "";
       try {
         const sessionRes = await fetch("/api/auth/session");
         if (sessionRes.ok) {

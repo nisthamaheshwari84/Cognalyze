@@ -1,1 +1,337 @@
-[]
+[
+  {
+    "id": "d7033d92-e71a-4225-9509-5c87b5bf73c6",
+    "candidateId": "student_a_1792175596044",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-16T18:33:20.223Z",
+    "updatedAt": "2026-10-16T18:33:20.223Z"
+  },
+  {
+    "id": "6298c51a-fbff-44d5-b4c3-2a66c22c6a3e",
+    "candidateId": "student_a_1791928756766",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T21:59:18.296Z",
+    "updatedAt": "2026-10-13T21:59:18.296Z"
+  },
+  {
+    "id": "6880c02a-fa90-41e4-b868-8dd81e6899c2",
+    "candidateId": "student_a_1791924856367",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T20:54:21.762Z",
+    "updatedAt": "2026-10-13T20:54:21.762Z"
+  },
+  {
+    "id": "8ea954a5-415b-4d86-acfa-4583ab146e1d",
+    "candidateId": "student_a_1791922339215",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T20:12:23.448Z",
+    "updatedAt": "2026-10-13T20:12:23.448Z"
+  },
+  {
+    "id": "bb03114d-35c5-4586-a409-dcbd12364ca8",
+    "candidateId": "student_a_1791919885590",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T19:31:26.940Z",
+    "updatedAt": "2026-10-13T19:31:26.940Z"
+  },
+  {
+    "id": "e207b5ac-a094-42bd-993a-c987895d2cf2",
+    "candidateId": "student_a_1791919391965",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T19:23:14.388Z",
+    "updatedAt": "2026-10-13T19:23:14.388Z"
+  },
+  {
+    "id": "916417a7-3d31-46f2-a09a-030be93c7d14",
+    "candidateId": "student_a_1791917816432",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T18:56:57.051Z",
+    "updatedAt": "2026-10-13T18:56:57.051Z"
+  },
+  {
+    "id": "2436d7aa-fe3b-4cd3-8556-19cb4f996a66",
+    "candidateId": "student_a_1791917712758",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T18:55:12.985Z",
+    "updatedAt": "2026-10-13T18:55:12.985Z"
+  },
+  {
+    "id": "992aebc8-7957-4d3b-b239-7911d77b63de",
+    "candidateId": "u-student-sample-001",
+    "fileName": "resume.pdf",
+    "parsedText": "Nistha Maheshwari\nSkills: Python, TypeScript, Docker\nProjects:\nTest Engine | Python, Docker\n- Built test project",
+    "atsScore": 74,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Claimed",
+        "proficiency": "Advanced"
+      },
+      {
+        "name": "TypeScript",
+        "level": "Claimed",
+        "proficiency": "Advanced"
+      },
+      {
+        "name": "Docker",
+        "level": "Claimed",
+        "proficiency": "Intermediate"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Test Engine",
+        "tech_stack": [
+          "Python",
+          "Docker"
+        ],
+        "description": "Built test project"
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-16T18:33:31.545Z",
+    "updatedAt": "2026-10-16T18:33:31.545Z"
+  },
+  {
+    "id": "b1c852b8-26dc-456a-8f7e-c3f15ced6ce2",
+    "candidateId": "student_a_1791914768450",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-10-13T18:06:08.956Z",
+    "updatedAt": "2026-10-13T18:06:08.956Z"
+  }
+]

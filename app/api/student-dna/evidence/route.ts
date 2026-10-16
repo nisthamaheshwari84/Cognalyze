@@ -6,17 +6,17 @@ import { DNASourceType } from "@/lib/dna/evidence-pipeline";
 export async function GET(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
+    if (!auth?.user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Valid student session required." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
-    const paramCandidateId = searchParams.get("candidateId");
     const skillId = searchParams.get("skillId") || undefined;
     const sourceType = (searchParams.get("sourceType") as DNASourceType) || undefined;
-
-    let candidateId = paramCandidateId;
-    if (auth && auth.user && auth.user.accountType === "student") {
-      candidateId = auth.user.id;
-    } else if (!candidateId) {
-      candidateId = auth?.user?.id || "student-demo";
-    }
+    const candidateId = auth.user.id;
 
     const evidence = await getStudentEvidenceList(candidateId, { skillId, sourceType });
 
@@ -35,14 +35,15 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
-    const body = await req.json();
-
-    let candidateId = body.userId || body.candidateId;
-    if (auth && auth.user && auth.user.accountType === "student") {
-      candidateId = auth.user.id;
-    } else if (!candidateId) {
-      candidateId = auth?.user?.id || "student-demo";
+    if (!auth?.user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Valid student session required." },
+        { status: 401 }
+      );
     }
+
+    const body = await req.json();
+    const candidateId = auth.user.id;
 
     const result = await addStudentEvidenceRecord(candidateId, {
       ...body,
@@ -67,6 +68,13 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
+    if (!auth?.user) {
+      return NextResponse.json(
+        { success: false, error: "Unauthorized. Valid student session required." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const sourceType = searchParams.get("sourceType") as DNASourceType;
 
@@ -74,13 +82,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing sourceType query parameter." }, { status: 400 });
     }
 
-    let candidateId = searchParams.get("candidateId");
-    if (auth && auth.user && auth.user.accountType === "student") {
-      candidateId = auth.user.id;
-    } else if (!candidateId) {
-      candidateId = auth?.user?.id || "student-demo";
-    }
-
+    const candidateId = auth.user.id;
     const result = await retractEvidenceBySource(candidateId, sourceType);
 
     return NextResponse.json({

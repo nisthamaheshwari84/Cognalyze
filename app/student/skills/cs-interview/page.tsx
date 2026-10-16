@@ -18,7 +18,7 @@ import SessionBriefModal from "@/components/skills/SessionBriefModal";
 
 function CSInterviewContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
   const [mode, setMode] = useState<"learn" | "practice" | "coach" | "interview" | "bank">("interview");
@@ -89,16 +89,28 @@ function CSInterviewContent() {
   };
 
   useEffect(() => {
-    const storedId = searchParams.get("candidateId") || localStorage.getItem("cognalyze_student_id") || "student-demo";
-    setCandidateId(storedId);
+    async function resolveUser() {
+      let storedId = searchParams.get("candidateId") || "";
+      try {
+        const sessRes = await fetch("/api/auth/session");
+        if (sessRes.ok) {
+          const sess = await sessRes.json();
+          if (sess.authenticated && sess.user?.id) {
+            storedId = sess.user.id;
+          }
+        }
+      } catch {}
+      setCandidateId(storedId);
 
-    const paramTrack = searchParams.get("track") as any;
-    const initialTrack = paramTrack || "product_mid";
-    setTrackSlug(initialTrack);
+      const paramTrack = searchParams.get("track") as any;
+      const initialTrack = paramTrack || "product_mid";
+      setTrackSlug(initialTrack);
 
-    // Generate Session Brief
-    const brief = generateSessionBrief(initialTrack, "cs_fundamentals", storedId);
-    setSessionBrief(brief);
+      // Generate Session Brief
+      const brief = generateSessionBrief(initialTrack, "cs_fundamentals", storedId);
+      setSessionBrief(brief);
+    }
+    resolveUser();
 
     // Initialize Web Speech API for voice dictation
     if (typeof window !== "undefined") {

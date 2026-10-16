@@ -17,7 +17,7 @@ import { getAdaptiveRecommendation } from "@/lib/skills/candidate-history";
 import AppNav from "@/components/AppNav";
 
 export default function SkillPracticeHubPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [allTracks, setAllTracks] = useState<CompanyTrack[]>([]);
   const [selectedTrackSlug, setSelectedTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
   const [domains, setDomains] = useState<SkillDomain[]>([]);
@@ -77,7 +77,7 @@ export default function SkillPracticeHubPage() {
       } catch (e) {
         // Fallback
       }
-      fetchTracksAndDomains("student-demo");
+      fetchTracksAndDomains("");
     }
     initUser();
   }, []);

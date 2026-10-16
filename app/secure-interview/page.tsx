@@ -335,6 +335,7 @@ export default function SecureInterviewPage() {
   const sessionStartRef = useRef(Date.now());
   const lastQuestionRef = useRef("");
   const inputTypingStartRef = useRef<number | null>(null);
+  const isSubmittingRef = useRef(false);
   const faceIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Mutable refs for proctoring (avoid stale closures)
   const tabSwitchesRef = useRef(0);
@@ -794,8 +795,11 @@ export default function SecureInterviewPage() {
   // ══ SEND ══
   const send = async (text?: string) => {
     const content = (text || input).trim();
-    if (!content || loading || ended) return;
-    await analyzeForAI(content);
+    if (!content || loading || ended || isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
+    // Run AI proctoring check in background without delaying turn
+    analyzeForAI(content).catch(() => {});
     setInput("");
     const newQ = qNumRef.current + 1;
     qNumRef.current = newQ;
@@ -806,16 +810,22 @@ export default function SecureInterviewPage() {
     const updated = [...msgsRef.current, userMsg];
     msgsRef.current = updated;
     setMsgs([...updated]);
-    // Score
+    // Score async in background
     setScoring(true);
     fetch("/api/interview-score", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: updated.map(m => ({ role: m.role, content: m.content })), jd: jdRef.current, resume: resumeRef.current })
     }).then(r => r.ok ? r.json() : null).then(d => { if (d) setScore({ ...d }); }).catch(() => {}).finally(() => setScoring(false));
+
     setLoading(true);
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), 15000);
+
     try {
       const res = await fetch("/api/interview-chat", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-correlation-id": `sec-${Date.now()}` },
+        signal: abortController.signal,
         body: JSON.stringify({
           messages: updated.map(m => ({ role: m.role, content: m.content })),
           jd: jdRef.current,
@@ -825,6 +835,8 @@ export default function SecureInterviewPage() {
           linkedinAnalysis: linkedinRef.current
         })
       });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
       const d = await res.json();
       lastQuestionRef.current = d.message;
       const aiMsg: Msg = { role: "assistant", content: d.message, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
@@ -832,8 +844,21 @@ export default function SecureInterviewPage() {
       msgsRef.current = final;
       setMsgs([...final]);
       if (modeRef.current === "voice") speakText(d.message);
-    } catch {}
-    setLoading(false);
+    } catch (err) {
+      console.error("[SECURE INTERVIEW] Error getting response:", err);
+      const fallbackMsg: Msg = {
+        role: "assistant",
+        content: "Understood. Building on what you just described, how did you validate your approach and ensure it meets performance requirements?",
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      };
+      const final = [...updated, fallbackMsg];
+      msgsRef.current = final;
+      setMsgs([...final]);
+    } finally {
+      clearTimeout(timeoutId);
+      setLoading(false);
+      isSubmittingRef.current = false;
+    }
   };
 
   // ══ VOICE ══

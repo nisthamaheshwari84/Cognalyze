@@ -50,7 +50,7 @@ interface EvidenceNode {
 }
 
 export default function EvidenceHubPage() {
-  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [candidateId, setCandidateId] = useState<string>("");
   const [intelligence, setIntelligence] = useState<StudentDNAProfile | null>(null);
   const [dossier, setDossier] = useState<ClaimVerificationDossier | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -79,18 +79,27 @@ export default function EvidenceHubPage() {
     try {
       const sessRes = await fetch("/api/auth/session");
       const sess = await sessRes.json();
-      const cId = sess.authenticated && sess.user?.id ? sess.user.id : "student-demo";
+      if (!sess.authenticated || !sess.user?.id) {
+        setCandidateId("");
+        setIntelligence(null);
+        setDossier(null);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
+
+      const cId = sess.user.id;
       setCandidateId(cId);
 
-      const profile = getStudentIntelligenceProfile(cId);
-      setIntelligence(profile);
-
-      // Fetch Evidence API which returns full ClaimVerificationDossier
+      // Fetch Evidence API which returns full ClaimVerificationDossier and isolated intelligence
       const evRes = await fetch(`/api/student/evidence?candidateId=${cId}${refresh ? "&refresh=true" : ""}`);
       if (evRes.ok) {
         const evData = await evRes.json();
         if (evData.dossier) {
           setDossier(evData.dossier);
+        }
+        if (evData.profile) {
+          setIntelligence(evData.profile);
         }
       }
 

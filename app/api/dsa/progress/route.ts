@@ -5,23 +5,25 @@ import {
   getStudentDsaProgress,
   updateDsaProblemProgress
 } from "@/lib/dsa-store";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const { searchParams } = new URL(req.url);
-    const studentId = searchParams.get("studentId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("studentId") === "student-demo" ? "student-demo" : null);
     const topicId = searchParams.get("topicId") || undefined;
 
     const [topics, problems, progressMap] = await Promise.all([
       getAllTopics(),
       getAllProblems(topicId),
-      getStudentDsaProgress(studentId)
+      studentId ? getStudentDsaProgress(studentId) : Promise.resolve<Record<string, any>>({})
     ]);
 
     const enrichedProblems = problems.map(prob => ({
       ...prob,
       progress: progressMap[prob.id] || {
-        student_id: studentId,
+        student_id: studentId || "",
         problem_id: prob.id,
         status: "unsolved",
         review_count: 0,
@@ -31,7 +33,7 @@ export async function GET(req: Request) {
     }));
 
     return NextResponse.json({
-      student_id: studentId,
+      student_id: studentId || "",
       topics,
       problems: enrichedProblems
     });
@@ -43,9 +45,15 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const auth = await getAuthenticatedContext(req as any);
     const body = await req.json();
+    const studentId = auth?.user?.id || (body.studentId === "student-demo" ? "student-demo" : null);
+
+    if (!studentId) {
+      return NextResponse.json({ error: "Unauthorized. Please sign in to save problem progress." }, { status: 401 });
+    }
+
     const {
-      studentId = "student-demo",
       problemId,
       status,
       timeSpentSeconds,

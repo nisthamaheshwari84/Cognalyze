@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Offline • Cognalyze</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
   <style>
     * {
       box-sizing: border-box;
@@ -84,25 +87,25 @@
       width: 100%;
       padding: 12px 20px;
       border-radius: 8px;
-      border: none;
-      background: #356AE6;
+      border: 1px solid rgba(246, 189, 94, 0.4);
+      background: linear-gradient(135deg, #152C4B 0%, #1E3A5F 100%);
       color: #FFFFFF;
       font-size: 14px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(53, 106, 230, 0.25);
+      box-shadow: 0 4px 14px rgba(21, 44, 76, 0.25);
       transition: all 0.15s ease;
     }
     .retry-btn:hover {
-      background: #2858C7;
-      box-shadow: 0 4px 12px rgba(53, 106, 230, 0.35);
+      background: linear-gradient(135deg, #11243E 0%, #162E4D 100%);
+      box-shadow: 0 6px 18px rgba(21, 44, 76, 0.35);
     }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="badge">📡 Network Disconnected</div>
-    <div class="icon">⚡</div>
+    <img src="/cognalyze-symbol.png" alt="Cognalyze" style="width: 64px; height: 64px; margin: 0 auto 1.25rem auto; display: block; border-radius: 14px; box-shadow: 0 8px 24px rgba(21, 44, 76, 0.2);" />
     <h1>You're Currently Offline</h1>
     <p>
       Cognalyze requires active internet access to stream real-time AI mock interviews, GD counter-debates, and live council evaluations.

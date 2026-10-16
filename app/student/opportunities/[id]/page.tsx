@@ -162,7 +162,7 @@ export default function OpportunityDetailPage({
   const opportunityId = resolvedParams.id;
 
   const [opportunity, setOpportunity] = useState<any>(null);
-  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [candidateId, setCandidateId] = useState<string>("");
   const [projects, setProjects] = useState<ProjectCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);

@@ -17,6 +17,7 @@ import {
   FileCheck
 } from "lucide-react";
 import { Button, Badge, Card, WhyDisclosure } from "@/components/ui/design-system";
+import CognalyzeLogo from "@/components/CognalyzeLogo";
 
 export default function Home() {
   const router = useRouter();
@@ -62,41 +63,52 @@ export default function Home() {
   const handleSelect = async (section: "student" | "recruiter" | "post") => {
     if (loadingSection !== null) return;
     setLoadingSection(section);
-    try {
-      if (section === "post") {
-        router.push("/post");
-        return;
-      }
 
+    // Safety timeout: Never leave the UI stuck in loading state
+    const resetTimer = setTimeout(() => {
+      setLoadingSection(null);
+    }, 1500);
+
+    const targetUrl =
+      section === "post"
+        ? "/post"
+        : section === "student"
+        ? "/student/dashboard"
+        : "/recruiter/dashboard";
+
+    // Non-blocking background preference update
+    try {
       if (section === "recruiter") {
-        // Initialize partner recruiter preview session if not already in recruiter mode
-        const demoRes = await fetch("/api/auth/demo", {
+        fetch("/api/auth/demo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role: "recruiter" }),
-        });
-        if (demoRes.ok) {
-          router.push("/recruiter/dashboard");
-          return;
-        }
-      }
-
-      await fetch("/api/auth/role", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ role: section }),
-      });
-
-      if (section === "student") {
-        router.push("/student/dashboard");
+          signal: AbortSignal.timeout(800),
+        }).catch(() => {});
       } else {
-        router.push("/recruiter/dashboard");
+        fetch("/api/auth/role", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ role: section }),
+          signal: AbortSignal.timeout(800),
+        }).catch(() => {});
       }
+    } catch {}
+
+    // Immediate navigation with hard navigation fallback if router stalls
+    try {
+      router.push(targetUrl);
+      setTimeout(() => {
+        if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
+          window.location.assign(targetUrl);
+        }
+      }, 350);
     } catch {
-      if (section === "post") router.push("/post");
-      else if (section === "student") router.push("/student/dashboard");
-      else router.push("/recruiter/dashboard");
+      if (typeof window !== "undefined") {
+        window.location.assign(targetUrl);
+      }
     } finally {
+      clearTimeout(resetTimer);
       setTimeout(() => setLoadingSection(null), 1200);
     }
   };
@@ -125,27 +137,9 @@ export default function Home() {
         }}
       >
         <div style={{ maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 6,
-                backgroundColor: "#162A43",
-                color: "#FFFFFF",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: 800,
-                fontSize: 14,
-              }}
-            >
-              C
-            </div>
-            <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: "-0.4px", color: "#162A43" }}>
-              COGNALYZE
-            </span>
-          </div>
+          <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
+            <CognalyzeLogo variant="horizontal" size={30} priority />
+          </Link>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Link href="/post" style={{ textDecoration: "none" }}>
@@ -779,7 +773,8 @@ export default function Home() {
       {/* ── FOOTER ── */}
       <footer style={{ borderTop: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "32px 24px", textAlign: "center", fontSize: 12, color: "#98A2B3" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <CognalyzeLogo variant="symbol-only" size={22} />
             <span style={{ fontWeight: 700, color: "#162A43" }}>COGNALYZE</span>
             <span>• Evidence-first Career & Hiring Intelligence</span>
           </div>

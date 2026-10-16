@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const auth = await getAuthenticatedContext(request);
     const { searchParams } = new URL(request.url);
 
-    const studentId = auth?.user?.id || searchParams.get("studentId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("studentId") === "student-demo" ? "student-demo" : null);
     const searchQuery = searchParams.get("searchQuery") || undefined;
     const roleCategory = searchParams.get("roleCategory") || undefined;
     const remoteType = (searchParams.get("remoteType") as RemoteType) || undefined;
@@ -30,6 +30,27 @@ export async function GET(request: NextRequest) {
       recommendationTier,
       deadlineClosingSoon: closingSoon,
     };
+
+    if (!studentId) {
+      return NextResponse.json({
+        success: true,
+        summary: {
+          totalMatches: 0,
+          topRecommendationsCount: 0,
+          closingSoonCount: 0,
+          highestMatchPercentage: 0,
+        },
+        categorized: {
+          topRecommendations: [],
+          strongMatches: [],
+          potentialMatches: [],
+          closingSoon: [],
+        },
+        allMatches: [],
+        preferences: null,
+        studentContext: null,
+      });
+    }
 
     const feed = await opportunityService.getPersonalizedFeed(studentId, {
       filters,

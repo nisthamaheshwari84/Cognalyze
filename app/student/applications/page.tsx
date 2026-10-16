@@ -25,7 +25,7 @@ const STAGES: Array<"Bookmarked" | "Applied" | "Interviewing" | "Offer" | "Rejec
 
 export default function StudentApplicationsPage() {
   const { isDark } = useTheme();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);

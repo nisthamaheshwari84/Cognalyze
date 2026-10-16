@@ -63,7 +63,7 @@ function formatTimeAgo(isoDate: string): string {
 }
 
 export default function StudentOpportunitiesPage() {
-  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [candidateId, setCandidateId] = useState<string>("");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [applicationsMap, setApplicationsMap] = useState<Record<string, ApplicationInfo>>({});
   const [loading, setLoading] = useState(true);

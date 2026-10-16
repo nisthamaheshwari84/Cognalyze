@@ -47,8 +47,19 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/internal/opportunities") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/images/") ||
+    pathname.startsWith("/icons/") ||
     pathname.startsWith("/models/") ||
     pathname.startsWith("/wasm/") ||
+    pathname.startsWith("/cognalyze-") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".ico") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".jpg") ||
+    pathname.endsWith(".jpeg") ||
+    pathname.endsWith(".webp") ||
+    pathname === "/manifest.json" ||
+    pathname === "/offline.html" ||
+    pathname === "/sw.js" ||
     pathname === "/favicon.ico";
 
   // ─── 2. RECRUITER ROUTES: NEVER ALLOW GUEST ACCESS ─────────────────────────

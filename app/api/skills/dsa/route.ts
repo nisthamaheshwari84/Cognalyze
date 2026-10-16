@@ -29,13 +29,15 @@ import {
   getStudentDsaFocus
 } from "@/lib/skills/candidate-history";
 import { generatePostSessionFeedback } from "@/lib/skills/adaptive-engine";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 // ── 1. GET ENDPOINT ─────────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : "");
     const mode = searchParams.get("mode"); // "roadmap" | "interview_set" | "retest" | "focus"
     const problemId = searchParams.get("id") || searchParams.get("problemId");
     const stepId = searchParams.get("stepId");
@@ -291,17 +293,18 @@ function evaluateCompiledSyntax(
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const body = await req.json();
     const effectiveAction = body.action || (body.mode === "submit" ? "submit" : body.mode === "run" ? "run" : undefined) || "run";
     const {
       problemId,
       code = "",
       language = "python",
-      candidateId = "student-demo",
       trackSlug = "product_mid",
       timeSpentSeconds = 180,
       isInterview = false
     } = body;
+    const candidateId = auth?.user?.id || (body.candidateId === "student-demo" ? "student-demo" : body.candidateId || "guest");
     const action = effectiveAction;
 
     const problem: StriverProblemFull = getStriverProblemById(problemId);

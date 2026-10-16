@@ -1,107 +1,5 @@
 [
   {
-    "id": "manual-import-1791135440300-jvg3el",
-    "source": "Admin Import (IIT Delhi Tryst)",
-    "sourceType": "ADMIN_IMPORT",
-    "sourceId": "manual-import-1791135440300-jvg3el",
-    "sourceUrl": "https://tryst-iitd.org/events/drone-hack",
-    "applicationUrl": "https://tryst-iitd.org/events/drone-hack",
-    "companyId": "org-iit-delhi-tryst",
-    "companyName": "IIT Delhi Tryst",
-    "organizer": "IIT Delhi Tryst",
-    "companyType": "enterprise",
-    "title": "IIT Delhi Tryst 2026 Autonomous Drone Hackathon",
-    "normalizedTitle": "IIT Delhi Tryst 2026 Autonomous Drone Hackathon",
-    "opportunityType": "HACKATHON",
-    "description": "Emergency manual import for IIT Delhi annual tech symposium hackathon.",
-    "rawDescription": "Emergency manual import for IIT Delhi annual tech symposium hackathon.",
-    "responsibilities": [
-      "Review guidelines and submit direct application before deadline"
-    ],
-    "location": "India",
-    "country": "India",
-    "city": "National Virtual",
-    "remoteType": "hybrid",
-    "employmentType": "internship",
-    "experienceLevel": "intern",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "All Degrees"
-      ],
-      "fieldsAllowed": [
-        "All Disciplines"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "currentlyEnrolledRequired": false,
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Python",
-      "ROS",
-      "Computer Vision"
-    ],
-    "preferredSkills": [],
-    "technologies": [
-      "Python",
-      "ROS",
-      "Computer Vision"
-    ],
-    "domains": [
-      "Curated Opportunity"
-    ],
-    "tags": [
-      "Python",
-      "ROS",
-      "Computer Vision"
-    ],
-    "eligibilityRequirements": [
-      "Open to eligible students"
-    ],
-    "disqualifiers": [],
-    "teamSize": "Individual / Team",
-    "postedAt": "2026-10-04T17:37:20.300Z",
-    "updatedAt": "2026-10-04T17:57:53.683Z",
-    "deadline": "2026-11-15T23:59:59Z",
-    "status": "ACTIVE",
-    "freshness": "FRESH",
-    "roleDNA": {
-      "roleCategory": "Admin Verified Opportunity",
-      "mustHaveSkills": [
-        "Python",
-        "ROS",
-        "Computer Vision"
-      ],
-      "preferredSkills": [],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to eligible students",
-      "graduationWindow": "Any",
-      "locationMode": "hybrid",
-      "disqualifiers": []
-    },
-    "createdAt": "2026-10-04T17:37:20.300Z",
-    "lastFetchedAt": "2026-10-04T17:57:53.682Z",
-    "lastVerifiedAt": "2026-10-04T17:57:53.683Z",
-    "contentHash": "admin-manual-import-1791135440300-jvg3el-2026-11-15T23:59:59Z",
-    "rawSourceData": {
-      "importedBy": "admin",
-      "importedAt": "2026-10-04T17:37:20.300Z",
-      "isManualEmergencyFallback": true
-    },
-    "sourceInstances": [
-      {
-        "source": "Admin Import (IIT Delhi Tryst)",
-        "sourceType": "ADMIN_IMPORT",
-        "sourceUrl": "https://tryst-iitd.org/events/drone-hack",
-        "applicationUrl": "https://tryst-iitd.org/events/drone-hack",
-        "retrievedAt": "2026-10-04T17:57:53.682Z",
-        "lastVerifiedAt": "2026-10-04T17:57:53.682Z"
-      }
-    ]
-  },
-  {
     "id": "unstop-retained-opp",
     "source": "Unstop",
     "sourceType": "UNSTOP",
@@ -141,9 +39,9 @@
     "preferredSkills": [],
     "eligibilityRequirements": [],
     "disqualifiers": [],
-    "postedAt": "2026-10-04T17:36:30.281Z",
-    "updatedAt": "2026-10-04T17:36:30.281Z",
-    "deadline": "2026-10-14T17:36:30.281Z",
+    "postedAt": "2026-10-13T20:54:23.603Z",
+    "updatedAt": "2026-10-13T20:54:23.603Z",
+    "deadline": "2026-10-23T20:54:23.603Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
     "roleDNA": {
@@ -159,16 +57,16 @@
       "locationMode": "remote",
       "disqualifiers": []
     },
-    "createdAt": "2026-10-04T17:36:30.281Z",
-    "lastVerifiedAt": "2026-10-04T17:36:30.281Z",
+    "createdAt": "2026-10-13T20:54:23.603Z",
+    "lastVerifiedAt": "2026-10-13T20:54:23.603Z",
     "sourceInstances": [
       {
         "source": "Unstop",
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/valid-opp",
         "applicationUrl": "https://unstop.com/valid-opp/apply",
-        "retrievedAt": "2026-10-04T17:36:30.281Z",
-        "lastVerifiedAt": "2026-10-04T17:36:30.281Z"
+        "retrievedAt": "2026-10-13T20:54:23.603Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.603Z"
       }
     ]
   },
@@ -266,9 +164,9 @@
     ],
     "teamSize": "2 - 3 Members",
     "prize": "₹5,25,000 Cash Pool + Direct SDE-1 PPIs (CTC ₹32 LPA)",
-    "postedAt": "2026-10-01T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-18T18:13:59.098Z",
+    "postedAt": "2026-10-13T19:13:35.184Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-30T19:13:35.184Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -291,10 +189,10 @@
         "Prior disqualification"
       ]
     },
-    "createdAt": "2026-10-01T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "unstop-unstop-flipkart-grid-7-2026-10-18T18:13:59.098Z",
+    "createdAt": "2026-10-13T19:13:35.184Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.273Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "unstop-unstop-flipkart-grid-7-2026-10-30T19:13:35.184Z",
     "rawSourceData": {
       "platform": "Unstop",
       "tier": "Tier 1",
@@ -306,8 +204,8 @@
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
         "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70-software-development-track-flipkart-1092341",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.273Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.273Z"
       }
     ]
   },
@@ -403,9 +301,9 @@
     ],
     "teamSize": "Individual",
     "prize": "₹3,00,000 Cash Prize + Direct PPIs for SDE-1 (CTC ₹24-30 LPA)",
-    "postedAt": "2026-10-02T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-24T18:13:59.098Z",
+    "postedAt": "2026-10-14T19:13:35.184Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-05T19:13:35.184Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
     "roleDNA": {
@@ -428,10 +326,10 @@
         "Prior disqualification"
       ]
     },
-    "createdAt": "2026-10-02T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "unstop-unstop-walmart-codehers-2026-2026-10-24T18:13:59.098Z",
+    "createdAt": "2026-10-14T19:13:35.184Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.273Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "unstop-unstop-walmart-codehers-2026-2026-11-05T19:13:35.184Z",
     "rawSourceData": {
       "platform": "Unstop",
       "tier": "Tier 1",
@@ -443,8 +341,8 @@
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
         "applicationUrl": "https://unstop.com/hackathons/walmart-codehers-2026-walmart-global-tech-india-982143",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.273Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.273Z"
       }
     ]
   },
@@ -540,9 +438,9 @@
     ],
     "teamSize": "2 - 4 Members",
     "prize": "₹10,00,000 Grand Prize Pool + Incubation & Mentorship",
-    "postedAt": "2026-09-28T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-22T18:13:59.098Z",
+    "postedAt": "2026-10-10T19:13:35.184Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-03T19:13:35.184Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -565,10 +463,10 @@
         "Prior disqualification"
       ]
     },
-    "createdAt": "2026-09-28T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "unstop-unstop-tata-crucible-hackathon-2026-10-22T18:13:59.098Z",
+    "createdAt": "2026-10-10T19:13:35.184Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.274Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "unstop-unstop-tata-crucible-hackathon-2026-11-03T19:13:35.184Z",
     "rawSourceData": {
       "platform": "Unstop",
       "tier": "Tier 1",
@@ -580,8 +478,8 @@
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
         "applicationUrl": "https://unstop.com/hackathons/tata-crucible-campus-hackathon-2026-tata-group-110294",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.274Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.274Z"
       }
     ]
   },
@@ -677,9 +575,9 @@
     ],
     "teamSize": "2 - 4 Members",
     "prize": "₹7,50,000 + AWS Cloud Credits ($10,000) + Interview Fast-track",
-    "postedAt": "2026-09-30T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-29T18:13:59.098Z",
+    "postedAt": "2026-10-12T19:13:35.184Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-10T19:13:35.184Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -702,10 +600,10 @@
         "Prior disqualification"
       ]
     },
-    "createdAt": "2026-09-30T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "unstop-unstop-amazon-sambhav-hackathon-2026-10-29T18:13:59.098Z",
+    "createdAt": "2026-10-12T19:13:35.184Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.274Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "unstop-unstop-amazon-sambhav-hackathon-2026-11-10T19:13:35.184Z",
     "rawSourceData": {
       "platform": "Unstop",
       "tier": "Tier 1",
@@ -717,8 +615,8 @@
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
         "applicationUrl": "https://unstop.com/hackathons/amazon-sambhav-entrepreneurship-hackathon-amazon-india-119482",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.274Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.274Z"
       }
     ]
   },
@@ -807,9 +705,9 @@
     ],
     "teamSize": "1 - 5 Members",
     "prize": "$1,000,000 Total Prize Pool + Custom Electric DeLorean Winner Car",
-    "postedAt": "2026-09-29T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-25T18:13:59.098Z",
+    "postedAt": "2026-10-11T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-06T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -833,10 +731,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-09-29T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "devpost-devpost-gemini-developer-challenge-2026-10-25T18:13:59.098Z",
+    "createdAt": "2026-10-11T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "devpost-devpost-gemini-developer-challenge-2026-11-06T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Devpost",
       "tier": "Tier 1",
@@ -848,8 +746,8 @@
         "sourceType": "DEVPOST",
         "sourceUrl": "https://gemini.devpost.com",
         "applicationUrl": "https://gemini.devpost.com",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -938,9 +836,9 @@
     ],
     "teamSize": "1 - 4 Members",
     "prize": "$50,000 Cash + $20,000 AWS Promotional Credits",
-    "postedAt": "2026-09-27T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-20T18:13:59.098Z",
+    "postedAt": "2026-10-09T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-01T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -964,10 +862,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-09-27T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "devpost-devpost-aws-serverless-hackathon-2026-10-20T18:13:59.098Z",
+    "createdAt": "2026-10-09T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "devpost-devpost-aws-serverless-hackathon-2026-11-01T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Devpost",
       "tier": "Tier 1",
@@ -979,8 +877,8 @@
         "sourceType": "DEVPOST",
         "sourceUrl": "https://aws-serverless-2026.devpost.com",
         "applicationUrl": "https://aws-serverless-2026.devpost.com",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1067,9 +965,9 @@
     ],
     "teamSize": "1 - 4 Members",
     "prize": "$1,000,000 in Prizes & Seed Capital Investment Tracks",
-    "postedAt": "2026-09-24T18:13:59.098Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-16T18:13:59.098Z",
+    "postedAt": "2026-10-06T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-28T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1092,10 +990,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-09-24T18:13:59.098Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "devpost-devpost-solana-renaissance-2026-10-16T18:13:59.098Z",
+    "createdAt": "2026-10-06T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "devpost-devpost-solana-renaissance-2026-10-28T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Devpost",
       "tier": "Tier 1",
@@ -1107,8 +1005,8 @@
         "sourceType": "DEVPOST",
         "sourceUrl": "https://solana.devpost.com",
         "applicationUrl": "https://solana.devpost.com",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1194,9 +1092,9 @@
     ],
     "teamSize": "1 - 5 Members",
     "prize": "$150,000+ Sponsor Bounties + Travel Grants",
-    "postedAt": "2026-09-30T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-23T18:13:59.099Z",
+    "postedAt": "2026-10-12T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-04T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1219,10 +1117,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-09-30T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "devfolio-devfolio-ethindia-2026-2026-10-23T18:13:59.099Z",
+    "createdAt": "2026-10-12T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "devfolio-devfolio-ethindia-2026-2026-11-04T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Devfolio",
       "tier": "Tier 1",
@@ -1234,8 +1132,8 @@
         "sourceType": "DEVFOLIO",
         "sourceUrl": "https://ethindia.devfolio.co",
         "applicationUrl": "https://ethindia.devfolio.co",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1322,9 +1220,9 @@
     ],
     "teamSize": "2 - 4 Members",
     "prize": "₹3,50,000 Prize Pool + Cloud Credits & Swag",
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-15T18:13:59.099Z",
+    "postedAt": "2026-10-14T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-27T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
     "roleDNA": {
@@ -1347,10 +1245,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-10-02T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "devfolio-devfolio-hackout-2026-2026-10-15T18:13:59.099Z",
+    "createdAt": "2026-10-14T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "devfolio-devfolio-hackout-2026-2026-10-27T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Devfolio",
       "tier": "Tier 2",
@@ -1362,8 +1260,8 @@
         "sourceType": "DEVFOLIO",
         "sourceUrl": "https://hackout-2026.devfolio.co",
         "applicationUrl": "https://hackout-2026.devfolio.co",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1450,9 +1348,9 @@
     ],
     "teamSize": "1 - 4 Members",
     "prize": "$50,000+ in Grand Prizes, Sponsor Bounties, and Travel Grants",
-    "postedAt": "2026-09-28T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-19T18:13:59.099Z",
+    "postedAt": "2026-10-10T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-31T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1476,10 +1374,10 @@
         "MLH code of conduct violation"
       ]
     },
-    "createdAt": "2026-09-28T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "mlh-mlh-hackmit-2026-2026-10-19T18:13:59.099Z",
+    "createdAt": "2026-10-10T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "mlh-mlh-hackmit-2026-2026-10-31T19:13:35.185Z",
     "rawSourceData": {
       "platform": "MLH",
       "tier": "Tier 1",
@@ -1491,8 +1389,8 @@
         "sourceType": "MLH",
         "sourceUrl": "https://hackmit.org",
         "applicationUrl": "https://hackmit.org",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1577,9 +1475,9 @@
     ],
     "teamSize": "2 - 4 Members",
     "prize": "$100,000+ Total Prize Pool + Silicon Valley Incubator Fast-Tracks",
-    "postedAt": "2026-09-26T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-26T18:13:59.099Z",
+    "postedAt": "2026-10-08T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-07T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1602,10 +1500,10 @@
         "MLH code of conduct violation"
       ]
     },
-    "createdAt": "2026-09-26T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "mlh-mlh-calhacks-12-2026-10-26T18:13:59.099Z",
+    "createdAt": "2026-10-08T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.278Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "mlh-mlh-calhacks-12-2026-11-07T19:13:35.185Z",
     "rawSourceData": {
       "platform": "MLH",
       "tier": "Tier 1",
@@ -1617,8 +1515,8 @@
         "sourceType": "MLH",
         "sourceUrl": "https://calhacks.io",
         "applicationUrl": "https://calhacks.io",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.278Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.278Z"
       }
     ]
   },
@@ -1710,9 +1608,9 @@
     ],
     "teamSize": "1 - 3 Members",
     "prize": "₹6,00,000 Cash Prize + Google Cloud Credits ($5,000 / team)",
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-21T18:13:59.099Z",
+    "postedAt": "2026-10-13T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-02T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1736,10 +1634,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-10-01T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "h2s-h2s-google-cloud-genai-2026-2026-10-21T18:13:59.099Z",
+    "createdAt": "2026-10-13T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "h2s-h2s-google-cloud-genai-2026-2026-11-02T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Hack2Skill",
       "tier": "Tier 1",
@@ -1751,8 +1649,8 @@
         "sourceType": "HACK2SKILL",
         "sourceUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
         "applicationUrl": "https://hack2skill.com/hack/google-cloud-genai-sprint",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.279Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.279Z"
       }
     ]
   },
@@ -1843,9 +1741,9 @@
     ],
     "teamSize": "1 - 4 Members",
     "prize": "₹4,00,000 Prize Pool + Fast-Track Intel Internship Interviews",
-    "postedAt": "2026-09-29T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-17T18:13:59.099Z",
+    "postedAt": "2026-10-11T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-29T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -1868,10 +1766,10 @@
         "Rule violations"
       ]
     },
-    "createdAt": "2026-09-29T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.988Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "h2s-h2s-intel-oneapi-hackathon-2026-10-17T18:13:59.099Z",
+    "createdAt": "2026-10-11T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "h2s-h2s-intel-oneapi-hackathon-2026-10-29T19:13:35.185Z",
     "rawSourceData": {
       "platform": "Hack2Skill",
       "tier": "Tier 1",
@@ -1883,8 +1781,8 @@
         "sourceType": "HACK2SKILL",
         "sourceUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
         "applicationUrl": "https://hack2skill.com/hack/intel-oneapi-challenge-2026",
-        "retrievedAt": "2026-10-04T18:26:28.988Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.988Z"
+        "retrievedAt": "2026-10-16T19:14:23.279Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.279Z"
       }
     ]
   },
@@ -1975,9 +1873,9 @@
     ],
     "teamSize": "2 - 4 Members",
     "prize": "₹6,00,000 Cash Pool + Techfest Trophy + Research Fast-Track",
-    "postedAt": "2026-09-29T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-24T18:13:59.099Z",
+    "postedAt": "2026-10-11T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-05T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -2000,10 +1898,10 @@
         "Disciplinary probation"
       ]
     },
-    "createdAt": "2026-09-29T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "iit-iit-bombay-techfest-hack-2026-10-24T18:13:59.099Z",
+    "createdAt": "2026-10-11T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "iit-iit-bombay-techfest-hack-2026-11-05T19:13:35.185Z",
     "rawSourceData": {
       "institution": "IIT Bombay",
       "tier": "Tier 1",
@@ -2015,8 +1913,8 @@
         "sourceType": "IIT",
         "sourceUrl": "https://techfest.org/competitions/international-hackathon",
         "applicationUrl": "https://techfest.org/competitions/international-hackathon",
-        "retrievedAt": "2026-10-04T18:26:28.989Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+        "retrievedAt": "2026-10-16T19:14:23.279Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.279Z"
       }
     ]
   },
@@ -2108,9 +2006,9 @@
     ],
     "teamSize": "1 - 3 Members",
     "prize": "₹3,00,000 Cash Awards + Certificate of Excellence",
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-19T18:13:59.099Z",
+    "postedAt": "2026-10-13T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-31T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -2134,10 +2032,10 @@
         "Disciplinary probation"
       ]
     },
-    "createdAt": "2026-10-01T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "iit-iit-madras-shaastra-ctf-2026-10-19T18:13:59.099Z",
+    "createdAt": "2026-10-13T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "iit-iit-madras-shaastra-ctf-2026-10-31T19:13:35.185Z",
     "rawSourceData": {
       "institution": "IIT Madras",
       "tier": "Tier 1",
@@ -2149,8 +2047,8 @@
         "sourceType": "IIT",
         "sourceUrl": "https://shaastra.org/events/cybersecurity-ctf",
         "applicationUrl": "https://shaastra.org/events/cybersecurity-ctf",
-        "retrievedAt": "2026-10-04T18:26:28.989Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+        "retrievedAt": "2026-10-16T19:14:23.279Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.279Z"
       }
     ]
   },
@@ -2238,9 +2136,9 @@
     ],
     "teamSize": "Individual",
     "prize": "₹2,500 / week Research Fellowship Stipend + Free Campus Accommodation",
-    "postedAt": "2026-09-27T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-11-01T18:13:59.099Z",
+    "postedAt": "2026-10-09T19:13:35.185Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-13T19:13:35.185Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
     "roleDNA": {
@@ -2263,10 +2161,10 @@
         "Disciplinary probation"
       ]
     },
-    "createdAt": "2026-09-27T18:13:59.099Z",
-    "lastFetchedAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "contentHash": "iit-iit-roorkee-spark-internship-2026-11-01T18:13:59.099Z",
+    "createdAt": "2026-10-09T19:13:35.185Z",
+    "lastFetchedAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "contentHash": "iit-iit-roorkee-spark-internship-2026-11-13T19:13:35.185Z",
     "rawSourceData": {
       "institution": "IIT Roorkee",
       "tier": "Tier 1",
@@ -2278,8 +2176,1273 @@
         "sourceType": "IIT",
         "sourceUrl": "https://spark.iitr.ac.in",
         "applicationUrl": "https://spark.iitr.ac.in/apply",
-        "retrievedAt": "2026-10-04T18:26:28.989Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+        "retrievedAt": "2026-10-16T19:14:23.279Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.279Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerrank-world-codesprint-2026",
+    "canonicalOpportunityId": "hackerrank-world-codesprint-2026",
+    "source": "HackerRank",
+    "sourceType": "HACKERRANK",
+    "sourceId": "world-codesprint-2026",
+    "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "sourceUrls": [
+      "https://www.hackerrank.com/contests/world-codesprint-2026"
+    ],
+    "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "canonicalUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+    "companyId": "org-hackerrank",
+    "companyName": "HackerRank",
+    "organizer": "HackerRank Community",
+    "companyType": "enterprise",
+    "title": "HackerRank World CodeSprint 2026",
+    "normalizedTitle": "hackerrank world codesprint 2026",
+    "opportunityType": "COMPETITION",
+    "classification": "CODING_CONTEST",
+    "description": "Flagship global algorithmic sprint featuring 8 progressive problem sets spanning graph theory, dynamic programming, combinatorics, and computational geometry. Top performers earn global leaderboard rank and direct recruiter referrals.",
+    "responsibilities": [
+      "Solve algorithmic problem statements within the specified time constraints",
+      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
+      "Pass all hidden test cases including large-scale edge cases"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
+      "Advanced Dynamic Programming & State Compression",
+      "Graph Algorithms (Shortest Path, Max Flow, SCC)",
+      "Time & Space Complexity Optimization"
+    ],
+    "preferredSkills": [
+      "Competitive Programming",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Java",
+      "Python",
+      "Go"
+    ],
+    "domains": [
+      "Algorithms",
+      "Computer Science"
+    ],
+    "tags": [
+      "Algorithms",
+      "Data Structures",
+      "Competitive Programming",
+      "C++",
+      "Python",
+      "Java"
+    ],
+    "eligibilityRequirements": [
+      "Open to all students, competitive programmers, and developers globally. Individual participation only."
+    ],
+    "disqualifiers": [
+      "Plagiarism / code sharing between participants"
+    ],
+    "teamSize": "Individual (1 Member)",
+    "prize": "$15,000 USD Total Prize Pool + Gold Badges",
+    "postedAt": "2026-10-14T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-26T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
+        "Advanced Dynamic Programming & State Compression",
+        "Graph Algorithms (Shortest Path, Max Flow, SCC)"
+      ],
+      "preferredSkills": [
+        "Time Complexity Optimization",
+        "C++ STL"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Code plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerRank",
+      "classification": "CODING_CONTEST",
+      "contestDuration": "48 Hours",
+      "problemCount": 8
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerRank",
+        "sourceType": "HACKERRANK",
+        "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+        "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerrank-hack-the-interview-vi",
+    "canonicalOpportunityId": "hackerrank-hack-the-interview-vi",
+    "source": "HackerRank",
+    "sourceType": "HACKERRANK",
+    "sourceId": "hack-the-interview-vi",
+    "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "sourceUrls": [
+      "https://www.hackerrank.com/contests/hack-the-interview-vi-apac"
+    ],
+    "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "canonicalUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+    "companyId": "org-hackerrank",
+    "companyName": "HackerRank Enterprise",
+    "organizer": "HackerRank APAC Hiring Network",
+    "companyType": "enterprise",
+    "title": "Hack the Interview VI — APAC Developer Hiring Challenge",
+    "normalizedTitle": "hack the interview vi   apac developer hiring challenge",
+    "opportunityType": "CHALLENGE",
+    "classification": "CODING_CONTEST",
+    "description": "Standardized technical assessment contest simulating premier enterprise engineering interviews. Scores are forwarded to participating tech sponsors across India and Southeast Asia for SDE-1 and Intern roles.",
+    "responsibilities": [
+      "Solve algorithmic problem statements within the specified time constraints",
+      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
+      "Pass all hidden test cases including large-scale edge cases"
+    ],
+    "location": "India & APAC (Virtual)",
+    "locations": [
+      "India",
+      "Singapore"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "B.S.",
+        "M.Tech",
+        "MCA",
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
+      "String Manipulation & Pattern Searching",
+      "Modular Arithmetic & Bit Manipulation",
+      "Clean, production-grade code structure"
+    ],
+    "preferredSkills": [
+      "Competitive Programming",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Python",
+      "Java"
+    ],
+    "domains": [
+      "Hiring Challenge",
+      "Software Engineering"
+    ],
+    "tags": [
+      "DSA",
+      "Interview Prep",
+      "Problem Solving",
+      "SDE"
+    ],
+    "eligibilityRequirements": [
+      "Graduating classes of 2026, 2027, and 2028 seeking software engineering roles."
+    ],
+    "disqualifiers": [
+      "Plagiarism / code sharing between participants"
+    ],
+    "teamSize": "1 Member",
+    "prize": "Direct SDE-1 Interviews with 25+ Tech Partners",
+    "postedAt": "2026-10-12T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-28T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
+        "String Manipulation & Pattern Searching",
+        "Modular Arithmetic & Bit Manipulation"
+      ],
+      "preferredSkills": [
+        "Time Complexity Optimization",
+        "C++ STL"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Code plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerRank",
+      "classification": "DSA_CONTEST",
+      "contestDuration": "3 Hours",
+      "problemCount": 4
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerRank",
+        "sourceType": "HACKERRANK",
+        "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+        "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerearth-juspay-developer-challenge-2026",
+    "canonicalOpportunityId": "hackerearth-juspay-developer-challenge-2026",
+    "source": "HackerEarth",
+    "sourceType": "HACKEREARTH",
+    "sourceId": "juspay-developer-challenge-2026",
+    "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "sourceUrls": [
+      "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026"
+    ],
+    "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "canonicalUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+    "companyId": "org-juspay-technologies",
+    "companyName": "Juspay Technologies",
+    "organizer": "Juspay",
+    "companyType": "enterprise",
+    "title": "Juspay Developer Challenge 2026 — Distributed Systems & FP",
+    "normalizedTitle": "juspay developer challenge 2026   distributed systems   fp",
+    "opportunityType": "CHALLENGE",
+    "classification": "HIRING_CHALLENGE",
+    "description": "Juspay's signature engineering challenge evaluating functional programming, multi-threaded locking, and high-throughput transaction routing. Fast-tracks top rankers to Technical Architect and SDE interviews with CTC up to ₹27 LPA.",
+    "responsibilities": [
+      "Design scalable architecture directly addressing the challenge problem statement",
+      "Implement clean source code in specified languages/frameworks with test coverage",
+      "Demonstrate working integration and verifiable business metrics in final demo"
+    ],
+    "location": "Bengaluru, India (Virtual Preliminary + Hackathon)",
+    "locations": [
+      "Bengaluru",
+      "National Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "full_time",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "Related"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Concurrent programming, Mutexes, and Thread Pools",
+      "Functional Programming fundamentals (Pure functions, Immutability)",
+      "Data structures: Graphs, Hash Maps, Priority Queues",
+      "Low-latency API handling"
+    ],
+    "preferredSkills": [
+      "Containerization",
+      "API Integration",
+      "High Throughput"
+    ],
+    "technologies": [
+      "Java",
+      "Rust",
+      "Haskell",
+      "Go",
+      "PostgreSQL"
+    ],
+    "domains": [
+      "Fintech",
+      "Payments",
+      "Low Latency"
+    ],
+    "tags": [
+      "Distributed Systems",
+      "Concurrency",
+      "Functional Programming",
+      "Java",
+      "Haskell",
+      "Rust"
+    ],
+    "eligibilityRequirements": [
+      "Pre-final and final year B.Tech/B.E./Dual Degree engineering students."
+    ],
+    "disqualifiers": [
+      "Plagiarism / submitting prior commercial code"
+    ],
+    "teamSize": "Individual / 1 - 2 Members",
+    "prize": "₹3,00,000 Cash Pool + SDE Full-Time Offers (CTC ₹27 LPA)",
+    "postedAt": "2026-10-13T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-31T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Engineering & Hackathons",
+      "mustHaveSkills": [
+        "Concurrent programming, Mutexes, and Thread Pools",
+        "Functional Programming fundamentals (Pure functions, Immutability)",
+        "Data structures: Graphs, Hash Maps, Priority Queues"
+      ],
+      "preferredSkills": [
+        "Microservices",
+        "REST APIs"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Engineering students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Ineligible graduation year"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerEarth",
+      "classification": "HIRING_CHALLENGE",
+      "roundStructure": "Round 1: Online Coding -> Round 2: System Hackathon -> Interviews"
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerEarth",
+        "sourceType": "HACKEREARTH",
+        "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+        "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "hackerearth-siemens-ai-hackathon",
+    "canonicalOpportunityId": "hackerearth-siemens-ai-hackathon",
+    "source": "HackerEarth",
+    "sourceType": "HACKEREARTH",
+    "sourceId": "siemens-ai-innovation-2026",
+    "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "sourceUrls": [
+      "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026"
+    ],
+    "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "canonicalUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+    "companyId": "org-siemens-technology",
+    "companyName": "Siemens Technology",
+    "organizer": "Siemens Advanta",
+    "companyType": "enterprise",
+    "title": "Siemens Industrial AI & Edge Computing Hackathon",
+    "normalizedTitle": "siemens industrial ai   edge computing hackathon",
+    "opportunityType": "HACKATHON",
+    "classification": "AI_HACKATHON",
+    "description": "Build generative AI and edge computing solutions for industrial automation, predictive asset maintenance, and energy grid optimization using telemetry sensor streams.",
+    "responsibilities": [
+      "Design scalable architecture directly addressing the challenge problem statement",
+      "Implement clean source code in specified languages/frameworks with test coverage",
+      "Demonstrate working integration and verifiable business metrics in final demo"
+    ],
+    "location": "Bengaluru / Virtual",
+    "locations": [
+      "Bengaluru",
+      "Virtual"
+    ],
+    "country": "India",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "internship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "B.Tech",
+        "B.E.",
+        "M.Tech",
+        "MCA",
+        "Dual Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Electronics",
+        "Related"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Time-series analysis and anomaly detection",
+      "Computer Vision or LLM integration with IoT streams",
+      "Docker containerization for edge inference",
+      "Python (FastAPI, PyTorch, Scikit-learn)"
+    ],
+    "preferredSkills": [
+      "Containerization",
+      "API Integration",
+      "High Throughput"
+    ],
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "Docker",
+      "FastAPI",
+      "MQTT"
+    ],
+    "domains": [
+      "Industrial Automation",
+      "Artificial Intelligence"
+    ],
+    "tags": [
+      "AI",
+      "Edge Computing",
+      "IoT",
+      "PyTorch",
+      "Docker"
+    ],
+    "eligibilityRequirements": [
+      "Students and professional developers interested in Industrial IoT and AI."
+    ],
+    "disqualifiers": [
+      "Plagiarism / submitting prior commercial code"
+    ],
+    "teamSize": "2 - 4 Members",
+    "prize": "₹4,50,000 Total Prizes + Fast-Track AI Internships",
+    "postedAt": "2026-10-11T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-03T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Enterprise Engineering & Hackathons",
+      "mustHaveSkills": [
+        "Time-series analysis and anomaly detection",
+        "Computer Vision or LLM integration with IoT streams",
+        "Docker containerization for edge inference"
+      ],
+      "preferredSkills": [
+        "Microservices",
+        "REST APIs"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Engineering students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Ineligible graduation year"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.279Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "HackerEarth",
+      "classification": "AI_HACKATHON",
+      "tracks": [
+        "Predictive Maintenance",
+        "Smart Grid AI",
+        "Edge Vision"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "HackerEarth",
+        "sourceType": "HACKEREARTH",
+        "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+        "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "kaggle-llm-reasoning-challenge-2026",
+    "canonicalOpportunityId": "kaggle-llm-reasoning-challenge-2026",
+    "source": "Kaggle",
+    "sourceType": "KAGGLE",
+    "sourceId": "llm-reasoning-challenge-2026",
+    "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "sourceUrls": [
+      "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026"
+    ],
+    "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "canonicalUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+    "companyId": "org-kaggle",
+    "companyName": "Google DeepMind / Kaggle",
+    "organizer": "Kaggle Research",
+    "companyType": "enterprise",
+    "title": "LLM Science Reasoning & Self-Correction Challenge",
+    "normalizedTitle": "llm science reasoning   self correction challenge",
+    "opportunityType": "COMPETITION",
+    "classification": "ML_COMPETITION",
+    "description": "Develop lightweight open-weights LLM pipelines (<=9B parameters) capable of multi-step logical deduction, scientific hypothesis verification, and automated self-correction under strict inference runtime limits (<=9 hours GPU).",
+    "responsibilities": [
+      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
+      "Engineer domain features and build local cross-validation strategy aligned with official metric",
+      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Data Science",
+        "Mathematics",
+        "Statistics",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
+      "Evaluation metric: Exact Match + Weighted F1 score",
+      "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM",
+      "Kaggle Notebook submission runtime limits compliance"
+    ],
+    "preferredSkills": [
+      "PyTorch",
+      "Cross-Validation",
+      "Ensembling",
+      "Feature Engineering"
+    ],
+    "technologies": [
+      "Python",
+      "PyTorch",
+      "Hugging Face",
+      "vLLM",
+      "Weights & Biases"
+    ],
+    "domains": [
+      "Machine Learning",
+      "Artificial Intelligence",
+      "NLP"
+    ],
+    "tags": [
+      "NLP",
+      "LLM",
+      "PyTorch",
+      "Transformers",
+      "Machine Learning"
+    ],
+    "eligibilityRequirements": [
+      "Open to researchers, students, and practitioners worldwide."
+    ],
+    "disqualifiers": [
+      "Private sharing of code or data outside team"
+    ],
+    "teamSize": "1 - 5 Members",
+    "prize": "$100,000 USD Total Prize Pool + Kaggle Grandmaster Medals",
+    "postedAt": "2026-10-10T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-09T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Machine Learning & Data Science Competitions",
+      "mustHaveSkills": [
+        "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
+        "Evaluation metric: Exact Match + Weighted F1 score",
+        "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM"
+      ],
+      "preferredSkills": [
+        "PyTorch",
+        "XGBoost",
+        "Cross-Validation"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all ML practitioners and students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "External code sharing violation"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.280Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Kaggle",
+      "classification": "ML_COMPETITION",
+      "evaluationMetric": "Macro F1 & Scientific Accuracy",
+      "hardwareConstraint": "Kaggle GPU T4/P100 (<=9 hours runtime)"
+    },
+    "sourceInstances": [
+      {
+        "source": "Kaggle",
+        "sourceType": "KAGGLE",
+        "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+        "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "kaggle-tabular-predictive-sprint-2026",
+    "canonicalOpportunityId": "kaggle-tabular-predictive-sprint-2026",
+    "source": "Kaggle",
+    "sourceType": "KAGGLE",
+    "sourceId": "tabular-predictive-sprint-2026",
+    "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "sourceUrls": [
+      "https://www.kaggle.com/competitions/tabular-playground-series-2026"
+    ],
+    "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "canonicalUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+    "companyId": "org-kaggle",
+    "companyName": "Kaggle Community",
+    "organizer": "Kaggle",
+    "companyType": "enterprise",
+    "title": "Kaggle Tabular Playground Series — High-Dimension Risk Prediction",
+    "normalizedTitle": "kaggle tabular playground series   high dimension risk prediction",
+    "opportunityType": "COMPETITION",
+    "classification": "ML_COMPETITION",
+    "description": "Predict customer credit default and transaction risk on 1.2M rows of anonymized transactional tabular features. Evaluated on Area Under the ROC Curve (ROC-AUC).",
+    "responsibilities": [
+      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
+      "Engineer domain features and build local cross-validation strategy aligned with official metric",
+      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Data Science",
+        "Mathematics",
+        "Statistics",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Feature engineering on tabular numerical and categorical data",
+      "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
+      "Stratified K-Fold cross-validation and out-of-fold ensembling",
+      "Metric: Area Under ROC Curve (ROC-AUC)"
+    ],
+    "preferredSkills": [
+      "PyTorch",
+      "Cross-Validation",
+      "Ensembling",
+      "Feature Engineering"
+    ],
+    "technologies": [
+      "Python",
+      "XGBoost",
+      "LightGBM",
+      "CatBoost",
+      "Pandas",
+      "Scikit-Learn"
+    ],
+    "domains": [
+      "Data Science",
+      "Machine Learning"
+    ],
+    "tags": [
+      "Tabular",
+      "XGBoost",
+      "LightGBM",
+      "Scikit-Learn",
+      "Feature Engineering"
+    ],
+    "eligibilityRequirements": [
+      "Open to all Kaggle participants."
+    ],
+    "disqualifiers": [
+      "Private sharing of code or data outside team"
+    ],
+    "teamSize": "1 - 3 Members",
+    "prize": "$25,000 USD Prize Pool + Kaggle Tier Badges",
+    "postedAt": "2026-10-14T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-01T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Machine Learning & Data Science Competitions",
+      "mustHaveSkills": [
+        "Feature engineering on tabular numerical and categorical data",
+        "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
+        "Stratified K-Fold cross-validation and out-of-fold ensembling"
+      ],
+      "preferredSkills": [
+        "PyTorch",
+        "XGBoost",
+        "Cross-Validation"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all ML practitioners and students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "External code sharing violation"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.280Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Kaggle",
+      "classification": "ML_COMPETITION",
+      "evaluationMetric": "ROC-AUC",
+      "datasetSize": "1.2 Million Rows"
+    },
+    "sourceInstances": [
+      {
+        "source": "Kaggle",
+        "sourceType": "KAGGLE",
+        "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+        "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "codechef-starters-150",
+    "canonicalOpportunityId": "codechef-starters-150",
+    "source": "CodeChef",
+    "sourceType": "CODECHEF",
+    "sourceId": "starters-150",
+    "sourceUrl": "https://www.codechef.com/START150",
+    "sourceUrls": [
+      "https://www.codechef.com/START150"
+    ],
+    "applicationUrl": "https://www.codechef.com/START150",
+    "canonicalUrl": "https://www.codechef.com/START150",
+    "companyId": "org-codechef",
+    "companyName": "CodeChef",
+    "organizer": "CodeChef Community",
+    "companyType": "enterprise",
+    "title": "CodeChef Starters 150 (Rated for Div 2, 3, 4)",
+    "normalizedTitle": "codechef starters 150  rated for div 2  3  4",
+    "opportunityType": "COMPETITION",
+    "classification": "CODING_CONTEST",
+    "description": "Weekly rated contest tailored for collegiate and early-career software engineers. Consists of 6-8 algorithmic problems testing mathematical reasoning, greedy strategies, binary search on answer, and tree traversals.",
+    "responsibilities": [
+      "Solve algorithmic questions within the 2-hour contest window",
+      "Implement optimal asymptotic time complexity to avoid Time Limit Exceeded (TLE)",
+      "Handle numeric edge cases, overflows, and large 64-bit integer ranges"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Engineering",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
+      "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
+      "Binary Search, Two Pointers, and Prefix Sums",
+      "Strict 1.0s time limit execution"
+    ],
+    "preferredSkills": [
+      "Binary Search",
+      "Dynamic Programming",
+      "Graph Theory"
+    ],
+    "technologies": [
+      "C++",
+      "Java",
+      "Python"
+    ],
+    "domains": [
+      "Competitive Programming",
+      "Algorithms"
+    ],
+    "tags": [
+      "Algorithms",
+      "Competitive Programming",
+      "C++",
+      "Math",
+      "DSA"
+    ],
+    "eligibilityRequirements": [
+      "Open to all registered CodeChef handles. Rated for Divisions 2, 3, and 4."
+    ],
+    "disqualifiers": [
+      "Sharing solutions during contest window"
+    ],
+    "teamSize": "1 Member",
+    "prize": "CodeChef Laddus + Global Rating Increment",
+    "postedAt": "2026-10-15T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-20T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "FRESH",
+    "roleDNA": {
+      "roleCategory": "Competitive Programming & Problem Solving",
+      "mustHaveSkills": [
+        "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
+        "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
+        "Binary Search, Two Pointers, and Prefix Sums"
+      ],
+      "preferredSkills": [
+        "C++ STL",
+        "Time Complexity Analysis"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to all students",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarism"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.280Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "CodeChef",
+      "classification": "CODING_CONTEST",
+      "duration": "2 Hours",
+      "ratedDivisions": [
+        "Div 2",
+        "Div 3",
+        "Div 4"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "CodeChef",
+        "sourceType": "CODECHEF",
+        "sourceUrl": "https://www.codechef.com/START150",
+        "applicationUrl": "https://www.codechef.com/START150",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "opensource-gsoc-2026",
+    "canonicalOpportunityId": "opensource-gsoc-2026",
+    "source": "Google Open Source",
+    "sourceType": "OPEN_SOURCE",
+    "sourceId": "gsoc-2026",
+    "sourceUrl": "https://summerofcode.withgoogle.com",
+    "sourceUrls": [
+      "https://summerofcode.withgoogle.com"
+    ],
+    "applicationUrl": "https://summerofcode.withgoogle.com",
+    "canonicalUrl": "https://summerofcode.withgoogle.com",
+    "companyId": "org-google-open-source",
+    "companyName": "Google Open Source",
+    "organizer": "Google & Open Source Organizations",
+    "companyType": "scaleup",
+    "title": "Google Summer of Code (GSoC) 2026",
+    "normalizedTitle": "google summer of code  gsoc  2026",
+    "opportunityType": "FELLOWSHIP",
+    "classification": "OPEN_SOURCE_PROGRAM",
+    "description": "Google's global program bringing new contributors into open source software development. Contributors work with an open source mentoring organization (e.g. Apache, Linux, Python Software Foundation, CNCF) on a 12-to-22 week programming project under experienced mentorship.",
+    "responsibilities": [
+      "Audit existing codebase architecture, issue trackers, and developer documentation",
+      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
+      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
+      "Submit milestone evaluations and maintain continuous CI/CD green builds"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "intern",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Git version control and collaborative GitHub/GitLab pull request workflows",
+      "Ability to analyze large existing open-source codebases and write unit tests",
+      "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)",
+      "Preparation of an in-depth technical project proposal with milestone deliverables"
+    ],
+    "preferredSkills": [
+      "Code Review",
+      "Unit Testing",
+      "Documentation",
+      "CI/CD"
+    ],
+    "technologies": [
+      "Git",
+      "GitHub",
+      "Python",
+      "Go",
+      "Rust",
+      "C++",
+      "Docker"
+    ],
+    "domains": [
+      "Open Source",
+      "Software Engineering"
+    ],
+    "tags": [
+      "Open Source",
+      "GSoC",
+      "Git",
+      "GitHub",
+      "Fellowship",
+      "Mentorship"
+    ],
+    "eligibilityRequirements": [
+      "Open to students and beginner/intermediate open source contributors aged 18+ globally."
+    ],
+    "disqualifiers": [
+      "Ghosting mentors / failing milestone progress deadlines"
+    ],
+    "teamSize": "Individual Contributor",
+    "prize": "$1,500 - $6,600 USD Tiered Stipend (based on country PPP) + Certificate",
+    "postedAt": "2026-10-11T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-05T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Open Source Fellowship & Mentorship",
+      "mustHaveSkills": [
+        "Git version control and collaborative GitHub/GitLab pull request workflows",
+        "Ability to analyze large existing open-source codebases and write unit tests",
+        "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)"
+      ],
+      "preferredSkills": [
+        "Documentation",
+        "Issue Triage",
+        "Pull Request Etiquette"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarized proposal"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.280Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "Google Summer of Code",
+      "classification": "OPEN_SOURCE_PROGRAM",
+      "durationWeeks": "12 - 22 Weeks",
+      "stipendModel": "Tiered by Country PPP"
+    },
+    "sourceInstances": [
+      {
+        "source": "Google Open Source",
+        "sourceType": "OPEN_SOURCE",
+        "sourceUrl": "https://summerofcode.withgoogle.com",
+        "applicationUrl": "https://summerofcode.withgoogle.com",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
+      }
+    ]
+  },
+  {
+    "id": "opensource-lfx-mentorship-2026",
+    "canonicalOpportunityId": "opensource-lfx-mentorship-2026",
+    "source": "Linux Foundation",
+    "sourceType": "OPEN_SOURCE",
+    "sourceId": "lfx-mentorship-2026",
+    "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "sourceUrls": [
+      "https://mentorship.lfx.linuxfoundation.org"
+    ],
+    "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "canonicalUrl": "https://mentorship.lfx.linuxfoundation.org",
+    "companyId": "org-linux-foundation",
+    "companyName": "Linux Foundation",
+    "organizer": "CNCF & Linux Foundation Projects",
+    "companyType": "scaleup",
+    "title": "LFX Mentorship 2026 — Cloud Native & Linux Kernel Projects",
+    "normalizedTitle": "lfx mentorship 2026   cloud native   linux kernel projects",
+    "opportunityType": "FELLOWSHIP",
+    "classification": "OPEN_SOURCE_PROGRAM",
+    "description": "Mentorship opportunity to contribute directly to foundational cloud-native infrastructure projects under the Linux Foundation (Kubernetes, Envoy, Prometheus, OpenTelemetry, Cilium). Top mentees are directly hired by cloud-native enterprises.",
+    "responsibilities": [
+      "Audit existing codebase architecture, issue trackers, and developer documentation",
+      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
+      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
+      "Submit milestone evaluations and maintain continuous CI/CD green builds"
+    ],
+    "location": "Global Virtual",
+    "locations": [
+      "Global Virtual"
+    ],
+    "country": "Global",
+    "city": "Online",
+    "remoteType": "remote",
+    "employmentType": "fellowship",
+    "experienceLevel": "entry_level",
+    "educationRequirements": {
+      "degreesAllowed": [
+        "Any Degree"
+      ],
+      "fieldsAllowed": [
+        "Computer Science",
+        "Information Technology",
+        "Any Field"
+      ],
+      "isMandatory": false
+    },
+    "graduationRequirements": {
+      "isMandatory": false
+    },
+    "requiredSkills": [
+      "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
+      "Understanding of container runtimes, networking, or observability",
+      "Prior verifiable open source contributions / merged pull requests",
+      "Clear technical communication in English"
+    ],
+    "preferredSkills": [
+      "Code Review",
+      "Unit Testing",
+      "Documentation",
+      "CI/CD"
+    ],
+    "technologies": [
+      "Go",
+      "Rust",
+      "Kubernetes",
+      "Docker",
+      "Git"
+    ],
+    "domains": [
+      "Infrastructure",
+      "Cloud Native",
+      "Systems"
+    ],
+    "tags": [
+      "Cloud Native",
+      "Kubernetes",
+      "Go",
+      "Rust",
+      "LFX",
+      "Open Source"
+    ],
+    "eligibilityRequirements": [
+      "Open to all developers and students worldwide eligible to receive stipend."
+    ],
+    "disqualifiers": [
+      "Ghosting mentors / failing milestone progress deadlines"
+    ],
+    "teamSize": "Individual",
+    "prize": "$3,000 - $6,600 USD Stipend + KubeCon Pass & Recruiter Visibility",
+    "postedAt": "2026-10-13T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-03T19:13:35.186Z",
+    "status": "ACTIVE",
+    "verificationStatus": "VERIFIED",
+    "linkStatus": "VERIFIED_ACTIVE",
+    "sourceConfidence": "HIGH",
+    "contentConfidence": "HIGH",
+    "freshness": "ACTIVE",
+    "roleDNA": {
+      "roleCategory": "Open Source Fellowship & Mentorship",
+      "mustHaveSkills": [
+        "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
+        "Understanding of container runtimes, networking, or observability",
+        "Prior verifiable open source contributions / merged pull requests"
+      ],
+      "preferredSkills": [
+        "Documentation",
+        "Issue Triage",
+        "Pull Request Etiquette"
+      ],
+      "experienceYearsMin": 0,
+      "experienceYearsMax": 2,
+      "educationSummary": "Open to students and developers",
+      "graduationWindow": "Open",
+      "locationMode": "Remote",
+      "disqualifiers": [
+        "Plagiarized proposal"
+      ]
+    },
+    "createdAt": "2026-10-16T19:14:23.280Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
+    "sourceVersion": 1,
+    "sourceMetadata": {
+      "platform": "LFX Mentorship",
+      "classification": "OPEN_SOURCE_PROGRAM",
+      "projectExamples": [
+        "Kubernetes SIGs",
+        "Prometheus Agent",
+        "Envoy Gateway"
+      ]
+    },
+    "sourceInstances": [
+      {
+        "source": "Linux Foundation",
+        "sourceType": "OPEN_SOURCE",
+        "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
+        "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
       }
     ]
   },
@@ -2364,13 +3527,13 @@
     "compensation": {
       "stipendText": "₹1,15,000 / month + housing allowance"
     },
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-29T18:13:59.099Z",
+    "postedAt": "2026-10-14T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-10T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
-    "createdAt": "2026-10-02T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-14T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "corp-google-swe-intern-2027",
       "source": "Google Careers",
@@ -2391,8 +3554,8 @@
         "Understanding of distributed systems or operating systems basics"
       ],
       "eligibilityText": "Currently enrolled in a Bachelor's or Master's degree in Computer Science or related field. Expected graduation year: 2027 or 2028.",
-      "postedAt": "2026-10-02T18:13:59.099Z",
-      "deadline": "2026-10-29T18:13:59.099Z",
+      "postedAt": "2026-10-14T19:13:35.186Z",
+      "deadline": "2026-11-10T19:13:35.186Z",
       "compensationText": "₹1,15,000 / month + housing allowance",
       "metadata": {
         "companyType": "enterprise",
@@ -2405,8 +3568,8 @@
         "sourceType": "COMPANY_CAREER",
         "sourceUrl": "https://careers.google.com/jobs/results/swe-intern-2027",
         "applicationUrl": "https://careers.google.com/jobs/results/swe-intern-2027/apply",
-        "retrievedAt": "2026-10-04T18:26:28.989Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+        "retrievedAt": "2026-10-16T19:14:23.280Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.280Z"
       }
     ],
     "roleDNA": {
@@ -2511,13 +3674,13 @@
     "compensation": {
       "stipendText": "₹1,25,000 / month stipend"
     },
-    "postedAt": "2026-10-03T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-22T18:13:59.099Z",
+    "postedAt": "2026-10-15T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-03T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
-    "createdAt": "2026-10-03T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-15T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "corp-stripe-backend-intern",
       "source": "Stripe Careers",
@@ -2538,8 +3701,8 @@
         "Git version control and collaborative code review experience"
       ],
       "eligibilityText": "Students graduating in 2026, 2027, or 2028 with Computer Science or engineering degrees.",
-      "postedAt": "2026-10-03T18:13:59.099Z",
-      "deadline": "2026-10-22T18:13:59.099Z",
+      "postedAt": "2026-10-15T19:13:35.186Z",
+      "deadline": "2026-11-03T19:13:35.186Z",
       "compensationText": "₹1,25,000 / month stipend",
       "metadata": {
         "companyType": "enterprise",
@@ -2552,8 +3715,8 @@
         "sourceType": "COMPANY_CAREER",
         "sourceUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend",
         "applicationUrl": "https://stripe.com/jobs/listings/software-engineer-intern-backend/apply",
-        "retrievedAt": "2026-10-04T18:26:28.989Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.989Z"
+        "retrievedAt": "2026-10-16T19:14:23.280Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.280Z"
       }
     ],
     "roleDNA": {
@@ -2658,13 +3821,13 @@
     "compensation": {
       "stipendText": "₹65,000 / month stipend"
     },
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-18T18:13:59.099Z",
+    "postedAt": "2026-10-13T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-30T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
-    "createdAt": "2026-10-01T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-13T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "corp-razorpay-aiml-intern",
       "source": "Razorpay Careers",
@@ -2685,8 +3848,8 @@
         "PyTorch or Scikit-Learn model training and evaluation"
       ],
       "eligibilityText": "Undergraduate or Graduate engineering students graduating in 2026, 2027, or 2028.",
-      "postedAt": "2026-10-01T18:13:59.099Z",
-      "deadline": "2026-10-18T18:13:59.099Z",
+      "postedAt": "2026-10-13T19:13:35.186Z",
+      "deadline": "2026-10-30T19:13:35.186Z",
       "compensationText": "₹65,000 / month stipend",
       "metadata": {
         "companyType": "scaleup",
@@ -2699,8 +3862,8 @@
         "sourceType": "COMPANY_CAREER",
         "sourceUrl": "https://razorpay.com/jobs/ai-ml-intern",
         "applicationUrl": "https://razorpay.com/jobs/ai-ml-intern/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.280Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.280Z"
       }
     ],
     "roleDNA": {
@@ -2801,13 +3964,13 @@
     "compensation": {
       "stipendText": "₹60,000 / month stipend"
     },
-    "postedAt": "2026-09-30T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-24T18:13:59.099Z",
+    "postedAt": "2026-10-12T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-05T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
-    "createdAt": "2026-09-30T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-12T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "ats-postman-platform-intern",
       "source": "Greenhouse (Postman)",
@@ -2828,8 +3991,8 @@
         "Git version control and automated testing"
       ],
       "eligibilityText": "Students currently pursuing Bachelor's in CS/IT graduating in 2026, 2027, or 2028.",
-      "postedAt": "2026-09-30T18:13:59.099Z",
-      "deadline": "2026-10-24T18:13:59.099Z",
+      "postedAt": "2026-10-12T19:13:35.186Z",
+      "deadline": "2026-11-05T19:13:35.186Z",
       "compensationText": "₹60,000 / month stipend",
       "metadata": {
         "atsPlatform": "Greenhouse",
@@ -2843,8 +4006,8 @@
         "sourceType": "ATS",
         "sourceUrl": "https://boards.greenhouse.io/postman/jobs/5918231",
         "applicationUrl": "https://boards.greenhouse.io/postman/jobs/5918231#app",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.280Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.280Z"
       }
     ],
     "roleDNA": {
@@ -2944,13 +4107,13 @@
     "compensation": {
       "stipendText": "$1,800 / month remote stipend (approx ₹1,50,000)"
     },
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-19T18:13:59.099Z",
+    "postedAt": "2026-10-14T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-31T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
-    "createdAt": "2026-10-02T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-14T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "ats-scaleai-eval-intern",
       "source": "Ashby (Scale AI)",
@@ -2971,8 +4134,8 @@
         "Statistics and data analysis (Pandas, NumPy)"
       ],
       "eligibilityText": "College students graduating in 2026, 2027, or 2028.",
-      "postedAt": "2026-10-02T18:13:59.099Z",
-      "deadline": "2026-10-19T18:13:59.099Z",
+      "postedAt": "2026-10-14T19:13:35.186Z",
+      "deadline": "2026-10-31T19:13:35.186Z",
       "compensationText": "$1,800 / month remote stipend (approx ₹1,50,000)",
       "metadata": {
         "atsPlatform": "Ashby",
@@ -2986,8 +4149,8 @@
         "sourceType": "ATS",
         "sourceUrl": "https://jobs.ashbyhq.com/scaleai/3849102",
         "applicationUrl": "https://jobs.ashbyhq.com/scaleai/3849102/application",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.280Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.280Z"
       }
     ],
     "roleDNA": {
@@ -3086,13 +4249,13 @@
     "compensation": {
       "stipendText": "₹50,000 / month + equity upside"
     },
-    "postedAt": "2026-10-03T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-14T18:13:59.099Z",
+    "postedAt": "2026-10-15T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-26T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
-    "createdAt": "2026-10-03T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-15T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "startup-bifrost-ai-founding-intern",
       "source": "YC Work at a Startup",
@@ -3113,8 +4276,8 @@
         "Vector databases (Qdrant, Pinecone, or pgvector)"
       ],
       "eligibilityText": "Undergraduate or postgraduate students with proven GitHub projects. Open to 2026, 2027, 2028 graduates.",
-      "postedAt": "2026-10-03T18:13:59.099Z",
-      "deadline": "2026-10-14T18:13:59.099Z",
+      "postedAt": "2026-10-15T19:13:35.186Z",
+      "deadline": "2026-10-26T19:13:35.186Z",
       "compensationText": "₹50,000 / month + equity upside",
       "metadata": {
         "companyType": "startup",
@@ -3129,8 +4292,8 @@
         "sourceType": "STARTUP",
         "sourceUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern",
         "applicationUrl": "https://www.workatastartup.com/companies/bifrost-ai/jobs/founding-ai-intern/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.281Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.281Z"
       }
     ],
     "roleDNA": {
@@ -3229,13 +4392,13 @@
     "compensation": {
       "stipendText": "₹55,000 / month stipend"
     },
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-16T18:13:59.099Z",
+    "postedAt": "2026-10-13T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-28T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
-    "createdAt": "2026-10-01T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-13T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "startup-hyperflow-fullstack-intern",
       "source": "Peak XV Surge Portfolio",
@@ -3256,8 +4419,8 @@
         "Canvas API or SVG interactive nodes"
       ],
       "eligibilityText": "Students graduating in 2026, 2027, 2028.",
-      "postedAt": "2026-10-01T18:13:59.099Z",
-      "deadline": "2026-10-16T18:13:59.099Z",
+      "postedAt": "2026-10-13T19:13:35.186Z",
+      "deadline": "2026-10-28T19:13:35.186Z",
       "compensationText": "₹55,000 / month stipend",
       "metadata": {
         "companyType": "startup",
@@ -3271,8 +4434,8 @@
         "sourceType": "STARTUP",
         "sourceUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern",
         "applicationUrl": "https://jobs.peakxv.com/hyperflow/frontend-engineer-intern/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.281Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.281Z"
       }
     ],
     "roleDNA": {
@@ -3370,13 +4533,13 @@
     "compensation": {
       "stipendText": "₹1,00,000 / month internship + ₹32 LPA SDE-1 PPIs"
     },
-    "postedAt": "2026-09-29T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-12T18:13:59.099Z",
+    "postedAt": "2026-10-11T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-24T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
-    "createdAt": "2026-09-29T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-11T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "campus-flipkart-grid-sde",
       "source": "National Campus Drive (Flipkart GRiD)",
@@ -3397,8 +4560,8 @@
         "System design and high-concurrency thinking"
       ],
       "eligibilityText": "Students currently enrolled in B.Tech / B.E. / M.Tech / MCA graduating strictly in 2026, 2027, or 2028. Minimum 6.5 CGPA.",
-      "postedAt": "2026-09-29T18:13:59.099Z",
-      "deadline": "2026-10-12T18:13:59.099Z",
+      "postedAt": "2026-10-11T19:13:35.186Z",
+      "deadline": "2026-10-24T19:13:35.186Z",
       "compensationText": "₹1,00,000 / month internship + ₹32 LPA SDE-1 PPIs",
       "metadata": {
         "companyType": "enterprise",
@@ -3412,8 +4575,8 @@
         "sourceType": "UNIVERSITY",
         "sourceUrl": "https://unstop.com/competitions/flipkart-grid-70",
         "applicationUrl": "https://unstop.com/competitions/flipkart-grid-70/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.281Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.281Z"
       }
     ],
     "roleDNA": {
@@ -3512,13 +4675,13 @@
     "compensation": {
       "stipendText": "₹85,000 / month stipend"
     },
-    "postedAt": "2026-09-28T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-10T18:13:59.099Z",
+    "postedAt": "2026-10-10T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-10-22T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "ACTIVE",
-    "createdAt": "2026-09-28T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-10T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "campus-cisco-sec-intern",
       "source": "University Pool Campus",
@@ -3539,8 +4702,8 @@
         "Problem solving and analytical debugging"
       ],
       "eligibilityText": "B.Tech / B.E. in CS, IT, ECE graduating in 2027 or 2028. No active backlogs. Minimum 7.0 CGPA.",
-      "postedAt": "2026-09-28T18:13:59.099Z",
-      "deadline": "2026-10-10T18:13:59.099Z",
+      "postedAt": "2026-10-10T19:13:35.186Z",
+      "deadline": "2026-10-22T19:13:35.186Z",
       "compensationText": "₹85,000 / month stipend",
       "metadata": {
         "companyType": "enterprise",
@@ -3554,8 +4717,8 @@
         "sourceType": "UNIVERSITY",
         "sourceUrl": "https://jobs.cisco.com/campus/intern-network-security",
         "applicationUrl": "https://jobs.cisco.com/campus/intern-network-security/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.281Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.281Z"
       }
     ],
     "roleDNA": {
@@ -3658,13 +4821,13 @@
       "period": "year",
       "stipendText": "₹18 – 24 LPA"
     },
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-20T18:13:59.099Z",
+    "postedAt": "2026-10-14T19:13:35.186Z",
+    "updatedAt": "2026-10-16T19:14:23.281Z",
+    "deadline": "2026-11-01T19:13:35.186Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
-    "createdAt": "2026-10-02T18:13:59.099Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
+    "createdAt": "2026-10-14T19:13:35.186Z",
+    "lastVerifiedAt": "2026-10-16T19:14:23.281Z",
     "rawSourceData": {
       "id": "api-zepto-backend-engineer",
       "source": "QuickCommerce Engineering API",
@@ -3685,8 +4848,8 @@
         "REST APIs and Microservices architecture"
       ],
       "eligibilityText": "B.Tech/B.E. or equivalent. 0 to 1 year of experience or 2026 graduates with exceptional project depth.",
-      "postedAt": "2026-10-02T18:13:59.099Z",
-      "deadline": "2026-10-20T18:13:59.099Z",
+      "postedAt": "2026-10-14T19:13:35.186Z",
+      "deadline": "2026-11-01T19:13:35.186Z",
       "compensationText": "₹18 - 24 LPA CTC",
       "metadata": {
         "companyType": "scaleup",
@@ -3699,8 +4862,8 @@
         "sourceType": "JOB_API",
         "sourceUrl": "https://zeptonow.com/careers/backend-sde-1",
         "applicationUrl": "https://zeptonow.com/careers/backend-sde-1/apply",
-        "retrievedAt": "2026-10-04T18:26:28.990Z",
-        "lastVerifiedAt": "2026-10-04T18:26:28.990Z"
+        "retrievedAt": "2026-10-16T19:14:23.281Z",
+        "lastVerifiedAt": "2026-10-16T19:14:23.281Z"
       }
     ],
     "roleDNA": {
@@ -3776,9 +4939,9 @@
     ],
     "disqualifiers": [],
     "prize": "₹5,00,000 + Google Cloud Credits",
-    "postedAt": "2026-10-04T17:36:30.284Z",
-    "updatedAt": "2026-10-04T17:36:30.284Z",
-    "deadline": "2026-10-19T17:36:30.284Z",
+    "postedAt": "2026-10-13T20:54:23.605Z",
+    "updatedAt": "2026-10-13T20:54:23.605Z",
+    "deadline": "2026-10-28T20:54:23.605Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
     "roleDNA": {
@@ -3797,16 +4960,16 @@
       "locationMode": "remote",
       "disqualifiers": []
     },
-    "createdAt": "2026-10-04T17:36:30.284Z",
-    "lastVerifiedAt": "2026-10-04T17:36:30.284Z",
+    "createdAt": "2026-10-13T20:54:23.605Z",
+    "lastVerifiedAt": "2026-10-13T20:54:23.605Z",
     "sourceInstances": [
       {
         "source": "Mock Source",
         "sourceType": "UNSTOP",
         "sourceUrl": "https://unstop.com/competitions/test-new-hackathon-2026",
         "applicationUrl": "https://unstop.com/competitions/test-new-hackathon-2026/apply",
-        "retrievedAt": "2026-10-04T17:36:30.284Z",
-        "lastVerifiedAt": "2026-10-04T17:36:30.284Z"
+        "retrievedAt": "2026-10-13T20:54:23.605Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.605Z"
       }
     ]
   },
@@ -3851,9 +5014,9 @@
     "preferredSkills": [],
     "eligibilityRequirements": [],
     "disqualifiers": [],
-    "postedAt": "2026-10-04T17:36:30.288Z",
-    "updatedAt": "2026-10-04T17:36:30.288Z",
-    "deadline": "2026-10-14T17:36:30.287Z",
+    "postedAt": "2026-10-13T20:54:23.606Z",
+    "updatedAt": "2026-10-13T20:54:23.606Z",
+    "deadline": "2026-10-23T20:54:23.606Z",
     "status": "ACTIVE",
     "freshness": "FRESH",
     "roleDNA": {
@@ -3869,1281 +5032,16 @@
       "locationMode": "remote",
       "disqualifiers": []
     },
-    "createdAt": "2026-10-04T17:36:30.288Z",
-    "lastVerifiedAt": "2026-10-04T17:36:30.288Z",
+    "createdAt": "2026-10-13T20:54:23.606Z",
+    "lastVerifiedAt": "2026-10-13T20:54:23.606Z",
     "sourceInstances": [
       {
         "source": "Devpost",
         "sourceType": "DEVPOST",
         "sourceUrl": "https://devpost.com/healthy",
         "applicationUrl": "https://devpost.com/healthy/apply",
-        "retrievedAt": "2026-10-04T17:36:30.288Z",
-        "lastVerifiedAt": "2026-10-04T17:36:30.288Z"
-      }
-    ]
-  },
-  {
-    "id": "hackerrank-world-codesprint-2026",
-    "canonicalOpportunityId": "hackerrank-world-codesprint-2026",
-    "source": "HackerRank",
-    "sourceType": "HACKERRANK",
-    "sourceId": "world-codesprint-2026",
-    "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
-    "sourceUrls": [
-      "https://www.hackerrank.com/contests/world-codesprint-2026"
-    ],
-    "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
-    "canonicalUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
-    "companyId": "org-hackerrank",
-    "companyName": "HackerRank",
-    "organizer": "HackerRank Community",
-    "companyType": "enterprise",
-    "title": "HackerRank World CodeSprint 2026",
-    "normalizedTitle": "hackerrank world codesprint 2026",
-    "opportunityType": "COMPETITION",
-    "classification": "CODING_CONTEST",
-    "description": "Flagship global algorithmic sprint featuring 8 progressive problem sets spanning graph theory, dynamic programming, combinatorics, and computational geometry. Top performers earn global leaderboard rank and direct recruiter referrals.",
-    "responsibilities": [
-      "Solve algorithmic problem statements within the specified time constraints",
-      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
-      "Pass all hidden test cases including large-scale edge cases"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "entry_level",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "B.Tech",
-        "B.E.",
-        "B.S.",
-        "M.Tech",
-        "MCA",
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
-      "Advanced Dynamic Programming & State Compression",
-      "Graph Algorithms (Shortest Path, Max Flow, SCC)",
-      "Time & Space Complexity Optimization"
-    ],
-    "preferredSkills": [
-      "Competitive Programming",
-      "Dynamic Programming",
-      "Graph Theory"
-    ],
-    "technologies": [
-      "C++",
-      "Java",
-      "Python",
-      "Go"
-    ],
-    "domains": [
-      "Algorithms",
-      "Computer Science"
-    ],
-    "tags": [
-      "Algorithms",
-      "Data Structures",
-      "Competitive Programming",
-      "C++",
-      "Python",
-      "Java"
-    ],
-    "eligibilityRequirements": [
-      "Open to all students, competitive programmers, and developers globally. Individual participation only."
-    ],
-    "disqualifiers": [
-      "Plagiarism / code sharing between participants"
-    ],
-    "teamSize": "Individual (1 Member)",
-    "prize": "$15,000 USD Total Prize Pool + Gold Badges",
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-14T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "FRESH",
-    "roleDNA": {
-      "roleCategory": "Competitive Programming & Problem Solving",
-      "mustHaveSkills": [
-        "Data structures (Segment Trees, Disjoint Set Union, Fenwick Trees)",
-        "Advanced Dynamic Programming & State Compression",
-        "Graph Algorithms (Shortest Path, Max Flow, SCC)"
-      ],
-      "preferredSkills": [
-        "Time Complexity Optimization",
-        "C++ STL"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to students and developers",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Code plagiarism"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "HackerRank",
-      "classification": "CODING_CONTEST",
-      "contestDuration": "48 Hours",
-      "problemCount": 8
-    },
-    "sourceInstances": [
-      {
-        "source": "HackerRank",
-        "sourceType": "HACKERRANK",
-        "sourceUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
-        "applicationUrl": "https://www.hackerrank.com/contests/world-codesprint-2026",
-        "retrievedAt": "2026-10-04T18:14:07.301Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.301Z"
-      }
-    ]
-  },
-  {
-    "id": "hackerrank-hack-the-interview-vi",
-    "canonicalOpportunityId": "hackerrank-hack-the-interview-vi",
-    "source": "HackerRank",
-    "sourceType": "HACKERRANK",
-    "sourceId": "hack-the-interview-vi",
-    "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
-    "sourceUrls": [
-      "https://www.hackerrank.com/contests/hack-the-interview-vi-apac"
-    ],
-    "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
-    "canonicalUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
-    "companyId": "org-hackerrank",
-    "companyName": "HackerRank Enterprise",
-    "organizer": "HackerRank APAC Hiring Network",
-    "companyType": "enterprise",
-    "title": "Hack the Interview VI — APAC Developer Hiring Challenge",
-    "normalizedTitle": "hack the interview vi   apac developer hiring challenge",
-    "opportunityType": "CHALLENGE",
-    "classification": "CODING_CONTEST",
-    "description": "Standardized technical assessment contest simulating premier enterprise engineering interviews. Scores are forwarded to participating tech sponsors across India and Southeast Asia for SDE-1 and Intern roles.",
-    "responsibilities": [
-      "Solve algorithmic problem statements within the specified time constraints",
-      "Produce optimal solutions meeting tight execution time (1-2s) and memory (256MB) limits",
-      "Pass all hidden test cases including large-scale edge cases"
-    ],
-    "location": "India & APAC (Virtual)",
-    "locations": [
-      "India",
-      "Singapore"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "internship",
-    "experienceLevel": "intern",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "B.Tech",
-        "B.E.",
-        "B.S.",
-        "M.Tech",
-        "MCA",
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
-      "String Manipulation & Pattern Searching",
-      "Modular Arithmetic & Bit Manipulation",
-      "Clean, production-grade code structure"
-    ],
-    "preferredSkills": [
-      "Competitive Programming",
-      "Dynamic Programming",
-      "Graph Theory"
-    ],
-    "technologies": [
-      "C++",
-      "Python",
-      "Java"
-    ],
-    "domains": [
-      "Hiring Challenge",
-      "Software Engineering"
-    ],
-    "tags": [
-      "DSA",
-      "Interview Prep",
-      "Problem Solving",
-      "SDE"
-    ],
-    "eligibilityRequirements": [
-      "Graduating classes of 2026, 2027, and 2028 seeking software engineering roles."
-    ],
-    "disqualifiers": [
-      "Plagiarism / code sharing between participants"
-    ],
-    "teamSize": "1 Member",
-    "prize": "Direct SDE-1 Interviews with 25+ Tech Partners",
-    "postedAt": "2026-09-30T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-16T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Competitive Programming & Problem Solving",
-      "mustHaveSkills": [
-        "Core Data Structures: Arrays, Trees, Heaps, Hash Maps",
-        "String Manipulation & Pattern Searching",
-        "Modular Arithmetic & Bit Manipulation"
-      ],
-      "preferredSkills": [
-        "Time Complexity Optimization",
-        "C++ STL"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to students and developers",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Code plagiarism"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "HackerRank",
-      "classification": "DSA_CONTEST",
-      "contestDuration": "3 Hours",
-      "problemCount": 4
-    },
-    "sourceInstances": [
-      {
-        "source": "HackerRank",
-        "sourceType": "HACKERRANK",
-        "sourceUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
-        "applicationUrl": "https://www.hackerrank.com/contests/hack-the-interview-vi-apac",
-        "retrievedAt": "2026-10-04T18:14:07.301Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.301Z"
-      }
-    ]
-  },
-  {
-    "id": "hackerearth-juspay-developer-challenge-2026",
-    "canonicalOpportunityId": "hackerearth-juspay-developer-challenge-2026",
-    "source": "HackerEarth",
-    "sourceType": "HACKEREARTH",
-    "sourceId": "juspay-developer-challenge-2026",
-    "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
-    "sourceUrls": [
-      "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026"
-    ],
-    "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
-    "canonicalUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
-    "companyId": "org-juspay-technologies",
-    "companyName": "Juspay Technologies",
-    "organizer": "Juspay",
-    "companyType": "enterprise",
-    "title": "Juspay Developer Challenge 2026 — Distributed Systems & FP",
-    "normalizedTitle": "juspay developer challenge 2026   distributed systems   fp",
-    "opportunityType": "CHALLENGE",
-    "classification": "HIRING_CHALLENGE",
-    "description": "Juspay's signature engineering challenge evaluating functional programming, multi-threaded locking, and high-throughput transaction routing. Fast-tracks top rankers to Technical Architect and SDE interviews with CTC up to ₹27 LPA.",
-    "responsibilities": [
-      "Design scalable architecture directly addressing the challenge problem statement",
-      "Implement clean source code in specified languages/frameworks with test coverage",
-      "Demonstrate working integration and verifiable business metrics in final demo"
-    ],
-    "location": "Bengaluru, India (Virtual Preliminary + Hackathon)",
-    "locations": [
-      "Bengaluru",
-      "National Virtual"
-    ],
-    "country": "India",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "full_time",
-    "experienceLevel": "entry_level",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "B.Tech",
-        "B.E.",
-        "M.Tech",
-        "MCA",
-        "Dual Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Electronics",
-        "Related"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Concurrent programming, Mutexes, and Thread Pools",
-      "Functional Programming fundamentals (Pure functions, Immutability)",
-      "Data structures: Graphs, Hash Maps, Priority Queues",
-      "Low-latency API handling"
-    ],
-    "preferredSkills": [
-      "Containerization",
-      "API Integration",
-      "High Throughput"
-    ],
-    "technologies": [
-      "Java",
-      "Rust",
-      "Haskell",
-      "Go",
-      "PostgreSQL"
-    ],
-    "domains": [
-      "Fintech",
-      "Payments",
-      "Low Latency"
-    ],
-    "tags": [
-      "Distributed Systems",
-      "Concurrency",
-      "Functional Programming",
-      "Java",
-      "Haskell",
-      "Rust"
-    ],
-    "eligibilityRequirements": [
-      "Pre-final and final year B.Tech/B.E./Dual Degree engineering students."
-    ],
-    "disqualifiers": [
-      "Plagiarism / submitting prior commercial code"
-    ],
-    "teamSize": "Individual / 1 - 2 Members",
-    "prize": "₹3,00,000 Cash Pool + SDE Full-Time Offers (CTC ₹27 LPA)",
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-19T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Enterprise Engineering & Hackathons",
-      "mustHaveSkills": [
-        "Concurrent programming, Mutexes, and Thread Pools",
-        "Functional Programming fundamentals (Pure functions, Immutability)",
-        "Data structures: Graphs, Hash Maps, Priority Queues"
-      ],
-      "preferredSkills": [
-        "Microservices",
-        "REST APIs"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Engineering students",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Ineligible graduation year"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "HackerEarth",
-      "classification": "HIRING_CHALLENGE",
-      "roundStructure": "Round 1: Online Coding -> Round 2: System Hackathon -> Interviews"
-    },
-    "sourceInstances": [
-      {
-        "source": "HackerEarth",
-        "sourceType": "HACKEREARTH",
-        "sourceUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
-        "applicationUrl": "https://www.hackerearth.com/challenges/competitive/juspay-developer-challenge-2026",
-        "retrievedAt": "2026-10-04T18:14:07.302Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
-      }
-    ]
-  },
-  {
-    "id": "hackerearth-siemens-ai-hackathon",
-    "canonicalOpportunityId": "hackerearth-siemens-ai-hackathon",
-    "source": "HackerEarth",
-    "sourceType": "HACKEREARTH",
-    "sourceId": "siemens-ai-innovation-2026",
-    "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
-    "sourceUrls": [
-      "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026"
-    ],
-    "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
-    "canonicalUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
-    "companyId": "org-siemens-technology",
-    "companyName": "Siemens Technology",
-    "organizer": "Siemens Advanta",
-    "companyType": "enterprise",
-    "title": "Siemens Industrial AI & Edge Computing Hackathon",
-    "normalizedTitle": "siemens industrial ai   edge computing hackathon",
-    "opportunityType": "HACKATHON",
-    "classification": "AI_HACKATHON",
-    "description": "Build generative AI and edge computing solutions for industrial automation, predictive asset maintenance, and energy grid optimization using telemetry sensor streams.",
-    "responsibilities": [
-      "Design scalable architecture directly addressing the challenge problem statement",
-      "Implement clean source code in specified languages/frameworks with test coverage",
-      "Demonstrate working integration and verifiable business metrics in final demo"
-    ],
-    "location": "Bengaluru / Virtual",
-    "locations": [
-      "Bengaluru",
-      "Virtual"
-    ],
-    "country": "India",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "internship",
-    "experienceLevel": "intern",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "B.Tech",
-        "B.E.",
-        "M.Tech",
-        "MCA",
-        "Dual Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Electronics",
-        "Related"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Time-series analysis and anomaly detection",
-      "Computer Vision or LLM integration with IoT streams",
-      "Docker containerization for edge inference",
-      "Python (FastAPI, PyTorch, Scikit-learn)"
-    ],
-    "preferredSkills": [
-      "Containerization",
-      "API Integration",
-      "High Throughput"
-    ],
-    "technologies": [
-      "Python",
-      "PyTorch",
-      "Docker",
-      "FastAPI",
-      "MQTT"
-    ],
-    "domains": [
-      "Industrial Automation",
-      "Artificial Intelligence"
-    ],
-    "tags": [
-      "AI",
-      "Edge Computing",
-      "IoT",
-      "PyTorch",
-      "Docker"
-    ],
-    "eligibilityRequirements": [
-      "Students and professional developers interested in Industrial IoT and AI."
-    ],
-    "disqualifiers": [
-      "Plagiarism / submitting prior commercial code"
-    ],
-    "teamSize": "2 - 4 Members",
-    "prize": "₹4,50,000 Total Prizes + Fast-Track AI Internships",
-    "postedAt": "2026-09-29T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-22T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Enterprise Engineering & Hackathons",
-      "mustHaveSkills": [
-        "Time-series analysis and anomaly detection",
-        "Computer Vision or LLM integration with IoT streams",
-        "Docker containerization for edge inference"
-      ],
-      "preferredSkills": [
-        "Microservices",
-        "REST APIs"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Engineering students",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Ineligible graduation year"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "HackerEarth",
-      "classification": "AI_HACKATHON",
-      "tracks": [
-        "Predictive Maintenance",
-        "Smart Grid AI",
-        "Edge Vision"
-      ]
-    },
-    "sourceInstances": [
-      {
-        "source": "HackerEarth",
-        "sourceType": "HACKEREARTH",
-        "sourceUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
-        "applicationUrl": "https://www.hackerearth.com/challenges/hackathon/siemens-ai-innovation-challenge-2026",
-        "retrievedAt": "2026-10-04T18:14:07.302Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
-      }
-    ]
-  },
-  {
-    "id": "kaggle-llm-reasoning-challenge-2026",
-    "canonicalOpportunityId": "kaggle-llm-reasoning-challenge-2026",
-    "source": "Kaggle",
-    "sourceType": "KAGGLE",
-    "sourceId": "llm-reasoning-challenge-2026",
-    "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
-    "sourceUrls": [
-      "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026"
-    ],
-    "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
-    "canonicalUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
-    "companyId": "org-kaggle",
-    "companyName": "Google DeepMind / Kaggle",
-    "organizer": "Kaggle Research",
-    "companyType": "enterprise",
-    "title": "LLM Science Reasoning & Self-Correction Challenge",
-    "normalizedTitle": "llm science reasoning   self correction challenge",
-    "opportunityType": "COMPETITION",
-    "classification": "ML_COMPETITION",
-    "description": "Develop lightweight open-weights LLM pipelines (<=9B parameters) capable of multi-step logical deduction, scientific hypothesis verification, and automated self-correction under strict inference runtime limits (<=9 hours GPU).",
-    "responsibilities": [
-      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
-      "Engineer domain features and build local cross-validation strategy aligned with official metric",
-      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "entry_level",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Data Science",
-        "Mathematics",
-        "Statistics",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
-      "Evaluation metric: Exact Match + Weighted F1 score",
-      "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM",
-      "Kaggle Notebook submission runtime limits compliance"
-    ],
-    "preferredSkills": [
-      "PyTorch",
-      "Cross-Validation",
-      "Ensembling",
-      "Feature Engineering"
-    ],
-    "technologies": [
-      "Python",
-      "PyTorch",
-      "Hugging Face",
-      "vLLM",
-      "Weights & Biases"
-    ],
-    "domains": [
-      "Machine Learning",
-      "Artificial Intelligence",
-      "NLP"
-    ],
-    "tags": [
-      "NLP",
-      "LLM",
-      "PyTorch",
-      "Transformers",
-      "Machine Learning"
-    ],
-    "eligibilityRequirements": [
-      "Open to researchers, students, and practitioners worldwide."
-    ],
-    "disqualifiers": [
-      "Private sharing of code or data outside team"
-    ],
-    "teamSize": "1 - 5 Members",
-    "prize": "$100,000 USD Total Prize Pool + Kaggle Grandmaster Medals",
-    "postedAt": "2026-09-28T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-28T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Machine Learning & Data Science Competitions",
-      "mustHaveSkills": [
-        "LLM fine-tuning (LoRA, QLoRA) and prompt optimization",
-        "Evaluation metric: Exact Match + Weighted F1 score",
-        "PyTorch, Hugging Face Transformers, vLLM / TensorRT-LLM"
-      ],
-      "preferredSkills": [
-        "PyTorch",
-        "XGBoost",
-        "Cross-Validation"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to all ML practitioners and students",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "External code sharing violation"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "Kaggle",
-      "classification": "ML_COMPETITION",
-      "evaluationMetric": "Macro F1 & Scientific Accuracy",
-      "hardwareConstraint": "Kaggle GPU T4/P100 (<=9 hours runtime)"
-    },
-    "sourceInstances": [
-      {
-        "source": "Kaggle",
-        "sourceType": "KAGGLE",
-        "sourceUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
-        "applicationUrl": "https://www.kaggle.com/competitions/llm-reasoning-challenge-2026",
-        "retrievedAt": "2026-10-04T18:14:07.302Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
-      }
-    ]
-  },
-  {
-    "id": "kaggle-tabular-predictive-sprint-2026",
-    "canonicalOpportunityId": "kaggle-tabular-predictive-sprint-2026",
-    "source": "Kaggle",
-    "sourceType": "KAGGLE",
-    "sourceId": "tabular-predictive-sprint-2026",
-    "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
-    "sourceUrls": [
-      "https://www.kaggle.com/competitions/tabular-playground-series-2026"
-    ],
-    "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
-    "canonicalUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
-    "companyId": "org-kaggle",
-    "companyName": "Kaggle Community",
-    "organizer": "Kaggle",
-    "companyType": "enterprise",
-    "title": "Kaggle Tabular Playground Series — High-Dimension Risk Prediction",
-    "normalizedTitle": "kaggle tabular playground series   high dimension risk prediction",
-    "opportunityType": "COMPETITION",
-    "classification": "ML_COMPETITION",
-    "description": "Predict customer credit default and transaction risk on 1.2M rows of anonymized transactional tabular features. Evaluated on Area Under the ROC Curve (ROC-AUC).",
-    "responsibilities": [
-      "Perform exploratory data analysis (EDA) and data preprocessing on competition dataset",
-      "Engineer domain features and build local cross-validation strategy aligned with official metric",
-      "Train gradient-boosted or deep neural models with ensemble blending for test submission"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "intern",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Data Science",
-        "Mathematics",
-        "Statistics",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Feature engineering on tabular numerical and categorical data",
-      "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
-      "Stratified K-Fold cross-validation and out-of-fold ensembling",
-      "Metric: Area Under ROC Curve (ROC-AUC)"
-    ],
-    "preferredSkills": [
-      "PyTorch",
-      "Cross-Validation",
-      "Ensembling",
-      "Feature Engineering"
-    ],
-    "technologies": [
-      "Python",
-      "XGBoost",
-      "LightGBM",
-      "CatBoost",
-      "Pandas",
-      "Scikit-Learn"
-    ],
-    "domains": [
-      "Data Science",
-      "Machine Learning"
-    ],
-    "tags": [
-      "Tabular",
-      "XGBoost",
-      "LightGBM",
-      "Scikit-Learn",
-      "Feature Engineering"
-    ],
-    "eligibilityRequirements": [
-      "Open to all Kaggle participants."
-    ],
-    "disqualifiers": [
-      "Private sharing of code or data outside team"
-    ],
-    "teamSize": "1 - 3 Members",
-    "prize": "$25,000 USD Prize Pool + Kaggle Tier Badges",
-    "postedAt": "2026-10-02T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-20T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "FRESH",
-    "roleDNA": {
-      "roleCategory": "Machine Learning & Data Science Competitions",
-      "mustHaveSkills": [
-        "Feature engineering on tabular numerical and categorical data",
-        "Gradient Boosting (LightGBM, XGBoost, CatBoost)",
-        "Stratified K-Fold cross-validation and out-of-fold ensembling"
-      ],
-      "preferredSkills": [
-        "PyTorch",
-        "XGBoost",
-        "Cross-Validation"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to all ML practitioners and students",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "External code sharing violation"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "Kaggle",
-      "classification": "ML_COMPETITION",
-      "evaluationMetric": "ROC-AUC",
-      "datasetSize": "1.2 Million Rows"
-    },
-    "sourceInstances": [
-      {
-        "source": "Kaggle",
-        "sourceType": "KAGGLE",
-        "sourceUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
-        "applicationUrl": "https://www.kaggle.com/competitions/tabular-playground-series-2026",
-        "retrievedAt": "2026-10-04T18:14:07.302Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
-      }
-    ]
-  },
-  {
-    "id": "codechef-starters-150",
-    "canonicalOpportunityId": "codechef-starters-150",
-    "source": "CodeChef",
-    "sourceType": "CODECHEF",
-    "sourceId": "starters-150",
-    "sourceUrl": "https://www.codechef.com/START150",
-    "sourceUrls": [
-      "https://www.codechef.com/START150"
-    ],
-    "applicationUrl": "https://www.codechef.com/START150",
-    "canonicalUrl": "https://www.codechef.com/START150",
-    "companyId": "org-codechef",
-    "companyName": "CodeChef",
-    "organizer": "CodeChef Community",
-    "companyType": "enterprise",
-    "title": "CodeChef Starters 150 (Rated for Div 2, 3, 4)",
-    "normalizedTitle": "codechef starters 150  rated for div 2  3  4",
-    "opportunityType": "COMPETITION",
-    "classification": "CODING_CONTEST",
-    "description": "Weekly rated contest tailored for collegiate and early-career software engineers. Consists of 6-8 algorithmic problems testing mathematical reasoning, greedy strategies, binary search on answer, and tree traversals.",
-    "responsibilities": [
-      "Solve algorithmic questions within the 2-hour contest window",
-      "Implement optimal asymptotic time complexity to avoid Time Limit Exceeded (TLE)",
-      "Handle numeric edge cases, overflows, and large 64-bit integer ranges"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "entry_level",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Engineering",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
-      "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
-      "Binary Search, Two Pointers, and Prefix Sums",
-      "Strict 1.0s time limit execution"
-    ],
-    "preferredSkills": [
-      "Binary Search",
-      "Dynamic Programming",
-      "Graph Theory"
-    ],
-    "technologies": [
-      "C++",
-      "Java",
-      "Python"
-    ],
-    "domains": [
-      "Competitive Programming",
-      "Algorithms"
-    ],
-    "tags": [
-      "Algorithms",
-      "Competitive Programming",
-      "C++",
-      "Math",
-      "DSA"
-    ],
-    "eligibilityRequirements": [
-      "Open to all registered CodeChef handles. Rated for Divisions 2, 3, and 4."
-    ],
-    "disqualifiers": [
-      "Sharing solutions during contest window"
-    ],
-    "teamSize": "1 Member",
-    "prize": "CodeChef Laddus + Global Rating Increment",
-    "postedAt": "2026-10-03T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-08T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "FRESH",
-    "roleDNA": {
-      "roleCategory": "Competitive Programming & Problem Solving",
-      "mustHaveSkills": [
-        "C++ STL (Vectors, Sets, Maps, Priority Queues) or Python equivalent",
-        "Number Theory: GCD, Modular Inverses, Sieve of Eratosthenes",
-        "Binary Search, Two Pointers, and Prefix Sums"
-      ],
-      "preferredSkills": [
-        "C++ STL",
-        "Time Complexity Analysis"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to all students",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Plagiarism"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "CodeChef",
-      "classification": "CODING_CONTEST",
-      "duration": "2 Hours",
-      "ratedDivisions": [
-        "Div 2",
-        "Div 3",
-        "Div 4"
-      ]
-    },
-    "sourceInstances": [
-      {
-        "source": "CodeChef",
-        "sourceType": "CODECHEF",
-        "sourceUrl": "https://www.codechef.com/START150",
-        "applicationUrl": "https://www.codechef.com/START150",
-        "retrievedAt": "2026-10-04T18:14:07.302Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.302Z"
-      }
-    ]
-  },
-  {
-    "id": "opensource-gsoc-2026",
-    "canonicalOpportunityId": "opensource-gsoc-2026",
-    "source": "Google Open Source",
-    "sourceType": "OPEN_SOURCE",
-    "sourceId": "gsoc-2026",
-    "sourceUrl": "https://summerofcode.withgoogle.com",
-    "sourceUrls": [
-      "https://summerofcode.withgoogle.com"
-    ],
-    "applicationUrl": "https://summerofcode.withgoogle.com",
-    "canonicalUrl": "https://summerofcode.withgoogle.com",
-    "companyId": "org-google-open-source",
-    "companyName": "Google Open Source",
-    "organizer": "Google & Open Source Organizations",
-    "companyType": "scaleup",
-    "title": "Google Summer of Code (GSoC) 2026",
-    "normalizedTitle": "google summer of code  gsoc  2026",
-    "opportunityType": "FELLOWSHIP",
-    "classification": "OPEN_SOURCE_PROGRAM",
-    "description": "Google's global program bringing new contributors into open source software development. Contributors work with an open source mentoring organization (e.g. Apache, Linux, Python Software Foundation, CNCF) on a 12-to-22 week programming project under experienced mentorship.",
-    "responsibilities": [
-      "Audit existing codebase architecture, issue trackers, and developer documentation",
-      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
-      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
-      "Submit milestone evaluations and maintain continuous CI/CD green builds"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "intern",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Git version control and collaborative GitHub/GitLab pull request workflows",
-      "Ability to analyze large existing open-source codebases and write unit tests",
-      "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)",
-      "Preparation of an in-depth technical project proposal with milestone deliverables"
-    ],
-    "preferredSkills": [
-      "Code Review",
-      "Unit Testing",
-      "Documentation",
-      "CI/CD"
-    ],
-    "technologies": [
-      "Git",
-      "GitHub",
-      "Python",
-      "Go",
-      "Rust",
-      "C++",
-      "Docker"
-    ],
-    "domains": [
-      "Open Source",
-      "Software Engineering"
-    ],
-    "tags": [
-      "Open Source",
-      "GSoC",
-      "Git",
-      "GitHub",
-      "Fellowship",
-      "Mentorship"
-    ],
-    "eligibilityRequirements": [
-      "Open to students and beginner/intermediate open source contributors aged 18+ globally."
-    ],
-    "disqualifiers": [
-      "Ghosting mentors / failing milestone progress deadlines"
-    ],
-    "teamSize": "Individual Contributor",
-    "prize": "$1,500 - $6,600 USD Tiered Stipend (based on country PPP) + Certificate",
-    "postedAt": "2026-09-29T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-24T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Open Source Fellowship & Mentorship",
-      "mustHaveSkills": [
-        "Git version control and collaborative GitHub/GitLab pull request workflows",
-        "Ability to analyze large existing open-source codebases and write unit tests",
-        "Proficiency in one or more core languages (C/C++, Python, Go, Rust, Java, or TypeScript)"
-      ],
-      "preferredSkills": [
-        "Documentation",
-        "Issue Triage",
-        "Pull Request Etiquette"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to students and developers",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Plagiarized proposal"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "Google Summer of Code",
-      "classification": "OPEN_SOURCE_PROGRAM",
-      "durationWeeks": "12 - 22 Weeks",
-      "stipendModel": "Tiered by Country PPP"
-    },
-    "sourceInstances": [
-      {
-        "source": "Google Open Source",
-        "sourceType": "OPEN_SOURCE",
-        "sourceUrl": "https://summerofcode.withgoogle.com",
-        "applicationUrl": "https://summerofcode.withgoogle.com",
-        "retrievedAt": "2026-10-04T18:14:07.303Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.303Z"
-      }
-    ]
-  },
-  {
-    "id": "opensource-lfx-mentorship-2026",
-    "canonicalOpportunityId": "opensource-lfx-mentorship-2026",
-    "source": "Linux Foundation",
-    "sourceType": "OPEN_SOURCE",
-    "sourceId": "lfx-mentorship-2026",
-    "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
-    "sourceUrls": [
-      "https://mentorship.lfx.linuxfoundation.org"
-    ],
-    "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
-    "canonicalUrl": "https://mentorship.lfx.linuxfoundation.org",
-    "companyId": "org-linux-foundation",
-    "companyName": "Linux Foundation",
-    "organizer": "CNCF & Linux Foundation Projects",
-    "companyType": "scaleup",
-    "title": "LFX Mentorship 2026 — Cloud Native & Linux Kernel Projects",
-    "normalizedTitle": "lfx mentorship 2026   cloud native   linux kernel projects",
-    "opportunityType": "FELLOWSHIP",
-    "classification": "OPEN_SOURCE_PROGRAM",
-    "description": "Mentorship opportunity to contribute directly to foundational cloud-native infrastructure projects under the Linux Foundation (Kubernetes, Envoy, Prometheus, OpenTelemetry, Cilium). Top mentees are directly hired by cloud-native enterprises.",
-    "responsibilities": [
-      "Audit existing codebase architecture, issue trackers, and developer documentation",
-      "Engage with project maintainers on public channels (Slack, Discord, Discourse) to clarify issue scope",
-      "Author clean pull requests with comprehensive unit test coverage adhering to project style guide",
-      "Submit milestone evaluations and maintain continuous CI/CD green builds"
-    ],
-    "location": "Global Virtual",
-    "locations": [
-      "Global Virtual"
-    ],
-    "country": "Global",
-    "city": "Online",
-    "remoteType": "remote",
-    "employmentType": "fellowship",
-    "experienceLevel": "entry_level",
-    "educationRequirements": {
-      "degreesAllowed": [
-        "Any Degree"
-      ],
-      "fieldsAllowed": [
-        "Computer Science",
-        "Information Technology",
-        "Any Field"
-      ],
-      "isMandatory": false
-    },
-    "graduationRequirements": {
-      "isMandatory": false
-    },
-    "requiredSkills": [
-      "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
-      "Understanding of container runtimes, networking, or observability",
-      "Prior verifiable open source contributions / merged pull requests",
-      "Clear technical communication in English"
-    ],
-    "preferredSkills": [
-      "Code Review",
-      "Unit Testing",
-      "Documentation",
-      "CI/CD"
-    ],
-    "technologies": [
-      "Go",
-      "Rust",
-      "Kubernetes",
-      "Docker",
-      "Git"
-    ],
-    "domains": [
-      "Infrastructure",
-      "Cloud Native",
-      "Systems"
-    ],
-    "tags": [
-      "Cloud Native",
-      "Kubernetes",
-      "Go",
-      "Rust",
-      "LFX",
-      "Open Source"
-    ],
-    "eligibilityRequirements": [
-      "Open to all developers and students worldwide eligible to receive stipend."
-    ],
-    "disqualifiers": [
-      "Ghosting mentors / failing milestone progress deadlines"
-    ],
-    "teamSize": "Individual",
-    "prize": "$3,000 - $6,600 USD Stipend + KubeCon Pass & Recruiter Visibility",
-    "postedAt": "2026-10-01T18:13:59.099Z",
-    "updatedAt": "2026-10-04T18:26:28.990Z",
-    "deadline": "2026-10-22T18:13:59.099Z",
-    "status": "ACTIVE",
-    "verificationStatus": "VERIFIED",
-    "linkStatus": "VERIFIED_ACTIVE",
-    "sourceConfidence": "HIGH",
-    "contentConfidence": "HIGH",
-    "freshness": "ACTIVE",
-    "roleDNA": {
-      "roleCategory": "Open Source Fellowship & Mentorship",
-      "mustHaveSkills": [
-        "Knowledge of Cloud Native systems or Systems Programming (Go, Rust, C++)",
-        "Understanding of container runtimes, networking, or observability",
-        "Prior verifiable open source contributions / merged pull requests"
-      ],
-      "preferredSkills": [
-        "Documentation",
-        "Issue Triage",
-        "Pull Request Etiquette"
-      ],
-      "experienceYearsMin": 0,
-      "experienceYearsMax": 2,
-      "educationSummary": "Open to students and developers",
-      "graduationWindow": "Open",
-      "locationMode": "Remote",
-      "disqualifiers": [
-        "Plagiarized proposal"
-      ]
-    },
-    "createdAt": "2026-10-04T18:26:28.989Z",
-    "lastVerifiedAt": "2026-10-04T18:26:28.990Z",
-    "sourceVersion": 1,
-    "sourceMetadata": {
-      "platform": "LFX Mentorship",
-      "classification": "OPEN_SOURCE_PROGRAM",
-      "projectExamples": [
-        "Kubernetes SIGs",
-        "Prometheus Agent",
-        "Envoy Gateway"
-      ]
-    },
-    "sourceInstances": [
-      {
-        "source": "Linux Foundation",
-        "sourceType": "OPEN_SOURCE",
-        "sourceUrl": "https://mentorship.lfx.linuxfoundation.org",
-        "applicationUrl": "https://mentorship.lfx.linuxfoundation.org",
-        "retrievedAt": "2026-10-04T18:14:07.303Z",
-        "lastVerifiedAt": "2026-10-04T18:14:07.303Z"
+        "retrievedAt": "2026-10-13T20:54:23.606Z",
+        "lastVerifiedAt": "2026-10-13T20:54:23.606Z"
       }
     ]
   }

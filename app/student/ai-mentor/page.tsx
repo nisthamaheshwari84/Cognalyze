@@ -56,7 +56,7 @@ interface SavedConversation {
 
 export default function StudentAiMentorPage() {
   const { isDark } = useTheme();
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [mode, setMode] = useState<MentorMode>("all");
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -246,7 +246,7 @@ export default function StudentAiMentorPage() {
   // Initial load
   useEffect(() => {
     async function init() {
-      let activeSId = "student-demo";
+      let activeSId = "";
       try {
         const sessionRes = await fetch("/api/auth/session");
         if (sessionRes.ok) {

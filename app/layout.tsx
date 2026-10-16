@@ -21,18 +21,43 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" }
     ],
+    shortcut: ["/favicon.ico"],
     apple: [
       { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
     ]
+  },
+  openGraph: {
+    title: "Cognalyze • Evidence-First Career & Hiring Intelligence",
+    description: "Evidence before decisions. Connect resumes, projects, GitHub activity, skills, and verified evidence into one hiring intelligence layer.",
+    url: "https://cognalyze-gules.vercel.app/",
+    siteName: "Cognalyze",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Cognalyze • Evidence-First Career & Hiring Intelligence",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cognalyze • Evidence-First Career & Hiring Intelligence",
+    description: "Evidence before decisions. Connect resumes, projects, GitHub activity, skills, and verified evidence into one hiring intelligence layer.",
+    images: ["/og-image.png"],
   },
   keywords: ["Hiring Intelligence", "Evidence-First Recruitment", "Student DNA", "Role DNA", "Decision Room", "Verified Skills"]
 };
 
 export const viewport: Viewport = {
-  themeColor: "#162A43",
+  themeColor: "#152C4B",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,

@@ -69,6 +69,17 @@ const initialData: AuthStoreData = {
       updatedAt: new Date().toISOString()
     },
     {
+      id: "u-student-sample-002",
+      email: "nistha@cognalyze.com",
+      passwordHash: null,
+      passwordSalt: null,
+      accountType: "student",
+      status: "ACTIVE",
+      emailVerifiedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date().toISOString()
+    },
+    {
       id: demoRecruiterUserId,
       email: "aarav@acme.com",
       passwordHash: null,
@@ -122,7 +133,7 @@ const initialData: AuthStoreData = {
     },
     {
       id: "sp-nistha-001",
-      userId: demoStudentUserId,
+      userId: "u-student-sample-002",
       username: "nistha",
       fullName: "Nistha Maheshwari",
       college: "Institute of Technology",
@@ -217,6 +228,9 @@ const CLOUD_STORE_KEY = "cognalyze_auth_cloud_store";
 export async function syncStoreWithCloud(): Promise<void> {
   if (typeof window !== "undefined") return;
   try {
+    const { isSupabaseAvailable } = await import("../supabase");
+    if (!(await isSupabaseAvailable())) return;
+
     const { data, error } = await supabase
       .from("analyses")
       .select("full_report")
@@ -344,11 +358,7 @@ function loadStoreFromDisk(force = false) {
             if (idx === -1) {
               store.users.push(u);
             } else {
-              const diskTime = u.updatedAt ? new Date(u.updatedAt).getTime() : 0;
-              const memTime = store.users[idx].updatedAt ? new Date(store.users[idx].updatedAt).getTime() : 0;
-              if (diskTime > memTime) {
-                store.users[idx] = { ...store.users[idx], ...u };
-              }
+              store.users[idx] = { ...store.users[idx], ...u };
             }
           }
         }
@@ -425,8 +435,8 @@ function loadStoreFromDisk(force = false) {
   }
 }
 
-export async function saveStoreToCloud(): Promise<void> {
-  if (typeof window !== "undefined") return;
+export async function saveStoreToCloud(): Promise<{ success: boolean; error?: string }> {
+  if (typeof window !== "undefined") return { success: true };
   try {
     const filePath = resolveAuthFilePath();
     const dir = path.dirname(filePath);
@@ -438,23 +448,37 @@ export async function saveStoreToCloud(): Promise<void> {
       lastMtimeMs = fs.statSync(filePath).mtimeMs;
     } catch {}
 
-    const { data: existingRows } = await supabase
+    const { isSupabaseAvailable } = await import("../supabase");
+    if (!(await isSupabaseAvailable())) {
+      return { success: true };
+    }
+
+    const { data: existingRows, error: selectErr } = await supabase
       .from("analyses")
       .select("id")
       .eq("recruiter_clerk_id", CLOUD_STORE_KEY)
       .order("created_at", { ascending: false })
       .limit(1);
 
+    if (selectErr) {
+      console.warn("[auth-store] Cloud sync select warning:", selectErr.message);
+      return { success: false, error: selectErr.message };
+    }
+
     if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
-      await supabase
+      const { error: updateErr } = await supabase
         .from("analyses")
         .update({
           full_report: store,
           created_at: new Date().toISOString()
         })
         .eq("id", existingRows[0].id);
+      if (updateErr) {
+        console.warn("[auth-store] Cloud sync update warning:", updateErr.message);
+        return { success: false, error: updateErr.message };
+      }
     } else {
-      await supabase
+      const { error: insertErr } = await supabase
         .from("analyses")
         .insert({
           recruiter_clerk_id: CLOUD_STORE_KEY,
@@ -462,9 +486,15 @@ export async function saveStoreToCloud(): Promise<void> {
           final_verdict: "ACTIVE",
           full_report: store
         });
+      if (insertErr) {
+        console.warn("[auth-store] Cloud sync insert warning:", insertErr.message);
+        return { success: false, error: insertErr.message };
+      }
     }
-  } catch (err) {
-    console.error("saveStoreToCloud error:", err);
+    return { success: true };
+  } catch (err: any) {
+    console.warn("[auth-store] saveStoreToCloud exception:", err?.message || err);
+    return { success: false, error: err?.message || "Cloud store save failed" };
   }
 }
 
@@ -1434,15 +1464,50 @@ export function findUserByConnectedAccount(
   return getUserById(connected.userId);
 }
 
-// ─── SESSIONS ───
+// ─── SESSIONS (Stateless Cryptographic Signature + In-Memory/Disk Store) ───
+
+const SESSION_SIGNING_SECRET = process.env.SESSION_SECRET || "cognalyze_cryptographic_session_hmac_secret_2026";
+const REVOKED_SESSION_IDS = new Set<string>();
+
+function signSessionToken(payload: { id: string; userId: string; accountType: "student" | "recruiter"; expiresAt: string }): string {
+  const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const hmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+  return `${data}.${hmac}`;
+}
+
+function verifySignedSessionToken(token: string): { id: string; userId: string; accountType: "student" | "recruiter"; expiresAt: string } | null {
+  if (!token || typeof token !== "string" || !token.includes(".")) return null;
+  const parts = token.split(".");
+  if (parts.length !== 2) return null;
+  const [data, hmac] = parts;
+  try {
+    const expectedHmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+    if (hmac.length !== expectedHmac.length || !crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) {
+      return null;
+    }
+    const parsed = JSON.parse(Buffer.from(data, "base64url").toString("utf-8"));
+    if (parsed.id && parsed.userId && parsed.accountType && parsed.expiresAt) {
+      if (new Date(parsed.expiresAt).getTime() < Date.now()) {
+        return null;
+      }
+      return parsed;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
 
 export function createSession(userId: string, accountType: "student" | "recruiter"): AuthSession {
   loadStoreFromDisk();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days
+  const sessionId = crypto.randomUUID();
+  const token = signSessionToken({ id: sessionId, userId, accountType, expiresAt });
+
   const session: AuthSession = {
-    id: crypto.randomUUID(),
+    id: sessionId,
     userId,
-    token: crypto.randomBytes(32).toString("hex"),
+    token,
     accountType,
     expiresAt,
     createdAt: new Date().toISOString()
@@ -1457,19 +1522,48 @@ export function getSessionByToken(token: string): AuthSession | null {
   if (!token) return null;
   loadStoreFromDisk();
   const now = new Date().getTime();
-  const session = store.sessions.find(s => s.token === token);
-  if (!session) return null;
 
-  if (new Date(session.expiresAt).getTime() < now) {
-    deleteSession(token);
-    return null;
+  // 1. Check in-memory store
+  const inMemory = store.sessions.find(s => s.token === token);
+  if (inMemory) {
+    if (new Date(inMemory.expiresAt).getTime() < now || REVOKED_SESSION_IDS.has(inMemory.id)) {
+      deleteSession(token);
+      return null;
+    }
+    return inMemory;
   }
 
-  return session;
+  // 2. Cryptographic recovery (survives cold starts, instance restarts, and serverless invocations)
+  const verified = verifySignedSessionToken(token);
+  if (verified) {
+    if (REVOKED_SESSION_IDS.has(verified.id)) {
+      return null;
+    }
+    const recovered: AuthSession = {
+      id: verified.id,
+      userId: verified.userId,
+      token,
+      accountType: verified.accountType,
+      expiresAt: verified.expiresAt,
+      createdAt: new Date().toISOString()
+    };
+    store.sessions.push(recovered);
+    return recovered;
+  }
+
+  return null;
 }
 
 export function deleteSession(token: string): void {
   loadStoreFromDisk();
+  const verified = verifySignedSessionToken(token);
+  if (verified?.id) {
+    REVOKED_SESSION_IDS.add(verified.id);
+  }
+  const existing = store.sessions.find(s => s.token === token);
+  if (existing) {
+    REVOKED_SESSION_IDS.add(existing.id);
+  }
   store.sessions = store.sessions.filter(s => s.token !== token);
   persistStoreToDisk();
 }

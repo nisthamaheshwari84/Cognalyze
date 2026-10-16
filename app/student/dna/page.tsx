@@ -205,7 +205,10 @@ export default function StudentDNAPage() {
         setDnaData({
           ...dnaData,
           activeTargetProfile: data.targetProfile,
-          gapReport: data.gapReport
+          gapReport: data.gapReport,
+          roleGapIntelligence: data.roleGapIntelligence || dnaData.roleGapIntelligence,
+          targetRoleKey: roleKey,
+          targetRoleTitle: data.targetProfile?.roleTitle || dnaData.targetRoleTitle
         });
       }
     } catch (err) {
@@ -232,7 +235,10 @@ export default function StudentDNAPage() {
         setDnaData({
           ...dnaData,
           activeTargetProfile: data.targetProfile,
-          gapReport: data.gapReport
+          gapReport: data.gapReport,
+          roleGapIntelligence: data.roleGapIntelligence || dnaData.roleGapIntelligence,
+          targetRoleKey: data.targetProfile?.id,
+          targetRoleTitle: data.targetProfile?.roleTitle || "Uploaded Job Description"
         });
       }
     } catch (err) {
@@ -1356,6 +1362,48 @@ export default function StudentDNAPage() {
               </div>
             </div>
 
+            {dnaData?.canonicalSkillIntelligence && (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                  gap: 12,
+                }}
+              >
+                <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase" }}>Supported by Evidence</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                    {dnaData.canonicalSkillIntelligence.supportedSkillsCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Backed by inspected code or verified tests</div>
+                </div>
+
+                <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase" }}>Self-Reported Only</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                    {dnaData.canonicalSkillIntelligence.selfReportedOnlyCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Resume mentions awaiting proof</div>
+                </div>
+
+                <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase" }}>Unassessed Skills</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                    {dnaData.canonicalSkillIntelligence.unassessedCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>No records yet (missing info ≠ deficit)</div>
+                </div>
+
+                <div style={{ backgroundColor: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8, padding: "14px 16px" }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: dnaData.canonicalSkillIntelligence.conflictingCount > 0 ? "#C24141" : "#2E7D5B", textTransform: "uppercase" }}>Conflicting Signals</div>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: "#162A43", marginTop: 2 }}>
+                    {dnaData.canonicalSkillIntelligence.conflictingCount}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>Discrepancies needing clarification</div>
+                </div>
+              </div>
+            )}
+
             {Object.entries(skillsByCategory).map(([category, catSkills]) => (
               <div
                 key={category}
@@ -1766,6 +1814,149 @@ export default function StudentDNAPage() {
                     })}
                   </div>
                 </div>
+
+                {/* PERSONALIZED ACTION RECOMMENDATIONS (CLOSED-LOOP INTELLIGENCE) */}
+                {dnaData?.roleGapIntelligence?.recommendations && dnaData.roleGapIntelligence.recommendations.length > 0 && (
+                  <div
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 10,
+                      padding: "20px 24px",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10, marginBottom: 14 }}>
+                      <div>
+                        <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", color: "#667085" }}>
+                          CLOSED-LOOP EVIDENCE ROADMAP
+                        </div>
+                        <h2 style={{ fontSize: 18, fontWeight: 600, color: "#162A43", margin: "2px 0 0" }}>
+                          Personalized Action Recommendations
+                        </h2>
+                        <div style={{ fontSize: 13, color: "#667085", marginTop: 4 }}>
+                          Concrete, evidence-producing actions tailored to {dnaData.roleGapIntelligence.targetRoleTitle}. Complete an action to upload verified artifacts and recalculate your DNA.
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {dnaData.roleGapIntelligence.recommendations.map((rec) => {
+                        const isPriority1 = rec.priorityRank === 1;
+                        const isPriority2 = rec.priorityRank === 2;
+                        const rankLabel = isPriority1
+                          ? "P1: Critical Must-Have Gap"
+                          : isPriority2
+                          ? "P2: Must-Have Self-Reported"
+                          : rec.priorityRank === 3
+                          ? "P3: Preferred Gap"
+                          : "P4: Refresh / Enhancement";
+                        const rankBg = isPriority1 ? "#FDF2F2" : isPriority2 ? "#FEF8EC" : "#EFF4FE";
+                        const rankColor = isPriority1 ? "#C24141" : isPriority2 ? "#B7791F" : "#356AE6";
+                        const rankBorder = isPriority1 ? "#F8D7DA" : isPriority2 ? "#F9E4B7" : "#D2E0FB";
+
+                        return (
+                          <div
+                            key={rec.recommendationId}
+                            style={{
+                              backgroundColor: "#FAF9F6",
+                              border: "1px solid #E4E1DA",
+                              borderRadius: 8,
+                              padding: "16px 18px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
+                              flexWrap: "wrap",
+                              gap: 14,
+                            }}
+                          >
+                            <div style={{ maxWidth: 700 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    padding: "2px 8px",
+                                    borderRadius: 5,
+                                    color: rankColor,
+                                    backgroundColor: rankBg,
+                                    border: `1px solid ${rankBorder}`,
+                                  }}
+                                >
+                                  {rankLabel}
+                                </span>
+                                <span style={{ fontSize: 15, fontWeight: 600, color: "#162A43" }}>
+                                  {rec.skillName}
+                                </span>
+                                <span style={{ fontSize: 11, color: rec.importance === "MUST_HAVE" ? "#C24141" : "#667085", fontWeight: 500 }}>
+                                  {rec.importance === "MUST_HAVE" ? "● Must-Have" : "○ Preferred"}
+                                </span>
+                              </div>
+
+                              <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
+                                {rec.requiredAction}
+                              </div>
+
+                              <div style={{ fontSize: 12, color: "#667085", marginTop: 6, lineHeight: 1.4 }}>
+                                <strong>Why:</strong> {rec.reason}
+                              </div>
+
+                              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 10, fontSize: 11, color: "#667085", background: "#FFFFFF", padding: "8px 12px", borderRadius: 6, border: "1px solid #EFECE6" }}>
+                                <div>
+                                  <span style={{ color: "#98A2B3" }}>Expected Artifact:</span>{" "}
+                                  <strong style={{ color: "#162A43" }}>{rec.expectedEvidenceArtifact}</strong>
+                                </div>
+                                <div>
+                                  <span style={{ color: "#98A2B3" }}>Completion Criteria:</span>{" "}
+                                  <strong style={{ color: "#162A43" }}>{rec.completionCriteria}</strong>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8 }}>
+                              <button
+                                onClick={() => setSelectedActionRec(rec)}
+                                style={{
+                                  background: "#2E7D5B",
+                                  color: "#FFFFFF",
+                                  border: "none",
+                                  padding: "7px 16px",
+                                  borderRadius: 7,
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  cursor: "pointer",
+                                  whiteSpace: "nowrap",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 6,
+                                }}
+                              >
+                                <CheckCircle2 size={13} />
+                                Provide Proof Artifact →
+                              </button>
+
+                              <Link
+                                href={rec.actionHref}
+                                style={{
+                                  background: "#FFFFFF",
+                                  border: "1px solid #E4E1DA",
+                                  color: "#356AE6",
+                                  padding: "5px 12px",
+                                  borderRadius: 6,
+                                  fontSize: 11,
+                                  fontWeight: 600,
+                                  textDecoration: "none",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                Practice / Diagnostic →
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

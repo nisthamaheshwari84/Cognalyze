@@ -21,7 +21,7 @@ interface NotificationBellProps {
   className?: string;
 }
 
-export default function NotificationBell({ candidateId = "student-demo", className = "" }: NotificationBellProps) {
+export default function NotificationBell({ candidateId = "", className = "" }: NotificationBellProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
@@ -31,7 +31,8 @@ export default function NotificationBell({ candidateId = "student-demo", classNa
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch(`/api/student/notifications?candidateId=${candidateId}`);
+      const url = candidateId ? `/api/student/notifications?candidateId=${encodeURIComponent(candidateId)}` : "/api/student/notifications";
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setNotifications(data.notifications || []);

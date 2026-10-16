@@ -1,9 +1,13 @@
-const CACHE_NAME = "cognalyze-pwa-v1";
+const CACHE_NAME = "cognalyze-pwa-v2";
 const OFFLINE_FALLBACK = "/offline.html";
 
 const PRECACHE_ASSETS = [
   "/offline.html",
   "/manifest.json",
+  "/favicon.ico",
+  "/favicon.svg",
+  "/cognalyze-symbol.png",
+  "/cognalyze-logo-horizontal.png",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
   "/icons/icon-maskable-192x192.png",

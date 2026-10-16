@@ -47,17 +47,19 @@ export async function POST(req: NextRequest) {
     let authenticatedUser: any = null;
     let sbSession: any = null;
 
-    // 2. Primary: Attempt Supabase Auth Sign-In
-    try {
-      const sbRes = await supabase.auth.signInWithPassword({
-        email: normalizedEmail,
-        password
-      });
+    // 2. Primary: Attempt Supabase Auth Sign-In if Supabase is active
+    const { isSupabaseAvailable } = await import("@/lib/supabase");
+    if (await isSupabaseAvailable()) {
+      try {
+        const sbRes = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password
+        });
 
-      if (sbRes.data?.user) {
-        const userId = sbRes.data.user.id;
-        authenticatedUserId = userId;
-        sbSession = sbRes.data.session;
+        if (sbRes.data?.user) {
+          const userId = sbRes.data.user.id;
+          authenticatedUserId = userId;
+          sbSession = sbRes.data.session;
 
         // Ensure user exists in local/cloud store keyed by Supabase user id
         authenticatedUser = getUserByEmail(normalizedEmail);
@@ -112,8 +114,9 @@ export async function POST(req: NextRequest) {
 
         return res;
       }
-    } catch (sbErr) {
-      console.warn("Supabase Auth signIn attempt error:", sbErr);
+      } catch (sbErr) {
+        console.warn("Supabase Auth signIn attempt error:", sbErr);
+      }
     }
 
     // 3. Fallback: Check Persistent Cloud Store

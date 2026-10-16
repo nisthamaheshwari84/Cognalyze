@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { skillHubStore } from "@/lib/skill-hub-store";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
     const tracksParam = searchParams.get("tracks");
 
     let activeTracks: Array<"service_mass" | "service_elite" | "product_mid" | "product_faang">;
@@ -12,7 +14,7 @@ export async function GET(req: NextRequest) {
     if (tracksParam) {
       activeTracks = tracksParam.split(",").map(t => t.trim()) as any;
     } else {
-      activeTracks = skillHubStore.getStudentTracks(candidateId);
+      activeTracks = candidateId ? skillHubStore.getStudentTracks(candidateId) : ["service_mass", "product_mid"];
     }
 
     const filteredDomains = skillHubStore.getDomainsForTracks(activeTracks);

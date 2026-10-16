@@ -25,7 +25,7 @@ interface JourneyStage {
 }
 
 export default function StudentJourneyPage() {
-  const [candidateId, setCandidateId] = useState("student-demo");
+  const [candidateId, setCandidateId] = useState("");
   const [profile, setProfile] = useState<StudentDNAProfile | null>(null);
   const [activeStageId, setActiveStageId] = useState<string>("01-direction");
   const [loading, setLoading] = useState(true);

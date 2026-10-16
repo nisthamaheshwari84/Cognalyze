@@ -9,7 +9,14 @@ import path from "path";
 import { Evidence, CandidateDecision, validateCandidateDecision } from "./types";
 import { supabase, isSupabaseAvailable } from "../supabase";
 
-const LOCAL_STORE_FILE = path.join(process.cwd(), "data", "evidence-pipeline-store.json");
+function getLocalStoreFile(): string {
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join("/tmp", "cognalyze-evidence-pipeline-store.json");
+  }
+  return path.join(process.cwd(), "data", "evidence-pipeline-store.json");
+}
+
+const LOCAL_STORE_FILE = getLocalStoreFile();
 
 interface LocalStoreShape {
   evidence: Record<string, Evidence>; // keyed by evidence.id

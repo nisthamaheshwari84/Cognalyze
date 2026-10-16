@@ -43,11 +43,13 @@ import {
   getStudentBehavioralProgress,
   updateStudentBehavioralStatus
 } from "@/lib/skills/candidate-history";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : "");
     const mode = searchParams.get("mode") || "home";
     const questionId = searchParams.get("id");
     const trackType = searchParams.get("trackType");
@@ -68,11 +70,21 @@ export async function GET(req: NextRequest) {
 
     // 2. Home Gateway Screen Data (Requirement 20)
     if (mode === "home") {
-      const progress = getSimpleCandidateProgress(candidateId);
-      const quickQuestion = getNextCandidateQuestion(candidateId, "practice");
+      const progress = candidateId
+        ? getSimpleCandidateProgress(candidateId)
+        : {
+            completedCount: 0,
+            totalQuestions: EXPANDED_BEHAVIORAL_QUESTION_BANK.length,
+            avgScore: 0,
+            workOnNext: "Structuring answers using the STAR method",
+            competencyBreakdown: {}
+          };
+      const quickQuestion = candidateId
+        ? getNextCandidateQuestion(candidateId, "practice")
+        : EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
       return NextResponse.json({
         success: true,
-        candidateId,
+        candidateId: candidateId || "",
         progress,
         quickQuestion,
         weakSpot: progress.workOnNext
@@ -201,17 +213,18 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthenticatedContext(req);
     const body = await req.json();
     const {
       action = "evaluate",
       questionId,
       candidateResponse = "",
-      candidateId = "student-demo",
       trackSlug = "product_mid",
       isInterview = false,
       timeSpentSeconds = 120,
       evaluationsHistory = []
     } = body;
+    const candidateId = auth?.user?.id || (body.candidateId === "student-demo" ? "student-demo" : body.candidateId || "guest");
 
     // ── ACTION: COACH DRAFT DIAGNOSIS (Requirement 14) ──
     if (action === "coach") {

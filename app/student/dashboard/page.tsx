@@ -240,27 +240,28 @@ export default function StudentDashboardOverview() {
       ? dynamicCapabilities.slice(0, 5)
       : profileSkills.length > 0
       ? profileSkills.slice(0, 5)
-      : ["Python", "AI / ML", "Web", "GenAI"];
+      : [];
 
-  // Real evidence status
-  const verifiedCount = intelligence?.verifiedEvidenceCount || intelligence?.totalEvidenceCount || 4;
+  // Real evidence status - never fabricated
+  const verifiedCount = intelligence?.verifiedEvidenceCount || intelligence?.totalEvidenceCount || (profileSkills.length > 0 ? profileSkills.length : 0);
   const demonstratedProjectsCount =
     ((profile as any).projects && (profile as any).projects.length > 0)
       ? (profile as any).projects.length
-      : Object.values(intelligence?.capabilities || {}).filter((c: any) => c.evidenceLevel >= 2).length || 2;
+      : Object.values(intelligence?.capabilities || {}).filter((c: any) => c.evidenceLevel >= 2).length || 0;
   const isStronglyVerified = verifiedCount >= 4;
 
-  // Next placement drive item
-  const nextEvent = calendarEvents.length > 0 ? calendarEvents[0] : null;
+  // Next placement drive item: select earliest upcoming event
+  const upcomingEvents = calendarEvents.filter(e => (e as any).days_until_date === undefined || (e as any).days_until_date >= 0);
+  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : (calendarEvents.length > 0 ? calendarEvents[0] : null);
   const nextEventTitle = nextEvent
     ? nextEvent.linked_opportunity?.organizer || nextEvent.title.split("—")[0].trim()
-    : "Flipkart (via Unstop)";
+    : null;
   const nextEventDate = nextEvent?.event_date
-    ? new Date(nextEvent.event_date).toLocaleDateString("en-US", {
+    ? new Date(nextEvent.event_date + (nextEvent.event_date.includes("T") ? "" : "T00:00:00")).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric"
       })
-    : "Oct 15";
+    : null;
 
   return (
     <div
@@ -722,7 +723,9 @@ export default function StudentDashboardOverview() {
                 Placement Calendar
               </div>
               <div style={{ fontSize: 13, color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
-                {calendarEvents.length > 0 ? calendarEvents.length : 11} upcoming events · 3 applications opening soon
+                {upcomingEvents.length > 0
+                  ? `${upcomingEvents.length} upcoming event${upcomingEvents.length > 1 ? "s" : ""} · ${userApplications.length} active application${userApplications.length > 1 ? "s" : ""}`
+                  : "0 upcoming events · No active applications"}
               </div>
             </div>
           </div>
@@ -732,10 +735,10 @@ export default function StudentDashboardOverview() {
               NEXT SCHEDULED
             </div>
             <div style={{ fontSize: 14, fontWeight: 600, color: isDark ? "#F2F6FC" : "#17191C", marginTop: 2 }}>
-              {nextEventTitle} · {nextEventDate}
+              {nextEventTitle ? `${nextEventTitle} · ${nextEventDate}` : "No upcoming events scheduled"}
             </div>
             <div style={{ fontSize: 12, color: isDark ? "#4C8DFF" : "#356AE6", marginTop: 2, fontWeight: 600 }}>
-              View calendar →
+              {calendarEvents.length > 0 ? "View calendar →" : "Explore placement drives →"}
             </div>
           </div>
         </Link>
@@ -790,23 +793,48 @@ export default function StudentDashboardOverview() {
             </div>
 
             {/* Verified Skills Pills */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {(isAuthenticated ? verifiedSkills : ["Full Stack", "Problem Solving", "Evidence Intelligence", "System Design"]).map((skill: string) => (
-                <span
-                  key={skill}
-                  style={{
-                    backgroundColor: isDark ? "#13243A" : "#F8F9FA",
-                    border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
-                    color: isDark ? "#DDE8F5" : "#17191C",
-                    fontSize: 12,
-                    fontWeight: 500,
-                    padding: "4px 10px",
-                    borderRadius: 5
-                  }}
-                >
-                  ✓ {skill}
-                </span>
-              ))}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              {isAuthenticated ? (
+                verifiedSkills.length > 0 ? (
+                  verifiedSkills.map((skill: string) => (
+                    <span
+                      key={skill}
+                      style={{
+                        backgroundColor: isDark ? "#13243A" : "#F8F9FA",
+                        border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                        color: isDark ? "#DDE8F5" : "#17191C",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        padding: "4px 10px",
+                        borderRadius: 5
+                      }}
+                    >
+                      ✓ {skill}
+                    </span>
+                  ))
+                ) : (
+                  <span style={{ fontSize: 12, color: isDark ? "#8FA2B8" : "#667085", fontStyle: "italic" }}>
+                    No verified skills yet — Complete Student DNA to benchmark capabilities
+                  </span>
+                )
+              ) : (
+                ["Full Stack", "Problem Solving", "Evidence Intelligence", "System Design"].map((skill: string) => (
+                  <span
+                    key={skill}
+                    style={{
+                      backgroundColor: isDark ? "#13243A" : "#F8F9FA",
+                      border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                      color: isDark ? "#DDE8F5" : "#17191C",
+                      fontSize: 12,
+                      fontWeight: 500,
+                      padding: "4px 10px",
+                      borderRadius: 5
+                    }}
+                  >
+                    ✓ {skill}
+                  </span>
+                ))
+              )}
             </div>
 
             {/* Action Buttons */}
@@ -889,7 +917,9 @@ export default function StudentDashboardOverview() {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: isDark
+                color: !isAuthenticated || verifiedCount === 0
+                  ? (isDark ? "#8FA2B8" : "#667085")
+                  : isDark
                   ? (isStronglyVerified ? "#35B982" : "#4C8DFF")
                   : (isStronglyVerified ? "#2E7D5B" : "#356AE6"),
                 marginTop: 4,
@@ -899,10 +929,21 @@ export default function StudentDashboardOverview() {
                 gap: 6
               }}
             >
-              <span>●</span> {isStronglyVerified ? "Strongly Verified" : "Evidence Building"}
+              <span>{verifiedCount === 0 ? "○" : "●"}</span>{" "}
+              {!isAuthenticated
+                ? "Guest Mode"
+                : verifiedCount === 0
+                ? "Not Started"
+                : isStronglyVerified
+                ? "Strongly Verified"
+                : "Evidence Building"}
             </div>
             <div style={{ fontSize: 13, color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
-              Resume, projects & skills connected
+              {!isAuthenticated
+                ? "Sign in to activate profile"
+                : verifiedCount === 0
+                ? "Complete Student DNA to generate profile"
+                : "Resume, projects & skills connected"}
             </div>
             <div
               style={{
@@ -957,7 +998,7 @@ export default function StudentDashboardOverview() {
                     Skills
                   </div>
                   <div style={{ color: isDark ? "#F2F6FC" : "#17191C", fontWeight: 500, marginTop: 2 }}>
-                    Python · AI/ML · Web · GenAI
+                    {verifiedSkills.length > 0 ? verifiedSkills.join(" · ") : "No verified skills yet"}
                   </div>
                 </div>
 
@@ -966,7 +1007,9 @@ export default function StudentDashboardOverview() {
                     Projects
                   </div>
                   <div style={{ color: isDark ? "#F2F6FC" : "#17191C", fontWeight: 500, marginTop: 2 }}>
-                    3 verified projects
+                    {demonstratedProjectsCount > 0
+                      ? `${demonstratedProjectsCount} demonstrated project${demonstratedProjectsCount > 1 ? "s" : ""}`
+                      : "No projects recorded"}
                   </div>
                 </div>
 
@@ -975,7 +1018,9 @@ export default function StudentDashboardOverview() {
                     Evidence Sources
                   </div>
                   <div style={{ color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
-                    GitHub · Projects · Hackathons · DSA
+                    {intelligence?.totalEvidenceCount && intelligence.totalEvidenceCount > 0
+                      ? `${intelligence.totalEvidenceCount} verified evidence item${intelligence.totalEvidenceCount > 1 ? "s" : ""}`
+                      : "No evidence connected yet"}
                   </div>
                 </div>
 
@@ -984,7 +1029,7 @@ export default function StudentDashboardOverview() {
                     Target Direction
                   </div>
                   <div style={{ color: isDark ? "#4C8DFF" : "#356AE6", fontWeight: 600, marginTop: 2 }}>
-                    {intelligence?.intent?.primaryGoal || "AI/ML Engineer · Software Engineer"}
+                    {intelligence?.intent?.primaryGoal || (profile as any)?.target_roles?.[0] || "Not selected yet"}
                   </div>
                 </div>
               </div>
@@ -1035,80 +1080,42 @@ export default function StudentDashboardOverview() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {/* Priority 1 */}
-                <div
-                  style={{
-                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                    borderRadius: 7,
-                    padding: "10px 12px",
-                    border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#EAB65A" : "#B7791F", textTransform: "uppercase" }}>
-                      Priority 1: Strengthen DSA
-                    </span>
-                    <Link
-                      href="/student/dsa-tracker"
-                      style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", textDecoration: "none" }}
+                {intelligence?.gaps && intelligence.gaps.length > 0 ? (
+                  intelligence.gaps.slice(0, 3).map((gap: any, gIdx: number) => (
+                    <div
+                      key={gap.capability || gIdx}
+                      style={{
+                        backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                        borderRadius: 7,
+                        padding: "10px 12px",
+                        border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA"
+                      }}
                     >
-                      Continue →
-                    </Link>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#EAB65A" : "#B7791F", textTransform: "uppercase" }}>
+                          Priority {gIdx + 1}: {gap.capability}
+                        </span>
+                        <Link
+                          href="/student/skills"
+                          style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", textDecoration: "none" }}
+                        >
+                          View gap →
+                        </Link>
+                      </div>
+                      <div style={{ fontSize: 12, color: isDark ? "#AFC0D4" : "#667085", marginTop: 4 }}>
+                        {gap.rationale || gap.whyText || `Required capability for ${intelligence?.intent?.primaryGoal || "target role"}.`}
+                      </div>
+                    </div>
+                  ))
+                ) : verifiedCount > 0 ? (
+                  <div style={{ padding: "12px", borderRadius: 7, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA", fontSize: 12, color: isDark ? "#AFC0D4" : "#667085" }}>
+                    All core competencies for your current target role are supported by verified evidence.
                   </div>
-                  <div style={{ fontSize: 12, color: isDark ? "#AFC0D4" : "#667085", marginTop: 4 }}>
-                    Arrays / Trees need more demonstrated code evidence.
+                ) : (
+                  <div style={{ padding: "12px", borderRadius: 7, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA", fontSize: 12, color: isDark ? "#AFC0D4" : "#667085" }}>
+                    Complete Student DNA onboarding to benchmark your capabilities and uncover role-specific learning priorities.
                   </div>
-                </div>
-
-                {/* Priority 2 */}
-                <div
-                  style={{
-                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                    borderRadius: 7,
-                    padding: "10px 12px",
-                    border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#EAB65A" : "#356AE6", textTransform: "uppercase" }}>
-                      Priority 2: Build ML Evidence
-                    </span>
-                    <Link
-                      href="/student/skills"
-                      style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", textDecoration: "none" }}
-                    >
-                      View gap →
-                    </Link>
-                  </div>
-                  <div style={{ fontSize: 12, color: isDark ? "#AFC0D4" : "#667085", marginTop: 4 }}>
-                    Target role requires stronger ML project evidence.
-                  </div>
-                </div>
-
-                {/* Priority 3 */}
-                <div
-                  style={{
-                    backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                    borderRadius: 7,
-                    padding: "10px 12px",
-                    border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#EAB65A" : "#2E7D5B", textTransform: "uppercase" }}>
-                      Priority 3: Interview Prep
-                    </span>
-                    <Link
-                      href="/interview"
-                      style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", textDecoration: "none" }}
-                    >
-                      Prepare →
-                    </Link>
-                  </div>
-                  <div style={{ fontSize: 12, color: isDark ? "#AFC0D4" : "#667085", marginTop: 4 }}>
-                    3 important topics remain in core CS fundamentals.
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -1157,76 +1164,82 @@ export default function StudentDashboardOverview() {
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {recommendations.slice(0, 3).map((rec, idx) => {
-                  const opp = rec.opportunity;
-                  const matchLabels = ["Strong profile relevance", "Relevant to current skills", "Moderate relevance"];
-                  const matchLabel = matchLabels[idx] || "Matched";
-                  return (
-                    <div
-                      key={rec.opportunity_id}
-                      style={{
-                        backgroundColor: isDark ? "#13243A" : "#FAF9F6",
-                        borderRadius: 7,
-                        padding: "10px 12px",
-                        border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 10
-                      }}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-                        <CompanyLogo companyName={opp.organizer} size={30} />
-                        <div style={{ minWidth: 0 }}>
-                          <div
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: isDark ? "#F2F6FC" : "#17191C",
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis"
-                            }}
-                          >
-                            {opp.title.slice(0, 24)}...
-                          </div>
-                          <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
-                            {opp.organizer} · {matchLabel}
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() =>
-                          setSelectedOppForModal({
-                            title: opp.title,
-                            organizer: opp.organizer,
-                            matchReason: rec.reasoning,
-                            verifiedTags: rec.matching_tags || ["Python", "AI / ML"],
-                            missingTags: rec.missing_tags || [],
-                            deadline: opp.deadline || "October 2026",
-                            sourceUrl: opp.source_url || "/student/opportunities",
-                            opportunityId: rec.opportunity_id
-                          })
-                        }
+                {recommendations.length > 0 ? (
+                  recommendations.slice(0, 3).map((rec, idx) => {
+                    const opp = rec.opportunity;
+                    const matchLabels = ["Strong profile relevance", "Relevant to current skills", "Moderate relevance"];
+                    const matchLabel = matchLabels[idx] || "Matched";
+                    return (
+                      <div
+                        key={rec.opportunity_id}
                         style={{
-                          backgroundColor: isDark ? "#101F34" : "#FFFFFF",
-                          border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
-                          borderRadius: 5,
-                          color: isDark ? "#4C8DFF" : "#356AE6",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          padding: "5px 10px",
-                          flexShrink: 0,
-                          transition: "all 0.15s ease"
+                          backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                          borderRadius: 7,
+                          padding: "10px 12px",
+                          border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: 10
                         }}
                       >
-                        View →
-                      </button>
-                    </div>
-                  );
-                })}
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+                          <CompanyLogo companyName={opp.organizer} size={30} />
+                          <div style={{ minWidth: 0 }}>
+                            <div
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: isDark ? "#F2F6FC" : "#17191C",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis"
+                              }}
+                            >
+                              {opp.title.slice(0, 24)}...
+                            </div>
+                            <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", marginTop: 2 }}>
+                              {opp.organizer} · {matchLabel}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            setSelectedOppForModal({
+                              title: opp.title,
+                              organizer: opp.organizer,
+                              matchReason: rec.reasoning,
+                              verifiedTags: rec.matching_tags || [],
+                              missingTags: rec.missing_tags || [],
+                              deadline: opp.deadline || "October 2026",
+                              sourceUrl: opp.source_url || "/student/opportunities",
+                              opportunityId: rec.opportunity_id
+                            })
+                          }
+                          style={{
+                            backgroundColor: isDark ? "#101F34" : "#FFFFFF",
+                            border: isDark ? "1px solid #2A435F" : "1px solid #E4E1DA",
+                            borderRadius: 5,
+                            color: isDark ? "#4C8DFF" : "#356AE6",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            padding: "5px 10px",
+                            flexShrink: 0,
+                            transition: "all 0.15s ease"
+                          }}
+                        >
+                          View →
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div style={{ padding: "12px", borderRadius: 7, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: isDark ? "1px solid #263D57" : "1px solid #E4E1DA", fontSize: 12, color: isDark ? "#AFC0D4" : "#667085" }}>
+                    No personalized recommendations yet. Explore all opportunities or complete Student DNA.
+                  </div>
+                )}
               </div>
             </div>
 

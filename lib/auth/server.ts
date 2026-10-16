@@ -58,6 +58,18 @@ export async function getAuthenticatedContext(req: NextRequest): Promise<Authent
     user = getUserById(userId);
   }
 
+  if (!user && session?.userId) {
+    const { createUser } = await import("./store");
+    user = createUser({
+      id: session.userId,
+      email: `${session.userId}@cognalyze.local`,
+      passwordHash: null,
+      passwordSalt: null,
+      accountType: session.accountType || "student",
+      status: "ACTIVE"
+    });
+  }
+
   if (!user || user.status === "SUSPENDED" || user.status === "REVOKED") {
     return null;
   }

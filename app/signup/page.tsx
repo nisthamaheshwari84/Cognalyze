@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import CognalyzeLogo from "@/components/CognalyzeLogo";
 
 export default function SignupChoicePage() {
   const router = useRouter();
@@ -20,13 +21,14 @@ export default function SignupChoicePage() {
       <div className="w-full max-w-lg relative z-10 space-y-8">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <Link
-            href="/"
-            style={{ color: "#162A43" }}
-            className="inline-block font-extrabold text-xl tracking-tight mb-1"
-          >
-            COGNALYZE
-          </Link>
+          <div className="flex justify-center mb-2">
+            <CognalyzeLogo
+              variant="stacked"
+              size="md"
+              href="/"
+              priority
+            />
+          </div>
           <h1
             style={{ color: "#162A43" }}
             className="text-3xl sm:text-4xl font-bold tracking-tight"

@@ -1,27 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
-/**
- * GET /api/opportunities/[id]
- * 
- * Fetches deep-dive analysis for a single opportunity:
- * - Canonical opportunity & source instances
- * - Role DNA breakdown (Must-have, preferred, experience, education, disqualifiers)
- * - Eligibility result with blockers and satisfied requirements
- * - Candidate match details & internal heuristic score
- * - Evidence mapping (PROVEN, SUPPORTED, CLAIMED, WEAK, MISSING) with provenance
- * - "Why this opportunity?" transparent explanation
- * - Action plan for BUILD_EVIDENCE gaps
- * - Official direct application links
- */
 export async function GET(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuthenticatedContext(request);
     const { id } = await context.params;
     const { searchParams } = new URL(request.url);
-    const studentId = searchParams.get("studentId") || "student-demo";
+    const studentId = auth?.user?.id || (searchParams.get("studentId") === "student-demo" ? "student-demo" : null);
 
     if (!id) {
       return NextResponse.json(
@@ -30,7 +19,7 @@ export async function GET(
       );
     }
 
-    const match = await opportunityService.getOpportunityById(id, studentId);
+    const match = await opportunityService.getOpportunityById(id, studentId || "guest");
 
     if (!match) {
       return NextResponse.json(
@@ -39,7 +28,7 @@ export async function GET(
       );
     }
 
-    const isSaved = opportunityService.isOpportunitySaved(studentId, id);
+    const isSaved = studentId ? opportunityService.isOpportunitySaved(studentId, id) : false;
 
     return NextResponse.json({
       success: true,

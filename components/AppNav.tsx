@@ -34,6 +34,7 @@ import {
   Bot,
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import CognalyzeLogo from "@/components/CognalyzeLogo";
 
 interface AppNavProps {
   role?: "student" | "recruiter" | "admin";
@@ -366,55 +367,17 @@ export default function AppNav({ role = "student" }: AppNavProps) {
               href={role === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard"}
               style={{
                 textDecoration: "none",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: 10,
               }}
             >
-              <div
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 6,
-                  backgroundColor: "#162A43",
-                  color: "#FFFFFF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: 14,
-                  letterSpacing: "-0.5px",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                }}
-              >
-                C
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 700,
-                    letterSpacing: "-0.3px",
-                    color: isDark ? "#FFFFFF" : "#162A43",
-                  }}
-                >
-                  COGNALYZE
-                </span>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 600,
-                    padding: "1px 5px",
-                    borderRadius: 4,
-                    backgroundColor: isDark ? "#142339" : "#F0EFEA",
-                    color: isDark ? "#94A3B8" : "#667085",
-                    border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {role}
-                </span>
-              </div>
+              <CognalyzeLogo
+                variant="horizontal"
+                size={28}
+                isDark={isDark}
+                roleBadge={role}
+                priority
+              />
             </Link>
 
             {/* Subtle Divider */}
@@ -667,26 +630,8 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 borderBottom: isDark ? "1px solid #223750" : "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div
-                  style={{
-                    width: 26,
-                    height: 26,
-                    borderRadius: 6,
-                    backgroundColor: "#356AE6",
-                    color: "#FFFFFF",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: 800,
-                    fontSize: 13,
-                  }}
-                >
-                  C
-                </div>
-                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.3px", color: "white" }}>
-                  COGNALYZE
-                </span>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <CognalyzeLogo variant="horizontal" size={26} theme="light-text" priority />
               </div>
 
               <button

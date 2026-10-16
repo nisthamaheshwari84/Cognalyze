@@ -89,6 +89,9 @@ let isDNAStoreLoaded = false;
 function getDNAFilePath(): string {
   if (typeof window === "undefined") {
     const path = require("path");
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      return path.join("/tmp", "cognalyze-dna-store.json");
+    }
     return path.join(process.cwd(), "data", "dna-store.json");
   }
   return "";
@@ -173,8 +176,8 @@ export function persistDNAStoreToDisk(): void {
   }
 }
 
-export async function saveDNAStoreToCloud(payload?: any): Promise<void> {
-  if (typeof window !== "undefined") return;
+export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boolean; error?: string }> {
+  if (typeof window !== "undefined") return { success: true };
   try {
     const dataToSave = payload || {
       evidence: Object.fromEntries(USER_EVIDENCE_STORE.entries()),
@@ -183,23 +186,32 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<void> {
       updatedAt: new Date().toISOString()
     };
 
-    const { data: existingRows } = await supabase
+    const { data: existingRows, error: selectErr } = await supabase
       .from("analyses")
       .select("id")
       .eq("recruiter_clerk_id", CLOUD_DNA_KEY)
       .order("created_at", { ascending: false })
       .limit(1);
 
+    if (selectErr) {
+      console.warn("[dna-store] Cloud mirror select warning:", selectErr.message);
+      return { success: false, error: selectErr.message };
+    }
+
     if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
-      await supabase
+      const { error: updateErr } = await supabase
         .from("analyses")
         .update({
           full_report: dataToSave,
           created_at: new Date().toISOString()
         })
         .eq("id", existingRows[0].id);
+      if (updateErr) {
+        console.warn("[dna-store] Cloud mirror update warning:", updateErr.message);
+        return { success: false, error: updateErr.message };
+      }
     } else {
-      await supabase
+      const { error: insertErr } = await supabase
         .from("analyses")
         .insert({
           recruiter_clerk_id: CLOUD_DNA_KEY,
@@ -207,9 +219,15 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<void> {
           final_verdict: "ACTIVE",
           full_report: dataToSave
         });
+      if (insertErr) {
+        console.warn("[dna-store] Cloud mirror insert warning:", insertErr.message);
+        return { success: false, error: insertErr.message };
+      }
     }
-  } catch (err) {
-    // Non-fatal cloud mirror
+    return { success: true };
+  } catch (err: any) {
+    console.warn("[dna-store] Cloud mirror exception:", err?.message || err);
+    return { success: false, error: err?.message || "Failed to save DNA store to cloud" };
   }
 }
 
@@ -254,9 +272,48 @@ syncDNAStoreWithCloud().catch(() => {});
  * Invalidate in-memory evidence and audit logs for a user so changes recompute immediately.
  */
 export function invalidateUserDNAScope(userId: string): void {
-  USER_EVIDENCE_STORE.delete(userId);
-  USER_AUDIT_LOGS.delete(userId);
+  // Invalidate derived caches; preserve historical evidence and audit logs
   invalidateCandidateEvidence(userId);
+
+  // Re-synchronize evidence with any updated profile projects
+  const existing = USER_EVIDENCE_STORE.get(userId);
+  if (existing) {
+    const authProfile = getStudentProfileByUserId(userId);
+    if (authProfile && Array.isArray(authProfile.projects)) {
+      for (let pIdx = 0; pIdx < authProfile.projects.length; pIdx++) {
+        const proj: any = authProfile.projects[pIdx];
+        const title = proj.title || "Project";
+        const techList: string[] = Array.isArray(proj.techStack) ? proj.techStack : (Array.isArray(proj.tech_stack) ? proj.tech_stack : ["Software Engineering"]);
+        for (const tech of techList) {
+          const sourceId = `proj_${pIdx}_${tech.toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
+          if (!existing.some(e => e.sourceId === sourceId || e.metadata?.canonicalProjectId === title || (e.metadata?.projectTitle === title && e.skillId === tech.toLowerCase()))) {
+            const raw: RawSourceData = {
+              sourceType: "project",
+              sourceId,
+              sourceUrl: proj.githubUrl || proj.github_url || "https://github.com/repository",
+              userId,
+              skillRaw: tech,
+              evidenceType: "project_artifact",
+              claim: `Implemented project '${title}' utilizing ${tech}`,
+              extractedValue: proj.description || `Fullstack implementation with ${tech}`,
+              strength: 0.8,
+              timestamp: new Date().toISOString(),
+              metadata: {
+                projectTitle: title,
+                techStack: techList,
+                canonicalProjectId: title,
+                role: proj.role || "Developer"
+              }
+            };
+            const processed = processEvidencePipeline([raw]);
+            if (processed.length > 0) {
+              existing.unshift(processed[0]);
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 /**
@@ -502,7 +559,9 @@ export async function addStudentEvidenceRecord(
   const newEv = processedBatch[0];
 
   // 4. Check for duplicate exact item
-  const existingIdx = currentList.findIndex(e => e.id === newEv.id);
+  const existingIdx = currentList.findIndex(
+    e => e.id === newEv.id || (Boolean(newEv.sourceId) && e.sourceId === newEv.sourceId && e.sourceType === newEv.sourceType && e.skillId === newEv.skillId)
+  );
   if (existingIdx >= 0) {
     currentList[existingIdx] = newEv;
   } else {

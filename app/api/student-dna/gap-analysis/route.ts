@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
-import { getStudentEvidenceList } from "@/lib/dna/store";
+import { getStudentEvidenceList, setUserTargetRole } from "@/lib/dna/store";
 import { calculateStudentSkillProfile } from "@/lib/dna/profile-engine";
 import { getBenchmarkProfile, extractRequirementsFromJD, parseJobDescriptionDeterministically, RequirementProfile } from "@/lib/dna/requirement-engine";
 import { runDeterministicGapAnalysis } from "@/lib/dna/gap-engine";
@@ -39,10 +39,21 @@ export async function POST(req: NextRequest) {
       }
     } else if (roleKey) {
       targetProfile = getBenchmarkProfile(roleKey);
+      if (!targetProfile) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Invalid roleKey: '${roleKey}'. Must be one of: sde_intern, full_stack, backend_sde1, ai_ml_engineer`
+          },
+          { status: 400 }
+        );
+      }
+      setUserTargetRole(candidateId, roleKey);
     }
 
     if (!targetProfile) {
       targetProfile = getBenchmarkProfile("sde_intern")!;
+      setUserTargetRole(candidateId, "sde_intern");
     }
 
     // Fetch user-isolated evidence and calculate skills
