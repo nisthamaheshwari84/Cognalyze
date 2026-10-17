@@ -137,8 +137,18 @@ export default function Home() {
         }}
       >
         <div style={{ maxWidth: 1280, width: "100%", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}>
-            <CognalyzeLogo variant="horizontal" size={30} priority />
+          <Link href="/" style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10 }}>
+            <CognalyzeLogo variant="symbol-only" size={30} priority />
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: "-0.4px",
+                color: "var(--text-primary, #162A43)",
+              }}
+            >
+              COGNALYZE
+            </span>
           </Link>
 
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

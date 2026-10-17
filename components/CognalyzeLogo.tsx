@@ -3,12 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export type LogoVariant = "horizontal" | "stacked" | "symbol-only";
-export type LogoTheme = "auto" | "light-text" | "dark-text";
 export type LogoSize = "sm" | "md" | "lg" | "xl" | number;
 
 export interface CognalyzeLogoProps {
   variant?: LogoVariant;
-  theme?: LogoTheme;
   size?: LogoSize;
   href?: string;
   className?: string;
@@ -19,13 +17,12 @@ export interface CognalyzeLogoProps {
 
 export default function CognalyzeLogo({
   variant = "horizontal",
-  theme = "auto",
   size = "md",
   href,
   className = "",
   priority = false,
   roleBadge,
-  isDark,
+  isDark = false,
 }: CognalyzeLogoProps) {
   // Compute dimensions
   let symbolSize = 32;
@@ -39,30 +36,30 @@ export default function CognalyzeLogo({
   } else {
     switch (size) {
       case "sm":
-        symbolSize = 24;
-        horizHeight = 26;
+        symbolSize = 26;
+        horizHeight = 28;
         stackedWidth = 110;
         break;
       case "md":
-        symbolSize = 30;
-        horizHeight = 32;
+        symbolSize = 32;
+        horizHeight = 34;
         stackedWidth = 140;
         break;
       case "lg":
-        symbolSize = 40;
-        horizHeight = 42;
+        symbolSize = 42;
+        horizHeight = 44;
         stackedWidth = 180;
         break;
       case "xl":
         symbolSize = 56;
-        horizHeight = 54;
+        horizHeight = 56;
         stackedWidth = 230;
         break;
     }
   }
 
   const renderContent = () => {
-    // 1. Symbol Only Variant
+    // 1. Symbol Only Variant (Exact official squircle with graduation cap, C, and gold tassel)
     if (variant === "symbol-only") {
       return (
         <div
@@ -71,56 +68,19 @@ export default function CognalyzeLogo({
         >
           <Image
             src="/cognalyze-symbol.png"
-            alt="Cognalyze Symbol"
+            alt="Cognalyze"
             width={symbolSize}
             height={symbolSize}
             priority={priority}
             className="w-full h-full object-contain select-none"
-            style={{ borderRadius: symbolSize > 32 ? 8 : 6 }}
+            style={{ borderRadius: Math.round(symbolSize * 0.22) }}
           />
         </div>
       );
     }
 
-    // 2. Stacked Variant (Squircle on top, Wordmark below)
+    // 2. Stacked Variant (Exact official full logo with squircle and COGNALYZE underneath)
     if (variant === "stacked") {
-      if (theme === "light-text" || isDark === true) {
-        return (
-          <div
-            className={`relative inline-flex flex-col items-center justify-center shrink-0 ${className}`}
-            style={{ width: stackedWidth }}
-          >
-            <Image
-              src="/cognalyze-logo-white.png"
-              alt="Cognalyze Logo"
-              width={stackedWidth}
-              height={stackedWidth}
-              priority={priority}
-              className="w-full h-auto object-contain select-none"
-            />
-          </div>
-        );
-      }
-
-      if (theme === "dark-text" || isDark === false) {
-        return (
-          <div
-            className={`relative inline-flex flex-col items-center justify-center shrink-0 ${className}`}
-            style={{ width: stackedWidth }}
-          >
-            <Image
-              src="/cognalyze-logo.png"
-              alt="Cognalyze Logo"
-              width={stackedWidth}
-              height={stackedWidth}
-              priority={priority}
-              className="w-full h-auto object-contain select-none"
-            />
-          </div>
-        );
-      }
-
-      // Auto: CSS-driven dark mode switching
       return (
         <div
           className={`relative inline-flex flex-col items-center justify-center shrink-0 ${className}`}
@@ -128,101 +88,48 @@ export default function CognalyzeLogo({
         >
           <Image
             src="/cognalyze-logo.png"
-            alt="Cognalyze Logo"
+            alt="Cognalyze"
             width={stackedWidth}
             height={stackedWidth}
             priority={priority}
-            className="w-full h-auto object-contain select-none dark:hidden"
-          />
-          <Image
-            src="/cognalyze-logo-white.png"
-            alt="Cognalyze Logo"
-            width={stackedWidth}
-            height={stackedWidth}
-            priority={priority}
-            className="w-full h-auto object-contain select-none hidden dark:block"
+            className="w-full h-auto object-contain select-none"
           />
         </div>
       );
     }
 
-    // 3. Horizontal Variant (Symbol + Wordmark inline)
-    const horizWidth = Math.round(horizHeight * 4.1875);
+    // 3. Horizontal Variant (Exact official horizontal lockup)
+    // Aspect ratio: 624 / 140 = 4.457
+    const horizWidth = Math.round(horizHeight * 4.457);
 
-    const badgeEl = roleBadge ? (
-      <span
-        style={{
-          fontSize: 10,
-          fontWeight: 600,
-          padding: "1px 6px",
-          borderRadius: 4,
-          backgroundColor: isDark ? "#142339" : "#F0EFEA",
-          color: isDark ? "#94A3B8" : "#667085",
-          border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
-          textTransform: "uppercase",
-          letterSpacing: "0.5px",
-        }}
-      >
-        {roleBadge}
-      </span>
-    ) : null;
-
-    if (theme === "light-text" || isDark === true) {
-      return (
-        <div className={`inline-flex items-center gap-2 select-none shrink-0 ${className}`}>
-          <Image
-            src="/cognalyze-logo-horizontal-white.png"
-            alt="Cognalyze Logo"
-            width={horizWidth}
-            height={horizHeight}
-            priority={priority}
-            className="h-auto object-contain"
-            style={{ height: horizHeight, width: "auto" }}
-          />
-          {badgeEl}
-        </div>
-      );
-    }
-
-    if (theme === "dark-text" || isDark === false) {
-      return (
-        <div className={`inline-flex items-center gap-2 select-none shrink-0 ${className}`}>
-          <Image
-            src="/cognalyze-logo-horizontal.png"
-            alt="Cognalyze Logo"
-            width={horizWidth}
-            height={horizHeight}
-            priority={priority}
-            className="h-auto object-contain"
-            style={{ height: horizHeight, width: "auto" }}
-          />
-          {badgeEl}
-        </div>
-      );
-    }
-
-    // Auto: CSS-driven dark mode switching
     return (
       <div className={`inline-flex items-center gap-2 select-none shrink-0 ${className}`}>
         <Image
           src="/cognalyze-logo-horizontal.png"
-          alt="Cognalyze Logo"
+          alt="Cognalyze"
           width={horizWidth}
           height={horizHeight}
           priority={priority}
-          className="h-auto object-contain dark:hidden"
+          className="h-auto object-contain"
           style={{ height: horizHeight, width: "auto" }}
         />
-        <Image
-          src="/cognalyze-logo-horizontal-white.png"
-          alt="Cognalyze Logo"
-          width={horizWidth}
-          height={horizHeight}
-          priority={priority}
-          className="h-auto object-contain hidden dark:block"
-          style={{ height: horizHeight, width: "auto" }}
-        />
-        {badgeEl}
+        {roleBadge && (
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 600,
+              padding: "1px 6px",
+              borderRadius: 4,
+              backgroundColor: isDark ? "#142339" : "#F0EFEA",
+              color: isDark ? "#94A3B8" : "#667085",
+              border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}
+          >
+            {roleBadge}
+          </span>
+        )}
       </div>
     );
   };

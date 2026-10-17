@@ -369,15 +369,36 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 textDecoration: "none",
                 display: "inline-flex",
                 alignItems: "center",
+                gap: 10,
               }}
             >
-              <CognalyzeLogo
-                variant="horizontal"
-                size={28}
-                isDark={isDark}
-                roleBadge={role}
-                priority
-              />
+              <CognalyzeLogo variant="symbol-only" size={28} priority />
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    letterSpacing: "-0.3px",
+                    color: isDark ? "#FFFFFF" : "#162A43",
+                  }}
+                >
+                  COGNALYZE
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 600,
+                    padding: "1px 5px",
+                    borderRadius: 4,
+                    backgroundColor: isDark ? "#142339" : "#F0EFEA",
+                    color: isDark ? "#94A3B8" : "#667085",
+                    border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {role}
+                </span>
+              </div>
             </Link>
 
             {/* Subtle Divider */}
@@ -630,8 +651,11 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 borderBottom: isDark ? "1px solid #223750" : "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <CognalyzeLogo variant="horizontal" size={26} theme="light-text" priority />
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <CognalyzeLogo variant="symbol-only" size={26} priority />
+                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: "-0.3px", color: "white" }}>
+                  COGNALYZE
+                </span>
               </div>
 
               <button
