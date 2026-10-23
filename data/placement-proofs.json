@@ -1,0 +1,292 @@
+{
+  "proof-test-user-1792775341012": [
+    {
+      "id": "proof_1792775342534_9qs7c",
+      "userId": "proof-test-user-1792775341012",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "certificate",
+      "title": "Claimed Passing Score",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 80,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:09:02.534Z"
+    },
+    {
+      "id": "proof_1792775342531_ieoey",
+      "userId": "proof-test-user-1792775341012",
+      "skillOrClaim": "Operating Systems",
+      "evidenceType": "coding_assessment",
+      "title": "CS Fundamentals OS Benchmark",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_and_rubric_evaluation",
+      "confidenceScore": 90,
+      "assessmentScore": 92,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:02.531Z",
+      "createdAt": "2026-10-23T17:09:02.531Z"
+    },
+    {
+      "id": "proof_1792775342525_aq5rs",
+      "userId": "proof-test-user-1792775341012",
+      "skillOrClaim": "Data Structures",
+      "evidenceType": "github_repo",
+      "title": "GitHub Repository with 40 Commits",
+      "description": "",
+      "sourceUrl": "https://github.com/candidate/algo-solutions",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_history",
+      "confidenceScore": 75,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:02.525Z",
+      "createdAt": "2026-10-23T17:09:02.525Z"
+    }
+  ],
+  "proof-integrity-1792775341009": [
+    {
+      "id": "proof_1792775342532_a9vxk",
+      "userId": "proof-integrity-1792775341009",
+      "skillOrClaim": "dsa_binary_search",
+      "evidenceType": "coding_assessment",
+      "title": "Binary Search Arena Execution (Painter's Partition)",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_test_cases",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:02.532Z",
+      "createdAt": "2026-10-23T17:09:02.532Z"
+    }
+  ],
+  "elevation-test-1792775342537": [
+    {
+      "id": "proof_1792775342542_t8jfc",
+      "userId": "elevation-test-1792775342537",
+      "skillOrClaim": "sql_window_functions",
+      "evidenceType": "coding_assessment",
+      "title": "SQL Window Functions Verified Execution",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "sqlite_database_sync",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:02.542Z",
+      "createdAt": "2026-10-23T17:09:02.542Z"
+    }
+  ],
+  "proof-test-user-1792775361706": [
+    {
+      "id": "proof_1792775366219_34r0x",
+      "userId": "proof-test-user-1792775361706",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "certificate",
+      "title": "Claimed Passing Score",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 80,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:09:26.219Z"
+    },
+    {
+      "id": "proof_1792775364743_cmdjb",
+      "userId": "proof-test-user-1792775361706",
+      "skillOrClaim": "Operating Systems",
+      "evidenceType": "coding_assessment",
+      "title": "CS Fundamentals OS Benchmark",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_and_rubric_evaluation",
+      "confidenceScore": 90,
+      "assessmentScore": 92,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:24.743Z",
+      "createdAt": "2026-10-23T17:09:24.743Z"
+    },
+    {
+      "id": "proof_1792775363565_wopbk",
+      "userId": "proof-test-user-1792775361706",
+      "skillOrClaim": "Data Structures",
+      "evidenceType": "github_repo",
+      "title": "GitHub Repository with 40 Commits",
+      "description": "",
+      "sourceUrl": "https://github.com/candidate/algo-solutions",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_history",
+      "confidenceScore": 75,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:23.565Z",
+      "createdAt": "2026-10-23T17:09:23.565Z"
+    },
+    {
+      "id": "proof_1792775361706_vq4wr",
+      "userId": "proof-test-user-1792775361706",
+      "skillOrClaim": "SQL Window Functions",
+      "evidenceType": "github_repo",
+      "title": "Self-Reported SQL Study",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "candidate_claim",
+      "confidenceScore": 40,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:09:21.706Z"
+    }
+  ],
+  "elevation-test-1792775368422": [
+    {
+      "id": "proof_1792775368429_tzuef",
+      "userId": "elevation-test-1792775368422",
+      "skillOrClaim": "sql_window_functions",
+      "evidenceType": "coding_assessment",
+      "title": "SQL Window Functions Verified Execution",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "sqlite_database_sync",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:09:28.429Z",
+      "createdAt": "2026-10-23T17:09:28.429Z"
+    }
+  ],
+  "candidate-p4-user1-1792775423177": [
+    {
+      "id": "proof_1792775423186_zyyqf",
+      "userId": "candidate-p4-user1-1792775423177",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "github_repo",
+      "title": "Raft Consensus Protocol Implementation",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_analysis",
+      "confidenceScore": 85,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:10:23.186Z",
+      "createdAt": "2026-10-23T17:10:23.186Z"
+    }
+  ],
+  "proof-integrity-1792775424718": [
+    {
+      "id": "proof_1792775424732_s1tfx",
+      "userId": "proof-integrity-1792775424718",
+      "skillOrClaim": "dsa_binary_search",
+      "evidenceType": "coding_assessment",
+      "title": "Binary Search Arena Execution (Painter's Partition)",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_test_cases",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:10:24.732Z",
+      "createdAt": "2026-10-23T17:10:24.732Z"
+    },
+    {
+      "id": "proof_1792775424721_zoznd",
+      "userId": "proof-integrity-1792775424718",
+      "skillOrClaim": "dsa_binary_search",
+      "evidenceType": "certificate",
+      "title": "Self-Claimed LeetCode Mastery",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 70,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:10:24.721Z"
+    }
+  ],
+  "proof-test-user-1792775442797": [
+    {
+      "id": "proof_1792775444337_91nmx",
+      "userId": "proof-test-user-1792775442797",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "certificate",
+      "title": "Claimed Passing Score",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 80,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:10:44.337Z"
+    },
+    {
+      "id": "proof_1792775444327_xlhlg",
+      "userId": "proof-test-user-1792775442797",
+      "skillOrClaim": "Operating Systems",
+      "evidenceType": "coding_assessment",
+      "title": "CS Fundamentals OS Benchmark",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_and_rubric_evaluation",
+      "confidenceScore": 90,
+      "assessmentScore": 92,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:10:44.327Z",
+      "createdAt": "2026-10-23T17:10:44.327Z"
+    },
+    {
+      "id": "proof_1792775444322_5ld1d",
+      "userId": "proof-test-user-1792775442797",
+      "skillOrClaim": "Data Structures",
+      "evidenceType": "github_repo",
+      "title": "GitHub Repository with 40 Commits",
+      "description": "",
+      "sourceUrl": "https://github.com/candidate/algo-solutions",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_history",
+      "confidenceScore": 75,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:10:44.322Z",
+      "createdAt": "2026-10-23T17:10:44.322Z"
+    },
+    {
+      "id": "proof_1792775442797_2ethk",
+      "userId": "proof-test-user-1792775442797",
+      "skillOrClaim": "SQL Window Functions",
+      "evidenceType": "github_repo",
+      "title": "Self-Reported SQL Study",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "candidate_claim",
+      "confidenceScore": 40,
+      "metadata": {},
+      "createdAt": "2026-10-23T17:10:42.797Z"
+    }
+  ],
+  "elevation-test-1792775444345": [
+    {
+      "id": "proof_1792775444350_v7eo3",
+      "userId": "elevation-test-1792775444345",
+      "skillOrClaim": "sql_window_functions",
+      "evidenceType": "coding_assessment",
+      "title": "SQL Window Functions Verified Execution",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "sqlite_database_sync",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-10-23T17:10:44.350Z",
+      "createdAt": "2026-10-23T17:10:44.350Z"
+    }
+  ]
+}

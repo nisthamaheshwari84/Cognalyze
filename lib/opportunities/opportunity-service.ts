@@ -32,6 +32,8 @@ import { OpportunityFreshnessEngine } from "./pipeline/freshness-engine";
 import { OpportunityPersonalizationEngine } from "./engines/personalization-engine";
 import { LinkVerificationEngine } from "./verification/link-verifier";
 import { AdminManualImportAdapter } from "./adapters/admin-import-adapter";
+import { OpportunitySyncLeaseManager } from "./concurrency/sync-lease";
+import { supabaseAdmin, isSupabaseAvailable } from "@/lib/supabase";
 import {
   getStudentIntelligenceProfile,
   recordCareerMemoryItem,
@@ -77,9 +79,75 @@ export class OpportunityService {
   }
 
   /**
-   * Loads canonical opportunities from persistent disk store if available.
+   * Loads canonical opportunities from persistent database or disk store.
    */
-  private loadFromStore(): void {
+  private async loadFromStore(): Promise<void> {
+    try {
+      const isAvailable = await isSupabaseAvailable();
+      if (isAvailable && supabaseAdmin) {
+        const { data, error } = await supabaseAdmin
+          .from("opportunities")
+          .select("*")
+          .in("lifecycle_status", ["discovered", "active", "needs_review", "stale", "closed", "expired", "rejected"]);
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          this.canonicalOpportunities = data.map((row: any) => ({
+            id: row.id,
+            source: "DATABASE",
+            sourceType: "ATS",
+            sourceUrl: row.canonical_url,
+            applicationUrl: row.original_apply_url,
+            canonicalUrl: row.canonical_url,
+            companyId: `comp-${row.organization_name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            companyName: row.organization_name,
+            organizer: row.organization_name,
+            title: row.title,
+            normalizedTitle: row.title.toLowerCase().trim(),
+            opportunityType: row.category,
+            description: row.description || "",
+            location: row.location || "Unknown",
+            country: "India",
+            city: row.location || "Unknown",
+            remoteType: row.remote_type || "onsite",
+            employmentType: "full_time",
+            experienceLevel: "entry_level",
+            educationRequirements: { degreesAllowed: ["B.Tech", "B.E.", "MCA"], fieldsAllowed: ["CS", "IT"], isMandatory: false },
+            graduationRequirements: { isMandatory: false },
+            requiredSkills: [],
+            preferredSkills: [],
+            eligibilityRequirements: [],
+            disqualifiers: [],
+            postedAt: row.created_at,
+            updatedAt: row.updated_at,
+            deadline: row.deadline,
+            deadlineTimezone: row.deadline_timezone,
+            deadlineIsDateOnly: row.deadline_is_date_only,
+            deadlineEvaluationStatus: row.deadline_evaluation_status,
+            status: row.lifecycle_status.toUpperCase(),
+            verificationStatus: row.verification_status === "SOURCE_API_CONFIRMED" ? "VERIFIED" : (row.verification_status === "LINK_DEAD" ? "FAILED" : "UNVERIFIED"),
+            freshness: "ACTIVE",
+            roleDNA: {
+              roleCategory: row.category,
+              mustHaveSkills: [],
+              preferredSkills: [],
+              experienceYearsMin: 0,
+              experienceYearsMax: 2,
+              educationSummary: "Degree in Computer Science or related",
+              graduationWindow: "2024-2027",
+              locationMode: row.remote_type || "onsite",
+              disqualifiers: [],
+            },
+            createdAt: row.created_at,
+            lastVerifiedAt: row.last_verified_at,
+          }));
+          this.lastIngestedAt = Date.now();
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("[OpportunityService] Supabase initial load skipped, checking disk:", err);
+    }
+
     try {
       if (fs.existsSync(this.STORE_PATH)) {
         const raw = fs.readFileSync(this.STORE_PATH, "utf-8");
@@ -95,9 +163,9 @@ export class OpportunityService {
   }
 
   /**
-   * Persists canonical opportunities to disk atomically.
+   * Persists canonical opportunities to disk atomically and Supabase if available.
    */
-  private saveToStore(): void {
+  private async saveToStore(): Promise<void> {
     try {
       const dataDir = path.dirname(this.STORE_PATH);
       if (!fs.existsSync(dataDir)) {
@@ -106,6 +174,39 @@ export class OpportunityService {
       fs.writeFileSync(this.STORE_PATH, JSON.stringify(this.canonicalOpportunities, null, 2), "utf-8");
     } catch (err) {
       console.error("[OpportunityService] Failed to save to persistent store:", err);
+    }
+
+    try {
+      const isAvailable = await isSupabaseAvailable();
+      if (isAvailable && supabaseAdmin && this.canonicalOpportunities.length > 0) {
+        const rows = this.canonicalOpportunities.map((opp) => ({
+          id: opp.id,
+          title: opp.title,
+          organization_name: opp.companyName || opp.organizer || "Unknown Organization",
+          category: opp.opportunityType || "FULL_TIME",
+          opportunity_subtype: opp.classification || null,
+          description: opp.description || null,
+          canonical_url: opp.canonicalUrl || opp.sourceUrl,
+          original_apply_url: opp.applicationUrl,
+          location: opp.location || null,
+          remote_type: opp.remoteType || null,
+          tier: opp.opportunityType ? "Tier-1" : "Unranked",
+          compensation_or_prize: opp.prize || (opp.compensation?.stipendText ?? null),
+          deadline: opp.deadline || null,
+          deadline_timezone: opp.deadlineTimezone || null,
+          deadline_is_date_only: Boolean(opp.deadlineIsDateOnly),
+          deadline_evaluation_status: opp.deadlineEvaluationStatus || "NORMAL",
+          lifecycle_status: opp.status.toLowerCase(),
+          verification_status: opp.verificationStatus === "VERIFIED" ? "SOURCE_API_CONFIRMED" : (opp.verificationStatus === "FAILED" ? "LINK_DEAD" : "UNVERIFIED"),
+          last_seen_at: new Date().toISOString(),
+          last_verified_at: opp.lastVerifiedAt || null,
+          updated_at: opp.updatedAt || new Date().toISOString(),
+        }));
+
+        await supabaseAdmin.from("opportunities").upsert(rows, { onConflict: "id" });
+      }
+    } catch (dbErr) {
+      console.warn("[OpportunityService] Async Supabase persist skipped:", dbErr);
     }
   }
 
@@ -120,6 +221,19 @@ export class OpportunityService {
     expiredCount: number;
     duplicatesMerged: number;
   }> {
+    const leaseManager = OpportunitySyncLeaseManager.getInstance();
+    const lease = await leaseManager.acquireLease("master-opportunity-sync", 300);
+
+    if (!lease.acquired) {
+      console.log(`[OpportunityService] Sync skipped: Active lease held by ${lease.leaseOwner} until ${lease.expiresAt}`);
+      return {
+        totalOpportunities: this.canonicalOpportunities.length,
+        activeCount: this.getActiveOpportunities().length,
+        expiredCount: this.canonicalOpportunities.filter((o) => o.status === "EXPIRED").length,
+        duplicatesMerged: 0,
+      };
+    }
+
     if (this.isSyncing) {
       return {
         totalOpportunities: this.canonicalOpportunities.length,
@@ -130,9 +244,11 @@ export class OpportunityService {
     }
 
     this.isSyncing = true;
+    const runStartTime = Date.now();
+
     try {
       const registry = OpportunitySourceRegistry.getInstance();
-      const { canonicalOpportunities: newlyDiscovered } = await registry.researchAllSources();
+      const { canonicalOpportunities: newlyDiscovered, rawOpportunities: rawDiscovered } = await registry.researchAllSources();
 
       // Incremental upsert into existing canonical opportunities
       const existingMap = new Map<string, CanonicalOpportunity>();
@@ -148,7 +264,7 @@ export class OpportunityService {
             ...existing,
             ...incoming,
             sourceInstances: incoming.sourceInstances || existing.sourceInstances,
-            lastVerifiedAt: new Date().toISOString(),
+            lastVerifiedAt: incoming.lastVerifiedAt || existing.lastVerifiedAt,
             updatedAt: new Date().toISOString(),
           });
         } else {
@@ -159,12 +275,13 @@ export class OpportunityService {
 
       const allCombined = Array.from(existingMap.values());
 
-      // 1. Cross-source Deduplication: Merge identical events across Unstop, Devpost, Devfolio, IIT, etc.
+      // 1. Cross-source Deduplication: 6-stage engine
       const { uniqueOpportunities, duplicatesMergedCount } = OpportunityDeduplicator.deduplicate(allCombined);
 
       // 2. Freshness Engine: Evaluate expiry, lifecycle, and verification tags
       const evaluatedList: CanonicalOpportunity[] = [];
       const verifier = LinkVerificationEngine.getInstance();
+      let verifiedBudget = 10;
 
       for (const opp of uniqueOpportunities) {
         const freshnessResult = OpportunityFreshnessEngine.evaluateFreshness(opp);
@@ -172,7 +289,9 @@ export class OpportunityService {
         opp.freshness = freshnessResult.freshness;
 
         // 3. Link Verification Engine: Deterministically verify application & registration links
-        if (opp.status !== "EXPIRED" && opp.status !== "REMOVED") {
+        const needsVerification = !opp.lastVerifiedAt || (Date.now() - new Date(opp.lastVerifiedAt).getTime() > 24 * 3600 * 1000);
+        if (opp.status !== "EXPIRED" && opp.status !== "REMOVED" && needsVerification && verifiedBudget > 0) {
+          verifiedBudget--;
           try {
             const vResult = await verifier.verifyUrl(opp.applicationUrl, {
               title: opp.title,
@@ -208,7 +327,27 @@ export class OpportunityService {
 
       this.canonicalOpportunities = evaluatedList;
       this.lastIngestedAt = Date.now();
-      this.saveToStore();
+      await this.saveToStore();
+
+      // Record Sync Run in database if available
+      try {
+        const isAvailable = await isSupabaseAvailable();
+        if (isAvailable && supabaseAdmin) {
+          await supabaseAdmin.from("opportunity_sync_runs").insert({
+            source_id: "master-opportunity-sync",
+            started_at: new Date(runStartTime).toISOString(),
+            finished_at: new Date().toISOString(),
+            discovered_count: newlyDiscovered.length,
+            ingested_count: evaluatedList.length,
+            updated_count: evaluatedList.length,
+            error_count: 0,
+            status: "SUCCESS",
+            log_summary: `Sync completed in ${Date.now() - runStartTime}ms. ${evaluatedList.length} canonical opportunities preserved, ${duplicatesMergedCount} duplicates merged.`
+          });
+        }
+      } catch (logErr) {
+        console.warn("[OpportunityService] Sync run logging skipped:", logErr);
+      }
 
       return {
         totalOpportunities: evaluatedList.length,
@@ -218,6 +357,7 @@ export class OpportunityService {
       };
     } finally {
       this.isSyncing = false;
+      await leaseManager.releaseLease("master-opportunity-sync");
     }
   }
 

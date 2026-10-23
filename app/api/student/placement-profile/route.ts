@@ -5,6 +5,7 @@ import {
   upsertPlacementProfile,
   generateAdaptiveRoadmap,
 } from "@/lib/skills/placement-profile-engine";
+import { PlacementIntelligenceService } from "@/lib/skills/placement-intelligence-engine";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,24 +14,23 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
     }
 
-    const profile = getPlacementProfile(auth.user.id);
-    if (!profile) {
-      return NextResponse.json({
-        success: true,
-        hasProfile: false,
-        profileState: "NO_PROFILE",
-        profile: null,
-        roadmap: generateAdaptiveRoadmap(null),
-      });
-    }
+    const userId = auth.user.id;
+    const dashboard = await PlacementIntelligenceService.getInstance().getCompletePlacementDashboard(userId);
 
-    const roadmap = generateAdaptiveRoadmap(profile);
+    const hasProfile = !!dashboard.profile;
+    const roadmap = generateAdaptiveRoadmap(dashboard.profile);
 
     return NextResponse.json({
       success: true,
-      hasProfile: true,
-      profileState: profile.profileCompleted ? "COMPLETE" : "PARTIAL",
-      profile,
+      hasProfile,
+      profileState: dashboard.profile?.profileCompleted ? "COMPLETE" : hasProfile ? "PARTIAL" : "NO_PROFILE",
+      profile: dashboard.profile,
+      overview: dashboard.overview,
+      gapAnalysis: dashboard.gapAnalysis,
+      proofPortfolio: dashboard.proofPortfolio,
+      opportunities: dashboard.opportunities,
+      offers: dashboard.offers,
+      applications: dashboard.applications,
       roadmap,
     });
   } catch (err: any) {
@@ -46,19 +46,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
     }
 
+    const userId = auth.user.id;
     const body = await req.json();
 
-    const updated = upsertPlacementProfile(auth.user.id, {
+    const updated = upsertPlacementProfile(userId, {
       ...body,
       fullName: body.fullName || auth.user.fullName || "",
       email: body.email || auth.user.email || "",
     });
 
+    const dashboard = await PlacementIntelligenceService.getInstance().getCompletePlacementDashboard(userId);
     const roadmap = generateAdaptiveRoadmap(updated);
 
     return NextResponse.json({
       success: true,
       profile: updated,
+      overview: dashboard.overview,
+      gapAnalysis: dashboard.gapAnalysis,
+      proofPortfolio: dashboard.proofPortfolio,
+      opportunities: dashboard.opportunities,
+      offers: dashboard.offers,
+      applications: dashboard.applications,
       roadmap,
     });
   } catch (err: any) {

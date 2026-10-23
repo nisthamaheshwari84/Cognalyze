@@ -27,7 +27,22 @@ async function handleCron(req: NextRequest) {
     registry.syncFromEnvironment();
 
     const startTime = Date.now();
-    const syncSummary = await opportunityService.syncAllSources(true);
+    
+    // Bounded execution budget: 24,000ms max
+    const budgetPromise = new Promise<{ timeout: true }>((resolve) =>
+      setTimeout(() => resolve({ timeout: true }), 24000)
+    );
+
+    const syncPromise = opportunityService.syncAllSources(true);
+    const outcome = await Promise.race([syncPromise, budgetPromise]);
+
+    if ("timeout" in outcome) {
+      console.warn("[CRON /api/cron/opportunities] Execution budget of 24s reached; returning partial results");
+    }
+
+    const syncSummary = "timeout" in outcome
+      ? { totalOpportunities: 0, activeCount: 0, expiredCount: 0, duplicatesMerged: 0, timedOut: true }
+      : outcome;
     const durationMs = Date.now() - startTime;
 
     const sources = registry.getRegistryEntries();

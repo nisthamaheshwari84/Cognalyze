@@ -186,6 +186,17 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boo
       updatedAt: new Date().toISOString()
     };
 
+    // 1. Canonical Supabase Persistence to public.dna_evidence & public.student_dna
+    try {
+      const { unifiedStudentDNAService } = await import("./unified-dna-service");
+      for (const [userId, items] of USER_EVIDENCE_STORE.entries()) {
+        await unifiedStudentDNAService.recalculateAndPersistDNAProfile(userId);
+      }
+    } catch (err) {
+      console.warn("[dna-store] Canonical student_dna persistence notice:", err);
+    }
+
+    // 2. Legacy mirror compatibility in public.analyses
     const { data: existingRows, error: selectErr } = await supabase
       .from("analyses")
       .select("id")
@@ -203,26 +214,32 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boo
         .from("analyses")
         .update({
           full_report: dataToSave,
-          created_at: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq("id", existingRows[0].id);
+
       if (updateErr) {
         console.warn("[dna-store] Cloud mirror update warning:", updateErr.message);
         return { success: false, error: updateErr.message };
       }
+      return { success: true };
     } else {
       const { error: insertErr } = await supabase
         .from("analyses")
         .insert({
           recruiter_clerk_id: CLOUD_DNA_KEY,
-          job_description: "cognalyze_dna_cloud_store",
-          final_verdict: "ACTIVE",
-          full_report: dataToSave
+          candidate_id: "system-shared-dna-mirror",
+          status: "completed",
+          full_report: dataToSave,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
+
       if (insertErr) {
         console.warn("[dna-store] Cloud mirror insert warning:", insertErr.message);
         return { success: false, error: insertErr.message };
       }
+      return { success: true };
     }
     return { success: true };
   } catch (err: any) {

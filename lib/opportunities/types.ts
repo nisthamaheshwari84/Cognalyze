@@ -36,17 +36,23 @@ export type OpportunitySourceType =
   | "PARTNER";
 
 export type CanonicalOpportunityType =
+  | "FULL_TIME"
+  | "INTERNSHIP"
   | "HACKATHON"
   | "COMPETITION"
-  | "CHALLENGE"
-  | "INTERNSHIP"
-  | "JOB"
+  | "RESEARCH"
   | "FELLOWSHIP"
   | "SCHOLARSHIP"
-  | "RESEARCH"
-  | "PROGRAM"
+  | "WORKSHOP"
+  | "MEETUP"
+  | "CONFERENCE"
+  | "UNIVERSITY_FEST"
+  | "OTHER_OPPORTUNITY"
+  | "JOB"
+  | "CHALLENGE"
   | "EVENT"
   | "FEST"
+  | "PROGRAM"
   | "OTHER";
 
 export type ConnectorKind =
@@ -84,21 +90,22 @@ export type EmploymentType = "internship" | "full_time" | "part_time" | "fellows
 export type ExperienceLevel = "intern" | "entry_level" | "mid_level" | "senior";
 
 export type OpportunityLifecycleStatus =
+  | "discovered"
+  | "active"
+  | "needs_review"
+  | "stale"
+  | "closed"
+  | "expired"
+  | "rejected"
   | "DISCOVERED"
-  | "VERIFYING"
   | "ACTIVE"
-  | "REGISTRATION_OPEN"
-  | "REGISTRATION_CLOSED"
-  | "SUBMISSION_OPEN"
-  | "SUBMISSION_CLOSED"
-  | "UPDATED"
   | "STALE"
   | "EXPIRED"
-  | "CANCELLED"
+  | "CLOSED"
+  | "QUARANTINED"
   | "REMOVED"
-  | "ARCHIVED"
-  | "UNVERIFIED"
-  | "QUARANTINED";
+  | "REGISTRATION_CLOSED"
+  | "SUBMISSION_CLOSED";
 
 export type LinkStatus =
   | "VERIFIED_ACTIVE"
@@ -119,7 +126,12 @@ export type VerificationStatus =
   | "VERIFIED"
   | "UNVERIFIED"
   | "QUARANTINED"
-  | "FAILED";
+  | "FAILED"
+  | "SOURCE_API_CONFIRMED"
+  | "SOURCE_CONFIRMED_CLOSED"
+  | "LINK_DEAD"
+  | "AUTOMATED_HEAD_VERIFIED"
+  | "MANUALLY_VERIFIED";
 
 export type ClaimType = "VERIFIED" | "INFERRED" | "RECOMMENDED";
 
@@ -349,6 +361,9 @@ export interface CanonicalOpportunity {
   postedAt: string;
   updatedAt: string;
   deadline: string | null;
+  deadlineTimezone?: string | null;
+  deadlineIsDateOnly?: boolean;
+  deadlineEvaluationStatus?: "NORMAL" | "TIMEZONE_UNCONFIRMED" | "EXPIRED";
 
   status: OpportunityLifecycleStatus;
   verificationStatus?: VerificationStatus;
@@ -364,7 +379,7 @@ export interface CanonicalOpportunity {
 
   createdAt: string;
   lastFetchedAt?: string;
-  lastVerifiedAt: string;
+  lastVerifiedAt: string | null;
   nextVerificationAt?: string;
   contentHash?: string;
   sourceVersion?: number;
@@ -401,6 +416,7 @@ export interface RawOpportunity {
   tags?: string[];
   domainTags?: string[];
   technologies?: string[];
+  rawSourceData?: any;
   metadata?: Record<string, any>;
 }
 
