@@ -1,10 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-if (typeof window === "undefined" && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+if (typeof window === "undefined" && process.env.NODE_ENV !== "production" && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
   try {
     const fs = require("fs");
     const path = require("path");
-    const envFile = path.join(process.cwd(), ".env.local");
+    const envFile = path.join(/* turbopackIgnore: true */ process.cwd(), ".env.local");
     if (fs.existsSync(envFile)) {
       const lines = fs.readFileSync(envFile, "utf8").split("\n");
       for (const line of lines) {
@@ -72,10 +72,16 @@ if (typeof window === "undefined") {
   isSupabaseAvailable();
 }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+const rawSupabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+const supabaseUrl = (rawSupabaseUrl.startsWith("http://") || rawSupabaseUrl.startsWith("https://"))
+  ? rawSupabaseUrl
+  : "https://placeholder.supabase.co";
 
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const rawAnonKey = (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "").trim();
+const supabaseAnonKey = rawAnonKey || "placeholder-anon-key";
+
+const rawServiceKey = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+const supabaseServiceKey = rawServiceKey || "";
 
 const boundedFetch = (url: any, opts: any) =>
   fetch(url, { ...opts, signal: opts?.signal || AbortSignal.timeout(3000) });
@@ -83,12 +89,18 @@ const boundedFetch = (url: any, opts: any) =>
 let realClient: any = null;
 function getRealClient() {
   if (!realClient) {
-    const keyToUse = (typeof window === "undefined" && supabaseServiceKey)
-      ? supabaseServiceKey
-      : supabaseAnonKey;
-    realClient = createClient(supabaseUrl, keyToUse, {
-      global: { fetch: boundedFetch }
-    });
+    try {
+      const keyToUse = (typeof window === "undefined" && supabaseServiceKey)
+        ? supabaseServiceKey
+        : (supabaseAnonKey || "placeholder-anon-key");
+      realClient = createClient(supabaseUrl, keyToUse, {
+        global: { fetch: boundedFetch }
+      });
+    } catch {
+      realClient = createClient("https://placeholder.supabase.co", "placeholder-anon-key", {
+        global: { fetch: boundedFetch }
+      });
+    }
   }
   return realClient;
 }
@@ -96,11 +108,15 @@ function getRealClient() {
 let realAdminClient: any = null;
 export function getAdminClient() {
   if (!realAdminClient) {
-    if (supabaseServiceKey && !supabaseServiceKey.includes("placeholder")) {
-      realAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
-        global: { fetch: boundedFetch }
-      });
-    } else {
+    try {
+      if (supabaseServiceKey && !supabaseServiceKey.includes("placeholder")) {
+        realAdminClient = createClient(supabaseUrl, supabaseServiceKey, {
+          global: { fetch: boundedFetch }
+        });
+      } else {
+        realAdminClient = getRealClient();
+      }
+    } catch {
       realAdminClient = getRealClient();
     }
   }

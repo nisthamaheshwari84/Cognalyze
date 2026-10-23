@@ -12,9 +12,9 @@ import path from "path";
 import { GitHubSurfaceFacts, GitHubDeepFacts } from "./types";
 
 // Ensure .env.local is read if running outside Next.js runtime (e.g. standalone scripts or tests)
-if (typeof window === "undefined" && !process.env.GITHUB_TOKEN) {
+if (typeof window === "undefined" && process.env.NODE_ENV !== "production" && !process.env.GITHUB_TOKEN) {
   try {
-    const envFile = path.join(process.cwd(), ".env.local");
+    const envFile = path.join(/* turbopackIgnore: true */ process.cwd(), ".env.local");
     if (fs.existsSync(envFile)) {
       const lines = fs.readFileSync(envFile, "utf8").split("\n");
       for (const line of lines) {
