@@ -12,13 +12,15 @@ import {
   OpportunitySourceType,
   RawOpportunity,
   CanonicalOpportunity,
-  ConnectorStatus
+  ConnectorStatus,
+  ConnectorKind
 } from "../types";
 
 export interface IOpportunitySourceAdapter {
   id: string;
   name: string;
   type: OpportunitySourceType;
+  connectorKind?: ConnectorKind;
   description: string;
   enabled: boolean;
   accessStatus: ConnectorStatus;
@@ -62,6 +64,7 @@ export abstract class BaseOpportunitySourceAdapter implements IOpportunitySource
   abstract id: string;
   abstract name: string;
   abstract type: OpportunitySourceType;
+  connectorKind?: ConnectorKind = "REST";
   abstract description: string;
   enabled: boolean = true;
   accessStatus: ConnectorStatus = "ACTIVE";

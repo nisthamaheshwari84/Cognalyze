@@ -23,6 +23,7 @@
 
 import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
 import { getCandidateSeenQuestionIds, getCandidateAttempts } from "@/lib/skills/candidate-history";
+import { CANONICAL_DSA_PROBLEMS, getCanonicalProblem } from "./dsa-canonical-problems";
 
 // ── 1. STRIVER 17 STEPS ROADMAP ──────────────────────────────────────────────
 
@@ -970,8 +971,44 @@ function getStepIdFromTitle(stepTitle: string): string {
  * blank starter code, concept tutorial, and test cases if not manually overridden.
  */
 export function getStriverProblemFull(baseProb: StriverProblem): StriverProblemFull {
-  const override = FLAGSHIP_PROBLEMS[baseProb.id] || {};
   const stepId = getStepIdFromTitle(baseProb.step_title);
+
+  // Check canonical problem registry first
+  const canonical = getCanonicalProblem(baseProb.id);
+  if (canonical) {
+    return {
+      ...baseProb,
+      step_id: stepId,
+      title: canonical.title,
+      description: canonical.fullDescription,
+      functionName: canonical.functionName,
+      time_complexity: canonical.time_complexity,
+      space_complexity: canonical.space_complexity,
+      concept: {
+        patternName: `${canonical.subtopic_title} • ${canonical.title}`,
+        intuition: canonical.fullDescription,
+        bruteForce: "Naive approach explores combinations without monotonicity or hashing.",
+        optimalApproach: `Optimal ${canonical.time_complexity} time and ${canonical.space_complexity} space.`,
+        dryRun: {
+          input: canonical.examples[0]?.input || "",
+          steps: [
+            `Initialize search/structures for ${canonical.title}`,
+            `Enforce invariants against constraints: ${canonical.constraints.slice(0, 2).join("; ")}`,
+            `Verify result matches expected ${canonical.examples[0]?.output || ""}`
+          ],
+          output: canonical.examples[0]?.output || ""
+        },
+        codeExplanation: `Expected contract: ${canonical.cppSignature} | ${canonical.pythonSignature}`
+      },
+      starterCode: canonical.starterCode,
+      referenceSolution: canonical.referenceSolution,
+      publicTestCases: canonical.publicTestCases,
+      hiddenTestCases: canonical.hiddenTestCases,
+      hints: canonical.hints
+    };
+  }
+
+  const override = FLAGSHIP_PROBLEMS[baseProb.id] || {};
 
   // Generate clean camelCase function name from title
   const funcName = override.functionName || baseProb.title
@@ -1106,28 +1143,78 @@ export interface DsaInterviewQuestionItem {
 export function generateDsaInterviewSession(
   candidateId: string,
   trackSlug: string = "product_mid",
-  questionCount: number = 3
+  questionCount: number = 3,
+  stepId?: string,
+  topicId?: string
 ): DsaInterviewQuestionItem[] {
   const seenIds = getCandidateSeenQuestionIds(candidateId, "dsa_coding");
 
+  // Pick strictly from canonical verified problems with genuine test suites
+  let canonicalList = Object.values(CANONICAL_DSA_PROBLEMS).map(cp => {
+    const base = STRIVER_A2Z_PROBLEMS.find(p => p.id === cp.id) || {
+      id: cp.id,
+      title: cp.title,
+      topic_id: "binary-search",
+      step_title: cp.step_title,
+      subtopic_title: cp.subtopic_title,
+      difficulty: cp.difficulty,
+      problem_url: "",
+      companies: ["Google", "Amazon"],
+      description: cp.fullDescription,
+      time_complexity: cp.time_complexity,
+      space_complexity: cp.space_complexity,
+      order_index: 100
+    };
+    return getStriverProblemFull(base as any);
+  });
+
+  // Filter by stepId or topicId when specified
+  const effectiveStep = stepId || (topicId?.startsWith("step-") ? topicId : undefined);
+  if (effectiveStep) {
+    const stepNum = effectiveStep.replace("step-", "").trim();
+    const stepFiltered = canonicalList.filter(p => {
+      const st = p.step_title.toLowerCase();
+      return st.includes(`step ${stepNum}:`) || st.startsWith(`step ${stepNum}`);
+    });
+    if (stepFiltered.length > 0) {
+      canonicalList = stepFiltered;
+    }
+  } else if (topicId && topicId !== "all") {
+    const topicFiltered = canonicalList.filter(
+      p => p.step_title.toLowerCase().includes(topicId.toLowerCase()) ||
+           p.subtopic_title.toLowerCase().includes(topicId.toLowerCase())
+    );
+    if (topicFiltered.length > 0) {
+      canonicalList = topicFiltered;
+    }
+  }
+
   // Filter pool excluding recent interview questions if possible
-  const allProbs = getAllStriverProblems();
-  const unseen = allProbs.filter(p => !seenIds.has(p.id));
-  const pool = unseen.length >= questionCount ? unseen : allProbs;
+  const unseen = canonicalList.filter(p => !seenIds.has(p.id));
+  const pool = unseen.length >= questionCount ? unseen : canonicalList;
 
   const easyPool = pool.filter(p => p.difficulty === "easy");
   const mediumPool = pool.filter(p => p.difficulty === "medium");
   const hardPool = pool.filter(p => p.difficulty === "hard");
 
-  const pickRandom = (arr: StriverProblemFull[], fallback: StriverProblemFull[]): StriverProblemFull => {
-    const src = arr.length > 0 ? arr : fallback;
-    return src[Math.floor(Math.random() * src.length)] || allProbs[0];
+  const pickUnique = (candidates: StriverProblemFull[], usedIds: Set<string>): StriverProblemFull => {
+    const available = candidates.filter(p => !usedIds.has(p.id));
+    if (available.length > 0) {
+      return available[Math.floor(Math.random() * available.length)];
+    }
+    const anyAvailable = canonicalList.filter(p => !usedIds.has(p.id));
+    if (anyAvailable.length > 0) {
+      return anyAvailable[Math.floor(Math.random() * anyAvailable.length)];
+    }
+    return canonicalList[0];
   };
 
+  const usedIds = new Set<string>();
   const questions: DsaInterviewQuestionItem[] = [];
 
-  // Question 1: Foundational (Easy / Easy-Medium)
-  const q1Prob = pickRandom(easyPool, mediumPool);
+  // Question 1: Foundational (Easy / Medium)
+  const q1Prob = pickUnique(easyPool.length > 0 ? easyPool : mediumPool, usedIds);
+  usedIds.add(q1Prob.id);
   questions.push({
     id: q1Prob.id,
     roundOrder: 1,
@@ -1138,8 +1225,8 @@ export function generateDsaInterviewSession(
   });
 
   // Question 2: Core Algorithm (Medium)
-  const remainingMed = mediumPool.filter(p => p.id !== q1Prob.id);
-  const q2Prob = pickRandom(remainingMed, pool.filter(p => p.id !== q1Prob.id));
+  const q2Prob = pickUnique(mediumPool, usedIds);
+  usedIds.add(q2Prob.id);
   questions.push({
     id: q2Prob.id,
     roundOrder: 2,
@@ -1149,10 +1236,10 @@ export function generateDsaInterviewSession(
     problem: q2Prob
   });
 
-  // Question 3: Advanced Optimization (Medium-Hard / Hard) if count >= 3
+  // Question 3: Advanced Optimization (Hard) if count >= 3
   if (questionCount >= 3) {
-    const remainingHard = hardPool.filter(p => p.id !== q1Prob.id && p.id !== q2Prob.id);
-    const q3Prob = pickRandom(remainingHard, pool.filter(p => p.id !== q1Prob.id && p.id !== q2Prob.id));
+    const q3Prob = pickUnique(hardPool, usedIds);
+    usedIds.add(q3Prob.id);
     questions.push({
       id: q3Prob.id,
       roundOrder: 3,
@@ -1163,11 +1250,10 @@ export function generateDsaInterviewSession(
     });
   }
 
-  // Question 4: Deep Challenge if count >= 4
+  // Question 4: Deep Boundary Challenge if count >= 4
   if (questionCount >= 4) {
-    const usedIds = new Set(questions.map(q => q.problem.id));
-    const remainingPool = pool.filter(p => !usedIds.has(p.id));
-    const q4Prob = pickRandom(remainingPool, allProbs);
+    const q4Prob = pickUnique(canonicalList, usedIds);
+    usedIds.add(q4Prob.id);
     questions.push({
       id: q4Prob.id,
       roundOrder: 4,

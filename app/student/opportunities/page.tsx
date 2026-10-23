@@ -79,6 +79,15 @@ export default function StudentOpportunitiesPage() {
   const [radarMsg, setRadarMsg] = useState("");
   const [lastScannedAt, setLastScannedAt] = useState<string | null>(null);
   const [autoRefreshing, setAutoRefreshing] = useState(false);
+  const [sourceCoverage, setSourceCoverage] = useState<{
+    total: number;
+    active: number;
+    requiresAuth: number;
+    requiresApproval: number;
+    limited: number;
+    disabled: number;
+  } | null>(null);
+  const [coverageNotice, setCoverageNotice] = useState<string>("");
 
   useEffect(() => {
     async function init() {
@@ -128,30 +137,15 @@ export default function StudentOpportunitiesPage() {
     try {
       const res = await fetch("/api/opportunities/radar");
       const data = await res.json();
-      const scannedAt = data.last_scanned_at;
-      setLastScannedAt(scannedAt);
-
-      const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-      const isStale = !scannedAt || (Date.now() - new Date(scannedAt).getTime() > SEVEN_DAYS_MS);
-
-      if (isStale) {
-        setAutoRefreshing(true);
-        try {
-          const scanRes = await fetch("/api/opportunities/radar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ track: "Generative AI & LLM Agents", candidateId: cId })
-          });
-          const scanData = await scanRes.json();
-          if (scanData.last_scanned_at) {
-            setLastScannedAt(scanData.last_scanned_at);
-          }
-          await loadOpportunities(cId);
-        } catch {
-          // Silent fallback
-        } finally {
-          setAutoRefreshing(false);
-        }
+      if (data.sourceCoverage) {
+        setSourceCoverage(data.sourceCoverage);
+      }
+      if (data.message) {
+        setCoverageNotice(data.message);
+      }
+      const scannedAt = data.lastRefresh || data.last_scanned_at;
+      if (scannedAt) {
+        setLastScannedAt(scannedAt);
       }
     } catch {
       // Silent fallback
@@ -179,17 +173,19 @@ export default function StudentOpportunitiesPage() {
     try {
       const res = await fetch("/api/opportunities/radar", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ track: radarTrack, candidateId })
+        headers: { "Content-Type": "application/json" }
       });
       const data = await res.json();
       if (data.success) {
-        setRadarMsg(`✓ Radar scan complete! Added ${data.count || 3} new verified opportunities.`);
+        setRadarMsg(data.message || `✓ Synchronized across connected sources.`);
         if (data.last_scanned_at) setLastScannedAt(data.last_scanned_at);
         await loadOpportunities(candidateId);
+        await checkAndAutoRefresh(candidateId);
+      } else {
+        setRadarMsg(data.error || "Unable to refresh opportunities.");
       }
     } catch {
-      setRadarMsg("Radar scan completed. Opportunities refreshed.");
+      setRadarMsg("Source refresh completed. Opportunities updated.");
     } finally {
       setScanningRadar(false);
     }
@@ -473,6 +469,75 @@ export default function StudentOpportunitiesPage() {
           </div>
         )}
 
+        {/* SOURCE COVERAGE & VERIFICATION TRUST BAR */}
+        <div
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E4E1DA",
+            borderRadius: 10,
+            padding: "14px 18px",
+            marginBottom: 20,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 12
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Source Coverage:
+            </span>
+            <span
+              style={{
+                fontSize: 11,
+                padding: "3px 8px",
+                borderRadius: 5,
+                background: sourceCoverage && sourceCoverage.active > 0 ? "#EAF4EE" : "#FEF7ED",
+                color: sourceCoverage && sourceCoverage.active > 0 ? "#2E7D5B" : "#B7791F",
+                fontWeight: 600,
+                border: `1px solid ${sourceCoverage && sourceCoverage.active > 0 ? "#C8E4D3" : "#F8D8A7"}`
+              }}
+            >
+              {sourceCoverage?.active || 0} Connected & Active
+            </span>
+            {sourceCoverage && sourceCoverage.requiresAuth > 0 && (
+              <span
+                style={{
+                  fontSize: 11,
+                  padding: "3px 8px",
+                  borderRadius: 5,
+                  background: "#EFF4FE",
+                  color: "#356AE6",
+                  fontWeight: 600,
+                  border: "1px solid #D2E0FB"
+                }}
+              >
+                {sourceCoverage.requiresAuth} Requires Auth Token
+              </span>
+            )}
+            {sourceCoverage && sourceCoverage.requiresApproval > 0 && (
+              <span
+                style={{
+                  fontSize: 11,
+                  padding: "3px 8px",
+                  borderRadius: 5,
+                  background: "#F6F5F1",
+                  color: "#667085",
+                  fontWeight: 500,
+                  border: "1px solid #E4E1DA"
+                }}
+              >
+                {sourceCoverage.requiresApproval} Pending Partner Config
+              </span>
+            )}
+          </div>
+
+          <div style={{ fontSize: 12, color: "#667085" }}>
+            Showing verified opportunities from connected sources. Coverage expands as approved sources are connected.
+          </div>
+        </div>
+
         {/* CONTROLS: SEARCH & FILTERS */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
           {/* Filter Pills */}
@@ -536,19 +601,39 @@ export default function StudentOpportunitiesPage() {
             Loading verified opportunities...
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#667085", background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA" }}>
-            {filterType === "bookmarked" ? (
-              <div>
-                <div style={{ fontWeight: 600, color: "#162A43", marginBottom: 4 }}>No Bookmarked Opportunities Yet</div>
-                <div style={{ fontSize: 12 }}>Click &quot;Bookmark&quot; on any card to save it for quick reference.</div>
-              </div>
-            ) : filterType === "applied" ? (
-              <div>
-                <div style={{ fontWeight: 600, color: "#162A43", marginBottom: 4 }}>No Applied Opportunities Yet</div>
-                <div style={{ fontSize: 12 }}>Click &quot;Mark Applied&quot; once you submit your application.</div>
-              </div>
-            ) : (
-              "No opportunities match your filter criteria."
+          <div style={{ textAlign: "center", padding: "64px 24px", color: "#667085", background: "#FFFFFF", borderRadius: 10, border: "1px solid #E4E1DA" }}>
+            <AlertCircle size={40} style={{ color: "#98A2B3", margin: "0 auto 12px" }} />
+            <div style={{ fontSize: 16, fontWeight: 700, color: "#162A43", marginBottom: 6 }}>
+              {filterType === "bookmarked"
+                ? "No Bookmarked Opportunities Yet"
+                : filterType === "applied"
+                ? "No Applied Opportunities Yet"
+                : "No verified opportunities currently available"}
+            </div>
+            <p style={{ fontSize: 13, color: "#667085", maxWidth: 520, margin: "0 auto 16px", lineHeight: 1.5 }}>
+              {filterType === "bookmarked"
+                ? "Click \"Save\" on any verified card to keep track of it."
+                : filterType === "applied"
+                ? "Click \"Mark Applied\" once you submit your application."
+                : "No verified opportunities are available from your currently connected sources. Connect approved sources or check back after the next refresh."}
+            </p>
+            {filterType !== "bookmarked" && filterType !== "applied" && (
+              <button
+                onClick={handleRunRadar}
+                disabled={scanningRadar}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 7,
+                  background: "#356AE6",
+                  color: "#FFFFFF",
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: scanningRadar ? "not-allowed" : "pointer"
+                }}
+              >
+                {scanningRadar ? "Refreshing..." : "Check For Updates"}
+              </button>
             )}
           </div>
         ) : (

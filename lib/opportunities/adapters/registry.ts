@@ -5,12 +5,14 @@
  * Enforces:
  * 1. Graceful isolation: Failure of one connector never breaks the Opportunity Engine.
  * 2. Status monitoring: ACTIVE, LIMITED, DISABLED, ERROR, REQUIRES_AUTH, REQUIRES_APPROVAL.
- * 3. Observability: Tracks success rates, last synced timestamps, error details, and records counts.
- * 4. Extensibility: New connectors register with a single call.
- * 5. Multi-Source Ecosystem: Covers Unstop, Devpost, Devfolio, MLH, Hack2Skill, IITs, ATS, Companies, and Startups.
+ * 3. Zero fabricated listings: Legacy adapters with only bundled mock/seed data are disabled by default
+ *    and marked REQUIRES_APPROVAL / REQUIRES_AUTH.
+ * 4. Extensible config-driven architecture: Registers feeds from OPPORTUNITY_FEEDS_JSON.
+ * 5. Observability: Tracks success rates, last synced timestamps, error details, and records counts.
  */
 
 import { IOpportunitySourceAdapter } from "./base-adapter";
+import { ConfiguredFeedAdapter } from "./configured-feed-adapter";
 import { UnstopAdapter } from "./unstop-adapter";
 import { DevpostAdapter } from "./devpost-adapter";
 import { DevfolioAdapter } from "./devfolio-adapter";
@@ -28,7 +30,14 @@ import { HackerEarthAdapter } from "./hackerearth-adapter";
 import { KaggleAdapter } from "./kaggle-adapter";
 import { CodeChefAdapter } from "./codechef-adapter";
 import { OpenSourceAdapter } from "./open-source-adapter";
-import { SourceRegistryEntry, RawOpportunity, CanonicalOpportunity, ConnectorStatus } from "../types";
+import {
+  SourceRegistryEntry,
+  RawOpportunity,
+  CanonicalOpportunity,
+  ConnectorStatus,
+  ConfiguredFeedSource,
+  ConnectorKind
+} from "../types";
 
 export class OpportunitySourceRegistry {
   private static instance: OpportunitySourceRegistry;
@@ -37,6 +46,7 @@ export class OpportunitySourceRegistry {
 
   private constructor() {
     this.registerDefaultAdapters();
+    this.syncFromEnvironment();
   }
 
   public static getInstance(): OpportunitySourceRegistry {
@@ -68,17 +78,86 @@ export class OpportunitySourceRegistry {
     ];
 
     for (const adapter of defaultList) {
+      // Legacy aggregator adapters without permitted feeds are disabled by default
+      if (adapter.id === "adapter-admin-import") {
+        adapter.enabled = true;
+        adapter.accessStatus = "ACTIVE";
+      } else if (
+        adapter.id === "adapter-company-careers" ||
+        adapter.id === "adapter-ats-feeds" ||
+        adapter.id === "adapter-startup-hiring" ||
+        adapter.id === "adapter-university-campus" ||
+        adapter.id === "adapter-startups" ||
+        adapter.id === "adapter-university"
+      ) {
+        // Permitted direct employment & university feeds
+        adapter.enabled = true;
+        adapter.accessStatus = "ACTIVE";
+      } else if (adapter.id === "adapter-job-api") {
+        const hasAdzuna = Boolean(process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY);
+        adapter.enabled = hasAdzuna;
+        adapter.accessStatus = hasAdzuna ? "ACTIVE" : "REQUIRES_AUTH";
+      } else {
+        // Unstop, Devpost, Devfolio, MLH, Hack2Skill, IIT, HackerRank, HackerEarth, Kaggle, CodeChef, OpenSource
+        // require approved partner API or official feed config
+        adapter.enabled = false;
+        adapter.accessStatus = "REQUIRES_APPROVAL";
+      }
+
       this.registerAdapter(adapter);
     }
   }
 
+  /**
+   * Loads configured feeds from OPPORTUNITY_FEEDS_JSON environment variable.
+   */
+  public syncFromEnvironment(): void {
+    const rawFeedsJson = process.env.OPPORTUNITY_FEEDS_JSON;
+    if (!rawFeedsJson) return;
+
+    try {
+      const parsed = JSON.parse(rawFeedsJson);
+      if (Array.isArray(parsed)) {
+        for (const feedConfig of parsed) {
+          if (feedConfig && feedConfig.id && feedConfig.endpoint) {
+            this.registerConfiguredFeed(feedConfig);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("[OpportunitySourceRegistry] Failed to parse OPPORTUNITY_FEEDS_JSON:", err);
+    }
+  }
+
+  /**
+   * Registers a config-driven official feed adapter.
+   */
+  public registerConfiguredFeed(config: ConfiguredFeedSource): ConfiguredFeedAdapter {
+    const adapter = new ConfiguredFeedAdapter(config);
+    this.registerAdapter(adapter);
+    return adapter;
+  }
+
   public registerAdapter(adapter: IOpportunitySourceAdapter) {
     this.adapters.set(adapter.id, adapter);
+
+    let endpointHost: string | undefined = undefined;
+    if ("getConfig" in adapter && typeof (adapter as any).getConfig === "function") {
+      try {
+        const conf = (adapter as any).getConfig();
+        if (conf?.endpoint) {
+          endpointHost = new URL(conf.endpoint).host;
+        }
+      } catch {}
+    }
+
+    const initialStatus = adapter.accessStatus || (adapter.enabled ? "ACTIVE" : "DISABLED");
+
     this.registryEntries.set(adapter.id, {
       id: adapter.id,
       name: adapter.name,
       type: adapter.type,
-      status: adapter.accessStatus || (adapter.enabled ? "ACTIVE" : "DISABLED"),
+      status: initialStatus,
       description: adapter.description,
       refreshIntervalMs: adapter.refreshIntervalMs || 6 * 60 * 60 * 1000,
       lastSyncedAt: adapter.getLastUpdated(),
@@ -92,10 +171,21 @@ export class OpportunitySourceRegistry {
       recordsUpdated: 0,
       recordsDeduplicated: 0,
       recordsExpired: 0,
+      recordsAccepted: 0,
+      recordsRejected: 0,
       durationMs: 0,
       successRate: 100,
+      connectorKind: adapter.connectorKind || "REST",
+      endpointHost,
+      permittedAccess: initialStatus !== "REQUIRES_APPROVAL",
+      requiresAuth: initialStatus === "REQUIRES_AUTH",
       rateLimitConfig: adapter.rateLimitConfig
     });
+  }
+
+  public unregisterAdapter(id: string): boolean {
+    this.registryEntries.delete(id);
+    return this.adapters.delete(id);
   }
 
   public getAdapter(id: string): IOpportunitySourceAdapter | undefined {
@@ -115,7 +205,11 @@ export class OpportunitySourceRegistry {
     const entry = this.registryEntries.get(id);
     if (adapter && entry) {
       adapter.enabled = enabled;
-      entry.status = enabled ? "ACTIVE" : "DISABLED";
+      if (!enabled) {
+        entry.status = "DISABLED";
+      } else {
+        entry.status = adapter.accessStatus === "DISABLED" ? "ACTIVE" : adapter.accessStatus;
+      }
     }
   }
 
@@ -125,11 +219,17 @@ export class OpportunitySourceRegistry {
     if (adapter && entry) {
       adapter.accessStatus = status;
       entry.status = status;
+      if (status === "DISABLED") {
+        adapter.enabled = false;
+      } else if (status === "ACTIVE" || status === "AUTHORIZED") {
+        adapter.enabled = true;
+      }
     }
   }
 
   /**
-   * Researches across all active, enabled sources asynchronously with resilient error isolation.
+   * Researches across all active, permitted sources asynchronously with resilient error isolation.
+   * Never calls disabled, requires-auth, or unapproved mock adapters.
    */
   public async researchAllSources(query?: any): Promise<{
     rawOpportunities: RawOpportunity[];
@@ -148,16 +248,26 @@ export class OpportunitySourceRegistry {
     let failed = 0;
 
     for (const adapter of this.adapters.values()) {
-      if (!adapter.enabled) continue;
+      const entry = this.registryEntries.get(adapter.id);
+
+      // Only execute adapters that are enabled AND active/authorized
+      if (!adapter.enabled || (adapter.accessStatus !== "ACTIVE" && adapter.accessStatus !== "AUTHORIZED")) {
+        sourceDetails[adapter.id] = {
+          status: adapter.accessStatus || "DISABLED",
+          fetched: 0
+        };
+        continue;
+      }
 
       const runStart = Date.now();
-      const entry = this.registryEntries.get(adapter.id);
 
       try {
         const rawItems = await adapter.discover(query);
         rawList.push(...rawItems);
 
         let validCount = 0;
+        let rejectedCount = 0;
+
         for (const raw of rawItems) {
           try {
             const canonical = adapter.normalize(raw);
@@ -165,8 +275,11 @@ export class OpportunitySourceRegistry {
             if (isValid) {
               canonicalList.push(canonical);
               validCount++;
+            } else {
+              rejectedCount++;
             }
           } catch (normErr) {
+            rejectedCount++;
             console.warn(`[OpportunityRegistry] Normalization failed for ${raw.id}:`, normErr);
           }
         }
@@ -179,9 +292,12 @@ export class OpportunitySourceRegistry {
           entry.totalOpportunities = rawItems.length;
           entry.recordsFetched = rawItems.length;
           entry.recordsInserted = validCount;
+          entry.recordsAccepted = validCount;
+          entry.recordsRejected = rejectedCount;
           entry.durationMs = duration;
           entry.status = "ACTIVE";
           entry.successRate = 100;
+          entry.lastError = undefined;
         }
 
         sourceDetails[adapter.id] = {
@@ -192,19 +308,25 @@ export class OpportunitySourceRegistry {
       } catch (adapterErr: any) {
         console.error(`[OpportunityRegistry] Adapter ${adapter.name} failed:`, adapterErr);
         const duration = Date.now() - runStart;
+        const errMsg = adapterErr?.message || "Unknown adapter error";
+        const isRateLimit = errMsg.includes("429") || errMsg.toLowerCase().includes("rate limit");
+        const isAuth = errMsg.includes("401") || errMsg.includes("403") || errMsg.toLowerCase().includes("authorization");
+
+        const status: ConnectorStatus = isRateLimit ? "LIMITED" : isAuth ? "REQUIRES_AUTH" : "ERROR";
+
         if (entry) {
           entry.lastRunAt = new Date().toISOString();
           entry.lastFailureAt = new Date().toISOString();
-          entry.lastError = adapterErr?.message || "Unknown adapter error";
+          entry.lastError = errMsg;
           entry.durationMs = duration;
-          entry.status = "ERROR";
+          entry.status = status;
           entry.successRate = Math.max(0, entry.successRate - 20);
         }
 
         sourceDetails[adapter.id] = {
-          status: "ERROR",
+          status,
           fetched: 0,
-          error: adapterErr?.message || "Source failure"
+          error: errMsg
         };
         failed++;
       }

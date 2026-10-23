@@ -40,6 +40,7 @@ import {
   Info,
   ChevronDown
 } from "lucide-react";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 export default function QuestionBankPage() {
   const { isDark } = useTheme();
@@ -1193,7 +1194,7 @@ export default function QuestionBankPage() {
                   >
                     {q.title}
                   </h3>
-                  <p
+                  <div
                     style={{
                       fontSize: 13,
                       color: isDark ? "#B7C4D8" : "#475467",
@@ -1201,8 +1202,8 @@ export default function QuestionBankPage() {
                       lineHeight: 1.5,
                     }}
                   >
-                    {q.question}
-                  </p>
+                    <MarkdownRenderer content={q.question} compact isDark={isDark} />
+                  </div>
 
                   {/* Company & Round Provenance & Practice Link */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
@@ -1375,9 +1376,9 @@ export default function QuestionBankPage() {
               <div style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#8292AA" : "#667085", textTransform: "uppercase", marginBottom: 4 }}>
                 Problem Statement
               </div>
-              <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0, color: isDark ? "#F4F7FF" : "#17191C" }}>
-                {activePracticeModal.question}
-              </p>
+              <div style={{ fontSize: 13, lineHeight: 1.6, margin: 0, color: isDark ? "#F4F7FF" : "#17191C" }}>
+                <MarkdownRenderer content={activePracticeModal.question} isDark={isDark} />
+              </div>
 
               {/* Complexity Analysis info if available */}
               {(activePracticeModal.timeComplexity || activePracticeModal.spaceComplexity) && (
@@ -1616,29 +1617,20 @@ export default function QuestionBankPage() {
                 <h4 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px", color: "#3478F6", textTransform: "uppercase" }}>
                   Algorithm / Concept Explanation
                 </h4>
-                <p style={{ fontSize: 13, lineHeight: 1.6, color: isDark ? "#D4DEEB" : "#344054", margin: "0 0 14px" }}>
-                  {activePracticeModal.explanation}
-                </p>
+                <div style={{ fontSize: 13, lineHeight: 1.6, color: isDark ? "#D4DEEB" : "#344054", margin: "0 0 14px" }}>
+                  <MarkdownRenderer content={activePracticeModal.explanation} isDark={isDark} />
+                </div>
 
                 {/* Ideal Solution / Code */}
                 <h4 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 6px", color: isDark ? "#F4F7FF" : "#162A43", textTransform: "uppercase" }}>
                   Ideal Solution
                 </h4>
-                <pre
-                  style={{
-                    margin: "0 0 14px",
-                    padding: "12px 14px",
-                    borderRadius: 6,
-                    backgroundColor: isDark ? "#07111F" : "#162A43",
-                    color: "#F4F7FF",
-                    fontSize: 12,
-                    overflowX: "auto",
-                    fontFamily: "monospace",
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {activePracticeModal.solution}
-                </pre>
+                <div style={{ margin: "0 0 14px" }}>
+                  <MarkdownRenderer
+                    content={activePracticeModal.solution.startsWith("```") ? activePracticeModal.solution : "```\n" + activePracticeModal.solution + "\n```"}
+                    isDark={isDark}
+                  />
+                </div>
 
                 {/* Complexity Analysis */}
                 {(activePracticeModal.timeComplexity || activePracticeModal.spaceComplexity) && (

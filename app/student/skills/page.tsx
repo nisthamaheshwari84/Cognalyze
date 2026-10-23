@@ -13,6 +13,7 @@ import {
   SessionBrief
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
+import CustomInterviewModal from "@/components/skills/CustomInterviewModal";
 import { getAdaptiveRecommendation } from "@/lib/skills/candidate-history";
 import AppNav from "@/components/AppNav";
 
@@ -38,8 +39,13 @@ export default function SkillPracticeHubPage() {
   const [briefTargetHref, setBriefTargetHref] = useState<string>("");
   const [isBriefOpen, setIsBriefOpen] = useState(false);
   const [userProfileName, setUserProfileName] = useState<string>("");
+  const [isCustomInterviewOpen, setIsCustomInterviewOpen] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined" && window.location.search.includes("openInterview=custom")) {
+      setIsCustomInterviewOpen(true);
+    }
+
     async function initUser() {
       try {
         const sessRes = await fetch("/api/auth/session");
@@ -258,6 +264,28 @@ export default function SkillPracticeHubPage() {
                 <option value="product_faang" style={{ background: "#FFFFFF", color: "#17191C" }}>Tier-1 Product &amp; FAANG (₹28L+)</option>
               </select>
             </div>
+
+            {/* Custom Multi-Subject Interview Launcher */}
+            <button
+              onClick={() => setIsCustomInterviewOpen(true)}
+              style={{
+                padding: "7px 14px",
+                borderRadius: 7,
+                border: "none",
+                background: "linear-gradient(135deg, #7C3AED, #4F46E5)",
+                color: "#FFFFFF",
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                boxShadow: "0 2px 6px rgba(124, 58, 237, 0.25)"
+              }}
+            >
+              <span>⚡</span>
+              <span>Custom Interview</span>
+            </button>
 
             {/* Profile Switcher */}
             <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#F6F5F1", padding: "6px 12px", borderRadius: 7, border: "1px solid #E4E1DA" }}>
@@ -874,6 +902,13 @@ export default function SkillPracticeHubPage() {
         isOpen={isBriefOpen}
         onClose={() => setIsBriefOpen(false)}
         targetHref={briefTargetHref}
+      />
+
+      {/* ── CUSTOM MULTI-SUBJECT INTERVIEW MODAL ── */}
+      <CustomInterviewModal
+        isOpen={isCustomInterviewOpen}
+        onClose={() => setIsCustomInterviewOpen(false)}
+        candidateId={candidateId}
       />
     </div>
   );

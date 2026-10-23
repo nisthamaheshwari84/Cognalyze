@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@/components/ThemeProvider";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface AskCognalyzeModalProps {
   isOpen: boolean;
@@ -239,11 +240,10 @@ export default function AskCognalyzeModal({
                 style={{
                   fontSize: 13,
                   lineHeight: 1.6,
-                  color: isDark ? "#F2F6FC" : "#17191C",
-                  whiteSpace: "pre-line"
+                  color: isDark ? "#F2F6FC" : "#17191C"
                 }}
               >
-                {answer}
+                <MarkdownRenderer content={answer} isDark={isDark} />
               </div>
 
               {/* CITATIONS */}

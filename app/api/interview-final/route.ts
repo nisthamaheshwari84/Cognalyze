@@ -21,7 +21,12 @@ export async function POST(req: Request) {
       resume = "",
       finalScore,
       candidateId: reqCandidateId,
-      sessionId: reqSessionId
+      sessionId: reqSessionId,
+      targetCompany: reqTargetCompany,
+      targetRole: reqTargetRole,
+      interviewType: reqInterviewType,
+      difficulty: reqDifficulty,
+      durationMinutes: reqDurationMinutes,
     } = body;
 
     // 1. Authenticate candidate with strict server-side validation
@@ -41,7 +46,16 @@ export async function POST(req: Request) {
     // 3. Load or reconstruct session state
     let sessionState = getActiveSessionState(sessionId, candidateId);
     if (!sessionState) {
-      const blueprint = generateInterviewBlueprint(dossier, dossier.targetRole, 45, undefined, sessionId, jd);
+      const blueprint = generateInterviewBlueprint(
+        dossier,
+        reqTargetRole || dossier.targetRole,
+        Number(reqDurationMinutes) || 45,
+        undefined,
+        sessionId,
+        jd,
+        reqInterviewType || "technical",
+        reqTargetCompany
+      );
       sessionState = createAdvancedSessionState(blueprint, dossier);
 
       // Reconstruct turns from messages if needed
@@ -84,7 +98,11 @@ export async function POST(req: Request) {
       candidate_id: candidateId,
       session_type: "mock_interview",
       experience_mode: sessionState.experienceMode,
-      target_role: dossier.targetRole,
+      target_role: reqTargetRole || dossier.targetRole,
+      target_company: reqTargetCompany || sessionState.blueprint?.targetCompany || "FAANG / Tier 1",
+      interview_type: reqInterviewType || sessionState.blueprint?.interviewType || "technical",
+      difficulty: reqDifficulty || sessionState.currentDifficulty || "adaptive",
+      duration_minutes: Number(reqDurationMinutes) || sessionState.blueprint?.durationMinutes || 45,
       topics_covered: sessionState.topicsCovered,
       answer_distribution: {
         strong: sessionState.answerDistribution.strong,
@@ -98,6 +116,13 @@ export async function POST(req: Request) {
       },
       overall_score: report.overallScore,
       weak_topics_identified: report.criticalGaps,
+      report,
+      transcript: (messages || []).map((m: any) => ({
+        role: m.role,
+        content: m.content,
+        time: m.time || "",
+        isFollowUp: m.isFollowUp || false,
+      })),
       created_at: new Date().toISOString()
     });
 

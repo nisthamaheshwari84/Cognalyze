@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   Video,
   Compass,
-  Map,
   Dna,
   FileCheck,
   FileText,
@@ -32,6 +31,7 @@ import {
   Moon,
   MessageSquare,
   Bot,
+  UserCheck,
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import CognalyzeLogo from "@/components/CognalyzeLogo";
@@ -196,12 +196,13 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   const studentNavItems: NavItem[] = [
     { href: "/student/dashboard", label: "Overview", icon: LayoutDashboard },
-    { href: "/student/journey", label: "Journey", icon: Map },
+    { href: "/student/placement-profile", label: "Placement Profile", icon: UserCheck, badge: "Core" },
     { href: "/student/dna", label: "Student DNA", icon: Dna, badge: "Live" },
     { href: "/student/opportunities", label: "Opportunities", icon: Compass },
     { href: "/student/applications", label: "Applications", icon: FileCheck },
     { href: "/resume", label: "Resume", icon: FileText },
     { href: "/interview", label: "Interviews", icon: Video },
+    { href: "/student/practice-interview", label: "Personalized Interview Arena", icon: Sparkles, badge: "AI" },
     { href: "/skill-practice", label: "Skill Practice Hub", icon: Target },
     { href: "/recruitment-simulation", label: "Recruitment Simulation", icon: Award },
     { href: "/dsa-tracker", label: "DSA Tracker", icon: Code2 },
@@ -215,6 +216,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
   const isItemActive = (href: string) => {
     if (href === "/student/dashboard") {
       return pathname === "/student/dashboard" || pathname === "/student";
+    }
+    if (href === "/student/placement-profile") {
+      return pathname === "/student/placement-profile" || pathname.startsWith("/student/placement-profile/");
     }
     if (href === "/skill-practice") {
       return (
@@ -272,6 +276,14 @@ export default function AppNav({ role = "student" }: AppNavProps) {
         pathname.startsWith("/student/resume/")
       );
     }
+    if (href === "/student/practice-interview") {
+      return (
+        pathname === "/student/practice-interview" ||
+        pathname.startsWith("/student/practice-interview") ||
+        pathname === "/student/interview-prep" ||
+        pathname.startsWith("/student/interview-prep")
+      );
+    }
     if (href === "/interview") {
       return (
         pathname === "/interview" ||
@@ -306,6 +318,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     }
     if (pathname.includes("/ai-mentor") || pathname.includes("/student/mentor")) {
       return "Cognalyze AI Mentor";
+    }
+    if (pathname.includes("/student/practice-interview") || pathname.includes("/student/interview-prep")) {
+      return "Personalized Interview Arena";
     }
     const current = navItems.find((item) => isItemActive(item.href));
     if (current) return current.label;

@@ -144,10 +144,14 @@ export interface SectionPlan {
   completed: boolean;
 }
 
+export type InterviewType = "technical" | "behavioral" | "hr" | "system_design" | "mixed";
+
 export interface InterviewBlueprint {
   sessionId: string;
   candidateId: string;
   targetRole: string;
+  targetCompany?: string;
+  interviewType?: InterviewType;
   experienceMode: ExperienceMode;
   durationMinutes: number;
   totalTargetTurns: number;
@@ -784,7 +788,10 @@ export function generateInterviewBlueprint(
   durationMinutes = 45,
   forcedExperienceMode?: ExperienceMode,
   customSessionId?: string,
-  jobDescriptionText?: string
+  jobDescriptionText?: string,
+  interviewType: InterviewType = "technical",
+  targetCompany?: string,
+  skillsFocus?: string[] | string
 ): InterviewBlueprint {
   const experienceMode = forcedExperienceMode || dossier.experienceMode;
   const parsedJd = parseJobDescription(jobDescriptionText || targetRole, experienceMode);
@@ -792,15 +799,47 @@ export function generateInterviewBlueprint(
   // Turn budget calculation: approx 3.5 - 4 mins per question-turn
   const totalTargetTurns = Math.max(6, Math.min(14, Math.round(durationMinutes / 4)));
 
-  // Define structured section plan
-  const sectionPlan: SectionPlan[] = [
-    { section: "introduction", targetTurns: 1, focus: "Background, career intent, role alignment", completed: false },
-    { section: "resume_projects", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.28)), focus: "Project architecture, personal ownership, technical decisions & code evidence", completed: false },
-    { section: "technical_fundamentals", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: "Core CS/SWE fundamentals (OOP, DBMS, OS, Concurrency, API Design)", completed: false },
-    { section: "coding_system_design", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: experienceMode === "experienced" ? "High-scale system design & distributed trade-offs" : "Data structures, algorithmic reasoning & edge case analysis", completed: false },
-    { section: "behavioral", targetTurns: Math.max(1, Math.floor(totalTargetTurns * 0.15)), focus: "Ownership, conflict resolution, dealing with failure & collaboration", completed: false },
-    { section: "closing", targetTurns: 1, focus: "Candidate questions and interview conclusion", completed: false },
-  ];
+  // Define structured section plan adapted to selected Interview Type
+  let sectionPlan: SectionPlan[];
+  if (interviewType === "behavioral") {
+    sectionPlan = [
+      { section: "introduction", targetTurns: 1, focus: "Background, career intent, role alignment", completed: false },
+      { section: "resume_projects", targetTurns: Math.max(1, Math.floor(totalTargetTurns * 0.2)), focus: "Past project context, personal role & team challenges", completed: false },
+      { section: "behavioral", targetTurns: Math.max(3, Math.floor(totalTargetTurns * 0.6)), focus: "STAR framework, ownership, conflict resolution, dealing with failure & collaboration", completed: false },
+      { section: "closing", targetTurns: 1, focus: "Candidate questions and interview conclusion", completed: false },
+    ];
+  } else if (interviewType === "hr") {
+    sectionPlan = [
+      { section: "introduction", targetTurns: 1, focus: "Background, personal motivation, role alignment", completed: false },
+      { section: "behavioral", targetTurns: Math.max(4, Math.floor(totalTargetTurns * 0.7)), focus: `${targetCompany ? targetCompany + " culture" : "Company culture"}, values alignment, work ethic, teamwork & career vision`, completed: false },
+      { section: "closing", targetTurns: 1, focus: "Candidate questions, culture fit & wrap-up", completed: false },
+    ];
+  } else if (interviewType === "system_design") {
+    sectionPlan = [
+      { section: "introduction", targetTurns: 1, focus: "Background, architectural scope & role alignment", completed: false },
+      { section: "resume_projects", targetTurns: Math.max(1, Math.floor(totalTargetTurns * 0.2)), focus: "Prior system architecture, scaling challenges & tech stack trade-offs", completed: false },
+      { section: "coding_system_design", targetTurns: Math.max(3, Math.floor(totalTargetTurns * 0.6)), focus: "High-scale distributed system design, data storage, latency, reliability & bottleneck mitigation", completed: false },
+      { section: "closing", targetTurns: 1, focus: "Candidate architectural questions & conclusion", completed: false },
+    ];
+  } else if (interviewType === "mixed") {
+    sectionPlan = [
+      { section: "introduction", targetTurns: 1, focus: "Background, career intent, role alignment", completed: false },
+      { section: "resume_projects", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: "Project architecture, personal ownership & code evidence", completed: false },
+      { section: "technical_fundamentals", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: "Core CS/SWE fundamentals (OOP, DBMS, OS, Concurrency, API Design)", completed: false },
+      { section: "coding_system_design", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: experienceMode === "experienced" ? "High-scale system design & distributed trade-offs" : "Data structures, algorithmic reasoning & edge case analysis", completed: false },
+      { section: "behavioral", targetTurns: Math.max(1, Math.floor(totalTargetTurns * 0.15)), focus: "Ownership, conflict resolution, dealing with failure & collaboration", completed: false },
+      { section: "closing", targetTurns: 1, focus: "Candidate questions and interview conclusion", completed: false },
+    ];
+  } else {
+    // Default: technical interview
+    sectionPlan = [
+      { section: "introduction", targetTurns: 1, focus: "Background, career intent, role alignment", completed: false },
+      { section: "resume_projects", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.25)), focus: "Project architecture, personal ownership, technical decisions & code evidence", completed: false },
+      { section: "technical_fundamentals", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.3)), focus: "Core CS/SWE fundamentals (OOP, DBMS, OS, Concurrency, API Design)", completed: false },
+      { section: "coding_system_design", targetTurns: Math.max(2, Math.floor(totalTargetTurns * 0.3)), focus: experienceMode === "experienced" ? "High-scale system design & distributed trade-offs" : "Data structures, algorithmic reasoning & edge case analysis", completed: false },
+      { section: "closing", targetTurns: 1, focus: "Candidate questions and technical conclusion", completed: false },
+    ];
+  }
 
   // Derive competencies from Role, JD & Candidate Dossier across the 26-Category Matrix
   const competencies: BlueprintCompetency[] = [
@@ -961,10 +1000,32 @@ export function generateInterviewBlueprint(
     });
   }
 
+  // Skills focus area competency if provided
+  if (skillsFocus) {
+    const focusStr = Array.isArray(skillsFocus) ? skillsFocus.join(", ") : String(skillsFocus);
+    if (focusStr.trim().length > 0) {
+      competencies.push({
+        id: "comp-candidate-skills-focus",
+        name: `Targeted Technical Focus: ${focusStr}`,
+        category: "fundamentals",
+        categoryKey: "E_LANGUAGE_FUNDAMENTALS",
+        tier: "Critical",
+        evidenceAnchor: focusStr,
+        isAssessed: false,
+        status: "unassessed",
+        turnsSpent: 0,
+        timeBudgetMinutes: Math.round(durationMinutes * 0.2),
+        evidenceCollected: [],
+      });
+    }
+  }
+
   return {
     sessionId: customSessionId || `session_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     candidateId: dossier.candidateId,
     targetRole,
+    targetCompany,
+    interviewType,
     experienceMode,
     durationMinutes,
     totalTargetTurns,

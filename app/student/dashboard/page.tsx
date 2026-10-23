@@ -1644,47 +1644,6 @@ export default function StudentDashboardOverview() {
             </Link>
           </div>
         </div>
-
-        {/* ── OPTIONAL COMPACT JOURNEY STRIP ── */}
-        <Link
-          href="/student/journey"
-          style={{
-            textDecoration: "none",
-            backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
-            border: isDark ? "1px solid #223750" : "1px solid #E4E1DA",
-            borderRadius: 10,
-            padding: "14px 20px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 12,
-            boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.18)" : "0 1px 3px rgba(16, 24, 40, 0.04)",
-            transition: "border-color 0.15s ease, background-color 0.15s ease"
-          }}
-          title="Open Career Journey"
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 16 }}>🗺️</span>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43", letterSpacing: 0.5 }}>
-                  CAREER JOURNEY:
-                </span>
-                <span style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085" }}>
-                  Career Intent → Build Evidence → Opportunities → Applications → Outcomes
-                </span>
-              </div>
-              <div style={{ fontSize: 12, color: isDark ? "#4C8DFF" : "#356AE6", marginTop: 2 }}>
-                Current stage: <strong style={{ color: isDark ? "#F2F6FC" : "#162A43" }}>BUILD EVIDENCE</strong> · Next: Complete 2 ML projects + strengthen DSA
-              </div>
-            </div>
-          </div>
-
-          <div style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#4C8DFF" : "#356AE6", marginLeft: "auto" }}>
-            View Journey →
-          </div>
-        </Link>
       </main>
 
       {/* ══════════════════════════════════════════════════════════ */}

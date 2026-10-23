@@ -17,31 +17,65 @@ export type OpportunitySourceType =
   | "DEVFOLIO"
   | "MLH"
   | "HACK2SKILL"
-  | "IIT"
   | "HACKERRANK"
   | "HACKEREARTH"
-  | "KAGGLE"
   | "CODECHEF"
-  | "OPEN_SOURCE"
+  | "KAGGLE"
+  | "MEETUP"
+  | "EVENTBRITE"
+  | "LUMA"
+  | "IIT"
+  | "UNIVERSITY"
   | "COMPANY_CAREER"
   | "ATS"
   | "JOB_API"
+  | "OFFICIAL_FEED"
+  | "OPEN_SOURCE"
   | "STARTUP"
-  | "UNIVERSITY"
   | "ADMIN_IMPORT"
   | "PARTNER";
 
 export type CanonicalOpportunityType =
   | "HACKATHON"
-  | "INTERNSHIP"
-  | "JOB"
   | "COMPETITION"
   | "CHALLENGE"
+  | "INTERNSHIP"
+  | "JOB"
   | "FELLOWSHIP"
   | "SCHOLARSHIP"
   | "RESEARCH"
   | "PROGRAM"
+  | "EVENT"
+  | "FEST"
   | "OTHER";
+
+export type ConnectorKind =
+  | "REST"
+  | "GRAPHQL"
+  | "RSS"
+  | "ATOM"
+  | "ICAL"
+  | "ATS"
+  | "OFFICIAL_FEED"
+  | "WEBHOOK"
+  | "ADMIN_IMPORT";
+
+export interface ConfiguredFeedSource {
+  id: string;
+  name: string;
+  type: OpportunitySourceType;
+  connectorKind: ConnectorKind;
+  enabled: boolean;
+  endpoint: string;
+  itemsPath?: string;
+  tokenEnv?: string;
+  organizer?: string;
+  refreshIntervalMinutes?: number;
+  categories?: string[];
+  regions?: string[];
+  termsUrl?: string;
+  permittedAccess: boolean;
+}
 
 export type RemoteType = "remote" | "hybrid" | "onsite";
 
@@ -388,8 +422,16 @@ export interface SourceRegistryEntry {
   recordsUpdated: number;
   recordsDeduplicated: number;
   recordsExpired: number;
+  recordsAccepted?: number;
+  recordsRejected?: number;
   durationMs: number;
   successRate: number;
+  connectorKind?: ConnectorKind;
+  endpointHost?: string;
+  permittedAccess?: boolean;
+  requiresAuth?: boolean;
+  categories?: string[];
+  regions?: string[];
   rateLimitConfig?: {
     requestsPerMinute: number;
     dailyLimit: number;

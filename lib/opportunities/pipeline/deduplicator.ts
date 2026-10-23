@@ -72,6 +72,8 @@ export class OpportunityDeduplicator {
   private static getSourceAuthoritativeness(type: OpportunitySourceType): number {
     switch (type) {
       case "COMPANY_CAREER": return 100;
+      case "ADMIN_IMPORT": return 98;
+      case "OFFICIAL_FEED": return 95;
       case "ATS": return 90;
       case "IIT": return 85;
       case "UNIVERSITY": return 80;
@@ -79,10 +81,17 @@ export class OpportunityDeduplicator {
       case "DEVFOLIO": return 75;
       case "DEVPOST": return 75;
       case "MLH": return 75;
+      case "EVENTBRITE": return 75;
+      case "MEETUP": return 75;
+      case "LUMA": return 75;
+      case "HACKERRANK": return 75;
+      case "HACKEREARTH": return 75;
+      case "CODECHEF": return 75;
+      case "KAGGLE": return 75;
       case "HACK2SKILL": return 70;
+      case "OPEN_SOURCE": return 70;
       case "STARTUP": return 65;
       case "JOB_API": return 50;
-      case "ADMIN_IMPORT": return 95;
       default: return 60;
     }
   }

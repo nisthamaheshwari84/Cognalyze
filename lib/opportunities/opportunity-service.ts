@@ -30,6 +30,7 @@ import { OpportunitySourceRegistry } from "./adapters/registry";
 import { OpportunityDeduplicator } from "./pipeline/deduplicator";
 import { OpportunityFreshnessEngine } from "./pipeline/freshness-engine";
 import { OpportunityPersonalizationEngine } from "./engines/personalization-engine";
+import { LinkVerificationEngine } from "./verification/link-verifier";
 import { AdminManualImportAdapter } from "./adapters/admin-import-adapter";
 import {
   getStudentIntelligenceProfile,
@@ -163,10 +164,45 @@ export class OpportunityService {
 
       // 2. Freshness Engine: Evaluate expiry, lifecycle, and verification tags
       const evaluatedList: CanonicalOpportunity[] = [];
+      const verifier = LinkVerificationEngine.getInstance();
+
       for (const opp of uniqueOpportunities) {
         const freshnessResult = OpportunityFreshnessEngine.evaluateFreshness(opp);
         opp.status = freshnessResult.status;
         opp.freshness = freshnessResult.freshness;
+
+        // 3. Link Verification Engine: Deterministically verify application & registration links
+        if (opp.status !== "EXPIRED" && opp.status !== "REMOVED") {
+          try {
+            const vResult = await verifier.verifyUrl(opp.applicationUrl, {
+              title: opp.title,
+              organizer: opp.organizer || opp.companyName,
+              opportunityId: opp.id
+            });
+            opp.verificationResult = vResult;
+            opp.linkStatus = vResult.status;
+            opp.lastVerifiedAt = vResult.checkedAt;
+
+            if (vResult.status === "REMOVED" || vResult.status === "NOT_FOUND" || vResult.status === "UNAVAILABLE") {
+              opp.status = "REMOVED";
+              opp.verificationStatus = "FAILED";
+            } else if (vResult.status === "REGISTRATION_CLOSED" || vResult.status === "SUBMISSION_CLOSED") {
+              opp.status = "REGISTRATION_CLOSED";
+              opp.verificationStatus = "VERIFIED";
+            } else if (vResult.status === "LOGIN_REQUIRED") {
+              opp.status = "ACTIVE";
+              opp.verificationStatus = "VERIFIED";
+            } else if (vResult.status === "VERIFIED_ACTIVE" || vResult.status === "REDIRECTED_VERIFIED") {
+              opp.status = "ACTIVE";
+              opp.verificationStatus = "VERIFIED";
+            } else {
+              opp.verificationStatus = "UNVERIFIED";
+            }
+          } catch (vErr) {
+            console.warn(`[OpportunityService] Link verification failed for ${opp.id}:`, vErr);
+          }
+        }
+
         evaluatedList.push(opp);
       }
 
@@ -194,15 +230,15 @@ export class OpportunityService {
     const hasData = this.canonicalOpportunities.length > 0;
     const isStale = now - this.lastIngestedAt > this.CACHE_TTL_MS;
 
-    // If completely empty, sync synchronously to seed first batch
-    if (!hasData) {
+    // If completely empty or forced refresh requested, sync synchronously to seed or update
+    if (!hasData || forceRefresh) {
       await this.syncAllSources(true);
       return this.getActiveOpportunities();
     }
 
-    // If stale or forced refresh, trigger background sync without blocking current response
-    if (forceRefresh || isStale) {
-      this.syncAllSources(forceRefresh).catch((err) => {
+    // If stale, trigger background sync without blocking current response
+    if (isStale) {
+      this.syncAllSources(false).catch((err) => {
         console.error("[OpportunityService] Background sync failed:", err);
       });
     }
@@ -211,12 +247,21 @@ export class OpportunityService {
   }
 
   /**
-   * Returns all active opportunities (excluding expired or removed ones).
+   * Returns all active opportunities (excluding expired, closed, removed, or failed verification).
    */
   public getActiveOpportunities(): CanonicalOpportunity[] {
     return this.canonicalOpportunities.filter((opp) => {
       const evaluation = OpportunityFreshnessEngine.evaluateFreshness(opp);
-      return !evaluation.isExpired && opp.status !== "EXPIRED" && opp.status !== "REMOVED";
+      if (evaluation.isExpired || opp.status === "EXPIRED" || opp.status === "REMOVED") {
+        return false;
+      }
+      if (opp.status === "REGISTRATION_CLOSED" || opp.status === "SUBMISSION_CLOSED") {
+        return false;
+      }
+      if (opp.status === "QUARANTINED" || opp.verificationStatus === "FAILED") {
+        return false;
+      }
+      return true;
     });
   }
 
@@ -230,10 +275,12 @@ export class OpportunityService {
   /**
    * Directly sets/overrides canonical opportunities (used for testing and migrations).
    */
-  public setCanonicalOpportunities(opps: CanonicalOpportunity[]): void {
+  public setCanonicalOpportunities(opps: CanonicalOpportunity[], persist = true): void {
     this.canonicalOpportunities = opps;
     this.lastIngestedAt = Date.now();
-    this.saveToStore();
+    if (persist) {
+      this.saveToStore();
+    }
   }
 
   /**
@@ -611,7 +658,22 @@ export class OpportunityService {
     this.applicationStore.set(params.studentId, list);
 
     // Integrate with Career Memory when outcome is reached
-    const opp = this.canonicalOpportunities.find((o) => o.id === params.opportunityId);
+    let opp = this.canonicalOpportunities.find((o) => o.id === params.opportunityId);
+    if (!opp) {
+      for (const adapter of OpportunitySourceRegistry.getInstance().getAllAdapters()) {
+        const raw = (adapter as any).seedCorporateListings || (adapter as any).seedAtsListings || (adapter as any).seedStartupListings || (adapter as any).seedCampusListings;
+        if (Array.isArray(raw)) {
+          const found = raw.find((r: any) => r.id === params.opportunityId);
+          if (found) {
+            try {
+              opp = adapter.normalize(found);
+            } catch {}
+            break;
+          }
+        }
+      }
+    }
+
     if (opp && (params.stage === "Rejected" || params.stage === "Offer" || params.stage === "Accepted")) {
       const memoryStatus = params.stage === "Offer" || params.stage === "Accepted" ? "Offer" : "Rejected";
       recordCareerMemoryItem(params.studentId, {

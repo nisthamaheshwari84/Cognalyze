@@ -446,13 +446,29 @@ export function isActionableOpportunityUrl(url?: string): boolean {
   if (!url || typeof url !== "string") return false;
   const trimmed = url.trim();
   if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false;
-  // Generic portal homepages are discovery feeds, not actionable application endpoints
+
+  try {
+    const parsed = new URL(trimmed);
+    const host = parsed.hostname.toLowerCase();
+    const path = parsed.pathname.toLowerCase().replace(/\/$/, "");
+
+    if (
+      (host.includes("unstop.com") && (path === "" || path === "/hackathons" || path === "/competitions")) ||
+      (host.includes("devpost.com") && (path === "" || path === "/hackathons")) ||
+      (host.includes("devfolio.co") && (path === "" || path === "/hackathons")) ||
+      (host.includes("hackerrank.com") && (path === "" || path === "/contests")) ||
+      (host.includes("hackerearth.com") && (path === "" || path === "/challenges")) ||
+      (host.includes("kaggle.com") && (path === "" || path === "/competitions")) ||
+      (host.includes("mlh.io") && (path === "" || path === "/seasons")) ||
+      (host.includes("codechef.com") && path === "")
+    ) {
+      return false;
+    }
+  } catch {
+    return false;
+  }
+
   if (
-    trimmed === "https://unstop.com/competitions" ||
-    trimmed === "https://unstop.com/hackathons" ||
-    trimmed === "https://devpost.com/hackathons" ||
-    trimmed === "https://devfolio.co/hackathons" ||
-    trimmed === "https://hack2skill.com/hackathons" ||
     trimmed.includes("search?searchTerm=") ||
     trimmed.includes("searchTerm=")
   ) {
@@ -470,10 +486,21 @@ export function getSafeOpportunityUrl(url?: string, organizer?: string, title?: 
     try {
       const parsed = new URL(raw);
       const host = parsed.hostname.toLowerCase();
+      const path = parsed.pathname.toLowerCase().replace(/\/$/, "");
       const isSearch = raw.includes("/search?searchTerm=") || raw.includes("searchTerm=");
       const isLocal = host === "localhost" || host === "127.0.0.1";
       const isDummy = host.includes("example.com") || host.includes("dummy");
-      if (!isSearch && !isLocal && !isDummy && host.includes(".")) {
+
+      // Non-negotiable: Never treat generic category or platform homepages as direct opportunity links
+      const isGenericPortal = 
+        (host.includes("unstop.com") && (path === "" || path === "/hackathons" || path === "/competitions")) ||
+        (host.includes("devfolio.co") && (path === "" || path === "/hackathons")) ||
+        (host.includes("devpost.com") && (path === "" || path === "/hackathons")) ||
+        (host.includes("hackerrank.com") && (path === "" || path === "/contests")) ||
+        (host.includes("hackerearth.com") && (path === "" || path === "/challenges")) ||
+        (host.includes("kaggle.com") && (path === "" || path === "/competitions"));
+
+      if (!isSearch && !isLocal && !isDummy && !isGenericPortal && host.includes(".")) {
         return raw;
       }
     } catch {

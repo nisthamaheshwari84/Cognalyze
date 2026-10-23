@@ -351,7 +351,18 @@ function loadStoreFromDisk(force = false) {
         }
 
         const raw = fs.readFileSync(filePath, "utf-8");
-        const parsed = JSON.parse(raw);
+        if (!raw || !raw.trim()) {
+          return;
+        }
+        let parsed: any;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          return;
+        }
+        if (!parsed || typeof parsed !== "object") {
+          return;
+        }
         if (parsed.users && Array.isArray(parsed.users)) {
           for (const u of parsed.users) {
             const idx = store.users.findIndex(x => x.id === u.id);

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { VisionPipeline } from "@/lib/camera/vision-models";
 import { TemporalTracker } from "@/lib/camera/temporal-tracker";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 // ═══ EVIDENCE-BASED INTERVIEW INTERFACES ═══
 export interface EvidenceMarker {
@@ -368,7 +369,7 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
             borderRadius: 7,
             borderLeft: "2.5px solid #fbbf24"
           }}>
-            {suggestedAnswer}
+            <MarkdownRenderer content={suggestedAnswer} compact isDark={true} />
           </div>
         </div>
       ) : (
@@ -1998,7 +1999,7 @@ export default function InterviewPage() {
                 </div>
                 <div style={{ maxWidth: "80%" }}>
                   <div style={{ padding: "10px 14px", borderRadius: m.role === "assistant" ? "2px 10px 10px 10px" : "10px 2px 10px 10px", background: m.role === "assistant" ? "#1E293B" : "#356AE6", border: m.role === "assistant" ? "1px solid #334155" : "none", fontSize: 13, lineHeight: 1.6, color: "#FFFFFF" }}>
-                    {m.content}
+                    <MarkdownRenderer content={m.content} compact isDark={true} />
                   </div>
                   <div style={{ fontSize: 10, color: "#64748B", marginTop: 4, textAlign: m.role === "user" ? "right" : "left" }}>{m.time}</div>
                 </div>

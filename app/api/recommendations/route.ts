@@ -1,27 +1,73 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   computeMatchScore,
-  generateMatchReasoning,
   StudentProfileData,
+  OpportunityData
 } from "@/lib/ai/placement-intelligence";
 import {
   getStudentProfile,
-  getAllOpportunities,
   saveRecommendations,
   getCachedRecommendations
 } from "@/lib/placement-store";
 import { createNotification } from "@/lib/notifications";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { CanonicalOpportunity } from "@/lib/opportunities/types";
 
-export async function GET(req: Request) {
+/**
+ * Maps canonical opportunity to legacy OpportunityData shape for backward compatibility
+ */
+function mapCanonicalToOpportunityData(c: CanonicalOpportunity): OpportunityData {
+  const orgType: any = c.sourceType === "IIT"
+    ? "IIT-fest"
+    : c.sourceType === "UNIVERSITY"
+    ? "university"
+    : c.sourceType === "STARTUP"
+    ? "startup"
+    : "corporate";
+
+  const oppType: any = c.opportunityType === "INTERNSHIP"
+    ? "internship"
+    : c.opportunityType === "JOB"
+    ? "internship"
+    : c.opportunityType === "FELLOWSHIP"
+    ? "fellowship"
+    : c.opportunityType === "COMPETITION"
+    ? "contest"
+    : "hackathon";
+
+  return {
+    id: c.id,
+    title: c.title,
+    type: oppType,
+    organizer: c.organizer || c.companyName,
+    organizer_type: orgType,
+    tags: c.tags && c.tags.length > 0 ? c.tags : (c.requiredSkills || []),
+    domain_tags: c.domains && c.domains.length > 0 ? c.domains : ["Software Engineering"],
+    tier: "Tier 1",
+    deadline: c.deadline,
+    eligibility: c.eligibilityRequirements?.[0] || c.roleDNA?.educationSummary || "Open to eligible students",
+    source_url: c.applicationUrl || c.sourceUrl,
+    extracted_context: {
+      platform: c.source || c.sourceType,
+      summary: c.description,
+      prize_pool: c.prize || undefined,
+      team_size: c.teamSize || undefined,
+      perks: c.prize ? [c.prize] : []
+    }
+  };
+}
+
+export async function GET(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req as any);
+    const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
-    const candidateId = auth?.user?.id || (searchParams.get("candidateId") === "student-demo" ? "student-demo" : null);
+    const isDemo = process.env.NODE_ENV !== "production" && (searchParams.get("candidateId") === "student-demo" || req.headers.get("x-cognalyze-demo") === "true");
+
+    const candidateId = auth?.user?.id || (isDemo ? "student-demo" : null);
 
     const limitParam = searchParams.get("limit");
     const limit = limitParam && limitParam !== "all" ? parseInt(limitParam, 10) : undefined;
-
     const refresh = searchParams.get("refresh") === "true";
 
     // 1. Fetch Student Profile
@@ -35,10 +81,9 @@ export async function GET(req: Request) {
       }
     }
 
-    // Check memory cache first (only if not forcing refresh and cache has sufficient depth)
+    // Check memory cache first (only if not forcing refresh)
     const cached = (!refresh && candidateId) ? getCachedRecommendations(candidateId) : null;
     if (cached && cached.length > 0) {
-      // If no limit was requested, ensure cache isn't just a small slice
       const isSufficient = limit ? cached.length >= limit : cached.length >= 30;
       if (isSufficient) {
         const sliced = limit ? cached.slice(0, limit) : cached;
@@ -65,17 +110,24 @@ export async function GET(req: Request) {
       experience_level: "fresher"
     };
 
-    // 2. Fetch Opportunities
-    const opportunities = await getAllOpportunities();
-    if (!opportunities || opportunities.length === 0) {
+    // 2. Fetch Opportunities exclusively from verified Canonical Opportunity Service
+    const canonicalList = await opportunityService.ensureIngested(refresh);
+    const activeCanonical = canonicalList.filter(o => o.status === "ACTIVE");
+
+    if (!activeCanonical || activeCanonical.length === 0) {
       return NextResponse.json({
-        needsOnboarding: false,
+        success: true,
+        candidateId: candidateId || "",
+        needsOnboarding,
+        count: 0,
         recommendations: [],
-        message: "No active opportunities found."
+        message: "No verified opportunities are available from your currently connected sources. Connect approved sources or check back after the next refresh."
       });
     }
 
-    // 3. Compute fit score for each opportunity
+    const opportunities = activeCanonical.map(mapCanonicalToOpportunityData);
+
+    // 3. Compute fit score for each opportunity against student evidence
     const scoredList = opportunities.map(opp => {
       const match = computeMatchScore(activeProfile, opp);
       return {
@@ -89,13 +141,13 @@ export async function GET(req: Request) {
     // Sort descending by fit score
     scoredList.sort((a, b) => b.fit_score - a.fit_score);
 
-    // 4. Generate high-signal match reasoning for the FULL catalog
+    // 4. Generate match reasoning
     const allRecommendations = scoredList.map((item) => {
       const targetRole = activeProfile.target_roles?.[0] || "Software Engineering";
       const overlap = item.matching_tags.slice(0, 3).join(", ");
       const reasoning = item.matching_tags.length > 0
-        ? `High synergy with your verified proficiency in ${overlap} targeting ${targetRole} tracks.`
-        : `Strong platform to expand your profile and compete for high-impact ${item.opportunity.tier || "Tier 1"} roles.`;
+        ? `Synergy with your demonstrated skills in ${overlap} targeting ${targetRole}.`
+        : `Opportunity from ${item.opportunity.organizer} to develop hands-on technical evidence.`;
 
       return {
         opportunity_id: item.opportunity.id || "",
@@ -108,14 +160,14 @@ export async function GET(req: Request) {
       };
     });
 
-    // 5. Persist the FULL recommendations array so subsequent calls have full depth
+    // 5. Persist recommendations cache for this user
     if (candidateId) {
       await saveRecommendations(candidateId, allRecommendations);
     }
 
     const recommendations = limit ? allRecommendations.slice(0, limit) : allRecommendations;
 
-    // Unified Notification Hook: If top recommendation has high fit score (>= 85)
+    // Notification Hook for high-fit match
     if (candidateId) {
       const topMatch = recommendations.find(r => r.fit_score >= 85);
       if (topMatch) {
@@ -144,16 +196,18 @@ export async function GET(req: Request) {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const candidateId = body.candidateId || "student-default";
-    const limit = body.limit || 10;
+    const auth = await getAuthenticatedContext(req);
+    const body = await req.json().catch(() => ({}));
+    const isDemo = process.env.NODE_ENV !== "production" && (body.candidateId === "student-demo" || req.headers.get("x-cognalyze-demo") === "true");
 
-    // Delegate to GET handler logic
-    const url = new URL(`http://localhost/api/recommendations?candidateId=${candidateId}&limit=${limit}`);
-    const syntheticReq = new Request(url.toString(), { method: "GET" });
-    return GET(syntheticReq);
+    if (!auth && !isDemo) {
+      return NextResponse.json({ error: "Unauthorized. Authentication is required." }, { status: 401 });
+    }
+
+    // Delegate to GET handler logic with authenticated context preserved
+    return GET(req);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

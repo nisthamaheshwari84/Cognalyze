@@ -22,6 +22,11 @@ export interface InterviewSession {
   overall_score: number;
   weak_topics_identified: string[];
   created_at: string;
+  interview_type?: string;
+  difficulty?: string;
+  duration_minutes?: number;
+  report?: any;
+  transcript?: Array<{ role: string; content: string; time: string; isFollowUp?: boolean }>;
 }
 
 const STORAGE_KEY = "cognalyze_interview_sessions";

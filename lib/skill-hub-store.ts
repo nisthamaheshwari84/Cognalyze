@@ -70,7 +70,7 @@ export interface CommunicationPrompt {
 
 export interface CSInterviewQuestion {
   id: string;
-  domain: "dbms" | "oop" | "os" | "networks";
+  domain: "dbms" | "oop" | "os" | "networks" | "cn" | "sql" | "concurrency";
   topic: string;
   company_tag: string;
   question: string;
@@ -1373,6 +1373,72 @@ export const SEED_CS_INTERVIEW_QUESTIONS: CSInterviewQuestion[] = [
     ],
     ideal_answer: "In thread-per-connection architectures, scaling to 100k connections crashes the server due to multi-gigabyte thread stack allocations and relentless context switching. Single-threaded event loops (Node.js/NGINX) solve this via OS I/O Multiplexing (Linux epoll or BSD kqueue). Sockets are marked non-blocking. The single event loop registers sockets with the kernel epoll instance. When network packets arrive, the kernel notifies epoll in O(1) time. The event loop then sequentially executes ready callbacks without ever blocking on waiting network bytes.",
     follow_up: "What happens if a developer puts a synchronous heavy loop (e.g., JSON.parse on a 500MB string) inside an event loop handler?"
+  },
+
+  // ── SQL PRACTICAL (11-13) ──────────────────────────────────────────────────
+  {
+    id: "cs-sql-1",
+    domain: "sql",
+    topic: "Multi-Table JOINs & NULL Filtering",
+    company_tag: "Amazon / TCS Digital",
+    difficulty: "medium",
+    question: "Write an SQL query to find departments with zero employees from Departments and Employees tables. Why does an INNER JOIN fail to return these records?",
+    expected_points: [
+      "Use of LEFT JOIN Departments to Employees",
+      "Filter condition: WHERE Employees.emp_id IS NULL",
+      "INNER JOIN only returns intersection of both tables, eliminating departments without employees"
+    ],
+    ideal_answer: "SELECT d.dept_id, d.dept_name FROM Departments d LEFT JOIN Employees e ON d.dept_id = e.dept_id WHERE e.emp_id IS NULL; An INNER JOIN strictly requires matching rows in both tables, eliminating empty departments.",
+    follow_up: "How would you rewrite this query using NOT EXISTS, and why is NOT EXISTS often faster?"
+  },
+  {
+    id: "cs-sql-2",
+    domain: "sql",
+    topic: "Window Functions: Top 3 Department Salaries",
+    company_tag: "Microsoft / Google / Razorpay",
+    difficulty: "hard",
+    question: "Write a SQL query using window functions to find the top 3 highest unique salaries in each department. Explain why DENSE_RANK() is required over RANK().",
+    expected_points: [
+      "Use of DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC)",
+      "Outer query filtering WHERE rnk <= 3",
+      "DENSE_RANK() prevents gaps on ties so that the third distinct salary is always ranked 3"
+    ],
+    ideal_answer: "WITH Ranked AS (SELECT department_id, employee_id, salary, DENSE_RANK() OVER (PARTITION BY department_id ORDER BY salary DESC) as rnk FROM Employees) SELECT department_id, employee_id, salary FROM Ranked WHERE rnk <= 3; DENSE_RANK() ensures ties don't skip ranks (e.g. [1, 1, 2] instead of [1, 1, 3]).",
+    follow_up: "How would you index the table to optimize this departmental ranking?"
+  },
+
+  // ── CONCURRENCY (14-16) ────────────────────────────────────────────────────
+  {
+    id: "cs-conc-1",
+    domain: "concurrency",
+    topic: "Thread-Safe Bounded Blocking Queue",
+    company_tag: "Google / Amazon / Uber",
+    difficulty: "hard",
+    question: "Explain the architecture of a Thread-Safe Bounded Blocking Queue using Mutexes and Condition Variables. Why are two condition variables required instead of one?",
+    expected_points: [
+      "Mutex locks the queue structure for mutual exclusion",
+      "Two condition variables: notEmpty (waiting consumers) and notFull (waiting producers)",
+      "Using two CVs allows producers to notify only consumers, and consumers to notify only producers, preventing deadlocks with notify_one()",
+      "While loops are required around condition wait to guard against Spurious Wakeups"
+    ],
+    ideal_answer: "A bounded blocking queue uses one mutex to serialize buffer access, and two condition variables: notFull and notEmpty. When the queue is full, producers wait on notFull. When a consumer pops an item, it signals notFull to wake a producer. Two separate condition variables prevent waking threads of the same role, avoiding deadlocks when using notify_one(). All wait() calls must be enclosed in while loops to guard against spurious wakeups.",
+    follow_up: "What is the difference between notify_one() and notify_all() in terms of thundering herd problem?"
+  },
+  {
+    id: "cs-conc-2",
+    domain: "concurrency",
+    topic: "Volatile Variable Visibility vs Atomicity",
+    company_tag: "Oracle / Microsoft / Cisco",
+    difficulty: "medium",
+    question: "Why does declaring an integer volatile in Java or C++ ensure memory visibility across CPU cores but fail to make count++ thread-safe?",
+    expected_points: [
+      "Volatile ensures reads and writes go directly to main memory / coherency bus, preventing stale CPU L1/L2 cache reads",
+      "count++ is not an atomic instruction: it requires 3 separate operations (read from memory, increment in CPU register, write back to memory)",
+      "Concurrent threads can interleave these 3 operations, resulting in lost updates",
+      "Atomic operations (CAS / AtomicInteger) or mutex synchronization are mandatory for compound updates"
+    ],
+    ideal_answer: "Volatile guarantees memory visibility and prevents instruction reordering: any write to a volatile variable is immediately visible to all other threads because it bypasses local CPU register caching and forces cache coherence. However, count++ is a compound read-modify-write operation (3 separate CPU instructions). If two threads read count=5 simultaneously, both increment to 6 and write back 6, losing an update. Thread safety for compound operations requires atomic instructions (CAS/AtomicInteger) or explicit lock synchronization.",
+    follow_up: "How does Compare-And-Swap (CAS) achieve lock-free atomicity?"
   }
 ];
 
@@ -1958,7 +2024,11 @@ class SkillHubStore {
 
   public getCSQuestions(domain?: string): CSInterviewQuestion[] {
     if (!domain || domain === "all") return SEED_CS_INTERVIEW_QUESTIONS;
-    return SEED_CS_INTERVIEW_QUESTIONS.filter(q => q.domain === domain);
+    const targetDomain = domain === "networks" ? "cn" : domain;
+    return SEED_CS_INTERVIEW_QUESTIONS.filter(q => {
+      const qDomain = q.domain === "networks" ? "cn" : q.domain;
+      return qDomain === targetDomain;
+    });
   }
 
   public getSystemDesignChallenges(): SystemDesignChallenge[] {

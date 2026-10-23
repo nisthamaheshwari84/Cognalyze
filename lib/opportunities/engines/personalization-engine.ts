@@ -32,6 +32,7 @@ import {
   getStudentEvidence,
   getCareerMemory,
 } from "@/lib/intelligence/student-intelligence";
+import { getStudentProfileByUserId } from "@/lib/auth/store";
 import { CandidateEligibilityContext, OpportunityEligibilityEngine } from "./eligibility-engine";
 
 export class OpportunityPersonalizationEngine {
@@ -48,16 +49,20 @@ export class OpportunityPersonalizationEngine {
     const evidenceItems = getStudentEvidence(studentId);
     const careerMemory = getCareerMemory(studentId);
 
-    // 1. Evaluate Eligibility (if not provided)
+    // 1. Evaluate Eligibility against actual student profile (no hardcoded hallucination)
+    const authProfile = getStudentProfileByUserId(studentId);
+    const gradYearNum = authProfile?.graduationYear ? parseInt(authProfile.graduationYear, 10) : undefined;
+    const isDemo = studentId === "student-demo";
+
     const candidateContext: CandidateEligibilityContext = {
       studentId,
-      degree: "B.Tech Computer Science & Engineering",
-      fieldOfStudy: "Computer Science",
-      graduationYear: 2027,
+      degree: authProfile?.degree || (isDemo ? "B.Tech Computer Science & Engineering" : undefined),
+      fieldOfStudy: authProfile?.branch || (isDemo ? "Computer Science" : undefined),
+      graduationYear: !isNaN(gradYearNum as any) ? gradYearNum : (isDemo ? 2027 : undefined),
       isCurrentlyEnrolled: true,
       yearsOfExperience: 0,
-      currentLocationCountry: "India",
-      currentLocationCity: "Bengaluru",
+      currentLocationCountry: authProfile?.location || "India",
+      currentLocationCity: authProfile?.location || (isDemo ? "Bengaluru" : undefined),
       workAuthorizationCountry: "India",
       requiresSponsorship: false,
     };

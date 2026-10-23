@@ -19,15 +19,15 @@ async function runSidebarValidation() {
   assert(fs.existsSync(appNavPath), "components/AppNav.tsx exists");
   const appNavContent = fs.readFileSync(appNavPath, "utf-8");
 
-  console.log("\n▶ CHECK 1: Navigation items order and specifications (13 Core Items)");
+  console.log("\n▶ CHECK 1: Navigation items order and specifications (12 Core Items)");
   const expectedStudentItems = [
     { label: "Overview", href: "/student/dashboard" },
-    { label: "Journey", href: "/student/journey" },
     { label: "Student DNA", href: "/student/dna", badge: "Live" },
     { label: "Opportunities", href: "/student/opportunities" },
     { label: "Applications", href: "/student/applications" },
     { label: "Resume", href: "/resume" },
     { label: "Interviews", href: "/interview" },
+    { label: "Personalized Interview Arena", href: "/student/practice-interview", badge: "AI" },
     { label: "Skill Practice Hub", href: "/skill-practice" },
     { label: "Recruitment Simulation", href: "/recruitment-simulation" },
     { label: "DSA Tracker", href: "/dsa-tracker" },
@@ -60,7 +60,7 @@ async function runSidebarValidation() {
 
   if (studentNavMatch) {
     const listStr = studentNavMatch[1];
-    const interviewIdx = listStr.indexOf('"Interviews"');
+    const interviewIdx = listStr.indexOf('"Mock Interview"') !== -1 ? listStr.indexOf('"Mock Interview"') : listStr.indexOf('"Interviews"');
     const skillHubIdx = listStr.indexOf('"Skill Practice Hub"');
     const simIdx = listStr.indexOf('"Recruitment Simulation"');
     const dsaIdx = listStr.indexOf('"DSA Tracker"');
@@ -68,7 +68,7 @@ async function runSidebarValidation() {
     const gdIdx = listStr.indexOf('"Group Discussion"');
     const mentorIdx = listStr.indexOf('"Cognalyze AI Mentor"');
 
-    assert(interviewIdx !== -1, "Interviews is in list");
+    assert(interviewIdx !== -1, "Mock Interview is in list");
     assert(skillHubIdx > interviewIdx, "Skill Practice Hub is immediately after Interviews");
     assert(simIdx > skillHubIdx, "Recruitment Simulation is immediately after Skill Practice Hub");
     assert(dsaIdx > simIdx, "DSA Tracker is immediately after Recruitment Simulation");

@@ -43,7 +43,12 @@ export async function POST(req: Request) {
     sessionId: reqSessionId,
     candidateId: reqCandidateId,
     durationMinutes = 45,
-    experienceMode: reqExperienceMode
+    experienceMode: reqExperienceMode,
+    interviewType,
+    targetCompany,
+    targetRole,
+    skillsFocus,
+    difficulty,
   } = body;
 
   // 1. Authenticate candidate with strict server-side validation
@@ -78,13 +83,19 @@ export async function POST(req: Request) {
     if (!sessionState) {
       const blueprint = generateInterviewBlueprint(
         dossier,
-        effectiveJd.split("\n")[0] || dossier.targetRole,
+        targetRole || effectiveJd.split("\n")[0] || dossier.targetRole,
         Number(durationMinutes) || 45,
         reqExperienceMode || dossier.experienceMode,
         sessionId,
-        effectiveJd
+        effectiveJd,
+        interviewType || "technical",
+        targetCompany,
+        skillsFocus
       );
       sessionState = createAdvancedSessionState(blueprint, dossier);
+      if (difficulty && difficulty !== "adaptive") {
+        sessionState.currentDifficulty = difficulty as any;
+      }
     } else if (!sessionState.dossier) {
       sessionState.dossier = dossier;
     }

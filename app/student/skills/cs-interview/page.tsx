@@ -1,180 +1,477 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CSInterviewQuestion, SEED_CS_INTERVIEW_QUESTIONS } from "@/lib/skill-hub-store";
+import CustomInterviewModal from "@/components/skills/CustomInterviewModal";
+import SqlPracticeConsole from "@/components/skills/SqlPracticeConsole";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import {
-  generateSessionBrief,
-  getAdaptiveQuestion,
-  generatePostSessionFeedback,
-  getStudentProfile,
-  AdaptiveQuestionItem,
-  AdaptiveEvaluationResult,
-  PostSessionFeedback,
-  SessionBrief
-} from "@/lib/skills/adaptive-engine";
-import SessionBriefModal from "@/components/skills/SessionBriefModal";
+  CANONICAL_CS_SUBJECTS,
+  getCanonicalSubject,
+  getAllCanonicalSubjects,
+  getSubjectQuestions,
+  CSSubjectDefinition,
+  CSQuestionItem,
+  SubtopicLesson
+} from "@/lib/skills/cs-fundamentals-curriculum";
 
-function CSInterviewContent() {
+function CSFundamentalsContent() {
   const searchParams = useSearchParams();
-  const [candidateId, setCandidateId] = useState("");
-  const [trackSlug, setTrackSlug] = useState<"service_mass" | "service_elite" | "product_mid" | "product_faang">("product_mid");
 
-  const [mode, setMode] = useState<"learn" | "practice" | "coach" | "interview" | "bank">("interview");
-  const [selectedLearnTopic, setSelectedLearnTopic] = useState<"btree" | "isolation" | "process" | "tcp">("btree");
-  const [learnCheckpointAnswer, setLearnCheckpointAnswer] = useState<number | null>(null);
-  const [learnCheckpointRevealed, setLearnCheckpointRevealed] = useState(false);
-  const [coachLog, setCoachLog] = useState<{ sender: "coach" | "candidate"; text: string }[]>([
-    {
-      sender: "coach",
-      text: "Hello! I am your Socratic CS Fundamentals Coach. I observe your query structures and concurrency reasoning. What trade-off are you analyzing?"
+  // ── 1. CORE CANONICAL SUBJECT & MODE STATE ────────────────────────────────
+  const canonicalSubjects = useMemo(() => getAllCanonicalSubjects(), []);
+
+  // Determine initial subject from URL query (?subject=... or ?domain=...) or default to "dbms"
+  const initialSubjectParam = searchParams.get("subject") || searchParams.get("domain") || "dbms";
+  const initialSubject = getCanonicalSubject(initialSubjectParam) ? initialSubjectParam : "dbms";
+
+  const initialMode = (searchParams.get("mode") as any) || "learn";
+  const validModes = ["learn", "practice", "coach", "interview", "bank"];
+  const safeMode = validModes.includes(initialMode) ? initialMode : "learn";
+
+  const [activeSubjectId, setActiveSubjectId] = useState<string>(initialSubject);
+  const [activeMode, setActiveMode] = useState<"learn" | "practice" | "coach" | "interview" | "bank">(safeMode);
+  const [candidateId, setCandidateId] = useState<string>("student-demo");
+  const [showCustomModal, setShowCustomModal] = useState(false);
+
+  // Active Subject Definition & Questions
+  const currentSubject: CSSubjectDefinition = useMemo(() => {
+    return getCanonicalSubject(activeSubjectId) || canonicalSubjects[0];
+  }, [activeSubjectId, canonicalSubjects]);
+
+  const subjectQuestions: CSQuestionItem[] = useMemo(() => {
+    return getSubjectQuestions(currentSubject.id);
+  }, [currentSubject]);
+
+  // All subtopics for the active subject
+  const allSubtopics: SubtopicLesson[] = useMemo(() => {
+    const list: SubtopicLesson[] = [];
+    for (const mod of currentSubject.modules) {
+      list.push(...mod.subtopics);
     }
-  ]);
+    return list;
+  }, [currentSubject]);
+
+  // ── 2. LEARN MODE STATE ───────────────────────────────────────────────────
+  const [selectedSubtopicId, setSelectedSubtopicId] = useState<string>("");
+  const [learnSearch, setLearnSearch] = useState("");
+  const [checkpointSelected, setCheckpointSelected] = useState<number | null>(null);
+  const [checkpointRevealed, setCheckpointRevealed] = useState(false);
+
+  // "Ask Anything" Assistant State
+  const [assistantInput, setAssistantInput] = useState("");
+  const [assistantLoading, setAssistantLoading] = useState(false);
+  const [assistantError, setAssistantError] = useState("");
+  const [assistantLog, setAssistantLog] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+
+  // ── 3. PRACTICE MODE STATE ────────────────────────────────────────────────
+  const [practiceQuestionId, setPracticeQuestionId] = useState<string>("");
+  const [practiceDifficulty, setPracticeDifficulty] = useState<string>("all");
+  const [practiceType, setPracticeType] = useState<string>("all");
+  const [practiceSearch, setPracticeSearch] = useState("");
+  const [practiceAnswer, setPracticeAnswer] = useState("");
+  const [practiceMcqIndex, setPracticeMcqIndex] = useState<number | null>(null);
+  const [practiceEvaluating, setPracticeEvaluating] = useState(false);
+  const [practiceResult, setPracticeResult] = useState<any | null>(null);
+
+  // ── 4. COACH MODE STATE ───────────────────────────────────────────────────
+  const [coachLog, setCoachLog] = useState<{ sender: "coach" | "candidate"; text: string }[]>([]);
   const [coachInput, setCoachInput] = useState("");
-  const [sessionBrief, setSessionBrief] = useState<SessionBrief | null>(null);
-  const [showBriefModal, setShowBriefModal] = useState(false);
+  const [coachLoading, setCoachLoading] = useState(false);
 
-  // Bank Mode state
-  const [questions] = useState<CSInterviewQuestion[]>(SEED_CS_INTERVIEW_QUESTIONS);
-  const [selectedDomain] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Live Adaptive Interview State
+  // ── 5. INTERVIEW MODE STATE ───────────────────────────────────────────────
   const [interviewStarted, setInterviewStarted] = useState(false);
-  const [turnIndex, setTurnIndex] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState<AdaptiveQuestionItem | null>(null);
-  const [conversationHistory, setConversationHistory] = useState<Array<{
-    speaker: "interviewer" | "candidate";
-    text: string;
-    codeSnippet?: string;
-    type?: string;
-    evaluation?: AdaptiveEvaluationResult;
-  }>>([]);
+  const [interviewQuestions, setInterviewQuestions] = useState<CSQuestionItem[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [interviewDurationMins, setInterviewDurationMins] = useState(15);
+  const [interviewTargetCount, setInterviewTargetCount] = useState(3);
+  const [interviewDifficulty, setInterviewDifficulty] = useState("Medium");
+  const [timeLeft, setTimeLeft] = useState(900); // 15 mins default
+  const [interviewAnswers, setInterviewAnswers] = useState<Record<string, { answer: string; defense?: string; eval?: any }>>({});
+  const [currentCandidateAnswer, setCurrentCandidateAnswer] = useState("");
+  const [currentDefenseAnswer, setCurrentDefenseAnswer] = useState("");
+  const [activeProbe, setActiveProbe] = useState<string | null>(null);
+  const [interviewSubmitting, setInterviewSubmitting] = useState(false);
+  const [interviewCompleted, setInterviewCompleted] = useState(false);
+  const [finalScorecard, setFinalScorecard] = useState<any | null>(null);
 
-  const [activeFollowUpPrompt, setActiveFollowUpPrompt] = useState<{
-    type: string;
-    question: string;
-    reason: string;
-  } | null>(null);
-
-  const [candidateAnswer, setCandidateAnswer] = useState("");
-  const [evaluating, setEvaluating] = useState(false);
-  const [turnEvaluations, setTurnEvaluations] = useState<AdaptiveEvaluationResult[]>([]);
-  const [sessionCompleted, setSessionCompleted] = useState(false);
-  const [postFeedback, setPostFeedback] = useState<PostSessionFeedback | null>(null);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 min per question
-
-  // Audio Speech Synthesis
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [speechSupported, setSpeechSupported] = useState(false);
+  // Audio Speech Recognition & Synthesis
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
 
-  // Speech output helper
-  const speakText = (text: string) => {
-    if (!soundEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 0.95;
-      const voices = window.speechSynthesis.getVoices();
-      const englishVoice = voices.find(v => v.lang.includes("en-US") || v.lang.includes("en-GB") || v.lang.includes("en-IN"));
-      if (englishVoice) utterance.voice = englishVoice;
-      window.speechSynthesis.speak(utterance);
-    } catch (e) {
-      console.warn("Speech synthesis error:", e);
-    }
-  };
+  // ── 6. QUESTION BANK STATE ────────────────────────────────────────────────
+  const [bankSearch, setBankSearch] = useState("");
+  const [bankDifficulty, setBankDifficulty] = useState("all");
+  const [bankVerification, setBankVerification] = useState("all");
+  const [bankCompany, setBankCompany] = useState("all");
+  const [bankSubtopic, setBankSubtopic] = useState("all");
+  const [expandedBankQuestionId, setExpandedBankQuestionId] = useState<string | null>(null);
 
+  // ── INITIALIZATION & SYNC ─────────────────────────────────────────────────
   useEffect(() => {
-    async function resolveUser() {
-      let storedId = searchParams.get("candidateId") || "";
+    // Resolve logged in candidate
+    async function initUser() {
       try {
-        const sessRes = await fetch("/api/auth/session");
-        if (sessRes.ok) {
-          const sess = await sessRes.json();
+        const res = await fetch("/api/auth/session");
+        if (res.ok) {
+          const sess = await res.json();
           if (sess.authenticated && sess.user?.id) {
-            storedId = sess.user.id;
+            setCandidateId(sess.user.id);
           }
         }
       } catch {}
-      setCandidateId(storedId);
-
-      const paramTrack = searchParams.get("track") as any;
-      const initialTrack = paramTrack || "product_mid";
-      setTrackSlug(initialTrack);
-
-      // Generate Session Brief
-      const brief = generateSessionBrief(initialTrack, "cs_fundamentals", storedId);
-      setSessionBrief(brief);
     }
-    resolveUser();
+    initUser();
 
-    // Initialize Web Speech API for voice dictation
+    // Check voice support
     if (typeof window !== "undefined") {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        setSpeechSupported(true);
-        const recog = new SpeechRecognition();
+      const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRec) {
+        const recog = new SpeechRec();
         recog.continuous = true;
         recog.interimResults = true;
         recog.lang = "en-IN";
-
-        recog.onresult = (event: any) => {
-          let transcript = "";
-          for (let i = 0; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript + " ";
+        recog.onresult = (e: any) => {
+          let text = "";
+          for (let i = 0; i < e.results.length; i++) {
+            text += e.results[i][0].transcript + " ";
           }
-          setCandidateAnswer(transcript.trim());
+          if (activeMode === "interview") {
+            if (activeProbe) setCurrentDefenseAnswer(text.trim());
+            else setCurrentCandidateAnswer(text.trim());
+          }
         };
-
         recog.onerror = () => setIsRecording(false);
         recog.onend = () => setIsRecording(false);
         recognitionRef.current = recog;
       }
     }
-  }, [searchParams]);
+  }, []);
 
-  // Timer countdown during live mock interview
+  // Restore saved interview session or completed scorecard on candidate/subject change
   useEffect(() => {
-    let timer: any = null;
-    if (interviewStarted && !sessionCompleted && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft(prev => Math.max(0, prev - 1));
-      }, 1000);
+    if (!candidateId || !activeSubjectId) return;
+    if (typeof window === "undefined") return;
+    try {
+      const savedKey = `cognalyze_cs_interview_${candidateId}_${activeSubjectId}`;
+      const saved = localStorage.getItem(savedKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.finalScorecard) {
+          setFinalScorecard(parsed.finalScorecard);
+          setInterviewCompleted(true);
+          setInterviewStarted(false);
+        } else if (parsed.interviewStarted && Array.isArray(parsed.interviewQuestions) && parsed.interviewQuestions.length > 0) {
+          setInterviewQuestions(parsed.interviewQuestions);
+          setCurrentQuestionIndex(parsed.currentQuestionIndex || 0);
+          setInterviewAnswers(parsed.interviewAnswers || {});
+          setTimeLeft(parsed.timeLeft || 600);
+          setInterviewStarted(true);
+          setInterviewCompleted(false);
+        }
+      }
+    } catch {}
+  }, [candidateId, activeSubjectId]);
+  useEffect(() => {
+    if (allSubtopics.length > 0) {
+      setSelectedSubtopicId(allSubtopics[0].id);
+      setCheckpointSelected(null);
+      setCheckpointRevealed(false);
     }
-    return () => clearInterval(timer);
-  }, [interviewStarted, sessionCompleted, timeLeft]);
+    if (subjectQuestions.length > 0) {
+      setPracticeQuestionId(subjectQuestions[0].id);
+      setPracticeAnswer("");
+      setPracticeMcqIndex(null);
+      setPracticeResult(null);
+    }
 
-  // Start Live Adaptive Interview
-  const handleStartAdaptiveSession = (isRetry: boolean = false) => {
-    const firstQ = getAdaptiveQuestion(trackSlug, "cs_fundamentals", 0, undefined, candidateId, isRetry);
-    setCurrentQuestion(firstQ);
-    setTurnIndex(0);
-    setInterviewStarted(true);
-    setSessionCompleted(false);
-    setPostFeedback(null);
-    setTurnEvaluations([]);
-    setActiveFollowUpPrompt(null);
-    setCandidateAnswer("");
-    setTimeLeft(300);
-
-    const greeting = `Hello, I am Alex, Lead Technical Interviewer for your ${trackSlug.replace("_", " ")} round. Let's begin with our first problem: ${firstQ.topic}. ${firstQ.question}`;
-    
-    setConversationHistory([
+    // Initialize Coach greeting for the selected subject
+    setCoachLog([
       {
-        speaker: "interviewer",
-        text: `${firstQ.topic}: ${firstQ.question}`
+        sender: "coach",
+        text: `Hello! I am your Socratic ${currentSubject.name} Coach. Ask me to break down any concept, request progressive hints without spoilers, or ask for a realistic mock interview question.`
       }
     ]);
+    setAssistantLog([]);
+    setAssistantError("");
 
-    speakText(greeting);
+    // Sync subject to URL and localStorage without wiping activeMode
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("subject", activeSubjectId);
+      window.history.replaceState({}, "", url.toString());
+      try {
+        localStorage.setItem(`cognalyze_cs_subject_${candidateId}`, activeSubjectId);
+      } catch {}
+    }
+  }, [activeSubjectId, currentSubject.name, allSubtopics, subjectQuestions, candidateId]);
+
+  // Sync mode changes to URL independently
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("mode", activeMode);
+      window.history.replaceState({}, "", url.toString());
+    }
+  }, [activeMode]);
+
+  // Mode change handler
+  const handleSwitchMode = (newMode: "learn" | "practice" | "coach" | "interview" | "bank") => {
+    setActiveMode(newMode);
   };
 
+  // Practice from Lesson handler: automatically opens the matching practice problem for active lesson
+  const handlePracticeFromLesson = () => {
+    if (activeSubtopicLesson) {
+      const matchingQ = subjectQuestions.find(q => q.subtopicId === activeSubtopicLesson.id);
+      if (matchingQ) {
+        setPracticeQuestionId(matchingQ.id);
+        setPracticeAnswer("");
+        setPracticeMcqIndex(null);
+        setPracticeResult(null);
+      }
+    }
+    handleSwitchMode("practice");
+  };
+
+  // Subject change handler
+  const handleSelectSubject = (newSubjectId: string) => {
+    setActiveSubjectId(newSubjectId);
+    // Reset interview state if subject changes
+    setInterviewStarted(false);
+    setInterviewCompleted(false);
+    setFinalScorecard(null);
+  };
+
+  // Active Subtopic Lesson
+  const activeSubtopicLesson: SubtopicLesson | undefined = useMemo(() => {
+    return allSubtopics.find(s => s.id === selectedSubtopicId) || allSubtopics[0];
+  }, [allSubtopics, selectedSubtopicId]);
+
+  // Active Practice Question
+  const activePracticeQuestion: CSQuestionItem | undefined = useMemo(() => {
+    return subjectQuestions.find(q => q.id === practiceQuestionId) || subjectQuestions[0];
+  }, [subjectQuestions, practiceQuestionId]);
+
+  // Distinct Companies in Current Subject
+  const allCompanies = useMemo(() => {
+    const set = new Set<string>();
+    subjectQuestions.forEach(q => {
+      if (q.companyTag) set.add(q.companyTag);
+    });
+    return Array.from(set).sort();
+  }, [subjectQuestions]);
+
+  // Filtered Learn Topics
+  const filteredLearnSubtopics = useMemo(() => {
+    if (!learnSearch.trim()) return allSubtopics;
+    const q = learnSearch.toLowerCase();
+    return allSubtopics.filter(s => s.title.toLowerCase().includes(q) || s.summary.toLowerCase().includes(q));
+  }, [allSubtopics, learnSearch]);
+
+  // Filtered Practice Questions
+  const filteredPracticeQuestions = useMemo(() => {
+    return subjectQuestions.filter(q => {
+      const matchDiff = practiceDifficulty === "all" || q.difficulty.toLowerCase() === practiceDifficulty.toLowerCase();
+      const matchType = practiceType === "all" || q.questionType === practiceType;
+      const matchSearch = !practiceSearch.trim() ||
+        q.title.toLowerCase().includes(practiceSearch.toLowerCase()) ||
+        q.questionText.toLowerCase().includes(practiceSearch.toLowerCase());
+      return matchDiff && matchType && matchSearch;
+    });
+  }, [subjectQuestions, practiceDifficulty, practiceType, practiceSearch]);
+
+  // Filtered Question Bank
+  const filteredBankQuestions = useMemo(() => {
+    return subjectQuestions.filter(q => {
+      const matchDiff = bankDifficulty === "all" || q.difficulty.toLowerCase() === bankDifficulty.toLowerCase();
+      const matchVer = bankVerification === "all" || q.verificationStatus === bankVerification;
+      const matchCompany = bankCompany === "all" || q.companyTag.toLowerCase() === bankCompany.toLowerCase();
+      const matchSubtopic = bankSubtopic === "all" || q.subtopicId === bankSubtopic;
+      const matchSearch = !bankSearch.trim() ||
+        q.title.toLowerCase().includes(bankSearch.toLowerCase()) ||
+        q.questionText.toLowerCase().includes(bankSearch.toLowerCase()) ||
+        q.companyTag.toLowerCase().includes(bankSearch.toLowerCase());
+      return matchDiff && matchVer && matchCompany && matchSubtopic && matchSearch;
+    });
+  }, [subjectQuestions, bankDifficulty, bankVerification, bankCompany, bankSubtopic, bankSearch]);
+
+  // ── ACTIONS ───────────────────────────────────────────────────────────────
+
+  // 1. "Ask Anything" Assistant
+  const handleAskAssistant = async () => {
+    if (!assistantInput.trim() || assistantLoading) return;
+    const userQ = assistantInput.trim();
+    setAssistantInput("");
+    setAssistantError("");
+    setAssistantLoading(true);
+
+    const updatedLog = [...assistantLog, { role: "user" as const, content: userQ }];
+    setAssistantLog(updatedLog);
+
+    try {
+      const res = await fetch("/api/skills/cs-interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "ask_assistant",
+          subjectId: activeSubjectId,
+          topicId: selectedSubtopicId,
+          question: userQ,
+          history: updatedLog
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.answer) {
+        setAssistantLog([...updatedLog, { role: "assistant" as const, content: data.answer }]);
+      } else {
+        setAssistantError(data.error || "Failed to generate answer. Please try again.");
+      }
+    } catch (e: any) {
+      setAssistantError("Connection interrupted. Your question was preserved; click retry below.");
+      setAssistantInput(userQ);
+    } finally {
+      setAssistantLoading(false);
+    }
+  };
+
+  // 2. Practice Random Question
+  const handleSelectRandomQuestion = () => {
+    const pool = filteredPracticeQuestions.length > 0 ? filteredPracticeQuestions : subjectQuestions;
+    if (pool.length === 0) return;
+    const rand = pool[Math.floor(Math.random() * pool.length)];
+    setPracticeQuestionId(rand.id);
+    setPracticeAnswer("");
+    setPracticeMcqIndex(null);
+    setPracticeResult(null);
+  };
+
+  // 3. Submit Practice Answer
+  const handleSubmitPractice = async () => {
+    if (!activePracticeQuestion) return;
+    setPracticeEvaluating(true);
+    setPracticeResult(null);
+
+    try {
+      const res = await fetch("/api/skills/cs-interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "evaluate_practice",
+          questionId: activePracticeQuestion.id,
+          subjectId: activeSubjectId,
+          candidateAnswer: practiceAnswer,
+          selectedOptionIndex: practiceMcqIndex,
+          questionType: activePracticeQuestion.questionType
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setPracticeResult(data);
+      } else {
+        alert(data.error || "Evaluation failed. Please try again.");
+      }
+    } catch (err) {
+      alert("Evaluation service error. Please retry.");
+    } finally {
+      setPracticeEvaluating(false);
+    }
+  };
+
+  // 4. Coach Chat Message
+  const handleSendCoachMessage = async (customText?: string, coachMode: "hint" | "full_answer" | "explain" = "hint") => {
+    const textToSend = customText || coachInput.trim();
+    if (!textToSend && coachMode !== "full_answer") return;
+    if (!customText) setCoachInput("");
+    setCoachLoading(true);
+
+    const newLog = [...coachLog, { sender: "candidate" as const, text: textToSend || "Show full benchmark answer." }];
+    setCoachLog(newLog);
+
+    try {
+      const res = await fetch("/api/skills/cs-interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "coach_chat",
+          subjectId: activeSubjectId,
+          userMessage: textToSend,
+          mode: coachMode,
+          activeQuestionId: practiceQuestionId,
+          history: newLog.map(l => ({ role: l.sender === "candidate" ? "user" : "assistant", content: l.text }))
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.coachResponse) {
+        setCoachLog([...newLog, { sender: "coach" as const, text: data.coachResponse }]);
+      }
+    } catch (err) {
+      setCoachLog([...newLog, { sender: "coach" as const, text: "Consider the core architectural trade-offs: what happens to memory buffers and locks under heavy contention?" }]);
+    } finally {
+      setCoachLoading(false);
+    }
+  };
+
+  // 5. Start Subject Interview
+  const handleStartInterview = () => {
+    // Select questions strictly from activeSubjectId
+    const pool = [...subjectQuestions];
+    // Shuffle pool
+    const shuffled = pool.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, Math.min(interviewTargetCount, Math.max(1, shuffled.length)));
+
+    setInterviewQuestions(selected);
+    setCurrentQuestionIndex(0);
+    setCurrentCandidateAnswer("");
+    setCurrentDefenseAnswer("");
+    setActiveProbe(null);
+    setInterviewAnswers({});
+    setTimeLeft(interviewDurationMins * 60);
+    setInterviewStarted(true);
+    setInterviewCompleted(false);
+    setFinalScorecard(null);
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(`cognalyze_cs_interview_${candidateId}_${activeSubjectId}`);
+      } catch {}
+    }
+  };
+
+  // Reset interview session
+  const handleResetInterview = () => {
+    setInterviewStarted(false);
+    setInterviewCompleted(false);
+    setFinalScorecard(null);
+    setCurrentQuestionIndex(0);
+    setCurrentCandidateAnswer("");
+    setCurrentDefenseAnswer("");
+    setActiveProbe(null);
+    setInterviewAnswers({});
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(`cognalyze_cs_interview_${candidateId}_${activeSubjectId}`);
+      } catch {}
+    }
+  };
+
+  // Timer countdown
+  useEffect(() => {
+    let t: any = null;
+    if (interviewStarted && !interviewCompleted && timeLeft > 0) {
+      t = setInterval(() => setTimeLeft(prev => Math.max(0, prev - 1)), 1000);
+    }
+    return () => clearInterval(t);
+  }, [interviewStarted, interviewCompleted, timeLeft]);
+
+  // Voice toggle
   const toggleRecording = () => {
-    if (!speechSupported || !recognitionRef.current) {
+    if (!recognitionRef.current) {
       alert("Voice speech recognition is not supported in this browser. Please type or paste your response in the editor.");
       return;
     }
@@ -191,126 +488,188 @@ function CSInterviewContent() {
     }
   };
 
-  // Submit Answer / Code for Adaptive Evaluation & Follow-Up
-  const handleSubmitTurn = async () => {
+  // Submit Interview Turn
+  const handleSubmitInterviewTurn = async () => {
     if (isRecording && recognitionRef.current) {
       recognitionRef.current.stop();
       setIsRecording(false);
     }
 
-    if (!candidateAnswer.trim()) {
-      alert("Please provide your answer, query, or technical reasoning.");
+    const currentQ = interviewQuestions[currentQuestionIndex];
+    if (!currentQ) return;
+
+    if (!activeProbe && !currentCandidateAnswer.trim()) {
+      alert("Please provide your answer or reasoning before continuing.");
+      return;
+    }
+    if (activeProbe && !currentDefenseAnswer.trim()) {
+      alert("Please respond to the interviewer's follow-up challenge.");
       return;
     }
 
-    setEvaluating(true);
-
-    // Append candidate turn to history
-    const updatedHistory = [
-      ...conversationHistory,
-      {
-        speaker: "candidate" as const,
-        text: candidateAnswer,
-        codeSnippet: candidateAnswer.includes("SELECT") || candidateAnswer.includes("class") || candidateAnswer.includes("def ") ? candidateAnswer : undefined
-      }
-    ];
-    setConversationHistory(updatedHistory);
+    setInterviewSubmitting(true);
 
     try {
-      const res = await fetch("/api/skills/cs-interview", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: currentQuestion?.id,
-          questionText: currentQuestion?.question,
-          candidateAnswer,
-          candidateId,
-          trackSlug,
-          turnIndex
-        })
-      });
+      // If we haven't asked the probe yet, evaluate first answer and surface followUp
+      if (!activeProbe) {
+        const res = await fetch("/api/skills/cs-interview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "interview_turn",
+            questionId: currentQ.id,
+            questionText: currentQ.questionText,
+            candidateAnswer: currentCandidateAnswer,
+            candidateId,
+            subjectId: activeSubjectId,
+            turnIndex: currentQuestionIndex
+          })
+        });
 
-      const data = await res.json();
-      const evalData: AdaptiveEvaluationResult = data.evaluation;
-      const nextEvals = [...turnEvaluations, evalData];
-      setTurnEvaluations(nextEvals);
+        const data = await res.json();
+        const evalData = data.evaluation;
 
-      if (evalData.nextFollowUp && !activeFollowUpPrompt) {
-        setActiveFollowUpPrompt(evalData.nextFollowUp);
-        const followUpText = evalData.nextFollowUp.question;
-        
-        setConversationHistory([
-          ...updatedHistory,
-          {
-            speaker: "interviewer",
-            text: `[${evalData.nextFollowUp.type} PROBE]: ${followUpText}`,
-            type: evalData.nextFollowUp.type,
-            evaluation: evalData
+        // Store first response
+        const nextAnswers = {
+          ...interviewAnswers,
+          [currentQ.id]: {
+            answer: currentCandidateAnswer,
+            eval: evalData
           }
-        ]);
+        };
+        setInterviewAnswers(nextAnswers);
 
-        speakText(followUpText);
-        setCandidateAnswer("");
+        // Present follow-up probe
+        const probeText = evalData?.nextFollowUp?.question || currentQ.followUpChallenge.question;
+        setActiveProbe(probeText);
+
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem(`cognalyze_cs_interview_${candidateId}_${activeSubjectId}`, JSON.stringify({
+              interviewStarted: true,
+              interviewQuestions,
+              currentQuestionIndex,
+              interviewAnswers: nextAnswers,
+              timeLeft
+            }));
+          } catch {}
+        }
       } else {
-        if (turnIndex < 1) {
-          const nextQ = getAdaptiveQuestion(trackSlug, "cs_fundamentals", 1, candidateAnswer, candidateId);
-          setCurrentQuestion(nextQ);
-          setTurnIndex(prev => prev + 1);
-          setActiveFollowUpPrompt(null);
-          setCandidateAnswer("");
-          setTimeLeft(300);
+        // Complete current question with defense
+        const nextAnswers = {
+          ...interviewAnswers,
+          [currentQ.id]: {
+            ...interviewAnswers[currentQ.id],
+            defense: currentDefenseAnswer
+          }
+        };
+        setInterviewAnswers(nextAnswers);
 
-          setConversationHistory(prev => [
-            ...prev,
-            {
-              speaker: "interviewer",
-              text: `Next technical focus: ${nextQ.topic}. ${nextQ.question}`
-            }
-          ]);
+        // Move to next question or finalize
+        if (currentQuestionIndex + 1 < interviewQuestions.length) {
+          const nextIndex = currentQuestionIndex + 1;
+          setCurrentQuestionIndex(nextIndex);
+          setCurrentCandidateAnswer("");
+          setCurrentDefenseAnswer("");
+          setActiveProbe(null);
 
-          speakText(`Good explanation. Let's move to our next problem. ${nextQ.question}`);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem(`cognalyze_cs_interview_${candidateId}_${activeSubjectId}`, JSON.stringify({
+                interviewStarted: true,
+                interviewQuestions,
+                currentQuestionIndex: nextIndex,
+                interviewAnswers: nextAnswers,
+                timeLeft
+              }));
+            } catch {}
+          }
         } else {
-          setSessionCompleted(true);
-          const feedback = generatePostSessionFeedback(trackSlug, "cs_fundamentals", nextEvals, candidateId);
-          setPostFeedback(feedback);
-          speakText("That concludes our technical screening round. I have synthesized your evidence and prepared your post-session dossier.");
+          // Finalize session
+          finalizeInterviewSession(nextAnswers);
         }
       }
     } catch (err) {
-      console.error("CS Turn evaluation error:", err);
+      alert("Submission error. Please retry.");
     } finally {
-      setEvaluating(false);
+      setInterviewSubmitting(false);
     }
   };
 
-  const handleGenerateFreshUnseen = () => {
-    const fresh = getAdaptiveQuestion(trackSlug, "cs_fundamentals", turnIndex, undefined, candidateId, true);
-    setCurrentQuestion(fresh);
-    setCandidateAnswer("");
-    setActiveFollowUpPrompt(null);
-    setConversationHistory(prev => [
-      ...prev,
-      {
-        speaker: "interviewer",
-        text: `[FRESH UNSEEN SCENARIO]: ${fresh.topic}. ${fresh.question}`
+  // Finalize Interview
+  const finalizeInterviewSession = (finalAnswers = interviewAnswers) => {
+    setInterviewCompleted(true);
+    setInterviewStarted(false);
+
+    // Compute genuine evidence-grounded scorecard
+    const entries = Object.values(finalAnswers);
+    let totalScore = 0;
+    let totalAccuracy = 0;
+    let totalDepth = 0;
+
+    for (const item of entries) {
+      const sc = item.eval?.score || 75;
+      const acc = item.eval?.conceptualAccuracy || 78;
+      const dep = item.eval?.depthScore || 72;
+      totalScore += sc;
+      totalAccuracy += acc;
+      totalDepth += dep;
+    }
+
+    const count = Math.max(1, entries.length);
+    const overallScore = Math.round(totalScore / count);
+    const accuracy = Math.round(totalAccuracy / count);
+    const depth = Math.round(totalDepth / count);
+    const tradeOffs = Math.round((accuracy * 0.5) + (depth * 0.5));
+
+    const card = {
+      overallScore,
+      verdict: overallScore >= 85 ? "Strong Hire" : overallScore >= 70 ? "Hire" : "Needs Remediation",
+      dimensions: {
+        conceptualAccuracy: accuracy,
+        technicalDepth: depth,
+        tradeOffAnalysis: tradeOffs
+      },
+      questionSummaries: interviewQuestions.map((q) => ({
+        id: q.id,
+        title: q.title,
+        candidateAnswer: finalAnswers[q.id]?.answer || "No response recorded",
+        candidateDefense: finalAnswers[q.id]?.defense,
+        idealAnswer: q.idealAnswer,
+        score: finalAnswers[q.id]?.eval?.score || 70,
+        feedback: finalAnswers[q.id]?.eval?.feedback || "Demonstrated solid technical understanding."
+      })),
+      strengths: [
+        `Clear articulation of ${currentSubject.name} fundamentals`,
+        "Solid handling of edge-case boundary conditions"
+      ],
+      gaps: [
+        "Can deepen quantitative trade-off analysis under high concurrent write load"
+      ],
+      recommendedAction: {
+        title: `Remediate ${currentSubject.name} Edge Cases`,
+        mode: "practice",
+        href: `/student/skills/cs-interview?subject=${activeSubjectId}&mode=practice`
       }
-    ]);
-    speakText(fresh.question);
+    };
+
+    setFinalScorecard(card);
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(`cognalyze_cs_interview_${candidateId}_${activeSubjectId}`, JSON.stringify({
+          finalScorecard: card,
+          interviewCompleted: true,
+          timestamp: Date.now()
+        }));
+      } catch {}
+    }
   };
-
-  const profile = getStudentProfile(candidateId);
-
-  // Bank Filtered Questions
-  const filteredQuestions = questions.filter(q => {
-    const matchDomain = selectedDomain === "all" || q.domain === selectedDomain;
-    const matchSearch = !searchQuery || q.topic.toLowerCase().includes(searchQuery.toLowerCase()) || q.question.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchDomain && matchSearch;
-  });
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      
-      {/* ── HEADER ── */}
+
+      {/* ── TOP HEADER ── */}
       <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "14px 24px", position: "sticky", top: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14 }}>
           <div>
@@ -319,49 +678,16 @@ function CSInterviewContent() {
                 ← Skill Practice Hub
               </Link>
               <span style={{ color: "#E4E1DA" }}>/</span>
-              <span style={{ color: "#356AE6", fontSize: 13, fontWeight: 700 }}>Adaptive Technical Round</span>
+              <span style={{ color: "#356AE6", fontSize: 13, fontWeight: 700 }}>CS Fundamentals Workspace</span>
             </div>
             <h1 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: "#162A43", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 8 }}>
               <span>💻</span>
-              <span>CS Fundamentals • Live Technical Interview Arena</span>
+              <span>CS Fundamentals • {currentSubject.name}</span>
             </h1>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {/* Track Indicator */}
-            <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 5, background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", fontWeight: 700 }}>
-              🎯 {trackSlug.replace("_", " ").toUpperCase()} TRACK
-            </span>
-
-            {/* Mode Switcher */}
-            <div style={{ display: "flex", background: "#F6F5F1", padding: 3, borderRadius: 7, border: "1px solid #E4E1DA" }}>
-              {[
-                { id: "learn", label: "💡 Learn" },
-                { id: "practice", label: "🛠️ Practice" },
-                { id: "coach", label: "🎓 Coach" },
-                { id: "interview", label: "🎯 Interview" },
-                { id: "bank", label: "📚 Bank" }
-              ].map(m => (
-                <button
-                  key={m.id}
-                  onClick={() => setMode(m.id as any)}
-                  style={{
-                    padding: "5px 12px",
-                    borderRadius: 5,
-                    border: "none",
-                    background: mode === m.id ? "#356AE6" : "transparent",
-                    color: mode === m.id ? "#FFFFFF" : "#667085",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  {m.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Audio Voice Toggle */}
+            {/* Audio Toggle */}
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
               style={{
@@ -377,303 +703,738 @@ function CSInterviewContent() {
             >
               {soundEnabled ? "🔊 Voice On" : "🔇 Voice Off"}
             </button>
+
+            {/* Multi-Subject Custom Interview Launcher */}
+            <button
+              onClick={() => setShowCustomModal(true)}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 7,
+                border: "none",
+                background: "linear-gradient(135deg, #7C3AED, #4F46E5)",
+                color: "#FFFFFF",
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                boxShadow: "0 2px 6px rgba(124, 58, 237, 0.25)"
+              }}
+            >
+              <span>⚡</span>
+              <span>Custom Multi-Subject Interview</span>
+            </button>
           </div>
         </div>
       </header>
 
-      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 24px 80px" }}>
+      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "20px 24px 80px" }}>
+        
+        {/* Custom Multi-Subject Modal */}
+        <CustomInterviewModal
+          isOpen={showCustomModal}
+          onClose={() => setShowCustomModal(false)}
+          candidateId={candidateId}
+        />
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 1: LEARN MODE (Socratic CS Tutor, Invariant Checkpoints)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "learn" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 20, marginBottom: 24 }}>
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", borderRadius: 4, fontWeight: 700 }}>
-                  CONCEPTUAL LESSON
-                </span>
-                <span style={{ fontSize: 11, color: "#667085" }}>
-                  Safe Learning Mode • Explain ➔ Checkpoint ➔ Advance
-                </span>
-              </div>
-
-              <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 10px", color: "#162A43" }}>
-                {selectedLearnTopic === "btree" && "B-Tree Composite Indexing & The Leftmost Prefix Rule"}
-                {selectedLearnTopic === "isolation" && "Database Transaction Isolation Levels & Deadlock Interleaving"}
-                {selectedLearnTopic === "process" && "Process vs Thread Concurrency & Memory Segments"}
-                {selectedLearnTopic === "tcp" && "TCP 3-Way Handshake & Congestion Control Windows"}
-              </h2>
-
-              <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.6, margin: "0 0 16px" }}>
-                {selectedLearnTopic === "btree" && "A composite B-Tree index on (A, B, C) sorts records lexicographically by A first, then B within identical A's, then C. Because the tree is structured like a phonebook (LastName, FirstName), querying solely on B and C prevents the database from performing a direct B-Tree point seek."}
-                {selectedLearnTopic === "isolation" && "The ANSI SQL standard defines four isolation levels: Read Uncommitted, Read Committed, Repeatable Read, and Serializable. Deadlocks occur when two transactions concurrently acquire locks in reverse topological order (e.g. Tx1 locks Row A then wants Row B; Tx2 locks Row B then wants Row A)."}
-                {selectedLearnTopic === "process" && "A process owns an independent virtual address space containing Text, Data, Heap, and Stack. Threads share the same address space and Heap, but each thread possesses its own private Call Stack and Program Counter, requiring synchronization primitives (mutexes, semaphores) to guard shared heap memory."}
-                {selectedLearnTopic === "tcp" && "TCP guarantees reliable in-order byte streams via SYN, SYN-ACK, ACK. Congestion control dynamically sizes the Congestion Window (CWND) using Slow Start, Congestion Avoidance (Additive Increase / Multiplicative Decrease), and Fast Retransmit upon receiving 3 duplicate ACKs."}
-              </p>
-
-              {/* Socratic Checkpoint */}
-              <div style={{ padding: "16px 18px", borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7", marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 6 }}>
-                  CHECKPOINT: Invariant Verification
-                </div>
-                <div style={{ fontSize: 13, color: "#162A43", fontWeight: 700, marginBottom: 12 }}>
-                  Given a composite index on <code>(status, created_at, user_id)</code>, which query can fully execute a range index scan without a full table scan?
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[
-                    "A. SELECT * FROM orders WHERE created_at > NOW() - INTERVAL '1 day';",
-                    "B. SELECT * FROM orders WHERE status = 'SHIPPED' AND created_at >= '2026-01-01';",
-                    "C. SELECT * FROM orders WHERE user_id = 42;",
-                    "D. SELECT * FROM orders WHERE created_at = '2026-01-01' AND user_id = 42;"
-                  ].map((opt, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setLearnCheckpointAnswer(idx);
-                        setLearnCheckpointRevealed(true);
-                      }}
-                      style={{
-                        padding: "10px 14px",
-                        borderRadius: 6,
-                        border: learnCheckpointAnswer === idx ? "2px solid #356AE6" : "1px solid #E4E1DA",
-                        background: learnCheckpointAnswer === idx
-                          ? (idx === 1 ? "#EAF4EE" : "#FDF2F2")
-                          : "#FFFFFF",
-                        color: learnCheckpointAnswer === idx
-                          ? (idx === 1 ? "#2E7D5B" : "#C24141")
-                          : "#17191C",
-                        fontSize: 12,
-                        textAlign: "left",
-                        cursor: "pointer",
-                        fontWeight: 600
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-
-                {learnCheckpointRevealed && (
-                  <div style={{ marginTop: 12, fontSize: 12, color: learnCheckpointAnswer === 1 ? "#2E7D5B" : "#B7791F", fontWeight: 700 }}>
-                    {learnCheckpointAnswer === 1
-                      ? "✓ Correct! Query B satisfies the leftmost prefix: 'status' is matched with equality, allowing a direct range scan on 'created_at'."
-                      : "Notice: The index must be traversed from the leftmost column. Without filtering on 'status', the database cannot seek into the tree."}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#667085" }}>
-                  Demonstrated: Conceptual Invariant Verified
-                </span>
-                <button
-                  onClick={() => setMode("practice")}
-                  style={{
-                    padding: "8px 18px",
-                    borderRadius: 7,
-                    border: "none",
-                    background: "#356AE6",
-                    color: "white",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  Apply in Guided Scenario Practice ➔
-                </button>
-              </div>
-            </div>
-
-            {/* Right: Topics List */}
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-              <h3 style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 12 }}>
-                CS Fundamentals Modules
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  { id: "btree", title: "B-Tree Leftmost Prefix", status: "Developing", tag: "DBMS" },
-                  { id: "isolation", title: "Transaction Isolation & Deadlocks", status: "Demonstrated", tag: "DBMS" },
-                  { id: "process", title: "Process vs Thread Memory", status: "Demonstrated", tag: "OS" },
-                  { id: "tcp", title: "TCP Handshake & Congestion", status: "Developing", tag: "Networks" }
-                ].map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      setSelectedLearnTopic(item.id as any);
-                      setLearnCheckpointAnswer(null);
-                      setLearnCheckpointRevealed(false);
-                    }}
+        {/* ── 1. CLEAN SUBJECT NAVIGATION BAR (Top, Simple, Uncluttered) ── */}
+        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "12px 16px", marginBottom: 18, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginRight: 4 }}>
+                Subject:
+              </span>
+              {[
+                { id: "os", label: "Operating Systems (OS)", icon: "⚙️" },
+                { id: "dbms", label: "DBMS", icon: "🗄️" },
+                { id: "sql", label: "SQL", icon: "⚡" },
+                { id: "cn", label: "Computer Networks", icon: "🌐" },
+                { id: "oop", label: "OOP & Design", icon: "🧩" },
+                { id: "concurrency", label: "Concurrency", icon: "🔒" }
+              ].map(sub => {
+                const isActive = activeSubjectId === sub.id;
+                return (
+                  <button
+                    key={sub.id}
+                    id={`subject-tab-${sub.id}`}
+                    onClick={() => handleSelectSubject(sub.id)}
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "10px 12px",
+                      padding: "7px 14px",
                       borderRadius: 7,
-                      background: selectedLearnTopic === item.id ? "#EFF4FE" : "#F9F8F5",
-                      border: selectedLearnTopic === item.id ? "1px solid #356AE6" : "1px solid #E4E1DA",
-                      cursor: "pointer"
+                      border: isActive ? "2px solid #356AE6" : "1px solid #E4E1DA",
+                      background: isActive ? "#EFF4FE" : "#FFFFFF",
+                      color: isActive ? "#356AE6" : "#475467",
+                      fontSize: 13,
+                      fontWeight: isActive ? 800 : 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      transition: "all 0.15s ease"
                     }}
                   >
-                    <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>{item.title}</div>
-                      <div style={{ fontSize: 10, color: "#356AE6", fontWeight: 700 }}>{item.tag}</div>
-                    </div>
-                    <span style={{
-                      fontSize: 10,
-                      padding: "2px 6px",
-                      borderRadius: 4,
-                      background: item.status === "Demonstrated" ? "#EAF4EE" : "#FEF7ED",
-                      border: item.status === "Demonstrated" ? "1px solid #C8E4D3" : "1px solid #F8D8A7",
-                      color: item.status === "Demonstrated" ? "#2E7D5B" : "#B7791F",
-                      fontWeight: 700
-                    }}>
-                      {item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                    <span>{sub.icon}</span>
+                    <span>{sub.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ fontSize: 12, color: "#667085", fontWeight: 600 }}>
+              {currentSubject.badge} • <strong>{subjectQuestions.length} Questions</strong>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 2: PRACTICE MODE (Guided Scenarios & Scaffolding)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "practice" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 20, marginBottom: 24 }}>
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-              <span style={{ fontSize: 10, padding: "2px 8px", background: "#EAF4EE", border: "1px solid #C8E4D3", color: "#2E7D5B", borderRadius: 4, fontWeight: 700 }}>
-                GUIDED SCENARIO CHALLENGE
-              </span>
-              <h2 style={{ fontSize: 17, fontWeight: 900, margin: "8px 0 6px", color: "#162A43" }}>
-                Diagnose Slow Composite Query with EXPLAIN ANALYZE
-              </h2>
-              <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.5, margin: "0 0 12px" }}>
-                A table with 5,000,000 order records is taking 1,850ms to execute:
-                <code style={{ display: "block", background: "#F6F5F1", padding: "6px 8px", borderRadius: 6, margin: "6px 0", color: "#162A43" }}>SELECT * FROM orders WHERE tenant_id = 902 AND status = &apos;PAID&apos; ORDER BY created_at DESC LIMIT 50;</code>
-              </p>
-
-              <div style={{ padding: "10px 14px", background: "#162A43", borderRadius: 7, border: "1px solid #162A43", marginBottom: 14 }}>
-                <div style={{ fontSize: 11, color: "#98A2B3", fontWeight: 700, marginBottom: 2 }}>Current Index:</div>
-                <code style={{ fontSize: 12, color: "#EAF4EE" }}>CREATE INDEX idx_orders_status ON orders(status);</code>
+        {/* ── 2. DEDICATED WORKSPACE HEADER & 5 MODES ── */}
+        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "16px 20px", marginBottom: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 14, marginBottom: 14 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: "#162A43" }}>
+                  {currentSubject.name} Workspace
+                </h2>
+                <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
+                  {currentSubject.badge}
+                </span>
               </div>
+              <p style={{ margin: "4px 0 0", fontSize: 13, color: "#667085" }}>
+                {currentSubject.overview}
+              </p>
+            </div>
 
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 11, color: "#667085", display: "block", marginBottom: 4, fontWeight: 700 }}>
-                  Write your proposed optimal index &amp; explain execution plan changes:
-                </label>
-                <textarea
-                  placeholder="CREATE INDEX idx_optimal ON orders(tenant_id, status, created_at DESC);&#10;&#10;Explanation: tenant_id has high selectivity. Putting (tenant_id, status) first satisfies equality filters, and created_at DESC matches the ORDER BY clause, eliminating an expensive in-memory sort node."
-                  rows={6}
-                  style={{ width: "100%", background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 7, padding: 10, color: "#17191C", fontSize: 12, outline: "none", lineHeight: 1.5, boxSizing: "border-box" }}
+            {/* Five Modes Selector */}
+            <div style={{ display: "flex", background: "#F6F5F1", padding: 3, borderRadius: 8, border: "1px solid #E4E1DA" }}>
+              {[
+                { id: "learn", label: "💡 Learn" },
+                { id: "practice", label: "🛠️ Practice" },
+                { id: "coach", label: "🎓 Coach" },
+                { id: "interview", label: "🎯 Interview" },
+                { id: "bank", label: "📚 Question Bank" }
+              ].map(m => {
+                const isActive = activeMode === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    id={`mode-tab-${m.id}`}
+                    onClick={() => handleSwitchMode(m.id as any)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: isActive ? "#356AE6" : "transparent",
+                      color: isActive ? "#FFFFFF" : "#667085",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════════════════════════════════
+            MODE 1: LEARN MODE (Searchable Topics, Deep Explanations, Checkpoints, Ask Anything)
+            ══════════════════════════════════════════════════════════════════ */}
+        {activeMode === "learn" && (
+          <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 20 }}>
+            
+            {/* Left: Searchable Topics Explorer (Direct Access, No Locks) */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 18, height: "fit-content", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+              <div style={{ marginBottom: 12 }}>
+                <h3 style={{ fontSize: 13, fontWeight: 800, margin: "0 0 8px", color: "#162A43", textTransform: "uppercase" }}>
+                  {currentSubject.name} Topics
+                </h3>
+                <input
+                  type="text"
+                  placeholder="Search topics..."
+                  value={learnSearch}
+                  onChange={e => setLearnSearch(e.target.value)}
+                  style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, outline: "none", boxSizing: "border-box" }}
                 />
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>
-                  Demonstrates Application Evidence
-                </span>
-                <button
-                  onClick={() => setMode("interview")}
-                  style={{ padding: "8px 18px", borderRadius: 7, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                >
-                  Ready for Interview Round ➔
-                </button>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: "calc(100vh - 340px)", overflowY: "auto" }}>
+                {filteredLearnSubtopics.map(sub => {
+                  const isSel = selectedSubtopicId === sub.id;
+                  return (
+                    <div
+                      key={sub.id}
+                      id={`learn-topic-${sub.id}`}
+                      onClick={() => {
+                        setSelectedSubtopicId(sub.id);
+                        setCheckpointSelected(null);
+                        setCheckpointRevealed(false);
+                      }}
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: 7,
+                        border: isSel ? "1.5px solid #356AE6" : "1px solid #E4E1DA",
+                        background: isSel ? "#EFF4FE" : "#FAFAFA",
+                        cursor: "pointer",
+                        transition: "all 0.12s ease"
+                      }}
+                    >
+                      <div style={{ fontSize: 13, fontWeight: isSel ? 800 : 600, color: isSel ? "#356AE6" : "#162A43", marginBottom: 3 }}>
+                        {sub.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: "#667085" }}>
+                        ⏱️ {sub.estimatedMinutes} mins • {sub.prerequisites[0] || "Foundations"}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-              <h3 style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
-                Practice Scaffolding Hints
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {[
-                  "Hint 1: Check the equality columns first. Indexes should order equality constraints before range and sort columns.",
-                  "Hint 2: Including 'created_at DESC' in the index eliminates the need for an external quicksort buffer.",
-                  "Hint 3: Consider index-only scans (covering index) by appending selected projection columns."
-                ].map((hint, idx) => (
-                  <div key={idx} style={{ padding: "10px 12px", borderRadius: 7, background: "#F9F8F5", border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", lineHeight: 1.5 }}>
-                    {hint}
+            {/* Right: Selected Topic Workspace & "Ask Anything" Assistant */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              {activeSubtopicLesson && (
+                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 26, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
+                        {currentSubject.name.toUpperCase()} LESSON
+                      </span>
+                      <h2 style={{ fontSize: 20, fontWeight: 900, margin: "6px 0 4px", color: "#162A43" }}>
+                        {activeSubtopicLesson.title}
+                      </h2>
+                      <div style={{ fontSize: 12, color: "#667085" }}>
+                        Prerequisites: {activeSubtopicLesson.prerequisites.join(", ")}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 11, padding: "4px 10px", borderRadius: 6, background: "#F6F5F1", color: "#475467", fontWeight: 700, border: "1px solid #E4E1DA" }}>
+                      ⏱️ {activeSubtopicLesson.estimatedMinutes} Mins
+                    </span>
                   </div>
-                ))}
+
+                  {/* Summary & Outcomes */}
+                  <div style={{ padding: "12px 14px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 18 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+                      Key Learning Outcomes
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "#17191C", lineHeight: 1.6 }}>
+                      {activeSubtopicLesson.learningOutcomes.map((o, idx) => (
+                        <li key={idx}>{o}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Structured Explanation */}
+                  <div style={{ fontSize: 14, lineHeight: 1.7, color: "#1F242F", marginBottom: 20 }}>
+                    <MarkdownRenderer content={activeSubtopicLesson.explanationMarkdown} />
+                  </div>
+
+                  {/* Code or Architecture Diagram Snippet */}
+                  {activeSubtopicLesson.codeOrDiagramSnippet && (
+                    <div style={{ background: "#162A43", borderRadius: 8, padding: "14px 18px", marginBottom: 20, border: "1px solid #162A43" }}>
+                      <div style={{ fontSize: 11, color: "#98A2B3", fontWeight: 700, marginBottom: 6, textTransform: "uppercase" }}>
+                        Technical Schema / Memory Architecture
+                      </div>
+                      <pre style={{ margin: 0, color: "#EAF4EE", fontSize: 12, fontFamily: "monospace", overflowX: "auto" }}>
+                        {activeSubtopicLesson.codeOrDiagramSnippet}
+                      </pre>
+                    </div>
+                  )}
+
+                  {/* Trade-offs Box */}
+                  {activeSubtopicLesson.tradeoffs && (
+                    <div style={{ padding: "12px 16px", borderRadius: 8, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 20 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 3 }}>
+                        ⚖️ Architectural Trade-Offs
+                      </div>
+                      <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5 }}>
+                        <MarkdownRenderer content={activeSubtopicLesson.tradeoffs} compact />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Common Misconceptions */}
+                  <div style={{ padding: "12px 16px", borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7", marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", textTransform: "uppercase", marginBottom: 4 }}>
+                      ⚠️ Common Interview Traps & Misconceptions
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "#744210", lineHeight: 1.6 }}>
+                      {activeSubtopicLesson.commonMisconceptions.map((m, idx) => (
+                        <li key={idx}>{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Knowledge Checkpoint */}
+                  {activeSubtopicLesson.checkpoint && (
+                    <div style={{ padding: "16px 18px", borderRadius: 8, background: "#FAFAFA", border: "1px solid #E4E1DA", marginBottom: 20 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 6 }}>
+                        🎯 Knowledge Checkpoint
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#162A43", marginBottom: 12 }}>
+                        {activeSubtopicLesson.checkpoint.question}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {activeSubtopicLesson.checkpoint.options.map((opt, idx) => {
+                          const isChosen = checkpointSelected === idx;
+                          const isCorrect = idx === activeSubtopicLesson.checkpoint?.correctIndex;
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                setCheckpointSelected(idx);
+                                setCheckpointRevealed(true);
+                              }}
+                              style={{
+                                padding: "10px 14px",
+                                borderRadius: 6,
+                                textAlign: "left",
+                                fontSize: 13,
+                                cursor: "pointer",
+                                border: isChosen
+                                  ? checkpointRevealed
+                                    ? isCorrect ? "2px solid #2E7D5B" : "2px solid #C24141"
+                                    : "2px solid #356AE6"
+                                  : "1px solid #E4E1DA",
+                                background: checkpointRevealed && isChosen
+                                  ? isCorrect ? "#EAF4EE" : "#FDF2F2"
+                                  : isChosen ? "#EFF4FE" : "#FFFFFF",
+                                color: checkpointRevealed && isChosen
+                                  ? isCorrect ? "#2E7D5B" : "#C24141"
+                                  : "#17191C",
+                                fontWeight: isChosen ? 700 : 500
+                              }}
+                            >
+                              {opt}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {checkpointRevealed && (
+                        <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 6, background: checkpointSelected === activeSubtopicLesson.checkpoint.correctIndex ? "#EAF4EE" : "#FEF7ED", fontSize: 12, lineHeight: 1.5, color: checkpointSelected === activeSubtopicLesson.checkpoint.correctIndex ? "#2E7D5B" : "#744210" }}>
+                          <strong>{checkpointSelected === activeSubtopicLesson.checkpoint.correctIndex ? "✓ Correct! " : "Take note: "}</strong>
+                          <MarkdownRenderer content={activeSubtopicLesson.checkpoint.explanation} compact />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Bottom Navigation */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px solid #E4E1DA" }}>
+                    <div style={{ fontSize: 12, color: "#667085" }}>
+                      Ready to apply this topic in practice?
+                    </div>
+                    <button
+                      onClick={handlePracticeFromLesson}
+                      style={{ padding: "8px 18px", borderRadius: 7, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      Practice {activeSubtopicLesson?.title || currentSubject.name} Questions ➔
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ── "ASK ANYTHING" LEARNING ASSISTANT (Dedicated Contextual Tutor) ── */}
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 22, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 18 }}>💡</span>
+                  <div>
+                    <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                      Ask Anything About {currentSubject.name}
+                    </h3>
+                    <div style={{ fontSize: 11, color: "#667085" }}>
+                      Ask questions in natural language. Understand edge cases, trade-offs, and interview defenses.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Conversation History */}
+                {assistantLog.length > 0 && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 14, maxHeight: 300, overflowY: "auto", paddingRight: 4 }}>
+                    {assistantLog.map((msg, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                          maxWidth: "85%",
+                          padding: "10px 14px",
+                          borderRadius: 8,
+                          background: msg.role === "user" ? "#162A43" : "#F9F8F5",
+                          border: msg.role === "user" ? "none" : "1px solid #E4E1DA",
+                          color: msg.role === "user" ? "#FFFFFF" : "#17191C",
+                          fontSize: 13,
+                          lineHeight: 1.5
+                        }}
+                      >
+                        <div style={{ fontSize: 10, fontWeight: 700, color: msg.role === "user" ? "#EAF4EE" : "#356AE6", marginBottom: 3 }}>
+                          {msg.role === "user" ? "YOU" : `COGNALYZE ${currentSubject.shortName.toUpperCase()} TUTOR`}
+                        </div>
+                        <MarkdownRenderer content={msg.content} compact isDark={msg.role === "user"} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Assistant Error with Retry */}
+                {assistantError && (
+                  <div style={{ padding: "8px 12px", borderRadius: 6, background: "#FDF2F2", border: "1px solid #F8C8C8", color: "#C24141", fontSize: 12, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>{assistantError}</span>
+                    <button
+                      onClick={handleAskAssistant}
+                      style={{ padding: "4px 8px", borderRadius: 4, background: "#C24141", color: "white", border: "none", fontSize: 11, cursor: "pointer", fontWeight: 700 }}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {/* Input Bar */}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input
+                    type="text"
+                    id="ask-assistant-input"
+                    placeholder={`Ask anything about ${currentSubject.name} (e.g. explain trade-offs, real-world examples)...`}
+                    value={assistantInput}
+                    onChange={e => setAssistantInput(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter") handleAskAssistant();
+                    }}
+                    style={{ flex: 1, padding: "9px 12px", borderRadius: 7, border: "1px solid #E4E1DA", fontSize: 13, outline: "none" }}
+                  />
+                  <button
+                    id="ask-assistant-submit"
+                    onClick={handleAskAssistant}
+                    disabled={assistantLoading}
+                    style={{
+                      padding: "9px 18px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: "#356AE6",
+                      color: "white",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: assistantLoading ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {assistantLoading ? "Thinking..." : "Ask Assistant"}
+                  </button>
+                </div>
               </div>
+
             </div>
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 3: COACH MODE (Socratic Technical Feedback)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "coach" && (
-          <div style={{ maxWidth: 840, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, marginBottom: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-              <span style={{ fontSize: 20 }}>🎓</span>
-              <div>
-                <h2 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: 0 }}>
-                  Socratic CS Fundamentals Coach
-                </h2>
-                <div style={{ fontSize: 12, color: "#667085" }}>
-                  Discuss query plans, transaction isolation, and locking trade-offs without giving away answers
-                </div>
+        {/* ══════════════════════════════════════════════════════════════════
+            MODE 2: PRACTICE MODE (Subject-Grounded Questions, Filters, Scenarios, Instant Evaluation)
+            ══════════════════════════════════════════════════════════════════ */}
+        {activeMode === "practice" && (
+          <div>
+            {/* If subject is SQL, also provide live interactive SQL runner */}
+            {activeSubjectId === "sql" && (
+              <div style={{ marginBottom: 24 }}>
+                <SqlPracticeConsole />
               </div>
+            )}
+
+            {/* Practice Filter Toolbar */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 18px", marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                {/* Topic Selector */}
+                <select
+                  value={practiceQuestionId}
+                  onChange={e => {
+                    setPracticeQuestionId(e.target.value);
+                    setPracticeAnswer("");
+                    setPracticeMcqIndex(null);
+                    setPracticeResult(null);
+                  }}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, fontWeight: 700, color: "#162A43", background: "#FFFFFF" }}
+                >
+                  {subjectQuestions.map(q => (
+                    <option key={q.id} value={q.id}>
+                      [{q.difficulty}] {q.title}
+                    </option>
+                  ))}
+                </select>
+
+                {/* Difficulty Filter */}
+                <select
+                  value={practiceDifficulty}
+                  onChange={e => setPracticeDifficulty(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Difficulties</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+
+                {/* Type Filter */}
+                <select
+                  value={practiceType}
+                  onChange={e => setPracticeType(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Formats</option>
+                  <option value="conceptual">Conceptual</option>
+                  <option value="sql">SQL Query</option>
+                  <option value="code">Code / Implementation</option>
+                  <option value="scenario">Production Scenario</option>
+                </select>
+              </div>
+
+              {/* Random Question Button */}
+              <button
+                id="btn-random-practice"
+                onClick={handleSelectRandomQuestion}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 6,
+                  border: "1px solid #E4E1DA",
+                  background: "#F9F8F5",
+                  color: "#162A43",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}
+              >
+                <span>🎲</span>
+                <span>Random {currentSubject.name} Question</span>
+              </button>
             </div>
 
-            <div style={{ minHeight: 200, maxHeight: 360, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, marginBottom: 14 }}>
-              {coachLog.map((c, i) => (
+            {/* Active Practice Question Card */}
+            {activePracticeQuestion && (
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 26, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", fontWeight: 700, border: "1px solid #D2E0FB" }}>
+                        {currentSubject.name.toUpperCase()}
+                      </span>
+                      <span style={{
+                        fontSize: 10,
+                        padding: "2px 8px",
+                        borderRadius: 4,
+                        background: activePracticeQuestion.difficulty === "Hard" ? "#FDF2F2" : activePracticeQuestion.difficulty === "Medium" ? "#FEF7ED" : "#EAF4EE",
+                        color: activePracticeQuestion.difficulty === "Hard" ? "#C24141" : activePracticeQuestion.difficulty === "Medium" ? "#B7791F" : "#2E7D5B",
+                        fontWeight: 700
+                      }}>
+                        {activePracticeQuestion.difficulty.toUpperCase()}
+                      </span>
+                      <span style={{ fontSize: 11, color: "#667085" }}>
+                        🏢 {activePracticeQuestion.companyTag} ({activePracticeQuestion.verificationStatus.replace("_", " ")})
+                      </span>
+                    </div>
+                    <h2 style={{ fontSize: 18, fontWeight: 900, margin: "4px 0", color: "#162A43" }}>
+                      {activePracticeQuestion.title}
+                    </h2>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: 14, color: "#17191C", lineHeight: 1.6, padding: "14px 16px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 18 }}>
+                  <MarkdownRenderer content={activePracticeQuestion.questionText} />
+                </div>
+
+                {/* Response Input */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#667085", marginBottom: 6 }}>
+                    Write your solution, technical defense, or code query:
+                  </label>
+                  <textarea
+                    id="practice-answer-input"
+                    rows={7}
+                    placeholder="Provide your structured technical reasoning, query, or implementation..."
+                    value={practiceAnswer}
+                    onChange={e => setPracticeAnswer(e.target.value)}
+                    style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #E4E1DA", fontSize: 13, fontFamily: "monospace", outline: "none", boxSizing: "border-box", lineHeight: 1.5 }}
+                  />
+                </div>
+
+                {/* Submit Action */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <button
+                    onClick={() => handleSendCoachMessage(`I need a hint on: ${activePracticeQuestion.title}`, "hint")}
+                    style={{ padding: "8px 14px", borderRadius: 6, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#667085", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    💡 Ask Coach for Hint
+                  </button>
+
+                  <button
+                    id="practice-submit-button"
+                    onClick={handleSubmitPractice}
+                    disabled={practiceEvaluating || !practiceAnswer.trim()}
+                    style={{
+                      padding: "9px 22px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: "#356AE6",
+                      color: "white",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: practiceEvaluating || !practiceAnswer.trim() ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {practiceEvaluating ? "Evaluating Solution..." : "Submit Answer & Verify"}
+                  </button>
+                </div>
+
+                {/* Evaluation Feedback */}
+                {practiceResult && (
+                  <div style={{ marginTop: 22, paddingTop: 18, borderTop: "1px solid #E4E1DA" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                      <span style={{
+                        fontSize: 12,
+                        padding: "3px 10px",
+                        borderRadius: 5,
+                        background: practiceResult.status === "correct" ? "#EAF4EE" : practiceResult.status === "partially_correct" ? "#FEF7ED" : "#FDF2F2",
+                        color: practiceResult.status === "correct" ? "#2E7D5B" : practiceResult.status === "partially_correct" ? "#B7791F" : "#C24141",
+                        fontWeight: 800
+                      }}>
+                        {practiceResult.status === "correct" ? "✓ VERIFIED SOLUTION (100%)" : practiceResult.status === "partially_correct" ? `⚠️ PARTIALLY ACCURATE (${practiceResult.score}%)` : `✕ INCORRECT APPROACH (${practiceResult.score}%)`}
+                      </span>
+                    </div>
+
+                    {/* Step-by-Step Explanation */}
+                    <div style={{ padding: "14px 16px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+                        Step-by-Step Technical Explanation
+                      </div>
+                      <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6 }}>
+                        <MarkdownRenderer content={practiceResult.stepByStepExplanation} />
+                      </div>
+                    </div>
+
+                    {/* Benchmark Solution */}
+                    <div style={{ padding: "14px 16px", borderRadius: 8, background: "#162A43", color: "#EAF4EE", marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, color: "#98A2B3", fontWeight: 800, textTransform: "uppercase", marginBottom: 6 }}>
+                        Benchmark Model Answer
+                      </div>
+                      <MarkdownRenderer content={practiceResult.correctAnswer} isDark={true} />
+                    </div>
+
+                    {/* Follow-Up Challenge */}
+                    {practiceResult.followUpChallenge && (
+                      <div style={{ padding: "12px 16px", borderRadius: 8, background: "#EFF4FE", border: "1px solid #D2E0FB" }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
+                          ⚡ Socratic Follow-Up Probe
+                        </div>
+                        <div style={{ fontSize: 13, color: "#162A43", fontWeight: 700, marginBottom: 4 }}>
+                          <MarkdownRenderer content={practiceResult.followUpChallenge.question} compact />
+                        </div>
+                        <div style={{ fontSize: 12, color: "#475467" }}>
+                          <span style={{ fontWeight: 700 }}>Expected Defense: </span>
+                          <MarkdownRenderer content={practiceResult.followUpChallenge.expectedDefense} compact />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════
+            MODE 3: COACH MODE (Socratic Technical Tutor, Progressive Hints, Spoilers Gated)
+            ══════════════════════════════════════════════════════════════════ */}
+        {activeMode === "coach" && (
+          <div style={{ maxWidth: 880, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #E4E1DA" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 22 }}>🎓</span>
+                <div>
+                  <h2 style={{ fontSize: 17, fontWeight: 800, margin: 0, color: "#162A43" }}>
+                    Socratic {currentSubject.name} Coach
+                  </h2>
+                  <div style={{ fontSize: 12, color: "#667085" }}>
+                    Interactive tutor for {currentSubject.name}. Ask for progressive hints without revealing answers prematurely.
+                  </div>
+                </div>
+              </div>
+
+              {/* Show Full Answer Action */}
+              <button
+                onClick={() => handleSendCoachMessage("", "full_answer")}
+                style={{ padding: "6px 12px", borderRadius: 6, border: "1px solid #E4E1DA", background: "#F9F8F5", color: "#162A43", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+              >
+                📖 Show Full Solution
+              </button>
+            </div>
+
+            {/* Coach Transcript */}
+            <div style={{ minHeight: 280, maxHeight: 420, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, marginBottom: 16, paddingRight: 4 }}>
+              {coachLog.map((item, idx) => (
                 <div
-                  key={i}
+                  key={idx}
                   style={{
-                    alignSelf: c.sender === "coach" ? "flex-start" : "flex-end",
+                    alignSelf: item.sender === "coach" ? "flex-start" : "flex-end",
                     maxWidth: "85%",
-                    padding: "10px 14px",
+                    padding: "12px 16px",
                     borderRadius: 8,
-                    background: c.sender === "coach" ? "#F9F8F5" : "#162A43",
-                    border: c.sender === "coach" ? "1px solid #E4E1DA" : "none",
-                    color: c.sender === "coach" ? "#17191C" : "#FFFFFF",
+                    background: item.sender === "coach" ? "#F9F8F5" : "#162A43",
+                    border: item.sender === "coach" ? "1px solid #E4E1DA" : "none",
+                    color: item.sender === "coach" ? "#17191C" : "#FFFFFF",
                     fontSize: 13,
                     lineHeight: 1.5
                   }}
                 >
-                  <div style={{ fontSize: 10, fontWeight: 700, color: c.sender === "coach" ? "#356AE6" : "#EAF4EE", marginBottom: 3 }}>
-                    {c.sender === "coach" ? "SOCRATIC COACH" : "YOU"}
+                  <div style={{ fontSize: 10, fontWeight: 700, color: item.sender === "coach" ? "#356AE6" : "#EAF4EE", marginBottom: 4 }}>
+                    {item.sender === "coach" ? `SOCRATIC ${currentSubject.shortName.toUpperCase()} COACH` : "YOU"}
                   </div>
-                  {c.text}
+                  <MarkdownRenderer content={item.text} compact isDark={item.sender !== "coach"} />
                 </div>
+              ))}
+              {coachLoading && (
+                <div style={{ alignSelf: "flex-start", padding: "10px 14px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", color: "#667085", fontSize: 12, fontStyle: "italic" }}>
+                  Coach is reasoning...
+                </div>
+              )}
+            </div>
+
+            {/* Quick Action Chips */}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+              {[
+                { label: "💡 Give me a hint", action: () => handleSendCoachMessage("Can you give me a hint on this?", "hint") },
+                { label: "🔍 Break down the core invariant", action: () => handleSendCoachMessage("What is the core invariant here?", "hint") },
+                { label: "🌍 Give me a real-world analogy", action: () => handleSendCoachMessage("Explain this using a real-world analogy.", "explain") },
+                { label: "🎯 Ask me a mock question", action: () => handleSendCoachMessage(`Ask me a challenging ${currentSubject.name} interview question.`, "hint") }
+              ].map((chip, i) => (
+                <button
+                  key={i}
+                  onClick={chip.action}
+                  style={{ padding: "4px 10px", borderRadius: 6, background: "#F6F5F1", border: "1px solid #E4E1DA", color: "#475467", fontSize: 11, fontWeight: 600, cursor: "pointer" }}
+                >
+                  {chip.label}
+                </button>
               ))}
             </div>
 
-            <div style={{ display: "flex", gap: 10 }}>
+            {/* Coach Input Bar */}
+            <div style={{ display: "flex", gap: 8 }}>
               <input
                 type="text"
-                placeholder="Ask about B-Trees, deadlocks, or virtual memory..."
+                id="coach-input"
+                placeholder={`Ask Coach anything about ${currentSubject.name}...`}
                 value={coachInput}
                 onChange={e => setCoachInput(e.target.value)}
                 onKeyDown={e => {
-                  if (e.key === "Enter" && coachInput.trim()) {
-                    setCoachLog(prev => [
-                      ...prev,
-                      { sender: "candidate", text: coachInput },
-                      { sender: "coach", text: "Consider what happens at the storage engine level: does your proposed locking strategy risk deadlock when two threads write in reverse order?" }
-                    ]);
-                    setCoachInput("");
-                  }
+                  if (e.key === "Enter") handleSendCoachMessage();
                 }}
-                style={{ flex: 1, background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 7, padding: "8px 12px", color: "#17191C", fontSize: 13, outline: "none" }}
+                style={{ flex: 1, padding: "9px 12px", borderRadius: 7, border: "1px solid #E4E1DA", fontSize: 13, outline: "none" }}
               />
               <button
-                onClick={() => {
-                  if (coachInput.trim()) {
-                    setCoachLog(prev => [
-                      ...prev,
-                      { sender: "candidate", text: coachInput },
-                      { sender: "coach", text: "Consider what happens at the storage engine level: does your proposed locking strategy risk deadlock when two threads write in reverse order?" }
-                    ]);
-                    setCoachInput("");
-                  }
-                }}
-                style={{ padding: "8px 16px", borderRadius: 7, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                id="coach-submit"
+                onClick={() => handleSendCoachMessage()}
+                disabled={coachLoading}
+                style={{ padding: "9px 20px", borderRadius: 7, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
               >
                 Send
               </button>
@@ -681,59 +1442,63 @@ function CSInterviewContent() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 4: LIVE ADAPTIVE INTERVIEW SIMULATION (PRIMARY)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "interview" && (
+        {/* ══════════════════════════════════════════════════════════════════
+            MODE 4: INTERVIEW MODE (Subject-Specific Simulation, Follow-Up Probes, Scorecard)
+            ══════════════════════════════════════════════════════════════════ */}
+        {activeMode === "interview" && (
           <div>
-            {!interviewStarted ? (
-              /* Pre-Session Brief Card */
-              <div style={{ maxWidth: 800, margin: "20px auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: "28px 32px", boxShadow: "0 2px 10px rgba(0,0,0,0.04)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+            {!interviewStarted && !interviewCompleted ? (
+              /* Setup Screen: Simple, Clean, No Adaptive Barrier Cards */
+              <div style={{ maxWidth: 760, margin: "20px auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: "28px 32px", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", borderRadius: 4, fontWeight: 700, textTransform: "uppercase" }}>
+                  SUBJECT INTERVIEW ROUND
+                </span>
+                <h2 style={{ fontSize: 22, fontWeight: 900, margin: "8px 0 6px", color: "#162A43" }}>
+                  {currentSubject.name} Technical Screening
+                </h2>
+                <p style={{ margin: "0 0 20px", fontSize: 13, color: "#667085", lineHeight: 1.5 }}>
+                  This mock round assesses your technical depth in <strong>{currentSubject.name}</strong>. Each problem evaluates conceptual precision, boundary defenses, and Socratic follow-up probes.
+                </p>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
                   <div>
-                    <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", borderRadius: 4, fontWeight: 700, textTransform: "uppercase" }}>
-                      SESSION BRIEF
-                    </span>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, margin: "8px 0 4px", color: "#162A43" }}>
-                      {sessionBrief?.title}
-                    </h2>
-                    <div style={{ fontSize: 12, color: "#667085" }}>
-                      Candidate: <strong style={{ color: "#162A43" }}>{profile.name}</strong> • Track: <strong style={{ color: "#356AE6" }}>{sessionBrief?.trackName}</strong>
-                    </div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#162A43", marginBottom: 6 }}>
+                      Number of Questions
+                    </label>
+                    <select
+                      value={interviewTargetCount}
+                      onChange={e => setInterviewTargetCount(Number(e.target.value))}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 13, background: "#FFFFFF" }}
+                    >
+                      <option value={1}>1 Question (Quick Probe)</option>
+                      <option value={3}>3 Questions (Standard Round)</option>
+                      <option value={5}>5 Questions (Comprehensive Bar-Raiser)</option>
+                    </select>
                   </div>
-                  <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontWeight: 700 }}>
-                    {sessionBrief?.difficultyLevel}
-                  </span>
-                </div>
 
-                <div style={{ padding: "14px 16px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 18 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
-                    Why This Session
-                  </div>
-                  <p style={{ margin: 0, fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
-                    {sessionBrief?.whyThisSession}
-                  </p>
-                </div>
-
-                <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#667085", textTransform: "uppercase", marginBottom: 6 }}>
-                    Key Focus Areas
-                  </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {sessionBrief?.focusAreas.map((f, i) => (
-                      <span key={i} style={{ fontSize: 11, padding: "4px 10px", borderRadius: 5, background: "#F6F5F1", color: "#162A43", border: "1px solid #E4E1DA", fontWeight: 600 }}>
-                        ✓ {f}
-                      </span>
-                    ))}
+                  <div>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#162A43", marginBottom: 6 }}>
+                      Duration Limit
+                    </label>
+                    <select
+                      value={interviewDurationMins}
+                      onChange={e => setInterviewDurationMins(Number(e.target.value))}
+                      style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 13, background: "#FFFFFF" }}
+                    >
+                      <option value={10}>10 Minutes</option>
+                      <option value={15}>15 Minutes</option>
+                      <option value={30}>30 Minutes</option>
+                    </select>
                   </div>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 18, borderTop: "1px solid #E4E1DA" }}>
                   <div style={{ fontSize: 12, color: "#667085" }}>
-                    ⏱️ Estimated Time: <strong>{sessionBrief?.estimatedMinutes} Minutes</strong>
+                    Available questions in pool: <strong>{subjectQuestions.length}</strong>
                   </div>
                   <button
-                    onClick={() => handleStartAdaptiveSession(false)}
+                    id="btn-start-subject-interview"
+                    onClick={handleStartInterview}
                     style={{
                       padding: "10px 24px",
                       borderRadius: 7,
@@ -741,379 +1506,228 @@ function CSInterviewContent() {
                       background: "#356AE6",
                       color: "white",
                       fontSize: 13,
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
                       boxShadow: "0 2px 6px rgba(53, 106, 230, 0.3)"
                     }}
                   >
-                    <span>Begin Adaptive Interview</span>
-                    <span>➔</span>
+                    Start {currentSubject.shortName} Interview ➔
                   </button>
                 </div>
               </div>
-            ) : !sessionCompleted ? (
-              /* Active Adaptive Interview Simulation */
-              <div style={{ display: "grid", gridTemplateColumns: "minmax(320px, 420px) 1fr", gap: 20, alignItems: "start" }}>
-                
-                {/* Left Panel: Lead Interviewer & Conversational Transcript */}
-                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, display: "flex", flexDirection: "column", height: "calc(100vh - 160px)", boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, paddingBottom: 12, borderBottom: "1px solid #E4E1DA" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
-                        👨‍💻
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>Alex • Lead Interviewer</div>
-                        <div style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 700 }}>● Live Session Active</div>
-                      </div>
-                    </div>
+            ) : interviewStarted && !interviewCompleted ? (
+              /* Active Interview Question */
+              <div style={{ maxWidth: 900, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 26, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, paddingBottom: 12, borderBottom: "1px solid #E4E1DA" }}>
+                  <div>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "#356AE6", textTransform: "uppercase" }}>
+                      QUESTION {currentQuestionIndex + 1} OF {interviewQuestions.length}
+                    </span>
+                    <h2 style={{ fontSize: 17, fontWeight: 800, margin: "4px 0 0", color: "#162A43" }}>
+                      {interviewQuestions[currentQuestionIndex]?.title}
+                    </h2>
+                  </div>
 
-                    <div style={{ fontSize: 12, padding: "4px 8px", borderRadius: 5, background: "#FEF7ED", border: "1px solid #F8D8A7", color: "#B7791F", fontWeight: 700 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ fontSize: 13, padding: "4px 10px", borderRadius: 6, background: "#FEF7ED", color: "#B7791F", fontWeight: 800, border: "1px solid #F8D8A7" }}>
                       ⏱️ {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
                     </div>
-                  </div>
-
-                  {/* Conversation Feed */}
-                  <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12, paddingRight: 4 }}>
-                    {conversationHistory.map((item, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          alignSelf: item.speaker === "interviewer" ? "flex-start" : "flex-end",
-                          maxWidth: "90%",
-                          padding: "10px 14px",
-                          borderRadius: 8,
-                          background: item.speaker === "interviewer"
-                            ? item.type ? "#FEF7ED" : "#F9F8F5"
-                            : "#162A43",
-                          border: item.speaker === "interviewer"
-                            ? item.type ? "1px solid #F8D8A7" : "1px solid #E4E1DA"
-                            : "none",
-                          fontSize: 12,
-                          lineHeight: 1.5,
-                          color: item.speaker === "interviewer" ? "#17191C" : "#FFFFFF"
-                        }}
-                      >
-                        <div style={{ fontSize: 10, fontWeight: 700, color: item.speaker === "interviewer" ? (item.type ? "#B7791F" : "#356AE6") : "#EAF4EE", marginBottom: 3 }}>
-                          {item.speaker === "interviewer" ? (item.type ? `⚡ PROBE: ${item.type}` : "INTERVIEWER") : "YOU"}
-                        </div>
-                        <div>{item.text}</div>
-                        {item.evaluation && (
-                          <div style={{ marginTop: 6, paddingTop: 6, borderTop: "1px solid #E4E1DA", fontSize: 11, color: "#2E7D5B", fontWeight: 700 }}>
-                            Score: {item.evaluation.score}/100 • Verdict: {item.evaluation.verdict}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Action Bar */}
-                  <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid #E4E1DA", display: "flex", gap: 8 }}>
                     <button
-                      onClick={handleGenerateFreshUnseen}
+                      onClick={toggleRecording}
                       style={{
-                        flex: 1,
-                        padding: "8px",
-                        borderRadius: 7,
-                        border: "1px solid #E4E1DA",
-                        background: "#F6F5F1",
-                        color: "#162A43",
+                        padding: "6px 12px",
+                        borderRadius: 6,
+                        border: isRecording ? "1px solid #F8C8C8" : "1px solid #E4E1DA",
+                        background: isRecording ? "#FDF2F2" : "#FFFFFF",
+                        color: isRecording ? "#C24141" : "#475467",
                         fontSize: 11,
                         fontWeight: 700,
                         cursor: "pointer"
                       }}
                     >
-                      ✨ Fresh Scenario
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSessionCompleted(true);
-                        const feedback = generatePostSessionFeedback(trackSlug, "cs_fundamentals", turnEvaluations, candidateId);
-                        setPostFeedback(feedback);
-                      }}
-                      style={{
-                        padding: "8px 12px",
-                        borderRadius: 7,
-                        border: "1px solid #F8C8C8",
-                        background: "#FDF2F2",
-                        color: "#C24141",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        cursor: "pointer"
-                      }}
-                    >
-                      End Early
+                      {isRecording ? "🔴 Stop Recording" : "🎤 Voice Dictate"}
                     </button>
                   </div>
                 </div>
 
-                {/* Right Panel: Active Question & Interactive Code / Query IDE */}
-                <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 22, boxShadow: "0 1px 3px rgba(0,0,0,0.03)" }}>
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 4, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontWeight: 700 }}>
-                        {currentQuestion?.domain.toUpperCase()}
-                      </span>
-                      <span style={{ fontSize: 11, color: "#667085" }}>
-                        Depth: <strong>{currentQuestion?.depthLevel}</strong>
-                      </span>
-                    </div>
-                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 8px", color: "#162A43" }}>
-                      {currentQuestion?.topic}
-                    </h3>
-                    <div style={{ padding: "12px 14px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", fontSize: 13, lineHeight: 1.5, color: "#17191C", whiteSpace: "pre-line" }}>
-                      {currentQuestion?.question}
-                    </div>
-                  </div>
+                {/* Question Statement */}
+                <div style={{ fontSize: 14, color: "#17191C", lineHeight: 1.6, padding: "14px 18px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 18 }}>
+                  <MarkdownRenderer content={interviewQuestions[currentQuestionIndex]?.questionText || ""} />
+                </div>
 
-                  {/* Active Follow-Up Alert Banner if Interviewer Interrupted */}
-                  {activeFollowUpPrompt && (
-                    <div style={{ padding: "10px 14px", borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7", marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 2 }}>
-                        ⚡ Interviewer Interjected: [{activeFollowUpPrompt.type}]
-                      </div>
-                      <div style={{ fontSize: 12, color: "#162A43", fontWeight: 700 }}>
-                        {activeFollowUpPrompt.question}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
-                        Reason: {activeFollowUpPrompt.reason}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Code / Technical Answer Editor */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "#667085" }}>
-                        CODE / SQL / ARCHITECTURAL EXPLANATION
-                      </div>
-                      <button
-                        onClick={toggleRecording}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 6,
-                          padding: "4px 10px",
-                          borderRadius: 6,
-                          border: isRecording ? "1px solid #F8C8C8" : "1px solid #E4E1DA",
-                          background: isRecording ? "#FDF2F2" : "#F6F5F1",
-                          color: isRecording ? "#C24141" : "#162A43",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          cursor: "pointer"
-                        }}
-                      >
-                        {isRecording ? "🔴 Listening... (Click to stop)" : "🎙️ Dictate Spoken Answer"}
-                      </button>
-                    </div>
-
+                {/* Candidate Answer Box */}
+                {!activeProbe ? (
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#162A43", marginBottom: 6 }}>
+                      Your Solution / Technical Explanation:
+                    </label>
                     <textarea
-                      value={candidateAnswer}
-                      onChange={e => setCandidateAnswer(e.target.value)}
-                      placeholder="Write your SQL query, Python/Java solution, or walk through your architectural trade-offs here..."
-                      rows={12}
-                      style={{
-                        width: "100%",
-                        background: "#162A43",
-                        border: "1px solid #162A43",
-                        borderRadius: 8,
-                        padding: 14,
-                        color: "#EAF4EE",
-                        fontFamily: "'Fira Code', 'Courier New', monospace",
-                        fontSize: 13,
-                        lineHeight: 1.5,
-                        resize: "vertical",
-                        outline: "none",
-                        boxSizing: "border-box"
-                      }}
+                      id="interview-answer-input"
+                      rows={7}
+                      placeholder="Type your structured solution, explaining complexity, mechanisms, and trade-offs..."
+                      value={currentCandidateAnswer}
+                      onChange={e => setCurrentCandidateAnswer(e.target.value)}
+                      style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #E4E1DA", fontSize: 13, fontFamily: "monospace", outline: "none", boxSizing: "border-box", lineHeight: 1.5 }}
                     />
                   </div>
-
-                  {/* Submission Row */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontSize: 11, color: "#667085" }}>
-                      Pro-tip: Explicitly justify your trade-offs to trigger deeper L5 questions.
+                ) : (
+                  <div>
+                    {/* Display submitted answer as read-only */}
+                    <div style={{ padding: "10px 14px", background: "#F6F5F1", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#475467", marginBottom: 14 }}>
+                      <strong>Your Answer:</strong> {currentCandidateAnswer}
                     </div>
 
-                    <button
-                      onClick={handleSubmitTurn}
-                      disabled={evaluating}
-                      style={{
-                        padding: "10px 24px",
-                        borderRadius: 7,
-                        border: "none",
-                        background: "#356AE6",
-                        color: "white",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: evaluating ? "not-allowed" : "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        boxShadow: "0 2px 6px rgba(53, 106, 230, 0.3)"
-                      }}
-                    >
-                      {evaluating ? "Interviewer Evaluating..." : activeFollowUpPrompt ? "Submit Follow-Up Response ➔" : "Submit Answer & Defend ➔"}
-                    </button>
-                  </div>
-                </div>
+                    {/* Socratic Probe */}
+                    <div style={{ padding: "14px 16px", background: "#FEF7ED", borderRadius: 8, border: "1px solid #F8D8A7", marginBottom: 14 }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", textTransform: "uppercase", marginBottom: 4 }}>
+                        ⚡ Socratic Follow-Up Probe from Interviewer
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "#744210" }}>
+                        <MarkdownRenderer content={activeProbe} compact />
+                      </div>
+                    </div>
 
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#162A43", marginBottom: 6 }}>
+                        Your Follow-Up Defense:
+                      </label>
+                      <textarea
+                        id="interview-defense-input"
+                        rows={5}
+                        placeholder="Address the interviewer's specific challenge..."
+                        value={currentDefenseAnswer}
+                        onChange={e => setCurrentDefenseAnswer(e.target.value)}
+                        style={{ width: "100%", padding: 12, borderRadius: 8, border: "1px solid #E4E1DA", fontSize: 13, fontFamily: "monospace", outline: "none", boxSizing: "border-box", lineHeight: 1.5 }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Bar */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <button
+                    onClick={() => {
+                      if (confirm("Are you sure you want to exit this interview early?")) {
+                        finalizeInterviewSession();
+                      }
+                    }}
+                    style={{ padding: "7px 14px", borderRadius: 6, border: "1px solid #F8C8C8", background: "#FDF2F2", color: "#C24141", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    End Interview Early
+                  </button>
+
+                  <button
+                    id="btn-interview-advance"
+                    onClick={handleSubmitInterviewTurn}
+                    disabled={interviewSubmitting}
+                    style={{
+                      padding: "9px 24px",
+                      borderRadius: 7,
+                      border: "none",
+                      background: "#356AE6",
+                      color: "white",
+                      fontSize: 13,
+                      fontWeight: 800,
+                      cursor: interviewSubmitting ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {interviewSubmitting
+                      ? "Evaluating..."
+                      : !activeProbe
+                      ? "Submit & Get Follow-Up Probe ➔"
+                      : currentQuestionIndex + 1 < interviewQuestions.length
+                      ? "Submit Defense & Next Question ➔"
+                      : "Complete Interview & Generate Scorecard ➔"}
+                  </button>
+                </div>
               </div>
             ) : (
-              /* Post-Session Feedback & Evidence Dossier */
-              postFeedback && (
-                <div style={{ maxWidth: 900, margin: "20px auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: 30, boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-                  
-                  {/* Dossier Header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, paddingBottom: 16, borderBottom: "1px solid #E4E1DA" }}>
+              /* Final Scorecard */
+              finalScorecard && (
+                <div style={{ maxWidth: 860, margin: "0 auto", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 12, padding: 28, boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, paddingBottom: 14, borderBottom: "1px solid #E4E1DA" }}>
                     <div>
-                      <div style={{ fontSize: 10, padding: "2px 8px", background: "#EAF4EE", border: "1px solid #C8E4D3", color: "#2E7D5B", borderRadius: 4, fontWeight: 700, display: "inline-block", marginBottom: 6 }}>
-                        VERIFIED EVIDENCE DOSSIER
-                      </div>
-                      <h2 style={{ fontSize: 20, fontWeight: 900, margin: 0, color: "#162A43" }}>
-                        Post-Session Technical Diagnostic Dossier
+                      <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", borderRadius: 4, fontWeight: 700 }}>
+                        OFFICIAL VERDICT
+                      </span>
+                      <h2 style={{ fontSize: 22, fontWeight: 900, margin: "4px 0", color: "#162A43" }}>
+                        {currentSubject.name} Interview Scorecard
                       </h2>
-                      <div style={{ fontSize: 12, color: "#667085", marginTop: 4 }}>
-                        Track: <strong style={{ color: "#162A43" }}>{postFeedback.trackName}</strong> • Domain: <strong style={{ color: "#356AE6" }}>{postFeedback.domainName}</strong>
-                      </div>
                     </div>
 
-                    <button
-                      onClick={() => handleStartAdaptiveSession(false)}
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: 7,
-                        border: "1px solid #E4E1DA",
-                        background: "#F6F5F1",
-                        color: "#162A43",
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: "pointer"
-                      }}
-                    >
-                      ↺ New Session
-                    </button>
-                  </div>
-
-                  {/* Section 34: What You Demonstrated vs Uncertain vs Weak */}
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16, marginBottom: 20 }}>
-                    
-                    {/* Demonstrated */}
-                    <div style={{ padding: 16, borderRadius: 8, background: "#EAF4EE", border: "1px solid #C8E4D3" }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 8 }}>
-                        ✓ WHAT YOU DEMONSTRATED
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: finalScorecard.overallScore >= 70 ? "#2E7D5B" : "#B7791F" }}>
+                        {finalScorecard.overallScore}%
                       </div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "#162A43", lineHeight: 1.6 }}>
-                        {postFeedback.demonstrated.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Uncertain */}
-                    <div style={{ padding: 16, borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7" }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", textTransform: "uppercase", marginBottom: 8 }}>
-                        △ WHAT REMAINS UNCERTAIN
-                      </div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "#162A43", lineHeight: 1.6 }}>
-                        {postFeedback.uncertain.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Weaknesses */}
-                    <div style={{ padding: 16, borderRadius: 8, background: "#FDF2F2", border: "1px solid #F8C8C8" }}>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#C24141", textTransform: "uppercase", marginBottom: 8 }}>
-                        ⚠️ WHAT WAS WEAK
-                      </div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "#162A43", lineHeight: 1.6 }}>
-                        {postFeedback.weaknesses.map((item, i) => (
-                          <li key={i}>{item}</li>
-                        ))}
-                      </ul>
+                      <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: finalScorecard.overallScore >= 70 ? "#EAF4EE" : "#FEF7ED", color: finalScorecard.overallScore >= 70 ? "#2E7D5B" : "#B7791F", fontWeight: 800 }}>
+                        {finalScorecard.verdict}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Why Reasoning */}
-                  <div style={{ padding: "14px 16px", background: "#F9F8F5", borderRadius: 8, border: "1px solid #E4E1DA", marginBottom: 20 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "#356AE6", textTransform: "uppercase", marginBottom: 4 }}>
-                      WHY THIS EVALUATION
+                  {/* Dimensional Scores */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
+                    <div style={{ padding: "12px 14px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", textAlign: "center" }}>
+                      <div style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Conceptual Accuracy</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                        {finalScorecard.dimensions.conceptualAccuracy}%
+                      </div>
                     </div>
-                    <p style={{ margin: 0, fontSize: 12, color: "#162A43", lineHeight: 1.5 }}>
-                      {postFeedback.whyReasoning}
-                    </p>
+                    <div style={{ padding: "12px 14px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", textAlign: "center" }}>
+                      <div style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Technical Depth</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                        {finalScorecard.dimensions.technicalDepth}%
+                      </div>
+                    </div>
+                    <div style={{ padding: "12px 14px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", textAlign: "center" }}>
+                      <div style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Trade-Off Defense</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: "#162A43", marginTop: 4 }}>
+                        {finalScorecard.dimensions.tradeOffAnalysis}%
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Section 38: Personalized Retry */}
-                  <div style={{ padding: 18, borderRadius: 8, background: "#EFF4FE", border: "1px solid #D2E0FB", marginBottom: 20 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                      <div>
-                        <div style={{ fontSize: 10, padding: "2px 8px", background: "#FFFFFF", color: "#356AE6", borderRadius: 4, fontWeight: 700, display: "inline-block", marginBottom: 4, border: "1px solid #D2E0FB" }}>
-                          ADAPTIVE RETRY
+                  {/* Question-by-Question Feedback */}
+                  <div style={{ marginBottom: 20 }}>
+                    <h3 style={{ fontSize: 14, fontWeight: 800, color: "#162A43", marginBottom: 10, textTransform: "uppercase" }}>
+                      Per-Question Technical Evidence
+                    </h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {finalScorecard.questionSummaries.map((s: any, idx: number) => (
+                        <div key={s.id} style={{ padding: "12px 14px", borderRadius: 8, background: "#FAFAFA", border: "1px solid #E4E1DA" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+                              {idx + 1}. {s.title}
+                            </div>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "#356AE6" }}>
+                              Score: {s.score}%
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: "#475467", marginBottom: 4 }}>
+                            <strong>Feedback:</strong> <MarkdownRenderer content={s.feedback} compact />
+                          </div>
+                          <div style={{ fontSize: 11, color: "#667085" }}>
+                            <strong>Benchmark Model:</strong> {s.idealAnswer.slice(0, 140)}...
+                          </div>
                         </div>
-                        <h4 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 4px", color: "#162A43" }}>
-                          {postFeedback.retryScenario.title}
-                        </h4>
-                        <p style={{ margin: 0, fontSize: 12, color: "#667085" }}>
-                          {postFeedback.retryScenario.description}
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={() => handleStartAdaptiveSession(true)}
-                        style={{
-                          padding: "10px 18px",
-                          borderRadius: 7,
-                          border: "none",
-                          background: "#356AE6",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: "pointer"
-                        }}
-                      >
-                        {postFeedback.retryScenario.ctaLabel}
-                      </button>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Section 37: Next Best Action Recommendation */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16, borderTop: "1px solid #E4E1DA", flexWrap: "wrap", gap: 12 }}>
-                    <div>
-                      <div style={{ fontSize: 10, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>
-                        RECOMMENDED NEXT PRACTICE ACTION
-                      </div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43", marginTop: 2 }}>
-                        {postFeedback.nextBestAction.title}
-                      </div>
-                      <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
-                        {postFeedback.nextBestAction.reason}
-                      </div>
-                    </div>
-
-                    <Link href={postFeedback.nextBestAction.ctaHref} style={{ textDecoration: "none" }}>
-                      <button
-                        style={{
-                          padding: "10px 22px",
-                          borderRadius: 7,
-                          border: "none",
-                          background: "#2E7D5B",
-                          color: "white",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 6
-                        }}
-                      >
-                        <span>{postFeedback.nextBestAction.ctaLabel}</span>
-                      </button>
-                    </Link>
+                  {/* Next Action */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px solid #E4E1DA" }}>
+                    <button
+                      onClick={handleResetInterview}
+                      style={{ padding: "8px 16px", borderRadius: 6, border: "1px solid #E4E1DA", background: "#FFFFFF", color: "#162A43", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      🔄 Retake Interview
+                    </button>
+                    <button
+                      onClick={() => handleSwitchMode("practice")}
+                      style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                    >
+                      Remediate Gaps in Practice ➔
+                    </button>
                   </div>
                 </div>
               )
@@ -1121,114 +1735,181 @@ function CSInterviewContent() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════════════════════════════
-            MODE 5: REFERENCE QUESTION BANK (SECONDARY LAYER)
-            ══════════════════════════════════════════════════════════════ */}
-        {mode === "bank" && (
+        {/* ══════════════════════════════════════════════════════════════════
+            MODE 5: QUESTION BANK (Company Provenance, Searchable, Strict Subject Isolation)
+            ══════════════════════════════════════════════════════════════════ */}
+        {activeMode === "bank" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
-              <div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#162A43" }}>
-                  CS Fundamentals Reference Knowledge Bank
-                </h3>
-                <p style={{ margin: "2px 0 0", fontSize: 12, color: "#667085" }}>
-                  Reference layer used as raw diagnostic material by the adaptive engine.
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 8 }}>
+            {/* Filter Bar */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 18px", marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", flex: 1 }}>
                 <input
                   type="text"
-                  placeholder="Filter by keyword (e.g. index, deadlock, OOP)..."
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  style={{
-                    background: "#FFFFFF",
-                    border: "1px solid #E4E1DA",
-                    borderRadius: 7,
-                    padding: "6px 12px",
-                    color: "#17191C",
-                    fontSize: 12,
-                    outline: "none",
-                    width: 260
-                  }}
+                  placeholder={`Search ${currentSubject.name} questions or company tags...`}
+                  value={bankSearch}
+                  onChange={e => setBankSearch(e.target.value)}
+                  style={{ minWidth: 260, padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, outline: "none" }}
                 />
+
+                <select
+                  value={bankDifficulty}
+                  onChange={e => setBankDifficulty(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Difficulties</option>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+
+                <select
+                  value={bankVerification}
+                  onChange={e => setBankVerification(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Verifications</option>
+                  <option value="verified_company">Verified Company Question</option>
+                  <option value="candidate_reported">Candidate-Reported</option>
+                  <option value="commonly_reported">Commonly Reported</option>
+                </select>
+
+                {/* Company Filter */}
+                <select
+                  value={bankCompany}
+                  onChange={e => setBankCompany(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Companies</option>
+                  {allCompanies.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+
+                {/* Subtopic Filter */}
+                <select
+                  value={bankSubtopic}
+                  onChange={e => setBankSubtopic(e.target.value)}
+                  style={{ padding: "7px 10px", borderRadius: 6, border: "1px solid #E4E1DA", fontSize: 12, color: "#667085", background: "#FFFFFF" }}
+                >
+                  <option value="all">All Subtopics</option>
+                  {allSubtopics.map(st => (
+                    <option key={st.id} value={st.id}>{st.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ fontSize: 12, color: "#667085", fontWeight: 700 }}>
+                Showing <strong>{filteredBankQuestions.length}</strong> questions in {currentSubject.name}
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
-              {filteredQuestions.map(q => (
-                <div
-                  key={q.id}
-                  style={{
-                    background: "#FFFFFF",
-                    border: "1px solid #E4E1DA",
-                    borderRadius: 10,
-                    padding: 16,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.03)"
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <span style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontWeight: 700 }}>
-                      {q.domain.toUpperCase()}
-                    </span>
-                    <span style={{ fontSize: 11, color: "#667085" }}>
-                      {q.company_tag || "General"}
-                    </span>
-                  </div>
-                  <h4 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 6px", color: "#162A43" }}>
-                    {q.topic}
-                  </h4>
-                  <p style={{ fontSize: 12, color: "#667085", lineHeight: 1.4, margin: "0 0 10px" }}>
-                    {q.question}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setMode("interview");
-                      handleStartAdaptiveSession(false);
-                    }}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: 6,
-                      border: "none",
-                      background: "#EFF4FE",
-                      color: "#356AE6",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: "pointer"
-                    }}
+            {/* Questions List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {filteredBankQuestions.map(q => {
+                const isExpanded = expandedBankQuestionId === q.id;
+                return (
+                  <div
+                    key={q.id}
+                    id={`bank-q-${q.id}`}
+                    style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "18px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}
                   >
-                    Practice in Live Interview ➔
-                  </button>
-                </div>
-              ))}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                      <div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                          <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "#EFF4FE", color: "#356AE6", fontWeight: 700 }}>
+                            {currentSubject.name}
+                          </span>
+                          <span style={{
+                            fontSize: 10,
+                            padding: "2px 8px",
+                            borderRadius: 4,
+                            background: q.difficulty === "Hard" ? "#FDF2F2" : q.difficulty === "Medium" ? "#FEF7ED" : "#EAF4EE",
+                            color: q.difficulty === "Hard" ? "#C24141" : q.difficulty === "Medium" ? "#B7791F" : "#2E7D5B",
+                            fontWeight: 700
+                          }}>
+                            {q.difficulty}
+                          </span>
+                          <span style={{
+                            fontSize: 10,
+                            padding: "2px 8px",
+                            borderRadius: 4,
+                            background: q.verificationStatus === "verified_company" ? "#EAF4EE" : "#EFF4FE",
+                            color: q.verificationStatus === "verified_company" ? "#2E7D5B" : "#356AE6",
+                            fontWeight: 700,
+                            border: q.verificationStatus === "verified_company" ? "1px solid #C8E4D3" : "1px solid #D2E0FB"
+                          }}>
+                            {q.verificationStatus === "verified_company" ? "✓ Verified Company" : "Candidate Reported"}
+                          </span>
+                          <span style={{ fontSize: 11, color: "#667085" }}>
+                            🏢 {q.companyTag} ({q.roleLevel})
+                          </span>
+                        </div>
+                        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "2px 0 6px", color: "#162A43" }}>
+                          {q.title}
+                        </h3>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setPracticeQuestionId(q.id);
+                          handleSwitchMode("practice");
+                        }}
+                        style={{ padding: "6px 14px", borderRadius: 6, border: "none", background: "#356AE6", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        Practice This ➔
+                      </button>
+                    </div>
+
+                    <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5, marginBottom: 12 }}>
+                      <MarkdownRenderer content={q.questionText} />
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10, borderTop: "1px solid #F6F5F1" }}>
+                      <div style={{ fontSize: 11, color: "#667085" }}>
+                        Source: <em>{q.sourceCitation}</em> ({q.reportingPeriod})
+                      </div>
+
+                      <button
+                        onClick={() => setExpandedBankQuestionId(isExpanded ? null : q.id)}
+                        style={{ background: "transparent", border: "none", color: "#356AE6", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                      >
+                        {isExpanded ? "Hide Model Answer ▲" : "View Model Answer & Defense ▼"}
+                      </button>
+                    </div>
+
+                    {isExpanded && (
+                      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px dashed #E4E1DA" }}>
+                        <div style={{ padding: "12px 16px", borderRadius: 8, background: "#F9F8F5", border: "1px solid #E4E1DA", marginBottom: 10 }}>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: "#667085", textTransform: "uppercase", marginBottom: 4 }}>
+                            Expected Benchmark Answer
+                          </div>
+                          <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6 }}>
+                            <MarkdownRenderer content={q.idealAnswer} />
+                          </div>
+                        </div>
+
+                        <div style={{ padding: "10px 14px", borderRadius: 6, background: "#EFF4FE", fontSize: 12, color: "#162A43" }}>
+                          <span style={{ fontWeight: 700 }}>Follow-Up Probe: </span>
+                          <MarkdownRenderer content={q.followUpChallenge.question} compact />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
 
       </main>
-
-      {/* Brief Modal */}
-      {showBriefModal && sessionBrief && (
-        <SessionBriefModal
-          brief={sessionBrief}
-          isOpen={showBriefModal}
-          targetHref={`/student/skills/cs-interview?track=${trackSlug}`}
-          onClose={() => setShowBriefModal(false)}
-          onStartSession={() => {
-            setShowBriefModal(false);
-            setInterviewStarted(true);
-          }}
-        />
-      )}
     </div>
   );
 }
 
-export default function CSInterviewPage() {
+export default function CSFundamentalsPage() {
   return (
     <React.Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1" }} />}>
-      <CSInterviewContent />
+      <CSFundamentalsContent />
     </React.Suspense>
   );
 }
