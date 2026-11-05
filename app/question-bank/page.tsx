@@ -78,25 +78,46 @@ export default function QuestionBankPage() {
   const [testResults, setTestResults] = useState<{ index: number; passed: boolean; input: string; expected: string; actual: string }[] | null>(null);
   const [isRunningTests, setIsRunningTests] = useState(false);
 
-  // Student DNA Target Role
+  // Student DNA Target Role & Multi-User Context
   const [targetRole, setTargetRole] = useState("AI/ML Engineer");
+  const [currentUserId, setCurrentUserId] = useState<string>("guest");
 
   useEffect(() => {
-    try {
-      const savedBookmarks = localStorage.getItem("cognalyze_qb_bookmarks");
-      if (savedBookmarks) setBookmarkedIds(JSON.parse(savedBookmarks));
+    // Fetch authenticated user context for multi-user isolation
+    fetch("/api/auth/session")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const uid = data?.user?.id || "guest";
+        setCurrentUserId(uid);
 
-      const savedPracticed = localStorage.getItem("cognalyze_qb_practiced");
-      if (savedPracticed) setPracticedIds(JSON.parse(savedPracticed));
+        try {
+          const savedBookmarks =
+            localStorage.getItem(`cognalyze_qb_bookmarks_${uid}`) ||
+            localStorage.getItem("cognalyze_qb_bookmarks");
+          if (savedBookmarks) setBookmarkedIds(JSON.parse(savedBookmarks));
 
-      const storedProfile = localStorage.getItem("cognalyze_student_profile");
-      if (storedProfile) {
-        const parsed = JSON.parse(storedProfile);
-        if (parsed.target_role) setTargetRole(parsed.target_role);
-      }
-    } catch (e) {
-      console.warn("Storage sync failed:", e);
-    }
+          const savedPracticed =
+            localStorage.getItem(`cognalyze_qb_practiced_${uid}`) ||
+            localStorage.getItem("cognalyze_qb_practiced");
+          if (savedPracticed) setPracticedIds(JSON.parse(savedPracticed));
+
+          const storedProfile = localStorage.getItem("cognalyze_student_profile");
+          if (storedProfile) {
+            const parsed = JSON.parse(storedProfile);
+            if (parsed.target_role) setTargetRole(parsed.target_role);
+          }
+        } catch (e) {
+          console.warn("Storage sync failed:", e);
+        }
+      })
+      .catch(() => {
+        try {
+          const savedBookmarks = localStorage.getItem("cognalyze_qb_bookmarks");
+          if (savedBookmarks) setBookmarkedIds(JSON.parse(savedBookmarks));
+          const savedPracticed = localStorage.getItem("cognalyze_qb_practiced");
+          if (savedPracticed) setPracticedIds(JSON.parse(savedPracticed));
+        } catch {}
+      });
   }, []);
 
   const toggleBookmark = (id: string, e: React.MouseEvent) => {
@@ -104,6 +125,7 @@ export default function QuestionBankPage() {
     setBookmarkedIds((prev) => {
       const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
       try {
+        localStorage.setItem(`cognalyze_qb_bookmarks_${currentUserId}`, JSON.stringify(next));
         localStorage.setItem("cognalyze_qb_bookmarks", JSON.stringify(next));
       } catch {}
       return next;
@@ -115,6 +137,7 @@ export default function QuestionBankPage() {
     setPracticedIds((prev) => {
       const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
       try {
+        localStorage.setItem(`cognalyze_qb_practiced_${currentUserId}`, JSON.stringify(next));
         localStorage.setItem("cognalyze_qb_practiced", JSON.stringify(next));
       } catch {}
       return next;
@@ -165,10 +188,29 @@ export default function QuestionBankPage() {
       setPracticedIds((prev) => {
         const next = [...prev, id];
         try {
+          localStorage.setItem(`cognalyze_qb_practiced_${currentUserId}`, JSON.stringify(next));
           localStorage.setItem("cognalyze_qb_practiced", JSON.stringify(next));
         } catch {}
         return next;
       });
+
+      // Synchronize practice attempt evidence with Student DNA
+      if (activePracticeModal) {
+        fetch("/api/student-dna/evidence", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "question_practiced",
+            questionId: id,
+            title: activePracticeModal.title,
+            domain: activePracticeModal.domain,
+            topic: activePracticeModal.topic,
+            difficulty: activePracticeModal.difficulty,
+            company: activePracticeModal.company,
+            score: 100
+          })
+        }).catch((err) => console.warn("DNA evidence sync skipped:", err));
+      }
     }
     setShowSolution(true);
   };
@@ -536,7 +578,7 @@ export default function QuestionBankPage() {
                       cursor: "pointer",
                     }}
                   >
-                    {["Amazon", "Google", "Microsoft", "Goldman Sachs", "TCS", "Meta", "Uber", "Flipkart"].map((c) => (
+                    {ALL_COMPANIES.filter((c) => c !== "All Companies").map((c) => (
                       <option key={c} value={c}>
                         {c}
                       </option>

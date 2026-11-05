@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import { extractSemanticRoleFromJd, extractStructuredRoleFromJd } from "@/lib/roles/role-extractor";
 import { extractJdRequirements } from "@/lib/intelligence/jd-extractor";
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) {
+      return authCheck.response;
+    }
     let jdText = "";
     let fallbackTitle = "Software Engineer";
     const contentType = req.headers.get("content-type") || "";

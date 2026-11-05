@@ -5,6 +5,8 @@
  * with starter code, public/hidden test suites, and optimal complexity models.
  */
 
+import { secureRandomInt } from "@/lib/crypto-utils";
+
 export interface DSATestCase {
   input: string;
   expected: string;
@@ -624,7 +626,7 @@ export function getAdaptiveDSAProblems(options: {
 
   // Shuffle problem list
   for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = secureRandomInt(0, i + 1);
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
 

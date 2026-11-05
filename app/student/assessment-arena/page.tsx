@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import { saveSession } from "@/lib/interview-session-store";
 import { AptitudeQuestion } from "@/lib/skill-hub-store";
 import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
 
@@ -307,27 +306,40 @@ export default function AssessmentArenaPage() {
         candidateId = `guest_${Date.now()}`;
       }
 
-      const saved = await saveSession({
-        candidate_id: candidateId,
-        session_type: "assessment_arena",
-        experience_mode: experienceMode,
-        target_role: "Software Engineer (Full Stack & Systems)",
-        target_company: "Standardized Technical Funnel",
-        topics_covered: ["Quantitative Aptitude", "Logical Reasoning", codingProblem.title],
-        answer_distribution: {
-          strong: strongCount,
-          adequate: adequateCount,
-          shallow: shallowCount,
-          off_topic: 0,
-        },
-        security_flags: {
-          tab_switches: tabSwitches,
-          face_violations: 0,
-        },
-        overall_score: totalScore,
-        weak_topics_identified: weakTopics,
-      });
-      setSavedSessionId(saved.id);
+      let savedId = `arena_${Date.now()}`;
+      try {
+        const saveRes = await fetch("/api/interview/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            candidate_id: candidateId,
+            session_type: "assessment_arena",
+            experience_mode: experienceMode,
+            target_role: "Software Engineer (Full Stack & Systems)",
+            target_company: "Standardized Technical Funnel",
+            topics_covered: ["Quantitative Aptitude", "Logical Reasoning", codingProblem.title],
+            answer_distribution: {
+              strong: strongCount,
+              adequate: adequateCount,
+              shallow: shallowCount,
+              off_topic: 0,
+            },
+            security_flags: {
+              tab_switches: tabSwitches,
+              face_violations: 0,
+            },
+            overall_score: totalScore,
+            weak_topics_identified: weakTopics,
+          })
+        });
+        if (saveRes.ok) {
+          const saveJson = await saveRes.json();
+          if (saveJson.session?.id) savedId = saveJson.session.id;
+        }
+      } catch (err) {
+        console.warn("Failed to persist arena session via API:", err);
+      }
+      setSavedSessionId(savedId);
     } catch (e) {
       console.warn("Failed to record arena session:", e);
     } finally {

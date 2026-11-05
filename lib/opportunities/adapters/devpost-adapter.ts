@@ -10,6 +10,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class DevpostAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-devpost";
@@ -133,7 +134,7 @@ export class DevpostAdapter extends BaseOpportunitySourceAdapter {
   public parse(payload: any): RawOpportunity[] {
     if (!payload || !Array.isArray(payload)) return [];
     return payload.map((item: any) => ({
-      id: item.id || `devpost-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: item.id || generateSecureId(`devpost-${Date.now()}`, 6),
       source: "Devpost",
       sourceType: "DEVPOST",
       sourceId: item.sourceId || item.id,

@@ -18,6 +18,7 @@
  */
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
+import { generateSecureId } from "@/lib/crypto-utils";
 import {
   CanonicalOpportunity,
   ConfiguredFeedSource,
@@ -233,7 +234,7 @@ export class ConfiguredFeedAdapter extends BaseOpportunitySourceAdapter {
       if (!title || !applicationUrl || !sourceUrl) continue;
 
       const organizer = item.organizer || item.company || item.companyName || this.config.organizer || this.name;
-      const id = String(item.id || item.slug || `${this.id}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`);
+      const id = String(item.id || item.slug || generateSecureId(`${this.id}-${Date.now()}`, 7));
 
       rawList.push({
         id,

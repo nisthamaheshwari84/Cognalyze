@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import { getCandidateById, getRoleById, updateCandidateStage } from "@/lib/recruiter-store";
 import { buildEvidenceGraph } from "@/lib/ai/evidence-graph";
 import { generateMemoryAwareInterviewQuestions, generateInterviewQuestionsWithAI, recordInterviewFeedback, CandidateInterviewHistory } from "@/lib/ai/interview-memory";
 
 export async function POST(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const { action, candidateId, roleId, feedback } = await req.json();
 
     if (!candidateId || !roleId) {

@@ -500,21 +500,74 @@ export default function StudentDNAPage() {
               Unable to Load Student DNA
             </div>
             <div style={{ color: "#667085", fontSize: 13, marginBottom: 20 }}>{loadError}</div>
-            <button
-              onClick={() => loadDNA()}
-              style={{
-                background: "#162A43",
-                color: "#FFFFFF",
-                border: "none",
-                borderRadius: 7,
-                padding: "9px 20px",
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Retry Loading ↻
-            </button>
+            <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+              {loadError.toLowerCase().includes("recruiter") && (
+                <>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await fetch("/api/auth/demo", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ role: "nistha" }),
+                      });
+                      window.location.reload();
+                    }}
+                    style={{
+                      background: "#7E22CE",
+                      color: "#FFFFFF",
+                      border: "none",
+                      borderRadius: 7,
+                      padding: "9px 20px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    👩‍💻 Switch to Nistha (Student) & View DNA →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await fetch("/api/auth/demo", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ role: "student" }),
+                      });
+                      window.location.reload();
+                    }}
+                    style={{
+                      background: "#356AE6",
+                      color: "#FFFFFF",
+                      border: "none",
+                      borderRadius: 7,
+                      padding: "9px 20px",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    🎓 Switch to Demo Student →
+                  </button>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => loadDNA()}
+                style={{
+                  background: "#162A43",
+                  color: "#FFFFFF",
+                  border: "none",
+                  borderRadius: 7,
+                  padding: "9px 20px",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Retry Loading ↻
+              </button>
+            </div>
           </div>
         )}
 

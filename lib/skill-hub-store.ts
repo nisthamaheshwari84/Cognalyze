@@ -443,6 +443,28 @@ export const SKILL_DOMAINS: SkillDomain[] = [
     gating_priority: "high_filter",
     action_route: "/student/skills/behavioral",
     action_label: "Enter Behavioral HR Room ➔"
+  },
+  {
+    slug: "code_comprehension",
+    name: "Code Comprehension Lab",
+    description: "Multi-file codebase intelligence: investigate real software projects, trace data flow, diagnose bugs, evaluate AI-generated code, and verify fixes.",
+    icon: "🔬",
+    is_service_track: true,
+    is_product_track: true,
+    gating_priority: "core_interview",
+    action_route: "/student/skills/code-comprehension",
+    action_label: "Launch Code Comprehension Lab ➔"
+  },
+  {
+    slug: "ai_data_intelligence",
+    name: "AI, Data & Intelligence Arena",
+    description: "Hands-on AI Agent Builder, ML Experiment Studio, Production SQL Analytics, Data Engineering pipelines, and MLOps calibrated to industry roles.",
+    icon: "🧠",
+    is_service_track: true,
+    is_product_track: true,
+    gating_priority: "core_interview",
+    action_route: "/student/skills/ai-data",
+    action_label: "Launch AI & Data Arena ➔"
   }
 ];
 

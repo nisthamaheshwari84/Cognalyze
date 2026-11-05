@@ -15,6 +15,7 @@ import {
   CSQuestionItem,
   SubtopicLesson
 } from "@/lib/skills/cs-fundamentals-curriculum";
+import { pickSecureRandom, secureShuffle } from "@/lib/crypto-utils";
 
 function CSFundamentalsContent() {
   const searchParams = useSearchParams();
@@ -342,7 +343,7 @@ function CSFundamentalsContent() {
   const handleSelectRandomQuestion = () => {
     const pool = filteredPracticeQuestions.length > 0 ? filteredPracticeQuestions : subjectQuestions;
     if (pool.length === 0) return;
-    const rand = pool[Math.floor(Math.random() * pool.length)];
+    const rand = pickSecureRandom(pool) || pool[0];
     setPracticeQuestionId(rand.id);
     setPracticeAnswer("");
     setPracticeMcqIndex(null);
@@ -422,7 +423,7 @@ function CSFundamentalsContent() {
     // Select questions strictly from activeSubjectId
     const pool = [...subjectQuestions];
     // Shuffle pool
-    const shuffled = pool.sort(() => 0.5 - Math.random());
+    const shuffled = secureShuffle(pool);
     const selected = shuffled.slice(0, Math.min(interviewTargetCount, Math.max(1, shuffled.length)));
 
     setInterviewQuestions(selected);

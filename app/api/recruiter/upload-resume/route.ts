@@ -1,41 +1,62 @@
 import { NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import { addCandidate, getAllRoles, MultiSourceCandidateProfile } from "@/lib/recruiter-store";
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-    const appliedRoleId = formData.get("appliedRoleId") as string | null;
-    const manualResumeText = formData.get("resumeText") as string | null;
-    const manualName = formData.get("name") as string | null;
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
 
-    let resumeText = manualResumeText || "";
-    let candidateName = manualName || "";
+    const contentType = req.headers.get("content-type") || "";
+    let resumeText = "";
+    let candidateName = "";
+    let appliedRoleId: string | null = null;
+    let uploadedFileName = "Uploaded Resume.txt";
 
-    if (file) {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const fileName = file.name.toLowerCase();
+    if (contentType.includes("application/json")) {
+      const jsonBody = await req.json();
+      resumeText = jsonBody.resumeText || "";
+      candidateName = jsonBody.name || "";
+      appliedRoleId = jsonBody.appliedRoleId || null;
+    } else {
+      const formData = await req.formData();
+      const file = formData.get("file") as File | null;
+      appliedRoleId = formData.get("appliedRoleId") as string | null;
+      const manualResumeText = formData.get("resumeText") as string | null;
+      const manualName = formData.get("name") as string | null;
 
-      if (fileName.endsWith(".txt") || fileName.endsWith(".json") || fileName.endsWith(".md")) {
-        resumeText = buffer.toString("utf-8");
-      } else if (fileName.endsWith(".pdf")) {
-        try {
-          const pdfParse = require("pdf-parse");
-          const pdfData = await pdfParse(buffer);
-          resumeText = pdfData.text || "";
-        } catch (pdfErr) {
-          // Fallback text extraction
-          resumeText = buffer.toString("utf-8").replace(/[^\x20-\x7E\n]/g, " ");
+      resumeText = manualResumeText || "";
+      candidateName = manualName || "";
+
+      if (file) {
+        uploadedFileName = file.name;
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const fileName = file.name.toLowerCase();
+
+        if (fileName.endsWith(".txt") || fileName.endsWith(".json") || fileName.endsWith(".md")) {
+          resumeText = buffer.toString("utf-8");
+        } else if (fileName.endsWith(".pdf")) {
+          try {
+            const pdfParse = require("pdf-parse");
+            const pdfData = await pdfParse(buffer);
+            resumeText = pdfData.text || "";
+          } catch (pdfErr) {
+            // Fallback text extraction
+            resumeText = buffer.toString("utf-8").replace(/[^\x20-\x7E\n]/g, " ");
+          }
+        } else {
+          resumeText = buffer.toString("utf-8");
         }
-      } else {
-        resumeText = buffer.toString("utf-8");
-      }
 
-      // If name not manually specified, infer from first line or filename
-      if (!candidateName) {
-        const firstLine = resumeText.split("\n").map(l => l.trim()).filter(l => l.length > 2 && l.length < 50)[0];
-        candidateName = firstLine || file.name.replace(/\.[^/.]+$/, "");
+        if (!candidateName) {
+          candidateName = file.name.replace(/\.[^/.]+$/, "");
+        }
       }
+    }
+
+    if (!candidateName) {
+      const firstLine = resumeText.split("\n").map(l => l.trim()).filter(l => l.length > 2 && l.length < 50)[0];
+      candidateName = firstLine || "New Candidate Applicant";
     }
 
     if (!candidateName) {
@@ -84,7 +105,7 @@ export async function POST(req: Request) {
         candidateId: saved.id,
         candidateName: saved.name,
         candidateEmail: saved.email,
-        fileName: file?.name || "Uploaded Resume.txt",
+        fileName: uploadedFileName,
         parsedText: resumeText,
         skills: [],
         projects: []

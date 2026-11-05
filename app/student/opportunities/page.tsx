@@ -88,6 +88,8 @@ export default function StudentOpportunitiesPage() {
     disabled: number;
   } | null>(null);
   const [coverageNotice, setCoverageNotice] = useState<string>("");
+  const [isRecruiterSession, setIsRecruiterSession] = useState(false);
+  const [recruiterName, setRecruiterName] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -98,6 +100,10 @@ export default function StudentOpportunitiesPage() {
           const sessionData = await sessionRes.json();
           if (sessionData.authenticated && sessionData.user?.id) {
             activeCId = sessionData.user.id;
+            if (sessionData.user?.accountType === "recruiter") {
+              setIsRecruiterSession(true);
+              setRecruiterName(sessionData.recruiterProfile?.fullName || sessionData.user?.fullName || "Recruiter");
+            }
           }
         }
       } catch (e) {
@@ -362,6 +368,78 @@ export default function StudentOpportunitiesPage() {
 
       <main style={{ maxWidth: 1240, margin: "0 auto", padding: "32px 32px 96px" }}>
         
+        {isRecruiterSession && (
+          <div
+            style={{
+              background: "#FFFBEB",
+              border: "1px solid #FCD34D",
+              borderRadius: 8,
+              padding: "14px 18px",
+              marginBottom: 24,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 12
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, color: "#92400E", fontSize: 13, fontWeight: 500 }}>
+              <span style={{ fontSize: 18 }}>🏢</span>
+              <span>
+                You are currently signed in as a Recruiter (<strong>{recruiterName || "Aarav Sharma"}</strong>). Opportunities match scoring and applications are designed for students.
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch("/api/auth/demo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ role: "nistha" })
+                  });
+                  window.location.reload();
+                }}
+                style={{
+                  background: "#7E22CE",
+                  color: "#FFFFFF",
+                  border: "none",
+                  padding: "7px 14px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+              >
+                👩‍💻 Switch to Nistha (Student)
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await fetch("/api/auth/demo", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ role: "student" })
+                  });
+                  window.location.reload();
+                }}
+                style={{
+                  background: "#162A43",
+                  color: "#FFFFFF",
+                  border: "none",
+                  padding: "7px 14px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+              >
+                🎓 Switch to Demo Student
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* HEADER SECTION */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 20, marginBottom: 28 }}>
           <div>

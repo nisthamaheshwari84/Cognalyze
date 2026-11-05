@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import { getSessionHistory, InterviewSession } from "@/lib/interview-session-store";
+import { InterviewSession } from "@/lib/interview-session-types";
 import { useTheme } from "@/components/ThemeProvider";
 
 export default function InterviewPrepHistoryPage() {
@@ -34,7 +34,18 @@ export default function InterviewPrepHistoryPage() {
         candidateId = localStorage.getItem("cognalyze_student_id") || "";
       }
 
-      const data = candidateId ? await getSessionHistory(candidateId) : await getSessionHistory();
+      let data: InterviewSession[] = [];
+      try {
+        const histRes = await fetch(`/api/interview/history?candidateId=${encodeURIComponent(candidateId)}`);
+        if (histRes.ok) {
+          const histJson = await histRes.json();
+          if (histJson.success && Array.isArray(histJson.sessions)) {
+            data = histJson.sessions;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to fetch interview history from API:", e);
+      }
       if (isMounted) {
         setSessions(data);
         setLoading(false);

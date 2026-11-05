@@ -28,6 +28,7 @@ import {
   PublicStudentProfile
 } from "./types";
 import { validateUsername } from "./security";
+import { encryptToken, decryptToken } from "@/lib/crypto/token-vault";
 
 function resolveAuthFilePath(): string {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
@@ -222,11 +223,30 @@ const initialData: AuthStoreData = {
 };
 
 import { supabase } from "../supabase";
+import { isTestRuntime } from "@/lib/env";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 const CLOUD_STORE_KEY = "cognalyze_auth_cloud_store";
 
+let cloudSyncTimeout: NodeJS.Timeout | null = null;
+let isCloudSyncing = false;
+
+export function triggerDebouncedCloudSync(delayMs = 2500) {
+  if (typeof window !== "undefined" || isTestRuntime()) return;
+  if (cloudSyncTimeout) clearTimeout(cloudSyncTimeout);
+  cloudSyncTimeout = setTimeout(() => {
+    cloudSyncTimeout = null;
+    if (!isCloudSyncing) {
+      isCloudSyncing = true;
+      saveStoreToCloud().finally(() => {
+        isCloudSyncing = false;
+      });
+    }
+  }, delayMs);
+}
+
 export async function syncStoreWithCloud(): Promise<void> {
-  if (typeof window !== "undefined") return;
+  if (typeof window !== "undefined" || isTestRuntime()) return;
   try {
     const { isSupabaseAvailable } = await import("../supabase");
     if (!(await isSupabaseAvailable())) return;
@@ -312,9 +332,7 @@ export async function syncStoreWithCloud(): Promise<void> {
       // Sync updated store to local disk /tmp cache
       try {
         const filePath = resolveAuthFilePath();
-        const dir = path.dirname(filePath);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+        atomicWriteJsonSync(filePath, store);
         lastMtimeMs = fs.statSync(filePath).mtimeMs;
       } catch {}
     }
@@ -447,14 +465,10 @@ function loadStoreFromDisk(force = false) {
 }
 
 export async function saveStoreToCloud(): Promise<{ success: boolean; error?: string }> {
-  if (typeof window !== "undefined") return { success: true };
+  if (typeof window !== "undefined" || isTestRuntime()) return { success: true };
   try {
     const filePath = resolveAuthFilePath();
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+    atomicWriteJsonSync(filePath, store);
     try {
       lastMtimeMs = fs.statSync(filePath).mtimeMs;
     } catch {}
@@ -509,21 +523,28 @@ export async function saveStoreToCloud(): Promise<{ success: boolean; error?: st
   }
 }
 
+function atomicWriteJsonSync(filePath: string, data: any): void {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  const tmpFile = `${filePath}.${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2)}.tmp`;
+  fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+  fs.renameSync(tmpFile, filePath);
+}
+
 export function persistStoreToDisk() {
   try {
     if (typeof window === "undefined") {
       const filePath = resolveAuthFilePath();
-      const dir = path.dirname(filePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(filePath, JSON.stringify(store, null, 2), "utf-8");
+      atomicWriteJsonSync(filePath, store);
       try {
         lastMtimeMs = fs.statSync(filePath).mtimeMs;
       } catch {}
 
-      // Fire saveStoreToCloud asynchronously
-      saveStoreToCloud().catch(() => {});
+      if (!isTestRuntime()) {
+        triggerDebouncedCloudSync();
+      }
     }
   } catch (err) {
     console.error("Failed to persist auth store to disk:", err);
@@ -928,7 +949,7 @@ export function upsertStudentTrackedApplication(
     existing.updatedAt = now;
   } else {
     existing = {
-      id: `track_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: generateSecureId(`track_${Date.now()}`, 7),
       studentId: userId,
       opportunityId,
       opportunityTitle: opportunityTitle || "Tracked Opportunity",
@@ -1396,13 +1417,15 @@ export function getValidPasswordResetToken(tokenHash: string): PasswordResetToke
   ) || null;
 }
 
-export function markPasswordResetTokenUsed(tokenId: string): void {
+export function markPasswordResetTokenUsed(tokenId: string): boolean {
   loadStoreFromDisk();
   const token = (store.passwordResetTokens || []).find(t => t.id === tokenId);
-  if (token) {
+  if (token && !token.usedAt) {
     token.usedAt = new Date().toISOString();
     persistStoreToDisk();
+    return true;
   }
+  return false;
 }
 
 export function resetUserPassword(userId: string, passwordHash: string, passwordSalt: string): boolean {
@@ -1424,6 +1447,9 @@ export function addConnectedAccount(data: {
   provider: "github" | "linkedin" | "email";
   providerUserId: string;
   providerEmail: string;
+  accessToken?: string | null;
+  tokenScope?: string[];
+  tokenExpiresAt?: string | null;
 }): ConnectedAccount {
   loadStoreFromDisk();
   const existing = store.connectedAccounts.find(
@@ -1433,10 +1459,18 @@ export function addConnectedAccount(data: {
     if (existing.userId !== data.userId) {
       throw new Error("This third-party account is already connected to another user.");
     }
+    // Update token if new token supplied
+    if (data.accessToken) {
+      existing.encryptedAccessToken = encryptToken(data.accessToken, data.userId);
+      if (data.tokenScope) existing.tokenScope = data.tokenScope;
+      if (data.tokenExpiresAt) existing.tokenExpiresAt = data.tokenExpiresAt;
+      persistStoreToDisk();
+    }
     return existing;
   }
 
   const now = new Date().toISOString();
+  const encryptedAccessToken = data.accessToken ? encryptToken(data.accessToken, data.userId) : null;
   const account: ConnectedAccount = {
     id: crypto.randomUUID(),
     userId: data.userId,
@@ -1445,6 +1479,9 @@ export function addConnectedAccount(data: {
     providerEmail: data.providerEmail.toLowerCase().trim(),
     connectedAt: now,
     verifiedAt: now,
+    encryptedAccessToken,
+    tokenScope: data.tokenScope || (data.provider === "github" ? ["read:user", "repo"] : []),
+    tokenExpiresAt: data.tokenExpiresAt || null,
     syncStatus: {
       connected: true,
       reposRetrieved: data.provider === "github",
@@ -1456,6 +1493,37 @@ export function addConnectedAccount(data: {
   store.connectedAccounts.push(account);
   persistStoreToDisk();
   return account;
+}
+
+export function updateConnectedAccountToken(
+  userId: string,
+  provider: "github" | "linkedin",
+  accessToken: string,
+  scope?: string[]
+): boolean {
+  loadStoreFromDisk();
+  const account = store.connectedAccounts.find(
+    c => c.userId === userId && c.provider === provider
+  );
+  if (!account) return false;
+
+  account.encryptedAccessToken = encryptToken(accessToken, userId);
+  if (scope) account.tokenScope = scope;
+  account.verifiedAt = new Date().toISOString();
+  persistStoreToDisk();
+  return true;
+}
+
+export function getDecryptedTokenForUser(
+  userId: string,
+  provider: "github" | "linkedin"
+): string | null {
+  loadStoreFromDisk();
+  const account = store.connectedAccounts.find(
+    c => c.userId === userId && c.provider === provider
+  );
+  if (!account || !account.encryptedAccessToken) return null;
+  return decryptToken(account.encryptedAccessToken, userId);
 }
 
 export function getConnectedAccountsByUserId(userId: string): ConnectedAccount[] {
@@ -1507,6 +1575,87 @@ function verifySignedSessionToken(token: string): { id: string; userId: string; 
     return null;
   }
   return null;
+}
+
+const CONSUMED_LINKING_NONCES = new Set<string>();
+
+export interface AccountLinkingProofPayload {
+  nonce: string;
+  userId: string;
+  provider: string;
+  providerUserId: string;
+  providerEmail: string;
+  expiresAt: string;
+}
+
+export function createAccountLinkingProof(payload: {
+  userId: string;
+  provider: string;
+  providerUserId: string;
+  providerEmail: string;
+}): string {
+  const nonce = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 minutes TTL
+  const data = Buffer.from(
+    JSON.stringify({
+      nonce,
+      userId: payload.userId,
+      provider: payload.provider,
+      providerUserId: payload.providerUserId,
+      providerEmail: payload.providerEmail.toLowerCase().trim(),
+      expiresAt
+    })
+  ).toString("base64url");
+  const hmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+  return `${data}.${hmac}`;
+}
+
+export function verifyAndConsumeAccountLinkingProof(
+  proof: string,
+  expected: {
+    userId: string;
+    provider: string;
+    providerUserId: string;
+    providerEmail: string;
+  }
+): { valid: boolean; error?: string } {
+  if (!proof || typeof proof !== "string" || !proof.includes(".")) {
+    return { valid: false, error: "Malformed or missing account linking proof." };
+  }
+  const parts = proof.split(".");
+  if (parts.length !== 2) {
+    return { valid: false, error: "Invalid account linking proof token format." };
+  }
+  const [data, hmac] = parts;
+  try {
+    const expectedHmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+    if (hmac.length !== expectedHmac.length || !crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) {
+      return { valid: false, error: "Tampered or forged account linking proof." };
+    }
+    const parsed: AccountLinkingProofPayload = JSON.parse(Buffer.from(data, "base64url").toString("utf-8"));
+    if (!parsed.nonce || !parsed.userId || !parsed.expiresAt) {
+      return { valid: false, error: "Incomplete account linking proof payload." };
+    }
+    if (new Date(parsed.expiresAt).getTime() < Date.now()) {
+      return { valid: false, error: "Account linking proof has expired. Please restart the OAuth flow." };
+    }
+    if (CONSUMED_LINKING_NONCES.has(parsed.nonce)) {
+      return { valid: false, error: "Account linking proof has already been consumed (replay detected)." };
+    }
+    if (
+      parsed.userId !== expected.userId ||
+      parsed.provider !== expected.provider ||
+      parsed.providerUserId !== expected.providerUserId ||
+      parsed.providerEmail.toLowerCase().trim() !== expected.providerEmail.toLowerCase().trim()
+    ) {
+      return { valid: false, error: "Account linking proof does not match request parameters." };
+    }
+    // Consume nonce to prevent replay attacks
+    CONSUMED_LINKING_NONCES.add(parsed.nonce);
+    return { valid: true };
+  } catch {
+    return { valid: false, error: "Failed to parse account linking proof." };
+  }
 }
 
 export function createSession(userId: string, accountType: "student" | "recruiter"): AuthSession {

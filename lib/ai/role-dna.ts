@@ -65,18 +65,31 @@ export interface StructuredRoleRequirement {
   minimumExperienceYears?: number;
 }
 
+export interface RoleApprovalRecord {
+  approvedBy: string;
+  approvedAt: string;
+  approverRole: string;
+  approvalStatus: "draft" | "under_review" | "approved" | "published" | "archived";
+  approvalNotes?: string;
+  version: number;
+}
+
 export interface RoleDNA {
   id: string;
   title: string;
   department: string;
   seniority: "Junior" | "Mid-Level" | "Senior" | "Staff" | "Principal";
   targetHires: number;
+  organizationId?: string;
   workMode?: "Remote" | "Hybrid" | "On-site";
   location?: string;
   businessOutcomes: BusinessOutcome[];
   tieredRequirements: TieredRequirement[];
   structuredRequirements?: StructuredRoleRequirement[];
   roleDna?: import("@/lib/roles/types").RoleDNAStructure;
+  responsibilityGraph?: import("@/lib/roles/types").ResponsibilityGraphNode[];
+  adaptiveQuestions?: import("@/lib/roles/types").AdaptiveRecruiterQuestion[];
+  approvalRecord?: RoleApprovalRecord;
   uncertaintyThreshold: number; // e.g. 0.20: If >20% uncertainty on Critical/Important, trigger Minimum Proof
   status: "active" | "draft" | "filled";
   createdAt: string;

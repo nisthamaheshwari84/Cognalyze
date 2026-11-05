@@ -58,7 +58,7 @@ const STAGE_COLORS: Record<string, { bg: string; text: string; border: string }>
   Rejected: { bg: "#FDF2F2", text: "#C24141", border: "#F8C8C8" }
 };
 
-export function getGoogleCalendarUrl(event: CalendarEventItem): string {
+function getGoogleCalendarUrl(event: CalendarEventItem): string {
   const title = encodeURIComponent(event.title);
   const cleanDate = event.event_date.replace(/-/g, "");
   const d = new Date(event.event_date + "T00:00:00Z");

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     // 2. Cognalyze secure reset token flow
     const user = getUserByEmail(normalizedEmail);
-    if (user && user.passwordHash) {
+    if (user) {
       // Generate cryptographically secure reset token
       const rawToken = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");

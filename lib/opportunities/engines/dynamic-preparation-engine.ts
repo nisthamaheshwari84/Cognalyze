@@ -43,6 +43,28 @@ export class DynamicOpportunityPreparationEngine {
 
     const text = `${opp.title} ${opp.companyName} ${opp.organizer || ""} ${opp.description} ${opp.tags?.join(" ") || ""}`.toLowerCase();
 
+    // 0. Jobs & Internships & Full-Time Software Engineering Roles
+    if (
+      opp.opportunityType === "FULL_TIME" ||
+      opp.opportunityType === "JOB" ||
+      opp.opportunityType === "INTERNSHIP" ||
+      opp.employmentType === "full_time" ||
+      opp.employmentType === "internship" ||
+      text.includes("software engineer") ||
+      text.includes("software development engineer") ||
+      text.includes("sde-1") ||
+      text.includes("sde 1") ||
+      text.includes("sde1") ||
+      text.includes("graduate role") ||
+      text.includes("university graduate") ||
+      text.includes("campus hire") ||
+      text.includes("full-time role") ||
+      text.includes("internship") ||
+      text.includes("intern")
+    ) {
+      return "HIRING_CHALLENGE";
+    }
+
     // 1. Open Source Programs
     if (
       text.includes("summer of code") ||
@@ -198,10 +220,13 @@ export class DynamicOpportunityPreparationEngine {
     // Analyze student skills & evidence
     const studentSkills = new Set<string>();
     if (studentProfile?.verifiedSkills) {
-      studentProfile.verifiedSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || ""));
+      studentProfile.verifiedSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || s.skillName?.toLowerCase() || ""));
     }
     if (studentProfile?.coreSkills) {
-      studentProfile.coreSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || ""));
+      studentProfile.coreSkills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || s.skillName?.toLowerCase() || ""));
+    }
+    if (studentProfile?.skills && Array.isArray(studentProfile.skills)) {
+      studentProfile.skills.forEach((s: any) => studentSkills.add(typeof s === "string" ? s.toLowerCase() : s.name?.toLowerCase() || s.skillName?.toLowerCase() || ""));
     }
     if (studentProfile?.capabilities) {
       Object.keys(studentProfile.capabilities).forEach(c => studentSkills.add(c.toLowerCase()));
@@ -247,9 +272,11 @@ export class DynamicOpportunityPreparationEngine {
         return this.generateKaggleMLPlan(opp, dna, whatYouAlreadyHave, whatYouAreMissing, coveragePercentage, daysRemaining);
 
       case "OPEN_SOURCE_PROGRAM":
+      case "FELLOWSHIP":
         return this.generateOpenSourcePlan(opp, dna, whatYouAlreadyHave, whatYouAreMissing, coveragePercentage, daysRemaining);
 
       case "HIRING_CHALLENGE":
+      case "INTERNSHIP":
         return this.generateHiringChallengePlan(opp, dna, whatYouAlreadyHave, whatYouAreMissing, coveragePercentage, daysRemaining);
 
       default:

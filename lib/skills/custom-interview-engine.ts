@@ -16,6 +16,7 @@ import path from "path";
 import { CANONICAL_DSA_PROBLEMS, CanonicalProblem } from "@/lib/skills/dsa-canonical-problems";
 import { CANONICAL_SQL_PROBLEMS, SqlProblemDefinition } from "@/lib/skills/sql-canonical-problems";
 import { CANONICAL_CS_SUBJECTS, CSQuestionItem } from "@/lib/skills/cs-fundamentals-curriculum";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export interface CustomInterviewQuestionItem {
   questionIndex: number;
@@ -153,7 +154,7 @@ export function createCustomInterviewSession(config: CustomInterviewConfig): Cus
     throw new Error("At least one subject must be selected.");
   }
 
-  const sessionId = `custom-int-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+  const sessionId = generateSecureId(`custom-int-${Date.now()}`, 8);
   const questions: CustomInterviewQuestionItem[] = [];
 
   // Pick balanced question mix across selected subjects

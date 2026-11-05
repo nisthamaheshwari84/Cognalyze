@@ -1,6 +1,7 @@
 import { getStudentProfile, StudentProfileData, DEMO_STUDENT_PROFILE } from "@/lib/placement-store";
 import { verifyGitHubProfile, GitHubVerificationResult, extractGitHubUsername } from "@/lib/simulation/github-verifier";
 import { supabase } from "@/lib/supabase";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export interface DNASkill {
   name: string;
@@ -306,7 +307,7 @@ export async function getStudentDNA(candidateId: string = "student-demo"): Promi
       const isHack = ach.type?.toLowerCase().includes("hackathon") || ach.title?.toLowerCase().includes("hackathon");
       if (isHack) {
         hackathons.push({
-          hackathon_id: `ach_${ach.id || Math.random().toString(36).substring(2, 8)}`,
+          hackathon_id: `ach_${ach.id || generateSecureId("", 8)}`,
           hackathon_title: ach.title,
           date: ach.date || new Date().toISOString().split("T")[0],
           role: "Participant",

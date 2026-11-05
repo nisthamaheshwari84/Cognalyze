@@ -1,8 +1,10 @@
 import { QuestionItem } from "./question-bank-types";
 import { ALL_QUESTION_BANK_ITEMS } from "./question-bank-data";
+import { ALL_SKILL_QUESTIONS } from "./skills/catalogs";
 
-export const EXPANDED_PLACEMENT_QUESTIONS: QuestionItem[] = [
+const RAW_EXPANDED_PLACEMENT_QUESTIONS: QuestionItem[] = [
   ...ALL_QUESTION_BANK_ITEMS,
+  ...ALL_SKILL_QUESTIONS,
 
   // ─── GOOGLE CODING & SYSTEM ROUNDS ─────────────────────────────────
   {
@@ -598,6 +600,14 @@ export const EXPANDED_PLACEMENT_QUESTIONS: QuestionItem[] = [
     updatedAt: "2026-03-01T00:00:00Z"
   }
 ];
+
+// Deduplicate questions by ID while preserving order
+const seenIds = new Set<string>();
+export const EXPANDED_PLACEMENT_QUESTIONS: QuestionItem[] = RAW_EXPANDED_PLACEMENT_QUESTIONS.filter(q => {
+  if (seenIds.has(q.id)) return false;
+  seenIds.add(q.id);
+  return true;
+});
 
 export const SUBTOPICS_BY_TOPIC: Record<string, string[]> = {
   DSA: [

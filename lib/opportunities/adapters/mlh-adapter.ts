@@ -10,6 +10,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class MLHAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-mlh";
@@ -96,7 +97,7 @@ export class MLHAdapter extends BaseOpportunitySourceAdapter {
   public parse(payload: any): RawOpportunity[] {
     if (!payload || !Array.isArray(payload)) return [];
     return payload.map((item: any) => ({
-      id: item.id || `mlh-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: item.id || generateSecureId(`mlh-${Date.now()}`, 6),
       source: "MLH",
       sourceType: "MLH",
       sourceId: item.sourceId || item.id,

@@ -22,7 +22,12 @@ import {
   AmbiguityStatus,
   RequirementType,
   ImportanceLevel,
-  EvidenceExpectation
+  EvidenceExpectation,
+  OwnershipLevel,
+  TaskComplexity,
+  ConnectedCapabilityRequirement,
+  ResponsibilityGraphNode,
+  AdaptiveRecruiterQuestion
 } from "./types";
 
 // Standard Evidence Quality Hierarchy
@@ -1335,6 +1340,12 @@ export function assembleRoleDnaStructure(
   const constraints = enrichedItems.filter(i => i.category === "CONSTRAINT");
   const ambiguities = enrichedItems.filter(i => i.category === "UNKNOWN" || i.ambiguity_status === "AMBIGUOUS");
 
+  // Construct Responsibility-to-Capability Relational Graph
+  const responsibilityGraph = buildResponsibilityGraph(responsibilities, mustHaves, preferred, seniority || "Junior");
+
+  // Generate Adaptive Recruiter Questions for missing context
+  const adaptiveQuestions = generateAdaptiveRecruiterQuestions(roleTitle, responsibilities, ambiguities, domainContext || []);
+
   return {
     roleTitle,
     department: department || "Engineering",
@@ -1350,6 +1361,8 @@ export function assembleRoleDnaStructure(
     evidenceSignals,
     constraints,
     ambiguities,
+    responsibilityGraph,
+    adaptiveQuestions,
     summary: {
       mustHaveCount: mustHaves.length,
       preferredCount: preferred.length,
@@ -1360,6 +1373,135 @@ export function assembleRoleDnaStructure(
       ambiguityCount: ambiguities.length
     }
   };
+}
+
+export function buildResponsibilityGraph(
+  responsibilities: SemanticRequirementItem[],
+  mustHaves: SemanticRequirementItem[],
+  preferred: SemanticRequirementItem[],
+  seniority: RoleDNAStructure["seniority"]
+): ResponsibilityGraphNode[] {
+  return responsibilities.map((resp, idx) => {
+    const textLower = resp.source_text.toLowerCase();
+    
+    // 1. Ownership Level
+    let ownershipLevel: OwnershipLevel = "own";
+    if (/\b(lead|architect|head|direct|oversee|spearhead)\b/i.test(textLower)) {
+      ownershipLevel = "lead";
+    } else if (/\b(architect|design the system|define technical vision)\b/i.test(textLower)) {
+      ownershipLevel = "architect";
+    } else if (/\b(assist|support|help|participate|contribute to)\b/i.test(textLower)) {
+      ownershipLevel = "assist";
+    }
+
+    // 2. Task Complexity
+    let complexity: TaskComplexity = "intermediate";
+    if (seniority === "Staff" || seniority === "Principal" || /\b(mission critical|distributed|fault-tolerant|security audit)\b/i.test(textLower)) {
+      complexity = "mission_critical";
+    } else if (seniority === "Senior" || /\b(high scale|p99|optimization|concurrency)\b/i.test(textLower)) {
+      complexity = "advanced";
+    } else if (seniority === "Junior" || /\b(basic|routine|standard)\b/i.test(textLower)) {
+      complexity = "foundational";
+    }
+
+    // 3. Connect Required Capabilities
+    const connectedCaps: ConnectedCapabilityRequirement[] = [];
+    const directSkills = findSkillsInText(resp.source_text);
+
+    for (const skill of directSkills) {
+      const matchMustHave = mustHaves.find(m => m.canonical_name.toLowerCase() === skill.toLowerCase());
+      connectedCaps.push({
+        capabilityId: `cap_${skill.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+        canonicalName: skill,
+        requiredDepth: ownershipLevel === "lead" || ownershipLevel === "architect" ? "independent_architecture" : "practical_implementation",
+        assessmentMethod: skill.toLowerCase().includes("system") || skill.toLowerCase().includes("architect") ? "system_design" : "code_execution",
+        importance: matchMustHave ? "mandatory" : "preferred",
+        evidenceSignals: matchMustHave?.evidence_signals || ["Production Code", "GitHub Commits"]
+      });
+    }
+
+    if (connectedCaps.length === 0 && mustHaves.length > 0) {
+      const topReq = mustHaves.slice(0, 2);
+      for (const m of topReq) {
+        connectedCaps.push({
+          capabilityId: `cap_${m.canonical_name.toLowerCase().replace(/[^a-z0-9]/g, "_")}`,
+          canonicalName: m.canonical_name,
+          requiredDepth: "practical_implementation",
+          assessmentMethod: "work_sample",
+          importance: "mandatory",
+          evidenceSignals: m.evidence_signals
+        });
+      }
+    }
+
+    const outcomes = [
+      `Reliable execution of "${resp.canonical_name}" within team production standards`,
+      `Documented deliverables meeting architectural review criteria`
+    ];
+
+    return {
+      id: `resp_node_${idx + 1}`,
+      description: resp.canonical_name,
+      ownershipLevel,
+      complexity,
+      requiredCapabilities: connectedCaps,
+      expectedOutcomes: outcomes,
+      sourceText: resp.source_text
+    };
+  });
+}
+
+export function generateAdaptiveRecruiterQuestions(
+  roleTitle: string,
+  responsibilities: SemanticRequirementItem[],
+  ambiguities: SemanticRequirementItem[],
+  domainContext: string[]
+): AdaptiveRecruiterQuestion[] {
+  const questions: AdaptiveRecruiterQuestion[] = [];
+
+  questions.push({
+    id: "q_business_problem",
+    category: "business_problem",
+    question: `What primary business objective or system milestone should this ${roleTitle} solve in their first 90 days?`,
+    contextWhy: "Job descriptions rarely specify the exact business outcome. This prevents candidate mismatches.",
+    suggestedAnswers: [
+      "Ship a new mission-critical customer-facing product feature",
+      "Scale backend throughput and reduce latency bottlenecks",
+      "Modernize legacy architecture and build modular microservices",
+      "Accelerate product engineering velocity and mentor junior developers"
+    ],
+    fieldToUpdate: "businessOutcomes"
+  });
+
+  questions.push({
+    id: "q_headcount_context",
+    category: "team_context",
+    question: "Is this opening expanding team capacity with new headcount, or backfilling an established role?",
+    contextWhy: "New roles require higher tolerance for ambiguity, while backfills prioritize domain continuity.",
+    suggestedAnswers: [
+      "New position created for strategic expansion",
+      "Backfill for an existing engineering team member",
+      "Dedicated role created by internal team restructuring"
+    ],
+    fieldToUpdate: "departmentContext"
+  });
+
+  if (ambiguities.length > 0) {
+    const topAmb = ambiguities[0];
+    questions.push({
+      id: "q_ambiguity_clarify",
+      category: "dealbreaker_confirmation",
+      question: `The JD specifies "${topAmb.source_text}". Which specific platform, framework, or standard is required?`,
+      contextWhy: topAmb.rationale || "Vague technology terms prevent objective candidate scoring.",
+      suggestedAnswers: topAmb.acceptable_options || [
+        "Any standard production platform is acceptable",
+        "Specific proprietary architecture required"
+      ],
+      fieldToUpdate: `clarification_${topAmb.id}`
+    });
+  }
+
+  return questions;
 }
 
 function buildEmptyRoleDna(fallbackTitle: string): RoleDNAStructure {

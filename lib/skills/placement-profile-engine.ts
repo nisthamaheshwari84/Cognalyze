@@ -100,6 +100,7 @@ export interface RoadmapRecommendation {
 
 const SESSIONS_DIR = path.join(process.cwd(), "data");
 const PROFILES_FILE = path.join(SESSIONS_DIR, "placement-profiles.json");
+const PROFILES_MEM_CACHE = new Map<string, StudentPlacementProfile>();
 
 function ensureDirectoryExists() {
   if (!fs.existsSync(SESSIONS_DIR)) {
@@ -111,16 +112,30 @@ function ensureDirectoryExists() {
 
 function loadAllProfiles(): Record<string, StudentPlacementProfile> {
   ensureDirectoryExists();
-  if (!fs.existsSync(PROFILES_FILE)) return {};
-  try {
-    const raw = fs.readFileSync(PROFILES_FILE, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return {};
+  let diskProfiles: Record<string, StudentPlacementProfile> = {};
+  if (fs.existsSync(PROFILES_FILE)) {
+    try {
+      const raw = fs.readFileSync(PROFILES_FILE, "utf-8");
+      if (raw.trim()) {
+        diskProfiles = JSON.parse(raw);
+      }
+    } catch {
+      diskProfiles = {};
+    }
   }
+  const merged: Record<string, StudentPlacementProfile> = { ...diskProfiles };
+  for (const [id, prof] of PROFILES_MEM_CACHE.entries()) {
+    if (!merged[id] || new Date(prof.updatedAt).getTime() >= new Date(merged[id].updatedAt).getTime()) {
+      merged[id] = prof;
+    }
+  }
+  return merged;
 }
 
 function saveAllProfiles(profiles: Record<string, StudentPlacementProfile>) {
+  for (const [id, prof] of Object.entries(profiles)) {
+    PROFILES_MEM_CACHE.set(id, prof);
+  }
   ensureDirectoryExists();
   try {
     fs.writeFileSync(PROFILES_FILE, JSON.stringify(profiles, null, 2), "utf-8");

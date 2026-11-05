@@ -14,6 +14,7 @@
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
 import { getCandidateSeenQuestionIds, recordCandidateAttempt } from "@/lib/skills/candidate-history";
+import { pickSecureRandom } from "@/lib/crypto-utils";
 
 // ── 1. DATA MODELS & TYPES ───────────────────────────────────────────────────
 
@@ -809,8 +810,7 @@ export function getAdaptiveCommunicationQuestion(options: {
   const candidatePool = unseenPool.length > 0 ? unseenPool : pool;
 
   // Shuffle and select
-  const randomIndex = Math.floor(Math.random() * candidatePool.length);
-  return candidatePool[randomIndex];
+  return pickSecureRandom(candidatePool) || candidatePool[0];
 }
 
 // ── 5. EVIDENCE-FIRST EVALUATION ENGINE ───────────────────────────────────────

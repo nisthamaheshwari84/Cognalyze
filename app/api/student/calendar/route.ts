@@ -51,7 +51,7 @@ export interface CalendarEventItem {
 }
 
 // Calculate explainable priority score: 65% fit weight + 35% urgency weight
-export function computeEventPriority(fitScore: number, daysUntil: number) {
+function computeEventPriority(fitScore: number, daysUntil: number) {
   const clampedDays = Math.max(0, daysUntil);
   // Urgency score scales from 10 to 100 based on proximity
   const urgencyScore = Math.min(100, Math.max(10, 100 - clampedDays * 4));

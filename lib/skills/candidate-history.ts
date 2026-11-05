@@ -8,6 +8,8 @@
  * 4. Works both server-side and client-side (backed by localStorage sync).
  */
 
+import { generateSecureId } from "@/lib/crypto-utils";
+
 export interface CandidateAttempt {
   id: string;
   candidateId: string;
@@ -23,6 +25,8 @@ export interface CandidateAttempt {
   weaknesses: string[];
   strengths: string[];
   feedback: string;
+  isAssisted?: boolean;
+  assistanceTier?: number;
   timestamp: string;
 }
 
@@ -37,7 +41,7 @@ export function recordCandidateAttempt(
 ): CandidateAttempt {
   const attempt: CandidateAttempt = {
     ...data,
-    id: `attempt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    id: generateSecureId(`attempt_${Date.now()}`, 9),
     timestamp: new Date().toISOString()
   };
 
@@ -75,15 +79,21 @@ export function recordCandidateAttempt(
           userId: attempt.candidateId,
           skillRaw,
           evidenceType: attempt.mode === "interview" ? "interview_signal" : "practical_task",
-          claim: `Completed ${attempt.mode} session on ${attempt.topic} with ${attempt.score}% score`,
-          extractedValue: `Score: ${attempt.score}%, Questions: ${attempt.questionsCorrect}/${attempt.questionsAttempted}`,
-          strength: Math.min(1.0, Math.max(0.4, attempt.score / 100)),
+          claim: attempt.isAssisted
+            ? `Completed assisted practice on ${attempt.topic} (Hints/Coach guidance used, Score: ${attempt.score}%)`
+            : `Completed independent ${attempt.mode} session on ${attempt.topic} with ${attempt.score}% score`,
+          extractedValue: `Score: ${attempt.score}%, Questions: ${attempt.questionsCorrect}/${attempt.questionsAttempted}${attempt.isAssisted ? " (Assisted)" : " (Independent)"}`,
+          strength: attempt.isAssisted
+            ? Math.min(0.65, Math.max(0.3, (attempt.score / 100) * 0.7))
+            : Math.min(1.0, Math.max(0.4, attempt.score / 100)),
           timestamp: attempt.timestamp,
           metadata: {
             domain: attempt.domain,
             score: attempt.score,
             accuracy: attempt.accuracy,
-            timeSpent: attempt.timeSpentSeconds
+            timeSpent: attempt.timeSpentSeconds,
+            isAssisted: Boolean(attempt.isAssisted),
+            assistanceTier: attempt.assistanceTier || 1
           }
         }).catch(err => console.warn("Failed to auto-update Student DNA from attempt:", err));
       }).catch(() => {});

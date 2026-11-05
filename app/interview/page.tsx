@@ -738,6 +738,20 @@ export default function InterviewPage() {
   const [showVerdict, setShowVerdict] = useState(false);
   const [buildingVerdict, setBuildingVerdict] = useState(false);
 
+  // ── Session continuity & restoration state ──
+  const sessionIdRef = useRef<string>("");
+  const [activeSessionInfo, setActiveSessionInfo] = useState<{
+    id: string;
+    turnCount: number;
+    currentSection: string;
+    track?: string;
+    isCompleted?: boolean;
+    report?: any;
+  } | null>(null);
+  const [restorationError, setRestorationError] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(false);
+  const [interviewTrack, setInterviewTrack] = useState<string>("traditional_coding_dsa");
+
   // ── Secure mode state ──
   const [secureMode, setSecureMode] = useState(false);
   const [securePhase, setSecurePhase] = useState<"identity" | "precheck" | "done">("identity");
@@ -843,6 +857,8 @@ export default function InterviewPage() {
     const p = new URLSearchParams(window.location.search);
     if (p.get("jd")) setJd(decodeURIComponent(p.get("jd")!));
     if (p.get("resume")) setResume(decodeURIComponent(p.get("resume")!));
+    if (p.get("track")) setInterviewTrack(p.get("track")!);
+    else if (p.get("interviewTrack")) setInterviewTrack(p.get("interviewTrack")!);
     if (p.get("secure") === "true" || p.get("mode") === "secure") {
       setSecureMode(true);
     }
@@ -876,6 +892,72 @@ export default function InterviewPage() {
       } catch (err) {}
     }
     preloadCandidateSession();
+
+    async function checkExistingSession() {
+      try {
+        setCheckingSession(true);
+        setRestorationError(null);
+        const querySessionId = p.get("sessionId") || "";
+        const storedSessionId = typeof window !== "undefined" ? sessionStorage.getItem("cognalyze_active_interview_session_id") || "" : "";
+        const targetSessionId = querySessionId || storedSessionId;
+
+        const endpoint = targetSessionId
+          ? `/api/interview-chat?sessionId=${encodeURIComponent(targetSessionId)}`
+          : `/api/interview-chat`;
+
+        const res = await fetch(endpoint);
+        if (res.status === 403) {
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("cognalyze_active_interview_session_id");
+            sessionStorage.removeItem("cognalyze_active_interview_in_progress");
+          }
+          setRestorationError("Access denied: You do not have permission to view or resume this session.");
+          return;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.session && data.session.id) {
+            const sess = data.session;
+            sessionIdRef.current = sess.id;
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem("cognalyze_active_interview_session_id", sess.id);
+            }
+
+            if (sess.isCompleted) {
+              setActiveSessionInfo({
+                id: sess.id,
+                turnCount: sess.turns?.length || 0,
+                currentSection: sess.currentSection || "completed",
+                track: sess.track,
+                isCompleted: true,
+                report: sess.report
+              });
+            } else if (data.resumable) {
+              setActiveSessionInfo({
+                id: sess.id,
+                turnCount: sess.turns?.length || 0,
+                currentSection: sess.currentSection || "resume_projects",
+                track: sess.track,
+                isCompleted: false
+              });
+
+              // If candidate was in active interview room and refreshed the page, automatically resume
+              const inProgress = typeof window !== "undefined" ? sessionStorage.getItem("cognalyze_active_interview_in_progress") === "true" : false;
+              if (inProgress) {
+                await resumeActiveSession(sess.id);
+              }
+            }
+          }
+        }
+      } catch (err: any) {
+        console.warn("[interview] Failed checking active session:", err);
+      } finally {
+        setCheckingSession(false);
+      }
+    }
+    checkExistingSession();
+
     setVoiceOk("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
     if (window.speechSynthesis) {
       synthRef.current = window.speechSynthesis;
@@ -1354,10 +1436,104 @@ export default function InterviewPage() {
     setScoring(false);
   };
 
+  const resumeActiveSession = useCallback(async (targetId?: string) => {
+    const sessId = targetId || sessionIdRef.current || (typeof window !== "undefined" ? sessionStorage.getItem("cognalyze_active_interview_session_id") || "" : "");
+    setLoading(true);
+    setRestorationError(null);
+    try {
+      const endpoint = sessId
+        ? `/api/interview-chat?sessionId=${encodeURIComponent(sessId)}`
+        : `/api/interview-chat`;
+
+      const res = await fetch(endpoint);
+      if (res.status === 403) {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("cognalyze_active_interview_session_id");
+          sessionStorage.removeItem("cognalyze_active_interview_in_progress");
+        }
+        throw new Error("Access denied: You do not have permission to access this session.");
+      }
+      if (!res.ok) {
+        throw new Error(`Failed to restore interview session (HTTP ${res.status}).`);
+      }
+      const data = await res.json();
+      if (!data.session) {
+        throw new Error("No active session data found on server.");
+      }
+      const sess = data.session;
+      sessionIdRef.current = sess.id;
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("cognalyze_active_interview_session_id", sess.id);
+        sessionStorage.setItem("cognalyze_active_interview_in_progress", "true");
+      }
+
+      if (sess.isCompleted) {
+        setEnded(true);
+        endedRef.current = true;
+        if (sess.report) {
+          setFinalVerdict(sess.report);
+          setShowVerdict(true);
+        }
+        setStarted(true);
+        setActiveSessionInfo(null);
+        return;
+      }
+
+      const reconstructedMsgs: Msg[] = (sess.messages || []).map((m: any) => ({
+        role: m.role,
+        content: m.content,
+        time: m.time || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      }));
+
+      msgsRef.current = reconstructedMsgs;
+      setMsgs(reconstructedMsgs);
+
+      const latestQ = sess.questionsAsked?.[sess.questionsAsked.length - 1]?.question || sess.turns?.[sess.turns.length - 1]?.question?.question || "";
+      lastQuestionRef.current = latestQ;
+
+      const turnsCount = sess.turns?.length || 0;
+      qNumRef.current = turnsCount;
+      setQNum(turnsCount);
+
+      if (sess.currentSection) {
+        setStage(sess.currentSection);
+      }
+
+      setStarted(true);
+      setActiveSessionInfo(null);
+    } catch (err: any) {
+      setRestorationError(err.message || "Failed to resume session. Please try again or start fresh.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const startFreshInterview = () => {
+    sessionIdRef.current = "";
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("cognalyze_active_interview_session_id");
+      sessionStorage.removeItem("cognalyze_active_interview_in_progress");
+    }
+    setActiveSessionInfo(null);
+    setRestorationError(null);
+    setStarted(false);
+    setEnded(false);
+    endedRef.current = false;
+    setShowVerdict(false);
+    setFinalVerdict(null);
+    setMsgs([]);
+    msgsRef.current = [];
+    qNumRef.current = 0;
+    setQNum(0);
+  };
+
   const doStartInterview = async () => {
     sessionStartRef.current = Date.now();
     setStarted(true);
     setLoading(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("cognalyze_active_interview_in_progress", "true");
+    }
     // Attach stream to live video after phase change
     setTimeout(() => {
       if (streamRef.current && videoRef.current) {
@@ -1366,8 +1542,26 @@ export default function InterviewPage() {
       }
     }, 200);
     try {
-      const res = await fetch("/api/interview-chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: [], jd: jdRef.current, resume: resumeRef.current, qNumber: 0 }) });
+      const res = await fetch("/api/interview-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [],
+          jd: jdRef.current,
+          resume: resumeRef.current,
+          qNumber: 0,
+          sessionId: sessionIdRef.current || undefined,
+          track: interviewTrack,
+          interviewTrack: interviewTrack,
+        })
+      });
       const d = await res.json();
+      if (d.sessionId) {
+        sessionIdRef.current = d.sessionId;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("cognalyze_active_interview_session_id", d.sessionId);
+        }
+      }
       lastQuestionRef.current = d.message;
       const m: Msg = { role: "assistant", content: d.message, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
       msgsRef.current = [m];
@@ -1393,14 +1587,30 @@ export default function InterviewPage() {
     if (faceIntervalRef.current) clearInterval(faceIntervalRef.current);
     stopListening(); synthRef.current?.cancel();
     setEnded(true); endedRef.current = true;
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("cognalyze_active_interview_in_progress");
+    }
     // Always build final verdict
     setBuildingVerdict(true);
     try {
       const res = await fetch("/api/interview-final", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: msgsRef.current.map(m => ({ role: m.role, content: m.content })), jd: jdRef.current, resume: resumeRef.current, finalScore: score })
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current || undefined,
+          messages: msgsRef.current.map(m => ({ role: m.role, content: m.content })),
+          jd: jdRef.current,
+          resume: resumeRef.current,
+          finalScore: score
+        })
       });
-      if (res.ok) { const d = await res.json(); setFinalVerdict(d); setShowVerdict(true); }
+      if (res.ok) {
+        const d = await res.json();
+        setFinalVerdict(d);
+        setShowVerdict(true);
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("cognalyze_active_interview_session_id");
+        }
+      }
     } catch (e) { console.error("Verdict error:", e); }
     setBuildingVerdict(false);
     // Also build trust report if secure mode
@@ -1431,6 +1641,8 @@ export default function InterviewPage() {
     setTurnError(null);
     setLifecycleState("SUBMITTING");
     setLoading(true);
+
+    const currentSessionId = sessionIdRef.current;
 
     // Decoupled AI telemetry in background (non-blocking)
     if (secureModeRef.current) {
@@ -1464,12 +1676,19 @@ export default function InterviewPage() {
           messages: explicitMsgs.map(m => ({ role: m.role, content: m.content })),
           jd: jdRef.current,
           resume: resumeRef.current,
-          qNumber: newQ
+          qNumber: newQ,
+          sessionId: currentSessionId || undefined,
+          track: interviewTrack,
+          interviewTrack: interviewTrack,
         }),
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
+
+      // Stale asynchronous response guard: discard if candidate changed sessions while waiting
+      if (sessionIdRef.current !== currentSessionId) return;
+
       setLifecycleState("RECEIVING_RESPONSE");
 
       if (!res.ok) {
@@ -1477,8 +1696,17 @@ export default function InterviewPage() {
       }
 
       const d = await res.json();
+      if (sessionIdRef.current !== currentSessionId) return;
+
       if (!d.message) {
         throw new Error("Invalid response received from interviewer");
+      }
+
+      if (d.sessionId && !sessionIdRef.current) {
+        sessionIdRef.current = d.sessionId;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("cognalyze_active_interview_session_id", d.sessionId);
+        }
       }
 
       lastQuestionRef.current = d.message;
@@ -1495,6 +1723,7 @@ export default function InterviewPage() {
       if (modeRef.current === "voice") speak(d.message);
     } catch (err: any) {
       clearTimeout(timeoutId);
+      if (sessionIdRef.current !== currentSessionId) return;
       console.warn("[interview] Turn response error:", err);
       setLifecycleState("ERROR");
       const isTimeout = err.name === "AbortError" || err.message?.includes("abort");
@@ -1816,6 +2045,87 @@ export default function InterviewPage() {
             />
           </div>
         </div>
+
+        {restorationError && (
+          <div style={{ padding: "12px 16px", background: "#FEF2F2", border: "1px solid #FCA5A5", borderRadius: 8, marginBottom: 16, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#991B1B", marginBottom: 2 }}>⚠️ Session Restoration Notice</div>
+              <div style={{ fontSize: 12, color: "#B91C1C", lineHeight: 1.4 }}>{restorationError}</div>
+            </div>
+            <button
+              onClick={startFreshInterview}
+              style={{ padding: "5px 10px", fontSize: 11, fontWeight: 600, background: "#FFFFFF", border: "1px solid #F87171", borderRadius: 6, color: "#991B1B", cursor: "pointer", whiteSpace: "nowrap" }}
+            >
+              Start Clean Interview
+            </button>
+          </div>
+        )}
+
+        {checkingSession && (
+          <div style={{ padding: "8px 12px", background: "#F0FDF4", border: "1px solid #BBF7D0", borderRadius: 6, marginBottom: 14, fontSize: 12, color: "#166534", display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⟳</span>
+            Checking for active session...
+          </div>
+        )}
+
+        {activeSessionInfo && !activeSessionInfo.isCompleted && (
+          <div style={{ padding: "16px 18px", background: "#EFF6FF", border: "1px solid #93C5FD", borderRadius: 8, marginBottom: 16, boxShadow: "0 2px 4px rgba(53, 106, 230, 0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🔄</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#1E40AF" }}>Active Interview In Progress</span>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", background: "#DBEAFE", color: "#1D4ED8", borderRadius: 4 }}>
+                Stage: {activeSessionInfo.currentSection || "In-Flight"}
+              </span>
+            </div>
+            <p style={{ margin: "0 0 12px", fontSize: 12, color: "#3B82F6", lineHeight: 1.5 }}>
+              Track: <strong>{activeSessionInfo.track || "Standard"}</strong> • Questions Answered: <strong>{activeSessionInfo.turnCount || 0}</strong>. You can resume exactly where you left off or start fresh.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => resumeActiveSession()}
+                style={{ flex: 1, padding: "10px 14px", background: "#2563EB", border: "none", borderRadius: 6, color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}
+              >
+                Resume Active Interview →
+              </button>
+              <button
+                onClick={startFreshInterview}
+                style={{ padding: "10px 14px", background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: 6, color: "#64748B", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+              >
+                Discard & Start Fresh
+              </button>
+            </div>
+          </div>
+        )}
+
+        {activeSessionInfo && activeSessionInfo.isCompleted && (
+          <div style={{ padding: "16px 18px", background: "#F0FDF4", border: "1px solid #86EFAC", borderRadius: 8, marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🏆</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#166534" }}>Previous Interview Completed</span>
+              </div>
+            </div>
+            <p style={{ margin: "0 0 12px", fontSize: 12, color: "#15803D", lineHeight: 1.5 }}>
+              Your evaluation report for track <strong>{activeSessionInfo.track}</strong> is ready for review. Completed interviews cannot be reopened for answering.
+            </p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => resumeActiveSession()}
+                style={{ flex: 1, padding: "10px 14px", background: "#16A34A", border: "none", borderRadius: 6, color: "#FFFFFF", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                View Evaluation Report 🏆
+              </button>
+              <button
+                onClick={startFreshInterview}
+                style={{ padding: "10px 14px", background: "#FFFFFF", border: "1px solid #CBD5E1", borderRadius: 6, color: "#64748B", fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+              >
+                Start New Interview
+              </button>
+            </div>
+          </div>
+        )}
 
         {secureMode && (
           <div style={{ padding: "10px 14px", background: "#FEF3F2", border: "1px solid #F8C8C8", borderRadius: 7, marginBottom: 14, fontSize: 12, color: "#C24141", lineHeight: 1.5 }}>

@@ -1,0 +1,475 @@
+{
+  "sources": {
+    "src_437de10f32132b2c": {
+      "id": "src_437de10f32132b2c",
+      "person_id": "candidate_spine_1793486705897",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-10-31T22:45:05.898Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_cdd44001b04b4424": {
+      "id": "src_cdd44001b04b4424",
+      "person_id": "candidate_spine_1793486705897",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-10-31T22:45:05.898Z"
+    },
+    "src_8673b7c182bb35d8": {
+      "id": "src_8673b7c182bb35d8",
+      "person_id": "tenant_alpha_1793486705903",
+      "type": "github",
+      "content_hash": "c734418fb8a1add711447fa929b7d88ee19456fcb3fd114bc40753f1e87d4c03",
+      "retrieved_at": "2026-10-31T22:45:05.903Z"
+    },
+    "src_971b1dd566c4f81a": {
+      "id": "src_971b1dd566c4f81a",
+      "person_id": "candidate_spine_1793486722223",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-10-31T22:45:22.223Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_a4ebe7a6ae4e0538": {
+      "id": "src_a4ebe7a6ae4e0538",
+      "person_id": "candidate_spine_1793486722223",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-10-31T22:45:22.223Z"
+    },
+    "src_6411bc8b8469f90a": {
+      "id": "src_6411bc8b8469f90a",
+      "person_id": "tenant_alpha_1793486722227",
+      "type": "github",
+      "content_hash": "a966301b949481b2b1f54cc8864c280a3fb3f8de41da67787eab7c1973f7f1c8",
+      "retrieved_at": "2026-10-31T22:45:22.227Z"
+    },
+    "src_7e0bfcf89bed7d39": {
+      "id": "src_7e0bfcf89bed7d39",
+      "person_id": "candidate_spine_1793486743544",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-10-31T22:45:43.545Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_e9489a17a25f2cac": {
+      "id": "src_e9489a17a25f2cac",
+      "person_id": "candidate_spine_1793486743544",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-10-31T22:45:43.545Z"
+    },
+    "src_b0c33283bba85ef6": {
+      "id": "src_b0c33283bba85ef6",
+      "person_id": "tenant_alpha_1793486743549",
+      "type": "github",
+      "content_hash": "cab86434c806f7a813ab7d32ffe0be4dd9b4d3cb7d2323685a0280d155f2be5b",
+      "retrieved_at": "2026-10-31T22:45:43.549Z"
+    },
+    "src_a40632db77c829d7": {
+      "id": "src_a40632db77c829d7",
+      "person_id": "candidate_spine_1793486882432",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-10-31T22:48:02.433Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_db0c43584d230b07": {
+      "id": "src_db0c43584d230b07",
+      "person_id": "candidate_spine_1793486882432",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-10-31T22:48:02.433Z"
+    },
+    "src_4beb4e61ac7b8fb6": {
+      "id": "src_4beb4e61ac7b8fb6",
+      "person_id": "tenant_alpha_1793486882437",
+      "type": "github",
+      "content_hash": "4276ed21149c03f396f90ca00482e08fa100702406a3c0a629779b5cd5b4b53e",
+      "retrieved_at": "2026-10-31T22:48:02.437Z"
+    },
+    "src_9472e2aab0467b37": {
+      "id": "src_9472e2aab0467b37",
+      "person_id": "candidate_spine_1793487630191",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-10-31T23:00:30.192Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_2ceafe48f2431607": {
+      "id": "src_2ceafe48f2431607",
+      "person_id": "candidate_spine_1793487630191",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-10-31T23:00:30.192Z"
+    },
+    "src_f11f661d7c5f625c": {
+      "id": "src_f11f661d7c5f625c",
+      "person_id": "tenant_alpha_1793487630196",
+      "type": "github",
+      "content_hash": "ba604bb9d5ab110bed335f67c85430fe9fb8838a3d1b3751f674f059f90d2301",
+      "retrieved_at": "2026-10-31T23:00:30.196Z"
+    }
+  },
+  "claims": {
+    "cl_1793486705898_1": {
+      "id": "cl_1793486705898_1",
+      "person_id": "candidate_spine_1793486705897",
+      "source_id": "src_cdd44001b04b4424",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-10-31T22:45:05.898Z"
+    },
+    "cl_1793486722223_1": {
+      "id": "cl_1793486722223_1",
+      "person_id": "candidate_spine_1793486722223",
+      "source_id": "src_a4ebe7a6ae4e0538",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-10-31T22:45:22.223Z"
+    },
+    "cl_1793486743545_1": {
+      "id": "cl_1793486743545_1",
+      "person_id": "candidate_spine_1793486743544",
+      "source_id": "src_e9489a17a25f2cac",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-10-31T22:45:43.545Z"
+    },
+    "cl_1793486882433_1": {
+      "id": "cl_1793486882433_1",
+      "person_id": "candidate_spine_1793486882432",
+      "source_id": "src_db0c43584d230b07",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-10-31T22:48:02.433Z"
+    },
+    "cl_1793487630192_1": {
+      "id": "cl_1793487630192_1",
+      "person_id": "candidate_spine_1793487630191",
+      "source_id": "src_2ceafe48f2431607",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-10-31T23:00:30.192Z"
+    }
+  },
+  "evidence_items": {
+    "ev_1793486705897_1": {
+      "id": "ev_1793486705897_1",
+      "person_id": "candidate_spine_1793486705897",
+      "source_id": "src_437de10f32132b2c",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:05.898Z",
+      "created_at": "2026-10-31T22:45:05.898Z"
+    },
+    "ev_1793486705898_2": {
+      "id": "ev_1793486705898_2",
+      "person_id": "candidate_spine_1793486705897",
+      "source_id": "src_437de10f32132b2c",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-10-31T22:45:05.898Z",
+      "created_at": "2026-10-31T22:45:05.898Z"
+    },
+    "ev_alpha_1793486705903": {
+      "id": "ev_alpha_1793486705903",
+      "person_id": "tenant_alpha_1793486705903",
+      "source_id": "src_8673b7c182bb35d8",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:05.903Z",
+      "created_at": "2026-10-31T22:45:05.903Z"
+    },
+    "ev_1793486722223_1": {
+      "id": "ev_1793486722223_1",
+      "person_id": "candidate_spine_1793486722223",
+      "source_id": "src_971b1dd566c4f81a",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:22.223Z",
+      "created_at": "2026-10-31T22:45:22.223Z"
+    },
+    "ev_1793486722223_2": {
+      "id": "ev_1793486722223_2",
+      "person_id": "candidate_spine_1793486722223",
+      "source_id": "src_971b1dd566c4f81a",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-10-31T22:45:22.223Z",
+      "created_at": "2026-10-31T22:45:22.223Z"
+    },
+    "ev_alpha_1793486722227": {
+      "id": "ev_alpha_1793486722227",
+      "person_id": "tenant_alpha_1793486722227",
+      "source_id": "src_6411bc8b8469f90a",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:22.227Z",
+      "created_at": "2026-10-31T22:45:22.227Z"
+    },
+    "ev_1793486743544_1": {
+      "id": "ev_1793486743544_1",
+      "person_id": "candidate_spine_1793486743544",
+      "source_id": "src_7e0bfcf89bed7d39",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:43.545Z",
+      "created_at": "2026-10-31T22:45:43.545Z"
+    },
+    "ev_1793486743545_2": {
+      "id": "ev_1793486743545_2",
+      "person_id": "candidate_spine_1793486743544",
+      "source_id": "src_7e0bfcf89bed7d39",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-10-31T22:45:43.545Z",
+      "created_at": "2026-10-31T22:45:43.545Z"
+    },
+    "ev_alpha_1793486743549": {
+      "id": "ev_alpha_1793486743549",
+      "person_id": "tenant_alpha_1793486743549",
+      "source_id": "src_b0c33283bba85ef6",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:45:43.549Z",
+      "created_at": "2026-10-31T22:45:43.549Z"
+    },
+    "ev_1793486882432_1": {
+      "id": "ev_1793486882432_1",
+      "person_id": "candidate_spine_1793486882432",
+      "source_id": "src_a40632db77c829d7",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:48:02.433Z",
+      "created_at": "2026-10-31T22:48:02.433Z"
+    },
+    "ev_1793486882433_2": {
+      "id": "ev_1793486882433_2",
+      "person_id": "candidate_spine_1793486882432",
+      "source_id": "src_a40632db77c829d7",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-10-31T22:48:02.433Z",
+      "created_at": "2026-10-31T22:48:02.433Z"
+    },
+    "ev_alpha_1793486882437": {
+      "id": "ev_alpha_1793486882437",
+      "person_id": "tenant_alpha_1793486882437",
+      "source_id": "src_4beb4e61ac7b8fb6",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T22:48:02.437Z",
+      "created_at": "2026-10-31T22:48:02.437Z"
+    },
+    "ev_1793487630191_1": {
+      "id": "ev_1793487630191_1",
+      "person_id": "candidate_spine_1793487630191",
+      "source_id": "src_9472e2aab0467b37",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T23:00:30.192Z",
+      "created_at": "2026-10-31T23:00:30.192Z"
+    },
+    "ev_1793487630192_2": {
+      "id": "ev_1793487630192_2",
+      "person_id": "candidate_spine_1793487630191",
+      "source_id": "src_9472e2aab0467b37",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-10-31T23:00:30.192Z",
+      "created_at": "2026-10-31T23:00:30.192Z"
+    },
+    "ev_alpha_1793487630196": {
+      "id": "ev_alpha_1793487630196",
+      "person_id": "tenant_alpha_1793487630196",
+      "source_id": "src_f11f661d7c5f625c",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-10-31T23:00:30.196Z",
+      "created_at": "2026-10-31T23:00:30.196Z"
+    }
+  },
+  "evidence_links": {
+    "lnk_ev_1793486705897_1_node_fastapi": {
+      "id": "lnk_ev_1793486705897_1_node_fastapi",
+      "evidence_id": "ev_1793486705897_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:05.898Z"
+    },
+    "lnk_ev_1793486705898_2_node_postgresql": {
+      "id": "lnk_ev_1793486705898_2_node_postgresql",
+      "evidence_id": "ev_1793486705898_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-10-31T22:45:05.898Z"
+    },
+    "lnk_ev_alpha_1793486705903_node_raft": {
+      "id": "lnk_ev_alpha_1793486705903_node_raft",
+      "evidence_id": "ev_alpha_1793486705903",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:05.903Z"
+    },
+    "lnk_ev_1793486722223_1_node_fastapi": {
+      "id": "lnk_ev_1793486722223_1_node_fastapi",
+      "evidence_id": "ev_1793486722223_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:22.223Z"
+    },
+    "lnk_ev_1793486722223_2_node_postgresql": {
+      "id": "lnk_ev_1793486722223_2_node_postgresql",
+      "evidence_id": "ev_1793486722223_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-10-31T22:45:22.223Z"
+    },
+    "lnk_ev_alpha_1793486722227_node_raft": {
+      "id": "lnk_ev_alpha_1793486722227_node_raft",
+      "evidence_id": "ev_alpha_1793486722227",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:22.227Z"
+    },
+    "lnk_ev_1793486743544_1_node_fastapi": {
+      "id": "lnk_ev_1793486743544_1_node_fastapi",
+      "evidence_id": "ev_1793486743544_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:43.545Z"
+    },
+    "lnk_ev_1793486743545_2_node_postgresql": {
+      "id": "lnk_ev_1793486743545_2_node_postgresql",
+      "evidence_id": "ev_1793486743545_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-10-31T22:45:43.545Z"
+    },
+    "lnk_ev_alpha_1793486743549_node_raft": {
+      "id": "lnk_ev_alpha_1793486743549_node_raft",
+      "evidence_id": "ev_alpha_1793486743549",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:45:43.549Z"
+    },
+    "lnk_ev_1793486882432_1_node_fastapi": {
+      "id": "lnk_ev_1793486882432_1_node_fastapi",
+      "evidence_id": "ev_1793486882432_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:48:02.433Z"
+    },
+    "lnk_ev_1793486882433_2_node_postgresql": {
+      "id": "lnk_ev_1793486882433_2_node_postgresql",
+      "evidence_id": "ev_1793486882433_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-10-31T22:48:02.433Z"
+    },
+    "lnk_ev_alpha_1793486882437_node_raft": {
+      "id": "lnk_ev_alpha_1793486882437_node_raft",
+      "evidence_id": "ev_alpha_1793486882437",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T22:48:02.437Z"
+    },
+    "lnk_ev_1793487630191_1_node_fastapi": {
+      "id": "lnk_ev_1793487630191_1_node_fastapi",
+      "evidence_id": "ev_1793487630191_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T23:00:30.192Z"
+    },
+    "lnk_ev_1793487630192_2_node_postgresql": {
+      "id": "lnk_ev_1793487630192_2_node_postgresql",
+      "evidence_id": "ev_1793487630192_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-10-31T23:00:30.192Z"
+    },
+    "lnk_ev_alpha_1793487630196_node_raft": {
+      "id": "lnk_ev_alpha_1793487630196_node_raft",
+      "evidence_id": "ev_alpha_1793487630196",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-10-31T23:00:30.196Z"
+    }
+  }
+}

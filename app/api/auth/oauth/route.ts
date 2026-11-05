@@ -5,13 +5,15 @@ import {
   createUser,
   addConnectedAccount,
   createSession,
-  getStudentProfileByUserId
+  getStudentProfileByUserId,
+  createAccountLinkingProof,
+  updateConnectedAccountToken
 } from "@/lib/auth/store";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { provider, providerUserId, providerEmail, providerName } = body;
+    const { provider, providerUserId, providerEmail, providerName, accessToken, tokenScope } = body;
 
     if (!provider || (provider !== "github" && provider !== "linkedin")) {
       return NextResponse.json({ error: "Invalid OAuth provider." }, { status: 400 });
@@ -26,6 +28,9 @@ export async function POST(req: NextRequest) {
     // 1. Check if this exact provider account is already connected to an existing user
     const existingLinkedUser = findUserByConnectedAccount(provider, providerUserId);
     if (existingLinkedUser) {
+      if (accessToken) {
+        updateConnectedAccountToken(existingLinkedUser.id, provider, accessToken, tokenScope);
+      }
       const studentProfile = getStudentProfileByUserId(existingLinkedUser.id);
       const session = createSession(existingLinkedUser.id, existingLinkedUser.accountType);
 
@@ -61,6 +66,13 @@ export async function POST(req: NextRequest) {
     const existingEmailUser = getUserByEmail(normalizedEmail);
     if (existingEmailUser) {
       const studentProfile = getStudentProfileByUserId(existingEmailUser.id);
+      const linkingProof = createAccountLinkingProof({
+        userId: existingEmailUser.id,
+        provider,
+        providerUserId,
+        providerEmail: normalizedEmail
+      });
+
       return NextResponse.json({
         status: "LINK_CONFIRMATION_REQUIRED",
         message: "We found an existing Cognalyze account associated with this email.",
@@ -73,7 +85,8 @@ export async function POST(req: NextRequest) {
         },
         provider,
         providerUserId,
-        providerEmail: normalizedEmail
+        providerEmail: normalizedEmail,
+        linkingProof
       });
     }
 
@@ -91,7 +104,9 @@ export async function POST(req: NextRequest) {
       userId: newUser.id,
       provider,
       providerUserId,
-      providerEmail: normalizedEmail
+      providerEmail: normalizedEmail,
+      accessToken,
+      tokenScope
     });
 
     const session = createSession(newUser.id, "student");

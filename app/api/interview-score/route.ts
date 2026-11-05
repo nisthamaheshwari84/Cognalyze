@@ -7,6 +7,7 @@ import {
   normalizeCapabilityName,
 } from "@/lib/intelligence/student-intelligence";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export interface EvidenceMarker {
   id: string;
@@ -87,16 +88,17 @@ export async function POST(req: Request) {
       return NextResponse.json({
         evidenceMarkers: [],
         repeatedGapAlert: null,
-        overall: 80,
+        overall: 0,
+        provisional: true,
         timestamp: Date.now(),
         breakdown: {
-          relevance: 16,
-          technicalAccuracy: 15,
-          communicationClarity: 13,
-          problemSolving: 12,
-          depth: 11,
-          examples: 8,
-          confidence: 5,
+          relevance: 0,
+          technicalAccuracy: 0,
+          communicationClarity: 0,
+          problemSolving: 0,
+          depth: 0,
+          examples: 0,
+          confidence: 0,
         },
         evidence: {
           strengths: ["Candidate introduction received clearly"],
@@ -118,8 +120,24 @@ export async function POST(req: Request) {
       });
     }
 
-    // Guard: Candidate decline or pass handling (Phase 7)
+    const doesNotKnowPatterns = [
+      /i don'?t know/i,
+      /i am not sure/i,
+      /i'?m not familiar/i,
+      /no idea/i,
+      /haven'?t worked with that/i,
+      /pass on this one/i,
+      /can we move on/i,
+      /can we skip/i,
+      /never used that/i,
+    ];
+    const cleanLastA = lastA.toLowerCase().trim();
+    const wordCount = lastA.split(/\s+/).filter(Boolean).length;
+    const isDoesNotKnow = doesNotKnowPatterns.some((pattern) => pattern.test(cleanLastA)) && wordCount < 25;
+
+    // Guard: Candidate decline or pass handling
     const isDeclined =
+      isDoesNotKnow ||
       /^(no|nope|nah|pass|skip|negative)(\.|\!|\s|$)/i.test(lastA) ||
       /\b(i'?d|i would) rather not\b/i.test(lastA) ||
       /\bprefer not to\b/i.test(lastA) ||
@@ -132,35 +150,41 @@ export async function POST(req: Request) {
           {
             id: `ev_decline_${Date.now()}`,
             type: "partial",
-            competency: "Candidate Topic Deferral",
-            detail: "Candidate respectfully deferred this topic. Alternative question explored without penalty.",
+            competency: isDoesNotKnow ? "Technical Deferral" : "Candidate Topic Deferral",
+            detail: isDoesNotKnow
+              ? "Candidate candidly acknowledged unfamiliarity with this concept. Pivoting to alternative assessment without penalty."
+              : "Candidate respectfully deferred this topic. Alternative question explored without penalty.",
             quote: lastA.slice(0, 100),
           }
         ],
         repeatedGapAlert: null,
-        overall: 70,
+        overall: 15,
         isProvisional: true,
         provisionalStage: n <= 2 ? "INITIAL_EVALUATION" : "ALTERNATIVE_PROBED",
         timestamp: Date.now(),
         breakdown: {
-          relevance: 14,
-          technicalAccuracy: 14,
-          communicationClarity: 14,
-          problemSolving: 10,
-          depth: 8,
-          examples: 5,
-          confidence: 5,
+          relevance: 3,
+          technicalAccuracy: 2,
+          communicationClarity: 7,
+          problemSolving: 1,
+          depth: 1,
+          examples: 0,
+          confidence: 1,
         },
         evidence: {
-          strengths: ["Clear and upfront communication regarding topic preference"],
+          strengths: ["Clear and upfront communication regarding topic familiarity"],
           improvements: ["Alternative competency evaluated to preserve complete coverage"],
           suggestedAnswer: "",
-          scoreReason: "Candidate deferred this question. Evaluator pivoted to preserve comprehensive coverage without penalty.",
+          scoreReason: isDoesNotKnow
+            ? "Candidate indicated unfamiliarity. Score reflects candid communication while alternative competency is probed."
+            : "Candidate deferred this question. Evaluator pivoted to preserve comprehensive coverage without fabricated scores.",
         },
         strengths: ["Clear and candid communication"],
         improvements: [],
         suggestedAnswer: "",
-        verdict: "Candidate deferred question; alternative competency being explored.",
+        verdict: isDoesNotKnow
+          ? "Topic unfamiliarity acknowledged; pivoting to adjacent technical competency."
+          : "Candidate deferred question; alternative competency being explored.",
         hiringSignal: "NEUTRAL",
         bodyLanguage: bodyLanguage || {
           posture: "Neutral",
@@ -171,7 +195,6 @@ export async function POST(req: Request) {
       });
     }
 
-    const wordCount = lastA.split(/\s+/).filter(Boolean).length;
     const allAnswers = userMsgs
       .map((m: any, i: number) => `Answer ${i + 1}: "${m.content.slice(0, 300)}"`)
       .join("\n");
@@ -342,7 +365,7 @@ RETURN RAW JSON ONLY:
       }
 
       const processedMarker: EvidenceMarker = {
-        id: `marker-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        id: generateSecureId(`marker-${Date.now()}`, 6),
         type,
         competency: comp,
         detail:
@@ -359,7 +382,7 @@ RETURN RAW JSON ONLY:
       try {
         if (type === "demonstrated") {
           addEvidenceItem({
-            id: `ev-int-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            id: generateSecureId(`ev-int-${Date.now()}`, 6),
             studentId,
             sourceType: "interview",
             sourceId: `interview-${Date.now()}`,
@@ -380,7 +403,7 @@ RETURN RAW JSON ONLY:
         } else if (type === "gap" || type === "repeated_gap") {
           // Record to Career Memory so repeated gap tracker maintains memory
           recordCareerMemoryItem(studentId, {
-            id: `cm-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            id: generateSecureId(`cm-${Date.now()}`, 6),
             type: "interview_feedback",
             companyName: "Technical Mock Interview",
             roleTitle: jd.slice(0, 60) || "Software Engineer",

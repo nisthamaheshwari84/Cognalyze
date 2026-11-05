@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/*.test.ts",
-    "check-no-simulation": "tsx scripts/check-no-simulation.ts"
+    "check-no-simulation": "tsx scripts/check-no-simulation.ts",
+    "audit:recruiter-store": "tsx scripts/reconcile-recruiter-store.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.3",

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import { getActionQueue, getAllCandidates, getAllRoles, getHireOutcomeRecords } from "@/lib/recruiter-store";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const [actionQueue, candidates, roles, hireOutcomes] = await Promise.all([
       getActionQueue(),
       getAllCandidates(),

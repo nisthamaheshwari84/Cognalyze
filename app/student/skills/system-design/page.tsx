@@ -11,6 +11,7 @@ import {
   SessionBrief
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
+import { secureRandomInt } from "@/lib/crypto-utils";
 
 // ── TYPES & INTERFACES ──
 export type ArenaMode = "interview" | "learning";
@@ -501,8 +502,8 @@ function SystemDesignContent() {
       type: comp.type,
       label: comp.label,
       icon: comp.icon,
-      x: 120 + Math.floor(Math.random() * 240),
-      y: 100 + Math.floor(Math.random() * 180),
+      x: 120 + secureRandomInt(0, 240),
+      y: 100 + secureRandomInt(0, 180),
       annotation: comp.defaultRole,
       role: comp.defaultRole
     };

@@ -13,6 +13,7 @@
  */
 
 import { normalizeSkill, getCanonicalSkill } from "./taxonomy";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export type DNASourceType =
   | "resume"
@@ -197,6 +198,7 @@ export interface CreateEvidenceParams {
   observedAt?: string;
   provenance: string;
   metadata?: Record<string, any>;
+  trustedServerVerified?: boolean;
 }
 
 export function createNormalizedEvidence(params: CreateEvidenceParams): DNAEvidence | null {
@@ -209,13 +211,19 @@ export function createNormalizedEvidence(params: CreateEvidenceParams): DNAEvide
   const observedDate = params.observedAt || new Date().toISOString();
   const { recency } = calculateRecencyState(observedDate);
 
-  // Compute baseline strength and verification status
+  // Compute baseline strength and verification status (P1 Fix SEC-EVID-01)
   let verificationStatus: EvidenceVerificationStatus = "CLAIMED";
   let strength = 0.5;
 
   if (params.sourceType === "assessment" || params.sourceType === "interview") {
-    verificationStatus = "VERIFIED";
-    strength = 0.95;
+    // Only accept VERIFIED status if cryptographically/server-side validated
+    if (params.trustedServerVerified === true) {
+      verificationStatus = "VERIFIED";
+      strength = 0.95;
+    } else {
+      verificationStatus = "CLAIMED";
+      strength = 0.5;
+    }
   } else if (params.sourceType === "github" || params.sourceType === "project") {
     verificationStatus = "DEMONSTRATED";
     strength = 0.8;
@@ -224,7 +232,7 @@ export function createNormalizedEvidence(params: CreateEvidenceParams): DNAEvide
     strength = 0.85;
   }
 
-  const id = `ev_${params.userId}_${canonical.skillId}_${params.sourceType}_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const id = generateSecureId(`ev_${params.userId}_${canonical.skillId}_${params.sourceType}_${Date.now()}`, 6);
 
   return {
     id,
@@ -303,6 +311,7 @@ export interface RawSourceData {
   strength?: number;
   timestamp?: string;
   metadata?: Record<string, any>;
+  trustedServerVerified?: boolean;
 }
 
 export interface EvidenceFilter {
@@ -365,11 +374,12 @@ export function processEvidencePipeline(rawItems: RawSourceData[]): DNAEvidence[
       extractedValue: raw.extractedValue,
       observedAt: raw.timestamp,
       provenance: `${raw.sourceType.toUpperCase()} -> ${raw.sourceId}`,
-      metadata: raw.metadata
+      metadata: raw.metadata,
+      trustedServerVerified: raw.trustedServerVerified === true
     });
 
     if (normalized) {
-      if (typeof raw.strength === "number") {
+      if (typeof raw.strength === "number" && (raw.trustedServerVerified || raw.sourceType !== "assessment")) {
         normalized.strength = Math.min(1.0, Math.max(0.1, raw.strength));
       }
       result.push(normalized);

@@ -38,11 +38,13 @@ import { generatePostSessionFeedback } from "@/lib/skills/adaptive-engine";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import { getCanonicalProblem, CANONICAL_DSA_PROBLEMS } from "@/lib/skills/dsa-canonical-problems";
 import { executeProblemTestSuite } from "@/lib/skills/dsa-code-runner";
+import { executeDsaCoachTurn } from "@/lib/skills/dsa-coach-engine";
 import {
   createInterviewSession,
   getInterviewSession,
   getActiveSessionForCandidate,
   recordQuestionSubmission,
+  recordHeterogeneousAnswer,
   recordFollowUpAnswer,
   advanceToNextQuestion,
   finalizeInterviewSession,
@@ -87,7 +89,19 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // 2. Multi-Question Interview Set Generator
+    // 2. Active Interview Session Lookup (for Page Refresh & Resumption)
+    if (mode === "interview_session") {
+      const sessionId = searchParams.get("sessionId");
+      const session = sessionId
+        ? getInterviewSession(sessionId, candidateId)
+        : getActiveSessionForCandidate(candidateId);
+      return NextResponse.json({
+        success: !!session,
+        session: session || null
+      });
+    }
+
+    // 3. Multi-Question Interview Set Generator
     if (mode === "interview_set") {
       const trackSlug = searchParams.get("track") || "product_mid";
       const count = parseInt(searchParams.get("count") || "3", 10);
@@ -173,7 +187,11 @@ export async function POST(req: NextRequest) {
         language: body.language,
         questionCount: body.questionCount,
         durationMinutes: body.durationMinutes,
-        requestedProblemIds: body.requestedProblemIds
+        requestedProblemIds: body.requestedProblemIds,
+        targetRole: body.targetRole,
+        targetCompany: body.targetCompany,
+        interviewType: body.interviewType,
+        difficulty: body.difficulty
       });
       return NextResponse.json({ success: true, session });
     }
@@ -184,6 +202,12 @@ export async function POST(req: NextRequest) {
         ? getInterviewSession(sessionId, candidateId)
         : getActiveSessionForCandidate(candidateId);
       return NextResponse.json({ success: !!session, session });
+    }
+
+    if (effectiveAction === "interview_submit_answer") {
+      const { sessionId, questionIndex, answerPayload } = body;
+      const res = recordHeterogeneousAnswer(sessionId, candidateId, questionIndex, answerPayload || {});
+      return NextResponse.json(res);
     }
 
     if (effectiveAction === "interview_submit_code") {
@@ -234,7 +258,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // ── CASE B: STANDARD RUN & SUBMIT ACTIONS (Practice / Learn / Coach / Standalone) ──
+    // ── CASE B: SOCRATIC COACH TURN ──
+    if (effectiveAction === "coach_turn") {
+      const {
+        problemId,
+        code = "",
+        language = "cpp",
+        query = "",
+        history = [],
+        testOutput = null,
+        preferredLanguage = "en"
+      } = body;
+
+      const problem = getStriverProblemById(problemId);
+      const coachResult = await executeDsaCoachTurn({
+        candidateId,
+        problem,
+        code,
+        language,
+        query,
+        history,
+        testOutput,
+        preferredLanguage
+      });
+
+      return NextResponse.json({
+        success: true,
+        action: "coach_turn",
+        ...coachResult
+      });
+    }
+
+    // ── CASE C: STANDARD RUN & SUBMIT ACTIONS (Practice / Learn / Coach / Standalone) ──
     const {
       problemId,
       code = "",
@@ -365,6 +420,8 @@ export async function POST(req: NextRequest) {
     updateStudentStriverStatus(candidateId, problem.id, problemStatus, score);
 
     // Persist attempt in candidate history
+    const isAssisted = Boolean(body.isAssisted);
+    const assistanceTier = body.assistanceTier || (isAssisted ? 3 : 1);
     const attempt = recordCandidateAttempt({
       candidateId,
       domain: "dsa_coding",
@@ -378,7 +435,9 @@ export async function POST(req: NextRequest) {
       questionIds: [problem.id],
       weaknesses,
       strengths,
-      feedback: postFeedback.whyReasoning
+      feedback: postFeedback.whyReasoning,
+      isAssisted,
+      assistanceTier
     });
 
     return NextResponse.json({

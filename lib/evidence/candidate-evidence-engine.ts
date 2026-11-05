@@ -18,6 +18,7 @@ import { getStudentProfileByUserId } from "@/lib/auth/store";
 import { getCandidateAttempts, CandidateAttempt } from "@/lib/skills/candidate-history";
 import { parseResumeSections, calculateDocumentedExperienceYears } from "@/lib/screening/candidate-screening-engine";
 import { detectEducationStatus } from "@/lib/evidence/non-equivalence";
+import { ConnectorRetrievalResult } from "@/lib/connectors/types";
 
 // ─── 1. SECTION 4: SOURCE-AWARE EVIDENCE STATES & TYPES ───
 
@@ -337,6 +338,7 @@ export async function buildCandidateUnifiedEvidenceDossier(
   studentId: string,
   options?: {
     forceRefresh?: boolean;
+    gitHubResult?: ConnectorRetrievalResult;
     mockSources?: {
       resumeText?: string;
       githubPayload?: {
@@ -733,6 +735,45 @@ export async function buildCandidateUnifiedEvidenceDossier(
         limitations: ["Inspection limited to accessible repositories. Inaccessible private repositories were not inspected."]
       };
     }
+  } else if (options?.gitHubResult) {
+    const res = options.gitHubResult;
+    const repos: GitHubRepoDetails[] = (res.artifacts || []).map(a => {
+      const testCount = (a.testFilesFound || []).length;
+      const manifestCount = (a.manifestsFound || []).length;
+      const hasCi = Boolean(a.ciConfigured);
+      const qualitySignals: string[] = [];
+      if (testCount > 0) qualitySignals.push(`Automated test suites detected (${testCount} test files)`);
+      if (hasCi) qualitySignals.push("Automated CI/CD workflows configured");
+      if (a.snippets && a.snippets.length > 0) qualitySignals.push("Application entrypoint source inspected");
+
+      return {
+        name: a.name,
+        url: a.rawUrl || a.sourceIdentifier,
+        description: a.description,
+        is_fork: Boolean(a.isFork),
+        languages_in_code: a.languagesObserved || [],
+        frameworks_in_deps: a.manifestsFound || [],
+        frameworks_in_source: [],
+        commit_count: 0,
+        has_tests: testCount > 0,
+        has_ci: hasCi,
+        code_quality_signals: qualitySignals.length > 0 ? qualitySignals : ["Static tree verified"],
+        maturity: testCount > 0 && hasCi ? "PRODUCTION_READY" : "ACTIVE_DEVELOPMENT",
+        inspected_files_coverage: `${testCount + manifestCount} manifest and test files inspected (depth-verified)`,
+        limitations: [],
+        verification_status: "INDEPENDENTLY_VERIFIED"
+      };
+    });
+
+    const allLangs = Array.from(new Set(repos.flatMap(r => r.languages_in_code)));
+    githubAnalysis = {
+      account_url: res.canonicalSourceUrl || (res.data ? res.data.profileUrl : undefined) || githubUrl || "https://github.com/candidate",
+      retrieval_status: res.connectionStatus === "CONTENT_RETRIEVED" ? "CONTENT_RETRIEVED" : "PARTIALLY_ANALYZED",
+      repos_count: repos.length,
+      accessible_repos: repos,
+      top_languages: allLangs,
+      limitations: res.limitations || []
+    };
   } else if (!githubUrl && (!profile?.projects || profile.projects.length === 0)) {
     githubAnalysis = {
       retrieval_status: "NOT_CONNECTED",
@@ -779,34 +820,74 @@ export async function buildCandidateUnifiedEvidenceDossier(
             verification_status: "ACCESS_RESTRICTED"
           });
         } else {
-          // Normal case: Recorded as student-reported until active GitHub API token syncs it
-          projectRepos.push({
-            name: p.title || "Project",
-            url: ghUrl,
-            description: p.description,
-            is_fork: false,
-            languages_in_code: p.techStack || [],
-            frameworks_in_deps: [],
-            frameworks_in_source: [],
-            commit_count: 0,
-            has_tests: false,
-            has_ci: false,
-            code_quality_signals: p.githubUrl ? ["Awaiting active repository tree synchronization"] : ["Candidate project record"],
-            maturity: "ACTIVE_DEVELOPMENT",
-            inspected_files_coverage: p.githubUrl ? "Manifest overview pending" : "Self-reported project",
-            limitations: p.githubUrl ? ["Awaiting authenticated GitHub token sync or public repository probe."] : ["No external repository link provided."],
-            verification_status: "STUDENT_REPORTED"
-          });
+          // Check if repository was inspected via GitHub connector
+          const matchedArtifact = options?.gitHubResult?.artifacts?.find(a => 
+            (a.rawUrl && ghUrl && a.rawUrl.toLowerCase() === ghUrl.toLowerCase()) ||
+            (a.name && p.title && a.name.toLowerCase() === p.title.toLowerCase().replace(/[^a-z0-9]/g, "-")) ||
+            (a.name && p.title && a.name.toLowerCase() === p.title.toLowerCase())
+          );
+
+          if (matchedArtifact) {
+            const testCount = (matchedArtifact.testFilesFound || []).length;
+            const manifestCount = (matchedArtifact.manifestsFound || []).length;
+            const hasCi = Boolean(matchedArtifact.ciConfigured);
+            const qualitySignals: string[] = [];
+            if (testCount > 0) qualitySignals.push(`Automated test suites detected (${testCount} test files)`);
+            if (hasCi) qualitySignals.push("Automated CI/CD workflows configured");
+            if (matchedArtifact.snippets && matchedArtifact.snippets.length > 0) qualitySignals.push("Application entrypoint source inspected");
+
+            projectRepos.push({
+              name: matchedArtifact.name || p.title || "Project",
+              url: matchedArtifact.rawUrl || ghUrl,
+              description: matchedArtifact.description || p.description,
+              is_fork: Boolean(matchedArtifact.isFork),
+              languages_in_code: (matchedArtifact.languagesObserved && matchedArtifact.languagesObserved.length > 0)
+                ? matchedArtifact.languagesObserved
+                : (p.techStack || []),
+              frameworks_in_deps: matchedArtifact.manifestsFound || [],
+              frameworks_in_source: [],
+              commit_count: 0,
+              has_tests: testCount > 0,
+              has_ci: hasCi,
+              code_quality_signals: qualitySignals.length > 0 ? qualitySignals : ["Static tree verified"],
+              maturity: testCount > 0 && hasCi ? "PRODUCTION_READY" : "ACTIVE_DEVELOPMENT",
+              inspected_files_coverage: `${testCount + manifestCount} manifest and test files inspected (depth-verified)`,
+              limitations: [],
+              verification_status: "INDEPENDENTLY_VERIFIED"
+            });
+          } else {
+            // Normal case: Recorded as student-reported until active GitHub API token syncs it
+            projectRepos.push({
+              name: p.title || "Project",
+              url: ghUrl,
+              description: p.description,
+              is_fork: false,
+              languages_in_code: p.techStack || [],
+              frameworks_in_deps: [],
+              frameworks_in_source: [],
+              commit_count: 0,
+              has_tests: false,
+              has_ci: false,
+              code_quality_signals: p.githubUrl ? ["Awaiting active repository tree synchronization"] : ["Candidate project record"],
+              maturity: "ACTIVE_DEVELOPMENT",
+              inspected_files_coverage: p.githubUrl ? "Manifest overview pending" : "Self-reported project",
+              limitations: p.githubUrl ? ["Awaiting authenticated GitHub token sync or public repository probe."] : ["No external repository link provided."],
+              verification_status: "STUDENT_REPORTED"
+            });
+          }
         }
       }
 
+      const hasIndependentlyVerified = projectRepos.some(r => r.verification_status === "INDEPENDENTLY_VERIFIED");
       githubAnalysis = {
         account_url: githubUrl || "https://github.com/candidate",
-        retrieval_status: "PARTIALLY_ANALYZED",
+        retrieval_status: hasIndependentlyVerified ? "CONTENT_RETRIEVED" : "PARTIALLY_ANALYZED",
         repos_count: projectRepos.length,
         accessible_repos: projectRepos,
         top_languages: Array.from(new Set(projectRepos.flatMap(r => r.languages_in_code))),
-        limitations: ["Coverage limited to submitted project repository links."]
+        limitations: hasIndependentlyVerified
+          ? []
+          : ["Coverage limited to submitted project repository links."]
       };
     }
   }

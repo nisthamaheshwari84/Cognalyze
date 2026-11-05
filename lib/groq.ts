@@ -146,13 +146,12 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
       "openai/gpt-oss-120b",
       "openai/gpt-oss-20b",
       "qwen/qwen3.8-27b",
-      "llama-3.3-70b-versatile",
-      "llama-3.1-8b-instant"
+      "llama-3.3-70b-versatile"
     ];
 
     if (hasImage) {
-      groqModelsToTry = ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview"];
-    } else if (requested) {
+      groqModelsToTry = ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview", "qwen/qwen3.8-27b"];
+    } else if (requested && realGroqCatalog.includes(requested)) {
       groqModelsToTry = [requested, ...realGroqCatalog.filter(m => m !== requested)];
     } else {
       groqModelsToTry = realGroqCatalog;

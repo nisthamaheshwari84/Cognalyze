@@ -32,16 +32,10 @@ export interface SendEmailParams {
  * Universal email sender that routes through configured environment providers
  */
 export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchResult> {
-  const p1 = "xkeysib";
-  const p2a = "c8ded04f51afe8a62c8974d6272cb952";
-  const p2b = "0cc6acbae73df6b244b3f88ec3245819";
-  const p3 = "4jtBouxTTrlswLWi";
-  const defaultBrevoKey = `${p1}-${p2a}${p2b}-${p3}`;
-
   const brevoKey =
     process.env.BREVO_API_KEY ||
     process.env.SENDINBLUE_API_KEY ||
-    defaultBrevoKey;
+    "";
 
   const {
     to,
@@ -53,8 +47,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
 
   const preferBrevo =
     process.env.EMAIL_PROVIDER === "brevo" ||
-    (!process.env.RESEND_API_KEY && !!brevoKey) ||
-    !!brevoKey;
+    (!process.env.RESEND_API_KEY && Boolean(brevoKey));
 
   async function dispatchBrevo(): Promise<EmailDispatchResult | null> {
     if (!brevoKey) return null;
@@ -224,7 +217,7 @@ export async function sendEmail(params: SendEmailParams): Promise<EmailDispatchR
   return {
     success: false,
     provider: "fallback",
-    error: "Email delivery provider is not configured. Please set RESEND_API_KEY.",
+    error: "Email delivery service unavailable: No email provider configured in environment.",
     deliveryNotice: "Email provider not configured."
   };
 }

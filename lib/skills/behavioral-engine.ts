@@ -25,6 +25,7 @@ import {
   BehavioralQuestionFull,
   EXPANDED_BEHAVIORAL_QUESTION_BANK
 } from "@/lib/skills/behavioral-curriculum";
+import { generateSecureId, pickSecureRandom } from "@/lib/crypto-utils";
 
 // ── 1. MICRO-LEARNING DATA MODELS (LEARN MODE) ─────────────────────────────
 
@@ -340,8 +341,8 @@ export function evaluateSingleImprovement(
   candidateId: string = "student-demo"
 ): SingleImprovementEvaluation {
   const clean = (answerText || "").trim();
-  const answerId = `ans_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  const evaluationId = `eval_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const answerId = generateSecureId(`ans_${Date.now()}`, 7);
+  const evaluationId = generateSecureId(`eval_${Date.now()}`, 7);
 
   const questionId = typeof questionTitleOrObj === "string"
     ? "custom-q"
@@ -676,8 +677,7 @@ export function getNextCandidateQuestion(
   const finalPool = unseenPool.length > 0 ? unseenPool : pool;
 
   // Pick a fresh question with random variation
-  const selectedIndex = Math.floor(Math.random() * finalPool.length);
-  return finalPool[selectedIndex] || EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
+  return pickSecureRandom(finalPool) || EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
 }
 
 // ── 7. CANDIDATE PROGRESS & WEAK SPOT SUMMARY ───────────────────────────────

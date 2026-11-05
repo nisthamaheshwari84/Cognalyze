@@ -315,6 +315,20 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
       5: { label: "Strongly Demonstrated", description: "High rating in competitive programming or verified 150+ medium/hard algorithmic solves." }
     }
   },
+  code_comprehension: {
+    skillId: "code_comprehension",
+    name: "Code Comprehension & Debugging",
+    aliases: ["code_comprehension", "code comprehension", "codebase exploration", "code reading", "root cause analysis"],
+    category: "Core CS & DSA",
+    relatedSkillIds: ["cs_fundamentals", "system_design", "typescript"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Able to read and navigate basic scripts." },
+      2: { label: "Beginner", description: "Understands module structures, function signatures, and data models." },
+      3: { label: "Intermediate", description: "Traces multi-file execution paths, identifies root causes, and applies targeted patches." },
+      4: { label: "Advanced", description: "Audits concurrency, idempotency, security invariants, and complex data flows." },
+      5: { label: "Strongly Demonstrated", description: "Mastery of unfamiliar codebases verified through multi-step assessment evidence." }
+    }
+  },
   cs_fundamentals: {
     skillId: "cs_fundamentals",
     name: "Computer Science Fundamentals",
@@ -374,7 +388,7 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
   machine_learning: {
     skillId: "machine_learning",
     name: "Machine Learning & AI",
-    aliases: ["machine learning", "ml", "ai", "artificial intelligence", "deep learning", "pytorch", "tensorflow", "scikit-learn", "llm"],
+    aliases: ["machine learning", "ml", "ai", "artificial intelligence"],
     category: "AI & ML",
     parentSkillId: "python",
     proficiencyLevels: {
@@ -383,6 +397,214 @@ export const CANONICAL_SKILL_TAXONOMY: Record<string, CanonicalSkill> = {
       3: { label: "Intermediate", description: "Random forests, neural networks, cross-validation, model evaluation." },
       4: { label: "Advanced", description: "Transformers, fine-tuning, embeddings, RAG pipelines, quantization." },
       5: { label: "Strongly Demonstrated", description: "Shipped deployed ML/AI applications with verified benchmarks and datasets." }
+    }
+  },
+  python_data_stack: {
+    skillId: "python_data_stack",
+    name: "Python Data Stack (NumPy & Pandas)",
+    aliases: ["numpy", "pandas", "python data stack", "vectorization", "dataframe manipulation"],
+    category: "AI & ML",
+    parentSkillId: "python",
+    prerequisites: ["python"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "NumPy ndarrays, basic indexing, Pandas Series and DataFrame creation." },
+      2: { label: "Beginner", description: "Vectorized arithmetic, boolean indexing, column selection and filtering." },
+      3: { label: "Intermediate", description: "GroupBy operations, aggregations, merges/joins, pivot tables, handling missing values." },
+      4: { label: "Advanced", description: "Broadcasting mechanics, memory optimization, vectorized string and datetime operations." },
+      5: { label: "Strongly Demonstrated", description: "Verified production ETL/analysis scripts optimized for large tabular datasets." }
+    }
+  },
+  classical_ml_modeling: {
+    skillId: "classical_ml_modeling",
+    name: "Classical Machine Learning",
+    aliases: ["classical ml", "scikit-learn", "sklearn", "supervised learning", "ensemble methods", "xgboost", "random forest"],
+    category: "AI & ML",
+    parentSkillId: "machine_learning",
+    prerequisites: ["python_data_stack"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Core differences between supervised and unsupervised learning, train/test split." },
+      2: { label: "Beginner", description: "Fitting Linear/Logistic Regression and Decision Trees using Scikit-Learn." },
+      3: { label: "Intermediate", description: "Random Forests, Gradient Boosting (XGBoost/LightGBM), K-Fold Cross-Validation, Hyperparameter tuning." },
+      4: { label: "Advanced", description: "Feature engineering pipelines, handling class imbalance (SMOTE/weights), regularized models (Lasso/Ridge)." },
+      5: { label: "Strongly Demonstrated", description: "Trained and benchmarked production ML models with verified cross-validation dossiers." }
+    }
+  },
+  ml_model_evaluation: {
+    skillId: "ml_model_evaluation",
+    name: "ML Model Evaluation & Diagnostics",
+    aliases: ["model evaluation", "evaluation metrics", "confusion matrix", "roc-auc", "error analysis", "data leakage"],
+    category: "AI & ML",
+    parentSkillId: "classical_ml_modeling",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Accuracy, Precision, Recall, Mean Squared Error." },
+      2: { label: "Beginner", description: "Confusion matrix interpretation, F1-score, train vs test loss curves." },
+      3: { label: "Intermediate", description: "ROC-AUC vs PR-AUC for imbalanced data, threshold tuning, identifying overfitting and underfitting." },
+      4: { label: "Advanced", description: "Detecting data leakage, probability calibration (Platt/Isotonic), SHAP feature importance." },
+      5: { label: "Strongly Demonstrated", description: "Defended metric selection and diagnosed failure modes in technical interview scenarios." }
+    }
+  },
+  deep_learning_foundations: {
+    skillId: "deep_learning_foundations",
+    name: "Deep Learning Foundations (PyTorch)",
+    aliases: ["deep learning", "pytorch", "neural networks", "backpropagation", "tensors"],
+    category: "AI & ML",
+    parentSkillId: "machine_learning",
+    prerequisites: ["classical_ml_modeling"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Perceptron, forward pass, activation functions (ReLU, Sigmoid, Softmax)." },
+      2: { label: "Beginner", description: "PyTorch tensor operations, basic autograd, defining a Multi-Layer Perceptron (nn.Module)." },
+      3: { label: "Intermediate", description: "Complete training loops, loss functions, optimizers (Adam, SGD), batching with DataLoader." },
+      4: { label: "Advanced", description: "Embeddings, Transfer Learning, gradient clipping, learning rate schedulers." },
+      5: { label: "Strongly Demonstrated", description: "Built, trained, and verified neural models with observable convergence." }
+    }
+  },
+  prompt_engineering_structured_outputs: {
+    skillId: "prompt_engineering_structured_outputs",
+    name: "Prompt Engineering & Structured Outputs",
+    aliases: ["prompt engineering", "structured outputs", "json mode", "pydantic parsing", "system prompts"],
+    category: "AI & ML",
+    parentSkillId: "machine_learning",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Role-based message structures (system, user, assistant), temperature, tokens." },
+      2: { label: "Beginner", description: "Few-shot prompting, enforcing JSON schema outputs via Pydantic or schema constraints." },
+      3: { label: "Intermediate", description: "Chain-of-thought elicitation, structured validation with retry mechanics, token estimation." },
+      4: { label: "Advanced", description: "Prompt injection mitigation, prompt caching optimizations, multi-model prompt normalization." },
+      5: { label: "Strongly Demonstrated", description: "Architected bulletproof LLM extraction pipelines with zero JSON schema validation failures." }
+    }
+  },
+  rag_architecture_and_retrieval: {
+    skillId: "rag_architecture_and_retrieval",
+    name: "RAG Architecture & Retrieval",
+    aliases: ["rag", "retrieval augmented generation", "vector search", "embeddings", "hybrid search", "reranking"],
+    category: "AI & ML",
+    parentSkillId: "machine_learning",
+    prerequisites: ["prompt_engineering_structured_outputs"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Vector embeddings, cosine similarity, semantic search intuition." },
+      2: { label: "Beginner", description: "Chunking text documents, storing vectors, retrieving top-k matches." },
+      3: { label: "Intermediate", description: "Hybrid search (BM25 sparse + dense embeddings), cross-encoder reranking, context assembly." },
+      4: { label: "Advanced", description: "Parent-child chunking, citation grounding, metadata filtering, handling multi-turn RAG memory." },
+      5: { label: "Strongly Demonstrated", description: "Shipped production RAG pipeline verified against retrieval quality benchmarks." }
+    }
+  },
+  ai_agents_and_tool_calling: {
+    skillId: "ai_agents_and_tool_calling",
+    name: "AI Agents & Function Calling",
+    aliases: ["ai agents", "tool calling", "function calling", "langgraph", "agent orchestration"],
+    category: "AI & ML",
+    parentSkillId: "machine_learning",
+    prerequisites: ["prompt_engineering_structured_outputs"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "LLM tool call schemas (name, description, parameters JSON schema)." },
+      2: { label: "Beginner", description: "Intercepting tool calls, executing functions safely, returning tool outputs to LLM." },
+      3: { label: "Intermediate", description: "Multi-step agent loops, loop-termination guards, state persistence, error recovery." },
+      4: { label: "Advanced", description: "State machine routing (LangGraph patterns), human-in-the-loop approval gates, tool argument validation." },
+      5: { label: "Strongly Demonstrated", description: "Built and verified autonomous tool-using agents with full execution traces." }
+    }
+  },
+  llm_evaluations_and_safety: {
+    skillId: "llm_evaluations_and_safety",
+    name: "LLM Evaluations & Safety",
+    aliases: ["llm evals", "ragas", "rag triad", "prompt injection", "guardrails", "faithfulness"],
+    category: "AI & ML",
+    parentSkillId: "rag_architecture_and_retrieval",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Limitations of LLMs, hallucinations, basic prompt safety." },
+      2: { label: "Beginner", description: "Curating golden evaluation datasets, testing prompt variations against baseline inputs." },
+      3: { label: "Intermediate", description: "The RAG Triad: Context Relevance, Groundedness/Faithfulness, and Answer Relevance." },
+      4: { label: "Advanced", description: "LLM-as-a-judge pipelines, defensive guardrails against indirect prompt injection, latency/cost benchmarking." },
+      5: { label: "Strongly Demonstrated", description: "Implemented continuous CI/CD evaluation suites for production LLM products." }
+    }
+  },
+  mlops_serving_and_monitoring: {
+    skillId: "mlops_serving_and_monitoring",
+    name: "MLOps, Serving & Monitoring",
+    aliases: ["mlops", "model serving", "model monitoring", "model drift", "data drift", "fastapi serving", "model registry"],
+    category: "AI & ML",
+    parentSkillId: "classical_ml_modeling",
+    prerequisites: ["classical_ml_modeling"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Model persistence (joblib/pickle), batch vs online inference concepts." },
+      2: { label: "Beginner", description: "Serving ML models via FastAPI REST endpoints with request validation." },
+      3: { label: "Intermediate", description: "Experiment tracking (MLflow/Weights&Biases), model registries, inference latency profiling (p95/p99)." },
+      4: { label: "Advanced", description: "Data drift vs concept drift detection, Population Stability Index, automated rollback strategies." },
+      5: { label: "Strongly Demonstrated", description: "Operationalized models in containerized microservices with telemetry and alerts." }
+    }
+  },
+
+  // ── Data Science, Analytics & Data Engineering (under Data & Databases) ──
+  advanced_sql_analytics: {
+    skillId: "advanced_sql_analytics",
+    name: "Advanced SQL & Analytical Querying",
+    aliases: ["advanced sql", "window functions", "sql analytics", "cte", "analytical queries"],
+    category: "Data & Databases",
+    parentSkillId: "sql",
+    prerequisites: ["sql"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Subqueries, multi-table INNER/LEFT JOINs, GROUP BY aggregations." },
+      2: { label: "Beginner", description: "Common Table Expressions (CTEs), CASE WHEN conditional aggregation, date truncation." },
+      3: { label: "Intermediate", description: "Window functions: ROW_NUMBER, RANK, DENSE_RANK, LEAD, LAG, running totals." },
+      4: { label: "Advanced", description: "Rolling window frames (ROWS BETWEEN), recursive CTEs, query optimization, handling complex NULL joins." },
+      5: { label: "Strongly Demonstrated", description: "Written and verified complex financial and retention queries under timed assessment conditions." }
+    }
+  },
+  exploratory_data_analysis: {
+    skillId: "exploratory_data_analysis",
+    name: "Exploratory Data Analysis (EDA) & Data Cleaning",
+    aliases: ["eda", "exploratory data analysis", "data cleaning", "outlier detection", "missing value analysis"],
+    category: "Data & Databases",
+    parentSkillId: "python_data_stack",
+    prerequisites: ["python_data_stack"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Summary statistics (mean, median, std, quartiles), identifying null counts." },
+      2: { label: "Beginner", description: "Univariate distribution plots, box plots for outliers, correlation heatmaps." },
+      3: { label: "Intermediate", description: "Bivariate/multivariate analysis, identifying missingness mechanisms (MCAR, MAR, MNAR), imputation." },
+      4: { label: "Advanced", description: "Detecting data artifacts, survivorship bias, Simpson's paradox, automated data profiling." },
+      5: { label: "Strongly Demonstrated", description: "Delivered comprehensive diagnostic analyses on messy real-world datasets." }
+    }
+  },
+  ab_testing_statistics: {
+    skillId: "ab_testing_statistics",
+    name: "A/B Testing & Inferential Statistics",
+    aliases: ["a/b testing", "ab testing", "hypothesis testing", "p-value", "statistical significance", "experiment design"],
+    category: "Data & Databases",
+    parentSkillId: "exploratory_data_analysis",
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Null vs alternative hypothesis, p-values, Type I and Type II errors." },
+      2: { label: "Beginner", description: "Two-sample t-test, Chi-square test, calculating confidence intervals." },
+      3: { label: "Intermediate", description: "Sample size calculation, statistical power, Minimum Detectable Effect (MDE), randomization." },
+      4: { label: "Advanced", description: "Network interference, novelty/primacy effects, sample ratio mismatch (SRM), variance reduction (CUPED)." },
+      5: { label: "Strongly Demonstrated", description: "Designed, analyzed, and defended rigorous experiment designs for product decisions." }
+    }
+  },
+  business_product_analytics: {
+    skillId: "business_product_analytics",
+    name: "Business & Product Analytics",
+    aliases: ["product analytics", "cohort analysis", "retention", "funnel analysis", "metric trees"],
+    category: "Data & Databases",
+    parentSkillId: "advanced_sql_analytics",
+    prerequisites: ["advanced_sql_analytics"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "Key metrics: DAU/MAU, Churn rate, Conversion rate, Average Order Value." },
+      2: { label: "Beginner", description: "Building funnel conversion drop-off queries, week-over-week growth calculations." },
+      3: { label: "Intermediate", description: "Cohort retention analysis (triangular retention grids), metric tree decomposition." },
+      4: { label: "Advanced", description: "Investigating metric anomalies, revenue cannibalization analysis, translating ambiguous business queries." },
+      5: { label: "Strongly Demonstrated", description: "Root-cause diagnostics delivered in case study interview simulations." }
+    }
+  },
+  data_engineering_pipelines: {
+    skillId: "data_engineering_pipelines",
+    name: "Data Engineering & Pipelines",
+    aliases: ["data engineering", "etl", "elt", "data pipeline", "star schema", "pyspark", "scd"],
+    category: "Data & Databases",
+    parentSkillId: "advanced_sql_analytics",
+    prerequisites: ["advanced_sql_analytics"],
+    proficiencyLevels: {
+      1: { label: "Familiar", description: "OLTP vs OLAP differences, CSV/JSON/Parquet file formats." },
+      2: { label: "Beginner", description: "Dimensional modeling: Fact and Dimension tables, Star schema vs Snowflake schema." },
+      3: { label: "Intermediate", description: "Building idempotent ETL/ELT pipelines, watermarking for incremental loads, Slowly Changing Dimensions (SCD Type 1 & 2)." },
+      4: { label: "Advanced", description: "Distributed processing with PySpark (partitioning, broadcast joins, shuffle tuning), data contracts, Delta Lake." },
+      5: { label: "Strongly Demonstrated", description: "Engineered scalable, fault-tolerant data pipelines with automated schema validation." }
     }
   },
 

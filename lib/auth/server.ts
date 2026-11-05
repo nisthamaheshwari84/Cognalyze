@@ -25,9 +25,20 @@ export interface AuthenticatedContext {
   connectedAccounts: ConnectedAccount[];
 }
 
-export async function getAuthenticatedContext(req: NextRequest): Promise<AuthenticatedContext | null> {
-  const sessionToken = req.cookies.get("cognalyze_session")?.value;
-  const sbAccessToken = req.cookies.get("sb-access-token")?.value;
+export async function getAuthenticatedContext(req: NextRequest | Request): Promise<AuthenticatedContext | null> {
+  let sessionToken = (req as any)?.cookies?.get?.("cognalyze_session")?.value;
+  let sbAccessToken = (req as any)?.cookies?.get?.("sb-access-token")?.value;
+
+  if (!sessionToken && !sbAccessToken && req?.headers?.get) {
+    const cookieHeader = req.headers.get("cookie");
+    if (cookieHeader) {
+      const matchSess = cookieHeader.match(/cognalyze_session=([^;]+)/);
+      if (matchSess) sessionToken = decodeURIComponent(matchSess[1]);
+      const matchSb = cookieHeader.match(/sb-access-token=([^;]+)/);
+      if (matchSb) sbAccessToken = decodeURIComponent(matchSb[1]);
+    }
+  }
+
   const effectiveToken = sessionToken || sbAccessToken;
   if (!effectiveToken) return null;
 
@@ -140,3 +151,66 @@ export async function requireRole(
 
   return auth;
 }
+
+/**
+ * Recruiter Authorization Guard for Recruiter API Endpoints
+ * Returns 401 if unauthenticated, 403 if authenticated but not recruiter.
+ */
+export async function requireRecruiterAuth(req: NextRequest | Request): Promise<
+  { success: true; auth: AuthenticatedContext } | { success: false; response: NextResponse }
+> {
+  const auth = await getAuthenticatedContext(req);
+  if (!auth || !auth.user) {
+    return {
+      success: false,
+      response: NextResponse.json(
+        { success: false, error: "Unauthorized. Recruiter session required." },
+        { status: 401 }
+      )
+    };
+  }
+
+  if (auth.user.accountType !== "recruiter") {
+    return {
+      success: false,
+      response: NextResponse.json(
+        { success: false, error: "Forbidden. Recruiter access required." },
+        { status: 403 }
+      )
+    };
+  }
+
+  if (auth.user.status === "EMAIL_PENDING") {
+    return {
+      success: false,
+      response: NextResponse.json(
+        { success: false, error: "Forbidden. Work email verification is pending.", status: "EMAIL_PENDING" },
+        { status: 403 }
+      )
+    };
+  }
+
+  if (
+    auth.user.status === "ORGANIZATION_PENDING" ||
+    !auth.organization ||
+    auth.organization.verificationStatus === "PENDING"
+  ) {
+    return {
+      success: false,
+      response: NextResponse.json(
+        { success: false, error: "Forbidden. Organization setup and verification is pending.", status: "ORGANIZATION_PENDING" },
+        { status: 403 }
+      )
+    };
+  }
+
+  return { success: true, auth };
+}
+
+/**
+ * Extracts organization ID from authenticated recruiter context.
+ */
+export function getRecruiterOrgId(auth: AuthenticatedContext): string | null {
+  return auth.organization?.id || auth.recruiterProfile?.organizationId || (auth.user as any)?.organizationId || null;
+}
+

@@ -45,6 +45,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User associated with this token not found." }, { status: 404 });
     }
 
+    // Atomically consume token to prevent concurrent replay attacks
+    const marked = markPasswordResetTokenUsed(resetRecord.id);
+    if (!marked) {
+      return NextResponse.json(
+        { error: "This password reset link is invalid or has already been used. Please request a new one." },
+        { status: 400 }
+      );
+    }
+
     // Hash new password and update
     const { hash, salt } = hashPassword(password);
     const updated = resetUserPassword(user.id, hash, salt);
@@ -53,7 +62,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to update password." }, { status: 500 });
     }
 
-    markPasswordResetTokenUsed(resetRecord.id);
     await saveStoreToCloud();
 
     return NextResponse.json({

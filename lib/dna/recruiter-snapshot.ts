@@ -102,21 +102,137 @@ export interface RoleDNASnapshot {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PERSISTENCE STORE (User & Role Scoped)
+// PERSISTENCE STORE (User & Role Scoped — ACID Disk + Canonical Supabase)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SNAPSHOT_STORE: Map<string, RoleDNASnapshot> = new Map();
+let isSnapshotStoreLoaded = false;
 
 function getSnapshotKey(studentId: string, roleId: string): string {
   return `${studentId}::${roleId}`;
 }
 
+function getSnapshotFilePath(): string {
+  if (typeof window === "undefined") {
+    const path = require("path");
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      return path.join("/tmp", "cognalyze-dna-snapshots.json");
+    }
+    return path.join(process.cwd(), "data", "dna-snapshots.json");
+  }
+  return "";
+}
+
+export function loadSnapshotsFromDisk(force = false): void {
+  if (typeof window === "undefined") {
+    if (isSnapshotStoreLoaded && !force) return;
+    try {
+      const fs = require("fs");
+      const filePath = getSnapshotFilePath();
+      if (filePath && fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          for (const [k, v] of Object.entries(parsed)) {
+            SNAPSHOT_STORE.set(k, v as RoleDNASnapshot);
+          }
+        }
+      }
+      isSnapshotStoreLoaded = true;
+    } catch (err) {
+      // non-fatal disk read notice
+    }
+  }
+}
+
+export function persistSnapshotsToDisk(): void {
+  if (typeof window === "undefined") {
+    try {
+      const fs = require("fs");
+      const path = require("path");
+      const filePath = getSnapshotFilePath();
+      if (!filePath) return;
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+      const obj: Record<string, RoleDNASnapshot> = {};
+      for (const [k, v] of SNAPSHOT_STORE.entries()) {
+        obj[k] = v;
+      }
+      const tmp = `${filePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmp, JSON.stringify(obj, null, 2), "utf-8");
+      try {
+        fs.renameSync(tmp, filePath);
+      } catch {
+        fs.writeFileSync(filePath, JSON.stringify(obj, null, 2), "utf-8");
+        if (fs.existsSync(tmp)) try { fs.unlinkSync(tmp); } catch {}
+      }
+    } catch (err) {
+      // non-fatal disk write notice
+    }
+  }
+}
+
+// Initial eager load
+loadSnapshotsFromDisk();
+
 export function getRoleDNASnapshot(studentId: string, roleId: string): RoleDNASnapshot | null {
+  loadSnapshotsFromDisk();
   return SNAPSHOT_STORE.get(getSnapshotKey(studentId, roleId)) || null;
+}
+
+export async function getRoleDNASnapshotAsync(studentId: string, roleId: string): Promise<RoleDNASnapshot | null> {
+  const cached = getRoleDNASnapshot(studentId, roleId);
+  if (cached) return cached;
+
+  if (typeof window === "undefined") {
+    try {
+      const { supabaseAdmin, supabase, isSupabaseAvailable } = await import("@/lib/supabase");
+      if (await isSupabaseAvailable()) {
+        const client = supabaseAdmin || supabase;
+        const { data } = await client
+          .from("dna_snapshots")
+          .select("snapshot")
+          .eq("student_id", studentId)
+          .eq("role_id", roleId)
+          .maybeSingle();
+
+        if (data?.snapshot) {
+          saveRoleDNASnapshot(data.snapshot);
+          return data.snapshot as RoleDNASnapshot;
+        }
+      }
+    } catch {}
+  }
+  return null;
 }
 
 export function saveRoleDNASnapshot(snapshot: RoleDNASnapshot): void {
   SNAPSHOT_STORE.set(getSnapshotKey(snapshot.studentId, snapshot.roleId), snapshot);
+  persistSnapshotsToDisk();
+
+  // Async sync to Supabase public.dna_snapshots
+  if (typeof window === "undefined") {
+    (async () => {
+      try {
+        const { supabaseAdmin, supabase, isSupabaseAvailable } = await import("@/lib/supabase");
+        if (await isSupabaseAvailable()) {
+          const client = supabaseAdmin || supabase;
+          await client.from("dna_snapshots").upsert({
+            id: snapshot.id,
+            student_id: snapshot.studentId,
+            role_id: snapshot.roleId,
+            candidate_name: snapshot.candidateName,
+            candidate_email: snapshot.candidateEmail,
+            snapshot,
+            updated_at: new Date().toISOString()
+          }, { onConflict: "student_id,role_id" });
+        }
+      } catch (e) {
+        // non-fatal cloud sync
+      }
+    })();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

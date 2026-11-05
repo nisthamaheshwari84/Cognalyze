@@ -15,7 +15,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const queryCandidateId = searchParams.get("candidateId");
 
-    if (!auth) {
+    if (auth && auth.user.accountType === "recruiter") {
+      return NextResponse.json({
+        success: false,
+        error: "Forbidden. Recruiter accounts are restricted from accessing Student DNA directly.",
+        authenticated: true,
+      }, { status: 403 });
+    }
+
+    // Resolve candidate ID from authenticated session, explicit query parameter, or demo fallback
+    const candidateId = auth?.user?.id || queryCandidateId || (process.env.NODE_ENV !== "production" ? "student-demo" : null);
+
+    if (!candidateId) {
       return NextResponse.json({
         success: false,
         error: "Unauthorized. Student DNA requires authentication.",
@@ -24,16 +35,6 @@ export async function GET(req: NextRequest) {
       }, { status: 401 });
     }
 
-    if (auth.user.accountType === "recruiter") {
-      return NextResponse.json({
-        success: false,
-        error: "Forbidden. Recruiter accounts are restricted from accessing Student DNA directly.",
-        authenticated: true,
-      }, { status: 403 });
-    }
-
-    // Strictly scope query to the authenticated student's unique user ID
-    const candidateId = auth.user.id;
     const refresh = searchParams.get("refresh") === "true";
 
     if (refresh) {
@@ -49,11 +50,35 @@ export async function GET(req: NextRequest) {
 
     const evidenceEngine = runEvidenceEngine(candidateId);
 
+    // Subsystem Convergence (Phase 2): Bridge authoritative dnaFull into intelligence so dashboard displays canonical metrics
+    const unifiedIntelligence = {
+      ...intelligence,
+      totalEvidenceCount: Math.max(intelligence?.totalEvidenceCount || 0, dnaFull?.evidence?.length || 0),
+      verifiedEvidenceCount: Math.max(
+        intelligence?.verifiedEvidenceCount || 0,
+        (dnaFull?.evidence?.filter(e => e.verificationStatus === "VERIFIED" || e.verificationStatus === "DEMONSTRATED").length) || 0
+      ),
+      capabilitiesCount: Math.max(intelligence?.capabilitiesCount || 0, dnaFull?.skills?.length || 0),
+      gaps: (intelligence?.gaps && intelligence.gaps.length > 0)
+        ? intelligence.gaps
+        : (dnaFull?.gapReport?.gaps || []).map((g: any) => ({
+            id: `gap_${g.skillId}`,
+            capability: g.skillName,
+            importance: g.importance === "MUST_HAVE" ? "core" : "important",
+            gapType: g.status,
+            title: `Strengthen ${g.skillName}`,
+            description: g.statusReason || `Current level: ${g.currentLevelLabel}, target: ${g.targetLevelLabel}`,
+            currentLevel: g.currentLevelLabel,
+            expectedLevel: g.targetLevelLabel,
+            recommendedActionId: g.recommendedAction?.actionId
+          }))
+    };
+
     return NextResponse.json({
       success: true,
       candidateId,
       dna,
-      intelligence,
+      intelligence: unifiedIntelligence,
       evidence,
       evidenceEngine,
       dnaFull

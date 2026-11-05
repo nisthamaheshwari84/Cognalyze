@@ -5,7 +5,7 @@ import { scoreCandidate } from "@/lib/ai/evidence-scorer";
 import type { EvaluationDimension, AuditedRequirement } from "@/lib/intelligence/jd-extractor";
 
 // ── Strip <think> / <thinking> blocks that leak from reasoning models ──
-export function stripThinkTags(raw: string): string {
+function stripThinkTags(raw: string): string {
   if (!raw) return "";
   return raw
     .replace(/<think>[\s\S]*?<\/think>/gi, "")

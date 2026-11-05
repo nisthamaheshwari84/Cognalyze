@@ -11,6 +11,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class UnstopAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-unstop";
@@ -172,7 +173,7 @@ export class UnstopAdapter extends BaseOpportunitySourceAdapter {
   public parse(payload: any): RawOpportunity[] {
     if (!payload || !Array.isArray(payload)) return [];
     return payload.map((item: any) => ({
-      id: item.id || `unstop-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: item.id || generateSecureId(`unstop-${Date.now()}`, 6),
       source: "Unstop",
       sourceType: "UNSTOP",
       sourceId: item.sourceId || item.slug || item.id,

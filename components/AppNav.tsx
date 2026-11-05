@@ -225,7 +225,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
         pathname === "/skill-practice" ||
         pathname.startsWith("/skill-practice/") ||
         pathname === "/student/skills" ||
-        pathname.startsWith("/student/skills/")
+        pathname.startsWith("/student/skills/") ||
+        pathname === "/student/learn" ||
+        pathname.startsWith("/student/learn/")
       );
     }
     if (href === "/recruitment-simulation") {
@@ -301,6 +303,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
 
   // Determine current page title
   const getPageTitle = () => {
+    if (pathname.includes("/student/learn")) {
+      return "Learning & Evaluation Workspace";
+    }
     if (pathname.includes("/skill-practice") || pathname.includes("/student/skills")) {
       return "Skill Practice Hub";
     }
@@ -507,29 +512,44 @@ export default function AppNav({ role = "student" }: AppNavProps) {
             </Link>
 
             {/* Quick Role Switch Button */}
-            <button
-              onClick={() => handleSwitchRole(role === "recruiter" ? "student" : "recruiter")}
-              disabled={switching}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                height: 28,
-                padding: "0 9px",
-                fontSize: 11,
-                fontWeight: 600,
-                borderRadius: 6,
-                border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
-                backgroundColor: isDark ? "#142339" : "#F6F5F1",
-                color: isDark ? "#F1F5F9" : "#162A43",
-                cursor: switching ? "not-allowed" : "pointer",
-                transition: "all 150ms ease",
-              }}
-              title={`Switch to ${role === "recruiter" ? "Student" : "Recruiter"} Workspace`}
-            >
-              <ArrowLeftRight size={11} color="#667085" />
-              <span>{switching ? "Switching..." : role === "recruiter" ? "Student Mode" : "Recruiter Mode"}</span>
-            </button>
+            {(() => {
+              const activeUserRole = session.authenticated
+                ? (session.user?.accountType || role)
+                : role;
+              const targetRole = activeUserRole === "recruiter" ? "student" : "recruiter";
+
+              return (
+                <button
+                  onClick={() => handleSwitchRole(targetRole)}
+                  disabled={switching}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    height: 28,
+                    padding: "0 9px",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    borderRadius: 6,
+                    border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                    backgroundColor: isDark ? "#142339" : "#F6F5F1",
+                    color: isDark ? "#F1F5F9" : "#162A43",
+                    cursor: switching ? "not-allowed" : "pointer",
+                    transition: "all 150ms ease",
+                  }}
+                  title={`Switch to ${targetRole === "recruiter" ? "Recruiter" : "Student"} Workspace`}
+                >
+                  <ArrowLeftRight size={11} color="#667085" />
+                  <span>
+                    {switching
+                      ? "Switching..."
+                      : activeUserRole === "recruiter"
+                      ? "🎓 Student Mode"
+                      : "🏢 Recruiter Mode"}
+                  </span>
+                </button>
+              );
+            })()}
 
             {/* Notifications Bell */}
             <Link
@@ -581,22 +601,47 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                     fontSize: 11,
                   }}
                 >
-                  {role === "recruiter"
-                    ? session.recruiterProfile?.company_name?.[0] || "R"
-                    : session.user?.fullName?.[0] || session.user?.name?.[0] || "S"}
+                  {(session.user?.accountType || role) === "recruiter"
+                    ? session.recruiterProfile?.fullName?.[0] || session.recruiterProfile?.company_name?.[0] || "R"
+                    : session.studentProfile?.fullName?.[0] || session.user?.fullName?.[0] || session.user?.name?.[0] || "S"}
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }} className="hidden sm:flex">
                   <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? "#F1F5F9" : "#17191C" }}>
-                    {role === "recruiter"
-                      ? session.recruiterProfile?.company_name || "Apex Hiring"
-                      : session.user?.fullName || session.user?.name || "Student"}
+                    {(session.user?.accountType || role) === "recruiter"
+                      ? session.recruiterProfile?.fullName || session.recruiterProfile?.company_name || session.user?.fullName || "Recruiter"
+                      : session.studentProfile?.fullName || session.user?.fullName || session.user?.name || "Student"}
                   </span>
                   <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
                     <CheckCircle2 size={9} />
-                    {role === "recruiter" ? "Verified Recruiter" : "Active Profile"}
+                    {(session.user?.accountType || role) === "recruiter" ? "Verified Recruiter" : "Active Profile"}
                   </span>
                 </div>
+
+                {/* Direct Logout Action */}
+                <button
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  title="Sign out"
+                  style={{
+                    background: "transparent",
+                    border: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}`,
+                    borderRadius: 6,
+                    padding: "4px 8px",
+                    color: "#EF4444",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    cursor: "pointer",
+                    marginLeft: 4,
+                  }}
+                  className="hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                >
+                  <LogOut size={11} />
+                  <span className="hidden md:inline">{loggingOut ? "..." : "Exit"}</span>
+                </button>
               </div>
             ) : (
               <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 6, borderLeft: `1px solid ${isDark ? "#1C3048" : "#E4E1DA"}` }}>

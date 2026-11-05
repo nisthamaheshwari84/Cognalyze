@@ -20,7 +20,9 @@ import { StudentSkill, StudentDNASnapshot } from "./profile-engine";
 import { DNAEvidence } from "./evidence-pipeline";
 import { RequirementProfile } from "./requirement-engine";
 import comprehensiveCatalog from "@/data/comprehensive-opportunities.json";
+import { generateSecureId } from "@/lib/crypto-utils";
 import {
+  getStudentProfileByUserId,
   getStudentSavedOpportunities,
   toggleStudentSavedOpportunity as storeToggleSaved,
   getStudentTrackedApplications as storeGetTracked,
@@ -573,7 +575,7 @@ function normalizeComprehensiveOpportunity(item: any): PersonalizedOpportunity {
   }
 
   return {
-    id: item.id || `opp_${Math.random().toString(36).substring(2, 9)}`,
+    id: item.id || generateSecureId("opp", 9),
     title: item.title,
     organization: item.organizer || "Industry Partner",
     category,
@@ -644,9 +646,26 @@ export function getStudentSavedOpportunityIds(studentId: string): string[] {
 
 export function toggleStudentSavedOpportunity(studentId: string, opportunityId: string): boolean {
   let isSaved = false;
-  try {
-    isSaved = storeToggleSaved(studentId, opportunityId);
-  } catch {
+  const profile = getStudentProfileByUserId(studentId);
+
+  if (profile) {
+    try {
+      isSaved = storeToggleSaved(studentId, opportunityId);
+    } catch {
+      let set = USER_SAVED_OPPORTUNITIES.get(studentId);
+      if (!set) {
+        set = new Set();
+        USER_SAVED_OPPORTUNITIES.set(studentId, set);
+      }
+      if (set.has(opportunityId)) {
+        set.delete(opportunityId);
+        isSaved = false;
+      } else {
+        set.add(opportunityId);
+        isSaved = true;
+      }
+    }
+  } else {
     let set = USER_SAVED_OPPORTUNITIES.get(studentId);
     if (!set) {
       set = new Set();
@@ -659,7 +678,6 @@ export function toggleStudentSavedOpportunity(studentId: string, opportunityId: 
       set.add(opportunityId);
       isSaved = true;
     }
-    return isSaved;
   }
 
   let set = USER_SAVED_OPPORTUNITIES.get(studentId);
@@ -669,6 +687,30 @@ export function toggleStudentSavedOpportunity(studentId: string, opportunityId: 
   }
   if (isSaved) set.add(opportunityId);
   else set.delete(opportunityId);
+
+  // Background sync to Supabase public.dna_saved_opportunities
+  if (typeof window === "undefined") {
+    (async () => {
+      try {
+        const { supabaseAdmin, supabase, isSupabaseAvailable } = await import("@/lib/supabase");
+        if (await isSupabaseAvailable()) {
+          const client = supabaseAdmin || supabase;
+          if (isSaved) {
+            await client.from("dna_saved_opportunities").upsert({
+              student_id: studentId,
+              opportunity_id: opportunityId,
+              saved_at: new Date().toISOString()
+            });
+          } else {
+            await client.from("dna_saved_opportunities").delete().eq("student_id", studentId).eq("opportunity_id", opportunityId);
+          }
+        }
+      } catch (e) {
+        // non-fatal
+      }
+    })();
+  }
+
   return isSaved;
 }
 
@@ -699,6 +741,30 @@ export function upsertStudentTrackedApplication(
   const allOpps = getAllPersonalizedOpportunities();
   const opp = allOpps.find(o => o.id === opportunityId);
 
+  const syncToCloud = (item: StudentTrackedApplication) => {
+    if (typeof window === "undefined") {
+      (async () => {
+        try {
+          const { supabaseAdmin, supabase, isSupabaseAvailable } = await import("@/lib/supabase");
+          if (await isSupabaseAvailable()) {
+            const client = supabaseAdmin || supabase;
+            await client.from("dna_tracked_applications").upsert({
+              id: item.id,
+              student_id: item.studentId,
+              opportunity_id: item.opportunityId,
+              opportunity_title: item.opportunityTitle,
+              organization: item.organization,
+              stage: item.stage,
+              notes: item.notes,
+              saved_at: item.savedAt,
+              updated_at: item.updatedAt
+            }, { onConflict: "student_id,opportunity_id" });
+          }
+        } catch {}
+      })();
+    }
+  };
+
   try {
     const fromStore = storeUpsertTracked(
       studentId,
@@ -716,6 +782,7 @@ export function upsertStudentTrackedApplication(
         USER_TRACKED_APPLICATIONS.set(studentId, map);
       }
       map.set(opportunityId, fromStore);
+      syncToCloud(fromStore);
       return fromStore;
     }
   } catch {}
@@ -730,7 +797,7 @@ export function upsertStudentTrackedApplication(
   const now = new Date().toISOString();
 
   const record: StudentTrackedApplication = {
-    id: existing?.id || `track_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: existing?.id || generateSecureId(`track_${Date.now()}`, 7),
     studentId,
     opportunityId,
     opportunityTitle: opp?.title || existing?.opportunityTitle || "Tracked Opportunity",
@@ -744,6 +811,7 @@ export function upsertStudentTrackedApplication(
   };
 
   map.set(opportunityId, record);
+  syncToCloud(record);
   return record;
 }
 

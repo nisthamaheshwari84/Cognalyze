@@ -25,7 +25,7 @@ export interface QuestionItem {
   };
 }
 
-export const SEED_QUESTIONS: QuestionItem[] = [
+const SEED_QUESTIONS: QuestionItem[] = [
   // --- GOOGLE ---
   {
     id: "q-google-1",

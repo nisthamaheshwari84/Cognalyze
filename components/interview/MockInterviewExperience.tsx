@@ -3,22 +3,149 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { saveSession, InterviewSession } from "@/lib/interview-session-store";
+import { InterviewSession } from "@/lib/interview-session-types";
 import { useTheme } from "@/components/ThemeProvider";
 import AppNav from "@/components/AppNav";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 // ── Types ──
 export type ExperienceMode = "fresher" | "1-3yr" | "experienced" | "career-switcher";
 export type InterviewType = "technical" | "behavioral" | "hr" | "system_design" | "mixed";
 export type DifficultyLevel = "adaptive" | "easy" | "medium" | "hard";
 export type DurationMinutes = 15 | 30 | 45 | 60;
+export type FeedbackMode = "simulation" | "practice_learn";
+
+export type InterviewTrack =
+  | "traditional_coding_dsa"
+  | "code_comprehension"
+  | "debugging_code_repair"
+  | "ai_assisted_engineering"
+  | "system_design"
+  | "code_review_reliability"
+  | "senior_engineering_judgment"
+  | "behavioral_project_deep_dives";
+
+export const INTERVIEW_TRACKS: Array<{
+  id: InterviewTrack;
+  title: string;
+  badge: string;
+  description: string;
+  icon: string;
+  defaultFocus: string;
+  defaultType: InterviewType;
+}> = [
+  {
+    id: "traditional_coding_dsa",
+    title: "Traditional Coding & DSA",
+    badge: "Algorithms & Big-O",
+    description: "Algorithmic thinking, data structures (trees, graphs, DP), edge cases, and runtime complexity.",
+    icon: "💻",
+    defaultFocus: "Data Structures, Algorithms, Complexity Analysis, Edge Cases",
+    defaultType: "technical",
+  },
+  {
+    id: "code_comprehension",
+    title: "Code Comprehension",
+    badge: "Mental Models & Tracing",
+    description: "Navigating unfamiliar codebases, execution flow tracing, state invariants, and module contracts.",
+    icon: "🔍",
+    defaultFocus: "Codebase Navigation, Invariant Verification, Execution Flow, Module Contracts",
+    defaultType: "technical",
+  },
+  {
+    id: "debugging_code_repair",
+    title: "Debugging & Code Repair",
+    badge: "Root Cause & Defense",
+    description: "Systematic root cause isolation, reproducing elusive intermittent bugs, memory leaks, and defensive patching.",
+    icon: "🛠️",
+    defaultFocus: "Root Cause Isolation, Regression Prevention, Concurrency Bugs, Defensive Patching",
+    defaultType: "technical",
+  },
+  {
+    id: "ai_assisted_engineering",
+    title: "AI-Assisted Engineering",
+    badge: "AI Auditing & Tooling",
+    description: "Auditing AI-generated code, hallucination detection, prompt-assisted development, and regression testing.",
+    icon: "🤖",
+    defaultFocus: "AI Code Verification, Hallucination Auditing, Prompt Engineering, Test Coverage",
+    defaultType: "technical",
+  },
+  {
+    id: "system_design",
+    title: "System Design & Scale",
+    badge: "Distributed Systems",
+    description: "Scalability, microservices, partitioning, caching strategies, latency, fault tolerance, and trade-offs.",
+    icon: "🏗️",
+    defaultFocus: "Distributed Systems, Microservices, Caching, Database Partitioning, Latency",
+    defaultType: "system_design",
+  },
+  {
+    id: "code_review_reliability",
+    title: "Code Review & Reliability",
+    badge: "Quality & Testing",
+    description: "High-standard PR reviews, test suites, race conditions, edge cases, error handling, and maintainability.",
+    icon: "📋",
+    defaultFocus: "Pull Request Review, Concurrency Invariants, Test Automation, Clean Architecture",
+    defaultType: "technical",
+  },
+  {
+    id: "senior_engineering_judgment",
+    title: "Senior Engineering Judgment",
+    badge: "Trade-offs & Debt",
+    description: "Technical debt prioritization, risk vs velocity trade-offs, architecture migration, and operational resilience.",
+    icon: "⚖️",
+    defaultFocus: "Architecture Trade-offs, Technical Debt, Migration Strategies, Operational Resilience",
+    defaultType: "mixed",
+  },
+  {
+    id: "behavioral_project_deep_dives",
+    title: "Behavioral & Project Deep Dives",
+    badge: "STAR & Ownership",
+    description: "Real project defense, handling production failures, cross-functional conflicts, and technical leadership.",
+    icon: "🤝",
+    defaultFocus: "STAR Method, Technical Leadership, Incident Recovery, Cross-Functional Collaboration",
+    defaultType: "behavioral",
+  },
+];
+
+export interface RubricDimensionScore {
+  dimension: string;
+  earnedPoints: number;
+  maxPoints: number;
+  explanation: string;
+}
+
+export interface QuestionModelAnswer {
+  score: number;
+  rubricVersion?: string;
+  dimensionScores: RubricDimensionScore[];
+  whatYouDidWell: string[];
+  whatWasMissing: string[];
+  deductionReasons: string[];
+  howToImprove: string;
+  bestPossibleAnswer: string;
+  keyConceptsToRemember: string[];
+  likelyFollowUps: string[];
+  personalizedNextAction?: string;
+  answerComparison?: {
+    candidateDemonstrated: string[];
+    missingPoints: string[];
+    whatModelAnswerAdds: string;
+  };
+}
 
 export interface Msg {
   role: "user" | "assistant";
   content: string;
   time: string;
   isFollowUp?: boolean;
+  modelAnswer?: QuestionModelAnswer;
+  rubricScore?: number;
+  turnIndex?: number;
+  questionTargets?: string;
+  section?: string;
+  assessment?: AnswerAssessment;
 }
 
 export interface QuestionMeta {
@@ -198,8 +325,15 @@ export default function MockInterviewExperience() {
   const paramCompany = searchParams.get("company") || "";
   const paramType = (searchParams.get("type") as InterviewType) || "";
   const paramFocus = searchParams.get("focus") || "";
+  const paramTrack = (searchParams.get("track") as InterviewTrack) || "";
 
   // ── Setup State ──
+  const [interviewTrack, setInterviewTrack] = useState<InterviewTrack>(() => {
+    if (paramTrack && INTERVIEW_TRACKS.some((t) => t.id === paramTrack)) return paramTrack;
+    if (paramType === "system_design") return "system_design";
+    if (paramType === "behavioral" || paramType === "hr") return "behavioral_project_deep_dives";
+    return "traditional_coding_dsa";
+  });
   const [targetRole, setTargetRole] = useState(paramRole || "Software Development Engineer");
   const [targetCompany, setTargetCompany] = useState(paramCompany || "FAANG / Tier 1 Standard");
   const [experienceMode, setExperienceMode] = useState<ExperienceMode>("fresher");
@@ -207,6 +341,9 @@ export default function MockInterviewExperience() {
   const [skillsFocus, setSkillsFocus] = useState(paramFocus || "Data Structures, System Design, Concurrency, SQL");
   const [difficulty, setDifficulty] = useState<DifficultyLevel>("adaptive");
   const [durationMinutes, setDurationMinutes] = useState<DurationMinutes>(45);
+  const [feedbackMode, setFeedbackMode] = useState<FeedbackMode>("practice_learn");
+  const [showReviewDrawer, setShowReviewDrawer] = useState(false);
+  const [expandedTurns, setExpandedTurns] = useState<Record<number, boolean>>({});
   const [jobDescription, setJobDescription] = useState("");
   const [showJdInput, setShowJdInput] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -237,6 +374,8 @@ export default function MockInterviewExperience() {
   const [finalReport, setFinalReport] = useState<FinalReportData | null>(null);
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   const [savingSession, setSavingSession] = useState(false);
+  const [selectedReviewTurn, setSelectedReviewTurn] = useState<number | null>(null);
+  const [modelAnswerExpanded, setModelAnswerExpanded] = useState<boolean>(false);
 
   // ── Speech Recognition & Audio Refs ──
   const recognitionRef = useRef<any>(null);
@@ -244,6 +383,67 @@ export default function MockInterviewExperience() {
   const sessionStartTimeRef = useRef<number>(0);
   const sessionIdRef = useRef<string>("");
   const submissionLockRef = useRef<boolean>(false);
+
+  // ── Session Isolation & State Reset ──
+  const resetSessionState = useCallback(() => {
+    setMessages([]);
+    setInput("");
+    setActiveQuestionMeta(null);
+    setLastAssessment(null);
+    setLiveScore(null);
+    setSessionDistribution({ strong: 0, adequate: 0, shallow: 0, off_topic: 0 });
+    setTopicsCovered([]);
+    setFinalReport(null);
+    setSavedSessionId(null);
+    setSelectedReviewTurn(null);
+    setModelAnswerExpanded(false);
+    submissionLockRef.current = false;
+  }, []);
+
+  const handleLoadHistoricalSession = useCallback(async (sessId: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/interview-chat?sessionId=${encodeURIComponent(sessId)}&candidateId=${encodeURIComponent(candidateId || "")}`);
+      if (!res.ok) {
+        alert("Session could not be retrieved.");
+        return;
+      }
+      const data = await res.json();
+      if (!data.found || !data.session) {
+        alert("No persisted data found for this session.");
+        return;
+      }
+      const sess = data.session;
+      resetSessionState();
+      sessionIdRef.current = sess.id;
+      if (sess.messages && sess.messages.length > 0) {
+        setMessages(sess.messages);
+      }
+      if (sess.answer_distribution) {
+        setSessionDistribution(sess.answer_distribution);
+      }
+      if (sess.topics_covered && Array.isArray(sess.topics_covered)) {
+        setTopicsCovered(sess.topics_covered);
+      }
+      if (sess.overall_score !== undefined && sess.overall_score !== null) {
+        setLiveScore((prev: any) => ({
+          ...(prev || {}),
+          overall: sess.overall_score,
+        }));
+      }
+      if (sess.report) {
+        setFinalReport(sess.report);
+        setStage("report");
+      } else {
+        setStage("room");
+      }
+    } catch (err) {
+      console.error("Failed to load historical session:", err);
+      alert("Error loading historical session.");
+    } finally {
+      setLoading(false);
+    }
+  }, [candidateId, resetSessionState]);
 
   // ── Pre-fill Candidate & Opportunity Context ──
   useEffect(() => {
@@ -281,22 +481,45 @@ export default function MockInterviewExperience() {
         console.warn("Session fetch notice in mock interview:", err);
       }
 
-      // If an opportunity ID was passed in query params, load it
+      // If an opportunity ID was passed in query params, load it directly
       if (opportunityId) {
         try {
-          const oppRes = await fetch("/api/opportunities/ingest");
+          const oppRes = await fetch(`/api/opportunities/${opportunityId}`);
           if (oppRes.ok) {
             const oppData = await oppRes.json();
-            const match = (oppData.opportunities || []).find((o: any) => o.id === opportunityId);
+            const match = oppData.opportunity || oppData.canonicalOpportunity;
             if (match && isMounted) {
               setOpportunity(match);
               setTargetRole(match.title || paramRole || "Software Development Engineer");
-              setTargetCompany(match.organizer || "Tier-1 Tech Company");
-              const tags = match.tags?.join(", ") || match.domain_tags?.join(", ") || "";
+              setTargetCompany(match.organizer || match.companyName || "Tier-1 Tech Company");
+              const tags = (match.tags && Array.isArray(match.tags))
+                ? match.tags.join(", ")
+                : (match.requiredSkills && Array.isArray(match.requiredSkills))
+                ? match.requiredSkills.join(", ")
+                : match.domain_tags?.join(", ") || "";
               if (tags) setSkillsFocus(tags);
-              if (match.description) {
-                setJobDescription(match.description);
+              const desc = match.extracted_context?.summary || match.description || "";
+              if (desc) {
+                setJobDescription(desc);
                 setShowJdInput(true);
+              }
+            }
+          } else {
+            // Fallback to ingest endpoint
+            const fallbackRes = await fetch("/api/opportunities/ingest");
+            if (fallbackRes.ok) {
+              const fallbackData = await fallbackRes.json();
+              const match = (fallbackData.opportunities || []).find((o: any) => o.id === opportunityId);
+              if (match && isMounted) {
+                setOpportunity(match);
+                setTargetRole(match.title || paramRole || "Software Development Engineer");
+                setTargetCompany(match.organizer || "Tier-1 Tech Company");
+                const tags = match.tags?.join(", ") || match.domain_tags?.join(", ") || "";
+                if (tags) setSkillsFocus(tags);
+                if (match.description) {
+                  setJobDescription(match.description);
+                  setShowJdInput(true);
+                }
               }
             }
           }
@@ -382,12 +605,14 @@ export default function MockInterviewExperience() {
 
   // ── START INTERVIEW ──
   const handleStartInterview = async () => {
+    resetSessionState();
     setLoading(true);
     setStage("room");
     sessionStartTimeRef.current = Date.now();
     const effectiveCandidateId = candidateId || `candidate_${Date.now()}`;
-    const generatedSessionId = `mock_${effectiveCandidateId}_${Date.now()}`;
+    const generatedSessionId = generateSecureId(`mock_${effectiveCandidateId}_${Date.now()}`, 7);
     sessionIdRef.current = generatedSessionId;
+    const currentSessionId = generatedSessionId;
 
     const candidateSkills = skillsFocus || "Algorithms, Data Structures & Distributed Architecture";
     const candidateProjects = studentProfile?.past_projects?.map((p: any) => `${p.title} (${p.tech_stack?.join(", ") || ""})`).join("; ") || "Real-world engineering projects";
@@ -409,14 +634,19 @@ export default function MockInterviewExperience() {
           durationMinutes,
           experienceMode,
           interviewType,
+          interviewTrack,
+          track: interviewTrack,
           targetCompany,
           targetRole,
           skillsFocus,
           difficulty,
+          feedbackMode,
         }),
       });
 
       const chatData = await chatRes.json();
+      if (sessionIdRef.current !== currentSessionId) return;
+
       const firstMsg =
         chatData.message ||
         `Welcome to your personalized ${interviewType.toUpperCase()} round for ${targetRole} at ${targetCompany}. I'm Alex, your interviewer today. To get started, please give a brief 1-minute introduction covering your background, technical interests, and what you've been working on recently.`;
@@ -438,6 +668,7 @@ export default function MockInterviewExperience() {
       setMessages([initialMessage]);
       speakVoice(firstMsg);
     } catch (err) {
+      if (sessionIdRef.current !== currentSessionId) return;
       console.error("[MOCK INTERVIEW] Failed to start:", err);
       const fallbackMsg: Msg = {
         role: "assistant",
@@ -448,7 +679,9 @@ export default function MockInterviewExperience() {
       setMessages([fallbackMsg]);
       speakVoice(fallbackMsg.content);
     } finally {
-      setLoading(false);
+      if (sessionIdRef.current === currentSessionId) {
+        setLoading(false);
+      }
     }
   };
 
@@ -478,6 +711,8 @@ export default function MockInterviewExperience() {
     const jdContext = `Target Role: ${targetRole}. Target Company: ${targetCompany}. Interview Type: ${interviewType.toUpperCase()}. Target Experience Level: ${experienceMode}. Focus Areas: ${skillsFocus}. ${jobDescription ? `Job Description: ${jobDescription}` : ""}`;
     const resumeContext = `Candidate: ${candidateName}. Skills: ${skillsFocus}.`;
 
+    const currentSessionId = sessionIdRef.current;
+
     try {
       const chatRes = await fetch("/api/interview-chat", {
         method: "POST",
@@ -487,19 +722,24 @@ export default function MockInterviewExperience() {
           jd: jdContext,
           resume: resumeContext,
           qNumber: updatedMessages.filter((m) => m.role === "assistant").length + 1,
-          sessionId: sessionIdRef.current,
+          sessionId: currentSessionId,
           candidateId: candidateId || "student-demo",
           durationMinutes,
           experienceMode,
           interviewType,
+          interviewTrack,
+          track: interviewTrack,
           targetCompany,
           targetRole,
           skillsFocus,
           difficulty,
+          feedbackMode,
         }),
       });
 
       const chatData = await chatRes.json();
+      if (sessionIdRef.current !== currentSessionId) return;
+
       const isFollowUp = Boolean(chatData.isFollowUp || chatData.is_follow_up);
       const asstContent =
         chatData.message ||
@@ -514,12 +754,23 @@ export default function MockInterviewExperience() {
         isFollowUp,
       };
 
-      setMessages((prev) => [...prev, asstMsg]);
-      speakVoice(asstContent);
+      const turnNum = updatedMessages.filter((m) => m.role === "user").length;
+      if (chatData.modelAnswer) {
+        userMsg.modelAnswer = chatData.modelAnswer;
+        userMsg.rubricScore = chatData.rubricScore ?? chatData.modelAnswer.score;
+        userMsg.turnIndex = turnNum;
+        userMsg.questionTargets = chatData.questionTargets;
+        userMsg.section = chatData.section;
+
+        if (feedbackMode === "practice_learn") {
+          setExpandedTurns((prev) => ({ ...prev, [turnNum]: true }));
+        }
+      }
 
       // Real-time assessment update
       if (chatData.answer_assessment || chatData.assessment) {
         const assessment = chatData.answer_assessment || chatData.assessment;
+        userMsg.assessment = assessment;
         setLastAssessment(assessment);
 
         // Update running session distribution
@@ -537,30 +788,40 @@ export default function MockInterviewExperience() {
         }
       }
 
+      setMessages((prev) => {
+        const copy = [...prev];
+        if (copy.length > 0 && copy[copy.length - 1].role === "user") {
+          copy[copy.length - 1] = { ...userMsg };
+        }
+        return [...copy, asstMsg];
+      });
+
+      speakVoice(asstContent);
+
+      if (typeof chatData.rubricScore === "number" || chatData.modelAnswer?.score) {
+        const earned = chatData.rubricScore ?? chatData.modelAnswer?.score;
+        setLiveScore((prev) => ({
+          overall: earned,
+          hiringSignal: earned >= 75 ? "STRONG FIT" : earned >= 55 ? "SOLID FIT" : "DEVELOPING",
+          breakdown: prev?.breakdown,
+          evidence: {
+            strengths: chatData.modelAnswer?.whatYouDidWell || ["Directly addressed technical question."],
+            improvements: chatData.modelAnswer?.whatWasMissing || [],
+            suggestedAnswer: chatData.modelAnswer?.bestPossibleAnswer || "",
+            scoreReason: `Evaluated across 5 canonical rubric dimensions: score ${earned}/100.`,
+          },
+          verdict: `Live Answer Score: ${earned}/100.`,
+        }));
+      }
+
       setActiveQuestionMeta({
         question_targets: chatData.questionTargets || chatData.question_targets || "Adaptive Evaluation",
         question_type: chatData.section || chatData.question_type || "Technical",
         difficulty_level: chatData.difficulty || chatData.difficulty_level || "medium",
         is_follow_up: isFollowUp,
       });
-
-      // Background live scoring (non-blocking)
-      fetch("/api/interview-score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
-          jd: jdContext,
-          resume: resumeContext,
-          studentId: candidateId,
-        }),
-      })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((scoreData) => {
-          if (scoreData) setLiveScore(scoreData);
-        })
-        .catch((err) => console.warn("[MOCK INTERVIEW] Live score telemetry notice:", err));
     } catch (err) {
+      if (sessionIdRef.current !== currentSessionId) return;
       console.error("[MOCK INTERVIEW] Turn error:", err);
       const fallbackProbe: Msg = {
         role: "assistant",
@@ -571,8 +832,10 @@ export default function MockInterviewExperience() {
       setMessages((prev) => [...prev, fallbackProbe]);
       speakVoice(fallbackProbe.content);
     } finally {
-      setIsSubmitting(false);
-      submissionLockRef.current = false;
+      if (sessionIdRef.current === currentSessionId) {
+        setIsSubmitting(false);
+        submissionLockRef.current = false;
+      }
     }
   };
 
@@ -607,83 +870,102 @@ export default function MockInterviewExperience() {
           targetCompany,
           targetRole,
           interviewType,
+          interviewTrack,
+          track: interviewTrack,
           difficulty,
           durationMinutes,
         }),
       });
+
+      const candidateUserAnswers = messages.filter((m) => m.role === "user");
+      const hasEvaluatedAnswers = candidateUserAnswers.length > 0 && liveScore !== null;
+      const safeOverallScore = hasEvaluatedAnswers ? (liveScore?.overall ?? 0) : 0;
 
       let reportData: FinalReportData;
       if (finalRes.ok) {
         reportData = await finalRes.json();
       } else {
         reportData = {
-          decision: (liveScore?.overall || 78) >= 75 ? "HIRE" : "LEANING_HIRE",
-          confidence: 82,
-          headline: `Interview Complete: ${targetRole} (${interviewType.toUpperCase()})`,
-          overview: `Completed adaptive mock round covering ${topicsCovered.length > 0 ? topicsCovered.join(", ") : skillsFocus}. Solid engagement with technical probing.`,
-          hire_reasons: [
-            "Demonstrated systematic engineering reasoning",
-            "Clear technical communication during probing turns",
-            "Consistent engagement with trade-off analysis",
-          ],
-          no_hire_reasons: [
-            "Could expand deeper into high-scale concurrency bottlenecks",
-            "Review edge-case error recovery scenarios",
-          ],
-          standout_moments: [
-            "Clear architecture walkthrough and structured problem decomposition",
-          ],
+          decision: safeOverallScore >= 75 ? "HIRE" : safeOverallScore >= 55 ? "LEANING_HIRE" : "NO_HIRE",
+          confidence: hasEvaluatedAnswers ? 82 : 40,
+          headline: hasEvaluatedAnswers ? `Interview Complete: ${targetRole} (${interviewType.toUpperCase()})` : `Interview Concluded Early: ${targetRole}`,
+          overview: hasEvaluatedAnswers
+            ? `Completed adaptive mock round covering ${topicsCovered.length > 0 ? topicsCovered.join(", ") : skillsFocus}.`
+            : "Interview was concluded before substantive technical answers were submitted. No certified score earned.",
+          hire_reasons: hasEvaluatedAnswers ? ["Completed full interview round", "Engaged with technical prompts"] : [],
+          no_hire_reasons: hasEvaluatedAnswers ? ["Review edge-case error recovery scenarios"] : ["Concluded early without sufficient evidence across required competencies"],
+          standout_moments: [],
           concerning_moments: [],
           scorecard: {
-            technical_depth: { score: liveScore?.overall || 78, comment: "Solid conceptual foundation" },
-            problem_solving: { score: 80, comment: "Structured decomposition" },
-            project_ownership: { score: 82, comment: "Verifiable project details" },
-            communication: { score: 78, comment: "Clear, concise technical articulation" },
+            technical_depth: { score: safeOverallScore, comment: hasEvaluatedAnswers ? "Demonstrated technical reasoning" : "Insufficient evidence" },
+            problem_solving: { score: safeOverallScore, comment: hasEvaluatedAnswers ? "Decomposition evaluated" : "Insufficient evidence" },
+            project_ownership: { score: safeOverallScore, comment: hasEvaluatedAnswers ? "Project details discussed" : "Insufficient evidence" },
+            communication: { score: safeOverallScore, comment: hasEvaluatedAnswers ? "Clear articulation" : "Insufficient evidence" },
           },
           next_steps: "Review suggested practice questions in Skill Practice Hub to solidify weak areas.",
-          interviewer_note: "Strong performance with clear upside in system depth.",
+          interviewer_note: hasEvaluatedAnswers ? "Candidate engaged with technical interview." : "Early exit before competency evaluation.",
         };
       }
 
       setFinalReport(reportData);
 
       // 2. Persist to storage with authenticated user isolation
-      const saved = await saveSession({
-        id: sessionIdRef.current,
-        candidate_id: candidateId || "student-demo",
-        session_type: "mock_interview",
-        experience_mode: experienceMode,
-        target_role: targetRole,
-        target_company: targetCompany,
-        interview_type: interviewType,
-        difficulty,
-        duration_minutes: durationMinutes,
-        topics_covered: topicsCovered.length > 0 ? topicsCovered : [skillsFocus],
-        answer_distribution: sessionDistribution,
-        security_flags: { tab_switches: 0, face_violations: 0 },
-        overall_score: reportData.report?.overallScore || liveScore?.overall || 80,
-        weak_topics_identified: reportData.no_hire_reasons || [],
-        report: reportData,
-        transcript: messages,
-      });
+      const computedFinalScore = typeof reportData.report?.overallScore === "number"
+        ? reportData.report.overallScore
+        : safeOverallScore;
 
-      setSavedSessionId(saved.id);
+      let savedSessionId = sessionIdRef.current;
+      try {
+        const saveRes = await fetch("/api/interview/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: sessionIdRef.current,
+            candidate_id: candidateId || "student-demo",
+            session_type: "mock_interview",
+            experience_mode: experienceMode,
+            target_role: targetRole,
+            target_company: targetCompany,
+            interview_type: interviewType,
+            track: interviewTrack,
+            difficulty,
+            duration_minutes: durationMinutes,
+            topics_covered: topicsCovered.length > 0 ? topicsCovered : [skillsFocus],
+            answer_distribution: sessionDistribution,
+            security_flags: { tab_switches: 0, face_violations: 0 },
+            overall_score: computedFinalScore,
+            weak_topics_identified: reportData.no_hire_reasons || [],
+            report: reportData,
+            transcript: messages,
+          })
+        });
+        if (saveRes.ok) {
+          const saveJson = await saveRes.json();
+          if (saveJson.session?.id) {
+            savedSessionId = saveJson.session.id;
+          }
+        }
+      } catch (saveErr) {
+        console.warn("[MockInterviewExperience] Server save session warning:", saveErr);
+      }
+
+      setSavedSessionId(savedSessionId);
       setStage("report");
     } catch (err) {
       console.error("[MOCK INTERVIEW] Error completing interview:", err);
-      // Fallback display
+      const safeScore = liveScore?.overall ?? 0;
       setFinalReport({
-        decision: "HIRE",
-        confidence: 75,
+        decision: safeScore >= 75 ? "HIRE" : safeScore >= 55 ? "LEANING_HIRE" : "NO_HIRE",
+        confidence: safeScore > 0 ? 75 : 30,
         headline: `Completed Interview: ${targetRole}`,
-        overview: "Interview finished and saved to your candidate trajectory.",
-        hire_reasons: ["Completed full interview round", "Answered adaptive follow-up questions"],
+        overview: safeScore > 0 ? "Interview finished and saved to your candidate trajectory." : "Interview concluded with provisional evidence.",
+        hire_reasons: safeScore >= 55 ? ["Completed interview round"] : [],
         no_hire_reasons: ["Continue practice on core algorithms and scalability"],
-        standout_moments: ["Good communication throughout round"],
+        standout_moments: [],
         concerning_moments: [],
         scorecard: {
-          technical_depth: { score: 75, comment: "Consistent baseline" },
-          communication: { score: 80, comment: "Clear responses" },
+          technical_depth: { score: safeScore, comment: safeScore > 0 ? "Consistent baseline" : "Awaiting substantive evidence" },
+          communication: { score: safeScore, comment: safeScore > 0 ? "Clear responses" : "Awaiting substantive evidence" },
         },
       });
       setStage("report");
@@ -952,10 +1234,69 @@ export default function MockInterviewExperience() {
               </div>
             </div>
 
-            {/* 3. Interview Type */}
+            {/* 3. Preparation Track (All 8 Disciplines) */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 1, textTransform: "uppercase" }}>
+                  3. PREPARATION TRACK (8 Practice Disciplines)
+                </div>
+                <span style={{ fontSize: 10, color: isDark ? "#B6C4D6" : "#667085", fontWeight: 600 }}>
+                  Active: {INTERVIEW_TRACKS.find((t) => t.id === interviewTrack)?.title || "Coding & DSA"}
+                </span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
+                {INTERVIEW_TRACKS.map((trk) => {
+                  const active = interviewTrack === trk.id;
+                  return (
+                    <div
+                      key={trk.id}
+                      onClick={() => {
+                        setInterviewTrack(trk.id);
+                        setInterviewType(trk.defaultType);
+                        if (!skillsFocus || INTERVIEW_TRACKS.some((t) => t.defaultFocus === skillsFocus)) {
+                          setSkillsFocus(trk.defaultFocus);
+                        }
+                      }}
+                      style={{
+                        padding: "0.95rem",
+                        borderRadius: 12,
+                        border: active ? "2px solid #356AE6" : `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                        backgroundColor: active ? (isDark ? "rgba(52,120,246,0.14)" : "#EEF4FD") : isDark ? "#13243A" : "#FAF9F6",
+                        cursor: "pointer",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontSize: 20 }}>{trk.icon}</span>
+                        <span
+                          style={{
+                            fontSize: 9,
+                            padding: "2px 7px",
+                            borderRadius: 999,
+                            backgroundColor: active ? (isDark ? "#3478F6" : "#356AE6") : isDark ? "rgba(255,255,255,0.06)" : "#E4E1DA",
+                            color: active ? "#FFFFFF" : isDark ? "#B6C4D6" : "#667085",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {trk.badge}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: active ? (isDark ? "#3478F6" : "#356AE6") : isDark ? "#F2F6FC" : "#162A43", marginBottom: 4 }}>
+                        {trk.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.35 }}>
+                        {trk.description}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 4. Round Format */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>
-                3. INTERVIEW TYPE
+                4. ROUND FORMAT
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10 }}>
                 {INTERVIEW_TYPES.map((t) => {
@@ -1000,10 +1341,10 @@ export default function MockInterviewExperience() {
               </div>
             </div>
 
-            {/* 4. Technical Skills & Focus Areas */}
+            {/* 5. Technical Skills & Focus Areas */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 1, textTransform: "uppercase", marginBottom: 10 }}>
-                4. TECHNICAL SKILLS & FOCUS AREAS
+                5. TECHNICAL SKILLS & FOCUS AREAS
               </div>
               <input
                 type="text"
@@ -1126,7 +1467,71 @@ export default function MockInterviewExperience() {
               </div>
             </div>
 
-            {/* 7. Optional Job Description Accordion */}
+            {/* 7. Feedback Mode */}
+            <div>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>
+                7. FEEDBACK & LEARNING MODE
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 10 }}>
+                {[
+                  {
+                    id: "practice_learn",
+                    title: "Practice & Learn (Instant Feedback)",
+                    badge: "RECOMMENDED",
+                    desc: "See exemplar model answers, 100-pt rubric breakdown, and likely follow-up probes immediately after each answer.",
+                    icon: "🎯",
+                  },
+                  {
+                    id: "simulation",
+                    title: "Realistic Simulation (Pressure Test)",
+                    badge: "INTERVIEW MODE",
+                    desc: "Seamless, uninterrupted interview dialogue. Model answers and rubric scores remain accessible via the Review Drawer.",
+                    icon: "👔",
+                  },
+                ].map((mode) => {
+                  const active = feedbackMode === mode.id;
+                  return (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      onClick={() => setFeedbackMode(mode.id as FeedbackMode)}
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: 10,
+                        textAlign: "left",
+                        border: active ? "2px solid #356AE6" : `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                        backgroundColor: active ? (isDark ? "rgba(52,120,246,0.15)" : "#EEF4FD") : isDark ? "#13243A" : "#FAF9F6",
+                        color: active ? (isDark ? "#3478F6" : "#356AE6") : isDark ? "#F2F6FC" : "#17191C",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: active ? (isDark ? "#3478F6" : "#356AE6") : isDark ? "#F2F6FC" : "#17191C" }}>
+                          {mode.icon} {mode.title}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 9,
+                            padding: "2px 6px",
+                            borderRadius: 4,
+                            backgroundColor: active ? "#356AE6" : isDark ? "#223750" : "#E4E1DA",
+                            color: "#FFFFFF",
+                            fontWeight: 800,
+                          }}
+                        >
+                          {mode.badge}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4 }}>
+                        {mode.desc}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 8. Optional Job Description Accordion */}
             <div>
               <button
                 type="button"
@@ -1258,6 +1663,36 @@ export default function MockInterviewExperience() {
   // RENDER: STAGE 2 — DISTRACTION-FREE INTERVIEW ROOM
   // ═════════════════════════════════════════════════════════════════════
   if (stage === "room") {
+    const evaluatedUserMessages = messages.filter((m) => m.role === "user" && m.modelAnswer);
+    const activeReviewMsg = selectedReviewTurn !== null
+      ? evaluatedUserMessages.find((m) => m.turnIndex === selectedReviewTurn) || evaluatedUserMessages[evaluatedUserMessages.length - 1]
+      : evaluatedUserMessages[evaluatedUserMessages.length - 1];
+    const totalEvaluatedTurns = evaluatedUserMessages.length;
+    const overallComputedScore = totalEvaluatedTurns > 0
+      ? Math.round(evaluatedUserMessages.reduce((sum, m) => sum + (m.rubricScore ?? m.modelAnswer?.score ?? 0), 0) / totalEvaluatedTurns)
+      : 0;
+
+    const derivedDistribution = evaluatedUserMessages.reduce(
+      (acc, m) => {
+        const quality = m.assessment?.answer_quality || (m.rubricScore && m.rubricScore >= 75 ? "strong" : m.rubricScore && m.rubricScore >= 55 ? "adequate" : "shallow");
+        if (quality === "strong") acc.strong++;
+        else if (quality === "adequate") acc.adequate++;
+        else if ((quality as string) === "off-topic" || (quality as string) === "off_topic") acc.off_topic++;
+        else acc.shallow++;
+        return acc;
+      },
+      { strong: 0, adequate: 0, shallow: 0, off_topic: 0 }
+    );
+
+    const derivedTopicsCovered = Array.from(
+      new Set(
+        evaluatedUserMessages.flatMap((m) => m.assessment?.topics_demonstrated || [])
+      )
+    );
+    const evidenceCoverage = Math.min(100, Math.round((derivedTopicsCovered.length / 5) * 100));
+    const assessmentConfidence = totalEvaluatedTurns >= 4 ? "High (Multiple Calibrated Dimensions)" : totalEvaluatedTurns >= 2 ? "Moderate (Sufficient Evidence)" : "Provisional (Initial Turns)";
+    const currentAssessment = activeReviewMsg?.assessment || lastAssessment;
+
     return (
       <div
         style={{
@@ -1288,6 +1723,7 @@ export default function MockInterviewExperience() {
             <button
               onClick={() => {
                 if (confirm("Exit this mock interview round and return to setup? Uncompleted progress will not be certified.")) {
+                  resetSessionState();
                   setStage("setup");
                 }
               }}
@@ -1339,6 +1775,54 @@ export default function MockInterviewExperience() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 800,
+                padding: "3px 8px",
+                borderRadius: 6,
+                backgroundColor: feedbackMode === "practice_learn" ? (isDark ? "rgba(46,125,91,0.2)" : "#EAF4EE") : (isDark ? "rgba(52,120,246,0.15)" : "#EEF4FD"),
+                color: feedbackMode === "practice_learn" ? "#2E7D5B" : (isDark ? "#3478F6" : "#356AE6"),
+                border: `1px solid ${feedbackMode === "practice_learn" ? "#C8E4D3" : isDark ? "#223750" : "#D2E0FB"}`,
+              }}
+            >
+              {feedbackMode === "practice_learn" ? "🎯 Practice & Learn Mode" : "👔 Simulation Mode"}
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setShowReviewDrawer(!showReviewDrawer)}
+              style={{
+                fontSize: 11,
+                padding: "5px 10px",
+                borderRadius: 7,
+                border: `1px solid ${showReviewDrawer ? "#356AE6" : isDark ? "#223750" : "#E4E1DA"}`,
+                backgroundColor: showReviewDrawer ? (isDark ? "rgba(52,120,246,0.2)" : "#EEF4FD") : isDark ? "#13243A" : "#FAF9F6",
+                color: showReviewDrawer ? (isDark ? "#3478F6" : "#356AE6") : isDark ? "#B6C4D6" : "#667085",
+                cursor: "pointer",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <span>🔍 Model Answers</span>
+              {messages.filter((m) => m.role === "user" && m.modelAnswer).length > 0 && (
+                <span
+                  style={{
+                    backgroundColor: "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 9,
+                    fontWeight: 800,
+                    padding: "1px 5px",
+                    borderRadius: 999,
+                  }}
+                >
+                  {messages.filter((m) => m.role === "user" && m.modelAnswer).length}
+                </span>
+              )}
+            </button>
+
             <button
               type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
@@ -1435,8 +1919,22 @@ export default function MockInterviewExperience() {
                       : `FOCUS: ${activeQuestionMeta.question_type || "Technical Competency"}`}
                   </span>
                 </div>
-                <div style={{ color: isDark ? "#B6C4D6" : "#667085", fontSize: 11 }}>
-                  Difficulty: <strong style={{ color: "#2E7D5B" }}>{activeQuestionMeta.difficulty_level || difficulty}</strong>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      padding: "2px 8px",
+                      borderRadius: 999,
+                      backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "#E4E1DA",
+                      fontWeight: 700,
+                      color: isDark ? "#E2E8F0" : "#334155",
+                    }}
+                  >
+                    {INTERVIEW_TRACKS.find((t) => t.id === interviewTrack)?.title || "Coding & DSA"}
+                  </span>
+                  <div style={{ color: isDark ? "#B6C4D6" : "#667085", fontSize: 11 }}>
+                    Difficulty: <strong style={{ color: "#2E7D5B" }}>{activeQuestionMeta.difficulty_level || difficulty}</strong>
+                  </div>
                 </div>
               </div>
             )}
@@ -1527,9 +2025,9 @@ export default function MockInterviewExperience() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
 
               {isSubmitting && (
                 <div
@@ -1658,8 +2156,7 @@ export default function MockInterviewExperience() {
               </button>
             </div>
           </div>
-
-          {/* Right Column: Real-Time Assessment & Rubric Panel */}
+          {/* Right Column: 5-Card Intelligent Assessment & Review Panel */}
           <div
             style={{
               display: "flex",
@@ -1668,7 +2165,7 @@ export default function MockInterviewExperience() {
               overflowY: "auto",
             }}
           >
-            {/* Real-Time Assessment Card */}
+            {/* 1. REAL-TIME ASSESSMENT */}
             <div
               style={{
                 backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
@@ -1680,9 +2177,9 @@ export default function MockInterviewExperience() {
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                 <span style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 0.8, textTransform: "uppercase" }}>
-                  REAL-TIME ASSESSMENT
+                  1. REAL-TIME ASSESSMENT
                 </span>
-                {lastAssessment && (
+                {currentAssessment && (
                   <span
                     style={{
                       fontSize: 10,
@@ -1691,69 +2188,65 @@ export default function MockInterviewExperience() {
                       borderRadius: 999,
                       textTransform: "uppercase",
                       backgroundColor:
-                        lastAssessment.answer_quality === "strong"
-                          ? isDark
-                            ? "rgba(46,125,91,0.25)"
-                            : "#EAF4EE"
-                          : lastAssessment.answer_quality === "adequate"
-                          ? isDark
-                            ? "rgba(183,121,31,0.25)"
-                            : "#FDF6E9"
-                          : isDark
-                          ? "rgba(194,65,65,0.25)"
-                          : "#FDF0F0",
+                        currentAssessment.answer_quality === "strong"
+                          ? isDark ? "rgba(46,125,91,0.25)" : "#EAF4EE"
+                          : currentAssessment.answer_quality === "adequate"
+                          ? isDark ? "rgba(183,121,31,0.25)" : "#FDF6E9"
+                          : isDark ? "rgba(194,65,65,0.25)" : "#FDF0F0",
                       color:
-                        lastAssessment.answer_quality === "strong"
+                        currentAssessment.answer_quality === "strong"
                           ? "#2E7D5B"
-                          : lastAssessment.answer_quality === "adequate"
+                          : currentAssessment.answer_quality === "adequate"
                           ? "#B7791F"
                           : "#C24141",
                     }}
                   >
-                    {lastAssessment.answer_quality}
+                    {currentAssessment.answer_quality}
                   </span>
                 )}
               </div>
 
-              {lastAssessment ? (
+              {activeQuestionMeta && (
+                <div style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#3478F6" : "#356AE6", marginBottom: 6 }}>
+                  Target Competency: {activeQuestionMeta.question_targets || activeQuestionMeta.question_type}
+                </div>
+              )}
+
+              {currentAssessment ? (
                 <div>
                   <p style={{ fontSize: 12, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5, margin: "0 0 10px" }}>
-                    {lastAssessment.reasoning}
+                    {currentAssessment.reasoning}
                   </p>
                   <div
                     style={{
                       padding: "8px 10px",
                       borderRadius: 8,
                       backgroundColor:
-                        lastAssessment.next_action === "follow_up_probe"
-                          ? isDark
-                            ? "rgba(183,121,31,0.15)"
-                            : "#FDF6E9"
-                          : isDark
-                          ? "rgba(46,125,91,0.15)"
-                          : "#EAF4EE",
+                        currentAssessment.next_action === "follow_up_probe"
+                          ? isDark ? "rgba(183,121,31,0.15)" : "#FDF6E9"
+                          : isDark ? "rgba(46,125,91,0.15)" : "#EAF4EE",
                       fontSize: 11,
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
                     }}
                   >
-                    <span>{lastAssessment.next_action === "follow_up_probe" ? "🔍" : "➡️"}</span>
+                    <span>{currentAssessment.next_action === "follow_up_probe" ? "🔍" : "➡️"}</span>
                     <span
                       style={{
                         fontWeight: 700,
-                        color: lastAssessment.next_action === "follow_up_probe" ? "#B7791F" : "#2E7D5B",
+                        color: currentAssessment.next_action === "follow_up_probe" ? "#B7791F" : "#2E7D5B",
                       }}
                     >
-                      {lastAssessment.next_action === "follow_up_probe"
-                        ? "Probing deeper into trade-offs & edge cases"
-                        : "Advancing to next technical competency"}
+                      {currentAssessment.next_action === "follow_up_probe"
+                        ? "Follow-up probe required on trade-offs & edge cases"
+                        : "Competency satisfied — transitioning to next focus"}
                     </span>
                   </div>
 
-                  {lastAssessment.topics_demonstrated && lastAssessment.topics_demonstrated.length > 0 && (
+                  {currentAssessment.topics_demonstrated && currentAssessment.topics_demonstrated.length > 0 && (
                     <div style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 4 }}>
-                      {lastAssessment.topics_demonstrated.map((t, idx) => (
+                      {currentAssessment.topics_demonstrated.map((t, idx) => (
                         <span
                           key={idx}
                           style={{
@@ -1777,7 +2270,191 @@ export default function MockInterviewExperience() {
               )}
             </div>
 
-            {/* Answer Distribution Tally */}
+            {/* 2. LATEST ANSWER REVIEW */}
+            <div
+              style={{
+                backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                borderRadius: 16,
+                padding: "1.25rem",
+                boxShadow: isDark ? "0 4px 14px rgba(0,0,0,0.2)" : "0 2px 8px rgba(0,0,0,0.03)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", letterSpacing: 0.8, textTransform: "uppercase" }}>
+                  2. LATEST ANSWER REVIEW
+                </span>
+                {activeReviewMsg?.modelAnswer && (
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 800,
+                      padding: "2px 8px",
+                      borderRadius: 6,
+                      backgroundColor: (activeReviewMsg.rubricScore ?? activeReviewMsg.modelAnswer.score) >= 75 ? "#EAF4EE" : (activeReviewMsg.rubricScore ?? activeReviewMsg.modelAnswer.score) >= 55 ? "#FEF7ED" : "#FDF0F0",
+                      color: (activeReviewMsg.rubricScore ?? activeReviewMsg.modelAnswer.score) >= 75 ? "#2E7D5B" : (activeReviewMsg.rubricScore ?? activeReviewMsg.modelAnswer.score) >= 55 ? "#B7791F" : "#C24141",
+                    }}
+                  >
+                    {activeReviewMsg.rubricScore ?? activeReviewMsg.modelAnswer.score}/100 pts
+                  </span>
+                )}
+              </div>
+
+              {/* Turn selector if multiple turns exist */}
+              {evaluatedUserMessages.length > 1 && (
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, overflowX: "auto", paddingBottom: 4 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? "#7E8FA6" : "#98A2B3" }}>Review:</span>
+                  {evaluatedUserMessages.map((m, idx) => {
+                    const isSelected = (selectedReviewTurn === null && idx === evaluatedUserMessages.length - 1) || selectedReviewTurn === m.turnIndex;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedReviewTurn(m.turnIndex || idx + 1)}
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: 6,
+                          border: `1px solid ${isSelected ? "#356AE6" : isDark ? "#223750" : "#E4E1DA"}`,
+                          backgroundColor: isSelected ? (isDark ? "#1A365D" : "#EEF4FD") : isDark ? "#13243A" : "#FAF9F6",
+                          color: isSelected ? "#356AE6" : isDark ? "#B6C4D6" : "#667085",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Turn {m.turnIndex || idx + 1} ({m.rubricScore ?? m.modelAnswer?.score}pts)
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {activeReviewMsg?.modelAnswer ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {/* Evaluated question context */}
+                  {activeReviewMsg.questionTargets && (
+                    <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.3 }}>
+                      <strong style={{ color: isDark ? "#F2F6FC" : "#17191C" }}>Target:</strong> {activeReviewMsg.questionTargets}
+                    </div>
+                  )}
+
+                  {/* 100-Point Dimension Breakdown */}
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#B6C4D6" : "#667085", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 }}>
+                      RUBRIC BREAKDOWN (5 DIMENSIONS)
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {activeReviewMsg.modelAnswer.dimensionScores.map((dim: any, dIdx: number) => (
+                        <div
+                          key={dIdx}
+                          style={{
+                            padding: "6px 8px",
+                            borderRadius: 8,
+                            backgroundColor: isDark ? "#13243A" : "#F6F5F1",
+                            border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, color: isDark ? "#F2F6FC" : "#17191C" }}>
+                              {dim.dimension}
+                            </span>
+                            <span style={{ fontSize: 10.5, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6" }}>
+                              {dim.earnedPoints}/{dim.maxPoints}
+                            </span>
+                          </div>
+                          <div style={{ height: 3, borderRadius: 2, backgroundColor: isDark ? "#223750" : "#E4E1DA", overflow: "hidden", marginBottom: 3 }}>
+                            <div
+                              style={{
+                                height: "100%",
+                                width: `${Math.round((dim.earnedPoints / dim.maxPoints) * 100)}%`,
+                                backgroundColor: dim.earnedPoints / dim.maxPoints >= 0.75 ? "#2E7D5B" : dim.earnedPoints / dim.maxPoints >= 0.5 ? "#B7791F" : "#C24141",
+                                borderRadius: 2,
+                              }}
+                            />
+                          </div>
+                          <div style={{ fontSize: 9.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.3 }}>
+                            {dim.explanation}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Exemplar Model Answer */}
+                  <div
+                    style={{
+                      borderRadius: 8,
+                      backgroundColor: isDark ? "rgba(46,125,91,0.12)" : "#EAF4EE",
+                      border: "1px solid rgba(46,125,91,0.3)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      onClick={() => setModelAnswerExpanded(!modelAnswerExpanded)}
+                      style={{
+                        padding: "8px 10px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B" }}>
+                        ★ TOP-TIER EXEMPLAR MODEL ANSWER
+                      </div>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#2E7D5B" }}>
+                        {modelAnswerExpanded ? "▲ Collapse" : "▼ Expand"}
+                      </span>
+                    </div>
+                    {modelAnswerExpanded && (
+                      <div style={{ padding: "0 10px 10px", fontSize: 11.5, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5 }}>
+                        {activeReviewMsg.modelAnswer.bestPossibleAnswer}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Strengths & Missing Side by Side */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ padding: "6px 8px", borderRadius: 8, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", marginBottom: 2 }}>
+                        ✓ WHAT YOU DID WELL
+                      </div>
+                      <div style={{ fontSize: 10.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.35 }}>
+                        {activeReviewMsg.modelAnswer.whatYouDidWell.join("; ") || "Direct technical response provided."}
+                      </div>
+                    </div>
+                    <div style={{ padding: "6px 8px", borderRadius: 8, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "#B7791F", marginBottom: 2 }}>
+                        ⚠️ WHAT WAS MISSING / DEDUCTIONS
+                      </div>
+                      <div style={{ fontSize: 10.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.35 }}>
+                        {activeReviewMsg.modelAnswer.whatWasMissing.join("; ") || activeReviewMsg.modelAnswer.howToImprove}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Likely Follow-Up Questions */}
+                  {activeReviewMsg.modelAnswer.likelyFollowUps && activeReviewMsg.modelAnswer.likelyFollowUps.length > 0 && (
+                    <div style={{ padding: "6px 8px", borderRadius: 8, backgroundColor: isDark ? "#13243A" : "#FAF9F6", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", marginBottom: 2 }}>
+                        🔮 LIKELY INTERVIEWER FOLLOW-UPS:
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: "1rem", fontSize: 10.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4 }}>
+                        {activeReviewMsg.modelAnswer.likelyFollowUps.map((fu: string, fuIdx: number) => (
+                          <li key={fuIdx}>{fu}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ textAlign: "center", padding: "1.5rem 0.5rem", color: isDark ? "#7E8FA6" : "#98A2B3", fontSize: 12 }}>
+                  {isSubmitting ? "Alex is evaluating your answer..." : "Submit your first technical answer to view rubric breakdown and exemplar model answer."}
+                </div>
+              )}
+            </div>
+
+            {/* 3. SESSION ANSWER DISTRIBUTION */}
             <div
               style={{
                 backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
@@ -1787,79 +2464,83 @@ export default function MockInterviewExperience() {
               }}
             >
               <div style={{ fontSize: 11, fontWeight: 700, color: isDark ? "#B6C4D6" : "#667085", letterSpacing: 0.5, marginBottom: 8 }}>
-                SESSION ANSWER DISTRIBUTION
+                3. SESSION ANSWER DISTRIBUTION
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, textAlign: "center" }}>
                 <div style={{ padding: "6px 2px", borderRadius: 8, backgroundColor: isDark ? "rgba(46,125,91,0.15)" : "#EAF4EE" }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#2E7D5B" }}>{sessionDistribution.strong}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#2E7D5B" }}>{derivedDistribution.strong}</div>
                   <div style={{ fontSize: 9, color: isDark ? "#B6C4D6" : "#667085" }}>Strong</div>
                 </div>
                 <div style={{ padding: "6px 2px", borderRadius: 8, backgroundColor: isDark ? "rgba(183,121,31,0.15)" : "#FDF6E9" }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#B7791F" }}>{sessionDistribution.adequate}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#B7791F" }}>{derivedDistribution.adequate}</div>
                   <div style={{ fontSize: 9, color: isDark ? "#B6C4D6" : "#667085" }}>Adequate</div>
                 </div>
                 <div style={{ padding: "6px 2px", borderRadius: 8, backgroundColor: isDark ? "rgba(249,115,22,0.15)" : "#FFF7ED" }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#EA580C" }}>{sessionDistribution.shallow}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#EA580C" }}>{derivedDistribution.shallow}</div>
                   <div style={{ fontSize: 9, color: isDark ? "#B6C4D6" : "#667085" }}>Shallow</div>
                 </div>
                 <div style={{ padding: "6px 2px", borderRadius: 8, backgroundColor: isDark ? "rgba(194,65,65,0.15)" : "#FDF0F0" }}>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: "#C24141" }}>{sessionDistribution.off_topic}</div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: "#C24141" }}>{derivedDistribution.off_topic}</div>
                   <div style={{ fontSize: 9, color: isDark ? "#B6C4D6" : "#667085" }}>Off-topic</div>
                 </div>
               </div>
             </div>
 
-            {/* Live Scoring */}
-            {liveScore && (
-              <div
-                style={{
-                  backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
-                  border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
-                  borderRadius: 16,
-                  padding: "1.25rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div>
-                    <div style={{ fontSize: 10, color: isDark ? "#B6C4D6" : "#667085", fontWeight: 700, textTransform: "uppercase" }}>
-                      ESTIMATED SCORE
-                    </div>
+            {/* 4. OVERALL INTERVIEW SCORE */}
+            <div
+              style={{
+                backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                borderRadius: 16,
+                padding: "1.25rem",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ fontSize: 10, color: isDark ? "#B6C4D6" : "#667085", fontWeight: 700, textTransform: "uppercase" }}>
+                    4. OVERALL INTERVIEW SCORE
+                  </div>
+                  {totalEvaluatedTurns > 0 ? (
                     <div style={{ fontSize: 24, fontWeight: 900, color: "#2E7D5B" }}>
-                      {liveScore.overall} <span style={{ fontSize: 12, color: isDark ? "#7E8FA6" : "#98A2B3" }}>/ 100</span>
+                      {overallComputedScore} <span style={{ fontSize: 12, color: isDark ? "#7E8FA6" : "#98A2B3" }}>/ 100</span>
                     </div>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 800,
-                      padding: "4px 8px",
-                      borderRadius: 6,
-                      backgroundColor: "#EAF4EE",
-                      color: "#2E7D5B",
-                      border: "1px solid #C8E4D3",
-                    }}
-                  >
-                    {liveScore.hiringSignal || "SOLID FIT"}
-                  </span>
+                  ) : (
+                    <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? "#7E8FA6" : "#98A2B3", marginTop: 4 }}>
+                      Provisional (Awaiting Evaluation)
+                    </div>
+                  )}
                 </div>
-
-                {liveScore.evidence?.strengths && liveScore.evidence.strengths.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: "#2E7D5B", marginBottom: 3 }}>
-                      ✓ DEMONSTRATED STRENGTHS
-                    </div>
-                    <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4 }}>
-                      {liveScore.evidence.strengths[0]}
-                    </div>
-                  </div>
-                )}
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    padding: "4px 8px",
+                    borderRadius: 6,
+                    backgroundColor: totalEvaluatedTurns === 0 ? (isDark ? "#13243A" : "#F6F5F1") : overallComputedScore >= 75 ? "#EAF4EE" : overallComputedScore >= 55 ? "#FEF7ED" : "#FDF0F0",
+                    color: totalEvaluatedTurns === 0 ? (isDark ? "#7E8FA6" : "#98A2B3") : overallComputedScore >= 75 ? "#2E7D5B" : overallComputedScore >= 55 ? "#B7791F" : "#C24141",
+                    border: "1px solid rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {assessmentConfidence}
+                </span>
               </div>
-            )}
 
-            {/* Practice Tip Card Linking to Skill Practice Hub */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 11, color: isDark ? "#B6C4D6" : "#667085" }}>
+                <span>Evidence Coverage:</span>
+                <span style={{ fontWeight: 700 }}>{evidenceCoverage}% ({derivedTopicsCovered.length} Competencies)</span>
+              </div>
+
+              <div style={{ fontSize: 10, color: isDark ? "#7E8FA6" : "#98A2B3", lineHeight: 1.35 }}>
+                {totalEvaluatedTurns > 0
+                  ? `Computed from ${totalEvaluatedTurns} validated answer evaluation${totalEvaluatedTurns > 1 ? "s" : ""} across 5 canonical rubric dimensions.`
+                  : "Score reflects actual submitted answers. No arbitrary or pre-filled scores are displayed."}
+              </div>
+            </div>
+
+            {/* 5. SKILL PRACTICE HUB */}
             <div
               style={{
                 backgroundColor: isDark ? "#13243A" : "#EFF4FE",
@@ -1871,7 +2552,7 @@ export default function MockInterviewExperience() {
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
                 <span style={{ fontSize: 14 }}>⚡</span>
                 <span style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6" }}>
-                  SKILL PRACTICE HUB
+                  5. SKILL PRACTICE HUB
                 </span>
               </div>
               <p style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085", margin: "0 0 8px", lineHeight: 1.4 }}>
@@ -1892,6 +2573,147 @@ export default function MockInterviewExperience() {
             </div>
           </div>
         </div>
+
+        {/* Model Answers & Rubrics Slide-Out Review Drawer */}
+        {showReviewDrawer && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: "100%",
+              maxWidth: 540,
+              backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+              borderLeft: `1px solid ${isDark ? "#223750" : "#D2E0FB"}`,
+              boxShadow: "-8px 0 24px rgba(0,0,0,0.25)",
+              zIndex: 100,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div
+              style={{
+                padding: "1.25rem 1.5rem",
+                borderBottom: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: isDark ? "#0E1B2E" : "#FAF9F6",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 18 }}>💡</span>
+                <div>
+                  <h3 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: isDark ? "#F2F6FC" : "#162A43" }}>
+                    Turn-by-Turn Model Answers & Rubric Review
+                  </h3>
+                  <div style={{ fontSize: 11, color: isDark ? "#B6C4D6" : "#667085" }}>
+                    Official 100-point rubric breakdown & FAANG-standard exemplar responses
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowReviewDrawer(false)}
+                style={{
+                  background: "transparent",
+                  border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                  borderRadius: 6,
+                  padding: "4px 8px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: isDark ? "#B6C4D6" : "#667085",
+                  cursor: "pointer",
+                }}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: "auto", padding: "1.25rem 1.5rem", display: "flex", flexDirection: "column", gap: 16 }}>
+              {messages.filter((m) => m.role === "user" && m.modelAnswer).length === 0 ? (
+                <div style={{ textAlign: "center", padding: "3rem 1rem", color: isDark ? "#7E8FA6" : "#98A2B3" }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📝</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>No Answer Evaluations Yet</div>
+                  <div style={{ fontSize: 11.5, lineHeight: 1.5 }}>
+                    Answer Alex&apos;s interview questions. As you complete each question, comprehensive 100-point rubric evaluations and exemplar answers will appear here.
+                  </div>
+                </div>
+              ) : (
+                messages
+                  .filter((m) => m.role === "user" && m.modelAnswer)
+                  .map((m, revIdx) => {
+                    const ans = m.modelAnswer!;
+                    return (
+                      <div
+                        key={revIdx}
+                        style={{
+                          borderRadius: 12,
+                          backgroundColor: isDark ? "#0E1B2E" : "#FAF9F6",
+                          border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                          padding: "1rem",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6" }}>
+                            TURN #{m.turnIndex || revIdx + 1} EVALUATION
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 800,
+                              padding: "2px 8px",
+                              borderRadius: 999,
+                              backgroundColor: ans.score >= 75 ? "#EAF4EE" : ans.score >= 55 ? "#FEF7ED" : "#FDF0F0",
+                              color: ans.score >= 75 ? "#2E7D5B" : ans.score >= 55 ? "#B7791F" : "#C24141",
+                              border: `1px solid ${ans.score >= 75 ? "#C8E4D3" : ans.score >= 55 ? "#F8D8A7" : "#F5C2C2"}`,
+                            }}
+                          >
+                            Score: {ans.score}/100
+                          </span>
+                        </div>
+
+                        {/* Candidate submitted answer */}
+                        <div style={{ fontSize: 11.5, color: isDark ? "#B6C4D6" : "#475467", fontStyle: "italic", marginBottom: 10, padding: "6px 10px", borderRadius: 6, backgroundColor: isDark ? "rgba(0,0,0,0.2)" : "#F2EFEB" }}>
+                          &ldquo;{m.content.slice(0, 180)}{m.content.length > 180 ? "..." : ""}&rdquo;
+                        </div>
+
+                        {/* 5-Dimension Rubric Summary */}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 10 }}>
+                          {ans.dimensionScores.map((ds, dsIdx) => (
+                            <div key={dsIdx} style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5 }}>
+                              <span style={{ color: isDark ? "#B6C4D6" : "#667085" }}>{ds.dimension}</span>
+                              <span style={{ fontWeight: 700, color: isDark ? "#F2F6FC" : "#17191C" }}>
+                                {ds.earnedPoints}/{ds.maxPoints} pts
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Top-tier exemplar answer */}
+                        <div style={{ padding: "8px 10px", borderRadius: 8, backgroundColor: isDark ? "rgba(46,125,91,0.12)" : "#EAF4EE", border: "1px solid rgba(46,125,91,0.25)", marginBottom: 8 }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", marginBottom: 3 }}>
+                            ★ EXEMPLAR MODEL ANSWER:
+                          </div>
+                          <div style={{ fontSize: 11.5, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5 }}>
+                            {ans.bestPossibleAnswer}
+                          </div>
+                        </div>
+
+                        {/* Strengths & Missing */}
+                        <div style={{ fontSize: 10.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4 }}>
+                          <strong style={{ color: "#2E7D5B" }}>Strengths:</strong> {ans.whatYouDidWell.join("; ")}
+                        </div>
+                        <div style={{ fontSize: 10.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.4, marginTop: 2 }}>
+                          <strong style={{ color: "#B7791F" }}>Gap / Missing:</strong> {ans.whatWasMissing.join("; ") || ans.howToImprove}
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -1899,8 +2721,8 @@ export default function MockInterviewExperience() {
   // ═════════════════════════════════════════════════════════════════════
   // RENDER: STAGE 3 — POST-INTERVIEW DETAILED REPORT & HISTORY SCREEN
   // ═════════════════════════════════════════════════════════════════════
-  const reportOverallScore = finalReport?.report?.overallScore || liveScore?.overall || 82;
-  const hireDecision = finalReport?.decision || "HIRE";
+  const reportOverallScore = finalReport?.report?.overallScore ?? liveScore?.overall ?? 0;
+  const hireDecision = finalReport?.decision || (reportOverallScore >= 68 ? "HIRE" : "NO_HIRE");
   const hireColor =
     hireDecision === "STRONG_HIRE" || hireDecision === "HIRE"
       ? "#2E7D5B"
@@ -1936,7 +2758,10 @@ export default function MockInterviewExperience() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <button
-              onClick={() => setStage("setup")}
+              onClick={() => {
+                resetSessionState();
+                setStage("setup");
+              }}
               style={{
                 fontSize: 12,
                 fontWeight: 600,
@@ -2055,7 +2880,7 @@ export default function MockInterviewExperience() {
               EXECUTIVE EVALUATION SUMMARY
             </div>
             <p style={{ fontSize: 13.5, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.6, margin: 0 }}>
-              {finalReport?.overview || "Demonstrated solid technical reasoning and answered adaptive follow-up probes with consistency."}
+              {finalReport?.overview || (reportOverallScore === 0 ? "The interview session was concluded before substantive technical answers were submitted. No certified score earned." : "Demonstrated technical reasoning and answered adaptive follow-up probes with consistency.")}
             </p>
           </div>
         </div>
@@ -2065,26 +2890,26 @@ export default function MockInterviewExperience() {
           {[
             {
               title: "Technical Depth",
-              score: finalReport?.scorecard?.technical_depth?.score || 82,
-              comment: finalReport?.scorecard?.technical_depth?.comment || "Strong grasp of algorithmic trade-offs & data models.",
+              score: finalReport?.scorecard?.technical_depth?.score ?? (reportOverallScore > 0 ? reportOverallScore : 0),
+              comment: finalReport?.scorecard?.technical_depth?.comment || (reportOverallScore === 0 ? "No technical answers submitted for depth assessment." : "Comprehension evaluated based on submitted answers."),
               icon: "⚡",
             },
             {
               title: "Problem Solving",
-              score: finalReport?.scorecard?.problem_solving?.score || 80,
-              comment: finalReport?.scorecard?.problem_solving?.comment || "Structured decomposition with clear edge-case reasoning.",
+              score: finalReport?.scorecard?.problem_solving?.score ?? (reportOverallScore > 0 ? reportOverallScore : 0),
+              comment: finalReport?.scorecard?.problem_solving?.comment || (reportOverallScore === 0 ? "No problem solving responses submitted." : "Algorithmic and structural reasoning evaluated."),
               icon: "🧩",
             },
             {
               title: "Project Ownership",
-              score: finalReport?.scorecard?.project_ownership?.score || 84,
-              comment: finalReport?.scorecard?.project_ownership?.comment || "Concrete engineering ownership and tech stack justification.",
+              score: finalReport?.scorecard?.project_ownership?.score ?? (reportOverallScore > 0 ? reportOverallScore : 0),
+              comment: finalReport?.scorecard?.project_ownership?.comment || (reportOverallScore === 0 ? "No project defense responses submitted." : "Architecture and implementation claims evaluated."),
               icon: "🏛️",
             },
             {
               title: "Communication Clarity",
-              score: finalReport?.scorecard?.communication?.score || 78,
-              comment: finalReport?.scorecard?.communication?.comment || "Articulate technical dialogue and receptive to follow-up prompts.",
+              score: finalReport?.scorecard?.communication?.score ?? (reportOverallScore > 0 ? reportOverallScore : 0),
+              comment: finalReport?.scorecard?.communication?.comment || (reportOverallScore === 0 ? "No responses submitted for communication assessment." : "Communication clarity evaluated."),
               icon: "🎙️",
             },
           ].map((cat, idx) => (
@@ -2274,6 +3099,251 @@ export default function MockInterviewExperience() {
             </Link>
           </div>
         </div>
+
+        {/* ═══ QUESTION-BY-QUESTION DEEP DIVE: 100-POINT RUBRIC & MODEL ANSWERS ═══ */}
+        {(() => {
+          const qList =
+            (finalReport?.report?.questionByQuestionAnalysis && finalReport.report.questionByQuestionAnalysis.length > 0)
+              ? finalReport.report.questionByQuestionAnalysis
+              : messages
+                  .filter((m) => m.role === "user" && m.modelAnswer)
+                  .map((m, idx) => ({
+                    turnIndex: m.turnIndex || idx + 1,
+                    question: m.questionTargets ? `Question ${idx + 1}: ${m.questionTargets}` : `Question ${idx + 1}`,
+                    section: m.section || "technical_fundamentals",
+                    candidateAnswer: m.content,
+                    rubricScore: m.rubricScore || m.modelAnswer!.score,
+                    dimensionScores: m.modelAnswer!.dimensionScores,
+                    exemplarModelAnswer: m.modelAnswer!.bestPossibleAnswer,
+                    whatWentWell: m.modelAnswer!.whatYouDidWell,
+                    whatWasMissing: m.modelAnswer!.whatWasMissing,
+                    deductionReasons: m.modelAnswer!.deductionReasons,
+                    keyConcepts: m.modelAnswer!.keyConceptsToRemember,
+                    likelyFollowUps: m.modelAnswer!.likelyFollowUps,
+                  }));
+
+          if (qList.length === 0) return null;
+
+          return (
+            <div
+              style={{
+                backgroundColor: isDark ? "#0E1B2E" : "#FFFFFF",
+                border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                borderRadius: 16,
+                padding: "1.75rem",
+                marginBottom: "1.5rem",
+                boxShadow: isDark ? "0 4px 20px rgba(0,0,0,0.3)" : "0 4px 20px rgba(22,42,67,0.04)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, flexWrap: "wrap", gap: 10 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 22 }}>🎯</span>
+                  <div>
+                    <h3 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: isDark ? "#F2F6FC" : "#162A43" }}>
+                      Question-by-Question Deep Dive & Exemplar Model Answers
+                    </h3>
+                    <div style={{ fontSize: 11.5, color: isDark ? "#B6C4D6" : "#667085" }}>
+                      Evaluated against Cognalyze&apos;s canonical 100-point FAANG interview rubric
+                    </div>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "3px 10px",
+                    borderRadius: 999,
+                    backgroundColor: isDark ? "rgba(52,120,246,0.15)" : "#EEF4FD",
+                    color: isDark ? "#3478F6" : "#356AE6",
+                    border: `1px solid ${isDark ? "#223750" : "#D2E0FB"}`,
+                  }}
+                >
+                  {qList.length} Technical Questions Evaluated
+                </span>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {qList.map((item: any, qIdx: number) => {
+                  const score = item.rubricScore || 80;
+                  const scoreBadgeBg = score >= 75 ? "#EAF4EE" : score >= 55 ? "#FEF7ED" : "#FDF0F0";
+                  const scoreBadgeColor = score >= 75 ? "#2E7D5B" : score >= 55 ? "#B7791F" : "#C24141";
+                  const scoreBadgeBorder = score >= 75 ? "#C8E4D3" : score >= 55 ? "#F8D8A7" : "#F5C2C2";
+
+                  return (
+                    <div
+                      key={qIdx}
+                      style={{
+                        padding: "1.25rem 1.5rem",
+                        borderRadius: 14,
+                        backgroundColor: isDark ? "#13243A" : "#FAF9F6",
+                        border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 12,
+                      }}
+                    >
+                      {/* Turn Header */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 800,
+                              padding: "2px 8px",
+                              borderRadius: 6,
+                              backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+                              border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                              color: isDark ? "#3478F6" : "#356AE6",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            Q{item.turnIndex || qIdx + 1} · {String(item.section || "Technical").replace("_", " ")}
+                          </span>
+                        </div>
+
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 900,
+                            padding: "3px 10px",
+                            borderRadius: 999,
+                            backgroundColor: scoreBadgeBg,
+                            color: scoreBadgeColor,
+                            border: `1px solid ${scoreBadgeBorder}`,
+                          }}
+                        >
+                          Rubric Score: {score} / 100
+                        </span>
+                      </div>
+
+                      {/* Question */}
+                      <div>
+                        <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#B6C4D6" : "#667085", textTransform: "uppercase", marginBottom: 3 }}>
+                          QUESTION PROMPTED:
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: isDark ? "#F2F6FC" : "#162A43", lineHeight: 1.5 }}>
+                          {item.question}
+                        </div>
+                      </div>
+
+                      {/* Candidate Submitted Answer */}
+                      <div
+                        style={{
+                          padding: "10px 14px",
+                          borderRadius: 8,
+                          backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+                          border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                        }}
+                      >
+                        <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#7E8FA6" : "#98A2B3", textTransform: "uppercase", marginBottom: 3 }}>
+                          YOUR SUBMITTED ANSWER:
+                        </div>
+                        <div style={{ fontSize: 12.5, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.55 }}>
+                          {item.candidateAnswer}
+                        </div>
+                      </div>
+
+                      {/* 5-Dimension Rubric Breakdown Grid */}
+                      {item.dimensionScores && item.dimensionScores.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#B6C4D6" : "#667085", letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 6 }}>
+                            100-POINT RUBRIC DIMENSION BREAKDOWN:
+                          </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 8 }}>
+                            {item.dimensionScores.map((dim: any, dIdx: number) => (
+                              <div
+                                key={dIdx}
+                                style={{
+                                  padding: "8px 10px",
+                                  borderRadius: 8,
+                                  backgroundColor: isDark ? "#0A1626" : "#FFFFFF",
+                                  border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+                                }}
+                              >
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                                  <span style={{ fontSize: 10.5, fontWeight: 700, color: isDark ? "#F2F6FC" : "#17191C" }}>
+                                    {dim.dimension}
+                                  </span>
+                                  <span style={{ fontSize: 11, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6" }}>
+                                    {dim.earnedPoints}/{dim.maxPoints}
+                                  </span>
+                                </div>
+                                <div style={{ height: 4, borderRadius: 2, backgroundColor: isDark ? "#223750" : "#E4E1DA", overflow: "hidden", marginBottom: 4 }}>
+                                  <div
+                                    style={{
+                                      height: "100%",
+                                      width: `${Math.round((dim.earnedPoints / dim.maxPoints) * 100)}%`,
+                                      backgroundColor: dim.earnedPoints / dim.maxPoints >= 0.75 ? "#2E7D5B" : dim.earnedPoints / dim.maxPoints >= 0.5 ? "#B7791F" : "#C24141",
+                                      borderRadius: 2,
+                                    }}
+                                  />
+                                </div>
+                                <div style={{ fontSize: 9.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.35 }}>
+                                  {dim.explanation}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Exemplar Model Answer */}
+                      <div
+                        style={{
+                          padding: "12px 14px",
+                          borderRadius: 10,
+                          backgroundColor: isDark ? "rgba(46,125,91,0.12)" : "#EAF4EE",
+                          border: "1px solid rgba(46,125,91,0.3)",
+                        }}
+                      >
+                        <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 4 }}>
+                          ★ TOP-TIER EXEMPLAR MODEL ANSWER (FAANG BAR):
+                        </div>
+                        <div style={{ fontSize: 12.5, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.55 }}>
+                          {item.exemplarModelAnswer}
+                        </div>
+                      </div>
+
+                      {/* Strengths & Missing Side by Side */}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 10 }}>
+                        <div style={{ padding: "10px 12px", borderRadius: 8, backgroundColor: isDark ? "#0A1626" : "#FFFFFF", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", marginBottom: 4 }}>
+                            ✓ WHAT YOU DEMONSTRATED WELL
+                          </div>
+                          <div style={{ fontSize: 11.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.45 }}>
+                            {Array.isArray(item.whatWentWell) ? item.whatWentWell.join("; ") : "Direct technical response provided."}
+                          </div>
+                        </div>
+                        <div style={{ padding: "10px 12px", borderRadius: 8, backgroundColor: isDark ? "#0A1626" : "#FFFFFF", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: "#B7791F", marginBottom: 4 }}>
+                            ⚠️ WHAT WAS MISSING / DEDUCTION REASON
+                          </div>
+                          <div style={{ fontSize: 11.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.45 }}>
+                            {Array.isArray(item.whatWasMissing) ? item.whatWasMissing.join("; ") : "Expand on production scale and trade-offs."}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Likely Follow-Up Questions */}
+                      {item.likelyFollowUps && item.likelyFollowUps.length > 0 && (
+                        <div style={{ padding: "10px 12px", borderRadius: 8, backgroundColor: isDark ? "#0A1626" : "#FFFFFF", border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}` }}>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: isDark ? "#3478F6" : "#356AE6", marginBottom: 4 }}>
+                            🔮 LIKELY INTERVIEWER FOLLOW-UP QUESTIONS:
+                          </div>
+                          <ul style={{ margin: 0, paddingLeft: "1.2rem", fontSize: 11.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.5 }}>
+                            {item.likelyFollowUps.map((fu: string, fuIdx: number) => (
+                              <li key={fuIdx}>{fu}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Full Question-by-Question Transcript Audit */}
         <div

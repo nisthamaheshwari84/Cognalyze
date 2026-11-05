@@ -13,11 +13,14 @@
  */
 
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 import {
   ConnectorRetrievalResult,
   NormalizedSourceArtifact,
   SourceRetrievalRunRecord
 } from "./types";
+import { generateSecureId } from "@/lib/crypto-utils";
 import { githubConnector, GitHubConnectorConfig } from "./github";
 import { leetcodeConnector, LeetCodeConnectorConfig } from "./leetcode";
 import { deploymentConnector, DeploymentConnectorConfig } from "./deployment";
@@ -51,6 +54,39 @@ const SOURCE_RUNS_STORE = new Map<string, SourceRetrievalRunRecord[]>();
 const ARTIFACTS_CACHE = new Map<string, NormalizedSourceArtifact[]>();
 const BUNDLE_CACHE = new Map<string, UnifiedMultiSourceEvidenceBundle>();
 
+const SOURCE_RUNS_DIR = path.join(process.cwd(), "data");
+const SOURCE_RUNS_FILE = path.join(SOURCE_RUNS_DIR, "source-runs-store.json");
+
+function loadRunsFromDisk(): void {
+  try {
+    if (fs.existsSync(SOURCE_RUNS_FILE)) {
+      const content = fs.readFileSync(SOURCE_RUNS_FILE, "utf-8");
+      const parsed = JSON.parse(content);
+      for (const [sId, runs] of Object.entries(parsed)) {
+        if (Array.isArray(runs)) {
+          SOURCE_RUNS_STORE.set(sId, runs as SourceRetrievalRunRecord[]);
+        }
+      }
+    }
+  } catch {
+    // Non-fatal
+  }
+}
+
+function persistRunsToDisk(): void {
+  try {
+    if (!fs.existsSync(SOURCE_RUNS_DIR)) {
+      fs.mkdirSync(SOURCE_RUNS_DIR, { recursive: true });
+    }
+    const serialized = Object.fromEntries(SOURCE_RUNS_STORE.entries());
+    fs.writeFileSync(SOURCE_RUNS_FILE, JSON.stringify(serialized, null, 2), "utf-8");
+  } catch {
+    // Non-fatal
+  }
+}
+
+loadRunsFromDisk();
+
 export function getRetrievalRunHistory(studentId: string): SourceRetrievalRunRecord[] {
   return SOURCE_RUNS_STORE.get(studentId) || [];
 }
@@ -60,6 +96,7 @@ export function recordSourceRun(record: SourceRetrievalRunRecord): void {
   current.unshift(record);
   if (current.length > 100) current.pop();
   SOURCE_RUNS_STORE.set(record.studentId, current);
+  persistRunsToDisk();
 }
 
 export function invalidateStudentOrchestrationCache(studentId: string): void {
@@ -101,7 +138,7 @@ export class SourceRetrievalOrchestrator {
       runFn: () => Promise<ConnectorRetrievalResult<TResult>>
     ): Promise<ConnectorRetrievalResult<TResult>> {
       const startedAt = new Date().toISOString();
-      const runId = `run_${sourceType}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const runId = generateSecureId(`run_${sourceType}_${Date.now()}`, 7);
 
       try {
         const result = await runFn();

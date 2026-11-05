@@ -13,6 +13,7 @@ import {
 } from "@/lib/resume/types";
 import { getTemplateCss, RESUME_TEMPLATES } from "@/lib/resume/templates";
 import { InlineEditableText } from "./InlineEditableText";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 interface DocumentCanvasProps {
   document: ResumeDocument;
@@ -109,7 +110,7 @@ export const DocumentCanvas: React.FC<DocumentCanvasProps> = ({
   // Add bullet
   const handleAddBullet = (sectionId: string, itemId: string) => {
     const newBullet: ResumeBullet = {
-      id: `b-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      id: generateSecureId(`b-${Date.now()}`, 4),
       text: "Engineered scalable background workflows with automated testing suites.",
       evidence_ids: [],
       evidence_type: "USER_ASSERTED",

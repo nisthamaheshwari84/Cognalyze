@@ -292,6 +292,21 @@ export async function deepPull(
       // Incremental work rule: committed across at least 3 distinct days and span > 5 days, or > 10 commits
       const isIncremental = distinctDays >= 3 && commitSpanDays >= 5;
 
+      // Author Attribution (Scenario 6: Team Project vs Individual Work)
+      const userLower = username.toLowerCase();
+      const candidateCommits = commitsData.filter((c: any) => {
+        const authorLogin = (c.author?.login || "").toLowerCase();
+        const committerLogin = (c.committer?.login || "").toLowerCase();
+        const authorName = (c.commit?.author?.name || "").toLowerCase();
+        return (
+          authorLogin === userLower ||
+          committerLogin === userLower ||
+          authorName.includes(userLower) ||
+          !authorLogin
+        );
+      });
+      const isTeamProject = commitsData.length > candidateCommits.length;
+
       const sampleMessages = commitsData
         .slice(0, 5)
         .map((c: any) => (c.commit?.message || "").split("\n")[0].trim())
@@ -299,7 +314,10 @@ export async function deepPull(
 
       analyses.push({
         repo_name: repoName,
-        commit_count: commitsData.length,
+        commit_count: candidateCommits.length,
+        candidate_commits_count: candidateCommits.length,
+        total_team_commits: commitsData.length,
+        is_team_project: isTeamProject,
         is_incremental_work: isIncremental,
         first_commit_at: firstCommitAt,
         last_commit_at: lastCommitAt,

@@ -64,10 +64,9 @@ export default function Home() {
     if (loadingSection !== null) return;
     setLoadingSection(section);
 
-    // Safety timeout: Never leave the UI stuck in loading state
     const resetTimer = setTimeout(() => {
       setLoadingSection(null);
-    }, 1500);
+    }, 3000);
 
     const targetUrl =
       section === "post"
@@ -76,40 +75,27 @@ export default function Home() {
         ? "/student/dashboard"
         : "/recruiter/dashboard";
 
-    // Non-blocking background preference update
     try {
       if (section === "recruiter") {
-        fetch("/api/auth/demo", {
+        await fetch("/api/auth/demo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ role: "recruiter" }),
-          signal: AbortSignal.timeout(800),
         }).catch(() => {});
-      } else {
-        fetch("/api/auth/role", {
+      } else if (section === "student") {
+        await fetch("/api/auth/role", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ role: section }),
-          signal: AbortSignal.timeout(800),
+          body: JSON.stringify({ role: "student" }),
         }).catch(() => {});
       }
     } catch {}
 
-    // Immediate navigation with hard navigation fallback if router stalls
-    try {
+    clearTimeout(resetTimer);
+    if (typeof window !== "undefined") {
+      window.location.assign(targetUrl);
+    } else {
       router.push(targetUrl);
-      setTimeout(() => {
-        if (typeof window !== "undefined" && window.location.pathname !== targetUrl) {
-          window.location.assign(targetUrl);
-        }
-      }, 350);
-    } catch {
-      if (typeof window !== "undefined") {
-        window.location.assign(targetUrl);
-      }
-    } finally {
-      clearTimeout(resetTimer);
-      setTimeout(() => setLoadingSection(null), 1200);
     }
   };
 

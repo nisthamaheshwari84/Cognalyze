@@ -4,7 +4,7 @@ import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await getAuthenticatedContext(req as any);

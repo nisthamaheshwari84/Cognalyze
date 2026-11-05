@@ -17,7 +17,7 @@ import { ApplyToRoleInput } from "@/lib/collab/types";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ roleId: string }> | { roleId: string } }
+  { params }: { params: Promise<{ roleId: string }> }
 ) {
   const user = await getCollabUser(req);
   if (!user) {

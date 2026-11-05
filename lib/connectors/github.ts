@@ -20,6 +20,15 @@ import {
   ConnectorDiagnosticInfo
 } from "./types";
 import { DNASourceConnectionStatus } from "@/lib/dna/contracts";
+import { getDecryptedTokenForUser } from "@/lib/auth/store";
+import {
+  isVendorOrGeneratedPath,
+  parsePackageJson,
+  parseRequirementsTxt,
+  parsePyprojectToml,
+  parseGoMod,
+  parseCargoToml
+} from "./manifest-parser";
 
 export interface GitHubConnectorConfig {
   profileUrlOrUsername?: string;
@@ -95,6 +104,14 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
     }
 
     return null;
+  }
+
+  public async inspectCandidateSource(
+    studentId: string,
+    config: GitHubConnectorConfig,
+    options?: { forceRefresh?: boolean; dryRun?: boolean }
+  ): Promise<ConnectorRetrievalResult<GitHubInspectionSummary>> {
+    return this.retrieve(studentId, config, options);
   }
 
   public async retrieve(
@@ -207,8 +224,9 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
 
         // Scan files
         for (const [filename, content] of Object.entries(files)) {
+          if (isVendorOrGeneratedPath(filename)) continue;
+
           const lowerFile = filename.toLowerCase();
-          const lowerContent = content.toLowerCase();
 
           // Languages
           if (lowerFile.endsWith(".py") && !observedLangs.includes("Python")) observedLangs.push("Python");
@@ -220,22 +238,41 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
           if (lowerFile.endsWith(".cpp") && !observedLangs.includes("C++")) observedLangs.push("C++");
 
           // Manifests
-          if (lowerFile === "package.json") {
-            observedManifests.push("package.json");
-            if (lowerContent.includes('"react"')) manifestTechSet.add("React");
-            if (lowerContent.includes('"next"')) manifestTechSet.add("Next.js");
-            if (lowerContent.includes('"express"')) manifestTechSet.add("Express");
-          }
-          if (lowerFile === "requirements.txt" || lowerFile === "pyproject.toml") {
+          if (lowerFile.endsWith("package.json")) {
             observedManifests.push(filename);
-            if (lowerContent.includes("fastapi")) manifestTechSet.add("FastAPI");
-            if (lowerContent.includes("django")) manifestTechSet.add("Django");
-            if (lowerContent.includes("torch")) manifestTechSet.add("PyTorch");
-            if (lowerContent.includes("tensorflow")) manifestTechSet.add("TensorFlow");
+            const { frameworksFound } = parsePackageJson(content);
+            for (const fw of frameworksFound) manifestTechSet.add(fw);
+          } else if (lowerFile.endsWith("requirements.txt")) {
+            observedManifests.push(filename);
+            const { frameworksFound } = parseRequirementsTxt(content);
+            for (const fw of frameworksFound) manifestTechSet.add(fw);
+          } else if (lowerFile.endsWith("pyproject.toml")) {
+            observedManifests.push(filename);
+            const { frameworksFound } = parsePyprojectToml(content);
+            for (const fw of frameworksFound) manifestTechSet.add(fw);
+          } else if (lowerFile.endsWith("go.mod")) {
+            observedManifests.push(filename);
+            const { frameworksFound } = parseGoMod(content);
+            for (const fw of frameworksFound) manifestTechSet.add(fw);
+          } else if (lowerFile.endsWith("cargo.toml")) {
+            observedManifests.push(filename);
+            const { frameworksFound } = parseCargoToml(content);
+            for (const fw of frameworksFound) manifestTechSet.add(fw);
           }
 
           // Tests
-          if (lowerFile.includes("test") || lowerFile.includes("spec")) {
+          const filenameLower = filename.split("/").pop()?.toLowerCase() || "";
+          if (
+            lowerFile.includes("/tests/") || lowerFile.startsWith("tests/") ||
+            lowerFile.includes("/test/") || lowerFile.startsWith("test/") ||
+            lowerFile.includes("__tests__") ||
+            lowerFile.endsWith(".test.ts") || lowerFile.endsWith(".test.tsx") ||
+            lowerFile.endsWith(".test.js") || lowerFile.endsWith(".test.jsx") ||
+            lowerFile.endsWith(".spec.ts") || lowerFile.endsWith(".spec.tsx") ||
+            lowerFile.endsWith(".spec.js") || lowerFile.endsWith(".spec.jsx") ||
+            lowerFile.endsWith("_test.py") || filenameLower.startsWith("test_") ||
+            lowerFile.endsWith("_test.go") || lowerFile.endsWith("_test.rs")
+          ) {
             testFiles.push(filename);
             testSuitesFound++;
           }
@@ -336,7 +373,8 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
       "User-Agent": "Cognalyze-Evidence-Vault/2.0",
     };
 
-    const token = config.accessToken || process.env.GITHUB_TOKEN;
+    const userVaultToken = studentId ? getDecryptedTokenForUser(studentId, "github") : null;
+    const token = config.accessToken || userVaultToken || process.env.GITHUB_TOKEN;
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -485,40 +523,175 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
         const testFiles: string[] = [];
         const snippets: Array<{ filePath?: string; section?: string; lineRange?: string; excerpt: string }> = [];
 
-        // Safe inspection of root contents
+        let repoFiles: Array<{ path: string; size?: number; type?: string }> = [];
+        let treeInspectionSucceeded = false;
+        let ciConfigured = false;
+        const detectedManifestPaths: string[] = [];
+        const detectedEntrypointPaths: string[] = [];
+
+        // 1. Safe Recursive Tree Inspection (bounded to 300 files)
         try {
-          const contentsUrl = `https://api.github.com/repos/${encodeURIComponent(repo.owner.login)}/${encodeURIComponent(repo.name)}/contents`;
-          const contRes = await fetch(contentsUrl, { headers, signal: AbortSignal.timeout(5000) });
-
-          if (contRes.ok) {
-            const contents = await contRes.json();
-            if (Array.isArray(contents)) {
-              for (const item of contents) {
-                const nameLower = (item.name || "").toLowerCase();
-
-                // Manifests
-                if (nameLower === "package.json") repoManifests.push("package.json");
-                if (nameLower === "requirements.txt") repoManifests.push("requirements.txt");
-                if (nameLower === "pyproject.toml") repoManifests.push("pyproject.toml");
-                if (nameLower === "cargo.toml") repoManifests.push("Cargo.toml");
-                if (nameLower === "go.mod") repoManifests.push("go.mod");
-
-                // Tests
-                if (nameLower.includes("test") || nameLower === "__tests__") {
-                  testFiles.push(item.path || item.name);
-                  testSuitesFound++;
-                }
-
-                // Languages
-                if (nameLower.endsWith(".py") && !repoLangs.includes("Python")) repoLangs.push("Python");
-                if (nameLower.endsWith(".ts") && !repoLangs.includes("TypeScript")) repoLangs.push("TypeScript");
-                if (nameLower.endsWith(".js") && !repoLangs.includes("JavaScript")) repoLangs.push("JavaScript");
-                if (nameLower.endsWith(".go") && !repoLangs.includes("Go")) repoLangs.push("Go");
-              }
+          const defaultBranch = repo.default_branch || "main";
+          const treeUrl = `https://api.github.com/repos/${encodeURIComponent(repo.owner.login)}/${encodeURIComponent(repo.name)}/git/trees/${encodeURIComponent(defaultBranch)}?recursive=1`;
+          const treeRes = await fetch(treeUrl, { headers, signal: AbortSignal.timeout(5000) });
+          if (treeRes.ok) {
+            const treeData = await treeRes.json();
+            if (Array.isArray(treeData.tree)) {
+              repoFiles = treeData.tree.slice(0, 300);
+              treeInspectionSucceeded = true;
             }
           }
         } catch {
-          // Bounded timeout or rate-limit for sub-contents
+          // Tree endpoint failed or timed out, will fall back to contents
+        }
+
+        // 2. Fall back to root contents if tree was unavailable
+        if (!treeInspectionSucceeded) {
+          try {
+            const contentsUrl = `https://api.github.com/repos/${encodeURIComponent(repo.owner.login)}/${encodeURIComponent(repo.name)}/contents`;
+            const contRes = await fetch(contentsUrl, { headers, signal: AbortSignal.timeout(4000) });
+            if (contRes.ok) {
+              const contents = await contRes.json();
+              if (Array.isArray(contents)) {
+                repoFiles = contents.map(item => ({ path: item.path || item.name, type: item.type }));
+              }
+            }
+          } catch {
+            // Bounded timeout or rate-limit for sub-contents
+          }
+        }
+
+        // 3. Scan Files for CI, Tests, Languages, Manifests, and Entrypoints
+        for (const fileItem of repoFiles) {
+          const rawPath = fileItem.path || "";
+          if (!rawPath || isVendorOrGeneratedPath(rawPath)) continue;
+
+          const lowerPath = rawPath.toLowerCase();
+
+          // CI Detection
+          if (lowerPath.includes(".github/workflows") || lowerPath.includes(".gitlab-ci") || lowerPath.includes(".circleci")) {
+            ciConfigured = true;
+          }
+
+          // Test File Detection
+          const filenameOnly = rawPath.split("/").pop()?.toLowerCase() || "";
+          if (
+            lowerPath.includes("/tests/") || lowerPath.startsWith("tests/") ||
+            lowerPath.includes("/test/") || lowerPath.startsWith("test/") ||
+            lowerPath.includes("__tests__") ||
+            lowerPath.endsWith(".test.ts") || lowerPath.endsWith(".test.tsx") ||
+            lowerPath.endsWith(".test.js") || lowerPath.endsWith(".test.jsx") ||
+            lowerPath.endsWith(".spec.ts") || lowerPath.endsWith(".spec.tsx") ||
+            lowerPath.endsWith(".spec.js") || lowerPath.endsWith(".spec.jsx") ||
+            lowerPath.endsWith("_test.py") || filenameOnly.startsWith("test_") ||
+            lowerPath.endsWith("_test.go") || lowerPath.endsWith("_test.rs")
+          ) {
+            testFiles.push(rawPath);
+            testSuitesFound++;
+          }
+
+          // Language Detection from Code Files
+          if (lowerPath.endsWith(".py") && !repoLangs.includes("Python")) repoLangs.push("Python");
+          if ((lowerPath.endsWith(".ts") || lowerPath.endsWith(".tsx")) && !repoLangs.includes("TypeScript")) repoLangs.push("TypeScript");
+          if ((lowerPath.endsWith(".js") || lowerPath.endsWith(".jsx")) && !repoLangs.includes("JavaScript")) repoLangs.push("JavaScript");
+          if (lowerPath.endsWith(".go") && !repoLangs.includes("Go")) repoLangs.push("Go");
+          if (lowerPath.endsWith(".rs") && !repoLangs.includes("Rust")) repoLangs.push("Rust");
+          if (lowerPath.endsWith(".java") && !repoLangs.includes("Java")) repoLangs.push("Java");
+          if ((lowerPath.endsWith(".cpp") || lowerPath.endsWith(".cc")) && !repoLangs.includes("C++")) repoLangs.push("C++");
+          if (lowerPath.endsWith(".c") && !repoLangs.includes("C")) repoLangs.push("C");
+          if (lowerPath.endsWith(".sql") && !repoLangs.includes("SQL")) repoLangs.push("SQL");
+
+          // Manifest Detection
+          const filename = rawPath.split("/").pop() || "";
+          const filenameLower = filename.toLowerCase();
+          if (filenameLower === "package.json") {
+            repoManifests.push(rawPath);
+            detectedManifestPaths.push(rawPath);
+          } else if (filenameLower === "requirements.txt" || filenameLower === "pyproject.toml") {
+            repoManifests.push(rawPath);
+            detectedManifestPaths.push(rawPath);
+          } else if (filenameLower === "go.mod") {
+            repoManifests.push(rawPath);
+            detectedManifestPaths.push(rawPath);
+          } else if (filenameLower === "cargo.toml") {
+            repoManifests.push(rawPath);
+            detectedManifestPaths.push(rawPath);
+          }
+
+          // Entrypoint Detection for Code Snippets
+          if (
+            filenameLower === "index.ts" || filenameLower === "app.tsx" || filenameLower === "index.js" ||
+            filenameLower === "main.py" || filenameLower === "app.py" || filenameLower === "main.go" ||
+            filenameLower === "main.rs"
+          ) {
+            detectedEntrypointPaths.push(rawPath);
+          }
+        }
+
+        // 4. Deterministic Manifest Content Fetch & Parsing (bounded to 1 manifest)
+        if (detectedManifestPaths.length > 0) {
+          const targetManifest = detectedManifestPaths[0];
+          try {
+            const manifestUrl = `https://api.github.com/repos/${encodeURIComponent(repo.owner.login)}/${encodeURIComponent(repo.name)}/contents/${encodeURIComponent(targetManifest)}`;
+            const mRes = await fetch(manifestUrl, { headers, signal: AbortSignal.timeout(4000) });
+            if (mRes.ok) {
+              const mData = await mRes.json();
+              let manifestContent = "";
+              if (mData.content && mData.encoding === "base64") {
+                manifestContent = Buffer.from(mData.content, "base64").toString("utf-8");
+              } else if (typeof mData === "string") {
+                manifestContent = mData;
+              }
+
+              if (manifestContent) {
+                const lowerName = targetManifest.toLowerCase();
+                let parsedFrameworks: string[] = [];
+                if (lowerName.endsWith("package.json")) {
+                  parsedFrameworks = parsePackageJson(manifestContent).frameworksFound;
+                } else if (lowerName.endsWith("requirements.txt")) {
+                  parsedFrameworks = parseRequirementsTxt(manifestContent).frameworksFound;
+                } else if (lowerName.endsWith("pyproject.toml")) {
+                  parsedFrameworks = parsePyprojectToml(manifestContent).frameworksFound;
+                } else if (lowerName.endsWith("go.mod")) {
+                  parsedFrameworks = parseGoMod(manifestContent).frameworksFound;
+                } else if (lowerName.endsWith("cargo.toml")) {
+                  parsedFrameworks = parseCargoToml(manifestContent).frameworksFound;
+                }
+
+                for (const fw of parsedFrameworks) {
+                  manifestTechSet.add(fw);
+                }
+              }
+            }
+          } catch {
+            // Manifest fetch timeout or rate-limit
+          }
+        }
+
+        // 5. Entrypoint Snippet Extraction (bounded to 1 entrypoint)
+        if (detectedEntrypointPaths.length > 0) {
+          const targetFile = detectedEntrypointPaths[0];
+          try {
+            const fileUrl = `https://api.github.com/repos/${encodeURIComponent(repo.owner.login)}/${encodeURIComponent(repo.name)}/contents/${encodeURIComponent(targetFile)}`;
+            const fRes = await fetch(fileUrl, { headers, signal: AbortSignal.timeout(4000) });
+            if (fRes.ok) {
+              const fData = await fRes.json();
+              if (fData.content && fData.encoding === "base64") {
+                const fileText = Buffer.from(fData.content, "base64").toString("utf-8");
+                const excerpt = fileText.split("\n").slice(0, 15).join("\n").trim();
+                if (excerpt) {
+                  snippets.push({
+                    filePath: targetFile,
+                    section: "entrypoint",
+                    lineRange: "1-15",
+                    excerpt
+                  });
+                }
+              }
+            }
+          } catch {
+            // Snippet fetch timeout
+          }
         }
 
         for (const l of repoLangs) languagesInCodeSet.add(l);
@@ -538,7 +711,7 @@ export class GitHubSourceConnector implements BaseSourceConnector<GitHubConnecto
           languagesObserved: repoLangs,
           manifestsFound: repoManifests,
           testFilesFound: testFiles,
-          ciConfigured: false,
+          ciConfigured,
           snippets,
           metadata: {
             stars: repo.stargazers_count ?? 0,

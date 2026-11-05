@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import {
   getCandidateById,
   getRoleById,
@@ -12,6 +13,9 @@ import { recordHumanDecision, DecisionType } from "@/lib/decisions/engine";
 
 export async function GET(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const { searchParams } = new URL(req.url);
     const candidateId = searchParams.get("candidateId");
     let roleId = searchParams.get("roleId");
@@ -74,6 +78,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const body = await req.json();
     const { action } = body;
 

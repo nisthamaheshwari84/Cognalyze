@@ -11,7 +11,7 @@
  *   - Phase 12: 30/60/90 Quality-of-Hire outcome records
  */
 
-import { RoleDNA, createDefaultRoleDNA } from "./ai/role-dna";
+import { RoleDNA, createDefaultRoleDNA, RoleApprovalRecord } from "./ai/role-dna";
 import { CandidateDNA, buildEvidenceGraph } from "./ai/evidence-graph";
 import { computeRoleCandidateMatch, generateMinimumProofPlan, MatchEngineResult, MinimumProofPlan } from "./ai/minimum-proof";
 import { WorkSampleMiniTask, WorkSampleEvaluationResult } from "./ai/work-sample";
@@ -20,6 +20,26 @@ import { DetectedConflict } from "./ai/conflict-detector";
 import { HireOutcomeRecord } from "./ai/quality-of-hire";
 import { getApplicationsStore } from "./placement-store";
 import { CandidateScreeningDossier, RecruiterCorrection } from "./screening/candidate-screening-engine";
+import { RoleDNAStructure, ResponsibilityGraphNode } from "./roles/types";
+
+export interface RoleVersionSnapshot {
+  id: string;
+  roleId: string;
+  version: number;
+  title: string;
+  department: string;
+  seniority: string;
+  status: "draft" | "under_review" | "approved" | "published" | "archived";
+  jdRaw?: string;
+  roleDna?: RoleDNAStructure;
+  responsibilityGraph?: ResponsibilityGraphNode[];
+  tieredRequirements?: import("./ai/role-dna").TieredRequirement[];
+  structuredRequirements?: import("./ai/role-dna").StructuredRoleRequirement[];
+  approvalRecord?: RoleApprovalRecord;
+  changeSummary: string;
+  createdAt: string;
+  createdBy: string;
+}
 
 export interface MultiSourceCandidateProfile {
   id: string;
@@ -335,6 +355,7 @@ const CLOUD_RECRUITER_KEY = "cognalyze_recruiter_cloud_store";
 let rolesStore: RoleDNA[] = [...initialRoles];
 let candidatesStore: MultiSourceCandidateProfile[] = [...initialCandidates];
 let hireRecordsStore: HireOutcomeRecord[] = [];
+let roleVersionsStore: RoleVersionSnapshot[] = [];
 
 export async function saveRecruiterStoreToCloud(): Promise<void> {
   if (typeof window !== "undefined") return;
@@ -343,6 +364,7 @@ export async function saveRecruiterStoreToCloud(): Promise<void> {
       roles: rolesStore,
       candidates: candidatesStore,
       hireRecords: hireRecordsStore,
+      roleVersions: roleVersionsStore,
       updatedAt: new Date().toISOString()
     };
     const { data: existingRows } = await supabase
@@ -399,6 +421,13 @@ export async function syncRecruiterStoreWithCloud(): Promise<void> {
           else candidatesStore[idx] = { ...candidatesStore[idx], ...c };
         }
       }
+      if (cloud.roleVersions && Array.isArray(cloud.roleVersions) && cloud.roleVersions.length > 0) {
+        for (const v of cloud.roleVersions) {
+          const idx = roleVersionsStore.findIndex(x => x.id === v.id);
+          if (idx === -1) roleVersionsStore.push(v);
+          else roleVersionsStore[idx] = { ...roleVersionsStore[idx], ...v };
+        }
+      }
     }
   } catch {}
 }
@@ -411,6 +440,7 @@ function loadStoreFromDisk() {
       if (parsed.roles && Array.isArray(parsed.roles) && parsed.roles.length > 0) rolesStore = parsed.roles;
       if (parsed.candidates && Array.isArray(parsed.candidates) && parsed.candidates.length > 0) candidatesStore = parsed.candidates;
       if (parsed.hireRecords && Array.isArray(parsed.hireRecords) && parsed.hireRecords.length > 0) hireRecordsStore = parsed.hireRecords;
+      if (parsed.roleVersions && Array.isArray(parsed.roleVersions)) roleVersionsStore = parsed.roleVersions;
     }
   } catch (err) {
     console.error("Failed to load recruiter store from disk:", err);
@@ -426,7 +456,8 @@ export function persistStoreToDisk() {
       fs.writeFileSync(STORE_FILE, JSON.stringify({
         roles: rolesStore,
         candidates: candidatesStore,
-        hireRecords: hireRecordsStore
+        hireRecords: hireRecordsStore,
+        roleVersions: roleVersionsStore
       }, null, 2), "utf-8");
       saveRecruiterStoreToCloud().catch(() => {});
     }
@@ -439,7 +470,7 @@ loadStoreFromDisk();
 syncRecruiterStoreWithCloud().catch(() => {});
 
 // ─────────────────────────────────────────────────────────────
-// STORE OPERATIONS
+// STORE OPERATIONS & ROLE VERSIONING VAULT
 // ─────────────────────────────────────────────────────────────
 
 export async function getAllRoles(): Promise<RoleDNA[]> {
@@ -450,15 +481,139 @@ export async function getRoleById(id: string): Promise<RoleDNA | null> {
   return rolesStore.find(r => r.id === id) || null;
 }
 
-export async function saveRole(role: RoleDNA): Promise<RoleDNA> {
-  const existingIdx = rolesStore.findIndex(r => r.id === role.id);
+export async function createRoleVersionSnapshot(
+  roleId: string,
+  summary: string,
+  userId: string = "recruiter-current",
+  approvalRecord?: RoleApprovalRecord
+): Promise<RoleVersionSnapshot | null> {
+  const role = rolesStore.find(r => r.id === roleId);
+  if (!role) return null;
+
+  const currentVersion = role.version || 1;
+  const snapshotVersion = approvalRecord?.version || currentVersion;
+
+  const snapshot: RoleVersionSnapshot = {
+    id: `ver-${roleId}-${snapshotVersion}-${Date.now().toString().slice(-4)}`,
+    roleId,
+    version: snapshotVersion,
+    title: role.title,
+    department: role.department,
+    seniority: role.seniority,
+    status: (approvalRecord?.approvalStatus as any) || (role.status === "active" ? "published" : "draft"),
+    jdRaw: role.jdRaw,
+    roleDna: role.roleDna,
+    responsibilityGraph: role.responsibilityGraph || role.roleDna?.responsibilityGraph,
+    tieredRequirements: role.tieredRequirements,
+    structuredRequirements: role.structuredRequirements,
+    approvalRecord: approvalRecord || role.approvalRecord,
+    changeSummary: summary,
+    createdAt: new Date().toISOString(),
+    createdBy: userId
+  };
+
+  const existingIdx = roleVersionsStore.findIndex(v => v.roleId === roleId && v.version === snapshotVersion);
   if (existingIdx >= 0) {
-    rolesStore[existingIdx] = { ...role, updatedAt: new Date().toISOString() };
+    roleVersionsStore[existingIdx] = snapshot;
+  } else {
+    roleVersionsStore.unshift(snapshot);
+  }
+
+  persistStoreToDisk();
+
+  // Try sync with Supabase role_versions table
+  try {
+    await supabase.from("role_versions").insert({
+      role_id: roleId,
+      version: snapshotVersion,
+      snapshot,
+      approved_by: approvalRecord?.approvedBy || userId,
+      approved_at: approvalRecord?.approvedAt || (approvalRecord ? new Date().toISOString() : null),
+      approval_status: approvalRecord?.approvalStatus || (role.status === "active" ? "published" : "draft"),
+      approval_notes: approvalRecord?.approvalNotes || null,
+      diff_summary: summary
+    });
+  } catch {}
+
+  return snapshot;
+}
+
+export async function getRoleVersions(roleId: string): Promise<RoleVersionSnapshot[]> {
+  const local = roleVersionsStore.filter(v => v.roleId === roleId);
+  if (local.length > 0) {
+    return [...local].sort((a, b) => b.version - a.version);
+  }
+
+  // Fallback to Supabase
+  try {
+    const { data } = await supabase
+      .from("role_versions")
+      .select("*")
+      .eq("role_id", roleId)
+      .order("version", { ascending: false });
+
+    if (data && data.length > 0) {
+      return data.map((d: any) => d.snapshot || {
+        id: d.id,
+        roleId: d.role_id,
+        version: d.version,
+        changeSummary: d.diff_summary || "Role snapshot",
+        createdAt: d.created_at,
+        createdBy: d.approved_by || "recruiter"
+      });
+    }
+  } catch {}
+
+  return [];
+}
+
+export async function approveRole(
+  roleId: string,
+  approval: Omit<RoleApprovalRecord, "version" | "approvedAt"> & { approvedAt?: string },
+  summary: string = "Role approved and published by recruiter"
+): Promise<{ role: RoleDNA; version: RoleVersionSnapshot } | null> {
+  const role = rolesStore.find(r => r.id === roleId);
+  if (!role) return null;
+
+  const nextVersion = (role.version || 1) + 1;
+  const fullApproval: RoleApprovalRecord = {
+    ...approval,
+    version: nextVersion,
+    approvedAt: approval.approvedAt || new Date().toISOString()
+  };
+
+  role.approvalRecord = fullApproval;
+  role.version = nextVersion;
+  role.status = fullApproval.approvalStatus === "published" || fullApproval.approvalStatus === "approved" ? "active" : "draft";
+  role.updatedAt = new Date().toISOString();
+
+  const snapshot = await createRoleVersionSnapshot(roleId, summary, approval.approvedBy, fullApproval);
+  persistStoreToDisk();
+
+  return { role, version: snapshot! };
+}
+
+export async function saveRole(role: RoleDNA, changeSummary?: string): Promise<RoleDNA> {
+  const existingIdx = rolesStore.findIndex(r => r.id === role.id);
+  const isNew = existingIdx < 0;
+
+  if (!isNew) {
+    rolesStore[existingIdx] = {
+      ...rolesStore[existingIdx],
+      ...role,
+      updatedAt: new Date().toISOString()
+    };
   } else {
     rolesStore.unshift(role);
   }
+
+  // Auto-record snapshot in version vault
+  const versionNum = role.version || 1;
+  const summary = changeSummary || (isNew ? `Initial role creation (v${versionNum})` : `Updated role definition (v${versionNum})`);
+  await createRoleVersionSnapshot(role.id, summary, role.approvalRecord?.approvedBy || "recruiter", role.approvalRecord);
+
   persistStoreToDisk();
-  return role;
+  return isNew ? role : rolesStore[existingIdx];
 }
 
 let studentAppsSynced = false;

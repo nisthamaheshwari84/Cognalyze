@@ -10,6 +10,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class DevfolioAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-devfolio";
@@ -96,7 +97,7 @@ export class DevfolioAdapter extends BaseOpportunitySourceAdapter {
   public parse(payload: any): RawOpportunity[] {
     if (!payload || !Array.isArray(payload)) return [];
     return payload.map((item: any) => ({
-      id: item.id || `devfolio-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: item.id || generateSecureId(`devfolio-${Date.now()}`, 6),
       source: "Devfolio",
       sourceType: "DEVFOLIO",
       sourceId: item.sourceId || item.slug || item.id,

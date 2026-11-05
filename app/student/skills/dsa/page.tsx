@@ -31,8 +31,15 @@ import {
 import CanonicalProblemView from "@/components/skills/CanonicalProblemView";
 import { DsaInterviewSession } from "@/lib/skills/dsa-interview-store";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
+import { DsaMentorDrawer } from "@/components/skills/DsaMentorDrawer";
+import { DsaVisualizer } from "@/components/skills/DsaVisualizer";
+import { DsaApproachComparator } from "@/components/skills/DsaApproachComparator";
+import { DsaDebugLab } from "@/components/skills/DsaDebugLab";
+import { COMPANY_TRACKS, getCompanyTrackBySlug } from "@/lib/skills/dsa-company-prep";
+import { DsaUpgradedInterviewView } from "@/components/skills/DsaUpgradedInterviewView";
+import DsaMasteryTrackerView from "@/components/skills/DsaMasteryTrackerView";
 
-export type DSAMode = "learn" | "practice" | "coach" | "interview";
+export type DSAMode = "learn" | "practice" | "coach" | "interview" | "tracker";
 
 function DSACodingArenaContent() {
   const searchParams = useSearchParams();
@@ -54,6 +61,13 @@ function DSACodingArenaContent() {
   const [dsaSummary, setDsaSummary] = useState(() => getStudentDsaSummary(""));
   const [currentFocus, setCurrentFocus] = useState(() => getStudentDsaFocus(""));
   const [candidateProgressMap, setCandidateProgressMap] = useState<Record<string, any>>({});
+
+  // DSA Mentor, Company Tracks & Advanced Labs State
+  const [isMentorOpen, setIsMentorOpen] = useState(false);
+  const [roadmapMode, setRoadmapMode] = useState<"striver" | "company">("striver");
+  const [selectedCompanySlug, setSelectedCompanySlug] = useState<string>("google");
+  const [companyProvenanceFilter, setCompanyProvenanceFilter] = useState<string>("all");
+  const [activeLabTab, setActiveLabTab] = useState<"tutorial" | "dryrun" | "approaches" | "debug">("tutorial");
 
   // Learn Mode State
   const [revealedSolution, setRevealedSolution] = useState(false);
@@ -96,6 +110,14 @@ function DSACodingArenaContent() {
     }
   ]);
   const [coachInput, setCoachInput] = useState("");
+  const [coachThinking, setCoachThinking] = useState(false);
+  const [coachAssistanceUsed, setCoachAssistanceUsed] = useState(false);
+  const [suggestedChips, setSuggestedChips] = useState<string[]>([
+    "Check my invariant logic",
+    "Give me a progressive hint",
+    "What is the optimal complexity?",
+    "Explain in Hinglish"
+  ]);
 
   // ── INTERVIEW MODE STATE (Persistent Server-Backed Session) ──
   const [interviewTopic, setInterviewTopic] = useState("binary-search");
@@ -148,7 +170,7 @@ function DSACodingArenaContent() {
     setTrackSlug(paramTrack);
 
     const queryMode = (searchParams.get("mode") as DSAMode) || null;
-    if (queryMode && ["learn", "practice", "coach", "interview"].includes(queryMode)) {
+    if (queryMode && ["learn", "practice", "coach", "interview", "tracker"].includes(queryMode)) {
       setMode(queryMode);
     }
 
@@ -571,7 +593,9 @@ function DSACodingArenaContent() {
             candidateId,
             trackSlug,
             timeSpentSeconds: 180,
-            isInterview: false
+            isInterview: false,
+            isAssisted: coachAssistanceUsed || revealedSolution,
+            assistanceTier: revealedSolution ? 5 : coachAssistanceUsed ? 3 : 1
           })
         });
         const data = await res.json();
@@ -753,25 +777,43 @@ function DSACodingArenaContent() {
     refreshCandidateData(candidateId);
   };
 
-  const handleAskCoach = () => {
-    if (!coachInput.trim()) return;
-    const userMsg = coachInput.trim();
-    setCoachLog(prev => [...prev, { sender: "candidate", text: userMsg }]);
+  const handleAskCoach = async (overridePrompt?: string) => {
+    const promptToSend = (overridePrompt || coachInput).trim();
+    if (!promptToSend || coachThinking) return;
+    setCoachLog(prev => [...prev, { sender: "candidate", text: promptToSend }]);
     setCoachInput("");
+    setCoachThinking(true);
 
-    setTimeout(() => {
-      let reply = `In ${activeProblem.title}, consider what invariant must hold true at every element.`;
-      if (userMsg.toLowerCase().includes("loop") || userMsg.toLowerCase().includes("nested")) {
-        reply = "Nested loops compare every pair in O(N²). Can a hash map or binary search on answers reduce redundant work?";
-      } else if (userMsg.toLowerCase().includes("pointer") || userMsg.toLowerCase().includes("window")) {
-        reply = "If using two pointers, define when the left pointer moves forward. Does moving the right pointer strictly increase the constraint?";
-      } else if (userMsg.toLowerCase().includes("overflow") || userMsg.toLowerCase().includes("range")) {
-        reply = "Always check constraints: if total sums reach 10^10, does your language require 64-bit integers (`long long` in C++) to prevent silent overflow?";
-      } else if (userMsg.toLowerCase().includes("edge") || userMsg.toLowerCase().includes("empty")) {
-        reply = "Always verify: What if N = 1? What if all numbers are negative? Does your initialization guard against empty inputs?";
+    try {
+      const res = await fetch("/api/skills/dsa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "coach_turn",
+          candidateId,
+          problemId: activeProblem.id,
+          code,
+          language: selectedLanguage,
+          query: promptToSend,
+          history: coachLog.slice(-6),
+          testOutput
+        })
+      });
+      const data = await res.json();
+      if (data.reply) {
+        setCoachLog(prev => [...prev, { sender: "coach", text: data.reply }]);
+        if (data.assistanceUsed) setCoachAssistanceUsed(true);
+        if (data.suggestedPromptChips && Array.isArray(data.suggestedPromptChips)) {
+          setSuggestedChips(data.suggestedPromptChips);
+        }
+      } else {
+        setCoachLog(prev => [...prev, { sender: "coach", text: `In ${activeProblem.title}, consider what invariant must hold true at every element. How are your boundary conditions guarding against edge inputs?` }]);
       }
-      setCoachLog(prev => [...prev, { sender: "coach", text: reply }]);
-    }, 600);
+    } catch (err) {
+      setCoachLog(prev => [...prev, { sender: "coach", text: "Network hiccup connecting to Socratic coach. In the meantime, verify your termination condition and boundary checks!" }]);
+    } finally {
+      setCoachThinking(false);
+    }
   };
 
   const formatTimer = (sec: number) => {
@@ -815,7 +857,8 @@ function DSACodingArenaContent() {
                 { id: "learn", label: "💡 Learn" },
                 { id: "practice", label: "🛠️ Practice" },
                 { id: "coach", label: "🎓 Coach" },
-                { id: "interview", label: "🎯 Interview" }
+                { id: "interview", label: "🎯 Interview" },
+                { id: "tracker", label: "📊 Mastery Tracker" }
               ].map(m => (
                 <button
                   key={m.id}
@@ -860,6 +903,28 @@ function DSACodingArenaContent() {
               <option value="javascript">JavaScript (Node VM)</option>
             </select>
 
+            {/* Dedicated Contextual DSA Mentor Button */}
+            <button
+              onClick={() => setIsMentorOpen(!isMentorOpen)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                borderRadius: 7,
+                border: "1px solid #D2E0FB",
+                background: isMentorOpen ? "#EFF4FE" : "#FFFFFF",
+                color: "#356AE6",
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: "pointer",
+                boxShadow: "0 1px 2px rgba(16,24,40,0.05)"
+              }}
+            >
+              <span>🤖</span>
+              <span>DSA Mentor</span>
+            </button>
+
             <span style={{ fontSize: 11, padding: "4px 9px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 6, fontWeight: 700 }}>
               🏛️ {trackSlug.replace("_", " ").toUpperCase()} BAR
             </span>
@@ -878,8 +943,23 @@ function DSACodingArenaContent() {
             <span style={{ color: "#475467" }}>{currentFocus.reason}</span>
             <span style={{ color: "#E4E1DA" }}>|</span>
             <span style={{ color: "#2E7D5B", fontWeight: 700 }}>
-              📊 Striver Progress: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved
+              📊 Striver SDE 455 Mastery: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved
             </span>
+            <button
+              onClick={() => handleSwitchMode("tracker")}
+              style={{
+                padding: "2px 8px",
+                borderRadius: 5,
+                background: mode === "tracker" ? "#162A43" : "#EFF4FE",
+                color: mode === "tracker" ? "#FFFFFF" : "#356AE6",
+                border: "1px solid #D2E0FB",
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              {mode === "tracker" ? "Active Tracker View ✓" : "Open Mastery Tracker ➔"}
+            </button>
           </div>
 
           {mode === "interview" && interviewStarted && !interviewCompleted && (
@@ -913,158 +993,473 @@ function DSACodingArenaContent() {
         {mode === "learn" && (
           <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 18, marginBottom: 24 }}>
             
-            {/* Left: Striver Roadmap Steps & Problems Browser */}
+            {/* Left: Striver Roadmap Steps & Company Tracks Browser */}
             <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, height: "calc(100vh - 180px)", overflowY: "auto", position: "sticky", top: 80, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>Striver A2Z Roadmap</span>
-                <span style={{ fontSize: 11, color: "#667085" }}>17 Steps</span>
-              </div>
-
-              {/* Step Selector Dropdown */}
-              <select
-                value={selectedStepId}
-                onChange={e => handleSelectStep(e.target.value)}
-                style={{
-                  width: "100%",
-                  background: "#F6F5F1",
-                  border: "1px solid #E4E1DA",
-                  color: "#17191C",
-                  padding: "7px 10px",
-                  borderRadius: 7,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  outline: "none",
-                  marginBottom: 10,
-                  cursor: "pointer"
-                }}
-              >
-                {STRIVER_STEPS.map(s => (
-                  <option key={s.id} value={s.id}>
-                    {s.icon} {s.title} ({s.problemCount} Qs)
-                  </option>
-                ))}
-              </select>
-
-              {/* Subtopic Filters */}
-              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
+              {/* Navigation Mode: Striver vs Company Tracks */}
+              <div style={{ display: "flex", background: "#F6F5F1", padding: 2, borderRadius: 6, border: "1px solid #E4E1DA", marginBottom: 12 }}>
                 <button
-                  onClick={() => setSelectedSubtopic("all")}
+                  onClick={() => setRoadmapMode("striver")}
                   style={{
-                    padding: "4px 8px",
-                    borderRadius: 5,
-                    border: selectedSubtopic === "all" ? "1px solid #162A43" : "1px solid #E4E1DA",
-                    background: selectedSubtopic === "all" ? "#162A43" : "#FFFFFF",
-                    color: selectedSubtopic === "all" ? "#FFFFFF" : "#667085",
-                    fontSize: 11,
-                    fontWeight: 600,
+                    flex: 1,
+                    padding: "5px 6px",
+                    borderRadius: 4,
+                    border: "none",
+                    background: roadmapMode === "striver" ? "#162A43" : "transparent",
+                    color: roadmapMode === "striver" ? "#FFFFFF" : "#667085",
+                    fontSize: 10,
+                    fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
-                  All
+                  📜 Striver A2Z
                 </button>
-                {currentStep.subtopics.map(sub => (
-                  <button
-                    key={sub}
-                    onClick={() => setSelectedSubtopic(sub)}
+                <button
+                  onClick={() => setRoadmapMode("company")}
+                  style={{
+                    flex: 1,
+                    padding: "5px 6px",
+                    borderRadius: 4,
+                    border: "none",
+                    background: roadmapMode === "company" ? "#162A43" : "transparent",
+                    color: roadmapMode === "company" ? "#FFFFFF" : "#667085",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  🏢 Company Prep
+                </button>
+              </div>
+
+              {roadmapMode === "company" ? (
+                <div>
+                  <label style={{ fontSize: 10, fontWeight: 800, color: "#667085", textTransform: "uppercase", display: "block", marginBottom: 4 }}>
+                    Target Company Track
+                  </label>
+                  <select
+                    value={selectedCompanySlug}
+                    onChange={e => setSelectedCompanySlug(e.target.value)}
                     style={{
-                      padding: "4px 8px",
-                      borderRadius: 5,
-                      border: selectedSubtopic === sub ? "1px solid #162A43" : "1px solid #E4E1DA",
-                      background: selectedSubtopic === sub ? "#162A43" : "#FFFFFF",
-                      color: selectedSubtopic === sub ? "#FFFFFF" : "#667085",
-                      fontSize: 11,
-                      fontWeight: 600,
+                      width: "100%",
+                      background: "#F6F5F1",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
+                      padding: "7px 10px",
+                      borderRadius: 7,
+                      fontSize: 12,
+                      fontWeight: 700,
+                      outline: "none",
+                      marginBottom: 10,
                       cursor: "pointer"
                     }}
                   >
-                    {sub}
+                    {COMPANY_TRACKS.map(c => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name} ({c.category.replace(/_/g, " ").toUpperCase()})
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Company Profile Brief */}
+                  {(() => {
+                    const currentCompany = getCompanyTrackBySlug(selectedCompanySlug) || COMPANY_TRACKS[0];
+                    return (
+                      <div>
+                        <div style={{ background: "#EFF4FE", borderRadius: 6, border: "1px solid #D2E0FB", padding: 8, marginBottom: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ fontSize: 11, fontWeight: 800, color: "#356AE6" }}>
+                              {currentCompany.name} • {currentCompany.roles[0]}
+                            </div>
+                            <span style={{ fontSize: 9, background: "#ECFDF5", color: "#027A48", fontWeight: 700, padding: "1px 5px", borderRadius: 4 }}>
+                              100% Coverage Verified
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 10, color: "#475467", marginTop: 2 }}>
+                            {currentCompany.assessmentFormat.interviewRounds} Rounds • {currentCompany.assessmentFormat.oaDurationMinutes}m OA • {currentCompany.problems.length} Curated Questions
+                          </div>
+                        </div>
+
+                        {/* Provenance Filter Pills */}
+                        <div style={{ display: "flex", gap: 4, marginBottom: 8, overflowX: "auto" }}>
+                          {[
+                            { id: "all", label: `All (${currentCompany.problems.length})` },
+                            { id: "historical_verified", label: "Verified" },
+                            { id: "historical_reported", label: "Reported" },
+                            { id: "curated_practice", label: "Curated" },
+                            { id: "ai_generated_fallback", label: "Adaptive" }
+                          ].map(f => {
+                            const isAct = companyProvenanceFilter === f.id;
+                            return (
+                              <button
+                                key={f.id}
+                                onClick={() => setCompanyProvenanceFilter(f.id)}
+                                type="button"
+                                style={{
+                                  padding: "3px 7px",
+                                  borderRadius: 4,
+                                  border: `1px solid ${isAct ? "#356AE6" : "#E4E1DA"}`,
+                                  background: isAct ? "#EFF4FE" : "#FFFFFF",
+                                  color: isAct ? "#356AE6" : "#667085",
+                                  fontSize: 9,
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                  whiteSpace: "nowrap"
+                                }}
+                              >
+                                {f.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Company Problems List */}
+                        {(() => {
+                          const filteredList = currentCompany.problems.filter(p => {
+                            if (companyProvenanceFilter === "all") return true;
+                            if (companyProvenanceFilter === "historical_verified") {
+                              return p.provenance === "historical_verified" || p.provenance === "verified_historical";
+                            }
+                            if (companyProvenanceFilter === "historical_reported") {
+                              return p.provenance === "historical_reported" || p.provenance === "community_reported";
+                            }
+                            if (companyProvenanceFilter === "curated_practice") {
+                              return p.provenance === "curated_practice" || p.provenance === "role_pattern";
+                            }
+                            if (companyProvenanceFilter === "ai_generated_fallback") {
+                              return p.provenance === "ai_generated_fallback" || p.provenance === "cognalyze_simulation";
+                            }
+                            return true;
+                          });
+
+                          const getProvenanceBadge = (prov: string) => {
+                            switch (prov) {
+                              case "historical_verified":
+                              case "verified_historical":
+                                return { bg: "#ECFDF5", color: "#027A48", border: "#A6F4C5", label: "Verified" };
+                              case "historical_reported":
+                              case "community_reported":
+                                return { bg: "#EFF4FE", color: "#356AE6", border: "#D2E0FB", label: "Reported" };
+                              case "ai_generated_fallback":
+                              case "cognalyze_simulation":
+                                return { bg: "#FFFBEB", color: "#B45309", border: "#FDE68A", label: "Adaptive" };
+                              default:
+                                return { bg: "#F5F3FF", color: "#7C3AED", border: "#DDD6FE", label: "Curated" };
+                            }
+                          };
+
+                          if (filteredList.length === 0) {
+                            return (
+                              <div style={{ padding: 14, background: "#F9FAFB", borderRadius: 8, border: "1px dashed #D1D5DB", textAlign: "center" }}>
+                                <div style={{ fontSize: 11, fontWeight: 700, color: "#4B5563" }}>
+                                  No questions under '{companyProvenanceFilter}' filter
+                                </div>
+                                <button
+                                  onClick={() => setCompanyProvenanceFilter("all")}
+                                  type="button"
+                                  style={{
+                                    marginTop: 6,
+                                    fontSize: 10,
+                                    padding: "3px 8px",
+                                    borderRadius: 4,
+                                    border: "1px solid #356AE6",
+                                    background: "#EFF4FE",
+                                    color: "#356AE6",
+                                    fontWeight: 700,
+                                    cursor: "pointer"
+                                  }}
+                                >
+                                  Reset to All ({currentCompany.problems.length})
+                                </button>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: "calc(100vh - 390px)", overflowY: "auto" }}>
+                              {filteredList.map(cp => {
+                                const isSelected = activeProblem.id === cp.problemId;
+                                const badge = getProvenanceBadge(cp.provenance);
+                                return (
+                                  <div
+                                    key={cp.problemId}
+                                    onClick={() => handleSelectProblem(cp.problemId)}
+                                    style={{
+                                      padding: "8px 10px",
+                                      borderRadius: 7,
+                                      background: isSelected ? "#EFF4FE" : "#FFFFFF",
+                                      border: isSelected ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center"
+                                    }}
+                                  >
+                                    <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginRight: 6 }}>
+                                      <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? "#162A43" : "#17191C" }}>
+                                        {cp.title}
+                                      </div>
+                                      <div style={{ fontSize: 10, color: "#667085" }}>
+                                        Freq: {cp.frequencyScore}/100 • {cp.assessmentStage.replace(/_/g, " ")}
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        fontSize: 9,
+                                        padding: "2px 5px",
+                                        borderRadius: 4,
+                                        background: badge.bg,
+                                        color: badge.color,
+                                        border: `1px solid ${badge.border}`,
+                                        fontWeight: 700,
+                                        whiteSpace: "nowrap"
+                                      }}
+                                    >
+                                      {badge.label}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    );
+                  })()}
+                </div>
+              ) : (
+                <div>
+                  {/* Striver SDE 455 Master Questions & Tracker Switcher */}
+                  <div style={{ marginBottom: 12, padding: "9px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43" }}>Striver SDE 455 Master Qs</div>
+                      <div style={{ fontSize: 10, color: "#667085" }}>{dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved</div>
+                    </div>
+                    <button
+                      onClick={() => handleSwitchMode("tracker")}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 5,
+                        background: "#356AE6",
+                        color: "#FFFFFF",
+                        border: "none",
+                        fontSize: 10,
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      Mastery Tracker 📊
+                    </button>
+                  </div>
+
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span>Striver A2Z Roadmap</span>
+                    <span style={{ fontSize: 11, color: "#667085" }}>17 Steps</span>
+                  </div>
+
+                  {/* Step Selector Dropdown */}
+                  <select
+                    value={selectedStepId}
+                    onChange={e => handleSelectStep(e.target.value)}
+                    style={{
+                      width: "100%",
+                      background: "#F6F5F1",
+                      border: "1px solid #E4E1DA",
+                      color: "#17191C",
+                      padding: "7px 10px",
+                      borderRadius: 7,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      outline: "none",
+                      marginBottom: 10,
+                      cursor: "pointer"
+                    }}
+                  >
+                    {STRIVER_STEPS.map(s => (
+                      <option key={s.id} value={s.id}>
+                        {s.icon} {s.title} ({s.problemCount} Qs)
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Subtopic Filters */}
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
+                    <button
+                      onClick={() => setSelectedSubtopic("all")}
+                      style={{
+                        padding: "4px 8px",
+                        borderRadius: 5,
+                        border: selectedSubtopic === "all" ? "1px solid #162A43" : "1px solid #E4E1DA",
+                        background: selectedSubtopic === "all" ? "#162A43" : "#FFFFFF",
+                        color: selectedSubtopic === "all" ? "#FFFFFF" : "#667085",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer"
+                      }}
+                    >
+                      All
+                    </button>
+                    {currentStep.subtopics.map(sub => (
+                      <button
+                        key={sub}
+                        onClick={() => setSelectedSubtopic(sub)}
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: 5,
+                          border: selectedSubtopic === sub ? "1px solid #162A43" : "1px solid #E4E1DA",
+                          background: selectedSubtopic === sub ? "#162A43" : "#FFFFFF",
+                          color: selectedSubtopic === sub ? "#FFFFFF" : "#667085",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer"
+                        }}
+                      >
+                        {sub}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Search Filter */}
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Search problem title..."
+                    style={{
+                      width: "100%",
+                      background: "#FFFFFF",
+                      border: "1px solid #E4E1DA",
+                      borderRadius: 6,
+                      padding: "6px 8px",
+                      color: "#17191C",
+                      fontSize: 12,
+                      outline: "none",
+                      marginBottom: 10,
+                      boxSizing: "border-box"
+                    }}
+                  />
+
+                  {/* Problems List in Selected Step */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: "calc(100vh - 360px)", overflowY: "auto" }}>
+                    {problemsList.map(p => {
+                      const prog = candidateProgressMap[p.id];
+                      const isSolved = prog?.status === "solved";
+                      const isLearned = prog?.status === "learned";
+                      const isRevision = prog?.status === "needs_revision";
+                      const isSelected = activeProblem.id === p.id;
+
+                      return (
+                        <div
+                          key={p.id}
+                          onClick={() => handleSelectProblem(p.id)}
+                          style={{
+                            padding: "8px 10px",
+                            borderRadius: 7,
+                            background: isSelected ? "#EFF4FE" : "#FFFFFF",
+                            border: isSelected ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                            cursor: "pointer",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center"
+                          }}
+                        >
+                          <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginRight: 6 }}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? "#162A43" : "#17191C" }}>{p.title}</div>
+                            <div style={{ fontSize: 10, color: "#667085" }}>{p.subtopic_title}</div>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            {isSolved ? (
+                              <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 800 }}>✓</span>
+                            ) : isLearned ? (
+                              <span style={{ fontSize: 10, color: "#356AE6", fontWeight: 800 }}>💡</span>
+                            ) : isRevision ? (
+                              <span style={{ fontSize: 10, color: "#C24141", fontWeight: 800 }}>⚠️</span>
+                            ) : null}
+                            <span style={{
+                              fontSize: 10,
+                              padding: "1px 6px",
+                              borderRadius: 4,
+                              background: p.difficulty === "easy" ? "#EAF4EE" : p.difficulty === "medium" ? "#FEF7ED" : "#FDF2F2",
+                              color: p.difficulty === "easy" ? "#2E7D5B" : p.difficulty === "medium" ? "#B7791F" : "#C24141",
+                              border: `1px solid ${p.difficulty === "easy" ? "#C8E4D3" : p.difficulty === "medium" ? "#F8D8A7" : "#F8C8C8"}`,
+                              fontWeight: 700
+                            }}>
+                              {p.difficulty[0].toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Full Problem Details, Learning Tutorial, and Advanced Labs */}
+            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+              {/* Lab Navigation Sub-Tabs */}
+              <div style={{ display: "flex", gap: 6, marginBottom: 18, borderBottom: "1px solid #E4E1DA", paddingBottom: 10, flexWrap: "wrap" }}>
+                {[
+                  { id: "tutorial", label: "📖 Concept & Invariants" },
+                  { id: "dryrun", label: "🎬 Visual Dry-Run Studio" },
+                  { id: "approaches", label: "⚖️ Approach Comparison (Brute vs Optimal)" },
+                  { id: "debug", label: "🐛 \"Debug This\" Lab" }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveLabTab(tab.id as any)}
+                    style={{
+                      padding: "6px 12px",
+                      borderRadius: 6,
+                      border: activeLabTab === tab.id ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                      background: activeLabTab === tab.id ? "#EFF4FE" : "#FFFFFF",
+                      color: activeLabTab === tab.id ? "#356AE6" : "#667085",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    {tab.label}
                   </button>
                 ))}
               </div>
 
-              {/* Search Filter */}
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search problem title..."
-                style={{
-                  width: "100%",
-                  background: "#FFFFFF",
-                  border: "1px solid #E4E1DA",
-                  borderRadius: 6,
-                  padding: "6px 8px",
-                  color: "#17191C",
-                  fontSize: 12,
-                  outline: "none",
-                  marginBottom: 10,
-                  boxSizing: "border-box"
-                }}
-              />
+              {activeLabTab === "tutorial" && (
+                canonicalActive ? (
+                  <CanonicalProblemView problem={canonicalActive} selectedLanguage={selectedLanguage} />
+                ) : (
+                  <div style={{ fontSize: 14, color: "#162A43", lineHeight: 1.6 }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 8px" }}>{activeProblem.title}</h2>
+                    <p>{activeProblem.description}</p>
+                  </div>
+                )
+              )}
 
-              {/* Problems List in Selected Step */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: "calc(100vh - 360px)", overflowY: "auto" }}>
-                {problemsList.map(p => {
-                  const prog = candidateProgressMap[p.id];
-                  const isSolved = prog?.status === "solved";
-                  const isLearned = prog?.status === "learned";
-                  const isRevision = prog?.status === "needs_revision";
-                  const isSelected = activeProblem.id === p.id;
+              {activeLabTab === "dryrun" && (
+                <DsaVisualizer problemId={activeProblem.id} problemTitle={activeProblem.title} />
+              )}
 
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => handleSelectProblem(p.id)}
-                      style={{
-                        padding: "8px 10px",
-                        borderRadius: 7,
-                        background: isSelected ? "#EFF4FE" : "#FFFFFF",
-                        border: isSelected ? "1px solid #356AE6" : "1px solid #E4E1DA",
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center"
-                      }}
-                    >
-                      <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginRight: 6 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: isSelected ? "#162A43" : "#17191C" }}>{p.title}</div>
-                        <div style={{ fontSize: 10, color: "#667085" }}>{p.subtopic_title}</div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        {isSolved ? (
-                          <span style={{ fontSize: 10, color: "#2E7D5B", fontWeight: 800 }}>✓</span>
-                        ) : isLearned ? (
-                          <span style={{ fontSize: 10, color: "#356AE6", fontWeight: 800 }}>💡</span>
-                        ) : isRevision ? (
-                          <span style={{ fontSize: 10, color: "#C24141", fontWeight: 800 }}>⚠️</span>
-                        ) : null}
-                        <span style={{
-                          fontSize: 10,
-                          padding: "1px 6px",
-                          borderRadius: 4,
-                          background: p.difficulty === "easy" ? "#EAF4EE" : p.difficulty === "medium" ? "#FEF7ED" : "#FDF2F2",
-                          color: p.difficulty === "easy" ? "#2E7D5B" : p.difficulty === "medium" ? "#B7791F" : "#C24141",
-                          border: `1px solid ${p.difficulty === "easy" ? "#C8E4D3" : p.difficulty === "medium" ? "#F8D8A7" : "#F8C8C8"}`,
-                          fontWeight: 700
-                        }}>
-                          {p.difficulty[0].toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+              {activeLabTab === "approaches" && (
+                <DsaApproachComparator
+                  problemId={activeProblem.id}
+                  problemTitle={activeProblem.title}
+                  selectedLanguage={selectedLanguage}
+                  onApplyCode={(c) => {
+                    setCode(c);
+                    setMode("practice");
+                  }}
+                />
+              )}
 
-            {/* Right: Full Problem Details and Learning Tutorial */}
-            <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 24, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-              {canonicalActive ? (
-                <CanonicalProblemView problem={canonicalActive} selectedLanguage={selectedLanguage} />
-              ) : (
-                <div style={{ fontSize: 14, color: "#162A43", lineHeight: 1.6 }}>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, margin: "0 0 8px" }}>{activeProblem.title}</h2>
-                  <p>{activeProblem.description}</p>
-                </div>
+              {activeLabTab === "debug" && (
+                <DsaDebugLab
+                  problemId={activeProblem.id}
+                  problemTitle={activeProblem.title}
+                  onApplyFixToMainEditor={(c) => {
+                    setCode(c);
+                    setMode("practice");
+                  }}
+                />
               )}
 
               <div style={{ display: "flex", gap: 10, marginTop: 24, paddingTop: 16, borderTop: "1px solid #E4E1DA" }}>
@@ -1367,22 +1762,63 @@ function DSACodingArenaContent() {
                       <MarkdownRenderer content={m.text} compact isDark={m.sender !== "coach"} />
                     </div>
                   ))}
+                  {coachThinking && (
+                    <div style={{ alignSelf: "flex-start", background: "#EFF4FE", color: "#356AE6", padding: "6px 12px", borderRadius: 8, fontSize: 11, fontStyle: "italic", display: "flex", alignItems: "center", gap: 6 }}>
+                      <span>Coach is reasoning through your code and invariants...</span>
+                    </div>
+                  )}
                 </div>
+
+                {suggestedChips.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+                    {suggestedChips.map((chip, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleAskCoach(chip)}
+                        disabled={coachThinking}
+                        style={{
+                          background: "#F6F5F1",
+                          border: "1px solid #E4E1DA",
+                          borderRadius: 12,
+                          padding: "3px 8px",
+                          fontSize: 10,
+                          color: "#162A43",
+                          cursor: coachThinking ? "not-allowed" : "pointer",
+                          fontWeight: 600,
+                          opacity: coachThinking ? 0.6 : 1
+                        }}
+                      >
+                        {chip}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div style={{ display: "flex", gap: 6 }}>
                   <input
                     type="text"
                     value={coachInput}
+                    disabled={coachThinking}
                     onChange={e => setCoachInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && handleAskCoach()}
+                    onKeyDown={e => e.key === "Enter" && !coachThinking && handleAskCoach()}
                     placeholder="Ask about invariants, bounds, or pointers..."
                     style={{ flex: 1, background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 6, padding: "8px 10px", fontSize: 12, outline: "none" }}
                   />
                   <button
-                    onClick={handleAskCoach}
-                    style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                    onClick={() => handleAskCoach()}
+                    disabled={coachThinking || !coachInput.trim()}
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: 6,
+                      border: "none",
+                      background: coachThinking ? "#93C5FD" : "#356AE6",
+                      color: "#FFFFFF",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: coachThinking ? "not-allowed" : "pointer"
+                    }}
                   >
-                    Ask
+                    {coachThinking ? "..." : "Ask"}
                   </button>
                 </div>
               </div>
@@ -1441,499 +1877,36 @@ function DSACodingArenaContent() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            MODE 4: INTERVIEW MODE
+            MODE 4: INTERVIEW MODE (UPGRADED 5-7 QUESTION 6-AREA SIMULATION)
             ══════════════════════════════════════════════════════════════ */}
         {mode === "interview" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {!interviewStarted ? (
-              /* ── SCREEN 4A: PROPER INTERVIEW SETUP FLOW ── */
-              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 32, maxWidth: 640, margin: "20px auto", boxShadow: "0 1px 4px rgba(16,24,40,0.06)" }}>
-                <div style={{ textAlign: "center", marginBottom: 20 }}>
-                  <span style={{ fontSize: 36 }}>🎯</span>
-                  <h2 style={{ fontSize: 20, fontWeight: 800, color: "#162A43", margin: "8px 0 6px" }}>
-                    Multi-Question Technical Interview Simulation
-                  </h2>
-                  <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.6, margin: 0 }}>
-                    Solve a sequence of verified algorithmic problems with genuine compiler execution, proctoring telemetry, and contextual follow-ups. Question sequence is locked for the duration of the interview.
-                  </p>
-                </div>
+          <DsaUpgradedInterviewView
+            candidateId={candidateId}
+            selectedStepId={selectedStepId}
+            selectedLanguage={selectedLanguage}
+            setSelectedLanguage={setSelectedLanguage}
+            onSelectStep={handleSelectStep}
+            onExitInterview={() => setMode("practice")}
+          />
+        )}
 
-                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
-                      Target Roadmap Step / Curriculum
-                    </label>
-                    <select
-                      value={selectedStepId}
-                      onChange={e => handleSelectStep(e.target.value)}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: "1px solid #E4E1DA", background: "#F6F5F1", fontSize: 12, fontWeight: 600, outline: "none" }}
-                    >
-                      {STRIVER_STEPS.map(s => (
-                        <option key={s.id} value={s.id}>
-                          {s.icon} {s.title} ({s.problemCount} Qs)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
-                        Question Count
-                      </label>
-                      <select
-                        value={interviewQuestionCount}
-                        onChange={e => setInterviewQuestionCount(parseInt(e.target.value, 10))}
-                        style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: "1px solid #E4E1DA", background: "#F6F5F1", fontSize: 12, fontWeight: 600, outline: "none" }}
-                      >
-                        <option value={2}>2 Questions (Foundational + Core)</option>
-                        <option value={3}>3 Questions (Standard 30-min Loop)</option>
-                        <option value={4}>4 Questions (Bar-Raiser Marathon)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label style={{ fontSize: 11, fontWeight: 700, color: "#162A43", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
-                        Programming Language
-                      </label>
-                      <select
-                        value={selectedLanguage}
-                        onChange={e => setSelectedLanguage(e.target.value as any)}
-                        style={{ width: "100%", padding: "8px 10px", borderRadius: 7, border: "1px solid #E4E1DA", background: "#F6F5F1", fontSize: 12, fontWeight: 600, outline: "none" }}
-                      >
-                        <option value="cpp">C++ 20 (Clang++/G++)</option>
-                        <option value="python">Python 3</option>
-                        <option value="javascript">JavaScript (Node VM)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleStartInterviewSession}
-                  style={{
-                    width: "100%",
-                    padding: "12px",
-                    borderRadius: 8,
-                    border: "none",
-                    background: "#356AE6",
-                    color: "#FFFFFF",
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: "pointer",
-                    boxShadow: "0 2px 4px rgba(53,106,230,0.2)"
-                  }}
-                >
-                  Start Locked Interview Session ➔
-                </button>
-              </div>
-            ) : interviewCompleted && activeSession?.finalScorecard ? (
-              /* ── SCREEN 4B: FINAL EVIDENCE-BACKED SCORECARD ── */
-              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 28, marginBottom: 24, boxShadow: "0 1px 4px rgba(16,24,40,0.06)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <span style={{ fontSize: 10, padding: "2px 8px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 4, fontWeight: 800, textTransform: "uppercase" }}>
-                      AUTHENTICATED TECHNICAL SCORECARD
-                    </span>
-                    <h3 style={{ fontSize: 20, fontWeight: 800, color: "#162A43", margin: "4px 0 2px" }}>
-                      Bar-Raiser Technical Interview Evaluation Dossier
-                    </h3>
-                    <div style={{ fontSize: 12, color: "#667085" }}>
-                      Session ID: {activeSession.sessionId} • Language: {activeSession.language.toUpperCase()} • Step: {activeSession.stepId || selectedStepId}
-                    </div>
-                  </div>
-
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: activeSession.finalScorecard.overallScore >= 70 ? "#2E7D5B" : "#C24141" }}>
-                      {activeSession.finalScorecard.overallScore}%
-                    </div>
-                    <span style={{
-                      fontSize: 12,
-                      padding: "2px 8px",
-                      borderRadius: 4,
-                      fontWeight: 800,
-                      background: activeSession.finalScorecard.overallScore >= 70 ? "#EAF4EE" : "#FDF2F2",
-                      color: activeSession.finalScorecard.overallScore >= 70 ? "#2E7D5B" : "#C24141"
-                    }}>
-                      VERDICT: {activeSession.finalScorecard.verdict.toUpperCase()}
-                    </span>
-                    {activeSession.finalScorecard.scoreCalculationExplanation && (
-                      <div style={{ fontSize: 10, color: "#667085", marginTop: 4, maxWidth: 360, textAlign: "right" }}>
-                        {activeSession.finalScorecard.scoreCalculationExplanation}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Multi-Dimensional Competency Grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10, marginBottom: 20 }}>
-                  {[
-                    { label: "Functional Correctness", val: activeSession.finalScorecard.dimensionScores.functionalCorrectness },
-                    { label: "Hidden Test Execution", val: activeSession.finalScorecard.dimensionScores.hiddenTests },
-                    { label: "Boundary & Edge Cases", val: activeSession.finalScorecard.dimensionScores.edgeCaseHandling },
-                    { label: "Time Complexity", val: activeSession.finalScorecard.dimensionScores.timeComplexity },
-                    { label: "Space Complexity", val: activeSession.finalScorecard.dimensionScores.spaceComplexity },
-                    { label: "Conceptual Defense", val: activeSession.finalScorecard.dimensionScores.conceptualUnderstanding }
-                  ].map((dim, i) => (
-                    <div key={i} style={{ background: "#F6F5F1", padding: 12, borderRadius: 8, border: "1px solid #E4E1DA" }}>
-                      <div style={{ fontSize: 11, color: "#667085", marginBottom: 2 }}>{dim.label}</div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: dim.val >= 70 ? "#2E7D5B" : dim.val >= 40 ? "#B7791F" : "#C24141" }}>
-                        {dim.val}%
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Per-Question Results Breakdown */}
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8 }}>
-                  Locked Round Breakdown ({activeSession.questions.length} Questions)
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12, marginBottom: 20 }}>
-                  {activeSession.finalScorecard.questionSummaries.map((r, i) => (
-                    <div key={i} style={{ padding: 14, borderRadius: 8, background: "#FFFFFF", border: r.score >= 70 ? "1px solid #C8E4D3" : "1px solid #F8C8C8" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                        <span style={{ fontSize: 11, color: "#667085", fontWeight: 700 }}>Question {i + 1}</span>
-                        <span style={{ color: r.score >= 70 ? "#2E7D5B" : "#C24141", fontWeight: 800, fontSize: 11 }}>
-                          {r.verdict} ({r.score}%)
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43", marginBottom: 6 }}>{r.title}</div>
-                      <div style={{ fontSize: 11, color: "#475467", marginBottom: 6 }}>
-                        Tests Passed: <strong>{r.passedCount}/{r.totalTests}</strong>
-                      </div>
-                      {r.specificFeedback && (
-                        <div style={{ fontSize: 11, color: "#374151", background: "#F9FAFB", padding: "6px 8px", borderRadius: 5, marginBottom: 6, lineHeight: 1.4 }}>
-                          <strong>Feedback:</strong> {r.specificFeedback}
-                        </div>
-                      )}
-                      {r.expectedApproach && (
-                        <div style={{ fontSize: 10.5, color: "#6B7280" }}>
-                          <strong>Expected Approach:</strong> {r.expectedApproach}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Proctoring & Integrity Telemetry */}
-                <div style={{ padding: 14, borderRadius: 8, background: "#F6F5F1", border: "1px solid #E4E1DA", marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: activeSession.finalScorecard.proctoringSummary.flagged ? "#B7791F" : "#2E7D5B" }}>
-                      🛡️ Proctoring &amp; Environment Integrity Telemetry
-                    </span>
-                    <div style={{ fontSize: 11, color: "#667085", marginTop: 2 }}>
-                      {activeSession.finalScorecard.proctoringSummary.totalTabSwitches === 0
-                        ? "Continuous environment focus verified: zero tab switch events recorded."
-                        : `Flagged: ${activeSession.finalScorecard.proctoringSummary.totalTabSwitches} tab-switch violation(s) captured by client telemetry.`}
-                    </div>
-                    <div style={{ fontSize: 10, color: "#98A2B3", marginTop: 3 }}>
-                      * Note: Integrity telemetry assesses proctored environment adherence independently from algorithmic code correctness.
-                    </div>
-                  </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: activeSession.finalScorecard.proctoringSummary.flagged ? "#B7791F" : "#2E7D5B" }}>
-                    {activeSession.finalScorecard.proctoringSummary.flagged ? "Flagged" : "Verified 100%"}
-                  </span>
-                </div>
-
-                {/* Strengths & Weaknesses */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
-                  <div style={{ padding: 12, borderRadius: 8, background: "#EAF4EE", border: "1px solid #C8E4D3" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 4 }}>
-                      ✓ DEMONSTRATED STRENGTHS
-                    </div>
-                    {activeSession.finalScorecard.strengths.map((s, i) => (
-                      <div key={i} style={{ fontSize: 12, color: "#14532D", lineHeight: 1.4 }}>• {s}</div>
-                    ))}
-                  </div>
-
-                  <div style={{ padding: 12, borderRadius: 8, background: "#FEF7ED", border: "1px solid #F8D8A7" }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: "#B7791F", marginBottom: 4 }}>
-                      ⚠️ AREAS FOR IMPROVEMENT
-                    </div>
-                    {activeSession.finalScorecard.weaknesses.map((w, i) => (
-                      <div key={i} style={{ fontSize: 12, color: "#78350F", lineHeight: 1.4 }}>• {w}</div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 14, borderTop: "1px solid #E4E1DA" }}>
-                  <div>
-                    <div style={{ fontSize: 10, color: "#667085", textTransform: "uppercase", fontWeight: 700 }}>
-                      RECOMMENDED NEXT ACTION
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
-                      {activeSession.finalScorecard.recommendation}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setInterviewStarted(false);
-                      setInterviewCompleted(false);
-                      setActiveSession(null);
-                      setMode("practice");
-                    }}
-                    style={{ padding: "8px 18px", borderRadius: 7, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-                  >
-                    Back to Practice Arena ➔
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* ── SCREEN 4C: ACTIVE LOCKED MULTI-QUESTION INTERVIEW ── */
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 18 }}>
-                
-                {/* Left: Current Locked Question & Code Editor */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  
-                  {/* Interview Question Progress Header */}
-                  {activeSession && (
-                    <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "10px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        {activeSession.questions.map((q, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              padding: "4px 10px",
-                              borderRadius: 5,
-                              fontSize: 11,
-                              fontWeight: 700,
-                              background: idx === activeSession.currentQuestionIndex ? "#162A43" : q.status === "completed" || q.status === "submitted" ? "#EAF4EE" : "#F6F5F1",
-                              color: idx === activeSession.currentQuestionIndex ? "#FFFFFF" : q.status === "completed" || q.status === "submitted" ? "#2E7D5B" : "#667085",
-                              border: `1px solid ${idx === activeSession.currentQuestionIndex ? "#162A43" : "#E4E1DA"}`
-                            }}
-                          >
-                            Q{idx + 1}: {q.title.slice(0, 16)}... {q.status === "completed" || q.status === "submitted" ? "✓" : ""}
-                          </div>
-                        ))}
-                      </div>
-
-                      <span style={{ fontSize: 11, color: "#667085" }}>
-                        Question {activeSession.currentQuestionIndex + 1} of {activeSession.questions.length}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Problem Statement Card */}
-                  <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 18, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-                    {canonicalActive ? (
-                      <CanonicalProblemView problem={canonicalActive} selectedLanguage={selectedLanguage} />
-                    ) : (
-                      <div>
-                        <h2 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "#162A43" }}>{activeProblem.title}</h2>
-                        <p style={{ margin: "0 0 8px", fontSize: 13, color: "#475467" }}>{activeProblem.description}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Code Editor */}
-                  <div style={{ background: "#162A43", border: "1px solid #233752", borderRadius: 10, overflow: "hidden" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#111C2E", padding: "8px 16px", borderBottom: "1px solid #233752" }}>
-                      <span style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, fontFamily: "monospace" }}>
-                        solution.{selectedLanguage === "cpp" ? "cpp" : selectedLanguage === "python" ? "py" : "js"}
-                      </span>
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button
-                          onClick={handleRunCode}
-                          disabled={runningTests}
-                          style={{ padding: "5px 14px", borderRadius: 6, border: "none", background: "#2E7D5B", color: "#FFFFFF", fontSize: 11, fontWeight: 700, cursor: runningTests ? "not-allowed" : "pointer" }}
-                        >
-                          {runningTests ? "Compiling..." : "▶ Run Visible Tests"}
-                        </button>
-                        <button
-                          onClick={handleSubmitCode}
-                          disabled={evaluating}
-                          style={{ padding: "5px 16px", borderRadius: 6, border: "none", background: "#356AE6", color: "#FFFFFF", fontSize: 11, fontWeight: 700, cursor: evaluating ? "not-allowed" : "pointer" }}
-                        >
-                          {evaluating ? "Evaluating..." : "Evaluate Question ➔"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <textarea
-                      value={code}
-                      onChange={e => setCode(e.target.value)}
-                      rows={15}
-                      style={{
-                        width: "100%",
-                        background: "transparent",
-                        color: "#FFFFFF",
-                        fontFamily: "monospace",
-                        fontSize: 12.5,
-                        lineHeight: 1.5,
-                        padding: 14,
-                        border: "none",
-                        outline: "none",
-                        boxSizing: "border-box"
-                      }}
-                    />
-                  </div>
-
-                  {/* Real Execution Diagnostics */}
-                  {testOutput && (
-                    <div style={{
-                      background: "#FFFFFF",
-                      border: testOutput.compilationError ? "1px solid #F8C8C8" : testOutput.passed ? "1px solid #C8E4D3" : "1px solid #F8C8C8",
-                      borderRadius: 10,
-                      padding: 14
-                    }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <span style={{
-                          fontSize: 10,
-                          padding: "2px 8px",
-                          borderRadius: 4,
-                          fontWeight: 800,
-                          textTransform: "uppercase",
-                          background: testOutput.passed ? "#EAF4EE" : "#FDF2F2",
-                          color: testOutput.passed ? "#2E7D5B" : "#C24141"
-                        }}>
-                          {testOutput.verdict}
-                        </span>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>
-                          Score: {testOutput.score}% ({testOutput.passedCount}/{testOutput.totalTests} tests passed)
-                        </span>
-                      </div>
-
-                      {testOutput.compilationError && (
-                        <div style={{ background: "#FEF2F2", border: "1px solid #F87171", borderRadius: 6, padding: "8px 10px", fontSize: 11, color: "#991B1B", fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
-                          {testOutput.compilationError}
-                        </div>
-                      )}
-
-                      {testOutput.results && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                          {testOutput.results.slice(0, 4).map((r, i) => (
-                            <div key={i} style={{ fontSize: 11, fontFamily: "monospace", color: r.passed ? "#166534" : "#991B1B" }}>
-                              {r.passed ? "✓" : "✗"} Test {i + 1}: Expected {r.expected} → Actual: {r.actual}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Next Question Navigation */}
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-                    {!isLastInterviewQuestion ? (
-                      <button
-                        onClick={handleNextInterviewQuestion}
-                        style={{
-                          padding: "9px 20px",
-                          borderRadius: 7,
-                          border: "none",
-                          background: "#162A43",
-                          color: "#FFFFFF",
-                          fontSize: 12,
-                          fontWeight: 700,
-                          cursor: "pointer"
-                        }}
-                      >
-                        Next Question ({activeQuestionIndex + 2} of {activeSession?.questions.length}) ➔
-                      </button>
-                    ) : (
-                      <button
-                        onClick={handleFinalizeInterview}
-                        style={{
-                          padding: "10px 24px",
-                          borderRadius: 7,
-                          border: "none",
-                          background: "#2E7D5B",
-                          color: "#FFFFFF",
-                          fontSize: 13,
-                          fontWeight: 800,
-                          cursor: "pointer",
-                          boxShadow: "0 2px 4px rgba(46,125,91,0.25)"
-                        }}
-                      >
-                        Finalize All Questions &amp; View Bar-Raiser Scorecard ➔
-                      </button>
-                    )}
-                  </div>
-
-                  {evaluationError && (
-                    <div style={{ background: "#FEF2F2", border: "1px solid #F87171", borderRadius: 8, padding: 12, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 12, color: "#991B1B" }}>⚠️ {evaluationError}</span>
-                      <button
-                        onClick={handleFinalizeInterview}
-                        disabled={evaluating}
-                        style={{ padding: "6px 14px", background: "#991B1B", color: "#FFF", borderRadius: 6, border: "none", cursor: evaluating ? "not-allowed" : "pointer", fontSize: 11, fontWeight: 700 }}
-                      >
-                        {evaluating ? "Evaluating..." : "Retry Final Evaluation ↺"}
-                      </button>
-                    </div>
-                  )}
-
-                </div>
-
-                {/* Right: Technical Follow-up Challenge & Proctoring */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  
-                  {/* Proctoring Webcam Preview */}
-                  <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 12, textAlign: "center", boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: "#2E7D5B", marginBottom: 6, display: "flex", justifyContent: "space-between" }}>
-                      <span>● LIVE PROCTORING</span>
-                      <span>HD WEBCAM</span>
-                    </div>
-                    <div style={{ width: "100%", height: 130, background: "#111C2E", borderRadius: 7, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        muted
-                        playsInline
-                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Contextual Technical Follow-up */}
-                  <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-                    <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8 }}>
-                      🏛️ Technical Follow-up Probe
-                    </div>
-                    {interviewerFollowUp ? (
-                      <div>
-                        <div style={{ padding: "10px 12px", borderRadius: 7, background: "#EFF4FE", border: "1px solid #D2E0FB", fontSize: 12, color: "#162A43", lineHeight: 1.5, marginBottom: 10 }}>
-                          <strong>Interviewer:</strong> &ldquo;{interviewerFollowUp}&rdquo;
-                        </div>
-                        <textarea
-                          value={candidateFollowUpResponse}
-                          onChange={e => {
-                            setCandidateFollowUpResponse(e.target.value);
-                            setFollowUpSaved(false);
-                          }}
-                          placeholder="Explain monotonicity, overflow safeguards, or trade-offs..."
-                          rows={4}
-                          style={{ width: "100%", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 7, padding: 8, color: "#17191C", fontSize: 12, outline: "none", marginBottom: 8, boxSizing: "border-box" }}
-                        />
-                        <button
-                          onClick={handleSaveFollowUpResponse}
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            borderRadius: 6,
-                            border: "none",
-                            background: followUpSaved ? "#2E7D5B" : "#356AE6",
-                            color: "#FFFFFF",
-                            fontSize: 11,
-                            fontWeight: 700,
-                            cursor: "pointer"
-                          }}
-                        >
-                          {followUpSaved ? "✓ Defense Recorded" : "Submit Technical Defense ➔"}
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: 12, color: "#667085", lineHeight: 1.5 }}>
-                        Run visible tests or evaluate your code to receive the interviewer&apos;s trade-off challenge on complexity and edge invariants.
-                      </div>
-                    )}
-                  </div>
-
-                </div>
-
-              </div>
-            )}
+        {/* ══════════════════════════════════════════════════════════════
+            MODE 5: STRIVER SDE 455 DSA MASTERY TRACKER
+            ══════════════════════════════════════════════════════════════ */}
+        {mode === "tracker" && (
+          <div style={{ marginBottom: 24 }}>
+            <DsaMasteryTrackerView
+              isEmbedded={true}
+              onSelectProblem={(probId) => {
+                const prob = getStriverProblemById(probId);
+                if (prob) {
+                  setActiveProblem(prob);
+                  setSelectedStepId(prob.step_id);
+                  setMode("practice");
+                  saveSelection(prob.step_id, prob.id, "practice");
+                }
+              }}
+            />
           </div>
         )}
 
@@ -1949,6 +1922,16 @@ function DSACodingArenaContent() {
           targetHref="/student/skills/dsa"
         />
       )}
+
+      {/* Dedicated Contextual DSA Mentor Drawer */}
+      <DsaMentorDrawer
+        isOpen={isMentorOpen}
+        onClose={() => setIsMentorOpen(false)}
+        activeProblemTitle={activeProblem.title}
+        activeProblemId={activeProblem.id}
+        currentCode={code}
+        currentLanguage={selectedLanguage}
+      />
 
     </div>
   );

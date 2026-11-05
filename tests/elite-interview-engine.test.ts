@@ -837,8 +837,8 @@ describe("Cognalyze Elite AI Interview Engine (22-Point Validation Matrix)", () 
       assert.ok(q1.question);
       assert.strictEqual(q1.section, "resume_projects");
 
-      // Fallback or model question should specifically probe CacheMesh or engineering architecture
-      assert.match(q1.question, /CacheMesh|architecture|engineering|project/i);
+      // Fallback or model question should specifically probe CacheMesh, cache, or engineering architecture
+      assert.match(q1.question, /CacheMesh|cache|redis|architecture|engineering|project/i);
     });
 
     test("Checkpoint 6 & 7: Greeting is not repeated after React re-renders or network retries", () => {

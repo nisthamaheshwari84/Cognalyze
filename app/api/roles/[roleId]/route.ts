@@ -9,7 +9,7 @@ import { getRoleById, closeRole, getRoleApplications } from "@/lib/collab/store"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ roleId: string }> | { roleId: string } }
+  { params }: { params: Promise<{ roleId: string }> }
 ) {
   const resolvedParams = await params;
   const roleId = resolvedParams.roleId;
@@ -32,7 +32,7 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ roleId: string }> | { roleId: string } }
+  { params }: { params: Promise<{ roleId: string }> }
 ) {
   const user = await getCollabUser(req);
   if (!user) {

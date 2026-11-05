@@ -40,6 +40,9 @@ export interface GitHubSurfaceFacts {
 export interface GitHubDeepRepoAnalysis {
   repo_name: string;
   commit_count: number;
+  candidate_commits_count?: number;
+  total_team_commits?: number;
+  is_team_project?: boolean;
   is_incremental_work: boolean;
   first_commit_at: string;
   last_commit_at: string;

@@ -38,10 +38,10 @@ export interface CreateNotificationParams {
 const inMemoryNotifications: Map<string, NotificationItem[]> = new Map();
 
 /**
- * Resolves candidate ID (e.g. "student-demo") to consistent student profile ID or fallback
+ * Resolves candidate ID to consistent student profile ID
  */
 export async function resolveStudentId(candidateOrStudentId: string): Promise<string> {
-  if (!candidateOrStudentId) return "student-demo";
+  if (!candidateOrStudentId) return "";
   try {
     const { data } = await supabase
       .from("student_profiles")
@@ -72,6 +72,9 @@ export async function createNotification(params: CreateNotificationParams): Prom
   } = params;
 
   const resolvedId = await resolveStudentId(studentId);
+  if (!resolvedId) {
+    throw new Error("Cannot create notification without a valid student ID");
+  }
   const now = new Date().toISOString();
 
   // Deduplication guard: Check if an identical unread notification already exists

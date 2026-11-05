@@ -7,6 +7,10 @@ import AppNav from "@/components/AppNav";
 import { RoleDNA, StructuredRoleRequirement } from "@/lib/ai/role-dna";
 import { RoleExtractionConflict, RoleExtractionResult, RoleCategory } from "@/lib/roles/role-extractor";
 import { RoleDNAStructure } from "@/lib/roles/types";
+import AdaptiveRoleClarificationCard from "@/components/roles/AdaptiveRoleClarificationCard";
+import ResponsibilityGraphViewer from "@/components/roles/ResponsibilityGraphViewer";
+import WorkforceIntelligencePanel from "@/components/roles/WorkforceIntelligencePanel";
+import RoleApprovalAndVersionVault from "@/components/roles/RoleApprovalAndVersionVault";
 
 type WizardStep = "details" | "review" | "confirmation";
 
@@ -67,6 +71,153 @@ export default function RecruiterRolesPage() {
   // Step 3: Creation state
   const [saving, setSaving] = useState(false);
   const [savedSuccessMessage, setSavedSuccessMessage] = useState<string | null>(null);
+
+  // Adaptive Recruiter Clarifications State
+  const [recruiterAnswers, setRecruiterAnswers] = useState<Record<string, string>>({});
+
+  // Active Role View Tabs in Selected Role Inspection
+  const [activeRoleTab, setActiveRoleTab] = useState<"requirements" | "graph" | "market_signals" | "versions">("requirements");
+
+  // Version Vault & Approval State
+  const [roleVersions, setRoleVersions] = useState<any[]>([]);
+  const [loadingVersions, setLoadingVersions] = useState(false);
+
+  // Workforce Intelligence Signals for Selected Role
+  const [marketSignals, setMarketSignals] = useState<any[]>([]);
+  const [evolutionProposals, setEvolutionProposals] = useState<any[]>([]);
+  const [loadingWorkforce, setLoadingWorkforce] = useState(false);
+
+  // Fetch version history & workforce signals when selectedRole changes
+  useEffect(() => {
+    if (!selectedRole?.id) return;
+
+    setLoadingVersions(true);
+    fetch(`/api/recruiter/roles?roleId=${selectedRole.id}&versions=true`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.versions) {
+          setRoleVersions(data.versions);
+        }
+      })
+      .catch((err) => console.error("Error fetching versions:", err))
+      .finally(() => setLoadingVersions(false));
+
+    setLoadingWorkforce(true);
+    fetch(`/api/workforce/signals?roleId=${selectedRole.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setMarketSignals(data.matchingSignals || []);
+          setEvolutionProposals(data.proposals || []);
+        }
+      })
+      .catch((err) => console.error("Error fetching workforce signals:", err))
+      .finally(() => setLoadingWorkforce(false));
+  }, [selectedRole?.id]);
+
+  const handleApproveRole = async (notes: string) => {
+    if (!selectedRole?.id) return;
+    try {
+      const res = await fetch("/api/recruiter/roles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "approve",
+          roleId: selectedRole.id,
+          approvalStatus: "approved",
+          approvalNotes: notes || "Verified candidate requirements signed off for active candidate screening.",
+          changeSummary: "Role approved and signed off by lead recruiter."
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.role) {
+        setSelectedRole(data.role);
+        setRoles((prev) => prev.map((r) => (r.id === data.role.id ? data.role : r)));
+        setSavedSuccessMessage(`Role "${data.role.title}" officially approved & signed off!`);
+        if (data.version) {
+          setRoleVersions((prev) => [data.version, ...prev]);
+        }
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to approve role.");
+    }
+  };
+
+  const handleReviewProposal = async (proposalId: string, decision: "approved" | "rejected") => {
+    try {
+      const res = await fetch("/api/workforce/signals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "review_proposal",
+          proposalId,
+          decision,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.proposal) {
+        setEvolutionProposals((prev) =>
+          prev.map((p) => (p.id === proposalId ? data.proposal : p))
+        );
+        if (decision === "approved" && data.proposal.suggestedCapability && selectedRole) {
+          const cap = data.proposal.suggestedCapability;
+          const newReq: StructuredRoleRequirement = {
+            id: `req-market-${Date.now().toString().slice(-4)}`,
+            name: cap.name,
+            canonicalName: cap.name,
+            category: cap.tier === "Critical" ? "required" : "preferred",
+            semanticCategory: cap.tier === "Critical" ? "MUST_HAVE" : "PREFERRED",
+            evidenceQuote: `Adopted from Global Workforce Intelligence signal (${data.proposal.marketRationale})`,
+            source: "recruiter_added",
+            needsConfirmation: false,
+            importance: cap.tier === "Critical" ? "mandatory" : "preferred",
+            verificationStrategy: ["Implementation > Claim", `Evaluate via ${cap.verificationMethod}`],
+            evidenceSignals: ["Production repos", "Work sample", "Technical interview"],
+            rationale: data.proposal.marketRationale
+          };
+          const updatedStructured = [...(selectedRole.structuredRequirements || []), newReq];
+          const updateRes = await fetch("/api/recruiter/roles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...selectedRole,
+              structuredRequirements: updatedStructured,
+              version: (selectedRole.version || 1) + 1,
+              changeSummary: `Adopted workforce proposal: ${data.proposal.proposedChange}`
+            })
+          });
+          const updateData = await updateRes.json();
+          if (updateData.success && updateData.role) {
+            setSelectedRole(updateData.role);
+            setRoles((prev) => prev.map((r) => (r.id === updateData.role.id ? updateData.role : r)));
+            setSavedSuccessMessage(`Capability "${cap.name}" added to role!`);
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error("Failed to review proposal:", err);
+    }
+  };
+
+  const handleGenerateProposals = async () => {
+    if (!selectedRole?.id) return;
+    try {
+      const res = await fetch("/api/workforce/signals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate_proposals",
+          roleId: selectedRole.id,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.proposals) {
+        setEvolutionProposals(data.proposals);
+      }
+    } catch (err) {
+      console.error("Failed to refresh proposals:", err);
+    }
+  };
 
   // Fetch existing roles
   useEffect(() => {
@@ -247,6 +398,14 @@ export default function RecruiterRolesPage() {
     setErrorMessage(null);
 
     try {
+      const updatedRoleDna = roleDna ? {
+        ...roleDna,
+        adaptiveQuestions: roleDna.adaptiveQuestions?.map(q => ({
+          ...q,
+          recruiterAnswer: recruiterAnswers[q.id] || ""
+        }))
+      } : undefined;
+
       const payload = {
         title: title.trim(),
         department: department.trim() || "Engineering",
@@ -254,9 +413,11 @@ export default function RecruiterRolesPage() {
         workMode,
         location: location.trim() || undefined,
         structuredRequirements: requirements,
-        roleDna: roleDna || undefined,
+        roleDna: updatedRoleDna,
+        responsibilityGraph: roleDna?.responsibilityGraph,
+        adaptiveQuestions: updatedRoleDna?.adaptiveQuestions,
         jdRaw: rawJdText || jdText,
-        success90Days: success90Days.trim() || undefined,
+        success90Days: success90Days.trim() || recruiterAnswers["q_business_outcome"] || undefined,
       };
 
       const res = await fetch("/api/recruiter/roles", {
@@ -409,15 +570,16 @@ export default function RecruiterRolesPage() {
           <div
             style={{
               padding: "14px 18px",
-              borderRadius: 10,
-              background: "rgba(239, 68, 68, 0.12)",
-              border: "1px solid rgba(239, 68, 68, 0.35)",
-              color: "#fca5a5",
+              borderRadius: 8,
+              background: "var(--color-error-bg)",
+              border: "1px solid #F8D7D7",
+              color: "var(--color-error)",
               fontSize: 13,
               marginBottom: 24,
               display: "flex",
               alignItems: "center",
               gap: 10,
+              fontWeight: 500,
             }}
           >
             <span>⚠️</span>
@@ -430,10 +592,10 @@ export default function RecruiterRolesPage() {
           <div
             style={{
               padding: "14px 18px",
-              borderRadius: 10,
-              background: "rgba(16, 185, 129, 0.15)",
-              border: "1px solid rgba(16, 185, 129, 0.4)",
-              color: "#6ee7b7",
+              borderRadius: 8,
+              background: "var(--color-success-bg)",
+              border: "1px solid #C8E4D3",
+              color: "var(--color-success)",
               fontSize: 13,
               marginBottom: 24,
               fontWeight: 700,
@@ -453,20 +615,21 @@ export default function RecruiterRolesPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                marginBottom: 28,
-                padding: "12px 18px",
-                background: "rgba(15, 23, 42, 0.6)",
-                borderRadius: 12,
-                border: "1px solid rgba(255, 255, 255, 0.06)",
+                gap: 16,
+                marginBottom: 24,
+                padding: "14px 22px",
+                background: "var(--surface)",
+                borderRadius: 10,
+                border: "1px solid var(--border-subtle)",
+                boxShadow: "var(--shadow-subtle)",
               }}
             >
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  color: currentStep === "details" ? "#c084fc" : "#10b981",
+                  gap: 10,
+                  color: currentStep === "details" ? "var(--brand-cobalt)" : "#2E7D5B",
                   fontWeight: 700,
                   fontSize: 13,
                 }}
@@ -476,7 +639,7 @@ export default function RecruiterRolesPage() {
                     width: 24,
                     height: 24,
                     borderRadius: "50%",
-                    background: currentStep === "details" ? "#a855f7" : "#10b981",
+                    background: currentStep === "details" ? "var(--brand-cobalt)" : "#2E7D5B",
                     color: "white",
                     display: "flex",
                     alignItems: "center",
@@ -487,16 +650,16 @@ export default function RecruiterRolesPage() {
                 >
                   {currentStep === "details" ? "1" : "✓"}
                 </span>
-                <span>1. Role & Job Description</span>
+                <span>1. Role &amp; Job Description</span>
               </div>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>➔</span>
+              <span style={{ color: "var(--border-strong)" }}>➔</span>
 
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  color: currentStep === "review" ? "#c084fc" : currentStep === "confirmation" ? "#10b981" : "#64748b",
+                  gap: 10,
+                  color: currentStep === "review" ? "var(--brand-cobalt)" : currentStep === "confirmation" ? "#2E7D5B" : "var(--text-secondary)",
                   fontWeight: 700,
                   fontSize: 13,
                 }}
@@ -506,8 +669,9 @@ export default function RecruiterRolesPage() {
                     width: 24,
                     height: 24,
                     borderRadius: "50%",
-                    background: currentStep === "review" ? "#a855f7" : currentStep === "confirmation" ? "#10b981" : "rgba(255,255,255,0.1)",
-                    color: "white",
+                    background: currentStep === "review" ? "var(--brand-cobalt)" : currentStep === "confirmation" ? "#2E7D5B" : "var(--surface-subtle)",
+                    color: currentStep === "review" || currentStep === "confirmation" ? "white" : "var(--text-secondary)",
+                    border: currentStep === "review" || currentStep === "confirmation" ? "none" : "1px solid var(--border-subtle)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -519,14 +683,14 @@ export default function RecruiterRolesPage() {
                 </span>
                 <span>2. Review Extracted Requirements</span>
               </div>
-              <span style={{ color: "rgba(255,255,255,0.2)" }}>➔</span>
+              <span style={{ color: "var(--border-strong)" }}>➔</span>
 
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 8,
-                  color: currentStep === "confirmation" ? "#c084fc" : "#64748b",
+                  gap: 10,
+                  color: currentStep === "confirmation" ? "var(--brand-cobalt)" : "var(--text-secondary)",
                   fontWeight: 700,
                   fontSize: 13,
                 }}
@@ -536,8 +700,9 @@ export default function RecruiterRolesPage() {
                     width: 24,
                     height: 24,
                     borderRadius: "50%",
-                    background: currentStep === "confirmation" ? "#a855f7" : "rgba(255,255,255,0.1)",
-                    color: "white",
+                    background: currentStep === "confirmation" ? "var(--brand-cobalt)" : "var(--surface-subtle)",
+                    color: currentStep === "confirmation" ? "white" : "var(--text-secondary)",
+                    border: currentStep === "confirmation" ? "none" : "1px solid var(--border-subtle)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -557,18 +722,19 @@ export default function RecruiterRolesPage() {
             {currentStep === "details" && (
               <div
                 style={{
-                  background: "rgba(15, 23, 42, 0.45)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 16,
-                  padding: 28,
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: 10,
+                  padding: "24px 28px",
+                  boxShadow: "var(--shadow-subtle)",
                 }}
               >
                 {/* SECTION 1: ROLE DETAILS */}
-                <div style={{ marginBottom: 28 }}>
-                  <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 4px", color: "white" }}>
+                <div style={{ marginBottom: 24 }}>
+                  <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px", color: "var(--brand-navy)" }}>
                     Role Details
                   </h2>
-                  <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>
+                  <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0 }}>
                     Basic information about the role you are hiring for.
                   </p>
 
@@ -582,8 +748,8 @@ export default function RecruiterRolesPage() {
                   >
                     {/* Job Title */}
                     <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#cbd5e1", marginBottom: 6 }}>
-                        Job Title <span style={{ color: "#f87171" }}>*</span>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+                        Job Title <span style={{ color: "var(--color-error)" }}>*</span>
                       </label>
                       <input
                         type="text"
@@ -592,21 +758,22 @@ export default function RecruiterRolesPage() {
                         placeholder="e.g. Senior Backend Engineer"
                         style={{
                           width: "100%",
-                          padding: "10px 14px",
-                          borderRadius: 8,
-                          background: "rgba(0,0,0,0.3)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
+                          padding: "9px 12px",
+                          borderRadius: 7,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--text-primary)",
                           fontSize: 13,
                           outline: "none",
+                          boxSizing: "border-box",
                         }}
                       />
                     </div>
 
                     {/* Department */}
                     <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#cbd5e1", marginBottom: 6 }}>
-                        Department / Team <span style={{ color: "#64748b", fontWeight: 400 }}>(Optional)</span>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+                        Department / Team <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>(Optional)</span>
                       </label>
                       <input
                         type="text"
@@ -615,21 +782,22 @@ export default function RecruiterRolesPage() {
                         placeholder="e.g. Engineering / Core Systems"
                         style={{
                           width: "100%",
-                          padding: "10px 14px",
-                          borderRadius: 8,
-                          background: "rgba(0,0,0,0.3)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
+                          padding: "9px 12px",
+                          borderRadius: 7,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--text-primary)",
                           fontSize: 13,
                           outline: "none",
+                          boxSizing: "border-box",
                         }}
                       />
                     </div>
 
                     {/* Number of Openings */}
                     <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#cbd5e1", marginBottom: 6 }}>
-                        Number of Openings <span style={{ color: "#f87171" }}>*</span>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+                        Number of Openings <span style={{ color: "var(--color-error)" }}>*</span>
                       </label>
                       <input
                         type="number"
@@ -639,23 +807,24 @@ export default function RecruiterRolesPage() {
                         onChange={(e) => setTargetHires(parseInt(e.target.value, 10) || 1)}
                         style={{
                           width: "100%",
-                          padding: "10px 14px",
-                          borderRadius: 8,
-                          background: "rgba(0,0,0,0.3)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
+                          padding: "9px 12px",
+                          borderRadius: 7,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--text-primary)",
                           fontSize: 13,
                           outline: "none",
+                          boxSizing: "border-box",
                         }}
                       />
                     </div>
 
                     {/* Work Mode */}
                     <div>
-                      <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#cbd5e1", marginBottom: 6 }}>
-                        Work Mode <span style={{ color: "#64748b", fontWeight: 400 }}>(Optional)</span>
+                      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+                        Work Mode <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>(Optional)</span>
                       </label>
-                      <div style={{ display: "flex", gap: 8 }}>
+                      <div style={{ display: "flex", gap: 4, background: "var(--surface-subtle)", padding: 3, borderRadius: 7, border: "1px solid var(--border-subtle)" }}>
                         {(["Remote", "Hybrid", "On-site"] as const).map((mode) => (
                           <button
                             key={mode}
@@ -663,14 +832,16 @@ export default function RecruiterRolesPage() {
                             onClick={() => setWorkMode(mode)}
                             style={{
                               flex: 1,
-                              padding: "9px 8px",
-                              borderRadius: 8,
-                              background: workMode === mode ? "rgba(168,85,247,0.25)" : "rgba(0,0,0,0.3)",
-                              border: workMode === mode ? "1px solid #a855f7" : "1px solid rgba(255,255,255,0.1)",
-                              color: workMode === mode ? "#d8b4fe" : "#94a3b8",
+                              padding: "6px 10px",
+                              borderRadius: 5,
+                              background: workMode === mode ? "var(--surface)" : "transparent",
+                              border: workMode === mode ? "1px solid var(--border-subtle)" : "1px solid transparent",
+                              color: workMode === mode ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                              boxShadow: workMode === mode ? "0 1px 2px rgba(16, 24, 40, 0.05)" : "none",
                               fontSize: 12,
-                              fontWeight: 700,
+                              fontWeight: workMode === mode ? 700 : 500,
                               cursor: "pointer",
+                              transition: "all 0.15s ease",
                             }}
                           >
                             {mode}
@@ -682,8 +853,8 @@ export default function RecruiterRolesPage() {
                     {/* Location */}
                     {workMode !== "Remote" && (
                       <div>
-                        <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#cbd5e1", marginBottom: 6 }}>
-                          Location <span style={{ color: "#64748b", fontWeight: 400 }}>(Optional)</span>
+                        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 6 }}>
+                          Location <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>(Optional)</span>
                         </label>
                         <input
                           type="text"
@@ -692,13 +863,14 @@ export default function RecruiterRolesPage() {
                           placeholder="e.g. Bengaluru, India"
                           style={{
                             width: "100%",
-                            padding: "10px 14px",
-                            borderRadius: 8,
-                            background: "rgba(0,0,0,0.3)",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            color: "white",
+                            padding: "9px 12px",
+                            borderRadius: 7,
+                            background: "var(--surface)",
+                            border: "1px solid var(--border-subtle)",
+                            color: "var(--text-primary)",
                             fontSize: 13,
                             outline: "none",
+                            boxSizing: "border-box",
                           }}
                         />
                       </div>
@@ -707,31 +879,33 @@ export default function RecruiterRolesPage() {
                 </div>
 
                 {/* SECTION 2: JOB DESCRIPTION (PRIMARY INPUT) */}
-                <div style={{ paddingTop: 20, borderTop: "1px solid rgba(255, 255, 255, 0.08)" }}>
+                <div style={{ paddingTop: 20, borderTop: "1px solid var(--border-subtle)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
                     <div>
-                      <h2 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 4px", color: "white" }}>
+                      <h2 style={{ fontSize: 18, fontWeight: 700, margin: "0 0 4px", color: "var(--brand-navy)" }}>
                         Job Description
                       </h2>
-                      <p style={{ fontSize: 13, color: "#94a3b8", margin: 0 }}>
+                      <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0 }}>
                         Paste the job description or upload it. Cognalyze will identify the requirements automatically.
                       </p>
                     </div>
 
                     {/* Toggle: Paste vs Upload */}
-                    <div style={{ display: "flex", gap: 6, background: "rgba(0,0,0,0.3)", padding: 4, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)" }}>
+                    <div style={{ display: "flex", gap: 4, background: "var(--surface-subtle)", padding: 3, borderRadius: 7, border: "1px solid var(--border-subtle)" }}>
                       <button
                         type="button"
                         onClick={() => setJdInputMode("paste")}
                         style={{
-                          padding: "6px 14px",
-                          borderRadius: 6,
-                          background: jdInputMode === "paste" ? "rgba(168,85,247,0.3)" : "transparent",
-                          color: jdInputMode === "paste" ? "#e9d5ff" : "#94a3b8",
-                          border: "none",
+                          padding: "5px 12px",
+                          borderRadius: 5,
+                          background: jdInputMode === "paste" ? "var(--surface)" : "transparent",
+                          color: jdInputMode === "paste" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                          border: jdInputMode === "paste" ? "1px solid var(--border-subtle)" : "1px solid transparent",
+                          boxShadow: jdInputMode === "paste" ? "0 1px 2px rgba(16, 24, 40, 0.05)" : "none",
                           fontSize: 12,
-                          fontWeight: 700,
+                          fontWeight: jdInputMode === "paste" ? 700 : 500,
                           cursor: "pointer",
+                          transition: "all 0.15s ease",
                         }}
                       >
                         ✏️ Paste Text
@@ -740,14 +914,16 @@ export default function RecruiterRolesPage() {
                         type="button"
                         onClick={() => setJdInputMode("upload")}
                         style={{
-                          padding: "6px 14px",
-                          borderRadius: 6,
-                          background: jdInputMode === "upload" ? "rgba(168,85,247,0.3)" : "transparent",
-                          color: jdInputMode === "upload" ? "#e9d5ff" : "#94a3b8",
-                          border: "none",
+                          padding: "5px 12px",
+                          borderRadius: 5,
+                          background: jdInputMode === "upload" ? "var(--surface)" : "transparent",
+                          color: jdInputMode === "upload" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                          border: jdInputMode === "upload" ? "1px solid var(--border-subtle)" : "1px solid transparent",
+                          boxShadow: jdInputMode === "upload" ? "0 1px 2px rgba(16, 24, 40, 0.05)" : "none",
                           fontSize: 12,
-                          fontWeight: 700,
+                          fontWeight: jdInputMode === "upload" ? 700 : 500,
                           cursor: "pointer",
+                          transition: "all 0.15s ease",
                         }}
                       >
                         📄 Upload File
@@ -765,16 +941,17 @@ export default function RecruiterRolesPage() {
                         placeholder="Paste your job description here (e.g. responsibilities, must-haves, preferred qualifications, experience requirements)..."
                         style={{
                           width: "100%",
-                          padding: "14px 16px",
-                          borderRadius: 12,
-                          background: "rgba(0,0,0,0.35)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          color: "white",
+                          padding: "12px 14px",
+                          borderRadius: 8,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--text-primary)",
                           fontSize: 13,
                           lineHeight: 1.6,
                           outline: "none",
                           fontFamily: "inherit",
                           resize: "vertical",
+                          boxSizing: "border-box",
                         }}
                       />
                     </div>
@@ -784,9 +961,9 @@ export default function RecruiterRolesPage() {
                       onClick={() => fileInputRef.current?.click()}
                       style={{
                         padding: "36px 24px",
-                        borderRadius: 12,
-                        background: "rgba(0,0,0,0.35)",
-                        border: "2px dashed rgba(168,85,247,0.35)",
+                        borderRadius: 10,
+                        background: "var(--surface-hover)",
+                        border: "2px dashed var(--border-strong)",
                         textAlign: "center",
                         cursor: "pointer",
                         transition: "all 0.2s ease",
@@ -800,10 +977,10 @@ export default function RecruiterRolesPage() {
                         style={{ display: "none" }}
                       />
                       <div style={{ fontSize: 32, marginBottom: 8 }}>📁</div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "white", marginBottom: 4 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", marginBottom: 4 }}>
                         {uploadedFile ? uploadedFile.name : "Click or drag your JD file here"}
                       </div>
-                      <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                         Supported formats: PDF, DOCX, TXT (up to 10MB)
                       </div>
                       {uploadedFile && (
@@ -812,11 +989,12 @@ export default function RecruiterRolesPage() {
                             display: "inline-block",
                             marginTop: 10,
                             padding: "4px 12px",
-                            borderRadius: 6,
-                            background: "rgba(16, 185, 129, 0.2)",
-                            color: "#6ee7b7",
+                            borderRadius: 5,
+                            background: "var(--color-success-bg)",
+                            color: "var(--color-success)",
                             fontSize: 11,
                             fontWeight: 700,
+                            border: "1px solid #C8E4D3",
                           }}
                         >
                           ✓ File selected ({Math.round(uploadedFile.size / 1024)} KB)
@@ -832,18 +1010,19 @@ export default function RecruiterRolesPage() {
                       onClick={handleAnalyzeJd}
                       disabled={analyzing}
                       style={{
-                        padding: "13px 28px",
-                        borderRadius: 10,
-                        background: analyzing ? "rgba(168,85,247,0.5)" : "linear-gradient(135deg, #a855f7, #6366f1)",
-                        color: "white",
-                        fontSize: 14,
-                        fontWeight: 800,
+                        padding: "10px 22px",
+                        borderRadius: 7,
+                        background: analyzing ? "var(--brand-cobalt-hover)" : "var(--brand-cobalt)",
+                        color: "#FFFFFF",
+                        fontSize: 13,
+                        fontWeight: 600,
                         border: "none",
                         cursor: analyzing ? "not-allowed" : "pointer",
                         display: "flex",
                         alignItems: "center",
-                        gap: 10,
-                        boxShadow: "0 4px 20px rgba(168,85,247,0.35)",
+                        gap: 8,
+                        boxShadow: "0 1px 3px rgba(53, 106, 230, 0.25)",
+                        transition: "all 0.15s ease",
                       }}
                     >
                       {analyzing ? (
@@ -869,10 +1048,11 @@ export default function RecruiterRolesPage() {
             {currentStep === "review" && (
               <div
                 style={{
-                  background: "rgba(15, 23, 42, 0.45)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 16,
-                  padding: 28,
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: 10,
+                  padding: "24px 28px",
+                  boxShadow: "var(--shadow-subtle)",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
@@ -883,22 +1063,23 @@ export default function RecruiterRolesPage() {
                           fontSize: 10,
                           padding: "2px 8px",
                           borderRadius: 4,
-                          background: "rgba(168,85,247,0.2)",
-                          color: "#d8b4fe",
-                          fontWeight: 800,
+                          background: "var(--color-info-bg)",
+                          color: "var(--brand-cobalt)",
+                          border: "1px solid #D2E0FB",
+                          fontWeight: 700,
                           letterSpacing: 0.5,
                         }}
                       >
                         ROLE DNA
                       </span>
-                      <span style={{ fontSize: 12, color: "#94a3b8" }}>
-                        Semantic Analysis & Evidence Strategy
+                      <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        Semantic Analysis &amp; Evidence Strategy
                       </span>
                     </div>
-                    <h2 style={{ fontSize: 20, fontWeight: 900, margin: "0 0 4px", color: "white" }}>
+                    <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 4px", color: "var(--brand-navy)" }}>
                       Role DNA: {title || "Engineering Role"}
                     </h2>
-                    <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, maxWidth: 740 }}>
+                    <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: 0, maxWidth: 740 }}>
                       Cognalyze semantically structured your job description into verified requirements, on-the-job responsibilities, eligibility constraints, and evidence signals.
                     </p>
                   </div>
@@ -908,16 +1089,17 @@ export default function RecruiterRolesPage() {
                     onClick={() => setShowAddModal(true)}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: 8,
-                      background: "rgba(255,255,255,0.08)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "white",
+                      borderRadius: 7,
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--brand-navy)",
                       fontSize: 12,
                       fontWeight: 700,
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
                       gap: 6,
+                      boxShadow: "0 1px 2px rgba(16, 24, 40, 0.04)",
                     }}
                   >
                     <span>+</span> Add Requirement
@@ -928,9 +1110,9 @@ export default function RecruiterRolesPage() {
                 <div
                   style={{
                     padding: "14px 18px",
-                    borderRadius: 12,
-                    background: "rgba(168,85,247,0.07)",
-                    border: "1px solid rgba(168,85,247,0.2)",
+                    borderRadius: 8,
+                    background: "var(--surface-subtle)",
+                    border: "1px solid var(--border-subtle)",
                     marginBottom: 24,
                     display: "flex",
                     alignItems: "center",
@@ -941,56 +1123,67 @@ export default function RecruiterRolesPage() {
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 16 }}>🧬</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: "#e9d5ff" }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)" }}>
                       Verified Scope:
                     </span>
                   </div>
 
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(239,68,68,0.2)", color: "#f87171" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "var(--color-error-bg)", color: "var(--color-error)", border: "1px solid #F8D7D7" }}>
                       {mustHaveList.length} Must-Have{mustHaveList.length === 1 ? "" : "s"}
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(59,130,246,0.2)", color: "#60a5fa" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "var(--color-info-bg)", color: "var(--brand-cobalt)", border: "1px solid #D2E0FB" }}>
                       {preferredList.length} Preferred
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(16,185,129,0.2)", color: "#34d399" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid #C8E4D3" }}>
                       {eligibilityList.length} Eligibility
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(168,85,247,0.2)", color: "#c084fc" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "#F5F3FF", color: "#7C3AED", border: "1px solid #DDD6FE" }}>
                       {evidenceSignalList.length} Evidence Signal{evidenceSignalList.length === 1 ? "" : "s"}
                     </span>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(245,158,11,0.2)", color: "#fbbf24" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid #F8D8A7" }}>
                       {responsibilityList.length} Responsibilit{responsibilityList.length === 1 ? "y" : "ies"}
                     </span>
                     {ambiguityList.length > 0 && (
-                      <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 20, background: "rgba(245,158,11,0.25)", color: "#fef08a" }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid #F8D8A7" }}>
                         ⚠️ {ambiguityList.length} Needs Confirmation
                       </span>
                     )}
                   </div>
                 </div>
 
+                {/* ADAPTIVE RECRUITER CALIBRATION QUESTIONS */}
+                {roleDna?.adaptiveQuestions && roleDna.adaptiveQuestions.length > 0 && (
+                  <AdaptiveRoleClarificationCard
+                    questions={roleDna.adaptiveQuestions}
+                    answers={recruiterAnswers}
+                    onAnswerChange={(qId, val) =>
+                      setRecruiterAnswers((prev) => ({ ...prev, [qId]: val }))
+                    }
+                  />
+                )}
+
                 {/* CONFLICT ALERTS */}
                 {conflicts.length > 0 && (
                   <div
                     style={{
                       padding: "16px 20px",
-                      borderRadius: 12,
-                      background: "rgba(245, 158, 11, 0.12)",
-                      border: "1px solid rgba(245, 158, 11, 0.35)",
+                      borderRadius: 8,
+                      background: "var(--color-warning-bg)",
+                      border: "1px solid #F8D8A7",
                       marginBottom: 24,
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "#fbbf24", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-warning)", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
                       <span>⚠️</span>
                       <span>Conflicting requirements found in job description</span>
                     </div>
                     {conflicts.map((c, i) => (
-                      <div key={i} style={{ fontSize: 12, color: "#fef3c7", marginTop: 6, lineHeight: 1.5 }}>
+                      <div key={i} style={{ fontSize: 12, color: "var(--text-primary)", marginTop: 6, lineHeight: 1.5 }}>
                         <div>{c.reason}</div>
-                        <div style={{ marginTop: 4, display: "flex", gap: 12, flexWrap: "wrap", opacity: 0.9 }}>
-                          <span style={{ padding: "2px 8px", background: "rgba(0,0,0,0.2)", borderRadius: 4 }}>• &ldquo;{c.statementA}&rdquo;</span>
-                          <span style={{ padding: "2px 8px", background: "rgba(0,0,0,0.2)", borderRadius: 4 }}>• &ldquo;{c.statementB}&rdquo;</span>
+                        <div style={{ marginTop: 4, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                          <span style={{ padding: "2px 8px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 4 }}>• &ldquo;{c.statementA}&rdquo;</span>
+                          <span style={{ padding: "2px 8px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 4 }}>• &ldquo;{c.statementB}&rdquo;</span>
                         </div>
                       </div>
                     ))}
@@ -1002,17 +1195,17 @@ export default function RecruiterRolesPage() {
                   <div
                     style={{
                       padding: "16px 20px",
-                      borderRadius: 12,
-                      background: "rgba(245, 158, 11, 0.08)",
-                      border: "1px solid rgba(245, 158, 11, 0.3)",
+                      borderRadius: 8,
+                      background: "var(--color-warning-bg)",
+                      border: "1px solid #F8D8A7",
                       marginBottom: 24,
                     }}
                   >
-                    <div style={{ fontSize: 13, fontWeight: 800, color: "#fbbf24", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-warning)", marginBottom: 4, display: "flex", alignItems: "center", gap: 8 }}>
                       <span>⚠️</span>
                       <span>Items Needing Recruiter Confirmation ({ambiguityList.length})</span>
                     </div>
-                    <p style={{ fontSize: 12, color: "#fef3c7", margin: "0 0 12px", opacity: 0.9 }}>
+                    <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 12px" }}>
                       Cognalyze avoids guessing specific technologies when the JD is vague. Confirm or edit these before screening.
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1027,14 +1220,14 @@ export default function RecruiterRolesPage() {
                   {mustHaveList.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(239,68,68,0.2)", color: "#f87171", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "var(--color-error-bg)", color: "var(--color-error)", border: "1px solid #F8D7D7", fontWeight: 700 }}>
                           MUST-HAVE
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           Core Must-Have Requirements ({mustHaveList.length})
                         </h3>
                       </div>
-                      <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 12px" }}>
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 12px" }}>
                         Explicit mandatory candidate qualifications. Candidates must show authentic proof (Implementation &gt; Claim).
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1047,14 +1240,14 @@ export default function RecruiterRolesPage() {
                   {preferredList.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(59,130,246,0.2)", color: "#60a5fa", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "var(--color-info-bg)", color: "var(--brand-cobalt)", border: "1px solid #D2E0FB", fontWeight: 700 }}>
                           PREFERRED
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           Preferred Capabilities ({preferredList.length})
                         </h3>
                       </div>
-                      <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 12px" }}>
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 12px" }}>
                         Desirable capabilities and differentiators. Not treated as dealbreakers for initial shortlist.
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1067,14 +1260,14 @@ export default function RecruiterRolesPage() {
                   {eligibilityList.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(16,185,129,0.2)", color: "#34d399", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid #C8E4D3", fontWeight: 700 }}>
                           ELIGIBILITY
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           Eligibility Conditions ({eligibilityList.length})
                         </h3>
                       </div>
-                      <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 12px" }}>
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 12px" }}>
                         Academic degree, graduation timeline, and work authorization prerequisites.
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1087,14 +1280,14 @@ export default function RecruiterRolesPage() {
                   {evidenceSignalList.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(168,85,247,0.2)", color: "#c084fc", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "#F5F3FF", color: "#7C3AED", border: "1px solid #DDD6FE", fontWeight: 700 }}>
                           EVIDENCE SIGNALS
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           Evidence Signals ({evidenceSignalList.length})
                         </h3>
                       </div>
-                      <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 12px" }}>
+                      <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: "0 0 12px" }}>
                         Where Cognalyze's evidence engine searches for proof (GitHub, deployed demos, hackathons, publications).
                       </p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1105,21 +1298,31 @@ export default function RecruiterRolesPage() {
 
                   {/* 5. ON-THE-JOB RESPONSIBILITIES (NOT SCREENING REQUIREMENTS) */}
                   {responsibilityList.length > 0 && (
-                    <div style={{ padding: "18px 20px", borderRadius: 12, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div style={{ padding: "18px 20px", borderRadius: 8, background: "var(--surface-subtle)", border: "1px solid var(--border-subtle)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(245,158,11,0.15)", color: "#fbbf24", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "var(--color-warning-bg)", color: "var(--color-warning)", border: "1px solid #F8D8A7", fontWeight: 700 }}>
                           RESPONSIBILITY
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           On-The-Job Responsibilities ({responsibilityList.length})
                         </h3>
                       </div>
-                      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12, lineHeight: 1.5 }}>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12, lineHeight: 1.5 }}>
                         ℹ️ <strong>Informs role context only:</strong> These describe what the candidate will do on the job. They inform candidate alignment but are <em>never</em> used to disqualify candidates during automated screening.
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {responsibilityList.map((req) => renderRequirementCard(req))}
                       </div>
+
+                      {/* RESPONSIBILITY-TO-CAPABILITY GRAPH */}
+                      {roleDna?.responsibilityGraph && roleDna.responsibilityGraph.length > 0 && (
+                        <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px dashed var(--border-subtle)" }}>
+                          <ResponsibilityGraphViewer
+                            graph={roleDna.responsibilityGraph}
+                            roleTitle={title}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1127,10 +1330,10 @@ export default function RecruiterRolesPage() {
                   {otherList.length > 0 && (
                     <div>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "rgba(148,163,184,0.2)", color: "#cbd5e1", fontWeight: 800 }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, background: "var(--surface-subtle)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)", fontWeight: 700 }}>
                           CONSTRAINTS
                         </span>
-                        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#cbd5e1", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                        <h3 style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", margin: 0, textTransform: "uppercase", letterSpacing: 0.5 }}>
                           Role Constraints ({otherList.length})
                         </h3>
                       </div>
@@ -1146,16 +1349,16 @@ export default function RecruiterRolesPage() {
                   style={{
                     marginTop: 32,
                     paddingTop: 20,
-                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderTop: "1px solid var(--border-subtle)",
                   }}
                 >
                   {!show90DaySection ? (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "#cbd5e1" }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                           Optional: What would success look like in the first 90 days?
                         </div>
-                        <div style={{ fontSize: 12, color: "#94a3b8" }}>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                           Add this only if you want Cognalyze to consider a specific outcome during evaluation.
                         </div>
                       </div>
@@ -1166,9 +1369,9 @@ export default function RecruiterRolesPage() {
                           style={{
                             padding: "6px 14px",
                             borderRadius: 6,
-                            background: "rgba(255,255,255,0.06)",
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            color: "#c084fc",
+                            background: "var(--surface)",
+                            border: "1px solid var(--border-subtle)",
+                            color: "var(--brand-cobalt)",
                             fontSize: 12,
                             fontWeight: 700,
                             cursor: "pointer",
@@ -1179,9 +1382,9 @@ export default function RecruiterRolesPage() {
                       </div>
                     </div>
                   ) : (
-                    <div style={{ background: "rgba(0,0,0,0.25)", padding: 18, borderRadius: 10, border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ background: "var(--surface-subtle)", padding: 18, borderRadius: 8, border: "1px solid var(--border-subtle)" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <label style={{ fontSize: 13, fontWeight: 700, color: "white" }}>
+                        <label style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-navy)" }}>
                           Recruiter-provided 90-day success outcome
                         </label>
                         <button
@@ -1193,7 +1396,7 @@ export default function RecruiterRolesPage() {
                           style={{
                             background: "transparent",
                             border: "none",
-                            color: "#94a3b8",
+                            color: "var(--text-secondary)",
                             fontSize: 11,
                             cursor: "pointer",
                           }}
@@ -1209,13 +1412,14 @@ export default function RecruiterRolesPage() {
                         style={{
                           width: "100%",
                           padding: "10px 14px",
-                          borderRadius: 8,
-                          background: "rgba(0,0,0,0.3)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
+                          borderRadius: 7,
+                          background: "var(--surface)",
+                          border: "1px solid var(--border-subtle)",
+                          color: "var(--text-primary)",
                           fontSize: 12,
                           lineHeight: 1.5,
                           outline: "none",
+                          boxSizing: "border-box",
                         }}
                       />
                     </div>
@@ -1232,20 +1436,20 @@ export default function RecruiterRolesPage() {
                     flexWrap: "wrap",
                     gap: 12,
                     paddingTop: 20,
-                    borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderTop: "1px solid var(--border-subtle)",
                   }}
                 >
                   <button
                     type="button"
                     onClick={() => setCurrentStep("details")}
                     style={{
-                      padding: "10px 20px",
-                      borderRadius: 8,
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "#94a3b8",
+                      padding: "9px 18px",
+                      borderRadius: 7,
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--brand-navy)",
                       fontSize: 13,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer",
                     }}
                   >
@@ -1256,15 +1460,15 @@ export default function RecruiterRolesPage() {
                     type="button"
                     onClick={() => setCurrentStep("confirmation")}
                     style={{
-                      padding: "11px 26px",
-                      borderRadius: 8,
-                      background: "linear-gradient(135deg, #a855f7, #6366f1)",
-                      color: "white",
+                      padding: "10px 22px",
+                      borderRadius: 7,
+                      background: "var(--brand-cobalt)",
+                      color: "#FFFFFF",
                       fontSize: 13,
-                      fontWeight: 800,
+                      fontWeight: 600,
                       border: "none",
                       cursor: "pointer",
-                      boxShadow: "0 4px 15px rgba(168,85,247,0.3)",
+                      boxShadow: "0 1px 3px rgba(53, 106, 230, 0.25)",
                     }}
                   >
                     Proceed to Confirmation →
@@ -1279,35 +1483,36 @@ export default function RecruiterRolesPage() {
             {currentStep === "confirmation" && (
               <div
                 style={{
-                  background: "rgba(15, 23, 42, 0.45)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 16,
+                  background: "var(--surface)",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: 10,
                   padding: 32,
                   textAlign: "center",
+                  boxShadow: "var(--shadow-subtle)",
                 }}
               >
                 <div
                   style={{
                     width: 56,
                     height: 56,
-                    borderRadius: 16,
-                    background: "rgba(16, 185, 129, 0.15)",
-                    color: "#34d399",
+                    borderRadius: 12,
+                    background: "var(--color-success-bg)",
+                    color: "var(--color-success)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 28,
                     margin: "0 auto 16px",
-                    border: "1px solid rgba(16, 185, 129, 0.3)",
+                    border: "1px solid #C8E4D3",
                   }}
                 >
                   ✓
                 </div>
 
-                <h2 style={{ fontSize: 24, fontWeight: 900, margin: "0 0 8px", color: "white" }}>
+                <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 8px", color: "var(--brand-navy)" }}>
                   Your role is ready
                 </h2>
-                <p style={{ fontSize: 14, color: "#94a3b8", maxWidth: 540, margin: "0 auto 28px", lineHeight: 1.5 }}>
+                <p style={{ fontSize: 13, color: "var(--text-secondary)", maxWidth: 540, margin: "0 auto 24px", lineHeight: 1.5 }}>
                   All requirements are traceable to your job description or clearly marked as recruiter-provided.
                 </p>
 
@@ -1316,17 +1521,17 @@ export default function RecruiterRolesPage() {
                   style={{
                     maxWidth: 600,
                     margin: "0 auto 32px",
-                    background: "rgba(0,0,0,0.35)",
-                    borderRadius: 14,
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    background: "var(--surface-subtle)",
+                    borderRadius: 10,
+                    border: "1px solid var(--border-subtle)",
                     padding: "20px 24px",
                     textAlign: "left",
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
                     <div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: "white" }}>{title}</div>
-                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>
+                      <div style={{ fontSize: 17, fontWeight: 700, color: "var(--brand-navy)" }}>{title}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
                         {department || "Engineering"} • {workMode} {location ? `(${location})` : ""}
                       </div>
                     </div>
@@ -1334,10 +1539,11 @@ export default function RecruiterRolesPage() {
                       style={{
                         padding: "3px 10px",
                         borderRadius: 6,
-                        background: "rgba(168,85,247,0.2)",
-                        color: "#d8b4fe",
+                        background: "var(--color-info-bg)",
+                        color: "var(--brand-cobalt)",
+                        border: "1px solid #D2E0FB",
                         fontSize: 11,
-                        fontWeight: 800,
+                        fontWeight: 700,
                       }}
                     >
                       {targetHires} Opening{targetHires > 1 ? "s" : ""}
@@ -1350,33 +1556,33 @@ export default function RecruiterRolesPage() {
                       gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
                       gap: 10,
                       paddingTop: 14,
-                      borderTop: "1px solid rgba(255,255,255,0.06)",
+                      borderTop: "1px solid var(--border-subtle)",
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>MUST-HAVES</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#f87171" }}>{mustHaveList.length}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>MUST-HAVES</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-error)" }}>{mustHaveList.length}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>PREFERRED</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#60a5fa" }}>{preferredList.length}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>PREFERRED</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--brand-cobalt)" }}>{preferredList.length}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>ELIGIBILITY</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#34d399" }}>{eligibilityList.length}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>ELIGIBILITY</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-success)" }}>{eligibilityList.length}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>SIGNALS</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#c084fc" }}>{evidenceSignalList.length}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>SIGNALS</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#7C3AED" }}>{evidenceSignalList.length}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>RESPONSIBILITIES</div>
-                      <div style={{ fontSize: 16, fontWeight: 800, color: "#fbbf24" }}>{responsibilityList.length}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>RESPONSIBILITIES</div>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-warning)" }}>{responsibilityList.length}</div>
                     </div>
                     {otherList.length > 0 && (
                       <div>
-                        <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 700 }}>CONSTRAINTS</div>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: "#cbd5e1" }}>{otherList.length}</div>
+                        <div style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700 }}>CONSTRAINTS</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-secondary)" }}>{otherList.length}</div>
                       </div>
                     )}
                   </div>
@@ -1388,13 +1594,13 @@ export default function RecruiterRolesPage() {
                     type="button"
                     onClick={() => setCurrentStep("review")}
                     style={{
-                      padding: "12px 24px",
-                      borderRadius: 10,
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: "#cbd5e1",
+                      padding: "10px 20px",
+                      borderRadius: 7,
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--brand-navy)",
                       fontSize: 13,
-                      fontWeight: 700,
+                      fontWeight: 600,
                       cursor: "pointer",
                     }}
                   >
@@ -1529,8 +1735,23 @@ export default function RecruiterRolesPage() {
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12, marginBottom: 20, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 16 }}>
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                      ROLE DNA
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                        ROLE DNA
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 800,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          background: selectedRole.approvalRecord?.approvalStatus === "approved" || selectedRole.approvalRecord?.approvalStatus === "published" ? "#ECFDF5" : "var(--color-warning-bg)",
+                          color: selectedRole.approvalRecord?.approvalStatus === "approved" || selectedRole.approvalRecord?.approvalStatus === "published" ? "#065F46" : "var(--color-warning)",
+                          border: selectedRole.approvalRecord?.approvalStatus === "approved" || selectedRole.approvalRecord?.approvalStatus === "published" ? "1px solid #A7F3D0" : "1px solid #F8D8A7",
+                        }}
+                      >
+                        v{selectedRole.version || 1}.0 {selectedRole.approvalRecord?.approvalStatus === "approved" ? "Approved" : "Draft"}
+                      </span>
                     </div>
                     <h2 style={{ fontSize: 22, fontWeight: 600, color: "var(--brand-navy)", margin: "4px 0 0" }}>
                       {selectedRole.title}
@@ -1539,105 +1760,232 @@ export default function RecruiterRolesPage() {
                       {selectedRole.department} • {selectedRole.targetHires} Opening{selectedRole.targetHires > 1 ? "s" : ""} • Evidence-calibrated screening model
                     </p>
                   </div>
-                  <Link
-                    href={`/recruiter/candidates?roleId=${selectedRole.id}`}
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <Link
+                      href={`/recruiter/candidates?roleId=${selectedRole.id}`}
+                      style={{
+                        padding: "8px 16px",
+                        borderRadius: 7,
+                        background: "var(--brand-cobalt)",
+                        color: "var(--surface)",
+                        textDecoration: "none",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      View Matched Candidates →
+                    </Link>
+                  </div>
+                </div>
+
+                {/* ROLE EXPLORER TABS */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    borderBottom: "1px solid var(--border-subtle)",
+                    marginBottom: 20,
+                    overflowX: "auto",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setActiveRoleTab("requirements")}
                     style={{
                       padding: "8px 16px",
-                      borderRadius: 7,
-                      background: "var(--brand-cobalt)",
-                      color: "var(--surface)",
-                      textDecoration: "none",
-                      fontSize: 12,
-                      fontWeight: 600,
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: activeRoleTab === "requirements" ? "2px solid var(--brand-cobalt)" : "2px solid transparent",
+                      color: activeRoleTab === "requirements" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                      fontWeight: activeRoleTab === "requirements" ? 700 : 500,
+                      fontSize: 13,
+                      cursor: "pointer",
                     }}
                   >
-                    View Matched Candidates →
-                  </Link>
+                    🧬 Requirements &amp; Scope
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveRoleTab("graph")}
+                    style={{
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: activeRoleTab === "graph" ? "2px solid var(--brand-cobalt)" : "2px solid transparent",
+                      color: activeRoleTab === "graph" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                      fontWeight: activeRoleTab === "graph" ? 700 : 500,
+                      fontSize: 13,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <span>🕸️</span> Responsibility Graph
+                    {selectedRole.responsibilityGraph && (
+                      <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "var(--surface-subtle)" }}>
+                        {selectedRole.responsibilityGraph.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveRoleTab("market_signals")}
+                    style={{
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: activeRoleTab === "market_signals" ? "2px solid var(--brand-cobalt)" : "2px solid transparent",
+                      color: activeRoleTab === "market_signals" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                      fontWeight: activeRoleTab === "market_signals" ? 700 : 500,
+                      fontSize: 13,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <span>🌐</span> Workforce Intelligence &amp; India Trends
+                    {marketSignals.length > 0 && (
+                      <span style={{ fontSize: 10, padding: "1px 6px", borderRadius: 10, background: "#ECFDF5", color: "#065F46" }}>
+                        {marketSignals.length}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveRoleTab("versions")}
+                    style={{
+                      padding: "8px 16px",
+                      background: "transparent",
+                      border: "none",
+                      borderBottom: activeRoleTab === "versions" ? "2px solid var(--brand-cobalt)" : "2px solid transparent",
+                      color: activeRoleTab === "versions" ? "var(--brand-cobalt)" : "var(--text-secondary)",
+                      fontWeight: activeRoleTab === "versions" ? 700 : 500,
+                      fontSize: 13,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <span>📜</span> Approval &amp; Version Vault (v{selectedRole.version || 1}.0)
+                  </button>
                 </div>
 
-                {/* 3-COLUMN STRUCTURED ROLE DNA: MUST HAVE, GOOD TO HAVE, ROLE SIGNALS */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
-                  {/* MUST HAVE */}
-                  <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                        MUST HAVE
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "#FDF2F2", color: "var(--color-error)", border: "1px solid #F8D7DA" }}>
-                        REQUIRED
-                      </span>
+                {/* TAB 1: REQUIREMENTS & SCOPE */}
+                {activeRoleTab === "requirements" && (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+                    {/* MUST HAVE */}
+                    <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                          MUST HAVE
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "#FDF2F2", color: "var(--color-error)", border: "1px solid #F8D7DA" }}>
+                          REQUIRED
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "MUST_HAVE" || r.category === "required") || []).length > 0 ? (
+                          selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "MUST_HAVE" || r.category === "required").map(r => (
+                            <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {r.canonicalName || r.name}
+                            </div>
+                          ))
+                        ) : (
+                          ["Python", "FastAPI", "PostgreSQL", "REST APIs"].map(item => (
+                            <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {item}
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "MUST_HAVE" || r.category === "required") || []).length > 0 ? (
-                        selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "MUST_HAVE" || r.category === "required").map(r => (
-                          <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {r.canonicalName || r.name}
-                          </div>
-                        ))
-                      ) : (
-                        ["Python", "FastAPI", "PostgreSQL", "REST APIs"].map(item => (
-                          <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {item}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
 
-                  {/* GOOD TO HAVE */}
-                  <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                        GOOD TO HAVE
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--color-info-bg)", color: "var(--brand-cobalt)", border: "1px solid #D2E0FB" }}>
-                        PREFERRED
-                      </span>
+                    {/* GOOD TO HAVE */}
+                    <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                          GOOD TO HAVE
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--color-info-bg)", color: "var(--brand-cobalt)", border: "1px solid #D2E0FB" }}>
+                          PREFERRED
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "PREFERRED" || r.category === "preferred") || []).length > 0 ? (
+                          selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "PREFERRED" || r.category === "preferred").map(r => (
+                            <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {r.canonicalName || r.name}
+                            </div>
+                          ))
+                        ) : (
+                          ["AWS", "Docker", "Redis"].map(item => (
+                            <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {item}
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "PREFERRED" || r.category === "preferred") || []).length > 0 ? (
-                        selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "PREFERRED" || r.category === "preferred").map(r => (
-                          <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {r.canonicalName || r.name}
-                          </div>
-                        ))
-                      ) : (
-                        ["AWS", "Docker", "Redis"].map(item => (
-                          <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {item}
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
 
-                  {/* ROLE SIGNALS */}
-                  <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                        ROLE SIGNALS
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid #C8E4D3" }}>
-                        EVIDENCE
-                      </span>
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "EVIDENCE_SIGNAL" || r.category === "experience") || []).length > 0 ? (
-                        selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "EVIDENCE_SIGNAL" || r.category === "experience").map(r => (
-                          <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {r.canonicalName || r.name}
-                          </div>
-                        ))
-                      ) : (
-                        ["Production experience", "System design", "Open-source evidence"].map(item => (
-                          <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {item}
-                          </div>
-                        ))
-                      )}
+                    {/* ROLE SIGNALS */}
+                    <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "18px 20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                          ROLE SIGNALS
+                        </span>
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, background: "var(--color-success-bg)", color: "var(--color-success)", border: "1px solid #C8E4D3" }}>
+                          EVIDENCE
+                        </span>
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {(selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "EVIDENCE_SIGNAL" || r.category === "experience") || []).length > 0 ? (
+                          selectedRole.structuredRequirements?.filter(r => r.semanticCategory === "EVIDENCE_SIGNAL" || r.category === "experience").map(r => (
+                            <div key={r.id} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {r.canonicalName || r.name}
+                            </div>
+                          ))
+                        ) : (
+                          ["Production experience", "System design", "Open-source evidence"].map(item => (
+                            <div key={item} style={{ padding: "8px 10px", background: "var(--surface)", border: "1px solid var(--border-subtle)", borderRadius: 6, fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
+                              {item}
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* TAB 2: RESPONSIBILITY-TO-CAPABILITY GRAPH */}
+                {activeRoleTab === "graph" && (
+                  <ResponsibilityGraphViewer
+                    graph={selectedRole.responsibilityGraph || selectedRole.roleDna?.responsibilityGraph || []}
+                    roleTitle={selectedRole.title}
+                  />
+                )}
+
+                {/* TAB 3: WORKFORCE INTELLIGENCE & INDIA SIGNALS */}
+                {activeRoleTab === "market_signals" && (
+                  <WorkforceIntelligencePanel
+                    signals={marketSignals}
+                    proposals={evolutionProposals}
+                    onReviewProposal={handleReviewProposal}
+                    onGenerateProposals={handleGenerateProposals}
+                  />
+                )}
+
+                {/* TAB 4: APPROVAL & VERSION VAULT */}
+                {activeRoleTab === "versions" && (
+                  <RoleApprovalAndVersionVault
+                    role={selectedRole}
+                    versions={roleVersions}
+                    onApprove={handleApproveRole}
+                    loadingVersions={loadingVersions}
+                  />
+                )}
               </div>
             )}
           </div>
@@ -1652,8 +2000,8 @@ export default function RecruiterRolesPage() {
               position: "fixed",
               inset: 0,
               zIndex: 100,
-              background: "rgba(0,0,0,0.75)",
-              backdropFilter: "blur(6px)",
+              background: "rgba(16, 24, 40, 0.4)",
+              backdropFilter: "blur(4px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -1664,21 +2012,21 @@ export default function RecruiterRolesPage() {
               style={{
                 width: "100%",
                 maxWidth: 480,
-                background: "var(--bg-card)",
+                background: "var(--surface)",
                 border: "1px solid var(--border-subtle)",
-                borderRadius: 16,
+                borderRadius: 12,
                 padding: 24,
-                boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+                boxShadow: "var(--shadow-modal)",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--brand-navy)", margin: 0 }}>
                   Add Requirement Manually
                 </h3>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  style={{ background: "transparent", border: "none", color: "#94a3b8", fontSize: 18, cursor: "pointer" }}
+                  style={{ background: "transparent", border: "none", color: "var(--text-secondary)", fontSize: 18, cursor: "pointer" }}
                 >
                   ✕
                 </button>
@@ -1695,13 +2043,14 @@ export default function RecruiterRolesPage() {
                   placeholder="e.g. Distributed Tracing with OpenTelemetry"
                   style={{
                     width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-primary)",
                     fontSize: 13,
                     outline: "none",
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
@@ -1715,13 +2064,14 @@ export default function RecruiterRolesPage() {
                   onChange={(e) => setCustomReqCategory(e.target.value as RoleCategory)}
                   style={{
                     width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-primary)",
                     fontSize: 13,
                     outline: "none",
+                    boxSizing: "border-box",
                   }}
                 >
                   <option value="required">Required (Must-have day 1)</option>
@@ -1741,13 +2091,14 @@ export default function RecruiterRolesPage() {
                   onChange={(e) => setCustomReqType(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-primary)",
                     fontSize: 13,
                     outline: "none",
+                    boxSizing: "border-box",
                   }}
                 >
                   <option value="programming_language">Programming Language</option>
@@ -1770,13 +2121,14 @@ export default function RecruiterRolesPage() {
                   onChange={(e) => setCustomReqExpectation(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-primary)",
                     fontSize: 13,
                     outline: "none",
+                    boxSizing: "border-box",
                   }}
                 >
                   <option value="implementation">Implementation (Code, PRs, Commits)</option>
@@ -1798,25 +2150,26 @@ export default function RecruiterRolesPage() {
                   placeholder="e.g. GitHub, Deployed Project, Technical Assessment"
                   style={{
                     width: "100%",
-                    padding: "10px 14px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    padding: "9px 12px",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-primary)",
                     fontSize: 13,
                     outline: "none",
+                    boxSizing: "border-box",
                   }}
                 />
               </div>
 
               <div
                 style={{
-                  padding: "10px 12px",
-                  borderRadius: 8,
-                  background: "rgba(53, 106, 230, 0.08)",
-                  border: "1px solid rgba(53, 106, 230, 0.25)",
-                  fontSize: 11,
-                  color: "var(--accent)",
+                  padding: "10px 14px",
+                  borderRadius: 7,
+                  background: "var(--color-info-bg)",
+                  border: "1px solid #D2E0FB",
+                  fontSize: 12,
+                  color: "var(--brand-cobalt)",
                   marginBottom: 20,
                   lineHeight: 1.4,
                 }}
@@ -1830,12 +2183,12 @@ export default function RecruiterRolesPage() {
                   onClick={() => setShowAddModal(false)}
                   style={{
                     padding: "8px 16px",
-                    borderRadius: 8,
-                    background: "var(--bg-surface-inner)",
+                    borderRadius: 7,
+                    background: "var(--surface)",
                     border: "1px solid var(--border-subtle)",
-                    color: "var(--text-secondary)",
+                    color: "var(--brand-navy)",
                     fontSize: 12,
-                    fontWeight: 700,
+                    fontWeight: 600,
                     cursor: "pointer",
                   }}
                 >
@@ -1846,14 +2199,14 @@ export default function RecruiterRolesPage() {
                   onClick={handleAddCustomRequirement}
                   style={{
                     padding: "8px 18px",
-                    borderRadius: 8,
-                    background: "linear-gradient(135deg, #356AE6, #2858C7)",
+                    borderRadius: 7,
+                    background: "var(--brand-cobalt)",
                     color: "white",
                     fontSize: 12,
-                    fontWeight: 800,
+                    fontWeight: 600,
                     border: "none",
                     cursor: "pointer",
-                    boxShadow: "0 2px 6px rgba(53, 106, 230, 0.25)",
+                    boxShadow: "0 1px 3px rgba(53, 106, 230, 0.25)",
                   }}
                 >
                   Add Requirement
@@ -1876,33 +2229,40 @@ export default function RecruiterRolesPage() {
     const displayName = req.canonicalName || req.name;
 
     // Determine category style & label
-    let catBadgeColor = "rgba(239,68,68,0.2)";
-    let catTextColor = "#f87171";
+    let catBadgeColor = "var(--color-error-bg)";
+    let catTextColor = "var(--color-error)";
+    let catBorderColor = "#F8D7D7";
     let catLabel = "Must-Have";
 
     if (req.semanticCategory === "RESPONSIBILITY" || req.category === "responsibility") {
-      catBadgeColor = "rgba(245,158,11,0.18)";
-      catTextColor = "#fbbf24";
+      catBadgeColor = "var(--color-warning-bg)";
+      catTextColor = "var(--color-warning)";
+      catBorderColor = "#F8D8A7";
       catLabel = "On-The-Job Task";
     } else if (req.semanticCategory === "PREFERRED" || req.category === "preferred") {
-      catBadgeColor = "rgba(59,130,246,0.2)";
-      catTextColor = "#60a5fa";
+      catBadgeColor = "var(--color-info-bg)";
+      catTextColor = "var(--brand-cobalt)";
+      catBorderColor = "#D2E0FB";
       catLabel = "Preferred";
     } else if (req.semanticCategory === "ELIGIBILITY" || req.category === "education") {
-      catBadgeColor = "rgba(16,185,129,0.2)";
-      catTextColor = "#34d399";
+      catBadgeColor = "var(--color-success-bg)";
+      catTextColor = "var(--color-success)";
+      catBorderColor = "#C8E4D3";
       catLabel = "Eligibility";
     } else if (req.semanticCategory === "EVIDENCE_SIGNAL") {
-      catBadgeColor = "rgba(168,85,247,0.2)";
-      catTextColor = "#d8b4fe";
+      catBadgeColor = "#F5F3FF";
+      catTextColor = "#7C3AED";
+      catBorderColor = "#DDD6FE";
       catLabel = "Evidence Signal";
     } else if (req.semanticCategory === "UNKNOWN" || req.needsConfirmation) {
-      catBadgeColor = "rgba(245,158,11,0.25)";
-      catTextColor = "#fef08a";
+      catBadgeColor = "var(--color-warning-bg)";
+      catTextColor = "var(--color-warning)";
+      catBorderColor = "#F8D8A7";
       catLabel = "Needs Confirmation";
     } else if (req.category === "other" || req.semanticCategory === "CONSTRAINT") {
-      catBadgeColor = "rgba(148,163,184,0.2)";
-      catTextColor = "#cbd5e1";
+      catBadgeColor = "var(--surface-subtle)";
+      catTextColor = "var(--text-secondary)";
+      catBorderColor = "var(--border-subtle)";
       catLabel = "Constraint";
     }
 
@@ -1911,11 +2271,12 @@ export default function RecruiterRolesPage() {
         key={req.id}
         style={{
           padding: "14px 18px",
-          borderRadius: 12,
-          background: "rgba(0,0,0,0.3)",
+          borderRadius: 8,
+          background: "var(--surface)",
           border: req.needsConfirmation
-            ? "1px solid rgba(245,158,11,0.4)"
-            : "1px solid rgba(255,255,255,0.06)",
+            ? "1px solid var(--color-warning)"
+            : "1px solid var(--border-subtle)",
+          boxShadow: "var(--shadow-subtle)",
           transition: "all 0.15s ease",
         }}
       >
@@ -1931,9 +2292,9 @@ export default function RecruiterRolesPage() {
                 minWidth: 200,
                 padding: "8px 12px",
                 borderRadius: 6,
-                background: "rgba(0,0,0,0.4)",
-                border: "1px solid rgba(168,85,247,0.4)",
-                color: "white",
+                background: "var(--surface)",
+                border: "1px solid var(--brand-cobalt)",
+                color: "var(--text-primary)",
                 fontSize: 13,
                 outline: "none",
               }}
@@ -1944,7 +2305,7 @@ export default function RecruiterRolesPage() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 6,
-                background: "var(--bg-surface-inner)",
+                background: "var(--surface)",
                 border: "1px solid var(--border-subtle)",
                 color: "var(--text-primary)",
                 fontSize: 12,
@@ -1963,7 +2324,7 @@ export default function RecruiterRolesPage() {
               style={{
                 padding: "8px 12px",
                 borderRadius: 6,
-                background: "var(--bg-surface-inner)",
+                background: "var(--surface)",
                 border: "1px solid var(--border-subtle)",
                 color: "var(--text-primary)",
                 fontSize: 12,
@@ -1984,7 +2345,7 @@ export default function RecruiterRolesPage() {
               style={{
                 padding: "8px 14px",
                 borderRadius: 6,
-                background: "#10b981",
+                background: "var(--color-success)",
                 color: "white",
                 border: "none",
                 fontSize: 12,
@@ -2001,8 +2362,8 @@ export default function RecruiterRolesPage() {
                 padding: "8px 12px",
                 borderRadius: 6,
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.1)",
-                color: "#94a3b8",
+                border: "1px solid var(--border-subtle)",
+                color: "var(--text-secondary)",
                 fontSize: 12,
                 cursor: "pointer",
               }}
@@ -2016,7 +2377,7 @@ export default function RecruiterRolesPage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 10 }}>
               <div style={{ flex: 1, minWidth: 260 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
-                  <span style={{ fontSize: 15, fontWeight: 900, color: "white", letterSpacing: "-0.2px" }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--brand-navy)", letterSpacing: "-0.2px" }}>
                     {displayName}
                   </span>
 
@@ -2028,7 +2389,8 @@ export default function RecruiterRolesPage() {
                       borderRadius: 4,
                       background: catBadgeColor,
                       color: catTextColor,
-                      fontWeight: 800,
+                      border: `1px solid ${catBorderColor}`,
+                      fontWeight: 700,
                       textTransform: "uppercase",
                       letterSpacing: 0.5,
                     }}
@@ -2043,9 +2405,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 7px",
                         borderRadius: 4,
-                        background: "rgba(99, 102, 241, 0.18)",
-                        color: "#a5b4fc",
-                        fontWeight: 700,
+                        background: "var(--color-info-bg)",
+                        color: "var(--brand-cobalt)",
+                        border: "1px solid #D2E0FB",
+                        fontWeight: 600,
                         textTransform: "capitalize",
                       }}
                     >
@@ -2060,9 +2423,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 7px",
                         borderRadius: 4,
-                        background: "rgba(16, 185, 129, 0.15)",
-                        color: "#6ee7b7",
-                        fontWeight: 700,
+                        background: "var(--color-success-bg)",
+                        color: "var(--color-success)",
+                        border: "1px solid #C8E4D3",
+                        fontWeight: 600,
                       }}
                     >
                       Proof: {req.evidenceExpectation}
@@ -2076,9 +2440,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 7px",
                         borderRadius: 4,
-                        background: "rgba(255, 255, 255, 0.06)",
-                        color: "#94a3b8",
-                        fontWeight: 700,
+                        background: "var(--surface-subtle)",
+                        color: "var(--text-secondary)",
+                        border: "1px solid var(--border-subtle)",
+                        fontWeight: 600,
                       }}
                     >
                       {Math.round(req.confidence * 100)}% Match
@@ -2092,9 +2457,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 7px",
                         borderRadius: 4,
-                        background: "rgba(234, 179, 8, 0.15)",
-                        color: "#fde047",
-                        fontWeight: 700,
+                        background: "var(--color-warning-bg)",
+                        color: "var(--color-warning)",
+                        border: "1px solid #F8D8A7",
+                        fontWeight: 600,
                       }}
                     >
                       Either: {req.acceptableOptions.join(" or ")}
@@ -2108,9 +2474,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 7px",
                         borderRadius: 4,
-                        background: "rgba(59, 130, 246, 0.15)",
-                        color: "#93c5fd",
-                        fontWeight: 700,
+                        background: "var(--color-info-bg)",
+                        color: "var(--brand-cobalt)",
+                        border: "1px solid #D2E0FB",
+                        fontWeight: 600,
                       }}
                     >
                       {req.minimumExperienceYears}+ yrs exp
@@ -2123,9 +2490,10 @@ export default function RecruiterRolesPage() {
                       fontSize: 10,
                       padding: "2px 6px",
                       borderRadius: 4,
-                      background: isRecruiterAdded ? "rgba(168,85,247,0.2)" : "rgba(255,255,255,0.06)",
-                      color: isRecruiterAdded ? "#d8b4fe" : "#94a3b8",
-                      fontWeight: 700,
+                      background: isRecruiterAdded ? "#F5F3FF" : "var(--surface-subtle)",
+                      color: isRecruiterAdded ? "#7C3AED" : "var(--text-secondary)",
+                      border: isRecruiterAdded ? "1px solid #DDD6FE" : "1px solid var(--border-subtle)",
+                      fontWeight: 600,
                     }}
                   >
                     {isRecruiterAdded ? "Recruiter added" : "Extracted from JD"}
@@ -2138,9 +2506,10 @@ export default function RecruiterRolesPage() {
                         fontSize: 10,
                         padding: "2px 8px",
                         borderRadius: 4,
-                        background: "rgba(245,158,11,0.2)",
-                        color: "#fbbf24",
-                        fontWeight: 800,
+                        background: "var(--color-warning-bg)",
+                        color: "var(--color-warning)",
+                        border: "1px solid #F8D8A7",
+                        fontWeight: 700,
                       }}
                     >
                       ⚠️ Needs confirmation
@@ -2153,15 +2522,15 @@ export default function RecruiterRolesPage() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "rgba(255, 255, 255, 0.75)",
+                      color: "var(--text-secondary)",
                       fontStyle: "italic",
-                      background: "rgba(255, 255, 255, 0.03)",
-                      borderLeft: "2px solid rgba(168, 85, 247, 0.5)",
-                      padding: "4px 10px",
+                      background: "var(--surface-subtle)",
+                      borderLeft: "3px solid var(--brand-cobalt)",
+                      padding: "6px 12px",
                       borderRadius: "0 6px 6px 0",
-                      marginTop: 4,
-                      marginBottom: 6,
-                      lineHeight: 1.4,
+                      marginTop: 6,
+                      marginBottom: 8,
+                      lineHeight: 1.45,
                     }}
                   >
                     &ldquo;{req.evidenceQuote}&rdquo;
@@ -2171,7 +2540,7 @@ export default function RecruiterRolesPage() {
                 {/* Inline Evidence Signals Chips */}
                 {req.evidenceSignals && req.evidenceSignals.length > 0 && (
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", marginTop: 4, marginBottom: 6 }}>
-                    <span style={{ fontSize: 11, color: "#64748b", fontWeight: 700 }}>Signals:</span>
+                    <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 700 }}>Signals:</span>
                     {req.evidenceSignals.map((sig, sIdx) => (
                       <span
                         key={sIdx}
@@ -2179,9 +2548,9 @@ export default function RecruiterRolesPage() {
                           fontSize: 10,
                           padding: "1px 6px",
                           borderRadius: 4,
-                          background: "rgba(255,255,255,0.05)",
-                          color: "#cbd5e1",
-                          border: "1px solid rgba(255,255,255,0.08)",
+                          background: "var(--surface-subtle)",
+                          color: "var(--text-secondary)",
+                          border: "1px solid var(--border-subtle)",
                         }}
                       >
                         {sig}
@@ -2195,9 +2564,9 @@ export default function RecruiterRolesPage() {
                   <div
                     style={{
                       fontSize: 12,
-                      color: "#fef3c7",
-                      background: "rgba(245,158,11,0.08)",
-                      border: "1px solid rgba(245,158,11,0.25)",
+                      color: "var(--text-primary)",
+                      background: "var(--color-warning-bg)",
+                      border: "1px solid #F8D8A7",
                       padding: "8px 12px",
                       borderRadius: 8,
                       marginTop: 6,
@@ -2210,7 +2579,7 @@ export default function RecruiterRolesPage() {
                     }}
                   >
                     <div>
-                      <span style={{ fontWeight: 800, color: "#fbbf24" }}>Ambiguity Detected: </span>
+                      <span style={{ fontWeight: 700, color: "var(--color-warning)" }}>Ambiguity Detected: </span>
                       <span>{req.ambiguityReason}</span>
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
@@ -2220,9 +2589,9 @@ export default function RecruiterRolesPage() {
                         style={{
                           padding: "3px 10px",
                           borderRadius: 4,
-                          background: "rgba(255,255,255,0.1)",
-                          color: "white",
-                          border: "none",
+                          background: "var(--surface)",
+                          color: "var(--brand-navy)",
+                          border: "1px solid var(--border-subtle)",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -2236,9 +2605,9 @@ export default function RecruiterRolesPage() {
                         style={{
                           padding: "3px 10px",
                           borderRadius: 4,
-                          background: "rgba(168,85,247,0.25)",
-                          color: "#e9d5ff",
-                          border: "none",
+                          background: "var(--color-info-bg)",
+                          color: "var(--brand-cobalt)",
+                          border: "1px solid #D2E0FB",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -2252,9 +2621,9 @@ export default function RecruiterRolesPage() {
                         style={{
                           padding: "3px 10px",
                           borderRadius: 4,
-                          background: "rgba(239,68,68,0.2)",
-                          color: "#fca5a5",
-                          border: "none",
+                          background: "var(--color-error-bg)",
+                          color: "var(--color-error)",
+                          border: "1px solid #F8D7D7",
                           fontSize: 11,
                           fontWeight: 700,
                           cursor: "pointer",
@@ -2274,7 +2643,7 @@ export default function RecruiterRolesPage() {
                     style={{
                       background: "transparent",
                       border: "none",
-                      color: isExpanded ? "#c084fc" : "#818cf8",
+                      color: "var(--brand-cobalt)",
                       fontSize: 11,
                       fontWeight: 700,
                       cursor: "pointer",
@@ -2293,9 +2662,9 @@ export default function RecruiterRolesPage() {
                       style={{
                         marginTop: 10,
                         padding: "14px 16px",
-                        borderRadius: 10,
-                        background: "rgba(15, 23, 42, 0.6)",
-                        border: "1px solid rgba(168,85,247,0.25)",
+                        borderRadius: 8,
+                        background: "var(--surface-subtle)",
+                        border: "1px solid var(--border-subtle)",
                         display: "flex",
                         flexDirection: "column",
                         gap: 10,
@@ -2304,10 +2673,10 @@ export default function RecruiterRolesPage() {
                     >
                       {/* 1. WHY IDENTIFIED */}
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: "#d8b4fe", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-navy)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
                           Why This Was Identified:
                         </div>
-                        <div style={{ color: "#f1f5f9", lineHeight: 1.5 }}>
+                        <div style={{ color: "var(--text-secondary)", lineHeight: 1.5 }}>
                           {req.rationale || "Identified directly from job description qualifications."}
                         </div>
                       </div>
@@ -2315,7 +2684,7 @@ export default function RecruiterRolesPage() {
                       {/* 2. EVIDENCE EXPECTED */}
                       {req.evidenceSignals && req.evidenceSignals.length > 0 && (
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: "#93c5fd", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--brand-cobalt)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
                             Evidence Cognalyze Looks For:
                           </div>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
@@ -2326,9 +2695,9 @@ export default function RecruiterRolesPage() {
                                   fontSize: 11,
                                   padding: "2px 8px",
                                   borderRadius: 4,
-                                  background: "rgba(59,130,246,0.15)",
-                                  color: "#93c5fd",
-                                  border: "1px solid rgba(59,130,246,0.25)",
+                                  background: "var(--color-info-bg)",
+                                  color: "var(--brand-cobalt)",
+                                  border: "1px solid #D2E0FB",
                                 }}
                               >
                                 {sig}
@@ -2340,10 +2709,10 @@ export default function RecruiterRolesPage() {
 
                       {/* 3. VERIFICATION STRATEGY (IMPLEMENTATION > CLAIM) */}
                       <div>
-                        <div style={{ fontSize: 11, fontWeight: 800, color: "#86efac", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--color-success)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
                           Verification Rule (Tier 1 Implementation &gt; Tier 3 Claim):
                         </div>
-                        <div style={{ color: "#cbd5e1", lineHeight: 1.5 }}>
+                        <div style={{ color: "var(--text-secondary)", lineHeight: 1.5 }}>
                           {req.verificationStrategy && req.verificationStrategy.length > 0
                             ? req.verificationStrategy.join(" • ")
                             : "Implementation > Claim. Require genuine technical demonstration rather than resume keyword mentions."}
@@ -2352,11 +2721,11 @@ export default function RecruiterRolesPage() {
 
                       {/* 4. PROVENANCE IN JD */}
                       {req.evidenceQuote && (
-                        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
-                          <div style={{ fontSize: 10, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
+                        <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 8 }}>
+                          <div style={{ fontSize: 10, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
                             Source Section &amp; Verbatim Text:
                           </div>
-                          <div style={{ color: "#94a3b8", fontStyle: "italic", fontSize: 11, lineHeight: 1.4 }}>
+                          <div style={{ color: "var(--text-secondary)", fontStyle: "italic", fontSize: 11, lineHeight: 1.4 }}>
                             &ldquo;{req.evidenceQuote}&rdquo;
                           </div>
                         </div>
@@ -2364,8 +2733,8 @@ export default function RecruiterRolesPage() {
 
                       {/* 5. INFERRED CAPABILITIES (IF ANY) */}
                       {req.relatedCapabilities && req.relatedCapabilities.length > 0 && (
-                        <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 8 }}>
-                          <div style={{ fontSize: 10, color: "#fef08a", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
+                        <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 8 }}>
+                          <div style={{ fontSize: 10, color: "var(--color-warning)", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 }}>
                             Inferred Potential Capabilities (Non-Mandatory):
                           </div>
                           <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 2 }}>
@@ -2376,8 +2745,9 @@ export default function RecruiterRolesPage() {
                                   fontSize: 11,
                                   padding: "2px 8px",
                                   borderRadius: 4,
-                                  background: "rgba(245,158,11,0.15)",
-                                  color: "#fef08a",
+                                  background: "var(--color-warning-bg)",
+                                  color: "var(--color-warning)",
+                                  border: "1px solid #F8D8A7",
                                 }}
                               >
                                 {cap.name} ({Math.round(cap.confidence * 100)}% confidence)
@@ -2399,9 +2769,9 @@ export default function RecruiterRolesPage() {
                     title="Edit requirement"
                     onClick={() => handleStartEdit(req)}
                     style={{
-                      background: "rgba(255,255,255,0.06)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#cbd5e1",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border-subtle)",
+                      color: "var(--brand-navy)",
                       borderRadius: 6,
                       padding: "4px 8px",
                       fontSize: 11,
@@ -2415,9 +2785,9 @@ export default function RecruiterRolesPage() {
                     title="Delete requirement"
                     onClick={() => handleDeleteRequirement(req.id)}
                     style={{
-                      background: "rgba(239,68,68,0.1)",
-                      border: "1px solid rgba(239,68,68,0.25)",
-                      color: "#fca5a5",
+                      background: "var(--color-error-bg)",
+                      border: "1px solid #F8D7D7",
+                      color: "var(--color-error)",
                       borderRadius: 6,
                       padding: "4px 8px",
                       fontSize: 11,

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export default function StudentSignupPage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function StudentSignupPage() {
     provider: string;
     providerUserId: string;
     providerEmail: string;
+    linkingProof?: string;
   } | null>(null);
   const [linkingLoading, setLinkingLoading] = useState(false);
 
@@ -104,8 +106,8 @@ export default function StudentSignupPage() {
     setOauthLoading(provider);
 
     try {
-      const providerUserId = `${provider}_std_${Math.random().toString(36).substring(2, 9)}`;
-      const providerEmail = email.trim() || `candidate_${Math.random().toString(36).substring(2, 6)}@gmail.com`;
+      const providerUserId = generateSecureId(`${provider}_std`, 9);
+      const providerEmail = email.trim() || `candidate_${generateSecureId("", 6)}@gmail.com`;
 
       const res = await fetch("/api/auth/oauth", {
         method: "POST",
@@ -126,7 +128,8 @@ export default function StudentSignupPage() {
           existingUser: data.existingUser,
           provider: data.provider,
           providerUserId: data.providerUserId,
-          providerEmail: data.providerEmail
+          providerEmail: data.providerEmail,
+          linkingProof: data.linkingProof
         });
       } else {
         router.push(data.nextUrl || "/student/onboarding");
@@ -150,7 +153,8 @@ export default function StudentSignupPage() {
           userId: linkingData.existingUser.id,
           provider: linkingData.provider,
           providerUserId: linkingData.providerUserId,
-          providerEmail: linkingData.providerEmail
+          providerEmail: linkingData.providerEmail,
+          linkingProof: (linkingData as any).linkingProof
         })
       });
 

@@ -49,7 +49,8 @@ export async function POST(
     let canonicalOpp: CanonicalOpportunity | undefined;
 
     if (!opp) {
-      canonicalOpp = opportunityService.getAllOpportunities().find(o => o.id === opportunityId || o.sourceId === opportunityId);
+      const allCanonical = await opportunityService.ensureIngested();
+      canonicalOpp = allCanonical.find(o => o.id === opportunityId || o.sourceId === opportunityId);
       if (canonicalOpp) {
         opp = {
           id: canonicalOpp.id,
@@ -128,7 +129,7 @@ export async function POST(
     const profile = rawProfile || DEMO_STUDENT_PROFILE;
 
     // 2. Generate Deterministic Evidence-First Preparation Plan
-    const deterministicPlan = dynamicPreparationEngine.generatePreparationPlan(canonicalOpp, null);
+    const deterministicPlan = dynamicPreparationEngine.generatePreparationPlan(canonicalOpp, profile);
     const classification = deterministicPlan.classification;
 
     // Build anti-repetition blocklist from all previously generated project titles

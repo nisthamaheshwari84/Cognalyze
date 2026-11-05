@@ -40,6 +40,7 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/posts") ||
     pathname.startsWith("/api/feed") ||
     pathname.startsWith("/api/auth/") ||
+    pathname.startsWith("/api/skills") ||
     pathname.startsWith("/api/parse-resume") ||
     pathname.startsWith("/api/student/ai-mentor") ||
     pathname.startsWith("/api/opportunities") ||
@@ -60,7 +61,8 @@ export function proxy(req: NextRequest) {
     pathname === "/manifest.json" ||
     pathname === "/offline.html" ||
     pathname === "/sw.js" ||
-    pathname === "/favicon.ico";
+    pathname === "/favicon.ico" ||
+    pathname === "/favicon.svg";
 
   // ─── 2. RECRUITER ROUTES: NEVER ALLOW GUEST ACCESS ─────────────────────────
   const isRecruiterPath = pathname === "/recruiter" || pathname.startsWith("/recruiter/");
@@ -192,6 +194,6 @@ export const config = {
     "/candidate",
     "/interview",
     "/secure-interview",
-    "/((?!_next/static|_next/image|favicon.ico).*)"
+    "/((?!_next/static|_next/image|favicon.ico|favicon.svg).*)"
   ]
 };

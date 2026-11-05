@@ -23,6 +23,14 @@ export interface SyncLeaseResult {
 // In-process fallback map for local development only
 const LOCAL_LEASES = new Map<string, { leasedBy: string; expiresAt: number }>();
 
+function isTestRuntime(): boolean {
+  return (
+    process.env.NODE_ENV === "test" ||
+    process.env.npm_lifecycle_event === "test" ||
+    process.argv.some(arg => arg.includes("test"))
+  );
+}
+
 export class OpportunitySyncLeaseManager {
   private static instance: OpportunitySyncLeaseManager;
   private workerId: string;
@@ -47,26 +55,28 @@ export class OpportunitySyncLeaseManager {
    * Duration in seconds (e.g. 300 = 5 minutes).
    */
   public async acquireLease(sourceId: string, durationSeconds: number = 300): Promise<SyncLeaseResult> {
-    const isAvailable = await isSupabaseAvailable();
+    if (!isTestRuntime()) {
+      const isAvailable = await isSupabaseAvailable();
 
-    if (isAvailable && supabaseAdmin) {
-      try {
-        const { data, error } = await supabaseAdmin.rpc("acquire_opportunity_sync_lease", {
-          p_source_id: sourceId,
-          p_leased_by: this.workerId,
-          p_duration_seconds: durationSeconds,
-        });
+      if (isAvailable && supabaseAdmin) {
+        try {
+          const { data, error } = await supabaseAdmin.rpc("acquire_opportunity_sync_lease", {
+            p_source_id: sourceId,
+            p_leased_by: this.workerId,
+            p_duration_seconds: durationSeconds,
+          });
 
-        if (!error && Array.isArray(data) && data.length > 0) {
-          const row = data[0];
-          return {
-            acquired: Boolean(row.acquired),
-            leaseOwner: row.lease_owner || this.workerId,
-            expiresAt: row.expires_at || new Date(Date.now() + durationSeconds * 1000).toISOString(),
-          };
+          if (!error && Array.isArray(data) && data.length > 0) {
+            const row = data[0];
+            return {
+              acquired: Boolean(row.acquired),
+              leaseOwner: row.lease_owner || this.workerId,
+              expiresAt: row.expires_at || new Date(Date.now() + durationSeconds * 1000).toISOString(),
+            };
+          }
+        } catch (err) {
+          console.warn("[SyncLeaseManager] Supabase RPC acquire error, falling back to local lease:", err);
         }
-      } catch (err) {
-        console.warn("[SyncLeaseManager] Supabase RPC acquire error, falling back to local lease:", err);
       }
     }
 
@@ -107,21 +117,23 @@ export class OpportunitySyncLeaseManager {
    * Renews an existing active lease owned by this worker.
    */
   public async renewLease(sourceId: string, durationSeconds: number = 300): Promise<boolean> {
-    const isAvailable = await isSupabaseAvailable();
+    if (!isTestRuntime()) {
+      const isAvailable = await isSupabaseAvailable();
 
-    if (isAvailable && supabaseAdmin) {
-      try {
-        const { data, error } = await supabaseAdmin.rpc("renew_opportunity_sync_lease", {
-          p_source_id: sourceId,
-          p_leased_by: this.workerId,
-          p_duration_seconds: durationSeconds,
-        });
+      if (isAvailable && supabaseAdmin) {
+        try {
+          const { data, error } = await supabaseAdmin.rpc("renew_opportunity_sync_lease", {
+            p_source_id: sourceId,
+            p_leased_by: this.workerId,
+            p_duration_seconds: durationSeconds,
+          });
 
-        if (!error && typeof data === "boolean") {
-          return data;
+          if (!error && typeof data === "boolean") {
+            return data;
+          }
+        } catch (err) {
+          console.warn("[SyncLeaseManager] Supabase RPC renew error:", err);
         }
-      } catch (err) {
-        console.warn("[SyncLeaseManager] Supabase RPC renew error:", err);
       }
     }
 
@@ -138,20 +150,22 @@ export class OpportunitySyncLeaseManager {
    * Releases an active lease owned by this worker.
    */
   public async releaseLease(sourceId: string): Promise<boolean> {
-    const isAvailable = await isSupabaseAvailable();
+    if (!isTestRuntime()) {
+      const isAvailable = await isSupabaseAvailable();
 
-    if (isAvailable && supabaseAdmin) {
-      try {
-        const { data, error } = await supabaseAdmin.rpc("release_opportunity_sync_lease", {
-          p_source_id: sourceId,
-          p_leased_by: this.workerId,
-        });
+      if (isAvailable && supabaseAdmin) {
+        try {
+          const { data, error } = await supabaseAdmin.rpc("release_opportunity_sync_lease", {
+            p_source_id: sourceId,
+            p_leased_by: this.workerId,
+          });
 
-        if (!error && typeof data === "boolean") {
-          return data;
+          if (!error && typeof data === "boolean") {
+            return data;
+          }
+        } catch (err) {
+          console.warn("[SyncLeaseManager] Supabase RPC release error:", err);
         }
-      } catch (err) {
-        console.warn("[SyncLeaseManager] Supabase RPC release error:", err);
       }
     }
 

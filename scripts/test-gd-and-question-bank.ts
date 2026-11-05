@@ -4,7 +4,7 @@ import { GD_DOMAINS, GD_FRESHNESS_OPTIONS, GD_CATEGORIES } from "../lib/group-di
 import { ALL_COMPANIES, ALL_ROLES, ALL_ROUNDS, ALL_QUESTION_TYPES, QUESTION_CATEGORIES } from "../lib/question-bank-data";
 import { EXPANDED_PLACEMENT_QUESTIONS, SUBTOPICS_BY_TOPIC } from "../lib/question-bank-catalog";
 import { COMPANY_PREP_GUIDES } from "../lib/company-prep-data";
-import { isDuplicateOrSimilar } from "../app/api/gd/generate-topics/route";
+import { isDuplicateOrSimilar } from "../lib/gd/topic-utils";
 
 function assert(condition: boolean, message: string) {
   if (!condition) {

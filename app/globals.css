@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 :root {
+  /* Typography */
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
   /* Brand Colors */
   --brand-navy: #162A43;
   --brand-cobalt: #356AE6;

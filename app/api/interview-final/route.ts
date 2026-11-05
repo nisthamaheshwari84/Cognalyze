@@ -9,7 +9,10 @@ import {
 } from "@/lib/ai/interview-engine";
 import {
   getActiveSessionState,
-  saveSession
+  saveActiveSessionState,
+  saveSession,
+  markSessionCompleted,
+  getSessionById
 } from "@/lib/interview-session-store";
 
 export async function POST(req: Request) {
@@ -25,9 +28,13 @@ export async function POST(req: Request) {
       targetCompany: reqTargetCompany,
       targetRole: reqTargetRole,
       interviewType: reqInterviewType,
+      interviewTrack: reqInterviewTrack,
+      track: reqTrack,
       difficulty: reqDifficulty,
       durationMinutes: reqDurationMinutes,
     } = body;
+
+    const effectiveTrack = reqTrack || reqInterviewTrack;
 
     // 1. Authenticate candidate with strict server-side validation
     const auth = await getAuthenticatedContext(req as any);
@@ -39,6 +46,68 @@ export async function POST(req: Request) {
     }
 
     const sessionId = reqSessionId || `session_${candidateId}_${Date.now()}`;
+
+    // Check for existing saved session for idempotency & multi-tenant isolation
+    const existingLiveState = getActiveSessionState(sessionId);
+    if (existingLiveState && existingLiveState.candidateId && existingLiveState.candidateId !== candidateId) {
+      return NextResponse.json({ error: "Access denied. Session belongs to another candidate." }, { status: 403 });
+    }
+    const existingSession = await getSessionById(sessionId);
+    if (existingSession) {
+      if (existingSession.candidate_id && existingSession.candidate_id !== candidateId) {
+        return NextResponse.json({ error: "Access denied. Session belongs to another candidate." }, { status: 403 });
+      }
+      if (existingSession.report) {
+        // Idempotent return of the already generated and persisted report
+        const rep = existingSession.report;
+        const hireDecision =
+          rep.hiringRecommendation === "STRONG_HIRE" ? "STRONG_HIRE" :
+          rep.hiringRecommendation === "HIRE" ? "HIRE" :
+          rep.hiringRecommendation === "LEANING_HIRE" ? "HIRE" :
+          rep.hiringRecommendation === "INSUFFICIENT_EVIDENCE" ? "INSUFFICIENT_EVIDENCE" :
+          rep.hiringRecommendation === "ASSESSMENT_INCOMPLETE" ? "ASSESSMENT_INCOMPLETE" : "NO_HIRE";
+
+        return NextResponse.json({
+          decision: hireDecision,
+          confidence: rep.confidence,
+          headline: hireDecision === "INSUFFICIENT_EVIDENCE" || hireDecision === "ASSESSMENT_INCOMPLETE"
+            ? `Assessment Incomplete: Insufficient Evidence for ${rep.targetRole}`
+            : `${hireDecision.replace("_", " ")}: ${rep.targetRole} (${(existingSession.experience_mode || "experienced").toUpperCase()})`,
+          overview: rep.executiveSummary,
+          hire_reasons: rep.keyStrengths || [],
+          no_hire_reasons: rep.criticalGaps || [],
+          standout_moments: (rep.competenciesAssessed || [])
+            .filter((c: any) => c.status === "demonstrated")
+            .map((c: any) => `${c.competency}: ${c.evaluation}`),
+          concerning_moments: (rep.competenciesAssessed || [])
+            .filter((c: any) => c.status === "gap")
+            .map((c: any) => `${c.competency}: ${c.evaluation}`),
+          scorecard: {
+            technical_depth: {
+              score: rep.technicalDepth?.score ?? rep.overallScore,
+              comment: rep.technicalDepth?.summary || "Technical depth evaluated"
+            },
+            problem_solving: {
+              score: rep.problemSolvingAndReasoning?.score ?? rep.overallScore,
+              comment: rep.problemSolvingAndReasoning?.summary || "Problem solving evaluated"
+            },
+            project_ownership: {
+              score: rep.projectOwnershipAndVeracity?.score ?? rep.overallScore,
+              comment: rep.projectOwnershipAndVeracity?.summary || "Project ownership evaluated"
+            },
+            communication: {
+              score: rep.communicationAndBehavioral?.score ?? rep.overallScore,
+              comment: rep.communicationAndBehavioral?.summary || "Communication evaluated"
+            }
+          },
+          next_steps: rep.recommendedLearningActions?.join(" | ") || "Proceed with practice curriculum",
+          interviewer_note: rep.interviewerPrivateNote || "Session completed.",
+          report: rep,
+          evidenceCommittedToDNA: 0,
+          idempotentReplay: true
+        });
+      }
+    }
 
     // 2. Build Candidate Interview Dossier
     const dossier = await buildCandidateInterviewDossier(candidateId, resume, jd);
@@ -54,9 +123,14 @@ export async function POST(req: Request) {
         sessionId,
         jd,
         reqInterviewType || "technical",
-        reqTargetCompany
+        reqTargetCompany,
+        undefined,
+        effectiveTrack
       );
       sessionState = createAdvancedSessionState(blueprint, dossier);
+      if (effectiveTrack) {
+        sessionState.track = effectiveTrack;
+      }
 
       // Reconstruct turns from messages if needed
       const userMsgs = (messages || []).filter((m: any) => m.role === "user");
@@ -89,6 +163,12 @@ export async function POST(req: Request) {
     // 4. Generate evidence-based final report
     const report = await generateInterviewFinalReport(sessionState, messages, dossier);
 
+    // Mark session completed in memory & store
+    sessionState.isCompleted = true;
+    sessionState.lifecycleState = "COMPLETED";
+    saveActiveSessionState(sessionId, sessionState);
+    markSessionCompleted(sessionId, report);
+
     // 5. Commit verified interview evidence into Student DNA
     const commitResult = await commitInterviewEvidenceToDNA(candidateId, report);
 
@@ -101,6 +181,7 @@ export async function POST(req: Request) {
       target_role: reqTargetRole || dossier.targetRole,
       target_company: reqTargetCompany || sessionState.blueprint?.targetCompany || "FAANG / Tier 1",
       interview_type: reqInterviewType || sessionState.blueprint?.interviewType || "technical",
+      track: sessionState.track || effectiveTrack,
       difficulty: reqDifficulty || sessionState.currentDifficulty || "adaptive",
       duration_minutes: Number(reqDurationMinutes) || sessionState.blueprint?.durationMinutes || 45,
       topics_covered: sessionState.topicsCovered,
@@ -130,12 +211,19 @@ export async function POST(req: Request) {
     const hireDecision =
       report.hiringRecommendation === "STRONG_HIRE" ? "STRONG_HIRE" :
       report.hiringRecommendation === "HIRE" ? "HIRE" :
-      report.hiringRecommendation === "LEANING_HIRE" ? "HIRE" : "NO_HIRE";
+      report.hiringRecommendation === "LEANING_HIRE" ? "HIRE" :
+      report.hiringRecommendation === "INSUFFICIENT_EVIDENCE" ? "INSUFFICIENT_EVIDENCE" :
+      report.hiringRecommendation === "ASSESSMENT_INCOMPLETE" ? "ASSESSMENT_INCOMPLETE" : "NO_HIRE";
+
+    const headline =
+      hireDecision === "INSUFFICIENT_EVIDENCE" || hireDecision === "ASSESSMENT_INCOMPLETE"
+        ? `Assessment Incomplete: Insufficient Evidence for ${report.targetRole}`
+        : `${hireDecision.replace("_", " ")}: ${report.targetRole} (${sessionState.experienceMode.toUpperCase()})`;
 
     return NextResponse.json({
       decision: hireDecision,
       confidence: report.confidence,
-      headline: `${hireDecision.replace("_", " ")}: ${report.targetRole} (${sessionState.experienceMode.toUpperCase()})`,
+      headline,
       overview: report.executiveSummary,
       hire_reasons: report.keyStrengths,
       no_hire_reasons: report.criticalGaps,
@@ -172,20 +260,20 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("[interview-final] Elite Final Report Error:", err.message);
     return NextResponse.json({
-      decision: "NO_HIRE",
-      confidence: 50,
-      headline: "Technical assessment fallback report generated",
-      overview: "Interview completed. Scorecard derived via baseline evaluation metrics.",
-      hire_reasons: ["Completed technical interview session"],
-      no_hire_reasons: ["Technical review required for comprehensive verdict"],
+      decision: "INSUFFICIENT_EVIDENCE",
+      confidence: 0,
+      headline: "Assessment Evaluation Incomplete: System Processing Failure",
+      overview: "Interview could not be completely evaluated due to an unexpected system processing failure. The candidate was not penalized.",
+      hire_reasons: [],
+      no_hire_reasons: [],
       standout_moments: [],
       concerning_moments: [],
       scorecard: {
-        technical_depth: { score: 70, comment: "Baseline demonstrated" },
-        communication: { score: 75, comment: "Clear responses" }
+        technical_depth: { score: 0, comment: "Evaluation could not complete" },
+        communication: { score: 0, comment: "Evaluation could not complete" }
       },
-      next_steps: "Review transcript manually",
-      interviewer_note: "Session saved with standard evaluation.",
+      next_steps: "Retry evaluation or continue practice in Skill Practice Hub",
+      interviewer_note: "Session could not be evaluated due to unexpected server error.",
       error: err.message
     });
   }

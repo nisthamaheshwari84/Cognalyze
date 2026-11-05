@@ -14,6 +14,7 @@
 
 import { AptitudeQuestion, SEED_APTITUDE_QUESTIONS } from "@/lib/skill-hub-store";
 import { getCandidateSeenQuestionIds, recordCandidateAttempt } from "@/lib/skills/candidate-history";
+import { secureRandomInt } from "@/lib/crypto-utils";
 
 // ── 1. DATA TYPES ────────────────────────────────────────────────────────────
 
@@ -1458,7 +1459,7 @@ export function randomizeAptitudeOptions(q: PreparedAptitudeQuestion | AptitudeQ
 
   // Fisher-Yates shuffle
   for (let i = optionsMeta.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = secureRandomInt(0, i + 1);
     [optionsMeta[i], optionsMeta[j]] = [optionsMeta[j], optionsMeta[i]];
   }
 
@@ -1557,7 +1558,7 @@ export function getAdaptiveAptitudeQuestions(options: {
 
   // 7. Shuffle questions so option and order is lively
   for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = secureRandomInt(0, i + 1);
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
 

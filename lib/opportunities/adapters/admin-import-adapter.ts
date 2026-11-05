@@ -13,6 +13,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class AdminManualImportAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-admin-import";
@@ -40,7 +41,7 @@ export class AdminManualImportAdapter extends BaseOpportunitySourceAdapter {
     location?: string;
     adminUserId?: string;
   }): RawOpportunity {
-    const id = `manual-import-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+    const id = generateSecureId(`manual-import-${Date.now()}`, 6);
     const raw: RawOpportunity = {
       id,
       source: `Admin Import (${payload.organizer || "Verified Partner"})`,

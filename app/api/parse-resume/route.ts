@@ -7,6 +7,7 @@ import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { upsertStudentProfileByUserId } from "@/lib/auth/store";
 import { upsertStudentProfile } from "@/lib/placement-store";
 import { saveResumeRecord } from "@/lib/resume/store";
+import { extractEvidenceClaimsFromResume, ExtractedEvidence } from "@/lib/evidence/resume-matcher";
 
 // ============================================================
 // 1. HELPER: EXTRACT TEXT FROM DOCX BUFFER (USING YAUZL)
@@ -68,202 +69,7 @@ async function extractTextFromDocx(buffer: Buffer): Promise<string> {
 }
 
 // ============================================================
-// 2. HELPER: EXTRACT CLAIMS & SKILLS & PROJECTS FROM TEXT
-// ============================================================
-interface ExtractedEvidence {
-  skills: { name: string; level: string; proficiency: string }[];
-  projects: { title: string; tech_stack: string[]; description: string }[];
-}
-
-export function extractEvidenceClaimsFromResume(text: string): ExtractedEvidence {
-  const clean = text.replace(/\r\n/g, "\n");
-  const lower = clean.toLowerCase();
-
-  // Curated canonical technical skills taxonomy
-  const skillTaxonomy: { name: string; pattern: RegExp; proficiency: string }[] = [
-    { name: "Python", pattern: /\bpython\b/i, proficiency: "Advanced" },
-    { name: "JavaScript", pattern: /\b(javascript|js|es6)\b/i, proficiency: "Intermediate" },
-    { name: "TypeScript", pattern: /\b(typescript|ts)\b/i, proficiency: "Advanced" },
-    { name: "React", pattern: /\b(react|react\.js|reactjs)\b/i, proficiency: "Advanced" },
-    { name: "Next.js", pattern: /\b(next\.js|nextjs)\b/i, proficiency: "Advanced" },
-    { name: "Node.js", pattern: /\b(node|node\.js|nodejs)\b/i, proficiency: "Intermediate" },
-    { name: "C++", pattern: /\bc\+\+\b/i, proficiency: "Intermediate" },
-    { name: "Java", pattern: /\bjava\b/i, proficiency: "Intermediate" },
-    { name: "Go", pattern: /\b(golang|go\s+programming)\b/i, proficiency: "Intermediate" },
-    { name: "SQL", pattern: /\b(sql|mysql|sqlite)\b/i, proficiency: "Advanced" },
-    { name: "PostgreSQL", pattern: /\b(postgresql|postgres)\b/i, proficiency: "Advanced" },
-    { name: "MongoDB", pattern: /\bmongodb\b/i, proficiency: "Intermediate" },
-    { name: "Docker", pattern: /\bdocker\b/i, proficiency: "Intermediate" },
-    { name: "Kubernetes", pattern: /\b(kubernetes|k8s)\b/i, proficiency: "Intermediate" },
-    { name: "AWS", pattern: /\b(aws|amazon\s+web\s+services)\b/i, proficiency: "Intermediate" },
-    { name: "Git", pattern: /\b(git|github|gitlab)\b/i, proficiency: "Advanced" },
-    { name: "Machine Learning", pattern: /\b(machine\s+learning|ml)\b/i, proficiency: "Advanced" },
-    { name: "Deep Learning", pattern: /\b(deep\s+learning|neural\s+networks)\b/i, proficiency: "Intermediate" },
-    { name: "PyTorch", pattern: /\bpytorch\b/i, proficiency: "Advanced" },
-    { name: "TensorFlow", pattern: /\btensorflow\b/i, proficiency: "Intermediate" },
-    { name: "FastAPI", pattern: /\bfastapi\b/i, proficiency: "Intermediate" },
-    { name: "Django", pattern: /\bdjango\b/i, proficiency: "Intermediate" },
-    { name: "Tailwind CSS", pattern: /\btailwind(\s+css)?\b/i, proficiency: "Intermediate" },
-    { name: "DSA & Problem Solving", pattern: /\b(dsa|data\s+structures|algorithms|leetcode|codeforces)\b/i, proficiency: "Advanced" },
-    { name: "GenAI", pattern: /\b(genai|generative\s+ai|llm|llms|rag|embeddings)\b/i, proficiency: "Advanced" },
-    { name: "Linux", pattern: /\blinux\b/i, proficiency: "Intermediate" },
-    { name: "Redis", pattern: /\bredis\b/i, proficiency: "Intermediate" },
-    { name: "GraphQL", pattern: /\bgraphql\b/i, proficiency: "Intermediate" },
-  ];
-
-  const extractedSkills: { name: string; level: string; proficiency: string }[] = [];
-  const seenSkillNames = new Set<string>();
-
-  for (const item of skillTaxonomy) {
-    if (item.pattern.test(clean)) {
-      extractedSkills.push({
-        name: item.name,
-        level: "Claimed",
-        proficiency: item.proficiency,
-      });
-      seenSkillNames.add(item.name.toLowerCase());
-    }
-  }
-
-  // Fallback default skills if very sparse text
-  if (extractedSkills.length === 0) {
-    extractedSkills.push(
-      { name: "Python", level: "Claimed", proficiency: "Intermediate" },
-      { name: "Web Development", level: "Claimed", proficiency: "Intermediate" },
-      { name: "Git & Version Control", level: "Claimed", proficiency: "Familiar" }
-    );
-  }
-
-  // Extract Projects
-  const extractedProjects: { title: string; tech_stack: string[]; description: string }[] = [];
-  const lines = clean.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
-
-  let inProjectsSection = false;
-  let currentProject: { title: string; tech_stack: string[]; description: string } | null = null;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lineLower = line.toLowerCase();
-
-    // Check for section headers
-    if (
-      line.length < 40 &&
-      /^(projects|academic projects|technical projects|key projects|featured projects)\b/i.test(lineLower)
-    ) {
-      inProjectsSection = true;
-      continue;
-    }
-
-    if (
-      inProjectsSection &&
-      line.length < 40 &&
-      /^(skills|experience|work experience|education|certifications|awards|contact)\b/i.test(lineLower)
-    ) {
-      inProjectsSection = false;
-      if (currentProject && currentProject.title) {
-        extractedProjects.push(currentProject);
-        currentProject = null;
-      }
-      continue;
-    }
-
-    if (inProjectsSection) {
-      // Possible project title: short line not starting with bullet or dash, OR numbered project title
-      const isBullet = /^[-*•·▪]\s+/.test(line);
-      const isNumberedTitle = /^\d+[\.\)]\s+[A-Za-z0-9]/.test(line);
-      const isTitleCandidate = (!isBullet || isNumberedTitle) && line.length > 3 && line.length < 140 && !line.includes("http");
-
-      if (isTitleCandidate) {
-        if (currentProject && currentProject.title) {
-          extractedProjects.push(currentProject);
-        }
-        // Clean leading numbers (e.g. "1. Title" -> "Title")
-        let title = line.replace(/^\d+[\.\)]\s*/, "").trim();
-        const techStack: string[] = [];
-
-        if (title.includes("|")) {
-          const parts = title.split("|");
-          title = parts[0].trim();
-          const techPart = parts.slice(1).join(" ");
-          for (const s of skillTaxonomy) {
-            if (s.pattern.test(techPart)) techStack.push(s.name);
-          }
-        } else if (title.includes(" - ")) {
-          const parts = title.split(" - ");
-          title = parts[0].trim();
-          const techPart = parts.slice(1).join(" ");
-          for (const s of skillTaxonomy) {
-            if (s.pattern.test(techPart)) techStack.push(s.name);
-          }
-        } else if (title.includes("(") && title.includes(")")) {
-          const match = title.match(/\(([^)]+)\)/);
-          if (match) {
-            for (const s of skillTaxonomy) {
-              if (s.pattern.test(match[1])) techStack.push(s.name);
-            }
-          }
-        }
-
-        currentProject = {
-          title,
-          tech_stack: techStack.length > 0 ? techStack : ["Python", "Web Architecture"],
-          description: "",
-        };
-      } else if (currentProject) {
-        const cleanBullet = line.replace(/^[-*•·▪\d.]+\s*/, "").trim();
-        if (currentProject.description.length < 300) {
-          currentProject.description += (currentProject.description ? " " : "") + cleanBullet;
-        }
-        // Scan bullet for additional tech stack items
-        for (const s of skillTaxonomy) {
-          if (s.pattern.test(line) && !currentProject.tech_stack.includes(s.name)) {
-            currentProject.tech_stack.push(s.name);
-          }
-        }
-      }
-    }
-  }
-
-  if (currentProject && currentProject.title) {
-    extractedProjects.push(currentProject);
-  }
-
-  // Fallback: If no explicit projects section was parsed, infer projects from text paragraphs with action verbs
-  if (extractedProjects.length === 0) {
-    const actionLines = lines.filter((l) =>
-      /^(built|developed|implemented|created|designed|architected|engineered)\b/i.test(l.trim())
-    );
-
-    if (actionLines.length > 0) {
-      for (let i = 0; i < Math.min(actionLines.length, 3); i++) {
-        const aLine = actionLines[i];
-        const projTech: string[] = [];
-        for (const s of skillTaxonomy) {
-          if (s.pattern.test(aLine)) projTech.push(s.name);
-        }
-        extractedProjects.push({
-          title: `Demonstrated Technical Artifact ${i + 1}`,
-          tech_stack: projTech.length > 0 ? projTech : ["Python", "TypeScript"],
-          description: aLine.replace(/^[-*•·▪\d.]+\s*/, "").slice(0, 240),
-        });
-      }
-    } else {
-      extractedProjects.push({
-        title: "Demonstrated Technical Artifact",
-        tech_stack: ["Python", "Next.js", "PostgreSQL"],
-        description: "Core full-stack & data architecture implemented as evidenced in resume.",
-      });
-    }
-  }
-
-  return {
-    skills: extractedSkills,
-    projects: extractedProjects,
-  };
-}
-
-// ============================================================
-// 3. MAIN API HANDLER: POST /api/parse-resume
+// 2. MAIN API HANDLER: POST /api/parse-resume
 // ============================================================
 export async function POST(req: NextRequest) {
   try {
@@ -503,107 +309,160 @@ export async function POST(req: NextRequest) {
     // ── D. Extract Evidence Claims & Skills & Projects ──
     const extractedData = extractEvidenceClaimsFromResume(sanitizedText);
 
-    // ── E. Determine Target Candidate IDs & Sync with Student DNA ──
-    let sessionUserId: string | null = null;
+    // ── E. Determine Target Candidate Identity & Server-Side Authorization (P0 Fix SEC-AUTH-01) ──
     let authContext: any = null;
     try {
       authContext = await getAuthenticatedContext(req);
-      if (authContext?.user?.id) sessionUserId = authContext.user.id;
     } catch {}
 
-    const activeStudentId = sessionUserId || candidateId || "guest-student";
+    let targetCandidateId: string | null = null;
+    let savedResumeId: string | undefined;
 
-    // Update Student DNA via recordStudentEvent
-    try {
-      await recordStudentEvent({
-        studentId: activeStudentId,
-        eventType: "resume_uploaded",
-        payload: {
+    if (authContext?.user) {
+      if (authContext.user.accountType === "student") {
+        // Enforce candidate identity strictly from authenticated session.
+        // If client supplied a candidateId that targets another user -> 403 Forbidden (prevent IDOR)
+        if (candidateId && candidateId !== authContext.user.id && candidateId !== "student-demo") {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "forbidden_cross_candidate",
+              userMessage: "Forbidden. You cannot modify the profile or resume for another candidate.",
+              text: "",
+            },
+            { status: 403 }
+          );
+        }
+        targetCandidateId = authContext.user.id;
+      } else if (authContext.user.accountType === "recruiter") {
+        // Authorized recruiter workflow
+        targetCandidateId = candidateId && candidateId !== "student-demo" ? candidateId : null;
+      }
+    }
+
+    // ONLY mutate profiles if caller is authenticated with an authorized target candidate
+    if (targetCandidateId) {
+      // 1. Update Student DNA via recordStudentEvent
+      try {
+        await recordStudentEvent({
+          studentId: targetCandidateId,
+          eventType: "resume_uploaded",
+          payload: {
+            skills: extractedData.skills,
+            projects: extractedData.projects,
+            filename,
+          },
+        });
+      } catch (dnaErr) {
+        console.warn("[parse-resume] Student DNA recording error:", dnaErr);
+      }
+
+      // Invalidate cached Student DNA
+      invalidateStudentDNACache(targetCandidateId);
+
+      // 2. Update Auth Store Profile
+      // Parsing failure protection: do NOT erase existing valid profile data if extraction yielded no skills
+      try {
+        const { upsertStudentProfileByUserId, getStudentProfileByUserId } = await import("@/lib/auth/store");
+        const existingProfile = getStudentProfileByUserId(targetCandidateId);
+
+        const validLevels = ["Beginner", "Intermediate", "Advanced", "Expert"] as const;
+        const newSkills = extractedData.skills.map((s) => {
+          const level = validLevels.includes(s.proficiency as any)
+            ? (s.proficiency as "Beginner" | "Intermediate" | "Advanced" | "Expert")
+            : "Intermediate";
+          return {
+            name: s.name,
+            level,
+          };
+        });
+
+        const newProjects = extractedData.projects.map((p) => ({
+          title: p.title,
+          description: p.description,
+          techStack: p.tech_stack,
+        }));
+
+        // Preserve existing profile data (P0 Fix SEC-AUTH-01):
+        // Merge newly parsed skills and projects with existing profile data so existing valid data is never erased
+        const existingSkills = existingProfile?.skills || [];
+        const existingProjects = existingProfile?.projects || [];
+
+        const skillMap = new Map<string, any>();
+        for (const s of existingSkills) {
+          skillMap.set(s.name.toLowerCase(), s);
+        }
+        for (const s of newSkills) {
+          skillMap.set(s.name.toLowerCase(), s);
+        }
+        const finalSkills = Array.from(skillMap.values());
+
+        const projectMap = new Map<string, any>();
+        for (const p of existingProjects) {
+          projectMap.set(p.title.toLowerCase(), p);
+        }
+        for (const p of newProjects) {
+          projectMap.set(p.title.toLowerCase(), p);
+        }
+        const finalProjects = Array.from(projectMap.values());
+
+        const profileUpdates: any = {
+          resumeFileName: filename,
+          skills: finalSkills,
+          projects: finalProjects,
+        };
+
+        if (existingProfile?.profileCompleted || finalSkills.length > 0) {
+          profileUpdates.profileCompleted = true;
+        }
+
+        upsertStudentProfileByUserId(targetCandidateId, profileUpdates);
+      } catch (authErr) {
+        console.warn("[parse-resume] auth store update error:", authErr);
+      }
+
+      // 3. Update Placement Store
+      try {
+        await upsertStudentProfile({
+          candidate_id: targetCandidateId,
+          skills: extractedData.skills.map((s) => ({ name: s.name, level: "Intermediate" })),
+          past_projects: extractedData.projects.map((p) => ({
+            title: p.title,
+            tech_stack: p.tech_stack,
+            description: p.description,
+          })),
+          target_roles: ["Software Engineer", "AI/ML Engineer"],
+          target_companies_or_events: [],
+          availability: "Immediate",
+          risk_appetite: "Moderate",
+          profile_summary: `Resume parsed: ${filename}. ${extractedData.skills.length} skills, ${extractedData.projects.length} demonstrated projects.`,
+        });
+      } catch (placeErr) {
+        console.warn("[parse-resume] placement store update error:", placeErr);
+      }
+
+      // 4. Persist to Resume Vault (disk and Supabase resumes table)
+      try {
+        const saved = await saveResumeRecord({
+          candidateId: targetCandidateId,
+          candidateName: authContext?.user?.fullName,
+          candidateEmail: authContext?.user?.email,
+          fileName: filename,
+          parsedText: sanitizedText,
           skills: extractedData.skills,
           projects: extractedData.projects,
-          filename,
-        },
-      });
-    } catch (dnaErr) {
-      console.warn("[parse-resume] Student DNA recording error:", dnaErr);
-    }
-
-    // Invalidate cached Student DNA
-    invalidateStudentDNACache(activeStudentId);
-
-    // Update Auth Store Profile
-    try {
-      const { upsertStudentProfileByUserId, getUserById } = await import("@/lib/auth/store");
-      const targetUserId = sessionUserId || (candidateId && getUserById(candidateId) ? candidateId : null);
-
-      if (targetUserId) {
-        const profileUpdates = {
-          resumeFileName: filename,
-          skills: extractedData.skills.map((s) => {
-            const validLevels = ["Beginner", "Intermediate", "Advanced", "Expert"] as const;
-            const level = validLevels.includes(s.proficiency as any)
-              ? (s.proficiency as "Beginner" | "Intermediate" | "Advanced" | "Expert")
-              : "Intermediate";
-            return {
-              name: s.name,
-              level,
-            };
-          }),
-          projects: extractedData.projects.map((p) => ({
-            title: p.title,
-            description: p.description,
-            techStack: p.tech_stack,
-          })),
-          profileCompleted: true,
-        };
-        upsertStudentProfileByUserId(targetUserId, profileUpdates);
+        });
+        savedResumeId = saved.id;
+      } catch (vaultErr) {
+        console.warn("[parse-resume] resume vault persist error:", vaultErr);
       }
-    } catch (authErr) {
-      console.warn("[parse-resume] auth store update error:", authErr);
-    }
 
-    // Update Placement Store
-    try {
-      await upsertStudentProfile({
-        candidate_id: activeStudentId,
-        skills: extractedData.skills.map((s) => ({ name: s.name, level: "Intermediate" })),
-        past_projects: extractedData.projects.map((p) => ({
-          title: p.title,
-          tech_stack: p.tech_stack,
-          description: p.description,
-        })),
-        target_roles: ["Software Engineer", "AI/ML Engineer"],
-        target_companies_or_events: [],
-        availability: "Immediate",
-        risk_appetite: "Moderate",
-        profile_summary: `Resume parsed: ${filename}. ${extractedData.skills.length} skills, ${extractedData.projects.length} demonstrated projects.`,
-      });
-    } catch (placeErr) {
-      console.warn("[parse-resume] placement store update error:", placeErr);
+      // Trigger Opportunity Matching in background against current live database (non-blocking)
+      try {
+        const { opportunityService } = await import("@/lib/opportunities/opportunity-service");
+        opportunityService.getPersonalizedFeed(targetCandidateId, { forceRefresh: false }).catch(() => {});
+      } catch {}
     }
-
-    // Persist to Resume Vault (disk and Supabase resumes table)
-    let savedResumeId: string | undefined;
-    try {
-      const saved = await saveResumeRecord({
-        candidateId: activeStudentId,
-        candidateName: authContext?.user?.fullName,
-        candidateEmail: authContext?.user?.email,
-        fileName: filename,
-        parsedText: sanitizedText,
-        skills: extractedData.skills,
-        projects: extractedData.projects,
-      });
-      savedResumeId = saved.id;
-    } catch (vaultErr) {
-      console.warn("[parse-resume] resume vault persist error:", vaultErr);
-    }
-
-    // Trigger Opportunity Matching in background against current live database (non-blocking, no external refetch)
-    try {
-      const { opportunityService } = await import("@/lib/opportunities/opportunity-service");
-      opportunityService.getPersonalizedFeed(activeStudentId, { forceRefresh: false }).catch(() => {});
-    } catch {}
 
     const pageTexts = sanitizedText
       .split("\f")

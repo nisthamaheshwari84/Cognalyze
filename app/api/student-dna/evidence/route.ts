@@ -42,13 +42,71 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
     const candidateId = auth.user.id;
+    const body = await req.json();
 
-    const result = await addStudentEvidenceRecord(candidateId, {
+    // 1. Cross-candidate write prevention (P1 Fix SEC-EVID-01)
+    if (body.userId && body.userId !== candidateId) {
+      return NextResponse.json(
+        { success: false, error: "Forbidden. Cannot add or forge evidence for another candidate." },
+        { status: 403 }
+      );
+    }
+
+    let isServerVerified = false;
+
+    // 2. Strict validation for assessment and interview evidence
+    if (body.sourceType === "assessment" || body.sourceType === "interview") {
+      const sessionId = body.sessionId || body.sourceId;
+      if (!sessionId) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Verified assessment evidence requires an authoritative sessionId from a completed interview/assessment."
+          },
+          { status: 400 }
+        );
+      }
+
+      // Verify server-side session existence and candidate ownership
+      const { getSessionById, getActiveSessionState, isSessionCompleted } = await import("@/lib/interview-session-store");
+      const session = (await getSessionById(sessionId)) || getActiveSessionState(sessionId);
+
+      if (!session) {
+        return NextResponse.json(
+          { success: false, error: "Assessment session not found." },
+          { status: 404 }
+        );
+      }
+
+      const sessionCandidateId = session.candidate_id || session.candidateId;
+      if (sessionCandidateId && sessionCandidateId !== candidateId) {
+        return NextResponse.json(
+          { success: false, error: "Forbidden. Candidate isolation violation: assessment session belongs to another candidate." },
+          { status: 403 }
+        );
+      }
+
+      const completed = isSessionCompleted(sessionId) || session.isCompleted || session.lifecycleState === "COMPLETED" || session.status === "COMPLETED";
+      if (!completed) {
+        return NextResponse.json(
+          { success: false, error: "Assessment session is still active. Verified evidence can only be created from completed sessions." },
+          { status: 400 }
+        );
+      }
+
+      isServerVerified = true;
+    }
+
+    // 3. Prevent client-controlled verificationStatus, verified flags, and score inflation
+    const sanitizedPayload = {
       ...body,
-      userId: candidateId
-    });
+      userId: candidateId,
+      trustedServerVerified: isServerVerified,
+      verificationStatus: isServerVerified ? "VERIFIED" : "CLAIMED"
+    };
+
+    const result = await addStudentEvidenceRecord(candidateId, sanitizedPayload);
 
     if (!result.success) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 });

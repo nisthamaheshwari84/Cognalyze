@@ -11,6 +11,8 @@
  */
 
 import { supabase } from "@/lib/supabase";
+import { isTestRuntime } from "@/lib/env";
+import { generateSecureId } from "@/lib/crypto-utils";
 import { DNAEvidence, RawSourceData, validateRawSourceData, processEvidencePipeline, detectContradictions, EvidenceFilter } from "./evidence-pipeline";
 import { StudentSkill, StudentDNASnapshot, calculateStudentSkillProfile, generateStudentDNASnapshot, getExplainableWhyForSkill, MetricDataStatus, MetricProofDetail } from "./profile-engine";
 import { RequirementProfile, getBenchmarkProfile, extractRequirementsFromJD } from "./requirement-engine";
@@ -82,8 +84,7 @@ const USER_EVIDENCE_STORE: Map<string, DNAEvidence[]> = new Map();
 const USER_AUDIT_LOGS: Map<string, DNAAuditLog[]> = new Map();
 const USER_TARGET_ROLES: Map<string, string> = new Map();
 
-// ─── DNA DATA PERSISTENCE ENGINE (ACID Disk + Supabase Cloud Mirror) ───
-const CLOUD_DNA_KEY = "cognalyze_dna_cloud_store";
+// ─── DNA DATA PERSISTENCE ENGINE (ACID Disk + Canonical Supabase) ───
 let isDNAStoreLoaded = false;
 
 function getDNAFilePath(): string {
@@ -160,7 +161,7 @@ export function persistDNAStoreToDisk(): void {
         updatedAt: new Date().toISOString()
       };
 
-      const tmpFile = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const tmpFile = `${filePath}.tmp.${Date.now()}_${generateSecureId("tmp", 6)}`;
       fs.writeFileSync(tmpFile, JSON.stringify(payload, null, 2), "utf-8");
       try {
         fs.renameSync(tmpFile, filePath);
@@ -169,15 +170,34 @@ export function persistDNAStoreToDisk(): void {
         if (fs.existsSync(tmpFile)) try { fs.unlinkSync(tmpFile); } catch {}
       }
 
-      saveDNAStoreToCloud(payload).catch(() => {});
+      if (!isTestRuntime()) {
+        triggerDebouncedDNACloudSync(payload);
+      }
     } catch (err) {
       console.warn("[dna-store] Failed to persist to disk:", err);
     }
   }
 }
 
+let dnaCloudSyncTimeout: NodeJS.Timeout | null = null;
+let isDNACloudSyncing = false;
+
+export function triggerDebouncedDNACloudSync(payload?: any, delayMs = 3000) {
+  if (typeof window !== "undefined" || isTestRuntime()) return;
+  if (dnaCloudSyncTimeout) clearTimeout(dnaCloudSyncTimeout);
+  dnaCloudSyncTimeout = setTimeout(() => {
+    dnaCloudSyncTimeout = null;
+    if (!isDNACloudSyncing) {
+      isDNACloudSyncing = true;
+      saveDNAStoreToCloud(payload).finally(() => {
+        isDNACloudSyncing = false;
+      });
+    }
+  }, delayMs);
+}
+
 export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boolean; error?: string }> {
-  if (typeof window !== "undefined") return { success: true };
+  if (typeof window !== "undefined" || isTestRuntime()) return { success: true };
   try {
     const dataToSave = payload || {
       evidence: Object.fromEntries(USER_EVIDENCE_STORE.entries()),
@@ -186,7 +206,7 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boo
       updatedAt: new Date().toISOString()
     };
 
-    // 1. Canonical Supabase Persistence to public.dna_evidence & public.student_dna
+    // 1. Canonical Row-Level Supabase Persistence to public.dna_evidence & public.student_dna
     try {
       const { unifiedStudentDNAService } = await import("./unified-dna-service");
       for (const [userId, items] of USER_EVIDENCE_STORE.entries()) {
@@ -196,89 +216,18 @@ export async function saveDNAStoreToCloud(payload?: any): Promise<{ success: boo
       console.warn("[dna-store] Canonical student_dna persistence notice:", err);
     }
 
-    // 2. Legacy mirror compatibility in public.analyses
-    const { data: existingRows, error: selectErr } = await supabase
-      .from("analyses")
-      .select("id")
-      .eq("recruiter_clerk_id", CLOUD_DNA_KEY)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (selectErr) {
-      console.warn("[dna-store] Cloud mirror select warning:", selectErr.message);
-      return { success: false, error: selectErr.message };
-    }
-
-    if (existingRows && existingRows.length > 0 && existingRows[0]?.id) {
-      const { error: updateErr } = await supabase
-        .from("analyses")
-        .update({
-          full_report: dataToSave,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", existingRows[0].id);
-
-      if (updateErr) {
-        console.warn("[dna-store] Cloud mirror update warning:", updateErr.message);
-        return { success: false, error: updateErr.message };
-      }
-      return { success: true };
-    } else {
-      const { error: insertErr } = await supabase
-        .from("analyses")
-        .insert({
-          recruiter_clerk_id: CLOUD_DNA_KEY,
-          candidate_id: "system-shared-dna-mirror",
-          status: "completed",
-          full_report: dataToSave,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-
-      if (insertErr) {
-        console.warn("[dna-store] Cloud mirror insert warning:", insertErr.message);
-        return { success: false, error: insertErr.message };
-      }
-      return { success: true };
-    }
     return { success: true };
   } catch (err: any) {
-    console.warn("[dna-store] Cloud mirror exception:", err?.message || err);
+    console.warn("[dna-store] Cloud sync exception:", err?.message || err);
     return { success: false, error: err?.message || "Failed to save DNA store to cloud" };
   }
 }
 
 export async function syncDNAStoreWithCloud(): Promise<void> {
-  if (typeof window !== "undefined") return;
-  try {
-    const { data, error } = await supabase
-      .from("analyses")
-      .select("full_report")
-      .eq("recruiter_clerk_id", CLOUD_DNA_KEY)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    if (!error && data?.[0]?.full_report) {
-      const cloud = data[0].full_report;
-      if (cloud.evidence && typeof cloud.evidence === "object") {
-        for (const [k, v] of Object.entries(cloud.evidence)) {
-          if (!USER_EVIDENCE_STORE.has(k)) USER_EVIDENCE_STORE.set(k, v as DNAEvidence[]);
-        }
-      }
-      if (cloud.auditLogs && typeof cloud.auditLogs === "object") {
-        for (const [k, v] of Object.entries(cloud.auditLogs)) {
-          if (!USER_AUDIT_LOGS.has(k)) USER_AUDIT_LOGS.set(k, v as DNAAuditLog[]);
-        }
-      }
-      if (cloud.targetRoles && typeof cloud.targetRoles === "object") {
-        for (const [k, v] of Object.entries(cloud.targetRoles)) {
-          if (!USER_TARGET_ROLES.has(k)) USER_TARGET_ROLES.set(k, v as string);
-        }
-      }
-    }
-  } catch (err) {
-    // Non-fatal
-  }
+  if (typeof window !== "undefined" || isTestRuntime()) return;
+  // Canonical multi-tenant isolation: we do NOT dump or read shared multi-user stores from public.analyses.
+  // Instead, each user's evidence is queried strictly row-by-row with auth.uid() scoping.
+  return;
 }
 
 // Initial load
@@ -568,7 +517,19 @@ export async function addStudentEvidenceRecord(
   const currentList = await initializeUserEvidenceIfEmpty(userId);
 
   // 3. Process new item through the evidence pipeline
-  const processedBatch = processEvidencePipeline([raw]);
+  const enrichedRaw: RawSourceData = { ...raw };
+  if (enrichedRaw.trustedServerVerified === undefined) {
+    if (
+      (enrichedRaw.sourceType === "assessment" || enrichedRaw.sourceType === "interview") &&
+      (enrichedRaw.metadata?.score !== undefined ||
+        enrichedRaw.extractedValue?.score !== undefined ||
+        (enrichedRaw.strength !== undefined && enrichedRaw.strength >= 0.8))
+    ) {
+      enrichedRaw.trustedServerVerified = true;
+    }
+  }
+
+  const processedBatch = processEvidencePipeline([enrichedRaw]);
   if (processedBatch.length === 0) {
     return { success: false, error: "Evidence pipeline rejected item during canonical normalization." };
   }
@@ -588,7 +549,7 @@ export async function addStudentEvidenceRecord(
 
   // 5. Create audit log
   const auditLog: DNAAuditLog = {
-    id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: generateSecureId(`audit_${Date.now()}`, 8),
     userId,
     timestamp: new Date().toISOString(),
     changeType: "EVIDENCE_ADDED",
@@ -622,7 +583,7 @@ export async function retractEvidenceBySource(
   USER_EVIDENCE_STORE.set(userId, remaining);
 
   const auditLog: DNAAuditLog = {
-    id: `audit_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+    id: generateSecureId(`audit_${Date.now()}`, 8),
     userId,
     timestamp: new Date().toISOString(),
     changeType: "EVIDENCE_RETRACTED",

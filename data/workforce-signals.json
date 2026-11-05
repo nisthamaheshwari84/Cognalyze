@@ -1,0 +1,1467 @@
+{
+  "signals": [
+    {
+      "id": "sig-msft-gcc-2026",
+      "companyName": "Microsoft",
+      "industry": "Enterprise Software & Cloud AI",
+      "country": "Global / India",
+      "eventType": "hiring_surge",
+      "announcementDate": "2026-08-15",
+      "headcountAffected": 2500,
+      "indiaImpactStatus": "confirmed_india_impact",
+      "indiaImpactDetails": "Confirmed expansion of Microsoft India Development Centers (IDC) across Bengaluru and Hyderabad for Azure Distributed AI Infrastructure, Copilot Tooling, and Data Center Networking.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "Distributed Systems & GPU Cluster Orchestration",
+          "direction": "surging",
+          "rationale": "Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India."
+        },
+        {
+          "capabilityName": "Agentic Tool Schema & Copilot Runtime",
+          "direction": "surging",
+          "rationale": "Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC."
+        },
+        {
+          "capabilityName": "Legacy Monolithic .NET Framework",
+          "direction": "declining",
+          "rationale": "Rapid migration of legacy services to cloud-native microservices and Go/Rust edge services."
+        }
+      ],
+      "sourceUrls": [
+        "https://news.microsoft.com/en-in/features/expanding-idc-innovation-footprint/",
+        "https://economictimes.indiatimes.com/tech/ites/microsoft-ramps-up-india-rnd-for-cloud-ai/articleshow/msft-idc-surge.cms"
+      ],
+      "confidence": 0.95,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-jpmc-gcc-2026",
+      "companyName": "JPMorgan Chase",
+      "industry": "Financial Services & GCC",
+      "country": "India",
+      "eventType": "hiring_surge",
+      "announcementDate": "2026-07-22",
+      "headcountAffected": 4000,
+      "indiaImpactStatus": "confirmed_india_impact",
+      "indiaImpactDetails": "Confirmed strategic intake across Bengaluru, Hyderabad, and Mumbai hubs focusing on real-time transaction processing (10k+ TPS), event-driven microservices, Kafka idempotency, and automated cyber defense.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+          "direction": "surging",
+          "rationale": "Global payment settlement modernization driven primarily from Indian technology centers."
+        },
+        {
+          "capabilityName": "PostgreSQL MVCC & Distributed Transaction Isolation",
+          "direction": "surging",
+          "rationale": "Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines."
+        },
+        {
+          "capabilityName": "Manual Batch Reconciliation",
+          "direction": "declining",
+          "rationale": "Automated real-time event streaming replacing batch reconciliation pipelines."
+        }
+      ],
+      "sourceUrls": [
+        "https://www.jpmorganchase.com/news/india-technology-center-expansion-2026",
+        "https://timesofindia.indiatimes.com/business/india-business/jpmc-to-hire-over-4000-techies-in-india/articleshow/jpmc-india.cms"
+      ],
+      "confidence": 0.98,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-meta-infra-2026",
+      "companyName": "Meta",
+      "industry": "Social Technology & AI Research",
+      "country": "Global",
+      "eventType": "restructuring",
+      "announcementDate": "2026-06-10",
+      "headcountAffected": 1200,
+      "indiaImpactStatus": "reported_india_impact",
+      "indiaImpactDetails": "US Reality Labs organizational flattening with minimal direct engineering reductions in India. Meta India engineering in Hyderabad and Gurgaon accelerating hiring for WhatsApp Payment APIs and localized LLaMA fine-tuning.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "LLM Inference Acceleration & KV-Caching (vLLM/TensorRT)",
+          "direction": "surging",
+          "rationale": "Shift in organizational priority toward low-latency, on-device and edge AI model deployment."
+        },
+        {
+          "capabilityName": "Proprietary VR Headset Firmware",
+          "direction": "declining",
+          "rationale": "Reprioritization away from niche standalone metaverse hardware toward generative AI integration."
+        }
+      ],
+      "sourceUrls": [
+        "https://about.meta.com/news/strategic-realignment-infra-ai-2026/",
+        "https://techcrunch.com/2026/06/meta-restructures-reality-labs-sharpens-focus-on-ai-infra/"
+      ],
+      "confidence": 0.9,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-walmart-gcc-2026",
+      "companyName": "Walmart Global Tech",
+      "industry": "Retail Technology & GCC",
+      "country": "India",
+      "eventType": "hiring_surge",
+      "announcementDate": "2026-09-01",
+      "headcountAffected": 2200,
+      "indiaImpactStatus": "confirmed_india_impact",
+      "indiaImpactDetails": "Confirmed Bangalore and Chennai GCC talent expansion for supply chain autonomous agents, edge store computing, distributed inventory routing, and multi-cloud Kubernetes resilience.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+          "direction": "surging",
+          "rationale": "Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates."
+        },
+        {
+          "capabilityName": "Microservices Resiliency & Circuit Breaking",
+          "direction": "surging",
+          "rationale": "Peak shopping event scale handling mandates fault-tolerant distributed architecture."
+        },
+        {
+          "capabilityName": "Single-Data-Center Deployments",
+          "direction": "declining",
+          "rationale": "Strict multi-region, multi-cloud active-active deployments now mandatory."
+        }
+      ],
+      "sourceUrls": [
+        "https://tech.walmart.com/content/walmart-global-tech/en_us/news/india-center-scale-2026.html",
+        "https://www.livemint.com/technology/tech-news/walmart-global-tech-ramps-up-india-hiring-for-supply-chain-ai-117251829.html"
+      ],
+      "confidence": 0.96,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-cisco-restruct-2026",
+      "companyName": "Cisco Systems",
+      "industry": "Networking & Cybersecurity",
+      "country": "Global",
+      "eventType": "restructuring",
+      "announcementDate": "2026-08-10",
+      "headcountAffected": 5000,
+      "indiaImpactStatus": "reported_india_impact",
+      "indiaImpactDetails": "Global restructuring of ~7% workforce. Indian development centers in Bengaluru affected primarily in legacy enterprise hardware routing lines, while cybersecurity and AI-driven telemetry units experienced net talent re-skilling and internal transfers.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "Cloud Security & Zero-Trust Architecture",
+          "direction": "surging",
+          "rationale": "Company reallocating capital into Splunk integration, SASE, and automated incident response."
+        },
+        {
+          "capabilityName": "Legacy On-Premises Router Firmware Testing",
+          "direction": "declining",
+          "rationale": "Traditional hardware test engineering transitioning to software-defined and automated testing suites."
+        }
+      ],
+      "sourceUrls": [
+        "https://newsroom.cisco.com/c/r/newsroom/en/us/a/y2026/m08/cisco-aligns-investments-with-ai-and-security.html",
+        "https://www.reuters.com/technology/cisco-layoffs-shift-focus-security-ai-2026-08-10/"
+      ],
+      "confidence": 0.92,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-goldman-gcc-2026",
+      "companyName": "Goldman Sachs",
+      "industry": "Investment Banking & Quantitative Technology",
+      "country": "India",
+      "eventType": "hiring_surge",
+      "announcementDate": "2026-05-18",
+      "headcountAffected": 1500,
+      "indiaImpactStatus": "confirmed_india_impact",
+      "indiaImpactDetails": "Confirmed growth of Hyderabad technology center to over 3,000 technologists. High demand for quantitative developers, low-latency execution algorithms, Slang/SecDB modernizers, and Python data pipelines.",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "Low-Latency C++ / Python Concurrency",
+          "direction": "surging",
+          "rationale": "Market making and algorithmic execution desks expanding Indian engineering ownership."
+        },
+        {
+          "capabilityName": "Algorithmic Risk Modeling & Factor Analysis",
+          "direction": "surging",
+          "rationale": "Quantitative analysis and risk engines transitioning from London/NY to Hyderabad."
+        }
+      ],
+      "sourceUrls": [
+        "https://www.goldmansachs.com/careers/locations/hyderabad-expansion-2026",
+        "https://economictimes.indiatimes.com/jobs/goldman-sachs-expands-hyderabad-office/articleshow/gs-hyd.cms"
+      ],
+      "confidence": 0.94,
+      "verifiedByHuman": true
+    },
+    {
+      "id": "sig-intel-pivot-2026",
+      "companyName": "Intel",
+      "industry": "Semiconductors & Systems",
+      "country": "Global",
+      "eventType": "restructuring",
+      "announcementDate": "2026-08-01",
+      "headcountAffected": 15000,
+      "indiaImpactStatus": "potential_india_impact",
+      "indiaImpactDetails": "Massive corporate reduction primarily concentrated in US marketing, general administrative layers, and foundry construction. Indian design and validation centers in Bengaluru remain strategically critical for open-source AI software compilers (oneAPI, OpenVINO).",
+      "affectedCapabilities": [
+        {
+          "capabilityName": "Compiler Optimization for Neural Accelerators (MLIR / TVM / OpenVINO)",
+          "direction": "surging",
+          "rationale": "Crucial software enablement required to make Intel chips competitive for AI inference workloads."
+        },
+        {
+          "capabilityName": "Legacy Desktop Hardware Validation",
+          "direction": "declining",
+          "rationale": "Traditional PC market software validation spending deprioritized in favor of enterprise data center AI."
+        }
+      ],
+      "sourceUrls": [
+        "https://www.intel.com/content/www/us/en/newsroom/news/cost-reduction-plan-statement-2026.html",
+        "https://www.bloomberg.com/news/articles/2026-08-01/intel-slashes-workforce-to-fund-turnaround"
+      ],
+      "confidence": 0.88,
+      "verifiedByHuman": true
+    }
+  ],
+  "proposals": [
+    {
+      "id": "prop-role-backend-test-eval-7553-1",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:18:47.553Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-2",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-3",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-4",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-5",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-6",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-7",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-7553-8",
+      "roleId": "role-backend-test-eval",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:18:47.553Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-1",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:19:38.948Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:19:38.949Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-2",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-3",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-4",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-5",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-6",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-7",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793481578948-8948-8",
+      "roleId": "role-backend-test-eval-1793481578948",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:19:38.948Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-1",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:39:42.066Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-2",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-3",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-4",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-5",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-6",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-7",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793482782066-2066-8",
+      "roleId": "role-backend-test-eval-1793482782066",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:39:42.066Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-1",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:47:48.873Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:47:48.874Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-2",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-3",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-4",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-5",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-6",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-7",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483268873-8873-8",
+      "roleId": "role-backend-test-eval-1793483268873",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:47:48.873Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-1",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:48:29.019Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-2",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-3",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-4",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-5",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-6",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-7",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483309019-9019-8",
+      "roleId": "role-backend-test-eval-1793483309019",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:48:29.019Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-1",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:55:00.201Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-2",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-3",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-4",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-5",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-6",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-7",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483700201-0201-8",
+      "roleId": "role-backend-test-eval-1793483700201",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:55:00.201Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-1",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T21:58:57.424Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-2",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-3",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-4",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-5",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-6",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-7",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793483937423-7424-8",
+      "roleId": "role-backend-test-eval-1793483937423",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T21:58:57.424Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-1",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T22:21:53.355Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T22:21:53.356Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-2",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-3",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-4",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-5",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-6",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-7",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793485313355-3355-8",
+      "roleId": "role-backend-test-eval-1793485313355",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:21:53.355Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-1",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Distributed Systems & GPU Cluster Orchestration\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Azure expanding foundational GPU cluster management and Kubernetes scheduler teams in India.",
+      "suggestedCapability": {
+        "name": "Distributed Systems & GPU Cluster Orchestration",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "approved",
+      "createdAt": "2026-10-31T22:45:44.887Z",
+      "reviewedBy": "recruiter-human-approver",
+      "reviewedAt": "2026-10-31T22:45:44.888Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-2",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-msft-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Agentic Tool Schema & Copilot Runtime\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Microsoft). Core engineering of agent runtime loops and enterprise guardrails transitioned to IDC.",
+      "suggestedCapability": {
+        "name": "Agentic Tool Schema & Copilot Runtime",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-3",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Global payment settlement modernization driven primarily from Indian technology centers.",
+      "suggestedCapability": {
+        "name": "High-Throughput Concurrency & Event Sourcing (Kafka/Go/Java)",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-4",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-jpmc-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"PostgreSQL MVCC & Distributed Transaction Isolation\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (JPMorgan Chase). Mission-critical financial ledger migration from legacy mainframes to cloud-native relational engines.",
+      "suggestedCapability": {
+        "name": "PostgreSQL MVCC & Distributed Transaction Isolation",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-5",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Automated fulfillment centers require distributed sensor monitoring and sub-second inventory updates.",
+      "suggestedCapability": {
+        "name": "Edge Computing & Telemetry Pipelines (Go/MQTT/PostgreSQL)",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-6",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-walmart-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Microservices Resiliency & Circuit Breaking\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Walmart Global Tech). Peak shopping event scale handling mandates fault-tolerant distributed architecture.",
+      "suggestedCapability": {
+        "name": "Microservices Resiliency & Circuit Breaking",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-7",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Low-Latency C++ / Python Concurrency\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Market making and algorithmic execution desks expanding Indian engineering ownership.",
+      "suggestedCapability": {
+        "name": "Low-Latency C++ / Python Concurrency",
+        "tier": "Important",
+        "verificationMethod": "work_sample"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    },
+    {
+      "id": "prop-role-backend-test-eval-1793486744885-4887-8",
+      "roleId": "role-backend-test-eval-1793486744885",
+      "roleTitle": "Backend Concurrency Engineer",
+      "marketSignalId": "sig-goldman-gcc-2026",
+      "targetCanonicalRole": "Backend Concurrency Engineer",
+      "proposedChange": "Add \"Algorithmic Risk Modeling & Factor Analysis\" to evaluated requirements.",
+      "changeType": "add_capability",
+      "marketRationale": "Market intelligence shows a surge across GCC engineering teams (Goldman Sachs). Quantitative analysis and risk engines transitioning from London/NY to Hyderabad.",
+      "suggestedCapability": {
+        "name": "Algorithmic Risk Modeling & Factor Analysis",
+        "tier": "Important",
+        "verificationMethod": "code_execution"
+      },
+      "status": "pending_approval",
+      "createdAt": "2026-10-31T22:45:44.887Z"
+    }
+  ],
+  "updatedAt": "2026-10-31T22:45:44.888Z"
+}

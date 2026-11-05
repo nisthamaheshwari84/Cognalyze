@@ -3,6 +3,7 @@ import { StudentProfileData, OpportunityData, getSafeOpportunityUrl, getOpportun
 import { getCachedAggregatedHackathons, getLastAggregatorSyncTimestamp, fetchLiveAggregatorHackathons } from "@/lib/ai/hackathon-aggregator";
 import comprehensiveOpportunities from "@/data/comprehensive-opportunities.json";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
+import { REAL_OPPORTUNITY_CATALOG } from "@/lib/dna/opportunity-intelligence";
 export type { StudentProfileData, OpportunityData };
 export { getSafeOpportunityUrl, getOpportunityPortalInfo };
 
@@ -5996,6 +5997,43 @@ export async function getAllOpportunities(): Promise<OpportunityData[]> {
     if (sanitized.title) combinedMap.set(`title:${sanitized.title.toLowerCase().trim()}`, sanitized);
   }
 
+  // Merge real personalized opportunities catalog (122+ corporate, startup & research roles)
+  for (const realOpp of REAL_OPPORTUNITY_CATALOG) {
+    const oppType: any = realOpp.category === "internship" ? "internship"
+      : realOpp.category === "job" ? "internship"
+      : realOpp.category === "fellowship" ? "fellowship"
+      : realOpp.category === "hackathon" ? "hackathon"
+      : "contest";
+
+    const item: OpportunityData = {
+      id: realOpp.id,
+      title: realOpp.title,
+      type: oppType,
+      organizer: realOpp.organization,
+      organizer_type: "corporate",
+      tags: (realOpp.requiredSkills || []).concat(realOpp.preferredSkills || []),
+      domain_tags: realOpp.tags && realOpp.tags.length > 0 ? realOpp.tags : ["Engineering"],
+      tier: "Tier 1",
+      deadline: realOpp.deadline || null,
+      eligibility: realOpp.eligibility || realOpp.requiredEducation || "Open to eligible students",
+      source_url: getSafeOpportunityUrl(realOpp.sourceUrl, realOpp.organization, realOpp.title),
+      extracted_context: {
+        platform: realOpp.sourceName,
+        summary: realOpp.description,
+        prize_pool: realOpp.compensation,
+        tracks_or_themes: realOpp.tags || [],
+        team_size: "Individual / 1-3 members"
+      },
+      verificationStatus: (realOpp.freshnessState?.includes("VERIFIED") ? "verified" : "pending") as any,
+      lastVerifiedAt: realOpp.lastChecked,
+      mode: realOpp.workMode?.toLowerCase() as any,
+      prize: realOpp.compensation,
+      is_active: true
+    };
+    if (item.id) combinedMap.set(item.id, item);
+    if (item.title) combinedMap.set(`title:${item.title.toLowerCase().trim()}`, item);
+  }
+
   for (const [id, opp] of inMemoryOpportunities.entries()) {
     combinedMap.set(id, { ...opp, source_url: getSafeOpportunityUrl(opp.source_url, opp.organizer, opp.title) });
   }
@@ -6203,6 +6241,50 @@ export async function getOpportunityById(id: string): Promise<OpportunityData | 
     return {
       ...compMatch,
       source_url: getSafeOpportunityUrl(compMatch.source_url, compMatch.organizer, compMatch.title)
+    };
+  }
+
+  // 1b. Match from Personalized Real Opportunity Catalog
+  const normalizedId = id.toLowerCase().replace(/-/g, "_");
+  const dashId = id.toLowerCase().replace(/_/g, "-");
+  const realMatch = REAL_OPPORTUNITY_CATALOG.find(
+    o => o.id === id ||
+         o.id.toLowerCase() === id.toLowerCase() ||
+         o.id.toLowerCase() === normalizedId ||
+         o.id.toLowerCase() === dashId ||
+         o.title.toLowerCase().trim() === id.toLowerCase().trim()
+  );
+  if (realMatch) {
+    const oppType: any = realMatch.category === "internship" ? "internship"
+      : realMatch.category === "job" ? "internship"
+      : realMatch.category === "fellowship" ? "fellowship"
+      : realMatch.category === "hackathon" ? "hackathon"
+      : "contest";
+
+    return {
+      id: realMatch.id,
+      title: realMatch.title,
+      type: oppType,
+      organizer: realMatch.organization,
+      organizer_type: "corporate",
+      tags: (realMatch.requiredSkills || []).concat(realMatch.preferredSkills || []),
+      domain_tags: realMatch.tags && realMatch.tags.length > 0 ? realMatch.tags : ["Engineering"],
+      tier: "Tier 1",
+      deadline: realMatch.deadline || null,
+      eligibility: realMatch.eligibility || realMatch.requiredEducation || "Open to eligible students",
+      source_url: getSafeOpportunityUrl(realMatch.sourceUrl, realMatch.organization, realMatch.title),
+      extracted_context: {
+        platform: realMatch.sourceName,
+        summary: realMatch.description,
+        prize_pool: realMatch.compensation,
+        tracks_or_themes: realMatch.tags || [],
+        team_size: "Individual / 1-3 members"
+      },
+      verificationStatus: (realMatch.freshnessState?.includes("VERIFIED") ? "verified" : "pending") as any,
+      lastVerifiedAt: realMatch.lastChecked,
+      mode: realMatch.workMode?.toLowerCase() as any,
+      prize: realMatch.compensation,
+      is_active: true
     };
   }
 
@@ -6633,58 +6715,92 @@ export async function createPersonalEvent(
   return newEvent;
 }
 
-export async function snoozePersonalEvent(id: string, untilDate: string): Promise<boolean> {
-  // Update in memory across all students
-  for (const [studentId, list] of inMemoryPersonalEvents.entries()) {
+export async function snoozePersonalEvent(id: string, untilDate: string, studentId?: string): Promise<boolean> {
+  let found = false;
+  // Update in memory with optional studentId scoping
+  if (studentId) {
+    const list = inMemoryPersonalEvents.get(studentId) || [];
     const idx = list.findIndex(e => e.id === id);
     if (idx !== -1) {
       list[idx].snoozed_until = untilDate;
       inMemoryPersonalEvents.set(studentId, [...list]);
       persistPlacementStoreToDisk();
-      break;
+      found = true;
+    }
+  } else {
+    for (const [sId, list] of inMemoryPersonalEvents.entries()) {
+      const idx = list.findIndex(e => e.id === id);
+      if (idx !== -1) {
+        list[idx].snoozed_until = untilDate;
+        inMemoryPersonalEvents.set(sId, [...list]);
+        persistPlacementStoreToDisk();
+        found = true;
+        break;
+      }
     }
   }
 
   // Update Supabase if UUID
   try {
     if (id.match(/^[0-9a-fA-F-]{36}$/)) {
-      await supabase
-        .from("personal_events")
-        .update({ snoozed_until: untilDate })
-        .eq("id", id);
+      let query = supabase.from("personal_events").update({ snoozed_until: untilDate }).eq("id", id);
+      if (studentId) {
+        query = query.eq("student_id", studentId);
+      }
+      const { data, error } = await query.select("id");
+      if (!error && data && data.length > 0) {
+        found = true;
+      }
     }
   } catch (err) {
     // handled
   }
 
-  return true;
+  return found;
 }
 
-export async function dismissPersonalEvent(id: string): Promise<boolean> {
-  // Update in memory
-  for (const [studentId, list] of inMemoryPersonalEvents.entries()) {
+export async function dismissPersonalEvent(id: string, studentId?: string): Promise<boolean> {
+  let found = false;
+  // Update in memory with optional studentId scoping
+  if (studentId) {
+    const list = inMemoryPersonalEvents.get(studentId) || [];
     const idx = list.findIndex(e => e.id === id);
     if (idx !== -1) {
       list[idx].is_dismissed = true;
       inMemoryPersonalEvents.set(studentId, [...list]);
       persistPlacementStoreToDisk();
-      break;
+      found = true;
+    }
+  } else {
+    for (const [sId, list] of inMemoryPersonalEvents.entries()) {
+      const idx = list.findIndex(e => e.id === id);
+      if (idx !== -1) {
+        list[idx].is_dismissed = true;
+        inMemoryPersonalEvents.set(sId, [...list]);
+        persistPlacementStoreToDisk();
+        found = true;
+        break;
+      }
     }
   }
 
   // Update Supabase if UUID
   try {
     if (id.match(/^[0-9a-fA-F-]{36}$/)) {
-      await supabase
-        .from("personal_events")
-        .update({ is_dismissed: true })
-        .eq("id", id);
+      let query = supabase.from("personal_events").update({ is_dismissed: true }).eq("id", id);
+      if (studentId) {
+        query = query.eq("student_id", studentId);
+      }
+      const { data, error } = await query.select("id");
+      if (!error && data && data.length > 0) {
+        found = true;
+      }
     }
   } catch (err) {
     // handled
   }
 
-  return true;
+  return found;
 }
 
 export async function getApplicationsStore(candidateId: string): Promise<ApplicationRecord[]> {

@@ -12,6 +12,7 @@ import {
   CommunicationEvaluationReport,
   InterviewMessage
 } from "@/lib/skills/communication-engine";
+import { pickSecureRandom } from "@/lib/crypto-utils";
 
 function CommunicationArenaContent() {
   const searchParams = useSearchParams();
@@ -152,7 +153,7 @@ function CommunicationArenaContent() {
     setSelectedCategory(cat);
     const pool = cat === "all" ? COMMUNICATION_QUESTION_BANK : COMMUNICATION_QUESTION_BANK.filter(q => q.category === cat);
     if (pool.length > 0) {
-      const randomQ = pool[Math.floor(Math.random() * pool.length)];
+      const randomQ = pickSecureRandom(pool) || pool[0];
       setCurrentQuestion(randomQ);
       setPracticeText("");
       setPracticeReport(null);
@@ -166,7 +167,7 @@ function CommunicationArenaContent() {
       : COMMUNICATION_QUESTION_BANK.filter(q => q.category === selectedCategory);
     const otherQuestions = pool.filter(q => q.id !== currentQuestion.id);
     const nextQ = otherQuestions.length > 0
-      ? otherQuestions[Math.floor(Math.random() * otherQuestions.length)]
+      ? (pickSecureRandom(otherQuestions) || pool[0])
       : pool[0];
     setCurrentQuestion(nextQ);
     setPracticeText("");

@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import PwaProvider from "@/components/PwaProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+// Offline/sandboxed resilient font definition preserving the existing typography cascade
+const inter = {
+  variable: "font-sans",
+};
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "Cognalyze • Evidence-First Career & Hiring Intelligence",
   description: "Evidence before decisions. Connect resumes, projects, GitHub activity, skills, and verified evidence into one hiring intelligence layer.",
   applicationName: "Cognalyze",
@@ -62,8 +62,6 @@ export const viewport: Viewport = {
   maximumScale: 5,
   viewportFit: "cover"
 };
-
-import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function RootLayout({
   children,

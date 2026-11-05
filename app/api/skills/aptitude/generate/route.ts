@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
 import { skillHubStore, AptitudeQuestion } from "@/lib/skill-hub-store";
+import { secureRandomInt } from "@/lib/crypto-utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -102,7 +103,7 @@ Return STRICT JSON only:
       const originalCorrectText = q.options[q.correct_option_index] || q.options[0];
       const shuffledOptions = [...q.options];
       for (let i = shuffledOptions.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
+        const j = secureRandomInt(0, i + 1);
         [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
       }
       const newCorrectIndex = shuffledOptions.indexOf(originalCorrectText);

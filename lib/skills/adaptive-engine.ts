@@ -17,6 +17,7 @@ import {
   SEED_BEHAVIORAL_QUESTIONS,
   SEED_SYSTEM_DESIGN_CHALLENGES
 } from "@/lib/skill-hub-store";
+import { pickSecureRandom } from "@/lib/crypto-utils";
 import {
   getCandidateDomainSummary,
   getCandidateSeenQuestionIds,
@@ -487,9 +488,21 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
     };
   }
 
+  if (domainSlug === "code_comprehension") {
+    return {
+      status: "Developing",
+      statusColor: "#38bdf8",
+      focusToday: "Multi-Tenant Request Flow & Concurrency Race Detection",
+      whyRecommended: "Trace real multi-file repositories, diagnose RBAC vulnerabilities, and audit AI-generated code.",
+      lastPracticed: "Recently",
+      estimatedMinutes: 25,
+      targetRound: trackSlug === "service_mass" ? "Service Technical Assessment" : "Product Code Review Round"
+    };
+  }
+
   // Aptitude & Quantitative Reasoning
-  const aptAttempts = getCandidateAttempts(candidateId, "aptitude_reasoning");
-  if (aptAttempts.length > 0 || (!isA && !isB)) {
+  if (domainSlug === "aptitude_reasoning") {
+    const aptAttempts = getCandidateAttempts(candidateId, "aptitude_reasoning");
     if (aptAttempts.length === 0) {
       return {
         status: "Developing",
@@ -549,7 +562,8 @@ export function generateSessionBrief(
     behavioral_hr: "STAR Behavioral & Corporate HR Arena",
     communication_english: "Corporate Spoken English & Articulation Studio",
     aptitude_reasoning: "Aptitude & Reasoning Assessment",
-    dsa_coding: "DSA Coding Interview Arena"
+    dsa_coding: "DSA Coding Interview Arena",
+    code_comprehension: "Code Comprehension Lab"
   };
 
   const domainName = domainNames[domainSlug] || "Technical Practice Arena";
@@ -573,6 +587,12 @@ export function generateSessionBrief(
     focusAreas = ["Plain-English Analogy (Grandparent to Staff Engineer)", "Eliminating Filler Words", "Structuring Technical Trade-offs"];
   } else if (domainSlug === "aptitude_reasoning") {
     focusAreas = ["Percentages & Profit-Loss", "Time, Speed & Distance", "Syllogisms & Logic Hard Gates"];
+  } else if (domainSlug === "code_comprehension") {
+    focusAreas = [
+      "Express Multi-Tenant JWT Request Lifecycle",
+      "Compensating Rollback in Checkout Pipelines",
+      "Auditing AI Pull Requests for Node.js Concurrency Flaws"
+    ];
   } else {
     focusAreas = ["Sliding Window Invariant", "Two Pointers vs Dynamic Programming", "O(N) Runtime & O(1) Space Complexity Proof"];
   }
@@ -662,7 +682,7 @@ export function getAdaptiveQuestion(
       let pool = SEED_CS_INTERVIEW_QUESTIONS.filter(q => domainFilter.includes(q.domain));
       const unseen = pool.filter(q => !seenIds.has(q.id));
       const candidatePool = unseen.length > 0 ? unseen : pool;
-      const selectedQ = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_CS_INTERVIEW_QUESTIONS[0];
+      const selectedQ = pickSecureRandom(candidatePool) || SEED_CS_INTERVIEW_QUESTIONS[0];
 
       return {
         id: selectedQ.id,
@@ -756,7 +776,7 @@ export function getAdaptiveQuestion(
       let pool = SEED_BEHAVIORAL_QUESTIONS.filter(q => q.track_type === targetTrackType);
       const unseen = pool.filter(q => !seenIds.has(q.id));
       const candidatePool = unseen.length > 0 ? unseen : pool;
-      const selectedQ = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_BEHAVIORAL_QUESTIONS[0];
+      const selectedQ = pickSecureRandom(candidatePool) || SEED_BEHAVIORAL_QUESTIONS[0];
 
       return {
         id: selectedQ.id,
@@ -798,7 +818,7 @@ export function getAdaptiveQuestion(
       const seenIds = getCandidateSeenQuestionIds(candidateId, "system_design");
       const unseen = SEED_SYSTEM_DESIGN_CHALLENGES.filter(c => !seenIds.has(c.id));
       const candidatePool = unseen.length > 0 ? unseen : SEED_SYSTEM_DESIGN_CHALLENGES;
-      const selectedChallenge = candidatePool[Math.floor(Math.random() * candidatePool.length)] || SEED_SYSTEM_DESIGN_CHALLENGES[0];
+      const selectedChallenge = pickSecureRandom(candidatePool) || SEED_SYSTEM_DESIGN_CHALLENGES[0];
 
       return {
         id: selectedChallenge.id,
@@ -1100,7 +1120,8 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
     system_design: "System Design",
     behavioral_hr: "Behavioral & HR",
     communication_english: "Spoken English",
-    aptitude_reasoning: "Aptitude & Reasoning"
+    aptitude_reasoning: "Aptitude & Reasoning",
+    code_comprehension: "Code Comprehension"
   };
   const dName = domainNames[normalizedSlug] || "Practice Domain";
 
@@ -1117,6 +1138,20 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
       recommendedModeLabel: isReady ? "🎯 Interview Ready" : "🛠️ Practice Mode",
       recommendedDrill: `${weak || dName} Targeted Drill`,
       evidenceSummary: `${domainData.totalAttempts} verified session attempt(s)`
+    };
+  }
+
+  if (domainSlug === "code_comprehension") {
+    return {
+      domainSlug: "code_comprehension",
+      domainName: "Code Comprehension",
+      status: "NEEDS_PRACTICE",
+      statusColor: "#38bdf8",
+      reason: "Multi-file codebase intelligence: trace execution flow, diagnose bugs, evaluate AI code.",
+      recommendedMode: "practice",
+      recommendedModeLabel: "🛠️ Practice Mode",
+      recommendedDrill: "TaskFlow RBAC or Nexus Concurrency Drill",
+      evidenceSummary: "Multi-file codebase diagnostic"
     };
   }
 

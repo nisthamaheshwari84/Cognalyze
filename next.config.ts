@@ -10,6 +10,36 @@ const nextConfig: NextConfig = {
       "coverage/**",
     ],
   },
+  webpack: (config, { isServer }) => {
+    config.watchOptions = {
+      ...(config.watchOptions || {}),
+      aggregateTimeout: 300,
+      ignored: [
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/.next/**",
+        "**/data/**",
+        "**/tests/**",
+        "**/docs/**",
+        "**/coverage/**",
+      ],
+    };
+
+    if (!isServer) {
+      config.resolve = config.resolve || {};
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        dns: false,
+        fs: false,
+        path: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        encoding: false,
+      };
+    }
+    return config;
+  },
   turbopack: {},
 };
 

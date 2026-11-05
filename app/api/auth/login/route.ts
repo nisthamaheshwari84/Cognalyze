@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
       if (!user.passwordHash || !user.passwordSalt) {
         return NextResponse.json(
           {
-            error: "This account was registered through third-party login. Please sign in with GitHub or LinkedIn.",
+            error: "This account was registered through third-party login or does not have a password configured. Please sign in with GitHub or LinkedIn, or reset your password.",
             code: "OAUTH_ONLY_ACCOUNT"
           },
           { status: 400 }

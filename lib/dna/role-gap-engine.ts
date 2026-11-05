@@ -28,6 +28,7 @@ import { DNAEvidence } from "./evidence-pipeline";
 import { EvaluatedCanonicalSkill, evaluateStudentSkillIntelligence, normalizeCanonicalSkill } from "./skill-intelligence-engine";
 import { RequirementProfile, SkillRequirement, getBenchmarkProfile } from "./requirement-engine";
 import { DNAClaimStatus } from "./contracts";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export type RoleRequirementEvidenceState =
   | "SUPPORTED_BY_EVIDENCE"
@@ -343,7 +344,7 @@ export async function completeRecommendedAction(
   }
 
   const now = new Date().toISOString();
-  const evidenceId = `ev_action_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const evidenceId = generateSecureId(`ev_action_${Date.now()}`, 7);
 
   // Create new verified evidence record from action completion
   const newEvidence: DNAEvidence = {

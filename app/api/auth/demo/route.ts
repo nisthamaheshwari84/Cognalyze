@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSession } from "@/lib/auth/store";
 
 const DEMO_STUDENT_USER_ID = "u-student-sample-001";
+const DEMO_NISTHA_USER_ID = "u-student-sample-002";
 const DEMO_RECRUITER_USER_ID = "u-recruiter-demo-001";
 
 export async function POST(req: NextRequest) {
@@ -9,19 +10,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { role } = body;
 
-    if (role !== "student" && role !== "recruiter") {
+    if (role !== "student" && role !== "recruiter" && role !== "nistha") {
       return NextResponse.json({ error: "Invalid demo role." }, { status: 400 });
     }
 
-    const userId = role === "student" ? DEMO_STUDENT_USER_ID : DEMO_RECRUITER_USER_ID;
-    const session = createSession(userId, role);
+    const effectiveRole: "student" | "recruiter" = role === "recruiter" ? "recruiter" : "student";
+    const userId = role === "recruiter"
+      ? DEMO_RECRUITER_USER_ID
+      : (role === "nistha" ? DEMO_NISTHA_USER_ID : DEMO_STUDENT_USER_ID);
 
-    const nextUrl = role === "student" ? "/student/dashboard" : "/recruiter/dashboard";
+    const session = createSession(userId, effectiveRole);
+
+    const nextUrl = effectiveRole === "student" ? "/student/dashboard" : "/recruiter/dashboard";
 
     const res = NextResponse.json({
       success: true,
       demo: true,
-      role,
+      role: effectiveRole,
+      userId,
       nextUrl
     });
 

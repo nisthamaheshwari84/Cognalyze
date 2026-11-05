@@ -23,6 +23,7 @@
 
 import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
 import { getCandidateSeenQuestionIds, getCandidateAttempts } from "@/lib/skills/candidate-history";
+import { pickSecureRandom } from "@/lib/crypto-utils";
 import { CANONICAL_DSA_PROBLEMS, getCanonicalProblem } from "./dsa-canonical-problems";
 
 // ── 1. STRIVER 17 STEPS ROADMAP ──────────────────────────────────────────────
@@ -1200,11 +1201,11 @@ export function generateDsaInterviewSession(
   const pickUnique = (candidates: StriverProblemFull[], usedIds: Set<string>): StriverProblemFull => {
     const available = candidates.filter(p => !usedIds.has(p.id));
     if (available.length > 0) {
-      return available[Math.floor(Math.random() * available.length)];
+      return pickSecureRandom(available) || available[0];
     }
     const anyAvailable = canonicalList.filter(p => !usedIds.has(p.id));
     if (anyAvailable.length > 0) {
-      return anyAvailable[Math.floor(Math.random() * anyAvailable.length)];
+      return pickSecureRandom(anyAvailable) || anyAvailable[0];
     }
     return canonicalList[0];
   };
@@ -1312,6 +1313,6 @@ export function getTargetedReTestProblem(
     ? unseenInTopic
     : (allInTopic.length > 0 ? allInTopic : STRIVER_A2Z_PROBLEMS.filter(p => p.id !== currentProblemId));
 
-  const selected = candidatePool[Math.floor(Math.random() * candidatePool.length)];
+  const selected = pickSecureRandom(candidatePool) || candidatePool[0];
   return getStriverProblemFull(selected);
 }

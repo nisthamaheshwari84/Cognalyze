@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { extractEvidenceClaimsFromResume } from "@/app/api/parse-resume/route";
+import { extractEvidenceClaimsFromResume } from "@/lib/evidence/resume-matcher";
 import { recordStudentEvent, getStudentIntelligenceProfile } from "@/lib/intelligence/student-intelligence";
 import { invalidateStudentDNACache } from "@/lib/ai/student-dna";
 import { getStudentProfileByUserId, upsertStudentProfileByUserId } from "@/lib/auth/store";

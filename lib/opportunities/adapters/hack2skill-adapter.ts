@@ -10,6 +10,7 @@
 
 import { BaseOpportunitySourceAdapter } from "./base-adapter";
 import { RawOpportunity, CanonicalOpportunity, OpportunitySourceType } from "../types";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export class Hack2SkillAdapter extends BaseOpportunitySourceAdapter {
   id = "adapter-hack2skill";
@@ -96,7 +97,7 @@ export class Hack2SkillAdapter extends BaseOpportunitySourceAdapter {
   public parse(payload: any): RawOpportunity[] {
     if (!payload || !Array.isArray(payload)) return [];
     return payload.map((item: any) => ({
-      id: item.id || `h2s-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+      id: item.id || generateSecureId(`h2s-${Date.now()}`, 6),
       source: "Hack2Skill",
       sourceType: "HACK2SKILL",
       sourceId: item.sourceId || item.id,

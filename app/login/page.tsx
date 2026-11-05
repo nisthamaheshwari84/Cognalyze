@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { clearUserSessionStorage } from "@/lib/client-storage-cleanup";
 import CognalyzeLogo from "@/components/CognalyzeLogo";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function LoginPage() {
     provider: string;
     providerUserId: string;
     providerEmail: string;
+    linkingProof?: string;
   } | null>(null);
   const [linkingLoading, setLinkingLoading] = useState(false);
 
@@ -59,7 +61,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async (role: "student" | "recruiter") => {
+  const handleDemoLogin = async (role: "student" | "recruiter" | "nistha") => {
     setError(null);
     setUnverifiedUrl(null);
     setLoading(true);
@@ -76,6 +78,8 @@ export default function LoginPage() {
 
       if (role === "student") {
         clearUserSessionStorage("student-demo");
+      } else if (role === "nistha") {
+        clearUserSessionStorage("u-student-sample-002");
       } else {
         clearUserSessionStorage();
       }
@@ -93,15 +97,10 @@ export default function LoginPage() {
     setUnverifiedUrl(null);
     setOauthLoading(provider);
 
-    if (!email.trim()) {
-      setError(`Please enter your email address to sign in with ${provider === "github" ? "GitHub" : "LinkedIn"}.`);
-      setOauthLoading(null);
-      return;
-    }
+    const targetEmail = (email.trim() || "nistha@cognalyze.com").toLowerCase();
 
     try {
-      const providerUserId = `${provider}_usr_${Math.random().toString(36).substring(2, 9)}`;
-      const providerEmail = email.trim().toLowerCase();
+      const providerUserId = generateSecureId(`${provider}_usr`, 9);
 
       const res = await fetch("/api/auth/oauth", {
         method: "POST",
@@ -109,7 +108,7 @@ export default function LoginPage() {
         body: JSON.stringify({
           provider,
           providerUserId,
-          providerEmail,
+          providerEmail: targetEmail,
           providerName: provider === "github" ? "GitHub User" : "LinkedIn Member"
         })
       });
@@ -124,10 +123,12 @@ export default function LoginPage() {
           existingUser: data.existingUser,
           provider: data.provider,
           providerUserId: data.providerUserId,
-          providerEmail: data.providerEmail
+          providerEmail: data.providerEmail,
+          linkingProof: data.linkingProof
         });
       } else {
-        router.push(data.nextUrl || "/");
+        setLinkingData(null);
+        window.location.href = data.nextUrl || (data.user?.accountType === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
       }
     } catch (err: any) {
       setError(err.message || "Failed to connect via third-party login.");
@@ -148,14 +149,16 @@ export default function LoginPage() {
           userId: linkingData.existingUser.id,
           provider: linkingData.provider,
           providerUserId: linkingData.providerUserId,
-          providerEmail: linkingData.providerEmail
+          providerEmail: linkingData.providerEmail,
+          linkingProof: (linkingData as any).linkingProof
         })
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to link account.");
 
-      router.push(data.nextUrl || "/");
+      setLinkingData(null);
+      window.location.href = data.nextUrl || (linkingData.existingUser?.accountType === "recruiter" ? "/recruiter/dashboard" : "/student/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to link account.");
     } finally {
@@ -248,18 +251,31 @@ export default function LoginPage() {
               <span className="text-[10px] text-slate-500 font-mono">1-click preview</span>
             </div>
             
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 id="demo-student-login-btn"
                 onClick={() => handleDemoLogin("student")}
                 disabled={loading}
-                className="flex flex-col items-start p-2.5 rounded-lg border border-[#D2E0FB] bg-[#EFF4FE] hover:bg-[#E3EDFD] text-left transition-colors cursor-pointer group disabled:opacity-50"
+                className="flex flex-col items-start p-2 rounded-lg border border-[#D2E0FB] bg-[#EFF4FE] hover:bg-[#E3EDFD] text-left transition-colors cursor-pointer group disabled:opacity-50"
               >
-                <div className="flex items-center gap-1.5 font-bold text-xs text-[#162A43]">
-                  <span>🎓</span> Student Mode
+                <div className="flex items-center gap-1 font-bold text-[11px] text-[#162A43]">
+                  <span>🎓</span> Student
                 </div>
-                <span className="text-[10px] text-slate-600 mt-0.5">Sample Student</span>
+                <span className="text-[9px] text-slate-600 mt-0.5 truncate w-full">Sample Demo</span>
+              </button>
+
+              <button
+                type="button"
+                id="demo-nistha-login-btn"
+                onClick={() => handleDemoLogin("nistha")}
+                disabled={loading}
+                className="flex flex-col items-start p-2 rounded-lg border border-[#E9D5FF] bg-[#FAF5FF] hover:bg-[#F3E8FF] text-left transition-colors cursor-pointer group disabled:opacity-50"
+              >
+                <div className="flex items-center gap-1 font-bold text-[11px] text-[#7E22CE]">
+                  <span>👩‍💻</span> Nistha
+                </div>
+                <span className="text-[9px] text-purple-700 mt-0.5 truncate w-full">Founder Profile</span>
               </button>
 
               <button
@@ -267,12 +283,12 @@ export default function LoginPage() {
                 id="demo-recruiter-login-btn"
                 onClick={() => handleDemoLogin("recruiter")}
                 disabled={loading}
-                className="flex flex-col items-start p-2.5 rounded-lg border border-[#D1F2DF] bg-[#ECFDF5] hover:bg-[#D9FBE8] text-left transition-colors cursor-pointer group disabled:opacity-50"
+                className="flex flex-col items-start p-2 rounded-lg border border-[#D1F2DF] bg-[#ECFDF5] hover:bg-[#D9FBE8] text-left transition-colors cursor-pointer group disabled:opacity-50"
               >
-                <div className="flex items-center gap-1.5 font-bold text-xs text-[#162A43]">
-                  <span>🏢</span> Recruiter Mode
+                <div className="flex items-center gap-1 font-bold text-[11px] text-[#162A43]">
+                  <span>🏢</span> Recruiter
                 </div>
-                <span className="text-[10px] text-slate-600 mt-0.5">Partner Recruiter</span>
+                <span className="text-[9px] text-slate-600 mt-0.5 truncate w-full">Acme Corp</span>
               </button>
             </div>
 

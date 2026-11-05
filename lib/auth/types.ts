@@ -191,6 +191,9 @@ export interface ConnectedAccount {
   providerEmail: string;
   connectedAt: string;
   verifiedAt: string | null;
+  encryptedAccessToken?: string | null;
+  tokenScope?: string[];
+  tokenExpiresAt?: string | null;
   syncStatus: {
     connected: boolean;
     reposRetrieved?: boolean;

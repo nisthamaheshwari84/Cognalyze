@@ -2,8 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 
 if (typeof window === "undefined" && process.env.NODE_ENV !== "production" && !process.env.NEXT_PUBLIC_SUPABASE_URL) {
   try {
-    const fs = require("fs");
-    const path = require("path");
+    const fs = eval("require")("fs");
+    const path = eval("require")("path");
     const envFile = path.join(/* turbopackIgnore: true */ process.cwd(), ".env.local");
     if (fs.existsSync(envFile)) {
       const lines = fs.readFileSync(envFile, "utf8").split("\n");
@@ -38,10 +38,6 @@ export async function isSupabaseAvailable(): Promise<boolean> {
         isAvailable = false;
         return false;
       }
-      const host = new URL(rawUrl).hostname;
-      const dns = require("dns").promises;
-      await dns.resolve(host);
-
       const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
       const probeKey = rawServiceKey || rawKey;
 

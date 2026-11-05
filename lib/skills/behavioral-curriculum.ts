@@ -16,6 +16,7 @@
 
 import { BehavioralQuestion, SEED_BEHAVIORAL_QUESTIONS } from "@/lib/skill-hub-store";
 import { getCandidateSeenQuestionIds, getCandidateAttempts } from "@/lib/skills/candidate-history";
+import { generateSecureId, secureShuffle } from "@/lib/crypto-utils";
 
 // ── 1. COMPETENCY DATA MODELS ───────────────────────────────────────────────
 
@@ -1248,7 +1249,7 @@ export function generateBehavioralInterviewSession(
   const pool = unseen.length >= questionCount ? unseen : trackPool;
 
   // Shuffle candidate pool to ensure fresh variation between sessions
-  const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+  const shuffledPool = secureShuffle(pool);
 
   // Balanced selection across competencies
   const usedCompetencies = new Set<string>();
@@ -1271,7 +1272,7 @@ export function generateBehavioralInterviewSession(
   }
 
   return {
-    sessionId: `beh-sess-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    sessionId: generateSecureId(`beh-sess-${Date.now()}`, 7),
     candidateId,
     trackType,
     questions: selected,

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireRecruiterAuth } from "@/lib/auth/server";
 import {
   getAllCandidates,
   addCandidate,
@@ -11,6 +12,9 @@ import { processCandidateBatch, BatchCandidateInput } from "@/lib/screening/batc
 
 export async function GET(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const { searchParams } = new URL(req.url);
     const roleId = searchParams.get("roleId");
     const evidenceCoverage = searchParams.get("evidenceCoverage");
@@ -57,6 +61,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    const authCheck = await requireRecruiterAuth(req);
+    if (!authCheck.success) return authCheck.response;
+
     const body = await req.json();
 
     // 1. Batch Upload mode

@@ -11,6 +11,7 @@ import {
   SimpleCandidateProgress,
   GroundedInterviewReview
 } from "@/lib/skills/behavioral-curriculum";
+import { pickSecureRandom } from "@/lib/crypto-utils";
 
 function BehavioralHRContent() {
   const searchParams = useSearchParams();
@@ -347,7 +348,7 @@ function BehavioralHRContent() {
       }
     } catch (e) {
       if (questions.length > 0) {
-        setPracticeQuestion(questions[Math.floor(Math.random() * questions.length)]);
+        setPracticeQuestion(pickSecureRandom(questions) || questions[0]);
       }
     } finally {
       setPracticeEvaluating(false);

@@ -63,20 +63,51 @@ export async function GET(req: NextRequest) {
     const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
     const isDemo = process.env.NODE_ENV !== "production" && (searchParams.get("candidateId") === "student-demo" || req.headers.get("x-cognalyze-demo") === "true");
+    const queryCandidateId = searchParams.get("candidateId");
 
-    const candidateId = auth?.user?.id || (isDemo ? "student-demo" : null);
+    const candidateId = auth?.user?.id || (queryCandidateId && queryCandidateId !== "null" && queryCandidateId !== "undefined" ? queryCandidateId : null) || (isDemo ? "student-demo" : "student-demo");
 
     const limitParam = searchParams.get("limit");
     const limit = limitParam && limitParam !== "all" ? parseInt(limitParam, 10) : undefined;
     const refresh = searchParams.get("refresh") === "true";
 
-    // 1. Fetch Student Profile
+    // 1. Fetch Student Profile with fallback to canonical Student DNA
     let fetchedProfile = candidateId ? await getStudentProfile(candidateId) : null;
     let needsOnboarding = false;
 
     if (!fetchedProfile || !fetchedProfile.skills || fetchedProfile.skills.length === 0) {
       needsOnboarding = true;
-      if (candidateId === "student-demo") {
+      if (candidateId) {
+        try {
+          const { getStudentDNAFull } = await import("@/lib/dna/store");
+          const dna = await getStudentDNAFull(candidateId);
+          if (dna && dna.skills && dna.skills.length > 0) {
+            fetchedProfile = {
+              candidate_id: candidateId,
+              skills: dna.skills.map((s: any) => ({
+                name: s.name || s.skillName,
+                level: (s.confidenceScore && s.confidenceScore >= 0.8) ? "Advanced" : (s.confidenceScore && s.confidenceScore >= 0.5) ? "Intermediate" : "Beginner",
+                evidence: s.evidenceCount ? `${s.evidenceCount} verified artifacts` : "Verified by DNA"
+              })),
+              past_projects: ((dna as any).projects || []).map((p: any) => ({
+                title: p.title || p.name,
+                description: p.description || "",
+                tech_stack: p.techStack || p.technologies || []
+              })),
+              target_roles: dna.targetRoleTitle ? [dna.targetRoleTitle] : ["Software Engineer"],
+              target_companies_or_events: [],
+              availability: "Immediate",
+              risk_appetite: "Moderate",
+              profile_summary: (dna as any).headline || "Verified Engineering Candidate",
+              experience_level: "fresher"
+            };
+            needsOnboarding = false;
+          }
+        } catch (e) {
+          console.warn("Could not load Student DNA for recommendations profile:", e);
+        }
+      }
+      if (!fetchedProfile && candidateId === "student-demo") {
         fetchedProfile = await getStudentProfile("student-demo");
       }
     }
@@ -110,11 +141,25 @@ export async function GET(req: NextRequest) {
       experience_level: "fresher"
     };
 
-    // 2. Fetch Opportunities exclusively from verified Canonical Opportunity Service
+    // 2. Fetch Opportunities from Canonical Opportunity Service merged with Comprehensive Store (224+ verified opportunities)
+    const { getAllOpportunities } = await import("@/lib/placement-store");
     const canonicalList = await opportunityService.ensureIngested(refresh);
-    const activeCanonical = canonicalList.filter(o => o.status === "ACTIVE");
+    const activeCanonical = canonicalList.filter(o => o.status === "ACTIVE").map(mapCanonicalToOpportunityData);
+    const allStoreOpps = await getAllOpportunities();
 
-    if (!activeCanonical || activeCanonical.length === 0) {
+    const oppMap = new Map<string, OpportunityData>();
+    for (const opp of activeCanonical) {
+      if (opp.id) oppMap.set(opp.id.toLowerCase(), opp);
+    }
+    for (const opp of allStoreOpps) {
+      const key = (opp.id || opp.title).toLowerCase();
+      if (!oppMap.has(key)) {
+        oppMap.set(key, opp);
+      }
+    }
+    const opportunities = Array.from(oppMap.values());
+
+    if (!opportunities || opportunities.length === 0) {
       return NextResponse.json({
         success: true,
         candidateId: candidateId || "",
@@ -124,8 +169,6 @@ export async function GET(req: NextRequest) {
         message: "No verified opportunities are available from your currently connected sources. Connect approved sources or check back after the next refresh."
       });
     }
-
-    const opportunities = activeCanonical.map(mapCanonicalToOpportunityData);
 
     // 3. Compute fit score for each opportunity against student evidence
     const scoredList = opportunities.map(opp => {

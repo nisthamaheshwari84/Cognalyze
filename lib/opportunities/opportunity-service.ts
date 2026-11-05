@@ -40,6 +40,8 @@ import {
   logDNAChange,
   StudentDNAProfile,
 } from "@/lib/intelligence/student-intelligence";
+import { isTestRuntime } from "@/lib/env";
+import { generateSecureId } from "@/lib/crypto-utils";
 
 export interface OpportunityFeedFilterOptions {
   searchQuery?: string;
@@ -68,7 +70,25 @@ export class OpportunityService {
   private preferencesStore: Map<string, StudentOpportunityPreferences> = new Map();
 
   private constructor() {
-    this.loadFromStore();
+    this.loadFromDiskSync();
+    if (!isTestRuntime()) {
+      this.loadFromStore();
+    }
+  }
+
+  private loadFromDiskSync(): void {
+    try {
+      if (fs.existsSync(this.STORE_PATH)) {
+        const raw = fs.readFileSync(this.STORE_PATH, "utf-8");
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.canonicalOpportunities = parsed;
+          this.lastIngestedAt = Date.now();
+        }
+      }
+    } catch {
+      // non-fatal
+    }
   }
 
   public static getInstance(): OpportunityService {
@@ -366,6 +386,14 @@ export class OpportunityService {
    * Serves cached data immediately; triggers asynchronous background sync if stale.
    */
   public async ensureIngested(forceRefresh = false): Promise<CanonicalOpportunity[]> {
+    if (this.canonicalOpportunities.length === 0) {
+      this.loadFromDiskSync();
+    }
+
+    if (isTestRuntime()) {
+      return this.getActiveOpportunities();
+    }
+
     const now = Date.now();
     const hasData = this.canonicalOpportunities.length > 0;
     const isStale = now - this.lastIngestedAt > this.CACHE_TTL_MS;
@@ -742,7 +770,7 @@ export class OpportunityService {
 
     if (!record) {
       record = {
-        id: `app-track-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        id: generateSecureId(`app-track-${Date.now()}`, 6),
         candidateId: params.candidateId,
         opportunityId: params.opportunityId,
         stage: "Considering", // Kept at Considering until student explicitly confirms submission
@@ -775,7 +803,7 @@ export class OpportunityService {
 
     if (!record) {
       record = {
-        id: `app-track-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        id: generateSecureId(`app-track-${Date.now()}`, 6),
         candidateId: params.studentId,
         opportunityId: params.opportunityId,
         stage: params.stage,

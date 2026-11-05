@@ -17,6 +17,7 @@
 import fs from "fs";
 import path from "path";
 import { supabase, supabaseAdmin, isSupabaseAvailable } from "@/lib/supabase";
+import { generateSecureId } from "@/lib/crypto-utils";
 export interface CandidateDNAEvidence {
   id: string;
   userId: string;
@@ -88,7 +89,7 @@ export class UnifiedStudentDNAService {
    */
   public async recordEvidence(userId: string, evidence: Omit<CandidateDNAEvidence, "userId">): Promise<{ success: boolean; evidenceId: string; error?: string }> {
     const isAvailable = await isSupabaseAvailable();
-    const evidenceId = evidence.id || `ev_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const evidenceId = evidence.id || generateSecureId(`ev_${Date.now()}`, 7);
 
     if (isAvailable && supabaseAdmin) {
       try {

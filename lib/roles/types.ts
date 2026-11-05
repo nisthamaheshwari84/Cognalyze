@@ -147,6 +147,42 @@ export interface SemanticRequirementItem {
   graduation_year_max?: number;
 }
 
+// ────────────────────────────────────────────────────────────
+// RESPONSIBILITY-TO-CAPABILITY GRAPH TYPES (Decision 1 & Section 6)
+// ────────────────────────────────────────────────────────────
+
+export type OwnershipLevel = "assist" | "own" | "lead" | "architect";
+export type TaskComplexity = "foundational" | "intermediate" | "advanced" | "mission_critical";
+
+export interface ConnectedCapabilityRequirement {
+  capabilityId: string;
+  canonicalName: string;
+  requiredDepth: "awareness" | "practical_implementation" | "independent_architecture" | "expert_optimization";
+  assessmentMethod: "code_execution" | "system_design" | "debugging" | "work_sample" | "targeted_interview";
+  importance: "mandatory" | "preferred";
+  evidenceSignals: string[];
+}
+
+export interface ResponsibilityGraphNode {
+  id: string;
+  description: string;
+  ownershipLevel: OwnershipLevel;
+  complexity: TaskComplexity;
+  requiredCapabilities: ConnectedCapabilityRequirement[];
+  expectedOutcomes: string[];
+  deliverables?: string[];
+  sourceText: string;
+}
+
+export interface AdaptiveRecruiterQuestion {
+  id: string;
+  category: "business_problem" | "team_context" | "ownership_level" | "seniority_clarification" | "dealbreaker_confirmation";
+  question: string;
+  contextWhy: string;
+  suggestedAnswers?: string[];
+  fieldToUpdate: string;
+}
+
 export interface RoleDNAStructure {
   roleTitle: string;
   department: string;
@@ -162,6 +198,8 @@ export interface RoleDNAStructure {
   evidenceSignals: SemanticRequirementItem[];
   constraints: SemanticRequirementItem[];
   ambiguities: SemanticRequirementItem[];
+  responsibilityGraph?: ResponsibilityGraphNode[];
+  adaptiveQuestions?: AdaptiveRecruiterQuestion[];
   summary: {
     mustHaveCount: number;
     preferredCount: number;

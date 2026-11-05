@@ -1,0 +1,983 @@
+{
+  "candidateRoles": {
+    "u-cand-A": "data_scientist",
+    "u-cand-B": "mlops_engineer",
+    "u-cand-stats": "ai_engineer",
+    "u-student-sample-001": "applied_ai_engineer"
+  },
+  "candidateActiveTracks": {
+    "u-cand-A": "data_science_analytics",
+    "u-cand-B": "mlops",
+    "u-student-sample-001": "service_mass"
+  },
+  "attempts": [
+    {
+      "id": "att_aidata_68db1898b1",
+      "candidateId": "cand-phase2-sync-1793486734073",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-31T22:45:34.309Z"
+    },
+    {
+      "id": "att_aidata_726ad076d4",
+      "candidateId": "cand-phase2-sync-1793486734073",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-31T22:45:34.264Z"
+    },
+    {
+      "id": "att_aidata_cb2583b5a5",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-31T22:45:34.038Z"
+    },
+    {
+      "id": "att_aidata_d4fdc2f76b",
+      "candidateId": "cand-phase2-sync-1793485304306",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-31T22:21:45.174Z"
+    },
+    {
+      "id": "att_aidata_5a8c8fe335",
+      "candidateId": "cand-phase2-sync-1793485304306",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-31T22:21:44.436Z"
+    },
+    {
+      "id": "att_aidata_1bb68374a1",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-31T22:21:44.155Z"
+    },
+    {
+      "id": "att_aidata_ff71d02a24",
+      "candidateId": "cand-phase2-sync-1793483928616",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-31T21:58:48.779Z"
+    },
+    {
+      "id": "att_aidata_e5a7717574",
+      "candidateId": "cand-phase2-sync-1793483928616",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-31T21:58:48.738Z"
+    },
+    {
+      "id": "att_aidata_203002557d",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-31T21:58:48.641Z"
+    },
+    {
+      "id": "att_aidata_cbfa92ecae",
+      "candidateId": "cand-phase2-sync-1793483691396",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-31T21:54:51.579Z"
+    },
+    {
+      "id": "att_aidata_ea62d9f734",
+      "candidateId": "cand-phase2-sync-1793483691396",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-31T21:54:51.542Z"
+    },
+    {
+      "id": "att_aidata_41ded4c435",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-31T21:54:51.446Z"
+    },
+    {
+      "id": "att_aidata_aebdf3a6d6",
+      "candidateId": "cand-phase2-sync-1793483298911",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-31T21:48:19.113Z"
+    },
+    {
+      "id": "att_aidata_2a40c61840",
+      "candidateId": "cand-phase2-sync-1793483298911",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-31T21:48:19.078Z"
+    },
+    {
+      "id": "att_aidata_d15e37313a",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-31T21:48:18.811Z"
+    },
+    {
+      "id": "att_aidata_0dd99351e2",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T21:27:29.823Z"
+    },
+    {
+      "id": "att_aidata_917c7ad79b",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T15:29:08.130Z"
+    },
+    {
+      "id": "att_aidata_5456dbd1af",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T15:23:03.409Z"
+    },
+    {
+      "id": "att_aidata_957fc7bcc1",
+      "candidateId": "cand-phase2-sync-1793277324582",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T12:35:24.861Z"
+    },
+    {
+      "id": "att_aidata_c06bd3c255",
+      "candidateId": "cand-phase2-sync-1793277324582",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T12:35:24.816Z"
+    },
+    {
+      "id": "att_aidata_a1da3389d2",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T12:35:24.601Z"
+    },
+    {
+      "id": "att_aidata_e39029cc9c",
+      "candidateId": "cand-phase2-sync-1793277273945",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T12:34:34.263Z"
+    },
+    {
+      "id": "att_aidata_13127006b3",
+      "candidateId": "cand-phase2-sync-1793277273945",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T12:34:34.219Z"
+    },
+    {
+      "id": "att_aidata_21773be068",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T12:34:33.966Z"
+    },
+    {
+      "id": "att_aidata_5dbee08ce7",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T12:31:18.920Z"
+    },
+    {
+      "id": "att_aidata_1c2c72c72e",
+      "candidateId": "cand-phase2-sync-1793272748095",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T11:19:08.295Z"
+    },
+    {
+      "id": "att_aidata_34129aa05f",
+      "candidateId": "cand-phase2-sync-1793272748095",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T11:19:08.265Z"
+    },
+    {
+      "id": "att_aidata_5812bccec3",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T11:19:08.085Z"
+    },
+    {
+      "id": "att_aidata_e715065e20",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T11:16:41.817Z"
+    },
+    {
+      "id": "att_aidata_28a87dd91e",
+      "candidateId": "cand-phase2-sync-1793271895927",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T11:04:56.070Z"
+    },
+    {
+      "id": "att_aidata_7f02b26c8d",
+      "candidateId": "cand-phase2-sync-1793271895927",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T11:04:56.041Z"
+    },
+    {
+      "id": "att_aidata_7463d5ce06",
+      "candidateId": "cand-phase2-sync-1793266507752",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T09:35:07.862Z"
+    },
+    {
+      "id": "att_aidata_3877d2f604",
+      "candidateId": "cand-phase2-sync-1793266507752",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T09:35:07.836Z"
+    },
+    {
+      "id": "att_aidata_fd8d350aa3",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T09:35:07.782Z"
+    },
+    {
+      "id": "att_aidata_287322a89d",
+      "candidateId": "cand-phase2-sync-1793266239218",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T09:30:39.565Z"
+    },
+    {
+      "id": "att_aidata_0b8ed31402",
+      "candidateId": "cand-phase2-sync-1793266239218",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T09:30:39.481Z"
+    },
+    {
+      "id": "att_aidata_5128e55235",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T09:30:39.177Z"
+    },
+    {
+      "id": "att_aidata_27b4017706",
+      "candidateId": "cand-phase2-sync-1793256433411",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-29T06:47:14.970Z"
+    },
+    {
+      "id": "att_aidata_dd67ec183a",
+      "candidateId": "cand-phase2-sync-1793256433411",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-29T06:47:13.556Z"
+    },
+    {
+      "id": "att_aidata_c6538c1bbf",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-29T06:47:13.365Z"
+    },
+    {
+      "id": "att_aidata_7617e12e26",
+      "candidateId": "cand-phase2-sync-1793228274828",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:57:54.934Z"
+    },
+    {
+      "id": "att_aidata_bfbecd33ce",
+      "candidateId": "cand-phase2-sync-1793228274828",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:57:54.907Z"
+    },
+    {
+      "id": "att_aidata_2cd00c92d1",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:57:54.843Z"
+    },
+    {
+      "id": "att_aidata_c1b6ef0ac5",
+      "candidateId": "cand-phase2-sync-1793226402800",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:26:42.911Z"
+    },
+    {
+      "id": "att_aidata_c92549e061",
+      "candidateId": "cand-phase2-sync-1793226402800",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:26:42.881Z"
+    },
+    {
+      "id": "att_aidata_27dd13cdd0",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:26:42.812Z"
+    },
+    {
+      "id": "att_aidata_c13633faf0",
+      "candidateId": "cand-phase2-sync-1793226344122",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:25:44.253Z"
+    },
+    {
+      "id": "att_aidata_9a790f6988",
+      "candidateId": "cand-phase2-sync-1793226344122",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:25:44.213Z"
+    },
+    {
+      "id": "att_aidata_3fa3a9acf4",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:25:44.132Z"
+    },
+    {
+      "id": "att_aidata_f784559bc4",
+      "candidateId": "cand-phase2-sync-1793226269073",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:24:29.225Z"
+    },
+    {
+      "id": "att_aidata_56b828d2bc",
+      "candidateId": "cand-phase2-sync-1793226269073",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:24:29.198Z"
+    },
+    {
+      "id": "att_aidata_c6f8da69a5",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:24:29.085Z"
+    },
+    {
+      "id": "att_aidata_30c0c3af92",
+      "candidateId": "cand-phase2-sync-1793225925110",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:18:45.254Z"
+    },
+    {
+      "id": "att_aidata_f0a4f42931",
+      "candidateId": "cand-phase2-sync-1793225925110",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:18:45.225Z"
+    },
+    {
+      "id": "att_aidata_d449e31f8a",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:18:45.119Z"
+    },
+    {
+      "id": "att_aidata_c6a345ab33",
+      "candidateId": "cand-phase2-sync-1793225881015",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T22:18:01.144Z"
+    },
+    {
+      "id": "att_aidata_50c2c50e51",
+      "candidateId": "cand-phase2-sync-1793225881015",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T22:18:01.118Z"
+    },
+    {
+      "id": "att_aidata_00fb6cd1f7",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T22:18:01.025Z"
+    },
+    {
+      "id": "att_aidata_ebc029ecd3",
+      "candidateId": "cand-phase2-sync-1793224500636",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T21:55:00.772Z"
+    },
+    {
+      "id": "att_aidata_4c3257343a",
+      "candidateId": "cand-phase2-sync-1793224500636",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T21:55:00.738Z"
+    },
+    {
+      "id": "att_aidata_bad3f4232e",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:55:00.647Z"
+    },
+    {
+      "id": "att_aidata_8976fff262",
+      "candidateId": "cand-phase2-sync-1793224269240",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-10-28T21:51:09.389Z"
+    },
+    {
+      "id": "att_aidata_f15b1f17d9",
+      "candidateId": "cand-phase2-sync-1793224269240",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-10-28T21:51:09.358Z"
+    },
+    {
+      "id": "att_aidata_805ce179a7",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:51:09.220Z"
+    },
+    {
+      "id": "att_aidata_23f1ae8dff",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:25:20.857Z"
+    },
+    {
+      "id": "att_aidata_caefba05b2",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:22:58.141Z"
+    },
+    {
+      "id": "att_aidata_29bad9d1dc",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:22:34.573Z"
+    },
+    {
+      "id": "att_aidata_784996e9c4",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-10-28T21:22:14.213Z"
+    }
+  ]
+}
