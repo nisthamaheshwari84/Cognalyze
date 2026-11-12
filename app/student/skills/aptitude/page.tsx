@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { AptitudeQuestion } from "@/lib/skill-hub-store";
 
 export default function AptitudeSimulatorPage() {
@@ -544,10 +545,10 @@ export default function AptitudeSimulatorPage() {
                     ) : (
                       <div>
                         <div style={{ padding: "12px 14px", borderRadius: 8, background: checkpointAnswer === activeTopic.checkpoint.correct ? "#EAF4EE" : "#FDF2F2", border: `1px solid ${checkpointAnswer === activeTopic.checkpoint.correct ? "#C8E4D3" : "#F8C8C8"}`, marginBottom: 12, fontSize: 13, color: "#17191C" }}>
-                          <strong style={{ color: checkpointAnswer === activeTopic.checkpoint.correct ? "#2E7D5B" : "#C24141" }}>
+                          <div style={{ fontWeight: 700, color: checkpointAnswer === activeTopic.checkpoint.correct ? "#2E7D5B" : "#C24141", marginBottom: 4 }}>
                             {checkpointAnswer === activeTopic.checkpoint.correct ? "✓ Correct!" : "✗ Review:"}
-                          </strong>{" "}
-                          {activeTopic.checkpoint.explanation}
+                          </div>
+                          <MarkdownRenderer content={activeTopic.checkpoint.explanation} compact />
                         </div>
                         <button
                           onClick={() => setMode("practice")}
@@ -820,7 +821,7 @@ export default function AptitudeSimulatorPage() {
                         💡 STEP-BY-STEP MATHEMATICAL SOLUTION
                       </div>
                       <div style={{ fontSize: 13, color: "#162A43", lineHeight: 1.5, marginBottom: 8 }}>
-                        {currentQ.explanation}
+                        <MarkdownRenderer content={currentQ.explanation} compact />
                       </div>
                       {currentQ.shortcut_tip && (
                         <div style={{ fontSize: 12, color: "#B7791F", fontWeight: 700, background: "#FEF7ED", padding: "6px 10px", borderRadius: 6, border: "1px solid #F8D8A7" }}>

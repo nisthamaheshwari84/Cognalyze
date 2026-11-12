@@ -4,8 +4,7 @@
  * Server-only module.
  */
 
-// @ts-ignore
-import { DatabaseSync } from "node:sqlite";
+import { createInMemoryDatabase, DatabaseSyncInstance } from "./sqlite-driver";
 import {
   SqlColumn,
   SqlTableSchema,
@@ -135,9 +134,9 @@ export async function executeSqlQuery(
 
   for (const tc of testCases) {
     const tcStart = Date.now();
-    let db: DatabaseSync | null = null;
+    let db: DatabaseSyncInstance | null = null;
     try {
-      db = new DatabaseSync(":memory:");
+      db = createInMemoryDatabase();
 
       for (const stmt of tc.setupDdl) {
         db.exec(stmt);

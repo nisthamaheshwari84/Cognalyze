@@ -11,8 +11,7 @@
  * Conforms to Universal Accuracy Rule: exact statistical formulas, zero arbitrary guessing.
  */
 
-// @ts-ignore
-import { DatabaseSync } from "node:sqlite";
+import { createInMemoryDatabase } from "../sqlite-driver";
 import { getAnalyticsDataset } from "./datasets";
 
 export interface AbExperimentDiagnosticsReport {
@@ -102,7 +101,7 @@ function erf(x: number): number {
  */
 export function computeLiveAbExperimentDiagnostics(mde = 0.05): AbExperimentDiagnosticsReport {
   const dataset = getAnalyticsDataset("ab_experiment_stream");
-  const db = new DatabaseSync(":memory:");
+  const db = createInMemoryDatabase();
 
   try {
     for (const table of dataset.tables) {

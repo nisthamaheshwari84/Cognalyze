@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
         tls: false,
         child_process: false,
         encoding: false,
+        "node:sqlite": false,
+        sqlite: false,
       };
     }
     return config;

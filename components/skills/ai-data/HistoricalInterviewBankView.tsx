@@ -43,19 +43,19 @@ export default function HistoricalInterviewBankView({
   const companiesList = ["all", "google", "stripe", "meta", "openai", "netflix", "amazon", "snowflake", "uber", "databricks", "bytedance"];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl p-6 space-y-6 my-6">
+    <div className="bg-[#FFFFFF] border border-[#E4E1DA] rounded-xl shadow-sm p-6 space-y-6 my-6 text-[#17191C]">
       {/* Top Banner */}
-      <div className="border-b border-slate-800 pb-4">
+      <div className="border-b border-[#E4E1DA] pb-4">
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EFF4FE] text-[#356AE6] border border-[#D2E0FB]">
             Verified Historical Company Questions
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[#667085]">
             {HISTORICAL_COMPANY_QUESTIONS_BANK.length} Source-Backed Questions Across Tier-1 Tech
           </span>
         </div>
-        <h3 className="text-xl font-bold text-white mt-1">Company-Specific Technical Interview Intelligence</h3>
-        <p className="text-xs text-slate-400 mt-1 max-w-3xl">
+        <h3 className="text-xl font-bold text-[#162A43] mt-1">Company-Specific Technical Interview Intelligence</h3>
+        <p className="text-xs text-[#667085] mt-1 max-w-3xl">
           Real technical interview questions asked at top employers with source provenance, optimal time/space complexity analysis,
           and common candidate pitfalls. (Resolved from legacy 2-question limit to full catalog).
         </p>
@@ -65,7 +65,7 @@ export default function HistoricalInterviewBankView({
       <div className="space-y-3">
         {/* Company Pills */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-semibold text-slate-400 mr-2">Company:</span>
+          <span className="text-xs font-semibold text-[#667085] mr-2">Company:</span>
           {companiesList.map((comp) => (
             <button
               key={comp}
@@ -75,8 +75,8 @@ export default function HistoricalInterviewBankView({
               }}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors capitalize ${
                 selectedCompany === comp
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "bg-slate-950 text-slate-400 border border-slate-800 hover:border-slate-700 hover:text-slate-200"
+                  ? "bg-[#162A43] text-white shadow-sm"
+                  : "bg-[#FAF9F6] text-[#667085] border border-[#E4E1DA] hover:border-[#356AE6] hover:text-[#162A43]"
               }`}
             >
               {comp}
@@ -94,7 +94,7 @@ export default function HistoricalInterviewBankView({
               setSearchQuery(e.target.value);
               setCurrentPage(0);
             }}
-            className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+            className="p-2.5 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-xs text-[#162A43] placeholder-[#98A2B3] focus:outline-none focus:border-[#356AE6] focus:bg-[#FFFFFF]"
           />
 
           <select
@@ -103,7 +103,7 @@ export default function HistoricalInterviewBankView({
               setSelectedRole(e.target.value);
               setCurrentPage(0);
             }}
-            className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="p-2.5 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-xs text-[#162A43] focus:outline-none focus:border-[#356AE6]"
           >
             <option value="all">All Roles</option>
             <option value="ai_engineer">AI Engineer</option>
@@ -120,12 +120,12 @@ export default function HistoricalInterviewBankView({
               setSelectedCategory(e.target.value);
               setCurrentPage(0);
             }}
-            className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="p-2.5 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-xs text-[#162A43] focus:outline-none focus:border-[#356AE6]"
           >
             <option value="all">All Categories</option>
             <option value="data_engineering">Data Engineering</option>
-            <option value="genai_rag">GenAI & RAG</option>
-            <option value="sql">SQL & Analytics</option>
+            <option value="genai_rag">GenAI &amp; RAG</option>
+            <option value="sql">SQL &amp; Analytics</option>
             <option value="ml_theory">ML Theory</option>
             <option value="system_design">System Design</option>
           </select>
@@ -134,24 +134,24 @@ export default function HistoricalInterviewBankView({
 
       {/* Question Results List */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center text-xs text-slate-400">
+        <div className="flex justify-between items-center text-xs text-[#667085]">
           <span>Showing {filterResult.questions.length} verified company questions</span>
           {totalPages > 1 && (
             <div className="flex items-center gap-1">
               <button
                 disabled={currentPage === 0}
                 onClick={() => setCurrentPage((p) => p - 1)}
-                className="px-2 py-1 rounded bg-slate-800 disabled:opacity-40 text-slate-200"
+                className="px-2.5 py-1 rounded bg-[#FAF9F6] border border-[#E4E1DA] disabled:opacity-40 text-[#162A43] hover:bg-[#EFF4FE]"
               >
                 Prev
               </button>
-              <span>
+              <span className="px-1 text-[#667085]">
                 Page {currentPage + 1} of {totalPages}
               </span>
               <button
                 disabled={currentPage >= totalPages - 1}
                 onClick={() => setCurrentPage((p) => p + 1)}
-                className="px-2 py-1 rounded bg-slate-800 disabled:opacity-40 text-slate-200"
+                className="px-2.5 py-1 rounded bg-[#FAF9F6] border border-[#E4E1DA] disabled:opacity-40 text-[#162A43] hover:bg-[#EFF4FE]"
               >
                 Next
               </button>
@@ -165,7 +165,7 @@ export default function HistoricalInterviewBankView({
             <div
               key={q.id}
               className={`rounded-xl border transition-all ${
-                isExpanded ? "border-indigo-500/50 bg-slate-950" : "border-slate-800 bg-slate-950/60 hover:border-slate-700"
+                isExpanded ? "border-[#356AE6] bg-[#FAF9F6] shadow-sm" : "border-[#E4E1DA] bg-[#FFFFFF] hover:border-[#356AE6] shadow-sm"
               }`}
             >
               {/* Card Header */}
@@ -175,47 +175,47 @@ export default function HistoricalInterviewBankView({
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-500/30">
+                    <span className="px-2 py-0.5 rounded text-xs font-bold bg-[#EFF4FE] text-[#356AE6] border border-[#D2E0FB]">
                       {q.companyName}
                     </span>
-                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                    <span className="px-2 py-0.5 rounded text-xs font-medium bg-[#EAF4EE] text-[#2E7D5B] border border-[#C8E4D3]">
                       ✓ {q.provenance.type.replace("_", " ")} ({q.provenance.reportingYear})
                     </span>
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-[#667085] font-mono">
                       {q.interviewStage.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white hover:text-indigo-300 transition-colors">
+                  <h4 className="text-sm font-bold text-[#162A43] hover:text-[#356AE6] transition-colors">
                     {q.title}
                   </h4>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300 capitalize">
+                  <span className="text-xs px-2 py-0.5 rounded bg-[#F0EFEA] border border-[#E4E1DA] text-[#667085] capitalize">
                     {q.difficulty}
                   </span>
-                  <span className="text-slate-400 text-sm">{isExpanded ? "▲" : "▼"}</span>
+                  <span className="text-[#667085] text-sm">{isExpanded ? "▲" : "▼"}</span>
                 </div>
               </div>
 
               {/* Expanded Details */}
               {isExpanded && (
-                <div className="p-5 border-t border-slate-800/80 space-y-4 text-xs">
+                <div className="p-5 border-t border-[#E4E1DA] space-y-4 text-xs">
                   {/* Context & Statement */}
                   <div>
-                    <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">Business Context</span>
-                    <p className="text-slate-300 leading-relaxed">{q.businessContext}</p>
+                    <span className="font-bold text-[#667085] uppercase tracking-wider block mb-1">Business Context</span>
+                    <p className="text-[#17191C] leading-relaxed">{q.businessContext}</p>
                   </div>
 
                   <div>
-                    <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">Problem Statement</span>
-                    <p className="text-slate-300 leading-relaxed">{q.problemStatement}</p>
+                    <span className="font-bold text-[#667085] uppercase tracking-wider block mb-1">Problem Statement</span>
+                    <p className="text-[#17191C] leading-relaxed">{q.problemStatement}</p>
                   </div>
 
                   {/* Constraints */}
-                  <div className="p-3 rounded-lg bg-slate-900 border border-slate-800">
-                    <span className="font-bold text-slate-300 block mb-1">Constraints & SLAs:</span>
-                    <ul className="list-disc list-inside text-slate-400 space-y-0.5">
+                  <div className="p-3 rounded-lg bg-[#FFFFFF] border border-[#E4E1DA]">
+                    <span className="font-bold text-[#162A43] block mb-1">Constraints &amp; SLAs:</span>
+                    <ul className="list-disc list-inside text-[#667085] space-y-0.5">
                       {q.constraints.map((c, i) => (
                         <li key={i}>{c}</li>
                       ))}
@@ -223,32 +223,32 @@ export default function HistoricalInterviewBankView({
                   </div>
 
                   {/* Solution Blueprint */}
-                  <div className="rounded-lg border border-slate-800 overflow-hidden bg-slate-900">
-                    <div className="px-3 py-2 bg-slate-800/60 text-slate-300 font-semibold flex justify-between items-center">
+                  <div className="rounded-lg border border-[#E4E1DA] overflow-hidden bg-[#FFFFFF]">
+                    <div className="px-3 py-2 bg-[#F0EFEA] text-[#162A43] font-semibold flex justify-between items-center border-b border-[#E4E1DA]">
                       <span>Optimal Solution Blueprint</span>
-                      <span className="text-emerald-400 font-mono">
+                      <span className="text-[#2E7D5B] font-mono font-bold">
                         {q.solutionBlueprint.timeComplexity} | {q.solutionBlueprint.spaceComplexity}
                       </span>
                     </div>
-                    <pre className="p-3 text-xs font-mono text-emerald-300 overflow-x-auto">
+                    <pre className="p-3 text-xs font-mono text-[#1E293B] overflow-x-auto bg-[#FAF9F6]">
                       {q.solutionBlueprint.codeOrQuerySnippet}
                     </pre>
                   </div>
 
                   {/* Common Pitfalls & Follow-ups */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg bg-rose-950/20 border border-rose-500/20">
-                      <span className="font-bold text-rose-400 block mb-1">⚠️ Common Candidate Pitfalls:</span>
-                      <ul className="list-disc list-inside text-slate-300 space-y-1">
+                    <div className="p-3 rounded-lg bg-[#FDF0F0] border border-[#F5C6C6]">
+                      <span className="font-bold text-[#C24141] block mb-1">⚠️ Common Candidate Pitfalls:</span>
+                      <ul className="list-disc list-inside text-[#17191C] space-y-1">
                         {q.commonPitfalls.map((p, i) => (
                           <li key={i}>{p}</li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="p-3 rounded-lg bg-indigo-950/20 border border-indigo-500/20">
-                      <span className="font-bold text-indigo-400 block mb-1">🎯 Common Follow-Up Questions:</span>
-                      <ul className="list-disc list-inside text-slate-300 space-y-1">
+                    <div className="p-3 rounded-lg bg-[#EFF4FE] border border-[#D2E0FB]">
+                      <span className="font-bold text-[#356AE6] block mb-1">🎯 Common Follow-Up Questions:</span>
+                      <ul className="list-disc list-inside text-[#17191C] space-y-1">
                         {q.followUpQuestions.map((f, i) => (
                           <li key={i}>{f}</li>
                         ))}
@@ -260,7 +260,7 @@ export default function HistoricalInterviewBankView({
                     <div className="pt-2 flex justify-end">
                       <button
                         onClick={() => onSelectQuestion(q)}
-                        className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md"
+                        className="px-4 py-2 rounded-lg bg-[#356AE6] hover:bg-[#2858C7] text-white font-medium text-xs shadow-sm transition-colors"
                       >
                         Simulate This Company Question in Interview Studio →
                       </button>
@@ -275,4 +275,3 @@ export default function HistoricalInterviewBankView({
     </div>
   );
 }
-

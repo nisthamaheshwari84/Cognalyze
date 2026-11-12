@@ -6,8 +6,7 @@
  * Server-only module.
  */
 
-// @ts-ignore
-import { DatabaseSync } from "node:sqlite";
+import { createInMemoryDatabase, DatabaseSyncInstance } from "../sqlite-driver";
 import { getAnalyticsDataset, AnalyticsDatasetManifest } from "./datasets";
 
 export interface SqlLabChallenge {
@@ -40,6 +39,7 @@ export interface SqlExecutionResult {
   score?: number;
   feedback?: string;
   diagnostics?: string[];
+  explainRows?: Record<string, any>[];
 }
 
 // ── 1. SECURITY FILTER ───────────────────────────────────────────────────────
@@ -329,10 +329,10 @@ export async function executeSqlInSandbox(
     };
   }
 
-  let db: DatabaseSync | null = null;
+  let db: DatabaseSyncInstance | null = null;
   try {
     // 2. Initialize fresh isolated in-memory SQLite database
-    db = new DatabaseSync(":memory:");
+    db = createInMemoryDatabase();
 
     // 3. Populate all tables and seed records for this dataset
     for (const table of dataset.tables) {
@@ -351,6 +351,18 @@ export async function executeSqlInSandbox(
     let score = 100;
     let feedback = "Query executed successfully.";
     const diagnostics: string[] = [];
+
+    // Optional query plan explanation
+    let explainRows: Record<string, any>[] = [];
+    try {
+      const cleanSql = userSql.trim().replace(/;+$/, "");
+      if (cleanSql.toUpperCase().startsWith("SELECT") || cleanSql.toUpperCase().startsWith("WITH")) {
+        const explainStmt = db.prepare(`EXPLAIN QUERY PLAN ${cleanSql}`);
+        explainRows = explainStmt.all() as Record<string, any>[];
+      }
+    } catch {
+      // Non-critical explain plan failure
+    }
 
     if (challengeSlug && SQL_LAB_CHALLENGES[challengeSlug]) {
       const challenge = SQL_LAB_CHALLENGES[challengeSlug];
@@ -386,7 +398,8 @@ export async function executeSqlInSandbox(
       testPassed,
       score,
       feedback,
-      diagnostics
+      diagnostics,
+      explainRows
     };
   } catch (err: any) {
     const executionTimeMs = Date.now() - startTime;

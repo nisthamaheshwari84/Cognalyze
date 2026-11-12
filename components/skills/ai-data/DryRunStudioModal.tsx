@@ -69,17 +69,17 @@ export default function DryRunStudioModal({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl p-6 space-y-6 my-6">
+    <div className="bg-[#FFFFFF] border border-[#E4E1DA] rounded-xl shadow-sm p-6 space-y-6 my-6 text-[#17191C]">
       {/* Top Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E4E1DA] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#EFF4FE] text-[#356AE6] border border-[#D2E0FB]">
               Visual Dry-Run Studio
             </span>
-            <span className="text-xs text-slate-400">Line-by-Line Execution & Memory Watch</span>
+            <span className="text-xs text-[#667085]">Line-by-Line Execution &amp; Memory Watch</span>
           </div>
-          <h3 className="text-xl font-bold text-white mt-1">{currentTrace.title}</h3>
+          <h3 className="text-xl font-bold text-[#162A43] mt-1">{currentTrace.title}</h3>
         </div>
 
         {/* Trace Switcher */}
@@ -94,7 +94,7 @@ export default function DryRunStudioModal({
               setSelectedTraceId(e.target.value);
               setCurrentStepIndex(0);
             }}
-            className="p-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"
+            className="p-2 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-xs text-[#162A43] focus:outline-none focus:border-[#356AE6]"
           >
             {availableTraces.map((t) => (
               <option key={t.id} value={t.id}>
@@ -105,7 +105,7 @@ export default function DryRunStudioModal({
           {onClose && (
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white text-xs px-2.5 py-1.5 rounded bg-slate-800"
+              className="text-[#667085] hover:text-[#162A43] text-xs px-2.5 py-1.5 rounded bg-[#FAF9F6] border border-[#E4E1DA]"
             >
               Close ✕
             </button>
@@ -114,23 +114,23 @@ export default function DryRunStudioModal({
       </div>
 
       {/* Stepper Control Toolbar */}
-      <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="p-3 bg-[#FAF9F6] rounded-lg border border-[#E4E1DA] flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
           <button
             disabled={currentStepIndex === 0}
             onClick={handlePrevStep}
-            className="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-200 font-medium"
+            className="px-3 py-1.5 rounded bg-[#FFFFFF] border border-[#E4E1DA] hover:bg-[#EFF4FE] disabled:opacity-40 text-[#162A43] font-medium"
           >
             ◀ Step Back
           </button>
           <button
             disabled={currentStepIndex >= currentTrace.steps.length - 1}
             onClick={handleNextStep}
-            className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white font-medium"
+            className="px-3 py-1.5 rounded bg-[#356AE6] hover:bg-[#2858C7] disabled:opacity-40 text-white font-medium shadow-sm transition-colors"
           >
             Step Forward ▶
           </button>
-          <span className="text-slate-400 ml-2">
+          <span className="text-[#667085] ml-2">
             Step <strong>{currentStepIndex + 1}</strong> of <strong>{currentTrace.steps.length}</strong>
           </span>
         </div>
@@ -141,8 +141,8 @@ export default function DryRunStudioModal({
             onClick={() => toggleSpeech(currentStep.spokenNarration)}
             className={`px-3 py-1.5 rounded flex items-center gap-1.5 font-medium transition-colors ${
               isPlayingAudio
-                ? "bg-rose-600 text-white animate-pulse"
-                : "bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/40"
+                ? "bg-[#C24141] text-white animate-pulse"
+                : "bg-[#EFF4FE] hover:bg-[#DCE7FB] text-[#356AE6] border border-[#D2E0FB]"
             }`}
           >
             {isPlayingAudio ? "⏸ Pause Narration" : "🔊 Spoken Narration"}
@@ -151,21 +151,21 @@ export default function DryRunStudioModal({
       </div>
 
       {/* Spoken Narration & Action Summary Banner */}
-      <div className="p-4 rounded-lg bg-cyan-950/20 border border-cyan-500/30 space-y-1">
-        <div className="flex items-center gap-2 text-xs font-bold text-cyan-400 uppercase tracking-wide">
+      <div className="p-4 rounded-lg bg-[#EFF4FE] border border-[#D2E0FB] space-y-1">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#356AE6] uppercase tracking-wide">
           <span>Step Action:</span>
           <span>{currentStep.actionSummary}</span>
         </div>
-        <p className="text-xs text-slate-300 italic">"{currentStep.spokenNarration}"</p>
+        <p className="text-xs text-[#162A43] italic">&ldquo;{currentStep.spokenNarration}&rdquo;</p>
       </div>
 
       {/* Main Grid: Code Line Viewer (Left) + Variable State Watch (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Code Visualizer */}
-        <div className="rounded-xl border border-slate-800 overflow-hidden bg-slate-950 flex flex-col">
-          <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400 flex justify-between">
-            <span>Source Code ({currentTrace.languageOrStudio})</span>
-            <span className="font-mono text-cyan-400">Current Line: {currentStep.lineNumber}</span>
+        <div className="rounded-xl border border-[#E4E1DA] overflow-hidden bg-[#FAF9F6] flex flex-col">
+          <div className="px-4 py-2 bg-[#F0EFEA] border-b border-[#E4E1DA] text-xs text-[#667085] flex justify-between items-center">
+            <span className="font-semibold text-[#162A43]">Source Code ({currentTrace.languageOrStudio})</span>
+            <span className="font-mono text-[#356AE6] font-bold">Current Line: {currentStep.lineNumber}</span>
           </div>
           <div className="p-3 font-mono text-xs overflow-x-auto space-y-0.5">
             {codeLines.map((line, idx) => {
@@ -176,11 +176,11 @@ export default function DryRunStudioModal({
                   key={lineNum}
                   className={`flex items-center px-2 py-0.5 rounded transition-colors ${
                     isCurrent
-                      ? "bg-cyan-500/20 border-l-4 border-cyan-400 text-cyan-200 font-bold"
-                      : "text-slate-400 hover:bg-slate-900/50"
+                      ? "bg-[#EFF4FE] border-l-4 border-[#356AE6] text-[#162A43] font-bold"
+                      : "text-[#1E293B] hover:bg-[#F0EFEA]"
                   }`}
                 >
-                  <span className="w-8 select-none text-slate-600 text-right pr-3">{lineNum}</span>
+                  <span className="w-8 select-none text-[#98A2B3] text-right pr-3">{lineNum}</span>
                   <span className="whitespace-pre">{line}</span>
                 </div>
               );
@@ -189,33 +189,33 @@ export default function DryRunStudioModal({
         </div>
 
         {/* Variable Watch Table */}
-        <div className="rounded-xl border border-slate-800 overflow-hidden bg-slate-950 flex flex-col">
-          <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 text-xs text-slate-400 flex justify-between">
-            <span>Variable Watch Inspector</span>
-            <span className="font-mono text-emerald-400">{currentStep.variables.length} in scope</span>
+        <div className="rounded-xl border border-[#E4E1DA] overflow-hidden bg-[#FFFFFF] flex flex-col">
+          <div className="px-4 py-2 bg-[#F0EFEA] border-b border-[#E4E1DA] text-xs text-[#667085] flex justify-between items-center">
+            <span className="font-semibold text-[#162A43]">Variable Watch Inspector</span>
+            <span className="font-mono text-[#2E7D5B] font-bold">{currentStep.variables.length} in scope</span>
           </div>
           <div className="p-3 overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-500">
+                <tr className="border-b border-[#E4E1DA] text-[#667085]">
                   <th className="pb-2 font-medium">Variable</th>
                   <th className="pb-2 font-medium">Type</th>
                   <th className="pb-2 font-medium">Current Value</th>
                   <th className="pb-2 font-medium">Delta / Note</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-850">
+              <tbody className="divide-y divide-[#E4E1DA]">
                 {currentStep.variables.map((v, i) => (
                   <tr
                     key={i}
                     className={`transition-colors ${
-                      v.hasChanged ? "bg-emerald-500/10 text-emerald-300 font-semibold" : "text-slate-300"
+                      v.hasChanged ? "bg-[#EAF4EE] text-[#2E7D5B] font-semibold" : "text-[#17191C]"
                     }`}
                   >
-                    <td className="py-2 font-mono text-cyan-300">{v.name}</td>
-                    <td className="py-2 text-slate-400">{v.type}</td>
-                    <td className="py-2 font-mono">{v.value}</td>
-                    <td className="py-2 text-slate-400 text-[11px]">{v.notes || (v.hasChanged ? "Modified this step" : "—")}</td>
+                    <td className="py-2 font-mono text-[#356AE6] font-bold">{v.name}</td>
+                    <td className="py-2 text-[#667085]">{v.type}</td>
+                    <td className="py-2 font-mono text-[#17191C]">{v.value}</td>
+                    <td className="py-2 text-[#667085] text-[11px]">{v.notes || (v.hasChanged ? "Modified this step" : "—")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -225,16 +225,15 @@ export default function DryRunStudioModal({
       </div>
 
       {/* Complexity & Final Output */}
-      <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex flex-wrap items-center justify-between gap-4 text-xs">
-        <div className="flex items-center gap-4 text-slate-300">
-          <span>Time: <strong className="text-emerald-400">{currentTrace.executionComplexitySummary.timeComplexity}</strong></span>
-          <span>Space: <strong className="text-emerald-400">{currentTrace.executionComplexitySummary.spaceComplexity}</strong></span>
+      <div className="p-4 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] flex flex-wrap items-center justify-between gap-4 text-xs">
+        <div className="flex items-center gap-4 text-[#162A43]">
+          <span>Time: <strong className="text-[#2E7D5B]">{currentTrace.executionComplexitySummary.timeComplexity}</strong></span>
+          <span>Space: <strong className="text-[#2E7D5B]">{currentTrace.executionComplexitySummary.spaceComplexity}</strong></span>
         </div>
-        <div className="text-slate-400">
-          Expected Final Output: <strong className="text-white font-mono">{currentTrace.finalOutput}</strong>
+        <div className="text-[#667085]">
+          Expected Final Output: <strong className="text-[#162A43] font-mono">{currentTrace.finalOutput}</strong>
         </div>
       </div>
     </div>
   );
 }
-

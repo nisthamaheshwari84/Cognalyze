@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import SourceIntelligenceHub from "@/components/dna/SourceIntelligenceHub";
 import MetricProofModal from "@/components/dna/MetricProofModal";
 import ActionCompletionModal from "@/components/dna/ActionCompletionModal";
@@ -1365,7 +1366,9 @@ export default function StudentDNAPage() {
                         </div>
                         <div>
                           <div style={{ fontSize: 14, fontWeight: 600, color: "#162A43" }}>{item.skillName}</div>
-                          <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>{item.summary}</div>
+                          <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
+                            <MarkdownRenderer content={item.summary} compact />
+                          </div>
                         </div>
                       </div>
 

@@ -33,6 +33,7 @@ export interface InterviewSession {
   difficulty?: string;
   duration_minutes?: number;
   report?: any;
+  milestone5Report?: any;
   transcript?: Array<{ role: string; content: string; time?: string; isFollowUp?: boolean }>;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import {
   ResumeIntelligenceReport,
   RewrittenBullet,
@@ -1139,9 +1140,9 @@ export default function ResumeIntelligenceView() {
                   <div style={{ fontSize: "11px", letterSpacing: "1.5px", color: "#356AE6", fontWeight: 800, marginBottom: "6px" }}>
                     PROFESSIONAL SUMMARY
                   </div>
-                  <p style={{ fontSize: "13px", color: "#17191C", lineHeight: 1.6, margin: 0 }}>
-                    {rewriter.summary}
-                  </p>
+                  <div style={{ fontSize: "13px", color: "#17191C", lineHeight: 1.6, margin: 0 }}>
+                    <MarkdownRenderer content={rewriter.summary} compact />
+                  </div>
                 </div>
               )}
 
@@ -1422,17 +1423,27 @@ export default function ResumeIntelligenceView() {
               Final Evaluator Verdict
             </h3>
 
-            <p style={{ fontSize: "14px", color: "#17191C", lineHeight: 1.7, marginBottom: "1rem" }}>
-              {verdict?.overallPanelSummary ||
-                `Documented alignment is strongest in ${scoreObj.summaryCounts.supported} core technical criteria. Primary limitations stem from unrecorded cloud and deployment operations, which represent evidence gaps rather than proven skill deficiencies.`}
-            </p>
+            <div style={{ fontSize: "14px", color: "#17191C", lineHeight: 1.7, marginBottom: "1rem" }}>
+              <MarkdownRenderer
+                content={
+                  verdict?.overallPanelSummary ||
+                  `Documented alignment is strongest in ${scoreObj.summaryCounts.supported} core technical criteria. Primary limitations stem from unrecorded cloud and deployment operations, which represent evidence gaps rather than proven skill deficiencies.`
+                }
+                compact
+              />
+            </div>
 
             <div style={{ background: "#FEF7ED", borderRadius: "10px", padding: "14px", border: "1px solid #F8D8A7", borderLeft: "3px solid #B7791F" }}>
               <div style={{ fontSize: "11px", fontWeight: 800, color: "#B7791F", marginBottom: "4px" }}>EVIDENCE-BASED SYNTHESIS</div>
               <div style={{ fontSize: "12px", color: "#17191C", lineHeight: 1.5 }}>
-                {verdict?.evidenceBasedSynthesis ||
-                  verdict?.recommendedApplicationStrategy ||
-                  "Lead technical discussions with your verified project implementation workflows, and speak proactively to prototype deployments currently in progress."}
+                <MarkdownRenderer
+                  content={
+                    verdict?.evidenceBasedSynthesis ||
+                    verdict?.recommendedApplicationStrategy ||
+                    "Lead technical discussions with your verified project implementation workflows, and speak proactively to prototype deployments currently in progress."
+                  }
+                  compact
+                />
               </div>
             </div>
           </div>

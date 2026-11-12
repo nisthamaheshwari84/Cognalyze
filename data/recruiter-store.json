@@ -1,6 +1,149 @@
 {
   "roles": [
     {
+      "id": "role-test-version-1794502333010",
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "businessOutcomes": [],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "version": 2,
+      "createdAt": "2026-11-12T16:52:13.010Z",
+      "updatedAt": "2026-11-12T16:52:13.012Z",
+      "approvalRecord": {
+        "approvedBy": "recruiter-lead-123",
+        "approverRole": "Principal Technical Recruiter",
+        "approvalStatus": "approved",
+        "approvalNotes": "Verified with Cloud Infrastructure Director.",
+        "version": 2,
+        "approvedAt": "2026-11-12T16:52:13.012Z"
+      }
+    },
+    {
+      "id": "role-backend-lead-2812",
+      "title": "Backend Lead",
+      "department": "Engineering",
+      "seniority": "Senior",
+      "targetHires": 1,
+      "workMode": "Remote",
+      "businessOutcomes": [],
+      "tieredRequirements": [
+        {
+          "id": "req-default-1",
+          "name": "General Engineering Fundamentals",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Verified core programming and problem solving fundamentals",
+          "weightPct": 100,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        }
+      ],
+      "structuredRequirements": [],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "version": 1,
+      "createdAt": "2026-11-12T16:52:12.812Z",
+      "updatedAt": "2026-11-12T16:52:12.812Z"
+    },
+    {
+      "id": "role-test-version-1794413300682",
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "targetHires": 2,
+      "businessOutcomes": [],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "version": 2,
+      "createdAt": "2026-11-11T16:08:20.683Z",
+      "updatedAt": "2026-11-11T16:08:20.687Z",
+      "approvalRecord": {
+        "approvedBy": "recruiter-lead-123",
+        "approverRole": "Principal Technical Recruiter",
+        "approvalStatus": "approved",
+        "approvalNotes": "Verified with Cloud Infrastructure Director.",
+        "version": 2,
+        "approvedAt": "2026-11-11T16:08:20.687Z"
+      }
+    },
+    {
       "id": "role-test-version-1793486744881",
       "title": "Senior Cloud Architect",
       "department": "Cloud Engineering",
@@ -2996,6 +3139,74 @@
   ],
   "candidates": [
     {
+      "id": "cand-332819",
+      "name": "sample resume",
+      "email": "sample.resume@example.com",
+      "appliedRoleId": "role-backend-lead-2812",
+      "appliedRoleTitle": "Backend Lead",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-12T16:52:12.819Z",
+      "resumeText": "sample resume",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand-332801",
+      "name": "Test Cand",
+      "email": "test.cand@example.com",
+      "appliedRoleId": "role-1",
+      "appliedRoleTitle": "Engineering Role",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-12T16:52:12.801Z",
+      "resumeText": "",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand-real-1794502323114",
+      "name": "Arjun Verma",
+      "email": "arjun.v@sample.edu",
+      "appliedRoleId": "role-backend-eng",
+      "appliedRoleTitle": "Backend Infrastructure Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-12T16:52:03.456Z",
+      "resumeText": "Arjun Verma. GitHub: github.com/arjun-infra. LeetCode: leetcode.com/arjun_codes.",
+      "githubData": {
+        "handle": "arjun-infra",
+        "profileUrl": "https://github.com/arjun-infra",
+        "verifiedReposCount": 0,
+        "repos": []
+      },
+      "leetCodeProfile": {
+        "username": "arjun_codes",
+        "profileUrl": "https://leetcode.com/arjun_codes",
+        "problemsSolved": 0,
+        "rankingBadge": "Pending Verification"
+      },
+      "currentStage": "Interviewing"
+    },
+    {
+      "id": "cand-real-1794413288419",
+      "name": "Arjun Verma",
+      "email": "arjun.v@sample.edu",
+      "appliedRoleId": "role-backend-eng",
+      "appliedRoleTitle": "Backend Infrastructure Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-11T16:08:09.754Z",
+      "resumeText": "Arjun Verma. GitHub: github.com/arjun-infra. LeetCode: leetcode.com/arjun_codes.",
+      "githubData": {
+        "handle": "arjun-infra",
+        "profileUrl": "https://github.com/arjun-infra",
+        "verifiedReposCount": 0,
+        "repos": []
+      },
+      "leetCodeProfile": {
+        "username": "arjun_codes",
+        "profileUrl": "https://leetcode.com/arjun_codes",
+        "problemsSolved": 0,
+        "rankingBadge": "Pending Verification"
+      },
+      "currentStage": "Interviewing"
+    },
+    {
       "id": "cand-real-1793486931350",
       "name": "Arjun Verma",
       "email": "arjun.v@sample.edu",
@@ -4369,7 +4580,7 @@
         "AWS Certified Solutions Architect",
         "Confluent Certified Developer for Apache Kafka"
       ],
-      "currentStage": "Technical Interview",
+      "currentStage": "Hired",
       "activeWorkSample": {
         "id": "ws-req-1-3036",
         "tier": "Critical",
@@ -4402,13 +4613,11 @@
         "starterCodeOrTemplate": "// Go or TypeScript snippet\ntype TransactionEvent struct {\n    IDempotencyKey string    `json:\"idempotency_key\"`\n    AccountID      string    `json:\"account_id\"`\n    AmountCents    int64     `json:\"amount_cents\"`\n    EventTimestamp time.Time `json:\"timestamp\"`\n}\n\nfunc HandleLedgerEvent(ctx context.Context, msg []byte) error {\n    // TODO: Implement idempotency guard and atomic write\n    return nil\n}"
       },
       "decisionJournal": {
-        "verdict": "Reject",
-        "decidedAt": "2026-09-24T17:13:54.994Z",
-        "rationale": "[RECRUITER OVERRIDE: Demonstrated outstanding live systems architecture in whiteboard drill] Override automated hold",
+        "verdict": "Hire",
+        "decidedAt": "2026-11-12T16:52:16.182Z",
+        "rationale": "Candidate cleared all Critical Role DNA hurdles with verified proof.",
         "holdLoopCount": 0,
-        "citedEvidenceIds": [
-          "req-senior-1"
-        ]
+        "citedEvidenceIds": []
       }
     },
     {
@@ -4994,6 +5203,239 @@
     }
   ],
   "roleVersions": [
+    {
+      "id": "ver-role-test-version-1794502333010-2-3012",
+      "roleId": "role-test-version-1794502333010",
+      "version": 2,
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "status": "approved",
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "approvalRecord": {
+        "approvedBy": "recruiter-lead-123",
+        "approverRole": "Principal Technical Recruiter",
+        "approvalStatus": "approved",
+        "approvalNotes": "Verified with Cloud Infrastructure Director.",
+        "version": 2,
+        "approvedAt": "2026-11-12T16:52:13.012Z"
+      },
+      "changeSummary": "Official recruiter sign-off on cloud competencies",
+      "createdAt": "2026-11-12T16:52:13.012Z",
+      "createdBy": "recruiter-lead-123"
+    },
+    {
+      "id": "ver-role-test-version-1794502333010-1-3010",
+      "roleId": "role-test-version-1794502333010",
+      "version": 1,
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "status": "draft",
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "changeSummary": "Initial role draft creation",
+      "createdAt": "2026-11-12T16:52:13.010Z",
+      "createdBy": "recruiter"
+    },
+    {
+      "id": "ver-role-backend-lead-2812-1-2812",
+      "roleId": "role-backend-lead-2812",
+      "version": 1,
+      "title": "Backend Lead",
+      "department": "Engineering",
+      "seniority": "Senior",
+      "status": "published",
+      "tieredRequirements": [
+        {
+          "id": "req-default-1",
+          "name": "General Engineering Fundamentals",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Verified core programming and problem solving fundamentals",
+          "weightPct": 100,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        }
+      ],
+      "structuredRequirements": [],
+      "changeSummary": "Initial role creation (v1)",
+      "createdAt": "2026-11-12T16:52:12.813Z",
+      "createdBy": "recruiter"
+    },
+    {
+      "id": "ver-role-test-version-1794413300682-2-0687",
+      "roleId": "role-test-version-1794413300682",
+      "version": 2,
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "status": "approved",
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "approvalRecord": {
+        "approvedBy": "recruiter-lead-123",
+        "approverRole": "Principal Technical Recruiter",
+        "approvalStatus": "approved",
+        "approvalNotes": "Verified with Cloud Infrastructure Director.",
+        "version": 2,
+        "approvedAt": "2026-11-11T16:08:20.687Z"
+      },
+      "changeSummary": "Official recruiter sign-off on cloud competencies",
+      "createdAt": "2026-11-11T16:08:20.687Z",
+      "createdBy": "recruiter-lead-123"
+    },
+    {
+      "id": "ver-role-test-version-1794413300682-1-0683",
+      "roleId": "role-test-version-1794413300682",
+      "version": 1,
+      "title": "Senior Cloud Architect",
+      "department": "Cloud Engineering",
+      "seniority": "Senior",
+      "status": "draft",
+      "responsibilityGraph": [
+        {
+          "id": "resp-1",
+          "description": "Architect multi-cloud landing zones",
+          "ownershipLevel": "architect",
+          "complexity": "advanced",
+          "requiredCapabilities": [
+            {
+              "capabilityId": "cap-tf",
+              "canonicalName": "Terraform",
+              "requiredDepth": "independent_architecture",
+              "assessmentMethod": "system_design",
+              "importance": "mandatory",
+              "evidenceSignals": [
+                "GitHub modules"
+              ]
+            }
+          ],
+          "expectedOutcomes": [
+            "Automated cloud provisioning"
+          ],
+          "sourceText": "Architect multi-cloud landing zones"
+        }
+      ],
+      "tieredRequirements": [],
+      "structuredRequirements": [
+        {
+          "id": "req-1",
+          "name": "Terraform Infrastructure as Code",
+          "category": "required",
+          "evidenceQuote": "Production Terraform modules",
+          "source": "job_description",
+          "semanticCategory": "MUST_HAVE"
+        }
+      ],
+      "changeSummary": "Initial role draft creation",
+      "createdAt": "2026-11-11T16:08:20.683Z",
+      "createdBy": "recruiter"
+    },
     {
       "id": "ver-role-test-version-1793486744881-2-4883",
       "roleId": "role-test-version-1793486744881",

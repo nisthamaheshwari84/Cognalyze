@@ -2214,9 +2214,9 @@ export default function MockInterviewExperience() {
 
               {currentAssessment ? (
                 <div>
-                  <p style={{ fontSize: 12, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5, margin: "0 0 10px" }}>
-                    {currentAssessment.reasoning}
-                  </p>
+                  <div style={{ fontSize: 12, color: isDark ? "#F2F6FC" : "#17191C", lineHeight: 1.5, margin: "0 0 10px" }}>
+                    <MarkdownRenderer content={currentAssessment.reasoning} compact isDark={isDark} />
+                  </div>
                   <div
                     style={{
                       padding: "8px 10px",
@@ -2373,7 +2373,7 @@ export default function MockInterviewExperience() {
                             />
                           </div>
                           <div style={{ fontSize: 9.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.3 }}>
-                            {dim.explanation}
+                            <MarkdownRenderer content={dim.explanation} compact isDark={isDark} />
                           </div>
                         </div>
                       ))}
@@ -3279,7 +3279,7 @@ export default function MockInterviewExperience() {
                                   />
                                 </div>
                                 <div style={{ fontSize: 9.5, color: isDark ? "#B6C4D6" : "#667085", lineHeight: 1.35 }}>
-                                  {dim.explanation}
+                                  <MarkdownRenderer content={dim.explanation} compact isDark={isDark} />
                                 </div>
                               </div>
                             ))}

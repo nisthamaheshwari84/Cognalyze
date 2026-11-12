@@ -16,7 +16,6 @@
 
 import { AiDataTrackSlug, TargetRoleSlug } from "./types";
 import { executePythonInSandbox } from "./python-lab-engine";
-import { executeSqlInSandbox } from "./sql-lab-engine";
 
 export type ProblemFamily =
   | "data_pipeline_schema_drift"

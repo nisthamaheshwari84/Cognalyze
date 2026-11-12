@@ -91,22 +91,22 @@ export default function SourceViewer({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950 border border-slate-800 rounded-xl overflow-hidden shadow-2xl text-slate-100">
+    <div className="flex flex-col h-full bg-[#FFFFFF] border border-[#E4E1DA] rounded-xl overflow-hidden shadow-sm text-[#17191C]">
       {/* Header */}
-      <div className="p-4 border-b border-slate-800 bg-slate-900/80 flex items-center justify-between">
+      <div className="p-4 border-b border-[#E4E1DA] bg-[#FAF9F6] flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase tracking-wider text-purple-400 font-bold">Source Document</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-xs text-slate-400">{spans.length} verified citation{spans.length === 1 ? "" : "s"}</span>
+            <span className="text-xs uppercase tracking-wider text-[#356AE6] font-bold">Source Document</span>
+            <span className="text-[#E4E1DA]">•</span>
+            <span className="text-xs text-[#667085]">{spans.length} verified citation{spans.length === 1 ? "" : "s"}</span>
           </div>
-          <h3 className="text-sm font-bold text-white mt-0.5">{sourceTitle}</h3>
+          <h3 className="text-sm font-bold text-[#162A43] mt-0.5">{sourceTitle}</h3>
         </div>
 
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="p-1 rounded-lg text-[#667085] hover:text-[#162A43] hover:bg-[#FAF9F6] transition-all"
             title="Close Source Viewer"
           >
             ✕
@@ -116,22 +116,22 @@ export default function SourceViewer({
 
       {/* Active Citation Callout */}
       {activeSpan && (
-        <div className="p-3 bg-purple-950/40 border-b border-purple-500/30 flex items-center justify-between text-xs">
+        <div className="p-3 bg-[#EFF4FE] border-b border-[#D2E0FB] flex items-center justify-between text-xs">
           <div className="flex items-center gap-2">
-            <span className="px-1.5 py-0.5 rounded bg-purple-900 text-purple-200 font-mono text-[10px] font-bold">
+            <span className="px-1.5 py-0.5 rounded bg-[#FFFFFF] text-[#356AE6] border border-[#D2E0FB] font-mono text-[10px] font-bold">
               {activeSpan.tier || "T1"}
             </span>
-            <span className="text-purple-300 font-medium line-clamp-1">
-              "{activeSpan.quote}"
+            <span className="text-[#356AE6] font-medium line-clamp-1">
+              &ldquo;{activeSpan.quote}&rdquo;
             </span>
-            <span className="text-slate-500 font-mono text-[10px]">
+            <span className="text-[#667085] font-mono text-[10px]">
               ({activeSpan.startChar}–{activeSpan.endChar})
             </span>
           </div>
 
           <button
             onClick={() => handleCopyQuote(activeSpan.quote, activeSpan.id)}
-            className="text-xs text-purple-300 hover:text-white font-medium ml-4 shrink-0"
+            className="text-xs text-[#356AE6] hover:text-[#2858C7] font-semibold ml-4 shrink-0"
           >
             {copiedId === activeSpan.id ? "✓ Copied" : "Copy Quote"}
           </button>
@@ -139,7 +139,7 @@ export default function SourceViewer({
       )}
 
       {/* Document Text Body with Highlights */}
-      <div className="flex-1 p-6 overflow-y-auto font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap selection:bg-purple-800 selection:text-white">
+      <div className="flex-1 p-6 overflow-y-auto font-mono text-xs text-[#17191C] leading-relaxed whitespace-pre-wrap selection:bg-[#EFF4FE] selection:text-[#356AE6] bg-[#FFFFFF]">
         {renderedSegments.map((segment, idx) => {
           if (!segment.isSpan || !segment.span) {
             return <span key={idx}>{segment.text}</span>;
@@ -156,8 +156,8 @@ export default function SourceViewer({
               }}
               className={`cursor-pointer px-1 py-0.5 rounded transition-all ${
                 isSelected
-                  ? "bg-purple-600 text-white font-semibold ring-2 ring-purple-400 shadow-md"
-                  : "bg-purple-900/50 hover:bg-purple-800/70 text-purple-200 border-b border-purple-400"
+                  ? "bg-[#356AE6] text-white font-semibold ring-2 ring-[#93C5FD] shadow-sm"
+                  : "bg-[#EFF4FE] hover:bg-[#DCE7FB] text-[#356AE6] border-b-2 border-[#356AE6]"
               }`}
               title={`Verified Evidence: "${segment.span.quote}"`}
             >
@@ -168,9 +168,9 @@ export default function SourceViewer({
       </div>
 
       {/* Footer Info */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-900/40 flex items-center justify-between text-[11px] text-slate-500">
+      <div className="p-3 border-t border-[#E4E1DA] bg-[#FAF9F6] flex items-center justify-between text-[11px] text-[#667085]">
         <span>Truth Contract T1: Highlights strictly render stored quote offsets in verbatim text.</span>
-        <span className="text-emerald-400 font-medium">✓ Deterministically Verified</span>
+        <span className="text-[#2E7D5B] font-semibold">✓ Deterministically Verified</span>
       </div>
     </div>
   );

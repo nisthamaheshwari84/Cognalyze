@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { InterviewSession } from "@/lib/interview-session-types";
 import { useTheme } from "@/components/ThemeProvider";
 
@@ -652,7 +653,10 @@ export default function InterviewPrepHistoryPage() {
                           lineHeight: 1.4,
                         }}
                       >
-                        <strong>{t.role === "assistant" ? "Interviewer" : "Candidate"}:</strong> {t.content}
+                        <div style={{ fontWeight: 700, marginBottom: 2 }}>
+                          {t.role === "assistant" ? "Interviewer" : "Candidate"}
+                        </div>
+                        <MarkdownRenderer content={t.content} compact isDark={isDark} />
                       </div>
                     ))}
                   </div>

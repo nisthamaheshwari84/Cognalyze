@@ -12,8 +12,18 @@ import {
   saveActiveSessionState,
   saveSession,
   markSessionCompleted,
-  getSessionById
+  getSessionById,
+  acquireTurnLock,
+  releaseTurnLock,
+  isSessionCompleted
 } from "@/lib/interview-session-store";
+import {
+  generateMilestone5FinalReport,
+  Milestone5FinalReport
+} from "@/lib/interview/final-report-generator";
+import {
+  commitMilestone5EvidenceToDNA
+} from "@/lib/interview/dna-sync-engine";
 
 export async function POST(req: Request) {
   try {
@@ -50,16 +60,17 @@ export async function POST(req: Request) {
     // Check for existing saved session for idempotency & multi-tenant isolation
     const existingLiveState = getActiveSessionState(sessionId);
     if (existingLiveState && existingLiveState.candidateId && existingLiveState.candidateId !== candidateId) {
-      return NextResponse.json({ error: "Access denied. Session belongs to another candidate." }, { status: 403 });
+      return NextResponse.json({ error: "Access denied. Session belongs to another candidate.", code: "TENANT_ACCESS_DENIED" }, { status: 403 });
     }
     const existingSession = await getSessionById(sessionId);
     if (existingSession) {
       if (existingSession.candidate_id && existingSession.candidate_id !== candidateId) {
-        return NextResponse.json({ error: "Access denied. Session belongs to another candidate." }, { status: 403 });
+        return NextResponse.json({ error: "Access denied. Session belongs to another candidate.", code: "TENANT_ACCESS_DENIED" }, { status: 403 });
       }
       if (existingSession.report) {
         // Idempotent return of the already generated and persisted report
         const rep = existingSession.report;
+        const m5Rep = (existingSession as any).milestone5Report;
         const hireDecision =
           rep.hiringRecommendation === "STRONG_HIRE" ? "STRONG_HIRE" :
           rep.hiringRecommendation === "HIRE" ? "HIRE" :
@@ -100,11 +111,19 @@ export async function POST(req: Request) {
               comment: rep.communicationAndBehavioral?.summary || "Communication evaluated"
             }
           },
+          sevenDimensionScorecard: m5Rep?.dimensionScores,
+          milestone5Report: m5Rep,
+          actionableStudyTracks: m5Rep?.actionableStudyTracks,
           next_steps: rep.recommendedLearningActions?.join(" | ") || "Proceed with practice curriculum",
           interviewer_note: rep.interviewerPrivateNote || "Session completed.",
           report: rep,
           evidenceCommittedToDNA: 0,
           idempotentReplay: true
+        }, {
+          headers: {
+            "X-Idempotent-Replay": "true",
+            "X-Interview-Report-Version": "2.0.0"
+          }
         });
       }
     }
@@ -163,13 +182,18 @@ export async function POST(req: Request) {
     // 4. Generate evidence-based final report
     const report = await generateInterviewFinalReport(sessionState, messages, dossier);
 
+    // Milestone 5: 7-Dimension Scorecard & Verbatim Grounding
+    const trackToUse = (sessionState.track || effectiveTrack || "general_swe") as any;
+    const milestone5Report = await generateMilestone5FinalReport(sessionState, trackToUse);
+
     // Mark session completed in memory & store
     sessionState.isCompleted = true;
     sessionState.lifecycleState = "COMPLETED";
     saveActiveSessionState(sessionId, sessionState);
     markSessionCompleted(sessionId, report);
 
-    // 5. Commit verified interview evidence into Student DNA
+    // 5. Commit verified interview evidence into Student DNA using Tri-Anchor standard
+    const m5CommitResult = await commitMilestone5EvidenceToDNA(candidateId, milestone5Report, sessionState);
     const commitResult = await commitInterviewEvidenceToDNA(candidateId, report);
 
     // 6. Save permanent interview session
@@ -195,9 +219,10 @@ export async function POST(req: Request) {
         tab_switches: 0,
         face_violations: 0,
       },
-      overall_score: report.overallScore,
-      weak_topics_identified: report.criticalGaps,
+      overall_score: milestone5Report.overallScore ?? report.overallScore,
+      weak_topics_identified: milestone5Report.criticalGaps.length > 0 ? milestone5Report.criticalGaps : report.criticalGaps,
       report,
+      milestone5Report,
       transcript: (messages || []).map((m: any) => ({
         role: m.role,
         content: m.content,
@@ -222,11 +247,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       decision: hireDecision,
-      confidence: report.confidence,
+      confidence: milestone5Report.confidence || report.confidence,
       headline,
-      overview: report.executiveSummary,
-      hire_reasons: report.keyStrengths,
-      no_hire_reasons: report.criticalGaps,
+      overview: milestone5Report.executiveSummary || report.executiveSummary,
+      hire_reasons: milestone5Report.keyStrengths.length > 0 ? milestone5Report.keyStrengths : report.keyStrengths,
+      no_hire_reasons: milestone5Report.criticalGaps.length > 0 ? milestone5Report.criticalGaps : report.criticalGaps,
       standout_moments: report.competenciesAssessed
         .filter((c) => c.status === "demonstrated")
         .map((c) => `${c.competency}: ${c.evaluation}`),
@@ -251,10 +276,17 @@ export async function POST(req: Request) {
           comment: report.communicationAndBehavioral.summary
         }
       },
+      sevenDimensionScorecard: milestone5Report.dimensionScores,
+      milestone5Report,
+      actionableStudyTracks: milestone5Report.actionableStudyTracks,
       next_steps: report.recommendedLearningActions.join(" | ") || "Proceed to team matching round",
       interviewer_note: report.interviewerPrivateNote,
       report, // Complete canonical evidence report
-      evidenceCommittedToDNA: commitResult.evidenceAdded
+      evidenceCommittedToDNA: m5CommitResult.verifiedCommittedCount || commitResult.evidenceAdded
+    }, {
+      headers: {
+        "X-Interview-Report-Version": "2.0.0"
+      }
     });
 
   } catch (err: any) {

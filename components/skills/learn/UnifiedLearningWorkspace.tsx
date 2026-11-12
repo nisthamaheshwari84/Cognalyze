@@ -633,43 +633,43 @@ export default function UnifiedLearningWorkspace({
 
                   {/* Relatable Story & Analogy */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-xl border border-[#EAECF0] dark:border-[#21262D] bg-white dark:bg-[#161B22]">
+                    <div className="p-5 rounded-xl border border-[#E4E1DA] bg-white">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#667085] mb-2">
                         📖 The Intuitive Story
                       </h4>
-                      <p className="text-sm text-[#344054] dark:text-[#C9D1D9] leading-relaxed">
+                      <p className="text-sm text-[#667085] leading-relaxed">
                         {currentSubtopic.intuitiveStory}
                       </p>
                     </div>
 
-                    <div className="p-5 rounded-xl border border-[#EAECF0] dark:border-[#21262D] bg-white dark:bg-[#161B22]">
+                    <div className="p-5 rounded-xl border border-[#E4E1DA] bg-white">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-[#667085] mb-2">
                         💡 Mental Analogy
                       </h4>
-                      <p className="text-sm text-[#344054] dark:text-[#C9D1D9] leading-relaxed">
+                      <p className="text-sm text-[#667085] leading-relaxed">
                         {currentSubtopic.analogy}
                       </p>
                     </div>
                   </div>
 
                   {/* Formal Concept & Mathematical Formula */}
-                  <div className="p-6 rounded-xl border border-[#EAECF0] dark:border-[#21262D] bg-white dark:bg-[#161B22] space-y-4">
-                    <h3 className="text-sm font-bold text-[#1D2939] dark:text-white">
+                  <div className="p-6 rounded-xl border border-[#E4E1DA] bg-white space-y-4">
+                    <h3 className="text-sm font-bold text-[#162A43]">
                       Technical Concept & Mathematical Formulation
                     </h3>
-                    <p className="text-sm text-[#344054] dark:text-[#C9D1D9] leading-relaxed">
+                    <p className="text-sm text-[#17191C] leading-relaxed">
                       {currentSubtopic.formalConcept}
                     </p>
 
                     {currentSubtopic.mathFormula && (
-                      <div className="p-4 rounded-lg bg-[#F8F9FA] dark:bg-[#0D1117] border border-[#EAECF0] dark:border-[#30363D] text-center font-mono text-sm">
+                      <div className="p-4 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-center font-mono text-sm text-[#1E293B]">
                         $${currentSubtopic.mathFormula}$$
                       </div>
                     )}
 
                     {/* Production Significance Alert */}
-                    <div className="p-4 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 text-xs text-amber-900 dark:text-amber-200 flex items-start gap-2.5">
-                      <AlertTriangle className="w-4 h-4 flex-shrink-0 text-amber-600 mt-0.5" />
+                    <div className="p-4 rounded-lg border border-[#F8D8A7] bg-[#FEF7ED] text-xs text-[#B7791F] flex items-start gap-2.5">
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0 text-[#B7791F] mt-0.5" />
                       <div>
                         <strong className="font-bold">Production Significance:</strong> {currentSubtopic.productionSignificance}
                       </div>
@@ -718,7 +718,7 @@ export default function UnifiedLearningWorkspace({
                         <p className="text-xs text-[#667085]">
                           {step.explanation}
                         </p>
-                        <pre className="p-3 rounded-lg bg-[#0D1117] text-[#C9D1D9] text-xs font-mono overflow-x-auto">
+                        <pre className="p-3 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] text-[#1E293B] text-xs font-mono overflow-x-auto">
                           <code>{step.codeOrQuery}</code>
                         </pre>
                         <div className="text-[11px] font-mono text-[#2E7D5B] bg-[#EAF4EE] border border-[#C8E4D3] p-2 rounded">
@@ -879,27 +879,27 @@ export default function UnifiedLearningWorkspace({
                       value={sandboxCode}
                       onChange={(e) => setSandboxCode(e.target.value)}
                       rows={8}
-                      className="w-full font-mono text-xs p-3 rounded-lg border border-[#E4E1DA] bg-[#0D1117] text-[#C9D1D9] focus:outline-none focus:border-[#356AE6]"
+                      className="w-full font-mono text-xs p-3 rounded-lg border border-[#E4E1DA] bg-[#FAF9F6] text-[#1E293B] focus:outline-none focus:border-[#356AE6] focus:bg-white"
                     />
 
                     {/* Terminal Output */}
                     {executionResult && (
-                      <div className="p-4 rounded-lg bg-[#0B0F17] border border-[#21262D] font-mono text-xs space-y-2">
-                        <div className="flex justify-between text-[#8B949E] text-[11px] border-b border-[#21262D] pb-1">
+                      <div className="p-4 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] font-mono text-xs space-y-2">
+                        <div className="flex justify-between text-[#667085] text-[11px] border-b border-[#E4E1DA] pb-1">
                           <span>Output: {executionResult.success ? "SUCCESS" : "ERROR"}</span>
                           <span>Latency: {executionResult.executionTimeMs}ms</span>
                         </div>
                         {executionResult.stdout && (
-                          <pre className="text-emerald-400 whitespace-pre-wrap">{executionResult.stdout}</pre>
+                          <pre className="text-[#2E7D5B] whitespace-pre-wrap">{executionResult.stdout}</pre>
                         )}
                         {executionResult.stderr && (
-                          <pre className="text-rose-400 whitespace-pre-wrap">{executionResult.stderr}</pre>
+                          <pre className="text-[#C24141] whitespace-pre-wrap">{executionResult.stderr}</pre>
                         )}
                         {executionResult.rows && (
                           <div className="overflow-x-auto mt-2">
                             <table className="w-full text-left border-collapse text-[11px]">
                               <thead>
-                                <tr className="border-b border-[#30363D] text-[#8B949E]">
+                                <tr className="border-b border-[#E4E1DA] text-[#667085]">
                                   {executionResult.columns?.map((c: string) => (
                                     <th key={c} className="p-1">{c}</th>
                                   ))}
@@ -907,9 +907,9 @@ export default function UnifiedLearningWorkspace({
                               </thead>
                               <tbody>
                                 {executionResult.rows.slice(0, 5).map((r: any, idx: number) => (
-                                  <tr key={idx} className="border-b border-[#21262D]">
+                                  <tr key={idx} className="border-b border-[#E4E1DA]">
                                     {executionResult.columns?.map((c: string) => (
-                                      <td key={c} className="p-1 text-[#C9D1D9]">{String(r[c])}</td>
+                                      <td key={c} className="p-1 text-[#17191C]">{String(r[c])}</td>
                                     ))}
                                   </tr>
                                 ))}
@@ -944,7 +944,7 @@ export default function UnifiedLearningWorkspace({
                       value={debugCode}
                       onChange={(e) => setDebugCode(e.target.value)}
                       rows={6}
-                      className="w-full font-mono text-xs p-3 rounded-lg border border-rose-300 bg-[#0D1117] text-[#C9D1D9] focus:outline-none"
+                      className="w-full font-mono text-xs p-3 rounded-lg border border-rose-300 bg-[#FFFFFF] text-[#1E293B] focus:outline-none focus:border-rose-500"
                     />
 
                     {debugResult && (
@@ -1050,17 +1050,17 @@ export default function UnifiedLearningWorkspace({
                       value={challengeCode}
                       onChange={(e) => setChallengeCode(e.target.value)}
                       rows={8}
-                      className="w-full font-mono text-xs p-3 rounded-lg border border-[#E4E1DA] bg-[#0D1117] text-[#C9D1D9] focus:outline-none"
+                      className="w-full font-mono text-xs p-3 rounded-lg border border-[#E4E1DA] bg-[#FAF9F6] text-[#1E293B] focus:outline-none focus:border-[#356AE6] focus:bg-white"
                     />
 
                     {challengeResult && (
-                      <div className="p-4 rounded-lg bg-[#0B0F17] border border-[#21262D] font-mono text-xs space-y-2">
-                        <div className="flex justify-between text-[#8B949E] text-[11px] border-b border-[#21262D] pb-1">
+                      <div className="p-4 rounded-lg bg-[#FAF9F6] border border-[#E4E1DA] font-mono text-xs space-y-2">
+                        <div className="flex justify-between text-[#667085] text-[11px] border-b border-[#E4E1DA] pb-1">
                           <span>Test Pass Status: {challengeResult.allTestsPassed ? "100% PASSED" : "FAILED"}</span>
                           <span>Score: {challengeResult.score}/100</span>
                         </div>
                         {challengeResult.testResults?.map((t: any, idx: number) => (
-                          <div key={idx} className={`text-xs ${t.passed ? "text-emerald-400" : "text-rose-400"}`}>
+                          <div key={idx} className={`text-xs ${t.passed ? "text-[#2E7D5B]" : "text-[#C24141]"}`}>
                             [{t.passed ? "PASS" : "FAIL"}] Input: {t.input} | Expected: {t.expected}
                           </div>
                         ))}
@@ -1104,23 +1104,23 @@ export default function UnifiedLearningWorkspace({
       {/* ── FAST TRACK DIAGNOSTIC MODAL ──────────────────────────── */}
       {fastTrackModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#161B22] border border-[#E4E7EC] dark:border-[#30363D] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-2.5 text-purple-700 dark:text-purple-300">
+          <div className="bg-white border border-[#E4E1DA] rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
+            <div className="flex items-center gap-2.5 text-[#356AE6]">
               <Zap className="w-5 h-5" />
-              <h3 className="text-base font-bold text-[#1D2939] dark:text-white">
+              <h3 className="text-base font-bold text-[#162A43]">
                 Fast-Track Diagnostic Assessment
               </h3>
             </div>
-            <p className="text-xs text-[#475467] dark:text-[#8B949E] leading-relaxed">
+            <p className="text-xs text-[#667085] leading-relaxed">
               Already experienced in <strong>{currentSubject?.name}</strong>? Take a fast benchmark challenge to verify your skills. Scoring 85% or higher exempts you from foundational topics and awards Demonstrated Mastery directly in your Student DNA.
             </p>
-            <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-xs text-purple-900 dark:text-purple-200">
+            <div className="p-3 rounded-lg bg-[#EFF4FE] border border-[#D2E0FB] text-xs text-[#356AE6]">
               Benchmark includes: Memory model, Vectorized broadcasting, and Relational query optimizations.
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button
                 onClick={() => setFastTrackModalOpen(false)}
-                className="px-4 py-2 rounded-lg border border-[#D0D5DD] dark:border-[#30363D] text-xs font-semibold hover:bg-[#F2F4F7]"
+                className="px-4 py-2 rounded-lg border border-[#E4E1DA] text-xs font-semibold hover:bg-[#FAF9F6] text-[#667085]"
               >
                 Cancel
               </button>

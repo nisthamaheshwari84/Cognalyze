@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import { SystemDesignChallenge, SEED_SYSTEM_DESIGN_CHALLENGES } from "@/lib/skill-hub-store";
 import {
   generateSessionBrief,
@@ -1778,8 +1779,8 @@ function SystemDesignContent() {
                 <div style={{ maxHeight: 110, overflowY: "auto", marginBottom: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                   {interviewerLog.slice(-3).map((item, idx) => (
                     <div key={idx} style={{ fontSize: 12, color: item.sender === "interviewer" ? "#162A43" : "#356AE6", lineHeight: 1.4 }}>
-                      <strong>{item.sender === "interviewer" ? "🏛️ Interviewer: " : "👤 You: "}</strong>
-                      {item.text}
+                      <div style={{ fontWeight: 700, marginBottom: 2 }}>{item.sender === "interviewer" ? "🏛️ Interviewer" : "👤 You"}</div>
+                      <MarkdownRenderer content={item.text} compact />
                     </div>
                   ))}
                 </div>

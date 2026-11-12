@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import {
   BehavioralQuestionFull,
   MicroLearnScenario,
@@ -1580,19 +1581,21 @@ function BehavioralHRContent() {
 
                           {entry.suggestion && (
                             <div style={{ background: "#FFFFFF", padding: "10px 12px", borderRadius: 6, border: "1px solid #D2E0FB", fontSize: 13, color: "#17191C", marginBottom: 10 }}>
-                              <strong style={{ color: "#356AE6" }}>Try: </strong>
-                              {entry.suggestion}
+                              <strong style={{ color: "#356AE6", display: "block", marginBottom: 4 }}>Try: </strong>
+                              <MarkdownRenderer content={entry.suggestion} compact />
                             </div>
                           )}
 
                           <div style={{ fontSize: 13, color: "#162A43", fontWeight: 700 }}>
-                            👉 {entry.text}
+                            <MarkdownRenderer content={`👉 ${entry.text}`} compact />
                           </div>
                         </div>
                       ) : (
                         <div style={{ background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 8, padding: 12, alignSelf: "flex-end", maxWidth: "90%" }}>
                           <div style={{ fontSize: 10, fontWeight: 800, color: "#667085", marginBottom: 2 }}>YOU</div>
-                          <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.4 }}>{entry.text}</div>
+                          <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.4 }}>
+                            <MarkdownRenderer content={entry.text} compact />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1795,7 +1798,7 @@ function BehavioralHRContent() {
                       <div style={{ fontSize: 10, fontWeight: 800, color: item.speaker === "interviewer" ? (item.isFollowUp ? "#B7791F" : "#356AE6") : "#162A43", marginBottom: 2 }}>
                         {item.speaker === "interviewer" ? (item.isFollowUp ? "⚡ PRIYA'S FOLLOW-UP" : "PRIYA") : "YOU"}
                       </div>
-                      <div>{item.text}</div>
+                      <MarkdownRenderer content={item.text} compact />
                     </div>
                   ))}
                 </div>

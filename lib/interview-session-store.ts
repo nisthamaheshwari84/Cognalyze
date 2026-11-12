@@ -67,6 +67,32 @@ export function saveActiveSessionState(sessionId: string, state: any): void {
     throw new Error(`[interview-session-store] Candidate isolation violation: session ${sessionId} belongs to candidate ${existing.candidateId}`);
   }
 
+  // Monotonic Conduct State Protection:
+  // Escalated conduct states (FIRST_WARNING, FINAL_WARNING, TERMINATED) cannot be downgraded by a stale snapshot
+  const CONDUCT_ORDER: Record<string, number> = {
+    NORMAL: 0,
+    FIRST_WARNING: 1,
+    FINAL_WARNING: 2,
+    TERMINATED: 3,
+  };
+  const existingConductLevel = CONDUCT_ORDER[existing?.conductState || "NORMAL"] || 0;
+  const incomingConductLevel = CONDUCT_ORDER[state?.conductState || "NORMAL"] || 0;
+  if (existingConductLevel > incomingConductLevel) {
+    state.conductState = existing.conductState;
+    if (existing.conductIncidents?.length && (!state.conductIncidents || state.conductIncidents.length < existing.conductIncidents.length)) {
+      state.conductIncidents = existing.conductIncidents;
+    }
+  }
+
+  // Monotonic State Versioning (Guard against LWW stale snapshot overwrites):
+  const existingVersion = Number(existing?.version || existing?.turns?.length || 0);
+  const incomingVersion = Number(state?.version || state?.turns?.length || 0);
+  if (existing && existingVersion > incomingVersion && !state?._forceSnapshot) {
+    // Stale snapshot rejected: do not overwrite newer turn state with older snapshot
+    return;
+  }
+  state.version = Math.max(existingVersion + 1, incomingVersion + 1, (state.turns?.length || 0) + 1);
+
   // 1. Update In-Memory Map
   activeLiveSessions.set(sessionId, state);
 

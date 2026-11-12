@@ -43,28 +43,6 @@ export class DynamicOpportunityPreparationEngine {
 
     const text = `${opp.title} ${opp.companyName} ${opp.organizer || ""} ${opp.description} ${opp.tags?.join(" ") || ""}`.toLowerCase();
 
-    // 0. Jobs & Internships & Full-Time Software Engineering Roles
-    if (
-      opp.opportunityType === "FULL_TIME" ||
-      opp.opportunityType === "JOB" ||
-      opp.opportunityType === "INTERNSHIP" ||
-      opp.employmentType === "full_time" ||
-      opp.employmentType === "internship" ||
-      text.includes("software engineer") ||
-      text.includes("software development engineer") ||
-      text.includes("sde-1") ||
-      text.includes("sde 1") ||
-      text.includes("sde1") ||
-      text.includes("graduate role") ||
-      text.includes("university graduate") ||
-      text.includes("campus hire") ||
-      text.includes("full-time role") ||
-      text.includes("internship") ||
-      text.includes("intern")
-    ) {
-      return "HIRING_CHALLENGE";
-    }
-
     // 1. Open Source Programs
     if (
       text.includes("summer of code") ||
@@ -126,9 +104,25 @@ export class DynamicOpportunityPreparationEngine {
       return "AI_HACKATHON";
     }
 
-    // 6. Enterprise Hiring Challenge
+    // 6. Enterprise Hiring Challenge / Job / Internship
     if (
+      opp.opportunityType === "FULL_TIME" ||
+      opp.opportunityType === "JOB" ||
+      opp.opportunityType === "INTERNSHIP" ||
+      opp.employmentType === "full_time" ||
+      opp.employmentType === "internship" ||
       opp.sourceType === "HACKEREARTH" ||
+      text.includes("software engineer") ||
+      text.includes("software development engineer") ||
+      text.includes("sde-1") ||
+      text.includes("sde 1") ||
+      text.includes("sde1") ||
+      text.includes("graduate role") ||
+      text.includes("university graduate") ||
+      text.includes("campus hire") ||
+      text.includes("full-time role") ||
+      text.includes("internship") ||
+      text.includes("intern") ||
       text.includes("hiring challenge") ||
       text.includes("developer challenge") ||
       text.includes("codehers") ||

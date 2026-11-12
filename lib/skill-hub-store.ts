@@ -456,9 +456,9 @@ export const SKILL_DOMAINS: SkillDomain[] = [
     action_label: "Launch Code Comprehension Lab ➔"
   },
   {
-    slug: "ai_data_intelligence",
-    name: "AI, Data & Intelligence Arena",
-    description: "Hands-on AI Agent Builder, ML Experiment Studio, Production SQL Analytics, Data Engineering pipelines, and MLOps calibrated to industry roles.",
+    slug: "ai_data_arena",
+    name: "AI & Data Arena",
+    description: "Learn AI. Understand Data. Build Intelligence. 154-topic curriculum spanning Python for Data, SQL, Math & Stats, ML/DL, GenAI, and MLOps.",
     icon: "🧠",
     is_service_track: true,
     is_product_track: true,

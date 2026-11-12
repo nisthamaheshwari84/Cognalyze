@@ -154,6 +154,96 @@ function formatMathTokens(text: string, isDark: boolean): React.ReactNode {
 }
 
 /**
+ * Global Markdown Sanitizer & Normalizer:
+ * Pre-processes raw AI output, stored database text, and streaming buffers to guarantee
+ * that CommonMark / GFM parsers render formatted headings, bold text, lists, and code blocks
+ * cleanly without leaking raw asterisks, hashes, backticks, or escaped characters.
+ * 
+ * Safety invariants:
+ * - Code blocks (```...``` and `...`) are strictly protected from mutation.
+ * - Mathematical notation ($...$) is strictly preserved.
+ * - Programming preprocessor directives (#include, #define, etc.) are never converted to headings.
+ * - No data or wording is dropped; malformed formatting is safely normalized.
+ */
+export function sanitizeMarkdownContent(content: string): string {
+  if (!content || typeof content !== "string") return "";
+
+  // 1. Protect multi-line fenced code blocks first
+  const fencedBlocks: string[] = [];
+  let text = content.replace(/(```[\s\S]*?```)/g, (match) => {
+    fencedBlocks.push(match);
+    return `__COG_FENCED_${fencedBlocks.length - 1}__`;
+  });
+
+  // Unescape backticks that were escaped in text (e.g. \`code\` -> `code`)
+  text = text.replace(/\\`/g, "`");
+
+  // Protect inline code `...`
+  const inlineBlocks: string[] = [];
+  text = text.replace(/(`[^`\n]+`)/g, (match) => {
+    inlineBlocks.push(match);
+    return `__COG_INLINE_${inlineBlocks.length - 1}__`;
+  });
+
+  // 2. Protect inline math ($...$)
+  const mathTokens: string[] = [];
+  text = text.replace(/(\$[^$\n]+\$)/g, (match) => {
+    mathTokens.push(match);
+    return `__COG_MATH_${mathTokens.length - 1}__`;
+  });
+
+  // 3. Normalize newlines, HTML breaks, and non-breaking spaces
+  text = text
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\r\n/g, "\n");
+
+  // Fix escaped literal newlines if content was double-stringified in JSON (e.g. "Line 1\nLine 2")
+  if (text.includes("\\n") && !text.includes("\n\n")) {
+    text = text.replace(/\\n/g, "\n");
+  }
+
+  // 4. Unescape backslash-escaped markdown markers (e.g. \*bold\*, \#\# Heading, \`code\`, \[link\])
+  text = text.replace(/\\([*#`_\[\]()])/g, "$1");
+
+  // 5. Normalize Unicode bullets to standard markdown list dashes at line starts
+  text = text.replace(/^([ \t]*)[•●◦⁃–—]\s+/gm, "$1- ");
+
+  // 6. Fix headings missing space after hash, e.g. "###1. Introduction" or "##Overview" on its own line
+  // Exclude C/C++ preprocessor directives: #include, #define, #pragma, #ifdef, #ifndef, #endif, #undef, #error
+  text = text.replace(/^([ \t]*#{1,6})(?!(?:include|define|pragma|ifdef|ifndef|endif|undef|error)\b)([A-Za-z0-9])/gm, "$1 $2");
+
+  // 7. Ensure blank line before markdown headings if attached directly to paragraph text
+  text = text.replace(/([^\n])\n(#{1,6}\s+)/g, "$1\n\n$2");
+
+  // 8. Fix bold with trailing/leading spaces inside asterisks: "** bold **" or "**bold **" or "** bold**"
+  text = text.replace(/\*\*\s+([^\s*][^*]*?)\s*\*\*/g, " **$1** ");
+  text = text.replace(/\*\*([^\s*][^*]*?)\s+\*\*/g, "**$1** ");
+  text = text.replace(/\*\*\s+([^\s*][^*]*?)\*\*/g, " **$1**");
+
+  // 9. Fix italic with interior whitespace: "* italic *" -> "*italic*"
+  text = text.replace(/(?<!\*)\*\s+([^\s*][^*]*?)\s+\*(?!\*)/g, " *$1* ");
+
+  // 10. Fix markdown links with spaces inside parentheses: "[text]( url )"
+  text = text.replace(/\[([^\]]+)\]\(\s*([^\s)]+)\s*\)/g, "[$1]($2)");
+
+  // 11. Restore math tokens
+  text = text.replace(/__COG_MATH_(\d+)__/g, (_, idx) => mathTokens[Number(idx)] || "");
+
+  // 12. Restore inline and fenced code blocks
+  text = text.replace(/__COG_INLINE_(\d+)__/g, (_, idx) => inlineBlocks[Number(idx)] || "");
+  text = text.replace(/__COG_FENCED_(\d+)__/g, (_, idx) => fencedBlocks[Number(idx)] || "");
+
+  // 13. Ensure unclosed code fences are closed (e.g. from streaming response cutoffs)
+  const openFences = text.match(/^```/gm);
+  if (openFences && openFences.length % 2 !== 0) {
+    text += "\n```";
+  }
+
+  return text;
+}
+
+/**
  * Canonical Cognalyze Markdown Renderer
  * Standard, secure, high-fidelity Markdown parser supporting GFM tables, code blocks with copy,
  * math tokens, nested lists, and seamless Light/Dark themes.
@@ -172,11 +262,8 @@ export default function MarkdownRenderer({
     return null;
   }
 
-  // Pre-process raw <br> tags and normalize newlines safely
-  const sanitized = content
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/&nbsp;/gi, " ")
-    .replace(/\r\n/g, "\n");
+  // Pre-process raw <br> tags, normalize newlines, and apply global markdown sanitizer
+  const sanitized = sanitizeMarkdownContent(content);
 
   return (
     <div

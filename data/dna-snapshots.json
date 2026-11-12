@@ -562,5 +562,99 @@
         "changesSummary": "Refreshed snapshot from Student DNA version 2026-10-31T22:45:43.398Z"
       }
     ]
+  },
+  "stud_snap_test_1794413298270::role-sde-backend-test": {
+    "id": "dna_snap_1794413298270_zzwl7p",
+    "studentId": "stud_snap_test_1794413298270",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-11T16:08:18.270Z",
+    "studentDnaVersion": "2026-11-11T16:08:18.270Z",
+    "resumeReference": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits high evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": "HIGH",
+    "overallAlignmentPercentage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "status": "UNVERIFIED"
+      }
+    ],
+    "requirementAlignment": [],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-11T16:08:18.275Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot from Student DNA version 2026-11-11T16:08:18.270Z"
+      }
+    ]
+  },
+  "stud_snap_test_1794502330639::role-sde-backend-test": {
+    "id": "dna_snap_1794502330639_t9oaaj",
+    "studentId": "stud_snap_test_1794502330639",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-12T16:52:10.639Z",
+    "studentDnaVersion": "2026-11-12T16:52:10.639Z",
+    "resumeReference": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits high evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": "HIGH",
+    "overallAlignmentPercentage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "status": "UNVERIFIED"
+      }
+    ],
+    "requirementAlignment": [],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-12T16:52:10.642Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot from Student DNA version 2026-11-12T16:52:10.639Z"
+      }
+    ]
   }
 }

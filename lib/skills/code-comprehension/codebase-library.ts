@@ -97,15 +97,15 @@ const TASKFLOW_API_V1: CodebaseManifest = {
       { id: "auth_middleware", name: "Auth & RBAC Middleware", type: "middleware", description: "Verifies Bearer JWT, decodes tenant context, and verifies role claims", technologies: ["jsonwebtoken", "Express Middleware"], filePath: "src/middleware/auth.ts" },
       { id: "task_controller", name: "Task Controller", type: "service", description: "Validates input schemas, coordinates business logic, and maps domain responses", technologies: ["TypeScript", "Zod"], filePath: "src/controllers/task.controller.ts" },
       { id: "task_service", name: "Task Domain Service", type: "service", description: "Applies business invariants, state transition rules, and audit telemetry", technologies: ["TypeScript"], filePath: "src/services/task.service.ts" },
-      { id: "task_repo", name: "Task Data Repository", type: "service", description: "Executes parameterized SQL queries against PostgreSQL pool", technologies: ["pg (node-postgres)"], filePath: "src/repositories/task.repository.ts" },
-      { id: "postgres_db", name: "PostgreSQL Database", type: "database", description: "Primary relational storage with row-level locks and foreign keys", technologies: ["PostgreSQL 16"] },
+      { id: "task_repo", name: "Task Data Repository", type: "service", description: "Tenant-isolated data access layer implementing PostgreSQL relational semantics and optimistic locking (with isolated memory driver for sandbox execution)", technologies: ["TypeScript", "PostgreSQL Model / Sandbox Driver"], filePath: "src/repositories/task.repository.ts" },
+      { id: "postgres_db", name: "PostgreSQL Relational Store", type: "database", description: "Relational data model with organization_id partition isolation and row version locking", technologies: ["PostgreSQL 16 Relational Model"] },
     ],
     edges: [
       { from: "client", to: "auth_middleware", protocol: "HTTP/REST", label: "POST /tasks, GET /tasks/:id", description: "Client issues authenticated requests with Bearer JWT" },
       { from: "auth_middleware", to: "task_controller", protocol: "In-Memory Call", label: "next(req.user)", description: "Passes authenticated user context down the Express chain" },
       { from: "task_controller", to: "task_service", protocol: "In-Memory Call", label: "createTask(), updateStatus()", description: "Delegates verified DTO to core domain layer" },
       { from: "task_service", to: "task_repo", protocol: "In-Memory Call", label: "insertTask(), findById()", description: "Requests persistence operations" },
-      { from: "task_repo", to: "postgres_db", protocol: "SQL", label: "SELECT / INSERT with pool.query()", description: "Executes parameterized SQL with connection pooling" },
+      { from: "task_repo", to: "postgres_db", protocol: "In-Memory Call", label: "Tenant CRUD with version check", description: "Commits state changes with optimistic concurrency verification" },
     ],
   },
   files: {

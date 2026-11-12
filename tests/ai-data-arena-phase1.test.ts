@@ -77,13 +77,16 @@ describe("Phase 1: Canonical Skill Taxonomy & Aliases", () => {
 });
 
 describe("Phase 1: Skill Practice Hub Domain Registration", () => {
-  test("ai_data_intelligence is registered in SKILL_DOMAINS", () => {
-    const domain = SKILL_DOMAINS.find(d => d.slug === "ai_data_intelligence");
-    assert.ok(domain, "ai_data_intelligence domain must exist in SKILL_DOMAINS");
-    assert.equal(domain.action_route, "/student/skills/ai-data");
-    assert.equal(domain.is_service_track, true);
-    assert.equal(domain.is_product_track, true);
-    assert.equal(domain.gating_priority, "core_interview");
+  test("ai_data_arena is registered in SKILL_DOMAINS and points to /student/skills/ai-data", () => {
+    const aiDataDomain = SKILL_DOMAINS.find(d => d.slug === "ai_data_arena");
+    assert.ok(aiDataDomain, "ai_data_arena must exist in SKILL_DOMAINS");
+    assert.equal(aiDataDomain.action_route, "/student/skills/ai-data");
+    assert.equal(aiDataDomain.is_service_track, true);
+    assert.equal(aiDataDomain.is_product_track, true);
+    assert.equal(aiDataDomain.gating_priority, "core_interview");
+
+    const pythonDomain = SKILL_DOMAINS.find(d => d.slug === "python_programming_arena");
+    assert.equal(pythonDomain, undefined, "python_programming_arena has been retired/consolidated into ai_data_arena");
   });
 });
 

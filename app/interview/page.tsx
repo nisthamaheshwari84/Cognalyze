@@ -3,6 +3,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { VisionPipeline } from "@/lib/camera/vision-models";
 import { TemporalTracker } from "@/lib/camera/temporal-tracker";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
+import {
+  IntegrityEvent,
+  deriveIntegrityCounters,
+  calculatePassportIntegrityScore,
+  KeystrokeTracker,
+  createKeystrokeTracker,
+  recordPhysicalKeystroke,
+  calculateKeystrokeWpm,
+} from "@/lib/interview/integrity-event-service";
 
 // ═══ EVIDENCE-BASED INTERVIEW INTERFACES ═══
 export interface EvidenceMarker {
@@ -31,11 +40,22 @@ interface ScoreData {
   suggestedAnswer?: string;
   overall: number;
   breakdown: ScoreBreakdown;
+  breakdown7?: {
+    DIM_1_TECH_FUNDAMENTALS: number;
+    DIM_2_PROBLEM_SOLVING: number;
+    DIM_3_PRACTICAL_IMPL: number;
+    DIM_4_SYSTEM_DESIGN: number;
+    DIM_5_PROJECT_EXPERIENCE: number;
+    DIM_6_COMMUNICATION: number;
+    DIM_7_ROLE_RELEVANCE: number;
+  };
   evidence: ScoreEvidence;
   verdict: string;
   hiringSignal: string;
   bodyLanguage: any;
   timestamp: number;
+  isProvisional?: boolean;
+  provisional?: boolean;
 }
 interface BodyLang { overall: number; posture: number; eyeContact: number; confidence: number; expression: number; notes: string; }
 interface FinalVerdict { decision: string; confidence: number; headline: string; overview: string; hire_reasons: string[]; no_hire_reasons: string[]; standout_moments: string[]; concerning_moments: string[]; scorecard: Record<string, { score: number; comment: string }>; next_steps: string; interviewer_note: string; }
@@ -81,7 +101,7 @@ function FaceOval({ status }: { status: "idle" | "ok" | "missing" | "multiple" }
       }} />
       <div style={{
         position: "absolute",
-        bottom: "8%",
+        top: "8%",
         left: "50%",
         transform: "translateX(-50%)",
         padding: "4px 14px",
@@ -90,7 +110,8 @@ function FaceOval({ status }: { status: "idle" | "ok" | "missing" | "multiple" }
         borderRadius: 999,
         whiteSpace: "nowrap",
         backdropFilter: "blur(8px)",
-        transition: "all 0.3s ease"
+        transition: "all 0.3s ease",
+        zIndex: 10
       }}>
         <span style={{ fontSize: 10, color: c, fontWeight: 800, letterSpacing: 1.2 }}>
           {label}
@@ -181,16 +202,29 @@ function AlexFace({ speaking, listening }: { speaking: boolean; listening: boole
 
 // ═══ EVIDENCE STREAM PANEL (Replaces arbitrary 100-pt ScorePanel) ═══
 function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }) {
+  const isProv = Boolean(score.isProvisional || (score as any).provisional);
   const ov = score.overall || 0;
   const bd = score.breakdown || { relevance: 0, technicalAccuracy: 0, communicationClarity: 0, problemSolving: 0, depth: 0, examples: 0, confidence: 0 };
   const ev = score.evidence || { strengths: [], improvements: [], suggestedAnswer: "", scoreReason: "" };
-  const hs = score.hiringSignal || "NEUTRAL";
-  const hsColor = hs === "STRONG" ? "#00ff88" : hs === "MODERATE" ? "#fbbf24" : hs === "WEAK" ? "#ff8c00" : hs === "CRITICAL" ? "#ff4466" : "rgba(255,255,255,0.25)";
-  const oc = ov >= 75 ? "#00ff88" : ov >= 55 ? "#fbbf24" : ov > 0 ? "#ff4466" : "rgba(255,255,255,0.18)";
+  const rawHs = score.hiringSignal || "NEUTRAL";
+  const hs = isProv ? "EVALUATING" : rawHs;
+  const hsColor = isProv ? "#818cf8" : hs === "STRONG" ? "#00ff88" : hs === "MODERATE" ? "#fbbf24" : hs === "WEAK" ? "#ff8c00" : hs === "CRITICAL" ? "#ff4466" : "rgba(255,255,255,0.25)";
+  const oc = isProv ? "#818cf8" : ov >= 75 ? "#00ff88" : ov >= 55 ? "#fbbf24" : ov > 0 ? "#ff4466" : "rgba(255,255,255,0.18)";
   const r = 38;
   const circ = 2 * Math.PI * r;
 
-  const DIMS = [
+  const hasCanonical7 = Boolean(score.breakdown7);
+  const CANONICAL_DIMS = [
+    { key: "DIM_1_TECH_FUNDAMENTALS", label: "Tech Fundamentals", max: 100, color: "#00ff88" },
+    { key: "DIM_2_PROBLEM_SOLVING", label: "Problem Solving", max: 100, color: "#fbbf24" },
+    { key: "DIM_3_PRACTICAL_IMPL", label: "Implementation", max: 100, color: "#a855f7" },
+    { key: "DIM_4_SYSTEM_DESIGN", label: "System Design", max: 100, color: "#38bdf8" },
+    { key: "DIM_5_PROJECT_EXPERIENCE", label: "Project Ownership", max: 100, color: "#ec4899" },
+    { key: "DIM_6_COMMUNICATION", label: "Communication", max: 100, color: "#22d3ee" },
+    { key: "DIM_7_ROLE_RELEVANCE", label: "Role Relevance", max: 100, color: "#6366f1" },
+  ];
+
+  const LEGACY_DIMS = [
     { key: "relevance", label: "Relevance", max: 20, color: "#6366f1" },
     { key: "technicalAccuracy", label: "Technical", max: 20, color: "#00ff88" },
     { key: "communicationClarity", label: "Clarity", max: 15, color: "#22d3ee" },
@@ -199,6 +233,9 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
     { key: "examples", label: "Examples", max: 10, color: "#ec4899" },
     { key: "confidence", label: "Confidence", max: 5, color: "#38bdf8" },
   ];
+
+  const DIMS = hasCanonical7 ? CANONICAL_DIMS : LEGACY_DIMS;
+  const dimValues = hasCanonical7 ? (score.breakdown7 as any) : bd;
 
   const markers = score.evidenceMarkers || [];
   const repeatedAlert = score.repeatedGapAlert;
@@ -251,8 +288,8 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.07)", paddingBottom: 8 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ fontSize: 9, letterSpacing: 1.5, color: "#818cf8", fontWeight: 800 }}>LIVE INTERVIEW SCORE</span>
-          <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: "rgba(16,185,129,0.15)", color: "#10b981", fontWeight: 700 }}>
-            ● Synced to DNA
+          <span style={{ fontSize: 8, padding: "1px 5px", borderRadius: 4, background: isProv ? "rgba(129,140,248,0.15)" : "rgba(16,185,129,0.15)", color: isProv ? "#818cf8" : "#10b981", fontWeight: 700 }}>
+            {isProv ? "● Gathering Evidence" : "● Synced to DNA"}
           </span>
         </div>
         {updating && (
@@ -285,8 +322,8 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
             />
           </svg>
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: "1.45rem", fontWeight: 900, color: oc, lineHeight: 1 }}>{ov > 0 ? ov : "—"}</span>
-            <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>/ 100</span>
+            <span style={{ fontSize: isProv ? "1.05rem" : "1.45rem", fontWeight: 900, color: oc, lineHeight: 1 }}>{isProv ? "PROV" : ov > 0 ? ov : "—"}</span>
+            <span style={{ fontSize: 8.5, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{isProv ? "in progress" : "/ 100"}</span>
           </div>
         </div>
 
@@ -309,7 +346,7 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
           SCORE BREAKDOWN
         </div>
         {DIMS.map((d) => {
-          const val = (bd as any)[d.key] || 0;
+          const val = (dimValues as any)[d.key] || 0;
           const pct = Math.min(100, Math.max(0, (val / d.max) * 100));
           const c = pct >= 75 ? "#00ff88" : pct >= 50 ? "#fbbf24" : pct > 0 ? "#ff4466" : "rgba(255,255,255,0.15)";
           return (
@@ -784,8 +821,12 @@ export default function InterviewPage() {
   const [showTrustReport, setShowTrustReport] = useState(false);
   const [buildingTrustReport, setBuildingTrustReport] = useState(false);
   const [pasteDetected, setPasteDetected] = useState(false);
+  const [stageHeader, setStageHeader] = useState("INTRO & RAPPORT | Q0 / 12");
 
   // ── All refs ──
+  const previousTurnScoresRef = useRef<any[]>([]);
+  const keystrokeTrackerRef = useRef<KeystrokeTracker>(createKeystrokeTracker());
+  const lastPasteTimeRef = useRef<number>(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const recRef = useRef<any>(null);
   const synthRef = useRef<SpeechSynthesis | null>(null);
@@ -1319,9 +1360,10 @@ export default function InterviewPage() {
   const analyzeAnswerForAI = async (text: string) => {
     const dur = inputTypingStartRef.current ? (Date.now() - inputTypingStartRef.current) / 1000 : null;
     const wordCount = text.split(/\s+/).filter(Boolean).length;
-    const wpm = dur && wordCount ? Math.round((wordCount / dur) * 60) : 0;
-    if (wpm > 160 || pasteDetected) {
-      addViolation(`Possible AI text — ${wpm > 160 ? `${wpm} WPM typing speed` : "paste detected"}`, "high");
+    // Typing speed is verified strictly through physical keystroke cadence, capped < 250 WPM
+    const wpm = calculateKeystrokeWpm(keystrokeTrackerRef.current);
+    if (wpm > 200) {
+      addViolation(`High typing speed anomaly — ${wpm} WPM (keystroke-verified)`, "medium");
     }
     if (wordCount > 30) {
       try {
@@ -1341,6 +1383,7 @@ export default function InterviewPage() {
     }
     setPasteDetected(false);
     inputTypingStartRef.current = null;
+    keystrokeTrackerRef.current = createKeystrokeTracker();
   };
 
   // ── DOWNLOAD TRUST REPORT ──
@@ -1429,9 +1472,22 @@ export default function InterviewPage() {
     try {
       const res = await fetch("/api/interview-score", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: explicitMsgs.map(m => ({ role: m.role, content: m.content })), jd: jdRef.current, resume: resumeRef.current, bodyLanguage: bodyLangRef.current })
+        body: JSON.stringify({
+          messages: explicitMsgs.map(m => ({ role: m.role, content: m.content })),
+          jd: jdRef.current,
+          resume: resumeRef.current,
+          track: interviewTrack,
+          previousScores: previousTurnScoresRef.current,
+          bodyLanguage: bodyLangRef.current
+        })
       });
-      if (res.ok) { const d = await res.json(); setScore({ ...d }); }
+      if (res.ok) {
+        const d = await res.json();
+        if (!d.isConductTurn && d.overall > 0) {
+          previousTurnScoresRef.current = [...previousTurnScoresRef.current, d];
+        }
+        setScore({ ...d });
+      }
     } catch (e) { console.error("Score error:", e); }
     setScoring(false);
   };
@@ -1555,20 +1611,47 @@ export default function InterviewPage() {
           interviewTrack: interviewTrack,
         })
       });
+      if (!res.ok) {
+        throw new Error(`Failed to initialize interview session (HTTP ${res.status})`);
+      }
       const d = await res.json();
+      const firstMsg = d.message || "Welcome! I'm Alex, your interviewer today. To get started, please tell me a bit about yourself and your background.";
       if (d.sessionId) {
         sessionIdRef.current = d.sessionId;
         if (typeof window !== "undefined") {
           sessionStorage.setItem("cognalyze_active_interview_session_id", d.sessionId);
         }
       }
-      lastQuestionRef.current = d.message;
-      const m: Msg = { role: "assistant", content: d.message, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+      if (d.stageHeader) {
+        setStageHeader(d.stageHeader);
+      }
+      if (d.phase) {
+        setStage(d.phase.toLowerCase());
+      } else if (d.section) {
+        const mappedStage =
+          d.section === "introduction" ? "intro" :
+          d.section === "technical_fundamentals" ? "technical" :
+          d.section === "system_architecture" ? "system-design" :
+          d.section === "coding_problem_solving" ? "technical" :
+          d.section === "operational_behavioral" ? "behavioral" :
+          d.section === "closing" ? "culture" : "intro";
+        setStage(mappedStage);
+      }
+      lastQuestionRef.current = firstMsg;
+      const m: Msg = { role: "assistant", content: firstMsg, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
       msgsRef.current = [m];
       setMsgs([m]);
-      if (mode === "voice") setTimeout(() => speak(d.message), 500);
-    } catch {}
-    setLoading(false);
+      if (mode === "voice") setTimeout(() => speak(firstMsg), 500);
+    } catch (err: any) {
+      console.warn("[interview] Startup fallback triggered:", err);
+      const fallbackMsg = "Welcome! I'm Alex, your interviewer today. To get started, please tell me a bit about yourself and your background.";
+      lastQuestionRef.current = fallbackMsg;
+      const m: Msg = { role: "assistant", content: fallbackMsg, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
+      msgsRef.current = [m];
+      setMsgs([m]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const startInterview = async () => {
@@ -1634,7 +1717,7 @@ export default function InterviewPage() {
     }
   };
 
-  const send = async (text?: string) => {
+  const send = async (text?: string, isRetry: boolean = false) => {
     const content = (text || input).trim();
     if (!content || isSubmittingRef.current || loading || ended) return;
     isSubmittingRef.current = true;
@@ -1650,11 +1733,9 @@ export default function InterviewPage() {
     }
 
     setInput("");
-    const newQ = qNumRef.current + 1;
+    const newQ = isRetry ? qNumRef.current : qNumRef.current + 1;
     qNumRef.current = newQ;
     setQNum(newQ);
-    const newStage = newQ <= 1 ? "intro" : newQ <= 4 ? "behavioral" : newQ <= 8 ? "technical" : newQ <= 10 ? "system-design" : "culture";
-    setStage(newStage);
     const userMsg: Msg = { role: "user", content, time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) };
     const explicitMsgs = [...msgsRef.current, userMsg];
     msgsRef.current = explicitMsgs;
@@ -1666,7 +1747,7 @@ export default function InterviewPage() {
     setLifecycleState("PROCESSING");
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     try {
       const res = await fetch("/api/interview-chat", {
@@ -1709,6 +1790,28 @@ export default function InterviewPage() {
         }
       }
 
+      if (d.stageHeader) {
+        setStageHeader(d.stageHeader);
+      }
+
+      if (d.phase) {
+        setStage(d.phase.toLowerCase());
+      } else if (d.section) {
+        const mappedStage =
+          d.section === "introduction" ? "intro" :
+          d.section === "technical_fundamentals" ? "technical" :
+          d.section === "system_architecture" ? "system-design" :
+          d.section === "coding_problem_solving" ? "technical" :
+          d.section === "operational_behavioral" ? "behavioral" :
+          d.section === "closing" ? "culture" : stage;
+        setStage(mappedStage);
+      }
+
+      if (d.isClosing || d.isCompleted) {
+        setEnded(true);
+        endedRef.current = true;
+      }
+
       lastQuestionRef.current = d.message;
       const aiMsg: Msg = {
         role: "assistant",
@@ -1732,14 +1835,7 @@ export default function InterviewPage() {
         : "Alex experienced a brief connection delay. Please tap below to retry.";
       setTurnError(errorText);
 
-      const fallbackPrompt: Msg = {
-        role: "assistant",
-        content: errorText,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
-      const errorMsgs = [...explicitMsgs, fallbackPrompt];
-      msgsRef.current = errorMsgs;
-      setMsgs([...errorMsgs]);
+      // Clean transcript preservation: Do not inject synthetic error prompt as assistant message
     } finally {
       clearTimeout(timeoutId);
       isSubmittingRef.current = false;
@@ -2170,6 +2266,9 @@ export default function InterviewPage() {
         @keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
         textarea:focus,input:focus{outline:none;}
         ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:#334155;border-radius:2px;}
+        .floating-mascot-launcher, [data-floating-mascot="true"], a[href*="ai-mentor"][style*="position: fixed"] {
+          display: none !important;
+        }
       `}</style>
 
       {showVerdict && finalVerdict && <VerdictModal verdict={finalVerdict} onClose={() => setShowVerdict(false)} />}
@@ -2205,7 +2304,7 @@ export default function InterviewPage() {
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#2E7D5B" }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: "#FFFFFF" }}>Evaluation Studio{secureMode ? " 🛡️" : ""}</span>
           <div style={{ padding: "2px 8px", background: "rgba(53, 106, 230, 0.15)", border: "1px solid rgba(53, 106, 230, 0.35)", borderRadius: 5 }}>
-            <span style={{ fontSize: 11, color: "#60A5FA", fontWeight: 600 }}>{sl}</span>
+            <span style={{ fontSize: 11, color: "#60A5FA", fontWeight: 600 }}>{stageHeader || sl}</span>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -2333,7 +2432,7 @@ export default function InterviewPage() {
                       const cleaned = msgsRef.current.filter(m => !m.content.includes("Please tap below"));
                       msgsRef.current = cleaned.slice(0, -1);
                       setMsgs([...msgsRef.current]);
-                      send(lastUser);
+                      send(lastUser, true);
                     }
                   }}
                   style={{ padding: "4px 10px", fontSize: 11, fontWeight: 600, background: "#EF4444", color: "#FFFFFF", border: "none", borderRadius: 5, cursor: "pointer" }}
@@ -2370,18 +2469,20 @@ export default function InterviewPage() {
                   }}
                   onKeyDown={e => {
                     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); return; }
-                    if (secureMode && (e.ctrlKey || e.metaKey) && e.key === "v") {
-                      setPasteDetected(true);
-                      const newCount = pasteCountRef.current + 1; pasteCountRef.current = newCount;
-                      setPasteCount(newCount);
-                      addViolation("Paste action detected", "high");
+                    // Track physical keystrokes for accurate WPM calculation (< 250 WPM)
+                    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                      keystrokeTrackerRef.current = recordPhysicalKeystroke(keystrokeTrackerRef.current, e.key);
                     }
                   }}
                   onPaste={secureMode ? () => {
+                    const now = Date.now();
+                    if (now - lastPasteTimeRef.current < 400) return; // Strict deduplication guard
+                    lastPasteTimeRef.current = now;
                     setPasteDetected(true);
-                    const newCount = pasteCountRef.current + 1; pasteCountRef.current = newCount;
+                    const newCount = pasteCountRef.current + 1;
+                    pasteCountRef.current = newCount;
                     setPasteCount(newCount);
-                    addViolation("Text pasted — external source review logged", "high");
+                    addViolation("Text pasted — external clipboard review logged", "high");
                   } : undefined}
                   placeholder="Type your response... (Enter to send, Shift+Enter for new line)"
                   rows={2}

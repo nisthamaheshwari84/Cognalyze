@@ -18,6 +18,9 @@ export function proxy(req: NextRequest) {
     pathname === "/student/dsa-tracker" ||
     pathname === "/student/gd-practice" ||
     pathname === "/student/simulation" ||
+    pathname.startsWith("/student/simulation/") ||
+    pathname === "/recruitment-simulation" ||
+    pathname.startsWith("/recruitment-simulation/") ||
     pathname === "/student/practice-interview" ||
     pathname === "/student/resume" ||
     pathname === "/resume" ||
@@ -41,6 +44,8 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/feed") ||
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/api/skills") ||
+    pathname.startsWith("/api/recruitment") ||
+    pathname.startsWith("/api/simulation") ||
     pathname.startsWith("/api/parse-resume") ||
     pathname.startsWith("/api/student/ai-mentor") ||
     pathname.startsWith("/api/opportunities") ||

@@ -154,24 +154,27 @@ function secureDnsLookup(
 }
 
 // Reusable secure agents that enforce socket-level DNS verification
-export const secureHttpAgent = new http.Agent({
-  lookup: secureDnsLookup as any,
-  keepAlive: true,
-  timeout: 5000,
-});
+export const secureHttpAgent = (typeof http !== "undefined" && typeof http?.Agent === "function")
+  ? new http.Agent({
+      lookup: secureDnsLookup as any,
+      keepAlive: true,
+      timeout: 5000,
+    })
+  : null;
 
-export const secureHttpsAgent = new https.Agent({
-  lookup: secureDnsLookup as any,
-  keepAlive: true,
-  timeout: 5000,
-  // Preserves full TLS Certificate & SNI verification against original hostname
-  checkServerIdentity: (hostname, cert) => tlsCheckServerIdentity(hostname, cert),
-});
+export const secureHttpsAgent = (typeof https !== "undefined" && typeof https?.Agent === "function")
+  ? new https.Agent({
+      lookup: secureDnsLookup as any,
+      keepAlive: true,
+      timeout: 5000,
+      checkServerIdentity: (hostname, cert) => tlsCheckServerIdentity(hostname, cert),
+    })
+  : null;
 
 function tlsCheckServerIdentity(hostname: string, cert: any): Error | undefined {
   return tlsDefaultCheck(hostname, cert);
 }
-const tlsDefaultCheck = https.globalAgent.options.checkServerIdentity || (() => undefined);
+const tlsDefaultCheck = (typeof https !== "undefined" && https?.globalAgent?.options?.checkServerIdentity) || (() => undefined);
 
 /**
  * Safe Fetch Wrapper with Multi-Hop Redirect Validation

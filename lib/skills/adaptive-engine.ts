@@ -500,6 +500,30 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
     };
   }
 
+  if (domainSlug === "preparations") {
+    return {
+      status: "Developing",
+      statusColor: "#356AE6",
+      focusToday: "Opportunity Roadmaps: GSoC, Flipkart GRID, Amazon HackOn & AI Internships",
+      whyRecommended: "Targeted company and fellowship preparation with real projects, open-source PR guidance, and mock OA assessments.",
+      lastPracticed: "Recently",
+      estimatedMinutes: 30,
+      targetRound: trackSlug === "service_mass" ? "Technical Assessment" : "Program Selection & OA"
+    };
+  }
+
+  if (domainSlug === "ai_data_arena") {
+    return {
+      status: "Developing",
+      statusColor: "#38bdf8",
+      focusToday: "Curriculum-Driven Python, SQL, Math, ML/DL, GenAI & MLOps",
+      whyRecommended: "Comprehensive 154-topic curriculum spanning Track A Foundations and Track B Specialized Domains.",
+      lastPracticed: "Recently",
+      estimatedMinutes: 25,
+      targetRound: trackSlug === "service_mass" ? "Data & AI Technical Assessment" : "AI/ML Systems Round"
+    };
+  }
+
   // Aptitude & Quantitative Reasoning
   if (domainSlug === "aptitude_reasoning") {
     const aptAttempts = getCandidateAttempts(candidateId, "aptitude_reasoning");
@@ -563,7 +587,9 @@ export function generateSessionBrief(
     communication_english: "Corporate Spoken English & Articulation Studio",
     aptitude_reasoning: "Aptitude & Reasoning Assessment",
     dsa_coding: "DSA Coding Interview Arena",
-    code_comprehension: "Code Comprehension Lab"
+    code_comprehension: "Code Comprehension Lab",
+    preparations: "Career Launch & Preparations Arena",
+    ai_data_arena: "AI & Data Arena"
   };
 
   const domainName = domainNames[domainSlug] || "Technical Practice Arena";
@@ -592,6 +618,20 @@ export function generateSessionBrief(
       "Express Multi-Tenant JWT Request Lifecycle",
       "Compensating Rollback in Checkout Pipelines",
       "Auditing AI Pull Requests for Node.js Concurrency Flaws"
+    ];
+  } else if (domainSlug === "preparations") {
+    focusAreas = [
+      "Program Requirements & Eligibility Verification",
+      "Hands-on Project Blueprint & System Architecture",
+      "Open-Source Repository Issue Triage & PR Checklist",
+      "Mock OA Coding & Proposal Socratic Defense"
+    ];
+  } else if (domainSlug === "ai_data_arena") {
+    focusAreas = [
+      "Python for AI & Vectorized Data Pipelines",
+      "Relational SQL, CTEs & Aggregations",
+      "Classical Machine Learning & Loss Optimization",
+      "Generative AI, Embeddings & RAG Architectures"
     ];
   } else {
     focusAreas = ["Sliding Window Invariant", "Two Pointers vs Dynamic Programming", "O(N) Runtime & O(1) Space Complexity Proof"];
@@ -1121,7 +1161,8 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
     behavioral_hr: "Behavioral & HR",
     communication_english: "Spoken English",
     aptitude_reasoning: "Aptitude & Reasoning",
-    code_comprehension: "Code Comprehension"
+    code_comprehension: "Code Comprehension",
+    ai_data_arena: "AI & Data Arena"
   };
   const dName = domainNames[normalizedSlug] || "Practice Domain";
 
@@ -1152,6 +1193,34 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
       recommendedModeLabel: "🛠️ Practice Mode",
       recommendedDrill: "TaskFlow RBAC or Nexus Concurrency Drill",
       evidenceSummary: "Multi-file codebase diagnostic"
+    };
+  }
+
+  if (domainSlug === "preparations") {
+    return {
+      domainSlug: "preparations",
+      domainName: "Career Launch & Preparations Arena",
+      status: "NEEDS_PRACTICE",
+      statusColor: "#356AE6",
+      reason: "Targeted company and fellowship preparation with real projects, open-source PR guidance, and mock OA assessments.",
+      recommendedMode: "practice",
+      recommendedModeLabel: "🎯 Launch Arena",
+      recommendedDrill: "GSoC Proposal or Flipkart Flash Sale Architecture",
+      evidenceSummary: "Demonstrated opportunity milestones"
+    };
+  }
+
+  if (domainSlug === "ai_data_arena") {
+    return {
+      domainSlug: "ai_data_arena",
+      domainName: "AI & Data Arena",
+      status: "NEEDS_PRACTICE",
+      statusColor: "#38bdf8",
+      reason: "154-topic hierarchical curriculum with sandboxed Python, SQL, and Student DNA evidence.",
+      recommendedMode: "practice",
+      recommendedModeLabel: "🛠️ Practice Mode",
+      recommendedDrill: "Track A Foundations to Track B Specialized Intelligence",
+      evidenceSummary: "Hands-on AI & Data system engineering"
     };
   }
 

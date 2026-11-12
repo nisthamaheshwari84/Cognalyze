@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import {
   COMMUNICATION_LESSONS,
   COMMUNICATION_QUESTION_BANK,
@@ -790,9 +791,9 @@ function CommunicationArenaContent() {
                     <h3 style={{ fontSize: 20, fontWeight: 800, margin: "6px 0 0", color: "#162A43" }}>
                       Your Communication Review
                     </h3>
-                    <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
-                      {practiceReport.summary}
-                    </p>
+                    <div style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
+                      <MarkdownRenderer content={practiceReport.summary} compact />
+                    </div>
                   </div>
 
                   <div style={{ textAlign: "right" }}>
@@ -1134,7 +1135,7 @@ function CommunicationArenaContent() {
                           {msg.speaker === "candidate" ? "You (Candidate)" : "Interviewer"}
                         </div>
                         <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.5 }}>
-                          {msg.text}
+                          <MarkdownRenderer content={msg.text} compact />
                         </div>
                       </div>
                     ))}
@@ -1255,9 +1256,9 @@ function CommunicationArenaContent() {
                       <h2 style={{ fontSize: 20, fontWeight: 800, margin: "6px 0 0", color: "#162A43" }}>
                         Mock Interview Diagnostic Report
                       </h2>
-                      <p style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
-                        {interviewReport.summary}
-                      </p>
+                      <div style={{ fontSize: 13, color: "#667085", margin: "4px 0 0" }}>
+                        <MarkdownRenderer content={interviewReport.summary} compact />
+                      </div>
                     </div>
 
                     <div style={{ textAlign: "right" }}>

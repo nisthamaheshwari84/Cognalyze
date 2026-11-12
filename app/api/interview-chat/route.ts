@@ -18,8 +18,15 @@ import {
   isCandidateEarlyFinishRequest,
   determineFollowUpReason,
   InterviewSection,
-  InterviewTrack
+  InterviewTrack,
+  generateStructuredInterviewPlan
 } from "@/lib/ai/interview-engine";
+import {
+  evaluateCandidateConduct,
+  ConductState,
+  ConductIncident,
+  INSTITUTIONAL_CONDUCT_MESSAGES
+} from "@/lib/interview/conduct-engine";
 import {
   getActiveSessionState,
   getActiveSessionStateAsync,
@@ -30,6 +37,24 @@ import {
   getSessionById
 } from "@/lib/interview-session-store";
 import { generateSecureId } from "@/lib/crypto-utils";
+import {
+  buildClaimLedgerFromText,
+  ROHAN_VERMA_CLAIM_LEDGER,
+  FULL_STACK_AI_PRODUCTS_JD,
+  ClaimLedger,
+} from "@/lib/interview/ground-truth-service";
+import {
+  validateQuestionGrounding,
+  repairUngroundedQuestion,
+} from "@/lib/interview/grounding-validator";
+import {
+  determineNextPhase,
+  formatStageHeader,
+  handleJunkInput,
+  isJunkInput,
+  isSemanticDuplicate,
+  InterviewPhase,
+} from "@/lib/interview/interview-state-machine";
 
 function trimMessages(messages: Array<{ role: string; content: string }>, maxMessages = 12) {
   if (messages.length <= maxMessages) return messages;
@@ -109,6 +134,20 @@ export async function POST(req: Request) {
       sessionState = await getActiveSessionStateAsync(sessionId, candidateId);
     }
 
+    // Behavioral Integrity Check: If session was terminated for conduct violations, reject immediately
+    if (sessionState && sessionState.conductState === "TERMINATED") {
+      return NextResponse.json(
+        {
+          error: "Interview session terminated due to professional conduct policy violations.",
+          isCompleted: true,
+          isTerminated: true,
+          conductState: "TERMINATED",
+          message: INSTITUTIONAL_CONDUCT_MESSAGES.TERMINATED
+        },
+        { status: 400 }
+      );
+    }
+
     // Reuse session-cached dossier if present to avoid repeated 200ms+ disk/evidence parsing
     let dossier = sessionState?.dossier;
     let dossierCacheHit = Boolean(dossier);
@@ -116,6 +155,9 @@ export async function POST(req: Request) {
     if (!dossier) {
       dossier = await buildCandidateInterviewDossier(candidateId, effectiveResume, effectiveJd);
     }
+
+    // Authoritative Ground Truth & Claim Ledger extraction
+    const { claimLedger } = buildClaimLedgerFromText(candidateId, effectiveResume, effectiveJd);
 
     if (!sessionState) {
       const blueprint = generateInterviewBlueprint(
@@ -144,6 +186,16 @@ export async function POST(req: Request) {
       if (!sessionState.track && effectiveTrack) {
         sessionState.track = effectiveTrack;
       }
+      if (!sessionState.interviewPlan && dossier) {
+        sessionState.interviewPlan = sessionState.blueprint?.interviewPlan || generateStructuredInterviewPlan(
+          dossier,
+          sessionState.jdCompetencyMatrix || dossier.jdCompetencyMatrix,
+          sessionState.candidateIntelligence || dossier.candidateIntelligence,
+          sessionState.blueprint?.targetRole || dossier.targetRole,
+          sessionState.blueprint?.durationMinutes || 45,
+          sessionState.experienceMode || dossier.experienceMode
+        );
+      }
     }
 
     const userMessages = messages.filter((m: any) => m.role === "user");
@@ -163,6 +215,7 @@ export async function POST(req: Request) {
           sessionId,
           turnIndex: 0,
           openingState: sessionState.openingState,
+          conductState: sessionState.conductState || "NORMAL",
           meta: {
             correlationId,
             latencyMs: Date.now() - t0,
@@ -184,6 +237,7 @@ export async function POST(req: Request) {
           turnIndex: sessionState.turns.length,
           openingState: sessionState.openingState,
           currentSection: sessionState.blueprint.currentSection,
+          conductState: sessionState.conductState || "NORMAL",
           meta: {
             correlationId,
             latencyMs: Date.now() - t0,
@@ -213,6 +267,7 @@ export async function POST(req: Request) {
         sessionId,
         turnIndex: 0,
         openingState: "AWAITING_CANDIDATE_INTRO",
+        conductState: sessionState.conductState || "NORMAL",
         meta: {
           correlationId,
           latencyMs: Date.now() - t0,
@@ -223,6 +278,93 @@ export async function POST(req: Request) {
 
     const lastUserMsg = userMessages.length > 0 ? userMessages[userMessages.length - 1].content : "";
     const lastAssistantMsg = assistantMessages.length > 0 ? assistantMessages[assistantMessages.length - 1].content : "";
+
+    // 4.3 JUNK INPUT & KEYBOARD MASH 2-STRIKE GUARD
+    if (lastUserMsg && isJunkInput(lastUserMsg)) {
+      const currentStrikes = (sessionState as any).junkStrikes || 0;
+      const junkRes = handleJunkInput(lastUserMsg, currentStrikes);
+      (sessionState as any).junkStrikes = junkRes.newStrikes;
+
+      if (junkRes.isJunk && !junkRes.advanceTurn) {
+        return NextResponse.json({
+          message: junkRes.replyMessage,
+          questionTargets: "Input Clarification",
+          section: sessionState.blueprint?.currentSection || "resume_projects",
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: false,
+          sessionId,
+          turnIndex: sessionState.turns.length,
+          openingState: sessionState.openingState,
+          currentSection: sessionState.blueprint?.currentSection,
+          conductState: sessionState.conductState || "NORMAL",
+          isJunkWarning: true,
+          phase: (sessionState as any).interviewPhase || "RESUME_DEEP_DIVE",
+          stageHeader: formatStageHeader((sessionState as any).interviewPhase || "RESUME_DEEP_DIVE", sessionState.turns.length, 12),
+          meta: { correlationId, latencyMs: Date.now() - t0, dossierCacheHit }
+        });
+      }
+    }
+
+    // 4.5 CONDUCT & INTEGRITY GATE (Milestone 2)
+    // Multilingual backend-enforced evaluation (English, Hindi, Hinglish).
+    // Distinguishes genuine misconduct from frustration, nervousness, uncertainty, or clarification.
+    if (lastUserMsg) {
+      const currentConductState = sessionState.conductState || "NORMAL";
+      const currentTurnNumber = (sessionState.turns?.length || 0) + 1;
+      const conductRes = evaluateCandidateConduct(lastUserMsg, currentConductState, currentTurnNumber);
+
+      if (conductRes.isMisconduct && conductRes.shouldHaltTurn) {
+        // Enforce deterministic state machine transition
+        sessionState.conductState = conductRes.newState;
+        if (!sessionState.conductIncidents) {
+          sessionState.conductIncidents = [];
+        }
+        if (conductRes.incident) {
+          sessionState.conductIncidents.push(conductRes.incident);
+        }
+
+        const isTerminated = conductRes.newState === "TERMINATED";
+        if (isTerminated) {
+          sessionState.isCompleted = true;
+          sessionState.lifecycleState = "EARLY_TERMINATION";
+        }
+
+        const warningMsg = conductRes.interviewerMessage || INSTITUTIONAL_CONDUCT_MESSAGES.FIRST_WARNING;
+
+        sessionState.questionsAsked.push({
+          question: warningMsg,
+          targets: "Professional Conduct Directive",
+          section: sessionState.blueprint?.currentSection || "resume_projects",
+          competency: "Professional Communication & Integrity",
+          turnIndex: currentTurnNumber,
+        });
+
+        // Persist session state durability across reloads and multi-instance environments
+        await saveActiveSessionStateAsync(sessionId, sessionState);
+
+        return NextResponse.json({
+          message: warningMsg,
+          questionTargets: "Professional Conduct Directive",
+          section: sessionState.blueprint?.currentSection || "resume_projects",
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: false,
+          sessionId,
+          turnIndex: sessionState.turns.length,
+          openingState: sessionState.openingState,
+          currentSection: sessionState.blueprint?.currentSection,
+          conductState: conductRes.newState,
+          isMisconduct: true,
+          isWarning: conductRes.newState === "FIRST_WARNING" || conductRes.newState === "FINAL_WARNING",
+          isTerminated,
+          incident: conductRes.incident,
+          meta: {
+            correlationId,
+            latencyMs: Date.now() - t0,
+            dossierCacheHit,
+          }
+        });
+      }
+    }
 
     // 5. STEP 2 & 3: Candidate Introduction Received -> Acknowledge & Transition to Question 1
     if (sessionState.openingState === "AWAITING_CANDIDATE_INTRO") {
@@ -236,6 +378,8 @@ export async function POST(req: Request) {
 
       // Generate Question 1 of actual interview grounded in dossier & candidate introduction
       const firstQ = await generateNextAdaptiveQuestion(sessionState, dossier, candidateIntro, null);
+      firstQ.question = repairUngroundedQuestion(firstQ.question, claimLedger);
+      (sessionState as any).interviewPhase = "RESUME_DEEP_DIVE";
 
       // Crisp combined message: [Acknowledgment & Transition] + [Question 1]
       const combinedMessage = `${transition} ${firstQ.question}`;
@@ -250,6 +394,8 @@ export async function POST(req: Request) {
 
       saveActiveSessionState(sessionId, sessionState);
 
+      const totalTargetTurns = sessionState.blueprint?.totalTargetTurns || 12;
+
       return NextResponse.json({
         message: combinedMessage,
         questionTargets: firstQ.question_targets,
@@ -260,6 +406,9 @@ export async function POST(req: Request) {
         turnIndex: 1,
         openingState: "INTERVIEW_IN_PROGRESS",
         currentSection: sessionState.blueprint.currentSection,
+        conductState: sessionState.conductState || "NORMAL",
+        phase: "RESUME_DEEP_DIVE",
+        stageHeader: formatStageHeader("RESUME_DEEP_DIVE", 1, totalTargetTurns),
         meta: {
           correlationId,
           latencyMs: Date.now() - t0,
@@ -330,6 +479,114 @@ export async function POST(req: Request) {
         });
       }
 
+      // 6.5 CANDIDATE QUESTIONS PHASE (State Machine)
+      const currentTurnCount = sessionState.turns.length;
+      const totalTurns = sessionState.blueprint?.totalTargetTurns || 12;
+      const activePhase: InterviewPhase = (sessionState as any).interviewPhase || (
+        currentTurnCount >= 10 ? "CANDIDATE_QUESTIONS" :
+        currentTurnCount >= 6 ? "CODING" :
+        currentTurnCount >= 3 ? "JD_CORE_SKILLS" : "RESUME_DEEP_DIVE"
+      );
+
+      // Transition to CANDIDATE_QUESTIONS if turn budget reached
+      if (activePhase !== "CANDIDATE_QUESTIONS" && activePhase !== "CLOSING" && activePhase !== "ENDED" && currentTurnCount >= 10) {
+        (sessionState as any).interviewPhase = "CANDIDATE_QUESTIONS";
+        const inviteMsg = "That wraps up our technical deep dives! We have a few minutes left, and I would love to answer any questions you have for me about our engineering team, tech stack, roadmap, or day-to-day culture.";
+
+        sessionState.questionsAsked.push({
+          question: inviteMsg,
+          targets: "Candidate Questions & Culture",
+          section: "closing",
+          competency: "Candidate Inquiries",
+          turnIndex: currentTurnCount + 1,
+        });
+        await saveActiveSessionStateAsync(sessionId, sessionState);
+
+        return NextResponse.json({
+          message: inviteMsg,
+          questionTargets: "Candidate Questions & Culture",
+          section: "closing",
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: false,
+          sessionId,
+          turnIndex: currentTurnCount,
+          openingState: sessionState.openingState,
+          currentSection: "closing",
+          phase: "CANDIDATE_QUESTIONS",
+          stageHeader: formatStageHeader("CANDIDATE_QUESTIONS", currentTurnCount + 1, totalTurns),
+          meta: { correlationId, latencyMs: Date.now() - t0, dossierCacheHit }
+        });
+      }
+
+      // Handle ongoing CANDIDATE_QUESTIONS turns
+      if (activePhase === "CANDIDATE_QUESTIONS") {
+        const candidateQuestionsAsked = ((sessionState as any).candidateQuestionsCount || 0) + 1;
+        (sessionState as any).candidateQuestionsCount = candidateQuestionsAsked;
+
+        const isWrappingUp =
+          candidateQuestionsAsked >= 2 ||
+          /no more questions|all good|that covers it|thank you that was helpful|nothing else/i.test(lastUserMsg);
+
+        if (isWrappingUp) {
+          (sessionState as any).interviewPhase = "CLOSING";
+          sessionState.isCompleted = true;
+          sessionState.lifecycleState = "READY_TO_FINISH";
+
+          const closingMsg = `Thank you so much for your thoughtful questions and for spending time with us today! We really enjoyed discussing your engineering background, systems architecture choices, and hands-on problem-solving. Our team will review the evaluation records and share detailed feedback and next steps shortly. Have a great day!`;
+
+          sessionState.questionsAsked.push({
+            question: closingMsg,
+            targets: "Interview Conclusion",
+            section: "closing",
+            competency: "Closing Summary",
+            turnIndex: currentTurnCount + 1,
+          });
+          await saveActiveSessionStateAsync(sessionId, sessionState);
+
+          return NextResponse.json({
+            message: closingMsg,
+            questionTargets: "Interview Conclusion",
+            section: "closing",
+            difficulty: sessionState.currentDifficulty,
+            isFollowUp: false,
+            sessionId,
+            turnIndex: currentTurnCount,
+            openingState: sessionState.openingState,
+            currentSection: "closing",
+            isClosing: true,
+            phase: "CLOSING",
+            stageHeader: formatStageHeader("CLOSING", currentTurnCount + 1, totalTurns),
+            meta: { correlationId, latencyMs: Date.now() - t0, dossierCacheHit }
+          });
+        }
+
+        const answerMsg = `Great question! On our engineering team, we focus heavily on high-trust developer velocity and robust architectural patterns. Our tech stack is built on TypeScript, React and Next.js on the frontend, Node.js with PostgreSQL on the backend, and automated CI/CD with preview deployments for every PR. We emphasize continuous mentorship and structured design reviews before shipping to production. What else would you like to know before we wrap up?`;
+
+        sessionState.questionsAsked.push({
+          question: answerMsg,
+          targets: "Engineering Culture & Architecture Q&A",
+          section: "closing",
+          competency: "Candidate Inquiry Response",
+          turnIndex: currentTurnCount + 1,
+        });
+        await saveActiveSessionStateAsync(sessionId, sessionState);
+
+        return NextResponse.json({
+          message: answerMsg,
+          questionTargets: "Engineering Culture & Architecture Q&A",
+          section: "closing",
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: false,
+          sessionId,
+          turnIndex: currentTurnCount,
+          openingState: sessionState.openingState,
+          currentSection: "closing",
+          phase: "CANDIDATE_QUESTIONS",
+          stageHeader: formatStageHeader("CANDIDATE_QUESTIONS", currentTurnCount + 1, totalTurns),
+          meta: { correlationId, latencyMs: Date.now() - t0, dossierCacheHit }
+        });
+      }
+
       // 7. Build recent conversation history
       const trimmed = trimMessages(messages, 10);
       const historyText = trimmed
@@ -344,6 +601,36 @@ export async function POST(req: Request) {
         lastAssistantMsg,
         lastUserMsg
       );
+
+      // Question Grounding Validation: eliminate tech-transfer hallucinations (e.g. ChatDesk + Redis)
+      nextQuestion.question = repairUngroundedQuestion(nextQuestion.question, claimLedger);
+
+      // Semantic duplicate check
+      if (isSemanticDuplicate(nextQuestion.question, sessionState.questionsAsked.map(q => ({ text: q.question })))) {
+        const fallback = generateBlueprintFallbackQuestion({
+          section: sessionState.blueprint.currentSection,
+          dossier,
+          questionsAsked: sessionState.questionsAsked,
+          assessment: sessionState.lastAssessment,
+          candidateIntro: sessionState.candidateIntroduction,
+          experienceMode: sessionState.experienceMode,
+          targetRole: dossier.targetRole,
+          track: sessionState.track as any,
+        });
+        nextQuestion.question = repairUngroundedQuestion(fallback.question, claimLedger);
+      }
+
+      // Update State Machine phase
+      const calculatedPhase = determineNextPhase({
+        phase: activePhase,
+        turnIndex: sessionState.turns.length + 1,
+        totalTargetTurns: totalTurns,
+        junkStrikes: (sessionState as any).junkStrikes || 0,
+        questionsAsked: sessionState.questionsAsked.map(q => ({ text: q.question, phase: activePhase, timestamp: Date.now() })),
+        lastQuestionText: lastAssistantMsg,
+        candidateQuestionsCount: (sessionState as any).candidateQuestionsCount || 0,
+      }, lastUserMsg);
+      (sessionState as any).interviewPhase = calculatedPhase;
 
       sessionState.lastAssessment = assessment;
 
@@ -416,6 +703,10 @@ export async function POST(req: Request) {
         turnIndex: sessionState.turns.length,
         openingState: sessionState.openingState,
         currentSection: sessionState.blueprint.currentSection,
+        conductState: sessionState.conductState || "NORMAL",
+        conductIncidents: sessionState.conductIncidents || [],
+        phase: calculatedPhase,
+        stageHeader: formatStageHeader(calculatedPhase, sessionState.turns.length, totalTurns),
         meta: {
           correlationId,
           latencyMs: totalDuration,
@@ -540,7 +831,7 @@ export async function GET(req: Request) {
         }
       }
 
-      const completed = Boolean(activeState.isCompleted || isSessionCompleted(activeState.sessionId || activeState.id));
+      const completed = Boolean(activeState.isCompleted || activeState.conductState === "TERMINATED" || isSessionCompleted(activeState.sessionId || activeState.id));
 
       return {
         id: activeState.sessionId || activeState.id,
@@ -548,6 +839,8 @@ export async function GET(req: Request) {
         openingState: activeState.openingState || (completed ? "COMPLETED" : "INTERVIEW_IN_PROGRESS"),
         lifecycleState: activeState.lifecycleState || (completed ? "COMPLETED" : "AWAITING_ANSWER"),
         isCompleted: completed,
+        conductState: activeState.conductState || "NORMAL",
+        conductIncidents: activeState.conductIncidents || [],
         track: activeState.track || activeState.blueprint?.track,
         currentSection: activeState.blueprint?.currentSection || "resume_projects",
         currentDifficulty: activeState.currentDifficulty || "medium",

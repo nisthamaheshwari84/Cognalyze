@@ -41,6 +41,30 @@ import {
   TRACK_EVALUATION_RUBRICS,
 } from "./interview-specialization-engine";
 
+import {
+  CandidateIntelligenceProfile,
+  TwelvePointProjectProfile,
+  JDCompetencyMatrix,
+  EvidenceProvenance,
+  buildCandidateIntelligenceProfile,
+  buildJDCompetencyMatrix,
+} from "@/lib/interview/candidate-intelligence";
+import {
+  ConductState,
+  ConductIncident,
+  evaluateCandidateConduct,
+  INSTITUTIONAL_CONDUCT_MESSAGES,
+} from "@/lib/interview/conduct-engine";
+import {
+  InternalInterviewPlan,
+  PlannedInterviewQuestion,
+  InterviewStagePlan,
+  PlannedInterviewStageId,
+  generateStructuredInterviewPlan,
+  findNextPlannedQuestion,
+  mapSectionToStageId,
+} from "@/lib/interview/interview-planner";
+
 export {
   createTurnQuestionBlueprint,
   synthesizeDynamicQuestionFromBlueprint,
@@ -50,8 +74,29 @@ export {
   generateSpecializedTrackFollowUp,
   evaluateIrrelevantAnswerPolicy,
   TRACK_EVALUATION_RUBRICS,
+  buildCandidateIntelligenceProfile,
+  buildJDCompetencyMatrix,
+  evaluateCandidateConduct,
+  INSTITUTIONAL_CONDUCT_MESSAGES,
+  generateStructuredInterviewPlan,
+  findNextPlannedQuestion,
+  mapSectionToStageId,
 };
-export type { TurnQuestionBlueprint, RoleCategory, CompanyIntelligenceProfile };
+export type {
+  TurnQuestionBlueprint,
+  RoleCategory,
+  CompanyIntelligenceProfile,
+  CandidateIntelligenceProfile,
+  TwelvePointProjectProfile,
+  JDCompetencyMatrix,
+  EvidenceProvenance,
+  ConductState,
+  ConductIncident,
+  InternalInterviewPlan,
+  PlannedInterviewQuestion,
+  InterviewStagePlan,
+  PlannedInterviewStageId,
+};
 
 // ══════════════════════════════════════════════════════════════
 // 1. TYPES & CONTRACTS
@@ -513,6 +558,10 @@ export interface CandidateInterviewDossier {
   previouslyAssessedCompetencies?: Record<string, { score: number; status: string; turnsCount?: number }>;
   placementProfile?: any;
   interviewType?: string;
+  candidateIntelligence?: CandidateIntelligenceProfile;
+  jdCompetencyMatrix?: JDCompetencyMatrix;
+  interviewPlan?: InternalInterviewPlan;
+  codeSubmissions?: any[];
 }
 
 export interface BlueprintCompetency {
@@ -560,6 +609,8 @@ export interface InterviewBlueprint {
   supportingCompetencies?: string[];
   areasAdequatelyAssessed?: string[];
   areasNeedingEvidence?: string[];
+  interviewPlan?: InternalInterviewPlan;
+  codeSubmissions?: any[];
 }
 
 export interface AnswerAssessment {
@@ -711,6 +762,7 @@ export interface InterviewTurn {
   assistanceCount?: number;
   alternativeApproachDetected?: boolean;
   evaluationError?: string;
+  codeExecutionReport?: any;
 }
 
 export type OpeningState =
@@ -731,6 +783,7 @@ export type InterviewLifecycleState =
   | "ADVANCING_COMPETENCY"
   | "READY_TO_FINISH"
   | "COMPLETED"
+  | "EARLY_TERMINATION"
   | "PAUSED"
   | "CANCELLED"
   | "ERROR_RECOVERY"
@@ -848,6 +901,12 @@ export interface AdvancedSessionState {
   consecutiveIrrelevantAnswers?: number;
   projectExplorationFocus?: "overview" | "personal_contribution" | "tradeoff_decision" | "failure_challenge";
   previousSection?: InterviewSection;
+  conductState?: ConductState;
+  conductIncidents?: ConductIncident[];
+  candidateIntelligence?: CandidateIntelligenceProfile;
+  jdCompetencyMatrix?: JDCompetencyMatrix;
+  interviewPlan?: InternalInterviewPlan;
+  codeSubmissions?: any[];
 }
 
 export interface InterviewFinalReport {
@@ -863,6 +922,8 @@ export interface InterviewFinalReport {
   evidenceCoverage?: EvidenceCoverageSummary;
   assistedVsIndependentSummary?: AssistedVsIndependentSummary;
   trackRubric?: TrackRubricSummary;
+  conductState?: ConductState;
+  conductIncidents?: ConductIncident[];
   competenciesAssessed: Array<{
     competency: string;
     score: number;
@@ -1548,6 +1609,52 @@ export async function buildCandidateInterviewDossier(
     placementProfile,
   };
 
+  const candidateIntelligence = buildCandidateIntelligenceProfile(
+    candidateId,
+    effectiveResume || "",
+    effectiveJd || "",
+    {
+      name: dnaResponse?.snapshot?.studentName,
+      targetRole: targetRoleOverride || targetRole,
+      verifiedSkills,
+      claimedSkills,
+      rawProjects: projects,
+      studentDNA: dnaResponse,
+    }
+  );
+
+  const jdCompetencyMatrix = buildJDCompetencyMatrix(
+    effectiveJd || "",
+    targetRoleOverride || targetRole,
+    [...verifiedSkills, ...claimedSkills]
+  );
+
+  dossier.candidateIntelligence = candidateIntelligence;
+  dossier.jdCompetencyMatrix = jdCompetencyMatrix;
+
+  if (candidateIntelligence.projects.length > 0) {
+    dossier.projects = candidateIntelligence.projects.map((p) => ({
+      title: p.title,
+      tech: p.tech,
+      githubRepo: p.githubUrl,
+      description: p.description || p.problemSolved,
+      verificationStatus: p.verificationStatus,
+      problemSolved: p.problemSolved,
+      architecture: p.architecture,
+      techStackRationale: p.techStackRationale,
+      personalContribution: p.personalContribution,
+      technicalChallenges: p.technicalChallenges,
+      databaseDesign: p.databaseDesign,
+      apiStructure: p.apiStructure,
+      securityMeasures: p.securityMeasures,
+      performanceOptimizations: p.performanceOptimizations,
+      testingStrategy: p.testingStrategy,
+      deploymentAndCI: p.deploymentAndCI,
+      retrospectiveImprovements: p.retrospectiveImprovements,
+      provenance: p.provenance,
+    }));
+  }
+
   if (targetRoleOverride) dossier.targetRole = targetRoleOverride;
   if (experienceModeOverride) dossier.experienceMode = experienceModeOverride;
   if (studentProfileOverride?.past_projects?.length) {
@@ -1894,6 +2001,15 @@ export function generateInterviewBlueprint(
         : String(skillsFocus).split(",").map((s) => s.trim()).filter(Boolean))
     : [];
 
+  const interviewPlan = generateStructuredInterviewPlan(
+    dossier,
+    dossier?.jdCompetencyMatrix,
+    dossier?.candidateIntelligence,
+    targetRole || effectiveTargetRole,
+    durationMinutes,
+    experienceMode
+  );
+
   return {
     sessionId: customSessionId || generateSecureId(`session_${Date.now()}`, 8),
     candidateId: dossier.candidateId,
@@ -1920,6 +2036,7 @@ export function generateInterviewBlueprint(
         .filter(([_, v]) => v.status === "gap" || v.score < 65)
         .map(([k]) => k),
     ])),
+    interviewPlan,
   };
 }
 
@@ -1973,7 +2090,27 @@ export function createAdvancedSessionState(
     track: blueprint?.track || "traditional_coding_dsa",
     assistanceCount: 0,
     uncertaintyOnCurrentTopic: false,
+    conductState: "NORMAL",
+    conductIncidents: [],
+    candidateIntelligence: dossier?.candidateIntelligence,
+    jdCompetencyMatrix: dossier?.jdCompetencyMatrix,
+    interviewPlan:
+      blueprint?.interviewPlan ||
+      (dossier
+        ? generateStructuredInterviewPlan(
+            dossier,
+            dossier.jdCompetencyMatrix,
+            dossier.candidateIntelligence,
+            blueprint?.targetRole || dossier.targetRole,
+            blueprint?.durationMinutes || 45,
+            blueprint?.experienceMode || dossier.experienceMode
+          )
+        : undefined),
   };
+
+  if (blueprint && !blueprint.interviewPlan && state.interviewPlan) {
+    blueprint.interviewPlan = state.interviewPlan;
+  }
 
   Object.defineProperty(state, "completedTurns", {
     get() {
@@ -2177,6 +2314,7 @@ export interface CandidateResponseContext {
   matchedErrors: string[];
   hasTechnicalFallacy: boolean;
   isPartiallyCorrect: boolean;
+  isVagueHandwaving?: boolean;
 }
 
 export function analyzeCandidateResponseContext(
@@ -2276,11 +2414,33 @@ export function analyzeCandidateResponseContext(
 
   const hasTechnicalFallacy = matchedErrors.length > 0;
 
+  // Vague handwaving / generic evasion / buzzword fluff detection
+  const genericHandwavingRegex = /\b(worked (reliably|well|fine|nicely|properly)|made sure (everything|it) worked|handled (it|everything) (nicely|properly|well|reliably)|good architecture|fast speed|without errors|all errors)\b/i;
+  const buzzwordFluffRegex = /\b(enterprise-grade|hyper-scalable|cloud-native microservices|architectural patterns|maximum reliability|seamless fault tolerance|modern high-performance|industry standard(s)?|best practices|cutting-edge|robust and scalable|state-of-the-art)\b/i;
+
+  const concreteMechanisms = [
+    "redis", "postgres", "mysql", "dynamo", "zookeeper", "etcd", "redlock",
+    "lease", "ttl", "mutex", "semaphore", "channel", "goroutine", "thread",
+    "optimistic locking", "pessimistic locking", "isolation", "acid", "wal",
+    "raft", "paxos", "outbox", "debezium", "sharding", "b+ tree", "b-tree",
+    "explain analyze", "composite index", "circuit breaker", "token bucket",
+    "leaky bucket", "heartbeat", "mvcc", "two-phase", "2pc", "saga", "kafka partition"
+  ];
+  const hasConcreteMechanisms = concreteMechanisms.some((token) => clean.includes(token));
+
+  const isVagueHandwaving =
+    genericHandwavingRegex.test(clean) ||
+    (buzzwordFluffRegex.test(clean) && !hasConcreteMechanisms);
+  const qClean = (question || "").toLowerCase();
+  const novelTerms = matchedTechnicalTerms.filter((term) => !qClean.includes(term));
+
   // Concise correct answer: 8-45 words, high technical precision, zero matched errors, NOT an alternative approach or partial
   const isConciseCorrect =
     wordCount >= 8 &&
     wordCount <= 45 &&
     matchedTechnicalTerms.length >= 2 &&
+    !isVagueHandwaving &&
+    (novelTerms.length >= 1 || matchedTechnicalTerms.length >= 3) &&
     matchedErrors.length === 0 &&
     !isDoesNotKnow &&
     !isDeclineOrPass &&
@@ -2342,6 +2502,7 @@ export function analyzeCandidateResponseContext(
     matchedErrors,
     hasTechnicalFallacy,
     isPartiallyCorrect,
+    isVagueHandwaving,
   };
 }
 
@@ -2539,6 +2700,18 @@ export async function assessCandidateAnswer(
     };
   }
 
+  // 8.5. Vague handwaving / generic evasion
+  if (ctx.isVagueHandwaving) {
+    return {
+      answer_quality: "shallow",
+      reasoning: "Answer contains high-level buzzwords and generic assertions without concrete implementation details.",
+      topics_demonstrated: [],
+      next_action: "follow_up_probe",
+      difficulty_adjustment: "maintain",
+      extracted_claims: [],
+    };
+  }
+
   // 9. Fast-path: extremely brief answers (< 6 words) that are NOT declines are shallow
   if (wordCount <= 5) {
     return {
@@ -2563,7 +2736,7 @@ export async function assessCandidateAnswer(
   ];
   const deepArchitectureKeywords = [
     "kafka", "partition", "skew", "rebalance", "deadlock", "isolation",
-    "postgres", "redis", "microservice", "mvcc", "mutex", "b+ tree",
+    "postgres", "redis", "mvcc", "mutex", "b+ tree",
     "outbox", "idempotency", "debezium", "raft", "paxos", "consensus",
     "grpc", "protobuf", "replication", "leader election", "heartbeat",
     "heartbeats", "sharding", "two pointers", "sliding window"
@@ -2844,7 +3017,7 @@ export function normalizeInterviewTrack(track?: string): InterviewTrack {
   if (t.includes("comprehension")) return "code_comprehension";
   if (t.includes("debug") || t.includes("repair")) return "debugging_code_repair";
   if (t.includes("ai_assisted") || t.includes("ai")) return "ai_assisted_engineering";
-  if (t.includes("system_design") || t.includes("architecture")) return "system_design";
+  if (t.includes("system_design") || t.includes("architecture") || t.includes("system")) return "system_design";
   if (t.includes("review") || t.includes("reliability")) return "code_review_reliability";
   if (t.includes("senior") || t.includes("judgment")) return "senior_engineering_judgment";
   if (t.includes("behavioral") || t.includes("project")) return "behavioral_project_deep_dives";
@@ -3304,7 +3477,7 @@ export async function generateNextAdaptiveQuestion(
   // 1. Determine Section & Progression
   // Check if we should advance the section based on turn limits or assessment
   let currentSection = blueprint.currentSection;
-  const sectionPlanItem = blueprint.sectionPlan.find((s) => s.section === currentSection);
+  const sectionPlanItem = (blueprint.sectionPlan || []).find((s) => s.section === currentSection);
   const turnsInSection = sessionState.turns.filter((t) => t.question?.section === currentSection).length;
 
   const isTurnLimitReached = turnsCount >= blueprint.totalTargetTurns - 1;
@@ -3410,11 +3583,13 @@ Next Action: ${assessment?.next_action || "advance"}
 
 RULES FOR ALEX:
 1. Ask EXACTLY ONE question directly testing the specified skill "${turnBlueprint.specificSkillTested}".
-2. Never ask a generic rate limiter or database deadlock question unless the blueprint explicitly demands it for this specific candidate and role.
-3. Condition the question on the candidate's actual project (${turnBlueprint.targetProject?.title || "their work"}) and the target company's interview style (${turnBlueprint.companyProfile.companyName}).
-4. Keep the question under 60 words. Be direct, clear, and natural.
-5. NEVER repeat or paraphrase any question from the previous questions list.
-6. Return ONLY valid JSON format.
+2. If Next Action is "simplify_concept", candidate indicated they are unfamiliar or unsure about the previous topic. Do NOT repeat the question or press the candidate on it. Provide a supportive, simpler foundational angle or scaffolded sub-problem.
+3. If Next Action is "acknowledge_and_advance", acknowledge candidate's choice to pass/pivot and transition smoothly to a new topic without penalty.
+4. Never ask a generic rate limiter or database deadlock question unless the blueprint explicitly demands it for this specific candidate and role.
+5. Condition the question on the candidate's actual project (${turnBlueprint.targetProject?.title || "their work"}) and the target company's interview style (${turnBlueprint.companyProfile.companyName}).
+6. Keep the question under 60 words. Be direct, clear, and natural.
+7. NEVER repeat or paraphrase any question from the previous questions list.
+8. Return ONLY valid JSON format.
 
 JSON schema:
 {
@@ -3496,7 +3671,29 @@ JSON schema:
     }
   }
 
-  // 5. Intelligent Turn-Blueprint-Driven Dynamic Synthesizer
+  // 5. Ground in Structured Interview Plan (Milestone 3)
+  const plannedQ = findNextPlannedQuestion(sessionState.interviewPlan, currentSection, sessionState.questionsAsked);
+  if (plannedQ && assessment?.next_action !== "offer_hint") {
+    const isFollowUp = Boolean(assessment?.next_action === "follow_up_probe");
+    return {
+      question: plannedQ.promptStem,
+      question_targets: plannedQ.competencyTargeted,
+      question_type: currentSection === "coding_system_design" ? "system-design" : currentSection === "resume_projects" ? "project-defense" : "technical",
+      difficulty_level: plannedQ.plannedDifficulty,
+      is_follow_up: isFollowUp,
+      follow_up_reason: determineFollowUpReason(
+        isFollowUp,
+        assessment,
+        currentSection,
+        plannedQ.promptStem
+      ),
+      section: currentSection,
+      competency_targeted: plannedQ.competencyTargeted,
+      evidence_grounding: plannedQ.expectedConcepts.join("; "),
+    };
+  }
+
+  // 6. Intelligent Turn-Blueprint-Driven Dynamic Synthesizer
   // Guarantees zero static fallback arrays and zero generic repeated questions
   const fallbackQ = synthesizeDynamicQuestionFromBlueprint(turnBlueprint, allQuestionsToCheck);
   const isFollowUp = Boolean(assessment?.next_action === "follow_up_probe" || fallbackQ.is_follow_up);
@@ -3759,7 +3956,104 @@ export async function assessAndGenerateAdaptiveTurn(
     return { assessment: greetingAssessment, nextQuestion: greetingQuestion, timingMs: Date.now() - t0 };
   }
 
-  // 0. Irrelevant Answer Policy: redirect (turn 1) -> clarify (turn 2) -> conclude assessment (turn 3)
+  // 1. Fast-path checks & Contextual Response Analysis (Phase 2)
+  const ctx = analyzeCandidateResponseContext(safeAnswer, qText, sessionState);
+
+  if (ctx.isDoesNotKnow) {
+    sessionState.consecutiveIrrelevantAnswers = 0;
+    const isFirstUncertainty = !sessionState.uncertaintyOnCurrentTopic;
+    sessionState.uncertaintyOnCurrentTopic = isFirstUncertainty;
+    const assessment: AnswerAssessment = {
+      answer_quality: "does_not_know",
+      reasoning: isFirstUncertainty
+        ? "Candidate stated they are unfamiliar with this specific concept; pivoting to a simpler prerequisite angle."
+        : "Candidate stated they are unfamiliar with this specific concept or requested to move forward.",
+      topics_demonstrated: [],
+      next_action: isFirstUncertainty ? "simplify_concept" : "acknowledge_and_advance",
+      difficulty_adjustment: "de-escalate",
+      extracted_claims: [],
+    };
+    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
+    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
+      section: sessionState.blueprint.currentSection,
+      experienceMode: sessionState.blueprint.experienceMode,
+      targetRole: dossier.targetRole,
+      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
+      competency: "Technical Deferral",
+      dossier,
+      answerQuality: "does_not_know",
+    });
+    return {
+      assessment,
+      nextQuestion,
+      timingMs: Date.now() - t0,
+      modelAnswerFeedback,
+      rubricScore: modelAnswerFeedback.score,
+    };
+  }
+
+  if (ctx.isDeclineOrPass) {
+    sessionState.consecutiveIrrelevantAnswers = 0;
+    const assessment: AnswerAssessment = {
+      answer_quality: "declined",
+      reasoning: "Candidate politely declined or requested to defer this question. Pivoting to alternative assessment without penalty.",
+      topics_demonstrated: [],
+      next_action: "acknowledge_and_advance",
+      difficulty_adjustment: "maintain",
+      extracted_claims: [],
+    };
+    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
+    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
+      section: sessionState.blueprint.currentSection,
+      experienceMode: sessionState.blueprint.experienceMode,
+      targetRole: dossier.targetRole,
+      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
+      competency: "Candidate Topic Deferral",
+      dossier,
+      answerQuality: "declined",
+    });
+    return {
+      assessment,
+      nextQuestion,
+      timingMs: Date.now() - t0,
+      modelAnswerFeedback,
+      rubricScore: modelAnswerFeedback.score,
+    };
+  }
+
+  if (ctx.isHintRequest) {
+    sessionState.consecutiveIrrelevantAnswers = 0;
+    sessionState.assistanceCount = (sessionState.assistanceCount || 0) + 1;
+    const assessment: AnswerAssessment = {
+      answer_quality: "adequate",
+      reasoning: "Candidate requested conceptual assistance; providing a supportive guidance prompt without giving away full answer.",
+      topics_demonstrated: [],
+      next_action: "offer_hint",
+      difficulty_adjustment: "maintain",
+      is_assisted: true,
+      extracted_claims: [],
+    };
+    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
+    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
+      section: sessionState.blueprint.currentSection,
+      experienceMode: sessionState.blueprint.experienceMode,
+      targetRole: dossier.targetRole,
+      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
+      competency: "Assisted Engineering Guidance",
+      dossier,
+      answerQuality: "adequate",
+      isAssisted: true,
+    });
+    return {
+      assessment,
+      nextQuestion,
+      timingMs: Date.now() - t0,
+      modelAnswerFeedback,
+      rubricScore: modelAnswerFeedback.score,
+    };
+  }
+
+  // 2. Irrelevant Answer Policy: redirect (turn 1) -> clarify (turn 2) -> conclude assessment (turn 3)
   const effectiveTrackForPolicy = normalizeInterviewTrack(sessionState.track || sessionState.blueprint?.track);
   const currentIrrelevantCount = sessionState.consecutiveIrrelevantAnswers || 0;
   const irrelevantPolicy = evaluateIrrelevantAnswerPolicy(safeAnswer, currentIrrelevantCount, effectiveTrackForPolicy, qText);
@@ -3829,100 +4123,6 @@ export async function assessAndGenerateAdaptiveTurn(
     }
   } else {
     sessionState.consecutiveIrrelevantAnswers = 0;
-  }
-
-  // 1. Fast-path checks & Contextual Response Analysis (Phase 2)
-  const ctx = analyzeCandidateResponseContext(safeAnswer, qText, sessionState);
-
-  if (ctx.isDoesNotKnow) {
-    const isFirstUncertainty = !sessionState.uncertaintyOnCurrentTopic;
-    sessionState.uncertaintyOnCurrentTopic = isFirstUncertainty;
-    const assessment: AnswerAssessment = {
-      answer_quality: "does_not_know",
-      reasoning: isFirstUncertainty
-        ? "Candidate stated they are unfamiliar with this specific concept; pivoting to a simpler prerequisite angle."
-        : "Candidate stated they are unfamiliar with this specific concept or requested to move forward.",
-      topics_demonstrated: [],
-      next_action: isFirstUncertainty ? "simplify_concept" : "acknowledge_and_advance",
-      difficulty_adjustment: "de-escalate",
-      extracted_claims: [],
-    };
-    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
-    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
-      section: sessionState.blueprint.currentSection,
-      experienceMode: sessionState.blueprint.experienceMode,
-      targetRole: dossier.targetRole,
-      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
-      competency: "Technical Deferral",
-      dossier,
-      answerQuality: "does_not_know",
-    });
-    return {
-      assessment,
-      nextQuestion,
-      timingMs: Date.now() - t0,
-      modelAnswerFeedback,
-      rubricScore: modelAnswerFeedback.score,
-    };
-  }
-
-  if (ctx.isDeclineOrPass) {
-    const assessment: AnswerAssessment = {
-      answer_quality: "declined",
-      reasoning: "Candidate politely declined or requested to defer this question. Pivoting to alternative assessment without penalty.",
-      topics_demonstrated: [],
-      next_action: "acknowledge_and_advance",
-      difficulty_adjustment: "maintain",
-      extracted_claims: [],
-    };
-    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
-    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
-      section: sessionState.blueprint.currentSection,
-      experienceMode: sessionState.blueprint.experienceMode,
-      targetRole: dossier.targetRole,
-      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
-      competency: "Candidate Topic Deferral",
-      dossier,
-      answerQuality: "declined",
-    });
-    return {
-      assessment,
-      nextQuestion,
-      timingMs: Date.now() - t0,
-      modelAnswerFeedback,
-      rubricScore: modelAnswerFeedback.score,
-    };
-  }
-
-  if (ctx.isHintRequest) {
-    sessionState.assistanceCount = (sessionState.assistanceCount || 0) + 1;
-    const assessment: AnswerAssessment = {
-      answer_quality: "adequate",
-      reasoning: "Candidate requested conceptual assistance; providing a supportive guidance prompt without giving away full answer.",
-      topics_demonstrated: [],
-      next_action: "offer_hint",
-      difficulty_adjustment: "maintain",
-      is_assisted: true,
-      extracted_claims: [],
-    };
-    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
-    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
-      section: sessionState.blueprint.currentSection,
-      experienceMode: sessionState.blueprint.experienceMode,
-      targetRole: dossier.targetRole,
-      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
-      competency: "Assisted Engineering Guidance",
-      dossier,
-      answerQuality: "adequate",
-      isAssisted: true,
-    });
-    return {
-      assessment,
-      nextQuestion,
-      timingMs: Date.now() - t0,
-      modelAnswerFeedback,
-      rubricScore: modelAnswerFeedback.score,
-    };
   }
 
   if (ctx.isSelfCorrection) {
@@ -4069,6 +4269,34 @@ export async function assessAndGenerateAdaptiveTurn(
     };
   }
 
+  if (ctx.isVagueHandwaving) {
+    const assessment: AnswerAssessment = {
+      answer_quality: "shallow",
+      reasoning: "Answer contains high-level buzzwords and generic assertions without concrete implementation details.",
+      topics_demonstrated: [],
+      next_action: "follow_up_probe",
+      difficulty_adjustment: "maintain",
+      extracted_claims: [],
+    };
+    const nextQuestion = await generateNextAdaptiveQuestion(sessionState, dossier, conversationHistory, assessment);
+    const modelAnswerFeedback = await evaluateAnswerRubricAndModelAnswer(qText, safeAnswer, {
+      section: sessionState.blueprint.currentSection,
+      experienceMode: sessionState.blueprint.experienceMode,
+      targetRole: dossier.targetRole,
+      targetCompany: sessionState.blueprint.targetCompany || dossier.targetCompany,
+      competency: "Concrete Implementation Details",
+      dossier,
+      answerQuality: "shallow",
+    });
+    return {
+      assessment,
+      nextQuestion,
+      timingMs: Date.now() - t0,
+      modelAnswerFeedback,
+      rubricScore: modelAnswerFeedback.score,
+    };
+  }
+
   if (wordCount <= 5) {
     const assessment: AnswerAssessment = {
       answer_quality: "shallow",
@@ -4101,7 +4329,7 @@ export async function assessAndGenerateAdaptiveTurn(
   const blueprint = sessionState.blueprint;
   const turnsCount = sessionState.turns.length;
   let currentSection = blueprint.currentSection;
-  const sectionPlanItem = blueprint.sectionPlan.find((s) => s.section === currentSection);
+  const sectionPlanItem = (blueprint.sectionPlan || []).find((s) => s.section === currentSection);
   const turnsInSection = sessionState.turns.filter((t) => t.question?.section === currentSection).length;
 
   const isTurnLimitReached = turnsCount >= blueprint.totalTargetTurns - 1;
@@ -4180,6 +4408,23 @@ export async function assessAndGenerateAdaptiveTurn(
       targetCompetency = "Technical Competency";
   }
 
+  // Ensure interview plan exists on session state (Milestone 3)
+  if (!sessionState.interviewPlan && dossier) {
+    sessionState.interviewPlan = generateStructuredInterviewPlan(
+      dossier,
+      sessionState.jdCompetencyMatrix || dossier.jdCompetencyMatrix,
+      sessionState.candidateIntelligence || dossier.candidateIntelligence,
+      blueprint?.targetRole || dossier.targetRole,
+      blueprint?.durationMinutes || 45,
+      blueprint?.experienceMode || dossier.experienceMode
+    );
+  }
+  if (blueprint && !blueprint.interviewPlan && sessionState.interviewPlan) {
+    blueprint.interviewPlan = sessionState.interviewPlan;
+  }
+
+  const nextPlanned = findNextPlannedQuestion(sessionState.interviewPlan, currentSection, sessionState.questionsAsked);
+
   const effectiveTrack = normalizeInterviewTrack(sessionState.track || blueprint.track);
   const trackConfig = getTrackSpecializationConfig(effectiveTrack);
   const trackSpecializationPrompt = `
@@ -4202,12 +4447,33 @@ ${trackSpecializationPrompt}
 ${skillsFocusStr ? `SKILLS FOCUS AREA: ${skillsFocusStr}` : ""}
 SECTION GUIDANCE: ${sectionGuidance}
 
+${nextPlanned ? `STRUCTURED INTERVIEW PLAN FOR THIS STAGE:
+- Planned Stage Question: "${nextPlanned.promptStem}"
+- Planned Competency: ${nextPlanned.competencyTargeted}
+- Expected Concepts to Probe: ${nextPlanned.expectedConcepts.join(", ")}
+- Counterfactual Probes for Strong Answers: ${nextPlanned.counterFactualProbes.join(" | ")}
+- Evaluation Rubric:
+  * Strong: ${nextPlanned.evaluationRubric.strongCriteria.join("; ")}
+  * Shallow: ${nextPlanned.evaluationRubric.shallowCriteria.join("; ")}
+` : ""}
 CANDIDATE DOSSIER:
 - Name: ${dossier.name}
 - Self-Introduction: "${sessionState.candidateIntroduction || "Not provided"}"
-- Verified Skills: ${dossier.verifiedSkills.join(", ") || "None"}
-- Claimed Skills: ${dossier.claimedSkills.join(", ") || "General SWE"}
-- Projects: ${dossier.projects.map((p) => p.title).join("; ") || "None"}
+- Verified Competencies (Proven): ${dossier.verifiedSkills.join(", ") || "None verified on file"}
+- Claimed Skills (Self-Reported): ${dossier.claimedSkills.join(", ") || "General SWE"}
+- Detailed 12-Point Project Profiling:
+${(dossier.candidateIntelligence?.projects || dossier.projects || []).map((p: any, idx: number) => `
+  [Project ${idx + 1}: ${p.title} (${p.verificationStatus || "CANDIDATE_CLAIM"})]
+  * Core Tech: ${Array.isArray(p.tech) ? p.tech.join(", ") : "General Stack"}
+  * Problem Solved: ${p.problemSolved || p.description || "Core operational workflows"}
+  * Architecture: ${p.architecture || "Client-server architecture"}
+  * Personal Contribution: ${p.personalContribution || "Full-stack implementation"}
+  * Technical Challenges: ${Array.isArray(p.technicalChallenges) && p.technicalChallenges.length > 0 ? p.technicalChallenges.join("; ") : "Latency and scale under peak load"}
+  * Database Design: ${p.databaseDesign || "Relational model"}
+  * Security Measures: ${p.securityMeasures || "Authentication & authorization"}
+  * Performance Optimizations: ${p.performanceOptimizations || "Query optimization & caching"}
+`).join("\n") || "No detailed projects available."}
+${dossier.jdCompetencyMatrix?.unsupportedJDRequirements && dossier.jdCompetencyMatrix.unsupportedJDRequirements.length > 0 ? `- Unsupported JD Requirements to Probe: ${dossier.jdCompetencyMatrix.unsupportedJDRequirements.join(", ")}` : ""}
 
 LAST QUESTION ASKED:
 "${qText}"
@@ -4506,6 +4772,8 @@ export async function generateInterviewFinalReport(
       criticalGaps: ["Candidate did not complete any substantive evaluation turns."],
       recommendedLearningActions: ["Retake the interview when prepared to answer technical prompts."],
       interviewerPrivateNote: "Early exit with 0 turns evaluated.",
+      conductState: sessionState.conductState || "NORMAL",
+      conductIncidents: sessionState.conductIncidents || [],
       questionByQuestionAnalysis: [],
     };
   }
@@ -4933,6 +5201,8 @@ Return ONLY this JSON:
         criticalGaps: Array.isArray(parsed.criticalGaps) && parsed.criticalGaps.length > 0 ? parsed.criticalGaps : ["Further depth on edge cases recommended"],
         recommendedLearningActions: Array.isArray(parsed.recommendedLearningActions) && parsed.recommendedLearningActions.length > 0 ? parsed.recommendedLearningActions : ["Deepen knowledge of distributed trade-offs"],
         interviewerPrivateNote: stripThink(parsed.interviewerPrivateNote || "Candidate performed with verifiable baseline capability."),
+        conductState: sessionState.conductState || "NORMAL",
+        conductIncidents: sessionState.conductIncidents || [],
         questionByQuestionAnalysis,
       };
     }
@@ -5204,6 +5474,8 @@ Return ONLY this JSON:
     interviewerPrivateNote: assessedItems.length === 0
       ? "Session concluded with 0 assessed answers."
       : "Candidate showed strong foundational ability and clear communication throughout the session.",
+    conductState: sessionState.conductState || "NORMAL",
+    conductIncidents: sessionState.conductIncidents || [],
     questionByQuestionAnalysis,
   };
 }

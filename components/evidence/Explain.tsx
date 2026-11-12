@@ -36,20 +36,20 @@ export default function Explain({
   const descriptor = getRequirementStatusDescriptor(state);
 
   return (
-    <div className={`p-4 rounded-xl border text-xs leading-relaxed ${
+    <div className={`p-4 rounded-xl border text-xs leading-relaxed bg-[#FFFFFF] ${
       type === "why_advancing"
-        ? "bg-slate-900/60 border-emerald-500/30 text-slate-200"
-        : "bg-slate-900/60 border-slate-700 text-slate-300"
+        ? "border-[#C8E4D3] text-[#17191C]"
+        : "border-[#E4E1DA] text-[#17191C]"
     }`}>
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-800">
+      <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#E4E1DA]">
         <div className="flex items-center gap-2">
           <span className={`px-2 py-0.5 rounded border text-[11px] font-bold ${descriptor.badgeClass}`}>
             {descriptor.glyph} {descriptor.label}
           </span>
-          <span className="font-bold text-white text-sm">{requirementName}</span>
+          <span className="font-bold text-[#162A43] text-sm">{requirementName}</span>
         </div>
-        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-mono">
+        <span className="text-[10px] uppercase tracking-wider text-[#667085] font-mono">
           {type === "why_advancing" ? "Supporting Evidence" : "Evaluation Context"}
         </span>
       </div>
@@ -57,14 +57,14 @@ export default function Explain({
       {/* Verbatim Evidence Quotes */}
       {verbatimQuotes.length > 0 && (
         <div className="mt-3">
-          <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">CITED VERBATIM PROOF:</span>
+          <span className="text-[10px] uppercase font-bold text-[#667085] block mb-1">CITED VERBATIM PROOF:</span>
           <div className="space-y-1.5">
             {verbatimQuotes.map((quote, idx) => (
               <blockquote
                 key={idx}
-                className="pl-3 border-l-2 border-purple-500/60 bg-purple-950/20 py-1 pr-2 rounded text-slate-200 font-mono text-[11px]"
+                className="pl-3 border-l-2 border-[#356AE6] bg-[#EFF4FE] py-1.5 pr-2 rounded text-[#162A43] font-mono text-[11px]"
               >
-                "{quote}"
+                &ldquo;{quote}&rdquo;
               </blockquote>
             ))}
           </div>
@@ -73,30 +73,30 @@ export default function Explain({
 
       {/* Interpretation */}
       <div className="mt-3">
-        <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">ESTABLISHED INTERPRETATION:</span>
-        <p className="text-slate-300">{interpretation}</p>
+        <span className="text-[10px] uppercase font-bold text-[#667085] block mb-0.5">ESTABLISHED INTERPRETATION:</span>
+        <p className="text-[#17191C]">{interpretation}</p>
       </div>
 
       {/* Remaining Uncertainty */}
       {remainingUncertainty && (
-        <div className="mt-3 p-2.5 rounded bg-amber-950/20 border border-amber-500/30 text-amber-200">
-          <span className="text-[10px] uppercase font-bold text-amber-400 block mb-0.5">REMAINING UNCERTAINTY:</span>
+        <div className="mt-3 p-2.5 rounded bg-[#FEF7ED] border border-[#F8D8A7] text-[#B7791F]">
+          <span className="text-[10px] uppercase font-bold text-[#B7791F] block mb-0.5">REMAINING UNCERTAINTY:</span>
           <p>{remainingUncertainty}</p>
         </div>
       )}
 
       {/* Proposed Validation */}
       {proposedValidation && (
-        <div className="mt-3 p-2.5 rounded bg-purple-950/20 border border-purple-500/30 text-purple-200">
-          <span className="text-[10px] uppercase font-bold text-purple-400 block mb-0.5">RECOMMENDED VALIDATION:</span>
+        <div className="mt-3 p-2.5 rounded bg-[#EFF4FE] border border-[#D2E0FB] text-[#356AE6]">
+          <span className="text-[10px] uppercase font-bold text-[#356AE6] block mb-0.5">RECOMMENDED VALIDATION:</span>
           <p>{proposedValidation}</p>
         </div>
       )}
 
       {/* Recruiter-Only Internal Notes (Strictly hidden from candidate view) */}
       {!isCandidateFacing && recruiterNotes && (
-        <div className="mt-3 pt-2 border-t border-slate-800 text-[11px] text-slate-400">
-          <span className="font-semibold text-slate-300">Internal Recruiter Note: </span>
+        <div className="mt-3 pt-2 border-t border-[#E4E1DA] text-[11px] text-[#667085]">
+          <span className="font-semibold text-[#162A43]">Internal Recruiter Note: </span>
           <span>{recruiterNotes}</span>
         </div>
       )}

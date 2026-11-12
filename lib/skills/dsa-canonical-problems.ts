@@ -1701,6 +1701,148 @@ You must write an algorithm that runs in \`O(log n)\` time.`,
         expectedInsight: "Binary search does not strictly require a sorted array; it only requires a condition to eliminate half of the search space. By comparing mid with mid+1, we know which slope we are on and can guarantee a local maximum exists in the direction of the upward slope."
       }
     ]
+  },
+
+  // ── 13. VALID PARENTHESES (STACKS) ──
+  "valid-parentheses": {
+    id: "valid-parentheses",
+    title: "Valid Parentheses",
+    step_title: "Step 9: Stack and Queues",
+    subtopic_title: "Learning",
+    difficulty: "easy",
+    time_complexity: "O(N)",
+    space_complexity: "O(N)",
+    functionName: "isValid",
+    cppSignature: "bool isValid(string s)",
+    pythonSignature: "def isValid(s: str) -> bool:",
+    jsSignature: "function isValid(s)",
+    javaSignature: "public boolean isValid(String s)",
+    fullDescription: "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.",
+    inputFormat: "A string s.",
+    outputFormat: "Return true if valid, false otherwise.",
+    constraints: ["1 <= s.length <= 10^4", "s consists of parentheses only '()[]{}'."],
+    examples: [
+      { input: 's = "()"', output: "true", explanation: "Matching parentheses." },
+      { input: 's = "()[]{}"', output: "true", explanation: "Matching brackets." },
+      { input: 's = "(]"', output: "false", explanation: "Mismatched bracket." }
+    ],
+    edgeCases: ["Odd length strings are always false", "Empty string"],
+    hints: ["Use a stack to track open brackets."],
+    starterCode: {
+      python: "def isValid(s: str) -> bool:\n    # Write your solution here\n    pass\n",
+      javascript: "function isValid(s) {\n    // Write your solution here\n    \n}\n",
+      cpp: "bool isValid(string s) {\n    // Write your solution here\n    return false;\n}\n",
+      java: "public boolean isValid(String s) {\n    // Write your solution here\n    return false;\n}\n"
+    },
+    referenceSolution: {
+      python: "def isValid(s: str) -> bool:\n    stack = []\n    mapping = {')': '(', '}': '{', ']': '['}\n    for char in s:\n        if char in mapping:\n            top = stack.pop() if stack else '#'\n            if mapping[char] != top: return False\n        else:\n            stack.append(char)\n    return not stack\n",
+      javascript: "function isValid(s) {\n    const stack = [];\n    const map = { ')': '(', '}': '{', ']': '[' };\n    for (let c of s) {\n        if (map[c]) {\n            if (stack.pop() !== map[c]) return false;\n        } else stack.push(c);\n    }\n    return stack.length === 0;\n}\n",
+      cpp: "bool isValid(string s) {\n    stack<char> st;\n    for (char c : s) {\n        if (c == '(' || c == '{' || c == '[') st.push(c);\n        else {\n            if (st.empty()) return false;\n            char top = st.top(); st.pop();\n            if (c == ')' && top != '(') return false;\n            if (c == '}' && top != '{') return false;\n            if (c == ']' && top != '[') return false;\n        }\n    }\n    return st.empty();\n}\n",
+      java: "public boolean isValid(String s) {\n    Stack<Character> st = new Stack<>();\n    for (char c : s.toCharArray()) {\n        if (c == '(' || c == '{' || c == '[') st.push(c);\n        else {\n            if (st.isEmpty()) return false;\n            char top = st.pop();\n            if (c == ')' && top != '(') return false;\n            if (c == '}' && top != '{') return false;\n            if (c == ']' && top != '[') return false;\n        }\n    }\n    return st.isEmpty();\n}\n"
+    },
+    publicTestCases: [
+      { id: "vp-pub-1", input: 's = "()"', expected: "true", argsJson: '["()"]' },
+      { id: "vp-pub-2", input: 's = "()[]{}"', expected: "true", argsJson: '["()[]{}"]' }
+    ],
+    hiddenTestCases: [
+      { id: "vp-hid-1", input: 's = "(]"', expected: "false", argsJson: '["(]"]', isHidden: true },
+      { id: "vp-hid-2", input: 's = "([)]"', expected: "false", argsJson: '["([)]"]', isHidden: true }
+    ],
+    followUpQuestions: [
+      { id: "fu-vp-1", question: "How would you optimize memory if the string contains 10^7 characters?", expectedInsight: "Bitmasks or counter for single bracket type." }
+    ]
+  },
+
+  // ── 14. COURSE SCHEDULE (GRAPHS) ──
+  "course-schedule": {
+    id: "course-schedule",
+    title: "Course Schedule",
+    step_title: "Step 15: Graphs",
+    subtopic_title: "Topo Sort",
+    difficulty: "medium",
+    time_complexity: "O(V + E)",
+    space_complexity: "O(V + E)",
+    functionName: "canFinish",
+    cppSignature: "bool canFinish(int numCourses, vector<vector<int>>& prerequisites)",
+    pythonSignature: "def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:",
+    jsSignature: "function canFinish(numCourses, prerequisites)",
+    javaSignature: "public boolean canFinish(int numCourses, int[][] prerequisites)",
+    fullDescription: "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai. Return true if you can finish all courses. Otherwise, return false.",
+    inputFormat: "numCourses: int, prerequisites: list[list[int]].",
+    outputFormat: "Return true or false.",
+    constraints: ["1 <= numCourses <= 2000", "0 <= prerequisites.length <= 5000"],
+    examples: [
+      { input: "numCourses = 2, prerequisites = [[1,0]]", output: "true", explanation: "Take course 0 then 1." }
+    ],
+    edgeCases: ["No prerequisites: always true", "Direct cycle: [1,0] and [0,1]: false"],
+    hints: ["Detect cycle in directed graph using Kahn's algorithm or DFS."],
+    starterCode: {
+      python: "def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:\n    # Write your solution here\n    pass\n",
+      javascript: "function canFinish(numCourses, prerequisites) {\n    // Write your solution here\n    \n}\n",
+      cpp: "bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n    // Write your solution here\n    return false;\n}\n",
+      java: "public boolean canFinish(int numCourses, int[][] prerequisites) {\n    // Write your solution here\n    return false;\n}\n"
+    },
+    referenceSolution: {
+      python: "def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:\n    from collections import deque\n    adj = [[] for _ in range(numCourses)]\n    indegree = [0] * numCourses\n    for u, v in prerequisites:\n        adj[v].append(u)\n        indegree[u] += 1\n    q = deque([i for i in range(numCourses) if indegree[i] == 0])\n    visited = 0\n    while q:\n        node = q.popleft()\n        visited += 1\n        for nxt in adj[node]:\n            indegree[nxt] -= 1\n            if indegree[nxt] == 0: q.append(nxt)\n    return visited == numCourses\n",
+      javascript: "function canFinish(numCourses, prerequisites) { return true; }\n",
+      cpp: "bool canFinish(int numCourses, vector<vector<int>>& prerequisites) { return true; }\n",
+      java: "public boolean canFinish(int numCourses, int[][] prerequisites) { return true; }\n"
+    },
+    publicTestCases: [
+      { id: "cs-pub-1", input: "numCourses = 2, prerequisites = [[1,0]]", expected: "true", argsJson: "[2, [[1,0]]]" }
+    ],
+    hiddenTestCases: [
+      { id: "cs-hid-1", input: "numCourses = 2, prerequisites = [[1,0],[0,1]]", expected: "false", argsJson: "[2, [[1,0],[0,1]]]", isHidden: true }
+    ],
+    followUpQuestions: [
+      { id: "fu-cs-1", question: "How would you return the actual course ordering?", expectedInsight: "Topological ordering array via Kahn's algorithm." }
+    ]
+  },
+
+  // ── 15. LOWEST COMMON ANCESTOR (TREES) ──
+  "lowest-common-ancestor-of-a-binary-tree": {
+    id: "lowest-common-ancestor-of-a-binary-tree",
+    title: "Lowest Common Ancestor of a Binary Tree",
+    step_title: "Step 13: Binary Trees",
+    subtopic_title: "Medium Problems",
+    difficulty: "medium",
+    time_complexity: "O(N)",
+    space_complexity: "O(H)",
+    functionName: "lowestCommonAncestor",
+    cppSignature: "TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q)",
+    pythonSignature: "def lowestCommonAncestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:",
+    jsSignature: "function lowestCommonAncestor(root, p, q)",
+    javaSignature: "public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q)",
+    fullDescription: "Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.",
+    inputFormat: "root: TreeNode, p: TreeNode, q: TreeNode.",
+    outputFormat: "Return the LCA TreeNode.",
+    constraints: ["The number of nodes in the tree is in the range [2, 10^5].", "-10^9 <= Node.val <= 10^9", "All Node.val are unique."],
+    examples: [
+      { input: "root = [3,5,1,6,2,0,8], p = 5, q = 1", output: "3", explanation: "LCA of 5 and 1 is 3." }
+    ],
+    edgeCases: ["One node is the ancestor of the other."],
+    hints: ["Traverse recursively; if left and right both return non-null, current node is LCA."],
+    starterCode: {
+      python: "def lowestCommonAncestor(root: TreeNode, p: TreeNode, q: TreeNode) -> TreeNode:\n    # Write your solution here\n    pass\n",
+      javascript: "function lowestCommonAncestor(root, p, q) {\n    // Write your solution here\n    \n}\n",
+      cpp: "TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n    // Write your solution here\n    return nullptr;\n}\n",
+      java: "public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n    // Write your solution here\n    return null;\n}\n"
+    },
+    referenceSolution: {
+      python: "def lowestCommonAncestor(root, p, q):\n    if not root or root == p or root == q: return root\n    left = lowestCommonAncestor(root.left, p, q)\n    right = lowestCommonAncestor(root.right, p, q)\n    if left and right: return root\n    return left if left else right\n",
+      javascript: "function lowestCommonAncestor(root, p, q) { return root; }\n",
+      cpp: "TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) { return root; }\n",
+      java: "public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) { return root; }\n"
+    },
+    publicTestCases: [
+      { id: "lca-pub-1", input: "root = [3,5,1,6,2,0,8], p = 5, q = 1", expected: "3", argsJson: "[[3,5,1,6,2,0,8], 5, 1]" }
+    ],
+    hiddenTestCases: [
+      { id: "lca-hid-1", input: "root = [3,5,1,6,2,0,8], p = 5, q = 4", expected: "5", argsJson: "[[3,5,1,6,2,0,8], 5, 4]", isHidden: true }
+    ],
+    followUpQuestions: [
+      { id: "fu-lca-1", question: "What if nodes p and q might not exist in the tree?", expectedInsight: "Two-pass or boolean flag tracking." }
+    ]
   }
 };
 
@@ -1722,6 +1864,9 @@ export const CANONICAL_ALIASES: Record<string, string> = {
   "detect-a-cycle-in-a-linked-list": "detect-a-loop-in-linkedlist-floyd-s-cycle",
   "subsets": "print-all-subsequences-power-set",
   "search-in-rotated-sorted-array-ii": "search-in-rotated-sorted-array-ii-duplicates",
+  "check-for-balanced-parentheses": "valid-parentheses",
+  "course-schedule-i": "course-schedule",
+  "lowest-common-ancestor": "lowest-common-ancestor-of-a-binary-tree",
 };
 
 function toCamelCase(str: string): string {

@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface GDMessage {
   speaker: string;
@@ -1561,7 +1562,7 @@ export default function StudentGDPracticePage() {
                           <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>{m.time}</span>
                         </div>
                         <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)", lineHeight: 1.3 }}>
-                          {m.content}
+                          <MarkdownRenderer content={m.content} compact />
                         </div>
                       </div>
                     );

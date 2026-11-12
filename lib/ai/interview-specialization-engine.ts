@@ -1175,9 +1175,18 @@ export function evaluateIrrelevantAnswerPolicy(
   const cleanAns = answer.trim().toLowerCase();
   const wordCount = answer.split(/\s+/).filter(Boolean).length;
 
-  const isNonsenseOrRefusal =
-    /^(asdf|qwerty|blah|test|idk|whatever|random|na|n\/a|stop|exit|quit|cancel)$/i.test(cleanAns) ||
-    wordCount < 3;
+  // Explicit non-substantive or hostile nonsense tokens
+  const isHostileOrMashing =
+    /^(asdf|qwerty|blah|blah\s+blah|test|idk|whatever|random|na|n\/a|stop|exit|quit|cancel)$/i.test(cleanAns) ||
+    /^(.)\1{3,}$/.test(cleanAns) ||
+    (wordCount === 1 && cleanAns.length >= 8 && !/^[a-z]+$/i.test(cleanAns));
+
+  // Legitimate responses that must NOT trigger the irrelevant answer policy
+  const isLegitimateResponse =
+    /^(no|yes|ok|okay|pass|skip|sure|nope|nah|none|neither|both)[\.\!]?$/i.test(cleanAns) ||
+    /don'?t know|not sure|not familiar|no idea|haven'?t worked|never used|can'?t recall|drawing a blank/i.test(cleanAns);
+
+  const isNonsenseOrRefusal = isHostileOrMashing && !isLegitimateResponse;
 
   if (!isNonsenseOrRefusal) {
     return {
@@ -1194,7 +1203,7 @@ export function evaluateIrrelevantAnswerPolicy(
     return {
       shouldTerminateEarly: false,
       consecutiveIrrelevantCount: nextCount,
-      interviewerMessage: `I want to make sure we gather genuine evidence of your technical skills for this round. Let's refocus on the specific problem: ${currentQuestion.slice(0, 140)}... Could you share your thoughts on this?`,
+      interviewerMessage: `I want to make sure we gather genuine evidence of your technical skills for this round. Let's refocus on the specific problem. Could you share your thoughts or technical approach on this?`,
       action: "redirect",
     };
   }

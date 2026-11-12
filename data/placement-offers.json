@@ -2480,5 +2480,141 @@
       "createdAt": "2026-10-31T22:45:44.342Z",
       "updatedAt": "2026-10-31T22:45:44.342Z"
     }
+  ],
+  "pipeline-p4-1794413295707": [
+    {
+      "id": "offer_1794413295709_f8289f4",
+      "userId": "pipeline-p4-1794413295707",
+      "employer": "Stripe",
+      "roleTitle": "Software Engineer - Infrastructure",
+      "offerDate": "2026-10-22",
+      "compensationCtc": 3600000,
+      "currency": "INR",
+      "status": "JOINED",
+      "expectedJoiningDate": "2026-07-15",
+      "actualJoiningDate": "2026-07-15",
+      "verificationLevel": "independently_confirmed",
+      "verifiedAt": "2026-11-11T16:08:15.709Z",
+      "notes": "Verified joining letter from Stripe HR",
+      "createdAt": "2026-11-11T16:08:15.709Z",
+      "updatedAt": "2026-11-11T16:08:15.709Z"
+    },
+    {
+      "id": "offer_1794413295707_45baf12",
+      "userId": "pipeline-p4-1794413295707",
+      "employer": "Stripe",
+      "roleTitle": "Software Engineer - Infrastructure",
+      "offerDate": "2026-10-22",
+      "compensationCtc": 3600000,
+      "currency": "INR",
+      "status": "OFFER_RECEIVED",
+      "verificationLevel": "document_supported",
+      "verifiedAt": "2026-11-11T16:08:15.707Z",
+      "notes": "Official Stripe offer letter received",
+      "createdAt": "2026-11-11T16:08:15.707Z",
+      "updatedAt": "2026-11-11T16:08:15.707Z"
+    }
+  ],
+  "offer-candidate-1794413299246": [
+    {
+      "id": "offer_1794413299247_dd30e53",
+      "userId": "offer-candidate-1794413299246",
+      "employer": "Google",
+      "roleTitle": "Software Development Engineer (SDE-1)",
+      "offerDate": "2026-10-20",
+      "compensationCtc": 3200000,
+      "currency": "INR",
+      "status": "JOINED",
+      "expectedJoiningDate": "2026-07-01",
+      "actualJoiningDate": "2026-07-01",
+      "verificationLevel": "independently_confirmed",
+      "verifiedAt": "2026-11-11T16:08:19.247Z",
+      "notes": "Joined Bangalore campus",
+      "createdAt": "2026-11-11T16:08:19.247Z",
+      "updatedAt": "2026-11-11T16:08:19.247Z"
+    },
+    {
+      "id": "offer_1794413299246_ee93301",
+      "userId": "offer-candidate-1794413299246",
+      "employer": "Google",
+      "roleTitle": "Software Development Engineer (SDE-1)",
+      "offerDate": "2026-10-20",
+      "compensationCtc": 3200000,
+      "currency": "INR",
+      "status": "OFFER_RECEIVED",
+      "verificationLevel": "document_supported",
+      "verifiedAt": "2026-11-11T16:08:19.246Z",
+      "notes": "Official offer letter received",
+      "createdAt": "2026-11-11T16:08:19.246Z",
+      "updatedAt": "2026-11-11T16:08:19.246Z"
+    }
+  ],
+  "pipeline-p4-1794502328780": [
+    {
+      "id": "offer_1794502328782_52cc46f",
+      "userId": "pipeline-p4-1794502328780",
+      "employer": "Stripe",
+      "roleTitle": "Software Engineer - Infrastructure",
+      "offerDate": "2026-10-22",
+      "compensationCtc": 3600000,
+      "currency": "INR",
+      "status": "JOINED",
+      "expectedJoiningDate": "2026-07-15",
+      "actualJoiningDate": "2026-07-15",
+      "verificationLevel": "independently_confirmed",
+      "verifiedAt": "2026-11-12T16:52:08.782Z",
+      "notes": "Verified joining letter from Stripe HR",
+      "createdAt": "2026-11-12T16:52:08.782Z",
+      "updatedAt": "2026-11-12T16:52:08.782Z"
+    },
+    {
+      "id": "offer_1794502328781_a9b88b9",
+      "userId": "pipeline-p4-1794502328780",
+      "employer": "Stripe",
+      "roleTitle": "Software Engineer - Infrastructure",
+      "offerDate": "2026-10-22",
+      "compensationCtc": 3600000,
+      "currency": "INR",
+      "status": "OFFER_RECEIVED",
+      "verificationLevel": "document_supported",
+      "verifiedAt": "2026-11-12T16:52:08.781Z",
+      "notes": "Official Stripe offer letter received",
+      "createdAt": "2026-11-12T16:52:08.781Z",
+      "updatedAt": "2026-11-12T16:52:08.781Z"
+    }
+  ],
+  "offer-candidate-1794502331571": [
+    {
+      "id": "offer_1794502331572_59e7f25",
+      "userId": "offer-candidate-1794502331571",
+      "employer": "Google",
+      "roleTitle": "Software Development Engineer (SDE-1)",
+      "offerDate": "2026-10-20",
+      "compensationCtc": 3200000,
+      "currency": "INR",
+      "status": "JOINED",
+      "expectedJoiningDate": "2026-07-01",
+      "actualJoiningDate": "2026-07-01",
+      "verificationLevel": "independently_confirmed",
+      "verifiedAt": "2026-11-12T16:52:11.572Z",
+      "notes": "Joined Bangalore campus",
+      "createdAt": "2026-11-12T16:52:11.572Z",
+      "updatedAt": "2026-11-12T16:52:11.572Z"
+    },
+    {
+      "id": "offer_1794502331571_fffe0e2",
+      "userId": "offer-candidate-1794502331571",
+      "employer": "Google",
+      "roleTitle": "Software Development Engineer (SDE-1)",
+      "offerDate": "2026-10-20",
+      "compensationCtc": 3200000,
+      "currency": "INR",
+      "status": "OFFER_RECEIVED",
+      "verificationLevel": "document_supported",
+      "verifiedAt": "2026-11-12T16:52:11.571Z",
+      "notes": "Official offer letter received",
+      "createdAt": "2026-11-12T16:52:11.571Z",
+      "updatedAt": "2026-11-12T16:52:11.571Z"
+    }
   ]
 }

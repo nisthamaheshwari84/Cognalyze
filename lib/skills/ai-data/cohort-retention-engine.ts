@@ -6,8 +6,7 @@
  * retention matrix, and evaluates student business interpretations.
  */
 
-// @ts-ignore
-import { DatabaseSync } from "node:sqlite";
+import { createInMemoryDatabase } from "../sqlite-driver";
 import { getAnalyticsDataset } from "./datasets";
 
 export interface CohortPeriodData {
@@ -43,7 +42,7 @@ export interface CohortLabReport {
  */
 export function computeLiveCohortRetentionMatrix(): CohortLabReport {
   const dataset = getAnalyticsDataset("ecommerce_analytics");
-  const db = new DatabaseSync(":memory:");
+  const db = createInMemoryDatabase();
 
   try {
     for (const table of dataset.tables) {

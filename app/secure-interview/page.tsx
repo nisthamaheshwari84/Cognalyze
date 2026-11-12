@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { VisionPipeline } from "@/lib/camera/vision-models";
 import { TemporalTracker } from "@/lib/camera/temporal-tracker";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface Msg { role: "user" | "assistant"; content: string; time: string; }
 interface Violation { time: string; type: string; severity: "critical" | "high" | "medium" | "low"; }
@@ -1351,7 +1352,7 @@ export default function SecureInterviewPage() {
                 </div>
                 <div style={{ maxWidth: "80%" }}>
                   <div style={{ padding: "9px 13px", borderRadius: m.role === "assistant" ? "4px 14px 14px 14px" : "14px 4px 14px 14px", background: m.role === "assistant" ? "rgba(255,255,255,0.07)" : "linear-gradient(135deg,#e63946,#ff6b6b)", border: m.role === "assistant" ? "1px solid rgba(255,255,255,0.08)" : "none", fontSize: 13.5, lineHeight: 1.7, color: "rgba(255,255,255,0.9)" }}>
-                    {m.content}
+                    <MarkdownRenderer content={m.content} compact isDark={true} />
                   </div>
                   <div style={{ fontSize: 9, color: "rgba(255,255,255,0.18)", marginTop: 3, textAlign: m.role === "user" ? "right" : "left" }}>{m.time}</div>
                 </div>

@@ -4,6 +4,7 @@ import { buildEvidenceGraph } from "@/lib/ai/evidence-graph";
 import { generateWorkSampleTask } from "@/lib/ai/work-sample";
 import { evaluateTalentRecovery } from "@/lib/ai/talent-recovery";
 import { recordHumanDecision, DecisionType } from "@/lib/decisions/engine";
+import { validateAndLogRecruiterDecision } from "@/lib/recruiter/decision-room-engine";
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +13,10 @@ export async function POST(req: Request) {
       roleId,
       verdict,
       rationale,
+      isOverride,
+      overrideReason,
+      aiRecommendation,
+      organizationId = "org_cognalyze_demo",
       customTargetRequirementId,
       decidedBy = "Hiring Committee",
       citedEvidenceIds = []
@@ -20,6 +25,42 @@ export async function POST(req: Request) {
     if (!candidateId || !roleId || !verdict) {
       return NextResponse.json({ success: false, error: "candidateId, roleId, and verdict are required" }, { status: 400 });
     }
+
+    // Milestone 6: Mandatory Override Justification Protocol
+    const isDivergent =
+      (aiRecommendation && (
+        ((verdict.toLowerCase().includes("hire") || verdict.toLowerCase().includes("advance")) &&
+          (aiRecommendation === "NO_HIRE" || aiRecommendation === "STRONG_NO_HIRE")) ||
+        ((verdict.toLowerCase().includes("reject") || verdict.toLowerCase().includes("not proceeding")) &&
+          (aiRecommendation === "HIRE" || aiRecommendation === "STRONG_HIRE"))
+      )) || Boolean(isOverride);
+
+    if (isDivergent) {
+      if (!overrideReason || typeof overrideReason !== "string" || overrideReason.trim().length < 20) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "A mandatory recruiter override justification of at least 20 characters is required when diverging from AI evaluation.",
+            code: "OVERRIDE_REASON_REQUIRED"
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Log to Milestone 6 Immutable Recruiter Decision Audit
+    await validateAndLogRecruiterDecision({
+      organizationId,
+      roleId,
+      candidateId,
+      actorUserId: decidedBy,
+      actorRole: "hiring_manager",
+      aiRecommendation: aiRecommendation || "HOLD",
+      humanVerdict: verdict.toLowerCase().includes("hire") ? "OFFER" : verdict.toLowerCase().includes("reject") ? "REJECT" : "HOLD",
+      isOverride: isDivergent,
+      overrideReason,
+      decisionNotes: rationale,
+    });
 
     const [candidate, role, allRoles] = await Promise.all([
       getCandidateById(candidateId),

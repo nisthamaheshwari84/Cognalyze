@@ -3,12 +3,15 @@
  * 
  * Context-Aware AI Engineering Tutor for Code Comprehension Lab.
  * Retrieves repository context, architecture graphs, and test outputs
- * to provide grounded, 3-level engineering mentorship without hallucinations.
+ * to provide grounded, multi-level engineering mentorship without hallucinations.
+ * Supports stage-specific personas: Foundations, Visual Tracing, Practice, Repo IDE, Interview.
  */
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getCodebaseById, searchCodebaseContent } from "./codebase-library";
 import { getChallengeById } from "./challenge-factory";
+
+export type TutorPersonaStage = "foundations" | "visual_trace" | "guided_practice" | "repo_explorer" | "interview";
 
 export interface TutorResponse {
   assistanceLevel: "hint" | "guided" | "full";
@@ -19,27 +22,29 @@ export interface TutorResponse {
 }
 
 export async function askEngineeringTutor(params: {
-  challengeId: string;
+  challengeId?: string;
+  codebaseId?: string;
+  stagePersona?: TutorPersonaStage;
   userQuestion: string;
   assistanceLevel?: "hint" | "guided" | "full";
   activeFile?: string;
+  activeLine?: number;
   conversationHistory?: Array<{ sender: "candidate" | "tutor"; text: string }>;
 }): Promise<TutorResponse> {
-  const challenge = getChallengeById(params.challengeId);
-  if (!challenge) {
-    throw new Error(`CHALLENGE_NOT_FOUND: ${params.challengeId}`);
-  }
+  const challenge = params.challengeId ? getChallengeById(params.challengeId) : null;
+  const codebaseId = params.codebaseId || challenge?.codebaseId || "taskflow-api-v1";
+  const codebase = getCodebaseById(codebaseId);
 
-  const codebase = getCodebaseById(challenge.codebaseId);
   if (!codebase) {
-    throw new Error(`CODEBASE_NOT_FOUND: ${challenge.codebaseId}`);
+    throw new Error(`CODEBASE_NOT_FOUND: ${codebaseId}`);
   }
 
   const level = params.assistanceLevel || "guided";
+  const persona = params.stagePersona || (challenge ? "repo_explorer" : "foundations");
 
   // Gather relevant repository context: search keywords from user question in codebase
   const searchTerms = params.userQuestion.split(/\s+/).filter(w => w.length > 3).slice(0, 3);
-  let retrievedSnippets: string[] = [];
+  const retrievedSnippets: string[] = [];
   for (const term of searchTerms) {
     const matches = searchCodebaseContent(codebase.id, term);
     for (const m of matches.slice(0, 2)) {
@@ -47,19 +52,18 @@ export async function askEngineeringTutor(params: {
     }
   }
 
-  const relevantFilesList = challenge.relevantFiles.join(", ");
+  const relevantFilesList = challenge ? challenge.relevantFiles.join(", ") : "src/routes/task.routes.ts, src/controllers/task.controller.ts, src/services/task.service.ts, src/repositories/task.repository.ts";
   const activeFileContext = params.activeFile && codebase.files[params.activeFile]?.content
-    ? `ACTIVE OPEN FILE (${params.activeFile}):\n${codebase.files[params.activeFile]?.content?.slice(0, 1000)}...`
+    ? `ACTIVE OPEN FILE (${params.activeFile}${params.activeLine ? ` line ${params.activeLine}` : ""}):\n${codebase.files[params.activeFile]?.content?.slice(0, 1000)}...`
     : "";
 
   const systemInstruction = `You are a Senior Principal Staff Engineer serving as an AI Engineering Tutor for Cognalyze Code Comprehension Lab.
-You are mentoring a software engineering student investigating the real codebase: "${codebase.title}".
+Codebase: "${codebase.title}" (${codebase.category})
+Current Stage Persona: ${persona.toUpperCase()}
+Assistance Level: ${level.toUpperCase()}
+Relevant Files: ${relevantFilesList}
 
-CHALLENGE: "${challenge.title}" (${challenge.mode})
-OBJECTIVES: ${challenge.learningObjectives.join("; ")}
-RELEVANT FILES: ${relevantFilesList}
-
-CURRENT ASSISTANCE LEVEL: "${level.toUpperCase()}"
+GUIDELINES BY LEVEL:
 - If "HINT": Point the student towards the exact file or concept to inspect. Do NOT give away the full answer or fix. Ask a targeted diagnostic question.
 - If "GUIDED": Explain the mechanics of the relevant code path and prompt them to predict the root cause or edge case.
 - If "FULL": Provide an end-to-end technical breakdown of the architecture, data flow, failure mode, and production trade-offs.
@@ -93,9 +97,9 @@ Respond with an insightful, grounded explanation matching the ${level} level.`;
       return {
         assistanceLevel: level,
         reply: text,
-        citedFiles: challenge.relevantFiles,
+        citedFiles: challenge ? challenge.relevantFiles : ["src/routes/task.routes.ts", "src/controllers/task.controller.ts"],
         suggestedNextSteps: [
-          `Inspect ${challenge.relevantFiles[0]} to verify the call sequence.`,
+          `Inspect ${challenge ? challenge.relevantFiles[0] : "src/routes/task.routes.ts"} to verify the call sequence.`,
           "Run the test suite to observe runtime assertions.",
         ],
         confidence: 90,
@@ -106,7 +110,12 @@ Respond with an insightful, grounded explanation matching the ${level} level.`;
   }
 
   // Deterministic Grounded Fallback
-  return generateDeterministicTutorReply(challenge.id, params.userQuestion, level, challenge.relevantFiles);
+  return generateDeterministicTutorReply(
+    challenge?.id || "detective-taskflow-auth",
+    params.userQuestion,
+    level,
+    challenge ? challenge.relevantFiles : ["src/routes/task.routes.ts", "src/repositories/task.repository.ts"]
+  );
 }
 
 function generateDeterministicTutorReply(
@@ -132,7 +141,7 @@ function generateDeterministicTutorReply(
       reply: `### Request Flow & Tenant Isolation Architecture
 1. **Authentication**: The client sends an HTTP request with \`Authorization: Bearer <token>\`. In \`src/middleware/auth.ts\`, \`authenticateUser\` decodes the token, validating its signature against \`JWT_SECRET\`, and assigns \`req.user = { id, organizationId, role }\`.
 2. **Controller Boundary**: \`TaskController\` unpacks the validated Zod schema and explicitly passes \`user.organizationId\` down to \`TaskService\` and \`TaskRepository\`.
-3. **Multi-Tenant Protection**: In \`src/repositories/task.repository.ts\`, every SQL/data query enforces \`item.organizationId === orgId\`. If a user queries an existing task belonging to another organization, the repository returns \`null\`, denying cross-tenant data leakage.`,
+3. **Multi-Tenant Protection**: In \`src/repositories/task.repository.ts\`, every SQL/data query enforces tenant isolation. In \`findById\`, if \`item.organizationId !== orgId\`, the repository returns \`null\`, denying cross-tenant data leakage. In \`findByOrg\`, only items matching \`orgId\` are aggregated.`,
       citedFiles: ["src/routes/task.routes.ts", "src/middleware/auth.ts", "src/repositories/task.repository.ts"],
       suggestedNextSteps: ["Run test-auth-tenant-isolation to verify cross-tenant queries return null."],
       confidence: 95,

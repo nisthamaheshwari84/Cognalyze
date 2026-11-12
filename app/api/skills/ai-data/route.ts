@@ -31,9 +31,56 @@ import {
   getCandidateActiveTrack,
   setCandidateActiveTrack,
   recordStudentAttempt,
-  getArenaSummary
+  getArenaSummary,
+  saveCandidateOnboarding,
+  getCandidateOnboarding,
+  getCandidateBaseline,
+  saveCandidateBaseline,
+  getCandidateRoadmap,
+  setCandidateLanguagePreference,
+  getCandidateLanguagePreference,
+  saveTopicStageProgress,
+  getCandidateTopicProgress
 } from "@/lib/skills/ai-data/store";
+import {
+  MASTER_CURRICULUM_TRACKS,
+  getTaxonomyTopicById
+} from "@/lib/skills/ai-data/master-curriculum-taxonomy";
+import {
+  getTopicStagePayload,
+  evaluateStudentExplanation,
+  TeachingStageNumber,
+  ContentLanguage
+} from "@/lib/skills/ai-data/deep-teaching-engine";
 import { AiDataTrackSlug, TargetRoleSlug } from "@/lib/skills/ai-data/types";
+import {
+  getBaselineDiagnosticQuestions,
+  evaluateBaselineAssessment
+} from "@/lib/skills/ai-data/baseline-assessment-engine";
+import { generatePersonalizedRoadmap } from "@/lib/skills/ai-data/roadmap-engine";
+import { buildStudentPersonalizedRoadmap } from "@/lib/skills/ai-data/personalized-roadmap-engine";
+import { inspectCpythonMechanics } from "@/lib/skills/ai-data/cpython-inspector-server";
+import {
+  evaluateNumpyBroadcasting,
+  evaluateSqlJoinVisualizer,
+  simulateGradientDescent,
+  simulateRagPipelineFlow
+} from "@/lib/skills/ai-data/visual-diagram-engine";
+import {
+  generateCanonicalNotesForTopic,
+  generatePersonalWeaknessNotes
+} from "@/lib/skills/ai-data/intelligent-notes-engine";
+import {
+  queryCompanyQuestions,
+  recordQuestionSubmission,
+  toggleQuestionBookmark,
+  getCandidatePracticeAnalytics,
+  getAdaptivePracticeRecommendations,
+} from "@/lib/skills/ai-data/company-question-bank-store";
+import { runQuestionBankCompletenessAudit } from "@/lib/skills/ai-data/question-bank-auditor";
+import { validateLessonContent } from "@/lib/skills/ai-data/content-validator";
+import { executeChallengeSubmission } from "@/lib/skills/ai-data/curated-coding-server";
+import { getCodingChallengeById } from "@/lib/skills/ai-data/curated-coding-library";
 import {
   getAllSqlChallenges,
   getSqlChallengeBySlug,
@@ -178,6 +225,8 @@ export async function GET(req: NextRequest) {
       })),
       roles: allRoles,
       summary,
+      masterCurriculum: MASTER_CURRICULUM_TRACKS,
+      languagePreference: getCandidateLanguagePreference(candidateId),
       challengesSummary: {
         totalCount: allChallenges.length,
         byCategory: {
@@ -247,18 +296,185 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, activeTrackSlug: track, summary });
     }
 
+    // ── CAREER ONBOARDING & BASELINE ASSESSMENT ──────────────────────────────
+    if (action === "save_onboarding") {
+      const { profile } = body;
+      if (!profile) return NextResponse.json({ success: false, error: "Missing profile" }, { status: 400 });
+      const saved = saveCandidateOnboarding(candidateId, profile);
+      const summary = await getArenaSummary(candidateId);
+      return NextResponse.json({ success: true, profile: saved, summary });
+    }
+
+    if (action === "get_baseline_questions") {
+      const questions = getBaselineDiagnosticQuestions();
+      return NextResponse.json({ success: true, questions });
+    }
+
+    if (action === "submit_baseline_assessment") {
+      const { targetRole = "ai_engineer", startingLevel = "beginner", responses = [] } = body;
+      const evaluation = evaluateBaselineAssessment(candidateId, targetRole, startingLevel, responses);
+      saveCandidateBaseline(candidateId, evaluation);
+      const summary = await getArenaSummary(candidateId);
+      return NextResponse.json({ success: true, evaluation, summary });
+    }
+
+    if (action === "get_personalized_roadmap") {
+      const roadmap = getCandidateRoadmap(candidateId);
+      return NextResponse.json({ success: true, roadmap });
+    }
+
+    if (action === "build_student_personalized_roadmap" || action === "get_personalized_roadmap_v2") {
+      const { targetRole, commitment, targetDeadlineWeeks } = body;
+      const roadmap = buildStudentPersonalizedRoadmap({
+        candidateId,
+        targetRole,
+        commitment,
+        targetDeadlineWeeks
+      });
+      return NextResponse.json({ success: true, roadmap });
+    }
+
+    // ── INTERACTIVE VISUAL DIAGRAM ACTIONS ───────────────────────────────────
+    if (action === "inspect_cpython_mechanics") {
+      const { code } = body;
+      const result = await inspectCpythonMechanics(code || "");
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "evaluate_numpy_broadcasting") {
+      const { shapeA = [3, 1], shapeB = [1, 4] } = body;
+      const evaluation = evaluateNumpyBroadcasting(shapeA, shapeB);
+      return NextResponse.json({ success: true, evaluation });
+    }
+
+    if (action === "evaluate_sql_joins") {
+      const { joinType = "INNER" } = body;
+      const evaluation = evaluateSqlJoinVisualizer(joinType);
+      return NextResponse.json({ success: true, evaluation });
+    }
+
+    if (action === "simulate_gradient_descent") {
+      const { learningRate = 0.15, initialTheta = -4.0, maxSteps = 20 } = body;
+      const simulation = simulateGradientDescent(Number(learningRate), Number(initialTheta), Number(maxSteps));
+      return NextResponse.json({ success: true, simulation });
+    }
+
+    if (action === "simulate_rag_pipeline") {
+      const { rawDocument, chunkSize, chunkOverlap, query, topK } = body;
+      const simulation = simulateRagPipelineFlow({ rawDocument, chunkSize, chunkOverlap, query, topK });
+      return NextResponse.json({ success: true, simulation });
+    }
+
+    // ── INTELLIGENT NOTES ACTIONS ────────────────────────────────────────────
+    if (action === "get_intelligent_notes") {
+      const { topicId = "numpy-broadcasting", targetRole = "AI Engineer" } = body;
+      const canonicalNotes = generateCanonicalNotesForTopic(topicId, targetRole);
+      const personalWeaknesses = generatePersonalWeaknessNotes(candidateId);
+      return NextResponse.json({ success: true, canonicalNotes, personalWeaknesses });
+    }
+
+    if (action === "validate_lesson") {
+      const { lesson } = body;
+      if (!lesson) return NextResponse.json({ success: false, error: "Missing lesson definition" }, { status: 400 });
+      const report = validateLessonContent(lesson);
+      return NextResponse.json({ success: true, report });
+    }
+
+    // ── 10-STAGE UNIVERSAL TEACHING ENGINE & BILINGUAL SETTINGS ──────────────
+    if (action === "get_master_curriculum") {
+      return NextResponse.json({ success: true, tracks: MASTER_CURRICULUM_TRACKS });
+    }
+
+    if (action === "get_stage_payload") {
+      const { topicId, stageNumber = 1, language, targetRole } = body;
+      if (!topicId) return NextResponse.json({ success: false, error: "Missing topicId" }, { status: 400 });
+      const currentRole = targetRole || getCandidateRole(candidateId);
+      const currentLang = language || getCandidateLanguagePreference(candidateId);
+      const payload = getTopicStagePayload(topicId, stageNumber as TeachingStageNumber, currentLang as ContentLanguage, currentRole as TargetRoleSlug);
+      if (!payload) return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
+      const currentUnlockedStage = getCandidateTopicProgress(candidateId, topicId);
+      return NextResponse.json({ success: true, payload, currentUnlockedStage, language: currentLang });
+    }
+
+    if (action === "evaluate_explanation") {
+      const { topicId, explanationText, language } = body;
+      if (!topicId || !explanationText) {
+        return NextResponse.json({ success: false, error: "Missing topicId or explanationText" }, { status: 400 });
+      }
+      const currentLang = language || getCandidateLanguagePreference(candidateId);
+      const evaluation = evaluateStudentExplanation(topicId, explanationText, currentLang as ContentLanguage);
+      if (evaluation.passed) {
+        saveTopicStageProgress(candidateId, topicId, 10);
+      }
+      return NextResponse.json({ success: true, evaluation });
+    }
+
+    if (action === "set_language_preference") {
+      const { language } = body;
+      if (!language || !["english", "hinglish"].includes(language)) {
+        return NextResponse.json({ success: false, error: "Invalid language. Must be 'english' or 'hinglish'" }, { status: 400 });
+      }
+      setCandidateLanguagePreference(candidateId, language);
+      return NextResponse.json({ success: true, language });
+    }
+
+    if (action === "get_language_preference") {
+      const language = getCandidateLanguagePreference(candidateId);
+      return NextResponse.json({ success: true, language });
+    }
+
+    if (action === "save_stage_progress") {
+      const { topicId, stageNumber } = body;
+      if (!topicId || !stageNumber) {
+        return NextResponse.json({ success: false, error: "Missing topicId or stageNumber" }, { status: 400 });
+      }
+      const newMax = saveTopicStageProgress(candidateId, topicId, stageNumber);
+      return NextResponse.json({ success: true, topicId, unlockedStage: newMax });
+    }
+
     // ── SQL & PYTHON EXECUTION ───────────────────────────────────────────────
     if (action === "execute_sql") {
-      const { datasetId = "ecommerce_analytics", userSql, challengeSlug } = body;
-      if (!userSql) return NextResponse.json({ success: false, error: "Missing SQL query" }, { status: 400 });
-      const result = await executeSqlInSandbox(datasetId, userSql, challengeSlug);
+      const { datasetId = "ecommerce_analytics", userSql, sql, challengeSlug } = body;
+      const sqlToRun = userSql || sql;
+      if (!sqlToRun) return NextResponse.json({ success: false, error: "Missing SQL query" }, { status: 400 });
+      const result = await executeSqlInSandbox(datasetId, sqlToRun, challengeSlug);
       return NextResponse.json({ success: true, result });
     }
 
     if (action === "execute_python") {
-      const { userCode, challengeSlug } = body;
-      if (!userCode) return NextResponse.json({ success: false, error: "Missing Python code" }, { status: 400 });
-      const result = await executePythonInSandbox(userCode, challengeSlug);
+      const codeToRun = body.userCode || body.code || "";
+      if (!codeToRun) return NextResponse.json({ success: false, error: "Missing Python code" }, { status: 400 });
+      const result = await executePythonInSandbox(codeToRun, body.challengeSlug);
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "execute_coding_challenge") {
+      const { challengeId, userCode, isSubmission } = body;
+      const targetCandidateId = body.candidateId || candidateId || "student-demo";
+      const challenge = getCodingChallengeById(challengeId);
+      if (!challenge) {
+        return NextResponse.json({ success: false, error: "Challenge not found in curated library." }, { status: 404 });
+      }
+      const result = await executeChallengeSubmission(challenge, userCode || "");
+      if (isSubmission) {
+        try {
+          recordQuestionSubmission({
+            candidateId: targetCandidateId,
+            questionId: challenge.id,
+            userAnswer: userCode || "",
+            timeSpentSeconds: 45,
+            codeExecutionOutput: {
+              passed: result.passed,
+              stdout: result.testOutcomes?.[0]?.actualOutput,
+              errorMessage: result.testOutcomes?.[0]?.errorMessage,
+              testCasesPassed: result.passedTests,
+              totalTestCases: result.totalTests,
+            },
+          });
+        } catch (e) {
+          console.warn("Could not record question submission:", e);
+        }
+      }
       return NextResponse.json({ success: true, result });
     }
 
@@ -465,6 +681,44 @@ export async function POST(req: NextRequest) {
     if (action === "list_dry_run_traces") {
       const traces = listAvailableDryRunTraces();
       return NextResponse.json({ success: true, traces });
+    }
+
+    // ── COMPANY-ORIENTED PRACTICE QUESTION BANK ──────────────────────────────
+    if (action === "query_company_questions") {
+      const { filters = {} } = body;
+      const result = queryCompanyQuestions(candidateId, filters);
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "submit_company_question") {
+      const { submission } = body;
+      if (!submission) return NextResponse.json({ success: false, error: "Missing submission payload" }, { status: 400 });
+      submission.candidateId = candidateId;
+      const result = recordQuestionSubmission(submission);
+      return NextResponse.json({ success: true, ...result });
+    }
+
+    if (action === "toggle_question_bookmark") {
+      const { questionId } = body;
+      if (!questionId) return NextResponse.json({ success: false, error: "Missing question ID" }, { status: 400 });
+      const bookmarked = toggleQuestionBookmark(candidateId, questionId);
+      return NextResponse.json({ success: true, bookmarked });
+    }
+
+    if (action === "get_practice_analytics") {
+      const analytics = getCandidatePracticeAnalytics(candidateId);
+      return NextResponse.json({ success: true, analytics });
+    }
+
+    if (action === "get_adaptive_recommendations") {
+      const { role } = body;
+      const recommendations = getAdaptivePracticeRecommendations(candidateId, role);
+      return NextResponse.json({ success: true, recommendations });
+    }
+
+    if (action === "run_question_bank_audit") {
+      const report = runQuestionBankCompletenessAudit();
+      return NextResponse.json({ success: true, report });
     }
 
     return NextResponse.json({ success: false, error: "Unknown action" }, { status: 400 });

@@ -26,7 +26,7 @@ export default function HierarchicalSidebar({
   onLaunchStudio,
   isCollapsed = false,
   onToggleCollapse,
-  isDark = true,
+  isDark = false,
   targetRoleTrackSlug
 }: HierarchicalSidebarProps) {
   const [collapsedStages, setCollapsedStages] = useState<Record<number, boolean>>({});

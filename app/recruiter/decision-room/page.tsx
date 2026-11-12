@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 import {
   DecisionRoomDossier,
   DecisionRequirementMatch,
@@ -653,9 +654,9 @@ export default function RecruiterDecisionRoomPage() {
               {/* Left: Summary & Experience */}
               <div style={{ background: "var(--surface)", borderRadius: 10, border: "1px solid var(--border-subtle)", padding: 20, boxShadow: "var(--shadow-subtle)" }}>
                 <h3 style={{ fontSize: 15, fontWeight: 700, margin: "0 0 10px", color: "var(--brand-navy)" }}>Professional Profile</h3>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 16px" }}>
-                  {dossier.summary}
-                </p>
+                <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 16px" }}>
+                  <MarkdownRenderer content={dossier.summary} compact />
+                </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
                   <div style={{ background: "#FAF9F6", border: "1px solid var(--border-subtle)", padding: 12, borderRadius: 7 }}>
@@ -796,9 +797,9 @@ export default function RecruiterDecisionRoomPage() {
                       </a>
                     )}
 
-                    <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.4 }}>
-                      {src.evidenceSummary}
-                    </p>
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 8, lineHeight: 1.4 }}>
+                      <MarkdownRenderer content={src.evidenceSummary} compact />
+                    </div>
 
                     <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
                       Identity: {src.identityReason}
@@ -1023,9 +1024,9 @@ export default function RecruiterDecisionRoomPage() {
                     <div style={{ fontWeight: 700, color: "var(--brand-cobalt)", marginBottom: 4 }}>
                       Authorship & Development Pattern Analysis
                     </div>
-                    <p style={{ color: "var(--text-primary)", margin: "0 0 6px", lineHeight: 1.5 }}>
-                      {proj.aiAssistanceAnalysis.summary}
-                    </p>
+                    <div style={{ color: "var(--text-primary)", margin: "0 0 6px", lineHeight: 1.5 }}>
+                      <MarkdownRenderer content={proj.aiAssistanceAnalysis.summary} compact />
+                    </div>
                     {proj.aiAssistanceAnalysis.counterSignals.map((cs, i) => (
                       <div key={i} style={{ color: "var(--color-success)", fontSize: 11, fontWeight: 500 }}>
                         • Counter-signal: {cs}

@@ -1,0 +1,447 @@
+[
+  {
+    "candidateId": "test_cand_1794455492741",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T03:51:32.742Z"
+  },
+  {
+    "candidateId": "test_cand_1794455520049",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T03:52:00.049Z"
+  },
+  {
+    "candidateId": "u-student-sample-001",
+    "arenaId": "gsoc-2026",
+    "selectedLevel": "advanced",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T04:28:49.178Z"
+  },
+  {
+    "candidateId": "u-student-sample-001",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T04:29:00.462Z"
+  },
+  {
+    "candidateId": "u-student-sample-001",
+    "arenaId": "paid-aiml-internship-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T04:29:27.016Z"
+  },
+  {
+    "candidateId": "test-student-gsoc-1",
+    "arenaId": "gsoc-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T05:19:24.647Z"
+  },
+  {
+    "candidateId": "test-student-grid-1",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T05:19:24.660Z"
+  },
+  {
+    "candidateId": "test_cand_1794460825931",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T05:20:25.931Z"
+  },
+  {
+    "candidateId": "test_cand_1794462350069",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T05:45:50.069Z"
+  },
+  {
+    "candidateId": "cand_demo_student",
+    "arenaId": "gsoc-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-gsoc-2026-1794463646143": {
+        "score": 0,
+        "percentage": 0,
+        "passed": false,
+        "completedAt": "2026-11-12T06:07:26.143Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T06:07:26.143Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794468416376",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.396Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794468416376",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.439Z"
+  },
+  {
+    "candidateId": "oss-test-user",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.446Z"
+  },
+  {
+    "candidateId": "assess-persist-1794468416453",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-flipkart-grid-7-1794468416453": {
+        "score": 132,
+        "percentage": 94,
+        "passed": true,
+        "completedAt": "2026-11-12T07:26:56.454Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.454Z"
+  },
+  {
+    "candidateId": "interview-persist-1794468416458",
+    "arenaId": "amazon-hackon-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.458Z"
+  },
+  {
+    "candidateId": "exp-test-user",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:26:56.510Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794468503479",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:28:23.503Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794468503479",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:28:23.524Z"
+  },
+  {
+    "candidateId": "assess-persist-1794468503536",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-flipkart-grid-7-1794468503536": {
+        "score": 132,
+        "percentage": 94,
+        "passed": true,
+        "completedAt": "2026-11-12T07:28:23.537Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:28:23.537Z"
+  },
+  {
+    "candidateId": "interview-persist-1794468503546",
+    "arenaId": "amazon-hackon-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:28:23.546Z"
+  },
+  {
+    "candidateId": "test-student-gsoc-1",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:28:25.368Z"
+  },
+  {
+    "candidateId": "test_cand_1794468506302",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T07:28:26.303Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794468563746",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:29:23.773Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794468563746",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:29:23.796Z"
+  },
+  {
+    "candidateId": "assess-persist-1794468563807",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-flipkart-grid-7-1794468563807": {
+        "score": 132,
+        "percentage": 94,
+        "passed": true,
+        "completedAt": "2026-11-12T07:29:23.809Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:29:23.809Z"
+  },
+  {
+    "candidateId": "interview-persist-1794468563818",
+    "arenaId": "amazon-hackon-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:29:23.818Z"
+  },
+  {
+    "candidateId": "test_cand_1794468566584",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T07:29:26.584Z"
+  },
+  {
+    "candidateId": "u-student-sample-001",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T07:32:38.110Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794502320937",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T16:52:01.347Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794502320937",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T16:52:02.383Z"
+  },
+  {
+    "candidateId": "assess-persist-1794502323391",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-flipkart-grid-7-1794502323391": {
+        "score": 132,
+        "percentage": 94,
+        "passed": true,
+        "completedAt": "2026-11-12T16:52:03.392Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T16:52:03.392Z"
+  },
+  {
+    "candidateId": "interview-persist-1794502323404",
+    "arenaId": "amazon-hackon-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-12T16:52:03.404Z"
+  },
+  {
+    "candidateId": "test_cand_1794502331014",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-12T16:52:11.014Z"
+  }
+]

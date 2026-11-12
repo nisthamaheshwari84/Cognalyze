@@ -163,8 +163,8 @@ export default function SkillPracticeHubPage() {
     } else if (nameLower.includes("comprehension") || nameLower.includes("code review") || nameLower.includes("codebase")) {
       domainSlug = "code_comprehension";
       targetHref = "/student/skills/code-comprehension";
-    } else if (nameLower.includes("ai") || nameLower.includes("machine learning") || nameLower.includes("data") || nameLower.includes("llm") || nameLower.includes("rag") || nameLower.includes("analytics")) {
-      domainSlug = "ai_data_intelligence";
+    } else if (nameLower.includes("python") || nameLower.includes("ai") || nameLower.includes("machine learning") || nameLower.includes("data science") || nameLower.includes("deep learning") || nameLower.includes("llm") || nameLower.includes("genai") || nameLower.includes("mlops")) {
+      domainSlug = "ai_data_arena";
       targetHref = "/student/skills/ai-data";
     } else if (nameLower.includes("behavioral") || nameLower.includes("culture") || nameLower.includes("leadership") || nameLower.includes("bar-raiser")) {
       domainSlug = "behavioral_hr";
@@ -197,10 +197,10 @@ export default function SkillPracticeHubPage() {
 
   // Primary Practice Domains
   const domainCardConfig = [
+    { slug: "ai_data_arena", name: "AI & Data Arena", icon: "🧠", href: "/student/skills/ai-data" },
     { slug: "dsa_coding", name: "DSA Coding & Striver 455", icon: "⚡", href: "/student/skills/dsa" },
     { slug: "cs_fundamentals", name: "CS Fundamentals", icon: "💻", href: "/student/skills/cs-interview" },
     { slug: "code_comprehension", name: "Code Comprehension", icon: "🔬", href: "/student/skills/code-comprehension" },
-    { slug: "ai_data_intelligence", name: "AI & Data Arena", icon: "🧠", href: "/student/skills/ai-data" },
     { slug: "system_design", name: "System Design", icon: "🏗️", href: "/student/skills/system-design" },
     { slug: "behavioral_hr", name: "Behavioral & HR", icon: "🤝", href: "/student/skills/behavioral" },
     { slug: "aptitude_reasoning", name: "Aptitude & Reasoning", icon: "🧮", href: "/student/skills/aptitude" },
@@ -479,58 +479,6 @@ export default function SkillPracticeHubPage() {
               );
             })}
           </div>
-        </div>
-
-        {/* ── UNIFIED LEARNING & EVALUATION PLATFORM HERO BANNER ── */}
-        <div style={{
-          marginBottom: 24,
-          padding: "20px 24px",
-          borderRadius: 12,
-          background: "linear-gradient(135deg, #0B192C 0%, #162A43 100%)",
-          color: "#FFFFFF",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 16,
-          boxShadow: "0 4px 12px rgba(11,25,44,0.12)"
-        }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-              <span style={{ fontSize: 18 }}>🎓</span>
-              <span style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#34D399" }}>
-                Cognalyze Learning &amp; Evaluation Platform
-              </span>
-              <span style={{ fontSize: 10, background: "rgba(52,211,153,0.15)", color: "#34D399", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>
-                17 Canonical Subjects
-              </span>
-            </div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, margin: "0 0 6px", color: "#FFFFFF" }}>
-              Unified Learning Journey &amp; Subject AI Mentors
-            </h3>
-            <p style={{ margin: 0, fontSize: 12, color: "#94A3B8", maxWidth: 640, lineHeight: 1.5 }}>
-              Master Python, SQL, Pandas, NumPy, Machine Learning, Deep Learning, Generative AI, and DSA in focused workspaces with dedicated Socratic AI Mentors, real execution sandboxes, and verified Student DNA mastery.
-            </p>
-          </div>
-          <Link
-            href="/student/learn"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "10px 20px",
-              borderRadius: 8,
-              background: "#10B981",
-              color: "#FFFFFF",
-              fontWeight: 700,
-              fontSize: 13,
-              textDecoration: "none",
-              transition: "all 0.15s ease",
-              boxShadow: "0 2px 6px rgba(16,185,129,0.3)"
-            }}
-          >
-            Launch Unified Learning Portal ➔
-          </Link>
         </div>
 
         {/* ── LEVEL 3: CHOOSE PRACTICE DOMAIN (COMPACT 2/3 COLUMN GRID) ── */}

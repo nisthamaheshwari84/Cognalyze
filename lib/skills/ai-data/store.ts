@@ -3,6 +3,7 @@
  * 
  * Multi-tenant Persistence Store for the AI, Data & Intelligence Arena.
  * Server-only module managing candidate progress, attempts, role selections,
+ * onboarding profiles, baseline assessments, personalized roadmaps,
  * and integration with Student DNA.
  */
 
@@ -21,16 +22,36 @@ import { getTargetRoleBySlug } from "./roles";
 import { getStudentDNAFull } from "@/lib/dna/store";
 import { syncArenaAttemptToDNA } from "./dna-adapter";
 import { isSupabaseAvailable, getAdminClient } from "@/lib/supabase";
+import { BaselineAssessmentResult } from "./baseline-assessment-engine";
+import { generatePersonalizedRoadmap, PersonalizedRoadmap } from "./roadmap-engine";
+
+export interface CandidateOnboardingProfile {
+  candidateId: string;
+  primaryRole: TargetRoleSlug;
+  secondaryRoles: TargetRoleSlug[];
+  startingLevel: "beginner" | "intermediate" | "advanced";
+  weeklyHours: number;
+  languagePreference: "english" | "hinglish";
+  learningStyle: "hands_on" | "visual" | "systematic";
+  onboardingCompleted: boolean;
+  completedAt?: string;
+}
 
 interface StoreSchema {
   candidateRoles: Record<string, TargetRoleSlug>;
   candidateActiveTracks: Record<string, AiDataTrackSlug>;
+  candidateOnboarding?: Record<string, CandidateOnboardingProfile>;
+  candidateBaselines?: Record<string, BaselineAssessmentResult>;
   attempts: StudentArenaAttempt[];
 }
 
 const STORAGE_PATH = path.join(process.cwd(), "data", "ai-data-store.json");
 const CANDIDATE_ROLES = new Map<string, TargetRoleSlug>();
 const CANDIDATE_TRACKS = new Map<string, AiDataTrackSlug>();
+const CANDIDATE_ONBOARDING = new Map<string, CandidateOnboardingProfile>();
+const CANDIDATE_BASELINES = new Map<string, BaselineAssessmentResult>();
+const CANDIDATE_LANGUAGES = new Map<string, "english" | "hinglish">();
+const CANDIDATE_TOPIC_STAGES = new Map<string, Map<string, number>>();
 const ATTEMPTS_LIST: StudentArenaAttempt[] = [];
 let isLoaded = false;
 
@@ -58,6 +79,16 @@ function loadStore(): void {
           CANDIDATE_TRACKS.set(k, v);
         }
       }
+      if (data.candidateOnboarding) {
+        for (const [k, v] of Object.entries(data.candidateOnboarding)) {
+          CANDIDATE_ONBOARDING.set(k, v);
+        }
+      }
+      if (data.candidateBaselines) {
+        for (const [k, v] of Object.entries(data.candidateBaselines)) {
+          CANDIDATE_BASELINES.set(k, v);
+        }
+      }
       if (Array.isArray(data.attempts)) {
         ATTEMPTS_LIST.length = 0;
         ATTEMPTS_LIST.push(...data.attempts);
@@ -76,6 +107,8 @@ function persistStore(): void {
     const data: StoreSchema = {
       candidateRoles: Object.fromEntries(CANDIDATE_ROLES.entries()),
       candidateActiveTracks: Object.fromEntries(CANDIDATE_TRACKS.entries()),
+      candidateOnboarding: Object.fromEntries(CANDIDATE_ONBOARDING.entries()),
+      candidateBaselines: Object.fromEntries(CANDIDATE_BASELINES.entries()),
       attempts: ATTEMPTS_LIST
     };
     fs.writeFileSync(STORAGE_PATH, JSON.stringify(data, null, 2), "utf-8");
@@ -109,9 +142,79 @@ export function setCandidateActiveTrack(candidateId: string, track: AiDataTrackS
   persistStore();
 }
 
+export function getCandidateOnboarding(candidateId: string): CandidateOnboardingProfile | null {
+  loadStore();
+  return CANDIDATE_ONBOARDING.get(candidateId) || null;
+}
+
+export function saveCandidateOnboarding(
+  candidateId: string,
+  profile: Partial<CandidateOnboardingProfile>
+): CandidateOnboardingProfile {
+  loadStore();
+  const existing = CANDIDATE_ONBOARDING.get(candidateId) || {
+    candidateId,
+    primaryRole: "ai_engineer",
+    secondaryRoles: [],
+    startingLevel: "beginner",
+    weeklyHours: 10,
+    languagePreference: "english",
+    learningStyle: "hands_on",
+    onboardingCompleted: false
+  };
+
+  const updated: CandidateOnboardingProfile = {
+    ...existing,
+    ...profile,
+    candidateId,
+    onboardingCompleted: true,
+    completedAt: new Date().toISOString()
+  };
+
+  CANDIDATE_ONBOARDING.set(candidateId, updated);
+  if (updated.primaryRole) {
+    CANDIDATE_ROLES.set(candidateId, updated.primaryRole);
+    const primaryTrack = getTargetRoleBySlug(updated.primaryRole).primaryTrack;
+    CANDIDATE_TRACKS.set(candidateId, primaryTrack);
+  }
+  persistStore();
+  return updated;
+}
+
+export function getCandidateBaseline(candidateId: string): BaselineAssessmentResult | null {
+  loadStore();
+  return CANDIDATE_BASELINES.get(candidateId) || null;
+}
+
+export function saveCandidateBaseline(
+  candidateId: string,
+  result: BaselineAssessmentResult
+): void {
+  loadStore();
+  CANDIDATE_BASELINES.set(candidateId, result);
+  persistStore();
+}
+
 export function getCandidateAttempts(candidateId: string): StudentArenaAttempt[] {
   loadStore();
   return ATTEMPTS_LIST.filter(a => a.candidateId === candidateId);
+}
+
+export function getCandidateRoadmap(candidateId: string): PersonalizedRoadmap {
+  loadStore();
+  const role = getCandidateRole(candidateId);
+  const attempts = getCandidateAttempts(candidateId);
+  const completedLessonSlugs = attempts.filter(a => a.passed).map(a => a.lessonSlug);
+  const baseline = getCandidateBaseline(candidateId);
+  const onboarding = getCandidateOnboarding(candidateId);
+
+  return generatePersonalizedRoadmap({
+    candidateId,
+    targetRole: role,
+    completedLessonSlugs,
+    baselineAssessment: baseline,
+    weeklyHoursCommitment: onboarding?.weeklyHours || 10
+  });
 }
 
 export async function recordStudentAttempt(input: {
@@ -176,11 +279,18 @@ export async function recordStudentAttempt(input: {
   return { attempt, dnaSync };
 }
 
-export async function getArenaSummary(candidateId: string): Promise<AiDataArenaSummary> {
+export async function getArenaSummary(candidateId: string): Promise<AiDataArenaSummary & {
+  onboarding: CandidateOnboardingProfile | null;
+  baseline: BaselineAssessmentResult | null;
+  roadmap: PersonalizedRoadmap;
+}> {
   loadStore();
   const selectedRole = getCandidateRole(candidateId);
   const activeTrackSlug = getCandidateActiveTrack(candidateId);
   const attempts = getCandidateAttempts(candidateId);
+  const onboarding = getCandidateOnboarding(candidateId);
+  const baseline = getCandidateBaseline(candidateId);
+  const roadmap = getCandidateRoadmap(candidateId);
 
   const completedSet = new Set<string>();
   let totalScoreSum = 0;
@@ -227,7 +337,6 @@ export async function getArenaSummary(candidateId: string): Promise<AiDataArenaS
       };
     });
   } catch (err) {
-    // Graceful fallback if DNA is unreachable
     dnaSkillGaps = [
       { skillId: "prompt_engineering_structured_outputs", skillName: "Structured Outputs", currentLevel: 1, targetLevel: 3, gapStatus: "MODERATE" },
       { skillId: "rag_architecture_and_retrieval", skillName: "RAG Architecture", currentLevel: 0, targetLevel: 3, gapStatus: "CRITICAL" },
@@ -244,6 +353,44 @@ export async function getArenaSummary(candidateId: string): Promise<AiDataArenaS
     verifiedEvidenceCount: verifiedCount,
     activeTrackSlug,
     recentAttempts: attempts.slice(0, 5),
-    dnaSkillGaps
+    dnaSkillGaps,
+    onboarding,
+    baseline,
+    roadmap
   };
+}
+
+export function setCandidateLanguagePreference(candidateId: string, lang: "english" | "hinglish"): void {
+  loadStore();
+  CANDIDATE_LANGUAGES.set(candidateId, lang);
+  persistStore();
+}
+
+export function getCandidateLanguagePreference(candidateId: string): "english" | "hinglish" {
+  loadStore();
+  const explicit = CANDIDATE_LANGUAGES.get(candidateId);
+  if (explicit) return explicit;
+  const onboarding = getCandidateOnboarding(candidateId);
+  if (onboarding?.languagePreference) return onboarding.languagePreference;
+  return "english";
+}
+
+export function saveTopicStageProgress(candidateId: string, topicId: string, stageNumber: number): number {
+  loadStore();
+  let candidateMap = CANDIDATE_TOPIC_STAGES.get(candidateId);
+  if (!candidateMap) {
+    candidateMap = new Map<string, number>();
+    CANDIDATE_TOPIC_STAGES.set(candidateId, candidateMap);
+  }
+  const currentMax = candidateMap.get(topicId) || 1;
+  const newMax = Math.max(currentMax, stageNumber);
+  candidateMap.set(topicId, newMax);
+  persistStore();
+  return newMax;
+}
+
+export function getCandidateTopicProgress(candidateId: string, topicId: string): number {
+  loadStore();
+  const candidateMap = CANDIDATE_TOPIC_STAGES.get(candidateId);
+  return candidateMap?.get(topicId) || 1;
 }
