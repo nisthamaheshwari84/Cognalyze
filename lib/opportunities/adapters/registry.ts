@@ -30,6 +30,7 @@ import { HackerEarthAdapter } from "./hackerearth-adapter";
 import { KaggleAdapter } from "./kaggle-adapter";
 import { CodeChefAdapter } from "./codechef-adapter";
 import { OpenSourceAdapter } from "./open-source-adapter";
+import { RadarLiveConnectorsAdapter } from "./radar-connectors-adapter";
 import {
   SourceRegistryEntry,
   RawOpportunity,
@@ -74,12 +75,13 @@ export class OpportunitySourceRegistry {
       new StartupAdapter(),
       new UniversityAdapter(),
       new JobApiAdapter(),
-      new AdminManualImportAdapter()
+      new AdminManualImportAdapter(),
+      new RadarLiveConnectorsAdapter()
     ];
 
     for (const adapter of defaultList) {
       // Legacy aggregator adapters without permitted feeds are disabled by default
-      if (adapter.id === "adapter-admin-import") {
+      if (adapter.id === "adapter-admin-import" || adapter.id === "adapter-radar-live-connectors") {
         adapter.enabled = true;
         adapter.accessStatus = "ACTIVE";
       } else if (

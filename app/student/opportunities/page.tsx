@@ -18,10 +18,13 @@ import {
   ShieldCheck,
   Radar,
   Kanban,
-  AlertCircle
+  AlertCircle,
+  Scale,
+  Mic
 } from "lucide-react";
 import CompanyLogo from "@/components/CompanyLogo";
 import { VerifiedApplyButton } from "@/components/opportunity/verification-trust-bar";
+import { CompareDrawer, type CompareItem } from "@/components/opportunity/CompareDrawer";
 
 interface Recommendation {
   opportunity_id: string;
@@ -68,8 +71,11 @@ export default function StudentOpportunitiesPage() {
   const [applicationsMap, setApplicationsMap] = useState<Record<string, ApplicationInfo>>({});
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<
-    "all" | "hackathon" | "internship" | "bookmarked" | "applied" | "tier1" | "unstop" | "iit"
+    "all" | "internship" | "fulltime" | "hackathon" | "contest" | "fellowship" | "opensource" | "bookmarked" | "applied" | "tier1" | "unstop" | "iit"
   >("all");
+  const [workModeFilter, setWorkModeFilter] = useState<"all" | "remote" | "hybrid" | "onsite">("all");
+  const [compareList, setCompareList] = useState<CompareItem[]>([]);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [pipelineToast, setPipelineToast] = useState<string>("");
 
@@ -295,15 +301,39 @@ export default function StudentOpportunitiesPage() {
   const bookmarkedCount = Object.values(applicationsMap).filter(a => a.stage === "Bookmarked").length;
   const appliedCount = Object.values(applicationsMap).filter(a => a.stage === "Applied").length;
 
+  const handleToggleCompare = (item: CompareItem) => {
+    setCompareList(prev => {
+      const exists = prev.some(c => c.id === item.id);
+      if (exists) {
+        return prev.filter(c => c.id !== item.id);
+      }
+      if (prev.length >= 3) {
+        setPipelineToast("Comparison limit reached (max 3 opportunities)");
+        setTimeout(() => setPipelineToast(""), 3000);
+        return prev;
+      }
+      return [...prev, item];
+    });
+  };
+
   const filtered = recommendations.filter(rec => {
     const opp = rec.opportunity;
     if (!opp) return false;
 
     if (filterType === "hackathon" && opp.type !== "hackathon") return false;
     if (filterType === "internship" && opp.type !== "internship") return false;
+    if (filterType === "fulltime" && opp.type !== "job" && opp.type !== "internship") return false;
+    if (filterType === "contest" && opp.type !== "contest") return false;
+    if (filterType === "fellowship" && opp.type !== "fellowship") return false;
+    if (filterType === "opensource" && !opp.tags?.some(t => t.toLowerCase().includes("open source") || t.toLowerCase().includes("gsoc") || t.toLowerCase().includes("git"))) return false;
     if (filterType === "tier1" && opp.tier !== "Tier 1") return false;
     if (filterType === "iit" && opp.organizer_type !== "IIT-fest") return false;
     if (filterType === "unstop" && !(opp.source_url?.includes("unstop") || opp.organizer?.toLowerCase().includes("unstop"))) return false;
+
+    if (workModeFilter !== "all") {
+      const mode = ((opp as any).mode || (opp as any).remoteType || "").toLowerCase();
+      if (!mode.includes(workModeFilter)) return false;
+    }
 
     if (filterType === "bookmarked") {
       const app = applicationsMap[rec.opportunity_id];
@@ -618,17 +648,18 @@ export default function StudentOpportunitiesPage() {
 
         {/* CONTROLS: SEARCH & FILTERS */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 24 }}>
-          {/* Filter Pills */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {/* Category Filter Pills */}
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
             {[
               { key: "all", label: `All (${recommendations.length})` },
-              { key: "hackathon", label: "Hackathons" },
               { key: "internship", label: "Internships" },
+              { key: "fulltime", label: "Full-Time" },
+              { key: "hackathon", label: "Hackathons" },
+              { key: "contest", label: "Contests" },
+              { key: "fellowship", label: "Fellowships" },
+              { key: "opensource", label: "Open Source" },
               { key: "bookmarked", label: `Saved (${bookmarkedCount})` },
               { key: "applied", label: `Applied (${appliedCount})` },
-              { key: "tier1", label: "Tier 1 Only" },
-              { key: "unstop", label: "Unstop" },
-              { key: "iit", label: "IIT Fests" }
             ].map(f => (
               <button
                 key={f.key}
@@ -648,6 +679,27 @@ export default function StudentOpportunitiesPage() {
                 {f.label}
               </button>
             ))}
+
+            {/* Work Mode Toggle */}
+            <select
+              value={workModeFilter}
+              onChange={(e) => setWorkModeFilter(e.target.value as any)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 7,
+                border: "1px solid #E4E1DA",
+                background: "#FFFFFF",
+                fontSize: 12,
+                color: "#162A43",
+                fontWeight: 500,
+                cursor: "pointer"
+              }}
+            >
+              <option value="all">All Modes</option>
+              <option value="remote">Remote Only</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="onsite">On-site</option>
+            </select>
           </div>
 
           {/* Search Box */}
@@ -725,6 +777,32 @@ export default function StudentOpportunitiesPage() {
               const isBookmarked = appInfo?.stage === "Bookmarked";
               const isApplied = appInfo?.stage === "Applied";
 
+              const isLiveConnector =
+                opp.source_url?.includes("remotive") ||
+                opp.source_url?.includes("codeforces") ||
+                opp.source_url?.includes("github.com") ||
+                opp.source_url?.includes("arbeitnow") ||
+                (opp as any).verificationStatus === "verified";
+
+              const provenanceBadge = isLiveConnector ? "Verified Live Posting" : "Curated Benchmark";
+              const isCompared = compareList.some((c) => c.id === rec.opportunity_id);
+
+              const compareItem: CompareItem = {
+                id: rec.opportunity_id,
+                title: opp.title,
+                organizer: opp.organizer,
+                category: opp.type,
+                location: (opp as any).city || (opp as any).location || "Global",
+                workMode: (opp as any).mode || (opp as any).remoteType || "Remote",
+                deadline: opp.deadline,
+                fitScore: rec.fit_score,
+                eligibilityStatus: rec.fit_score >= 80 ? "Eligible" : "Conditionally Eligible",
+                verificationBadge: provenanceBadge,
+                requiredSkills: opp.tags || [],
+                missingSkills: rec.missing_tags || [],
+                applyUrl: safeUrl,
+              };
+
               return (
                 <div
                   key={rec.opportunity_id}
@@ -775,16 +853,16 @@ export default function StudentOpportunitiesPage() {
                               fontSize: 10,
                               padding: "2px 6px",
                               borderRadius: 4,
-                              background: "#EAF4EE",
-                              color: "#2E7D5B",
+                              background: isLiveConnector ? "#EAF4EE" : "#EFF4FE",
+                              color: isLiveConnector ? "#2E7D5B" : "#2858C7",
                               fontWeight: 600,
-                              border: "1px solid #C8E4D3",
+                              border: `1px solid ${isLiveConnector ? "#C8E4D3" : "#D2E0FB"}`,
                               display: "inline-flex",
                               alignItems: "center",
                               gap: 3
                             }}
                           >
-                            <ShieldCheck size={11} /> {portal.name.replace(" Verified", "").replace(" Official", "")}
+                            <ShieldCheck size={11} /> {provenanceBadge}
                           </span>
                         </div>
 
@@ -881,12 +959,11 @@ export default function StudentOpportunitiesPage() {
                   </div>
 
                   <div>
-                    {/* Pipeline Quick Action Buttons */}
-                    <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+                    {/* Quick Action Buttons */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 8 }}>
                       <button
                         onClick={() => handleBookmarkToggle(rec.opportunity_id, opp.title)}
                         style={{
-                          flex: 1,
                           padding: "5px 8px",
                           borderRadius: 6,
                           border: isBookmarked ? "1px solid #356AE6" : "1px solid #E4E1DA",
@@ -905,9 +982,30 @@ export default function StudentOpportunitiesPage() {
                       </button>
 
                       <button
+                        onClick={() => handleToggleCompare(compareItem)}
+                        style={{
+                          padding: "5px 8px",
+                          borderRadius: 6,
+                          border: isCompared ? "1px solid #7E22CE" : "1px solid #E4E1DA",
+                          background: isCompared ? "#FAF5FF" : "#FFFFFF",
+                          color: isCompared ? "#7E22CE" : "#667085",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 4
+                        }}
+                      >
+                        <Scale size={11} /> {isCompared ? "Compared" : "Compare"}
+                      </button>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginBottom: 10 }}>
+                      <button
                         onClick={() => handleMarkApplied(rec.opportunity_id, opp.title)}
                         style={{
-                          flex: 1,
                           padding: "5px 8px",
                           borderRadius: 6,
                           border: isApplied ? "1px solid #2E7D5B" : "1px solid #E4E1DA",
@@ -924,6 +1022,26 @@ export default function StudentOpportunitiesPage() {
                       >
                         <CheckCircle2 size={11} /> {isApplied ? "Applied" : "Mark Applied"}
                       </button>
+
+                      <Link
+                        href={`/interview?mode=technical&oppId=${rec.opportunity_id}&title=${encodeURIComponent(opp.title)}`}
+                        style={{
+                          padding: "5px 8px",
+                          borderRadius: 6,
+                          border: "1px solid #E4E1DA",
+                          background: "#FAF9F6",
+                          color: "#162A43",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          textDecoration: "none",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 4
+                        }}
+                      >
+                        <Mic size={11} /> Mock Interview
+                      </Link>
                     </div>
 
                     {/* SECTION 16 SPEC: ACTION (APPLY OR BUILD EVIDENCE FIRST) */}
@@ -961,6 +1079,70 @@ export default function StudentOpportunitiesPage() {
               );
             })}
           </div>
+        )}
+
+        {/* Floating Compare Pill */}
+        {compareList.length > 0 && (
+          <div
+            style={{
+              position: "fixed",
+              bottom: 24,
+              left: 24,
+              zIndex: 90,
+              background: "#162A43",
+              border: "1px solid #7E22CE",
+              color: "#FFFFFF",
+              padding: "10px 16px",
+              borderRadius: 10,
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)",
+              display: "flex",
+              alignItems: "center",
+              gap: 12
+            }}
+          >
+            <span style={{ fontSize: 13, fontWeight: 600 }}>
+              {compareList.length} opportunit{compareList.length === 1 ? "y" : "ies"} selected
+            </span>
+            <button
+              onClick={() => setIsCompareOpen(true)}
+              style={{
+                padding: "5px 12px",
+                borderRadius: 6,
+                background: "#7E22CE",
+                color: "#FFFFFF",
+                border: "none",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              Compare Side-by-Side ➔
+            </button>
+            <button
+              onClick={() => setCompareList([])}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#94A3B8",
+                fontSize: 11,
+                cursor: "pointer"
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        )}
+
+        {/* Side-by-Side Comparison Modal */}
+        {isCompareOpen && (
+          <CompareDrawer
+            items={compareList}
+            onRemove={(id) => setCompareList((prev) => prev.filter((c) => c.id !== id))}
+            onClear={() => {
+              setCompareList([]);
+              setIsCompareOpen(false);
+            }}
+          />
         )}
 
       </main>

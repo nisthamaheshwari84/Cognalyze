@@ -711,10 +711,10 @@ export default function OpportunityDetailPage({
           </button>
 
           <Link
-            href={`/student/practice-interview?opportunityId=${opportunityId}`}
-            style={{ fontSize: 12, color: "#162A43", textDecoration: "none", padding: "6px 14px", borderRadius: 7, background: "#FAF9F6", border: "1px solid #E4E1DA", fontWeight: 600 }}
+            href={`/interview?mode=technical&oppId=${opportunityId}&role=${encodeURIComponent(opportunity?.title || "")}`}
+            style={{ fontSize: 12, color: "#162A43", textDecoration: "none", padding: "6px 14px", borderRadius: 7, background: "#FAF9F6", border: "1px solid #E4E1DA", fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}
           >
-            Mock Interview
+            <span>🎙️</span> Launch Simulated Technical Interview
           </Link>
 
           <VerifiedApplyButton
@@ -885,7 +885,7 @@ export default function OpportunityDetailPage({
                     </button>
                   )}
                   <Link
-                    href={`/student/practice-interview?opportunityId=${opportunityId}`}
+                    href={`/interview?mode=technical&oppId=${opportunityId}&role=${encodeURIComponent(opportunity?.title || "")}`}
                     style={{ padding: "8px 16px", borderRadius: 7, background: "#356AE6", color: "#FFFFFF", fontSize: 12, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}
                   >
                     🎙️ Target Mock Interview ➔

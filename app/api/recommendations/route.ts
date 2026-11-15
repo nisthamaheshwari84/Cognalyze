@@ -65,7 +65,9 @@ export async function GET(req: NextRequest) {
     const isDemo = process.env.NODE_ENV !== "production" && (searchParams.get("candidateId") === "student-demo" || req.headers.get("x-cognalyze-demo") === "true");
     const queryCandidateId = searchParams.get("candidateId");
 
-    const candidateId = auth?.user?.id || (queryCandidateId && queryCandidateId !== "null" && queryCandidateId !== "undefined" ? queryCandidateId : null) || (isDemo ? "student-demo" : "student-demo");
+    const candidateId = auth?.user?.id
+      ? auth.user.id
+      : (queryCandidateId && queryCandidateId !== "null" && queryCandidateId !== "undefined" ? queryCandidateId : null) || (isDemo ? "student-demo" : null);
 
     const limitParam = searchParams.get("limit");
     const limit = limitParam && limitParam !== "all" ? parseInt(limitParam, 10) : undefined;
@@ -81,10 +83,11 @@ export async function GET(req: NextRequest) {
         try {
           const { getStudentDNAFull } = await import("@/lib/dna/store");
           const dna = await getStudentDNAFull(candidateId);
-          if (dna && dna.skills && dna.skills.length > 0) {
+          const demonstratedSkills = (dna?.skills || []).filter((s: any) => (s.evidenceCount && s.evidenceCount > 0) || (s.confidenceScore && s.confidenceScore > 0) || (s.estimatedLevel && s.estimatedLevel > 0));
+          if (demonstratedSkills.length > 0) {
             fetchedProfile = {
               candidate_id: candidateId,
-              skills: dna.skills.map((s: any) => ({
+              skills: demonstratedSkills.map((s: any) => ({
                 name: s.name || s.skillName,
                 level: (s.confidenceScore && s.confidenceScore >= 0.8) ? "Advanced" : (s.confidenceScore && s.confidenceScore >= 0.5) ? "Intermediate" : "Beginner",
                 evidence: s.evidenceCount ? `${s.evidenceCount} verified artifacts` : "Verified by DNA"

@@ -46,10 +46,13 @@ import { generateSecureId } from "@/lib/crypto-utils";
 export interface OpportunityFeedFilterOptions {
   searchQuery?: string;
   roleCategory?: string;
+  category?: string;
+  country?: string;
   remoteType?: RemoteType;
   companyType?: "enterprise" | "startup" | "university";
   recommendationTier?: RecommendationTier;
   deadlineClosingSoon?: boolean;
+  verifiedOnly?: boolean;
 }
 
 export class OpportunityService {
@@ -664,33 +667,52 @@ export class OpportunityService {
       if (filters.searchQuery && filters.searchQuery.trim().length > 0) {
         const query = filters.searchQuery.toLowerCase();
         const opp = m.opportunity;
-        const searchableText = `${opp.title} ${opp.companyName} ${opp.organizer || ""} ${opp.location} ${opp.requiredSkills.join(" ")} ${opp.roleDNA.roleCategory}`.toLowerCase();
+        const searchableText = `${opp.title} ${opp.companyName} ${opp.organizer || ""} ${opp.location} ${opp.description || ""} ${(opp.requiredSkills || []).join(" ")} ${opp.roleDNA?.roleCategory || ""} ${(opp.tags || []).join(" ")}`.toLowerCase();
         if (!searchableText.includes(query)) return false;
       }
 
-      // 2. Role Category
-      if (filters.roleCategory && filters.roleCategory !== "all") {
-        if (!m.opportunity.roleDNA.roleCategory.toLowerCase().includes(filters.roleCategory.toLowerCase())) {
+      // 2. Role Category / Opportunity Type
+      const catFilter = filters.category || filters.roleCategory;
+      if (catFilter && catFilter !== "all") {
+        const target = catFilter.toLowerCase();
+        const oppType = (m.opportunity.opportunityType || "").toLowerCase();
+        const roleCat = (m.opportunity.roleDNA?.roleCategory || "").toLowerCase();
+        const classif = (m.opportunity.classification || "").toLowerCase();
+        const matchesCat = oppType.includes(target) || roleCat.includes(target) || classif.includes(target);
+        if (!matchesCat) return false;
+      }
+
+      // 3. Country / Location
+      if (filters.country && filters.country !== "all") {
+        const targetCountry = filters.country.toLowerCase();
+        const oppCountry = (m.opportunity.country || "").toLowerCase();
+        const oppLocation = (m.opportunity.location || "").toLowerCase();
+        if (!oppCountry.includes(targetCountry) && !oppLocation.includes(targetCountry) && oppCountry !== "global") {
           return false;
         }
       }
 
-      // 3. Remote Type
+      // 4. Remote Type
       if (filters.remoteType && filters.remoteType !== ("all" as any)) {
         if (m.opportunity.remoteType !== filters.remoteType) return false;
       }
 
-      // 4. Company Type
+      // 5. Company Type
       if (filters.companyType && filters.companyType !== ("all" as any)) {
         if (m.opportunity.companyType !== filters.companyType) return false;
       }
 
-      // 5. Recommendation Tier
+      // 6. Recommendation Tier
       if (filters.recommendationTier && filters.recommendationTier !== ("all" as any)) {
         if (m.recommendation !== filters.recommendationTier) return false;
       }
 
-      // 6. Deadline Closing Soon
+      // 7. Verified Only
+      if (filters.verifiedOnly) {
+        if (m.opportunity.verificationStatus !== "VERIFIED") return false;
+      }
+
+      // 8. Deadline Closing Soon
       if (filters.deadlineClosingSoon) {
         if (!m.opportunity.deadline) return false;
         const diff = new Date(m.opportunity.deadline).getTime() - Date.now();

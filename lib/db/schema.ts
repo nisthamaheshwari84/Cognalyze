@@ -416,3 +416,141 @@ export const usernameHistory = pgTable("username_history", {
   index("username_history_profile_idx").on(t.studentProfileId),
 ]);
 
+// ─── 13. CANONICAL OPPORTUNITY RADAR PIPELINE ───
+export const opportunitySources = pgTable("opportunity_sources", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  category: varchar("category", { length: 64 }).notNull(),
+  baseUrl: text("base_url").notNull(),
+  connectorType: varchar("connector_type", { length: 64 }).notNull(),
+  status: varchar("status", { length: 32 }).default("ACTIVE").notNull(),
+  pollingFrequencyMinutes: integer("polling_frequency_minutes").default(360),
+  consecutiveFailures: integer("consecutive_failures").default(0),
+  lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+  lastErrorMessage: text("last_error_message"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const opportunities = pgTable("opportunities", {
+  id: text("id").primaryKey(),
+  canonicalHash: text("canonical_hash").unique(),
+  title: text("title").notNull(),
+  organizationName: text("organization_name").notNull(),
+  category: varchar("category", { length: 64 }).notNull(),
+  opportunitySubtype: text("opportunity_subtype"),
+  description: text("description"),
+  canonicalUrl: text("canonical_url").notNull().unique(),
+  originalApplyUrl: text("original_apply_url").notNull(),
+  location: text("location"),
+  remoteType: varchar("remote_type", { length: 32 }),
+  tier: varchar("tier", { length: 32 }).default("Unranked"),
+  compensationOrPrize: text("compensation_or_prize"),
+  deadline: timestamp("deadline", { withTimezone: true }),
+  deadlineTimezone: text("deadline_timezone"),
+  deadlineIsDateOnly: boolean("deadline_is_date_only").default(false),
+  deadlineEvaluationStatus: varchar("deadline_evaluation_status", { length: 32 }).default("NORMAL"),
+  startDate: timestamp("start_date", { withTimezone: true }),
+  endDate: timestamp("end_date", { withTimezone: true }),
+  lifecycleStatus: varchar("lifecycle_status", { length: 32 }).default("discovered").notNull(),
+  verificationStatus: varchar("verification_status", { length: 32 }).default("UNVERIFIED").notNull(),
+  lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow(),
+  lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_opp_canonical_hash").on(t.canonicalHash),
+  index("idx_opp_lifecycle_deadline").on(t.lifecycleStatus, t.deadline),
+  index("idx_opp_org_title").on(t.organizationName, t.title),
+]);
+
+export const opportunitySourceRecords = pgTable("opportunity_source_records", {
+  id: text("id").primaryKey(),
+  opportunityId: text("opportunity_id").references(() => opportunities.id, { onDelete: "cascade" }).notNull(),
+  sourceId: text("source_id").references(() => opportunitySources.id, { onDelete: "restrict" }).notNull(),
+  externalListingId: text("external_listing_id"),
+  sourceListingUrl: text("source_listing_url").notNull(),
+  rawPayload: jsonb("raw_payload"),
+  extractedFields: jsonb("extracted_fields"),
+  fetchTimestamp: timestamp("fetch_timestamp", { withTimezone: true }).defaultNow(),
+  sourcePublishedAt: timestamp("source_published_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_opp_source_records_opp").on(t.opportunityId),
+]);
+
+export const opportunityRequirements = pgTable("opportunity_requirements", {
+  id: text("id").primaryKey(),
+  opportunityId: text("opportunity_id").references(() => opportunities.id, { onDelete: "cascade" }).notNull(),
+  requirementType: varchar("requirement_type", { length: 64 }).notNull(),
+  value: text("value").notNull(),
+  isHardGate: boolean("is_hard_gate").default(true),
+  remediationActionUrl: text("remediation_action_url"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_opp_req_opp_id").on(t.opportunityId),
+]);
+
+export const studentOpportunityApplications = pgTable("student_opportunity_applications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id").notNull(),
+  opportunityId: text("opportunity_id").references(() => opportunities.id, { onDelete: "cascade" }).notNull(),
+  stage: varchar("stage", { length: 32 }).default("Saved").notNull(),
+  appliedAt: timestamp("applied_at", { withTimezone: true }),
+  deadline: timestamp("deadline", { withTimezone: true }),
+  organizationName: text("organization_name").notNull(),
+  positionTitle: text("position_title").notNull(),
+  resumeVersion: text("resume_version").default("Primary Resume"),
+  coverLetter: text("cover_letter").default(""),
+  tailoredBulletsJson: jsonb("tailored_bullets_json"),
+  applyUrl: text("apply_url").notNull(),
+  notes: text("notes").default(""),
+  followUpDate: text("follow_up_date"),
+  permissionLevel: integer("permission_level").default(2),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_stu_opp_app_user_stage").on(t.userId, t.stage),
+  index("idx_stu_opp_app_deadline").on(t.deadline),
+]);
+
+export const studentOpportunityActions = pgTable("student_opportunity_actions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  applicationId: uuid("application_id").references(() => studentOpportunityApplications.id, { onDelete: "cascade" }).notNull(),
+  userId: text("user_id").notNull(),
+  actionType: varchar("action_type", { length: 64 }).notNull(),
+  summary: text("summary").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const opportunityAgentTraces = pgTable("opportunity_agent_traces", {
+  id: text("id").primaryKey(),
+  agentName: text("agent_name").notNull(),
+  taskType: text("task_type").notNull(),
+  status: varchar("status", { length: 32 }).notNull(),
+  inputSummary: text("input_summary").notNull(),
+  outputSummary: text("output_summary").notNull(),
+  toolsUsedJson: jsonb("tools_used_json"),
+  durationMs: integer("duration_ms").default(0).notNull(),
+  tokenUsage: integer("token_usage").default(0).notNull(),
+  modelName: text("model_name").default("deterministic"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_opp_agent_traces_created").on(t.createdAt),
+]);
+
+export const opportunitySeoPages = pgTable("opportunity_seo_pages", {
+  id: text("id").primaryKey(),
+  slug: text("slug").unique().notNull(),
+  title: text("title").notNull(),
+  metaDescription: text("meta_description").notNull(),
+  h1: text("h1").notNull(),
+  introCopy: text("intro_copy").notNull(),
+  filterCriteriaJson: jsonb("filter_criteria_json"),
+  pageType: varchar("page_type", { length: 32 }).notNull(),
+  isIndexable: boolean("is_indexable").default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+
