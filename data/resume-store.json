@@ -1,5 +1,97 @@
 [
   {
+    "id": "b908f635-9027-4b98-b891-f150e5ab60ba",
+    "candidateId": "cand-189843",
+    "fileName": "Uploaded Resume.txt",
+    "parsedText": "sample resume",
+    "atsScore": 60,
+    "skills": [],
+    "projects": [],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-15T20:23:09.845Z",
+    "updatedAt": "2026-11-15T20:23:09.845Z"
+  },
+  {
+    "id": "b15cc88d-1ff3-40a1-92c4-d217ec391cfa",
+    "candidateId": "student_a_1794774090669",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-15T20:21:31.394Z",
+    "updatedAt": "2026-11-15T20:21:31.394Z"
+  },
+  {
+    "id": "287df892-31e7-45ea-a8f5-efd120be3dff",
+    "candidateId": "cand-702022",
+    "fileName": "Uploaded Resume.txt",
+    "parsedText": "sample resume",
+    "atsScore": 60,
+    "skills": [],
+    "projects": [],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-14T18:08:22.025Z",
+    "updatedAt": "2026-11-14T18:08:22.025Z"
+  },
+  {
+    "id": "ebccdd26-4c3b-49df-ac5b-a3c202c463b1",
+    "candidateId": "student_a_1794679692826",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-14T18:08:12.855Z",
+    "updatedAt": "2026-11-14T18:08:12.855Z"
+  },
+  {
     "id": "4524b5fe-ef93-4d6b-a247-c124d6ad4126",
     "candidateId": "cand-332819",
     "fileName": "Uploaded Resume.txt",
@@ -691,7 +783,7 @@
     "updatedAt": "2026-10-26T14:34:18.375Z"
   },
   {
-    "id": "d2378a35-5f4a-48f8-9ba6-e4e958b226d1",
+    "id": "a77017bc-aa07-4249-9595-456d8f90f65b",
     "candidateId": "u-rem-student-001",
     "fileName": "resume.pdf",
     "parsedText": "123 456 789 !@#$%^&*() -- empty symbols without skills",
@@ -710,8 +802,8 @@
     ],
     "experience": [],
     "education": [],
-    "uploadedAt": "2026-11-12T16:52:12.740Z",
-    "updatedAt": "2026-11-12T16:52:12.740Z"
+    "uploadedAt": "2026-11-15T20:23:08.110Z",
+    "updatedAt": "2026-11-15T20:23:08.110Z"
   },
   {
     "id": "748c67ee-d767-459c-8138-5dbfa7c342ba",

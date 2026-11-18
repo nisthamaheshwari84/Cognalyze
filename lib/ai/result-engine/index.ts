@@ -33,6 +33,7 @@ import {
   deriveProjectQuality,
   deriveRoadmap,
   deriveStrengths,
+  detectCandidateRisks,
 } from './derivation-engine';
 import { rewriteFullResume } from './resume-rewriter';
 import { validateCanonicalAnalysis } from './validation-layer';
@@ -148,6 +149,7 @@ export async function runCanonicalResultEngine(
   // 6. Derive Secondary Intelligence (strictly from verified matches and ledger)
   const strengths = deriveStrengths(matches, jd.requirements, resume.evidenceItems);
   const gaps = deriveGaps(matches, jd.requirements);
+  const risks = detectCandidateRisks(resume, resume.evidenceItems, matches, ledger);
   const experienceAnalysis = deriveExperienceAnalysis(resume, resume.evidenceItems);
   const projectAnalysis = deriveProjectQuality(resume, resume.evidenceItems, jd);
   const roadmap = deriveRoadmap(gaps, matches);
@@ -193,13 +195,7 @@ export async function runCanonicalResultEngine(
     score,
     strengths,
     gaps,
-    risks: interviewFocus.verificationRecommendations.map((v, idx) => ({
-      id: `risk_${idx + 1}`,
-      claim: v.claim,
-      verificationRecommended: v.recommendedVerification,
-      severity: 'MEDIUM',
-      sourceQuote: v.claim,
-    })),
+    risks,
     experienceAnalysis,
     projectAnalysis,
     resumeRewrite,

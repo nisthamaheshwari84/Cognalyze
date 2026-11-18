@@ -9,7 +9,10 @@ import {
 import {
   CanonicalAnalysisObject,
   EvidenceStatus,
+  EvidenceStrengthLevel,
   RequirementPriority,
+  RiskCategory,
+  RiskItem,
 } from "@/lib/ai/result-engine/types";
 
 interface FeedbackResult {
@@ -442,6 +445,38 @@ export default function ResumeIntelligenceView() {
     }
   };
 
+  const getEvidenceStrengthBadge = (level?: string) => {
+    switch (level) {
+      case "LEVEL_5_INDEPENDENTLY_VERIFIED":
+        return { label: "Level 5: Verified (100%)", bg: "#EAF4EE", color: "#2E7D5B", border: "#C8E4D3" };
+      case "LEVEL_4_ARTIFACT_BACKED":
+        return { label: "Level 4: Artifact (85%)", bg: "#EFF4FE", color: "#356AE6", border: "#D2E0FB" };
+      case "LEVEL_3_IMPLEMENTATION":
+        return { label: "Level 3: Implemented (65%)", bg: "#EFF4FE", color: "#162A43", border: "#D2E0FB" };
+      case "LEVEL_2_CONTEXTUAL":
+        return { label: "Level 2: Contextual (35%)", bg: "#FEF7ED", color: "#B7791F", border: "#F8D8A7" };
+      case "LEVEL_1_MENTIONED":
+        return { label: "Level 1: Claim Only (10%)", bg: "#FEF7ED", color: "#B7791F", border: "#F8D8A7" };
+      case "LEVEL_0_NO_EVIDENCE":
+      default:
+        return { label: "Level 0: No Evidence (0%)", bg: "#FDF2F2", color: "#C24141", border: "#F8C8C8" };
+    }
+  };
+
+  const getRiskCategoryBadge = (category?: string) => {
+    switch (category) {
+      case "MATERIAL_CONTRADICTION":
+        return { label: "Material Contradiction", bg: "#FDF2F2", color: "#C24141", border: "#F8C8C8" };
+      case "EVIDENCE_CONCERN":
+        return { label: "Evidence Concern", bg: "#FEF7ED", color: "#B7791F", border: "#F8D8A7" };
+      case "NEEDS_CLARIFICATION":
+        return { label: "Needs Clarification", bg: "#EFF4FE", color: "#356AE6", border: "#D2E0FB" };
+      case "INFORMATIONAL":
+      default:
+        return { label: "Informational", bg: "#FAFAF8", color: "#667085", border: "#E4E1DA" };
+    }
+  };
+
   // ─────────────────────────────────────────────────────────────
   // 1. INPUT PAGE
   // ─────────────────────────────────────────────────────────────
@@ -573,6 +608,9 @@ export default function ResumeIntelligenceView() {
     criticalScore: 100,
     importantScore: 100,
     preferredScore: 0,
+    totalEarnedPoints: 0,
+    totalPossiblePoints: 0,
+    pointsAuditPassed: true,
     summaryCounts: {
       supported: report?.feedback?.strongEvidence?.length || 0,
       partial: report?.feedback?.partialEvidence?.length || 0,
@@ -583,6 +621,17 @@ export default function ResumeIntelligenceView() {
       contradicted: 0,
       totalRequirements: report?.requirements?.length || 0,
     },
+    levelCounts: {
+      level5Verified: 0,
+      level4ArtifactBacked: 0,
+      level3Implementation: report?.feedback?.strongEvidence?.length || 0,
+      level2Contextual: report?.feedback?.partialEvidence?.length || 0,
+      level1Mentioned: report?.feedback?.claimedOnly?.length || 0,
+      level0NoEvidence: report?.feedback?.missingEvidence?.length || 0,
+    },
+    criticalStats: { supported: 0, partial: 0, claimOnly: 0, evidenceGap: 0, skillGap: 0, missing: 0, contradicted: 0, total: 0, categoryScore: 0 },
+    importantStats: { supported: 0, partial: 0, claimOnly: 0, evidenceGap: 0, skillGap: 0, missing: 0, contradicted: 0, total: 0, categoryScore: 0 },
+    preferredStats: { supported: 0, partial: 0, claimOnly: 0, evidenceGap: 0, skillGap: 0, missing: 0, contradicted: 0, total: 0, categoryScore: 0 },
     scoreVerdictExplanation: "Evaluated role requirements against documented resume evidence.",
     formulaExplanation: report?.feedback?.roleAlignmentSummary?.formulaExplanation || "",
     calculatedAt: new Date().toISOString(),
@@ -698,6 +747,46 @@ export default function ResumeIntelligenceView() {
                 <div style={{ fontSize: "16px", fontWeight: 800, color: "#162A43" }}>{scoreObj.summaryCounts.totalRequirements} Reqs</div>
               </div>
             </div>
+
+            {/* 5-Level Evidence Strength Distribution */}
+            {scoreObj.levelCounts && (
+              <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid #E4E1DA" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "11px", fontWeight: 700, color: "#162A43", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    5-Level Evidence Strength Distribution
+                  </span>
+                  <span style={{ fontSize: "10px", color: "#667085" }}>
+                    Tiered by implementation depth & verification
+                  </span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "8px" }}>
+                  <div style={{ background: "#EAF4EE", padding: "8px 10px", borderRadius: "8px", border: "1px solid #C8E4D3" }}>
+                    <div style={{ fontSize: "9px", color: "#2E7D5B", fontWeight: 700 }}>Level 5: Verified (100%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#2E7D5B" }}>{scoreObj.levelCounts.level5Verified} Reqs</div>
+                  </div>
+                  <div style={{ background: "#EFF4FE", padding: "8px 10px", borderRadius: "8px", border: "1px solid #D2E0FB" }}>
+                    <div style={{ fontSize: "9px", color: "#356AE6", fontWeight: 700 }}>Level 4: Artifact (85%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#356AE6" }}>{scoreObj.levelCounts.level4ArtifactBacked} Reqs</div>
+                  </div>
+                  <div style={{ background: "#EFF4FE", padding: "8px 10px", borderRadius: "8px", border: "1px solid #D2E0FB" }}>
+                    <div style={{ fontSize: "9px", color: "#162A43", fontWeight: 700 }}>Level 3: Implemented (65%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#162A43" }}>{scoreObj.levelCounts.level3Implementation} Reqs</div>
+                  </div>
+                  <div style={{ background: "#FEF7ED", padding: "8px 10px", borderRadius: "8px", border: "1px solid #F8D8A7" }}>
+                    <div style={{ fontSize: "9px", color: "#B7791F", fontWeight: 700 }}>Level 2: Contextual (35%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#B7791F" }}>{scoreObj.levelCounts.level2Contextual} Reqs</div>
+                  </div>
+                  <div style={{ background: "#FEF7ED", padding: "8px 10px", borderRadius: "8px", border: "1px solid #F8D8A7" }}>
+                    <div style={{ fontSize: "9px", color: "#B7791F", fontWeight: 700 }}>Level 1: Claim Only (10%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#B7791F" }}>{scoreObj.levelCounts.level1Mentioned} Reqs</div>
+                  </div>
+                  <div style={{ background: "#FDF2F2", padding: "8px 10px", borderRadius: "8px", border: "1px solid #F8C8C8" }}>
+                    <div style={{ fontSize: "9px", color: "#C24141", fontWeight: 700 }}>Level 0: No Evidence (0%)</div>
+                    <div style={{ fontSize: "15px", fontWeight: 800, color: "#C24141" }}>{scoreObj.levelCounts.level0NoEvidence} Reqs</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -724,7 +813,8 @@ export default function ResumeIntelligenceView() {
                   <tr style={{ borderBottom: "1px solid #E4E1DA", textAlign: "left" }}>
                     <th style={{ padding: "10px 12px", color: "#667085" }}>Requirement</th>
                     <th style={{ padding: "10px 12px", color: "#667085" }}>Priority</th>
-                    <th style={{ padding: "10px 12px", color: "#667085" }}>Status</th>
+                    <th style={{ padding: "10px 12px", color: "#667085" }}>Evidence Level & Status</th>
+                    <th style={{ padding: "10px 12px", color: "#667085" }}>Earned Pts</th>
                     <th style={{ padding: "10px 12px", color: "#667085" }}>Confidence</th>
                     <th style={{ padding: "10px 12px", color: "#667085" }}>Resume Evidence / Gap Reasoning</th>
                     <th style={{ padding: "10px 12px", color: "#667085" }}>Audit</th>
@@ -734,6 +824,7 @@ export default function ResumeIntelligenceView() {
                   {matches.map((m, idx) => {
                     const statusBadge = getStatusBadge(m.status);
                     const prioBadge = getPriorityBadge(m.priority);
+                    const levelBadge = getEvidenceStrengthBadge(m.evidenceStrengthLevel);
                     return (
                       <tr key={idx} style={{ borderBottom: "1px solid #E4E1DA" }}>
                         <td style={{ padding: "12px", fontWeight: 700, color: "#17191C" }}>{m.requirementName}</td>
@@ -743,9 +834,17 @@ export default function ResumeIntelligenceView() {
                           </span>
                         </td>
                         <td style={{ padding: "12px" }}>
-                          <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "999px", background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}`, fontWeight: 700 }}>
-                            {m.status.replace(/_/g, " ")}
-                          </span>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                            <span style={{ fontSize: "9px", padding: "2px 6px", borderRadius: "4px", background: levelBadge.bg, color: levelBadge.color, border: `1px solid ${levelBadge.border}`, fontWeight: 700, whiteSpace: "nowrap" }}>
+                              {levelBadge.label}
+                            </span>
+                            <span style={{ fontSize: "9px", padding: "1px 6px", borderRadius: "999px", background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}`, fontWeight: 600, width: "fit-content" }}>
+                              {m.status.replace(/_/g, " ")}
+                            </span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "12px", fontWeight: 700, color: "#162A43", whiteSpace: "nowrap" }}>
+                          {m.earned_points ?? (m.status_multiplier * m.requirement_weight)} / {m.possible_points ?? m.requirement_weight} pts
                         </td>
                         <td style={{ padding: "12px", color: m.confidenceTier === "HIGH" ? "#2E7D5B" : m.confidenceTier === "MEDIUM" ? "#B7791F" : "#667085", fontWeight: 600 }}>
                           {m.confidenceTier} ({Math.round(m.confidence * 100)}%)
@@ -898,65 +997,126 @@ export default function ResumeIntelligenceView() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            SECTION 5: GAPS & RISKS (REQUIREMENT-SPECIFIC)
+            SECTION 5: GAPS & RISKS (REQUIREMENT-SPECIFIC & CANDIDATE RISKS)
            ══════════════════════════════════════════════════════════════ */}
-        {showSection("s5") && gaps.length > 0 && (
+        {showSection("s5") && (gaps.length > 0 || (canonical?.risks && canonical.risks.length > 0)) && (
           <div className="glass" style={{ background: "#FFFFFF", borderRadius: "14px", padding: "2rem", marginBottom: "2rem", border: "1px solid #E4E1DA" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
               <span style={{ fontSize: "10px", letterSpacing: "2px", color: "#C24141", fontWeight: 800 }}>SECTION 5</span>
-              <span style={{ fontSize: "10px", padding: "1px 6px", background: "#FDF2F2", borderRadius: "4px", color: "#C24141", border: "1px solid #F8C8C8" }}>DEFENSIBLE GAP ANALYSIS</span>
+              <span style={{ fontSize: "10px", padding: "1px 6px", background: "#FDF2F2", borderRadius: "4px", color: "#C24141", border: "1px solid #F8C8C8" }}>DEFENSIBLE GAP & RISK ANALYSIS</span>
             </div>
             <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0 0 1rem", color: "#162A43" }}>
-              Requirement-Specific Gaps & Risks
+              Requirement-Specific Gaps & Candidate Risk Detection
             </h3>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {gaps.map((gap, i) => (
-                <div key={i} style={{ padding: "16px", background: "#FAFAF8", borderRadius: "10px", border: "1px solid #E4E1DA" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                    <span style={{ fontWeight: 800, fontSize: "14px", color: "#162A43" }}>GAP: {gap.requirement}</span>
-                    <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                      <span style={{
-                        fontSize: "10px",
-                        padding: "2px 8px",
-                        background: gap.gapType === "Evidence Gap" ? "#EFF4FE" : "#FDF2F2",
-                        borderRadius: "999px",
-                        color: gap.gapType === "Evidence Gap" ? "#356AE6" : "#C24141",
-                        border: gap.gapType === "Evidence Gap" ? "1px solid #D2E0FB" : "1px solid #F8C8C8",
-                        fontWeight: 700
-                      }}>
-                        {gap.gapType.toUpperCase()}
-                      </span>
-                      <button
-                        onClick={() => openInspectForGap(gap)}
-                        style={{
-                          padding: "3px 8px",
-                          borderRadius: "6px",
-                          background: "#EFF4FE",
-                          border: "1px solid #D2E0FB",
-                          color: "#356AE6",
-                          cursor: "pointer",
-                          fontSize: "10px",
-                          fontWeight: 700,
-                        }}
-                      >
-                        🔍 Inspect
-                      </button>
-                    </div>
-                  </div>
-
-                  <div style={{ fontSize: "12px", color: "#667085", marginBottom: "4px" }}>
-                    <strong style={{ color: "#162A43" }}>Current Evidence:</strong> {gap.currentEvidence}
-                  </div>
-                  <div style={{ fontSize: "12px", color: "#667085", marginBottom: "6px" }}>
-                    <strong style={{ color: "#162A43" }}>Why It Matters:</strong> {gap.impact}
-                  </div>
-                  <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", color: "#162A43" }}>
-                    💡 <strong>Actionable Step:</strong> {gap.action}
-                  </div>
+            {/* Candidate Risk & Anomaly Audit */}
+            {canonical?.risks && canonical.risks.length > 0 && (
+              <div style={{ marginBottom: "1.75rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 800, color: "#162A43", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    ⚠️ Candidate Risk & Anomaly Audit ({canonical.risks.length} flagged)
+                  </span>
                 </div>
-              ))}
-            </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {canonical.risks.map((risk, rIdx) => {
+                    const catBadge = getRiskCategoryBadge(risk.category);
+                    return (
+                      <div key={rIdx} style={{ padding: "14px", background: "#FAF9F6", borderRadius: "10px", border: `1px solid ${catBadge.border}` }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: catBadge.bg, color: catBadge.color, border: `1px solid ${catBadge.border}`, fontWeight: 700 }}>
+                              {catBadge.label}
+                            </span>
+                            {risk.flagType && (
+                              <span style={{ fontSize: "10px", padding: "1px 6px", background: "#FFFFFF", borderRadius: "4px", color: "#667085", border: "1px solid #E4E1DA", fontWeight: 600 }}>
+                                {risk.flagType}
+                              </span>
+                            )}
+                          </div>
+                          <span style={{
+                            fontSize: "10px",
+                            padding: "1px 6px",
+                            borderRadius: "4px",
+                            fontWeight: 700,
+                            background: risk.severity === "HIGH" ? "#FDF2F2" : risk.severity === "MEDIUM" ? "#FEF7ED" : "#FAFAF8",
+                            color: risk.severity === "HIGH" ? "#C24141" : risk.severity === "MEDIUM" ? "#B7791F" : "#667085",
+                          }}>
+                            {risk.severity} SEVERITY
+                          </span>
+                        </div>
+                        <div style={{ fontSize: "13px", fontWeight: 700, color: "#162A43", marginBottom: "4px" }}>
+                          {risk.claim}
+                        </div>
+                        {risk.explanation && (
+                          <div style={{ fontSize: "12px", color: "#667085", marginBottom: "6px", lineHeight: 1.4 }}>
+                            {risk.explanation}
+                          </div>
+                        )}
+                        <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", padding: "6px 10px", borderRadius: "6px", fontSize: "11px", color: "#162A43" }}>
+                          🔍 <strong>Recommended Verification:</strong> {risk.verificationRecommended}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Requirement Gaps */}
+            {gaps.length > 0 && (
+              <div>
+                <div style={{ fontSize: "12px", fontWeight: 800, color: "#162A43", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
+                  Requirement Gaps & Non-Evidenced Skills ({gaps.length})
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {gaps.map((gap, i) => (
+                    <div key={i} style={{ padding: "16px", background: "#FAFAF8", borderRadius: "10px", border: "1px solid #E4E1DA" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                        <span style={{ fontWeight: 800, fontSize: "14px", color: "#162A43" }}>GAP: {gap.requirement}</span>
+                        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                          <span style={{
+                            fontSize: "10px",
+                            padding: "2px 8px",
+                            background: gap.gapType === "Evidence Gap" ? "#EFF4FE" : "#FDF2F2",
+                            borderRadius: "999px",
+                            color: gap.gapType === "Evidence Gap" ? "#356AE6" : "#C24141",
+                            border: gap.gapType === "Evidence Gap" ? "1px solid #D2E0FB" : "1px solid #F8C8C8",
+                            fontWeight: 700
+                          }}>
+                            {gap.gapType.toUpperCase()}
+                          </span>
+                          <button
+                            onClick={() => openInspectForGap(gap)}
+                            style={{
+                              padding: "3px 8px",
+                              borderRadius: "6px",
+                              background: "#EFF4FE",
+                              border: "1px solid #D2E0FB",
+                              color: "#356AE6",
+                              cursor: "pointer",
+                              fontSize: "10px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            🔍 Inspect
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ fontSize: "12px", color: "#667085", marginBottom: "4px" }}>
+                        <strong style={{ color: "#162A43" }}>Current Evidence:</strong> {gap.currentEvidence}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#667085", marginBottom: "6px" }}>
+                        <strong style={{ color: "#162A43" }}>Why It Matters:</strong> {gap.impact}
+                      </div>
+                      <div style={{ background: "#EFF4FE", border: "1px solid #D2E0FB", padding: "8px 12px", borderRadius: "8px", fontSize: "12px", color: "#162A43" }}>
+                        💡 <strong>Actionable Step:</strong> {gap.action}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

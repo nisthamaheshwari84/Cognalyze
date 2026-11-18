@@ -46,6 +46,7 @@ export interface MultiSourceCandidateProfile {
   name: string;
   email: string;
   phone?: string;
+  organizationId?: string; // Multi-tenant organization isolation
   appliedRoleId: string;
   appliedRoleTitle: string;
   sourceType: "bulk_upload" | "student_application" | "talent_recovery";
@@ -618,7 +619,7 @@ export async function saveRole(role: RoleDNA, changeSummary?: string): Promise<R
 
 let studentAppsSynced = false;
 
-export async function getAllCandidates(): Promise<MultiSourceCandidateProfile[]> {
+export async function getAllCandidates(organizationId?: string): Promise<MultiSourceCandidateProfile[]> {
   // Sync with Student-side applications from placement-store (Phase 2 connection)
   if (!studentAppsSynced) {
     studentAppsSynced = true;
@@ -651,11 +652,14 @@ Curated Projects:
     } catch {}
   }
 
+  if (organizationId) {
+    return candidatesStore.filter(c => !c.organizationId || c.organizationId === organizationId);
+  }
   return candidatesStore;
 }
 
-export async function getCandidateById(id: string): Promise<MultiSourceCandidateProfile | null> {
-  const pool = await getAllCandidates();
+export async function getCandidateById(id: string, organizationId?: string): Promise<MultiSourceCandidateProfile | null> {
+  const pool = await getAllCandidates(organizationId);
   return pool.find(c => c.id === id) || null;
 }
 

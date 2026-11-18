@@ -1099,5 +1099,833 @@
     "competencyScores": {},
     "startedAt": "2026-11-12T16:52:12.217Z",
     "updatedAt": "2026-11-12T16:52:12.217Z"
+  },
+  {
+    "id": "jny_google_cybersecurity_engineer_1794559680251_tdluv",
+    "studentId": "u-student-sample-001",
+    "companyId": "google",
+    "blueprintId": "bp_google_cybersecurity_engineer_campus_india_mweqhzaz",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "cybersecurity_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_coding",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Online Algorithmic Coding Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Google Cultural Alignment & Behavioral Loop",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-13T08:48:00.251Z",
+    "updatedAt": "2026-11-13T08:48:00.251Z"
+  },
+  {
+    "id": "jny_google_cybersecurity_engineer_1794559681969_i8ueq",
+    "studentId": "u-student-sample-001",
+    "companyId": "google",
+    "blueprintId": "bp_google_cybersecurity_engineer_internship_india_mweqi0mp",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "cybersecurity_engineer",
+    "hiringChannel": "internship",
+    "currentStageId": "stage_coding",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Online Algorithmic Coding Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Google Cultural Alignment & Behavioral Loop",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-13T08:48:01.969Z",
+    "updatedAt": "2026-11-13T08:48:01.969Z"
+  },
+  {
+    "id": "jny_stripe_cybersecurity_engineer_1794559972921_svmx3",
+    "studentId": "u-student-sample-001",
+    "companyId": "stripe",
+    "blueprintId": "bp_stripe_cybersecurity_engineer_campus_india_mweqo94p",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "cybersecurity_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_coding",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Online Algorithmic Coding Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Stripe Cultural Alignment & Behavioral Loop",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-13T08:52:52.921Z",
+    "updatedAt": "2026-11-13T08:52:52.921Z"
+  },
+  {
+    "id": "jny_uber_cybersecurity_engineer_1794559976669_xqa63",
+    "studentId": "u-student-sample-001",
+    "companyId": "uber",
+    "blueprintId": "bp_uber_cybersecurity_engineer_campus_india_mweqoc0t",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "cybersecurity_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_coding",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Online Algorithmic Coding Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Uber Cultural Alignment & Behavioral Loop",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-13T08:52:56.669Z",
+    "updatedAt": "2026-11-13T08:52:56.669Z"
+  },
+  {
+    "id": "jny_google_data_engineer_1794559985287_v9zn2",
+    "studentId": "u-student-sample-001",
+    "companyId": "google",
+    "blueprintId": "bp_google_data_engineer_campus_india_mweqoio7",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "data_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_sql",
+    "status": "DID_NOT_PASS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_sql": {
+        "stageId": "stage_sql",
+        "stageType": "sql_database",
+        "title": "Relational SQL & Analytical Query Assessment",
+        "order": 1,
+        "status": "FAILED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 1,
+        "durationSeconds": 0,
+        "telemetry": {
+          "userRowCount": 3,
+          "expectedRowCount": 3,
+          "executionTimeMs": 12,
+          "explainRows": []
+        },
+        "rubricEvaluations": {
+          "sql_correctness": 0,
+          "query_optimization": 90
+        },
+        "evaluatorFeedback": "Output discrepancy: Got 3 rows, expected 3 rows.",
+        "completedAt": "2026-11-13T08:53:11.579Z"
+      },
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Data Manipulation & Algorithmic Problem Solving",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Google Cultural Alignment & Behavioral Loop",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {
+      "sql_database": 0,
+      "data_analysis": 0,
+      "analytical_thinking": 0
+    },
+    "startedAt": "2026-11-13T08:53:05.287Z",
+    "updatedAt": "2026-11-13T08:53:11.579Z",
+    "completedAt": "2026-11-13T08:53:11.579Z"
+  },
+  {
+    "id": "jny_google_data_engineer_1794559998080_i6vcz",
+    "studentId": "u-student-sample-001",
+    "companyId": "google",
+    "blueprintId": "bp_google_data_engineer_campus_india_mweqoio7",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "data_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_sql",
+    "status": "DID_NOT_PASS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_sql": {
+        "stageId": "stage_sql",
+        "stageType": "sql_database",
+        "title": "Relational SQL & Analytical Query Assessment",
+        "order": 1,
+        "status": "FAILED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 1,
+        "durationSeconds": 30,
+        "telemetry": {
+          "userRowCount": 3,
+          "expectedRowCount": 3,
+          "executionTimeMs": 0,
+          "explainRows": []
+        },
+        "rubricEvaluations": {
+          "sql_correctness": 0,
+          "query_optimization": 90
+        },
+        "evaluatorFeedback": "Output discrepancy: Got 3 rows, expected 3 rows.",
+        "completedAt": "2026-11-13T08:53:20.967Z"
+      },
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Data Manipulation & Algorithmic Problem Solving",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Google Cultural Alignment & Behavioral Loop",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {
+      "sql_database": 0,
+      "data_analysis": 0,
+      "analytical_thinking": 0
+    },
+    "startedAt": "2026-11-13T08:53:18.080Z",
+    "updatedAt": "2026-11-13T08:53:20.967Z",
+    "completedAt": "2026-11-13T08:53:20.967Z"
+  },
+  {
+    "id": "jny_google_data_engineer_1794560004011_oesgj",
+    "studentId": "u-student-sample-001",
+    "companyId": "google",
+    "blueprintId": "bp_google_data_engineer_campus_india_mweqoio7",
+    "blueprintVersion": "2.0.0",
+    "roleFamily": "data_engineer",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_sql",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_sql": {
+        "stageId": "stage_sql",
+        "stageType": "sql_database",
+        "title": "Relational SQL & Analytical Query Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_coding": {
+        "stageId": "stage_coding",
+        "stageType": "algorithmic_coding",
+        "title": "Data Manipulation & Algorithmic Problem Solving",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_tech": {
+        "stageId": "stage_interview_tech",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Systems & Architecture Deep-Dive",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_interview_behavioral": {
+        "stageId": "stage_interview_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Google Cultural Alignment & Behavioral Loop",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_verdict": {
+        "stageId": "stage_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Final Hiring Committee Decision & Competency Verdict",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-13T08:53:24.011Z",
+    "updatedAt": "2026-11-13T08:53:24.011Z"
+  },
+  {
+    "id": "jny_amazon_sde_1794679701334_v5o0u",
+    "studentId": "persisted_student_99",
+    "companyId": "amazon",
+    "blueprintId": "bp_amazon_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_amzn_oa1",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_amzn_oa1": {
+        "stageId": "stage_amzn_oa1",
+        "stageType": "algorithmic_coding",
+        "title": "Amazon OA1: Algorithmic Code Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_oa2": {
+        "stageId": "stage_amzn_oa2",
+        "stageType": "work_simulation",
+        "title": "Amazon OA2: SDE Work Simulation & Work Styles",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_1": {
+        "stageId": "stage_amzn_onsite_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Virtual Onsite 1: Algorithms & Data Structures + 2 LPs",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_2": {
+        "stageId": "stage_amzn_onsite_2",
+        "stageType": "system_design_lld",
+        "title": "Virtual Onsite 2: Object-Oriented Design (LLD) + 2 LPs",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_bar_raiser": {
+        "stageId": "stage_amzn_bar_raiser",
+        "stageType": "behavioral_competency",
+        "title": "Virtual Onsite 3: The Bar Raiser Round",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_verdict": {
+        "stageId": "stage_amzn_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Bar Raiser Debrief & Placement Verdict",
+        "order": 6,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-14T18:08:21.334Z",
+    "updatedAt": "2026-11-14T18:08:21.334Z"
+  },
+  {
+    "id": "jny_amazon_sde_1794679790023_q2hry",
+    "studentId": "persisted_student_99",
+    "companyId": "amazon",
+    "blueprintId": "bp_amazon_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_amzn_oa1",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_amzn_oa1": {
+        "stageId": "stage_amzn_oa1",
+        "stageType": "algorithmic_coding",
+        "title": "Amazon OA1: Algorithmic Code Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_oa2": {
+        "stageId": "stage_amzn_oa2",
+        "stageType": "work_simulation",
+        "title": "Amazon OA2: SDE Work Simulation & Work Styles",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_1": {
+        "stageId": "stage_amzn_onsite_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Virtual Onsite 1: Algorithms & Data Structures + 2 LPs",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_2": {
+        "stageId": "stage_amzn_onsite_2",
+        "stageType": "system_design_lld",
+        "title": "Virtual Onsite 2: Object-Oriented Design (LLD) + 2 LPs",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_bar_raiser": {
+        "stageId": "stage_amzn_bar_raiser",
+        "stageType": "behavioral_competency",
+        "title": "Virtual Onsite 3: The Bar Raiser Round",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_verdict": {
+        "stageId": "stage_amzn_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Bar Raiser Debrief & Placement Verdict",
+        "order": 6,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-14T18:09:50.023Z",
+    "updatedAt": "2026-11-14T18:09:50.023Z"
+  },
+  {
+    "id": "jny_amazon_sde_1794726552575_ltrz8",
+    "studentId": "persisted_student_99",
+    "companyId": "amazon",
+    "blueprintId": "bp_amazon_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_amzn_oa1",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_amzn_oa1": {
+        "stageId": "stage_amzn_oa1",
+        "stageType": "algorithmic_coding",
+        "title": "Amazon OA1: Algorithmic Code Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_oa2": {
+        "stageId": "stage_amzn_oa2",
+        "stageType": "work_simulation",
+        "title": "Amazon OA2: SDE Work Simulation & Work Styles",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_1": {
+        "stageId": "stage_amzn_onsite_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Virtual Onsite 1: Algorithms & Data Structures + 2 LPs",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_2": {
+        "stageId": "stage_amzn_onsite_2",
+        "stageType": "system_design_lld",
+        "title": "Virtual Onsite 2: Object-Oriented Design (LLD) + 2 LPs",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_bar_raiser": {
+        "stageId": "stage_amzn_bar_raiser",
+        "stageType": "behavioral_competency",
+        "title": "Virtual Onsite 3: The Bar Raiser Round",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_verdict": {
+        "stageId": "stage_amzn_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Bar Raiser Debrief & Placement Verdict",
+        "order": 6,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-15T07:09:12.575Z",
+    "updatedAt": "2026-11-15T07:09:12.575Z"
+  },
+  {
+    "id": "jny_amazon_sde_1794774186770_73rxp",
+    "studentId": "persisted_student_99",
+    "companyId": "amazon",
+    "blueprintId": "bp_amazon_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_amzn_oa1",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_amzn_oa1": {
+        "stageId": "stage_amzn_oa1",
+        "stageType": "algorithmic_coding",
+        "title": "Amazon OA1: Algorithmic Code Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_oa2": {
+        "stageId": "stage_amzn_oa2",
+        "stageType": "work_simulation",
+        "title": "Amazon OA2: SDE Work Simulation & Work Styles",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_1": {
+        "stageId": "stage_amzn_onsite_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Virtual Onsite 1: Algorithms & Data Structures + 2 LPs",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_2": {
+        "stageId": "stage_amzn_onsite_2",
+        "stageType": "system_design_lld",
+        "title": "Virtual Onsite 2: Object-Oriented Design (LLD) + 2 LPs",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_bar_raiser": {
+        "stageId": "stage_amzn_bar_raiser",
+        "stageType": "behavioral_competency",
+        "title": "Virtual Onsite 3: The Bar Raiser Round",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_verdict": {
+        "stageId": "stage_amzn_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Bar Raiser Debrief & Placement Verdict",
+        "order": 6,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-15T20:23:06.770Z",
+    "updatedAt": "2026-11-15T20:23:06.770Z"
   }
 ]

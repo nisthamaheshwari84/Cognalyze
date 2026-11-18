@@ -117270,5 +117270,6415 @@
     "createdAt": "2026-11-12T16:52:11.594Z",
     "updatedAt": "2026-11-12T16:52:11.594Z",
     "profileCompleted": true
+  },
+  "student-profile-test-1794503545404": {
+    "userId": "student-profile-test-1794503545404",
+    "fullName": "Ananya Sharma",
+    "email": "",
+    "college": "IIT Delhi",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.1",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)",
+      "Backend Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 120,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.412Z",
+    "updatedAt": "2026-11-12T17:12:25.413Z",
+    "profileCompleted": true
+  },
+  "user-a-1794503545430": {
+    "userId": "user-a-1794503545430",
+    "fullName": "Candidate A",
+    "email": "",
+    "college": "BITS Pilani",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.437Z",
+    "updatedAt": "2026-11-12T17:12:25.437Z",
+    "profileCompleted": true
+  },
+  "user-b-1794503545430": {
+    "userId": "user-b-1794503545430",
+    "fullName": "Candidate B",
+    "email": "",
+    "college": "NIT Trichy",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Data Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.450Z",
+    "updatedAt": "2026-11-12T17:12:25.450Z",
+    "profileCompleted": true
+  },
+  "student-comp-test-1794503545469": {
+    "userId": "student-comp-test-1794503545469",
+    "fullName": "Rohan V",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "code_demonstrated",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-12T17:12:25.494Z",
+        "demonstratedProof": "Passed all SQL test cases"
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.476Z",
+    "updatedAt": "2026-11-12T17:12:25.500Z",
+    "profileCompleted": true
+  },
+  "student-road-test-1794503545512": {
+    "userId": "student-road-test-1794503545512",
+    "fullName": "Priya Nair",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Amazon",
+      "Flipkart"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.518Z",
+    "updatedAt": "2026-11-12T17:12:25.518Z",
+    "profileCompleted": true
+  },
+  "cand-unassessed-1794503545672": {
+    "userId": "cand-unassessed-1794503545672",
+    "fullName": "Fresh Student",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-12T17:12:25.680Z",
+    "updatedAt": "2026-11-12T17:12:25.680Z",
+    "profileCompleted": true
+  },
+  "candidate-p4-user1-1794679697668": {
+    "userId": "candidate-p4-user1-1794679697668",
+    "fullName": "Aarav Mehta",
+    "email": "",
+    "college": "IIT Madras",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.3",
+    "targetRoles": [
+      "Distributed Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "verified_external",
+        "confidenceScore": 85,
+        "lastAssessedAt": "2026-11-14T18:08:17.765Z",
+        "demonstratedProof": "Raft Consensus Protocol Implementation"
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:17.681Z",
+    "updatedAt": "2026-11-14T18:08:17.773Z",
+    "profileCompleted": true
+  },
+  "candidate-p4-user2-1794679697668": {
+    "userId": "candidate-p4-user2-1794679697668",
+    "fullName": "Diya Roy",
+    "email": "",
+    "college": "NIT Surathkal",
+    "degree": "B.Tech",
+    "branch": "Electrical Engineering",
+    "graduationYear": "2025",
+    "academicYear": "Final Year",
+    "cgpa": "7.8",
+    "targetRoles": [
+      "Embedded Firmware Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:17.707Z",
+    "updatedAt": "2026-11-14T18:08:17.707Z",
+    "profileCompleted": true
+  },
+  "proof-integrity-1794679697783": {
+    "userId": "proof-integrity-1794679697783",
+    "fullName": "Integrity Test Student",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "question_assessed",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-14T18:08:17.880Z",
+        "demonstratedProof": "Binary Search Arena Execution (Painter's Partition)"
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:17.796Z",
+    "updatedAt": "2026-11-14T18:08:17.886Z",
+    "profileCompleted": true
+  },
+  "bench-user-1794679697903": {
+    "userId": "bench-user-1794679697903",
+    "fullName": "Benchmark Candidate",
+    "email": "",
+    "college": "IIT Bombay",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.0",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:17.910Z",
+    "updatedAt": "2026-11-14T18:08:17.910Z",
+    "profileCompleted": true
+  },
+  "student-profile-test-1794679699854": {
+    "userId": "student-profile-test-1794679699854",
+    "fullName": "Ananya Sharma",
+    "email": "",
+    "college": "IIT Delhi",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.1",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)",
+      "Backend Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 120,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:19.867Z",
+    "updatedAt": "2026-11-14T18:08:19.872Z",
+    "profileCompleted": true
+  },
+  "user-a-1794679699896": {
+    "userId": "user-a-1794679699896",
+    "fullName": "Candidate A",
+    "email": "",
+    "college": "BITS Pilani",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:19.903Z",
+    "updatedAt": "2026-11-14T18:08:19.903Z",
+    "profileCompleted": true
+  },
+  "user-b-1794679699896": {
+    "userId": "user-b-1794679699896",
+    "fullName": "Candidate B",
+    "email": "",
+    "college": "NIT Trichy",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Data Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:19.924Z",
+    "updatedAt": "2026-11-14T18:08:19.924Z",
+    "profileCompleted": true
+  },
+  "student-comp-test-1794679699945": {
+    "userId": "student-comp-test-1794679699945",
+    "fullName": "Rohan V",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "code_demonstrated",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-14T18:08:19.973Z",
+        "demonstratedProof": "Passed all SQL test cases"
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:19.953Z",
+    "updatedAt": "2026-11-14T18:08:19.980Z",
+    "profileCompleted": true
+  },
+  "student-road-test-1794679699993": {
+    "userId": "student-road-test-1794679699993",
+    "fullName": "Priya Nair",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Amazon",
+      "Flipkart"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.000Z",
+    "updatedAt": "2026-11-14T18:08:20.000Z",
+    "profileCompleted": true
+  },
+  "candidate-a-1794679700107": {
+    "userId": "candidate-a-1794679700107",
+    "fullName": "Candidate Alpha",
+    "email": "",
+    "college": "IIT Bombay",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.2",
+    "targetRoles": [
+      "Backend Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.117Z",
+    "updatedAt": "2026-11-14T18:08:20.117Z",
+    "profileCompleted": true
+  },
+  "candidate-b-1794679700107": {
+    "userId": "candidate-b-1794679700107",
+    "fullName": "Candidate Beta",
+    "email": "",
+    "college": "NIT Trichy",
+    "degree": "B.Tech",
+    "branch": "Mechanical Engineering",
+    "graduationYear": "2025",
+    "academicYear": "Final Year",
+    "cgpa": "7.4",
+    "targetRoles": [
+      "Frontend Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.155Z",
+    "updatedAt": "2026-11-14T18:08:20.155Z",
+    "profileCompleted": true
+  },
+  "cand-unassessed-1794679700183": {
+    "userId": "cand-unassessed-1794679700183",
+    "fullName": "Fresh Student",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.193Z",
+    "updatedAt": "2026-11-14T18:08:20.193Z",
+    "profileCompleted": true
+  },
+  "elevation-test-1794679700280": {
+    "userId": "elevation-test-1794679700280",
+    "fullName": "Test Candidate",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "question_assessed",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-14T18:08:20.406Z",
+        "demonstratedProof": "SQL Window Functions Verified Execution"
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.295Z",
+    "updatedAt": "2026-11-14T18:08:20.431Z",
+    "profileCompleted": true
+  },
+  "dashboard-candidate-1794679700461": {
+    "userId": "dashboard-candidate-1794679700461",
+    "fullName": "Pooja Verma",
+    "email": "",
+    "college": "IIT Roorkee",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "8.8",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-14T18:08:20.468Z",
+    "updatedAt": "2026-11-14T18:08:20.468Z",
+    "profileCompleted": true
+  },
+  "candidate-p4-user1-1794774155585": {
+    "userId": "candidate-p4-user1-1794774155585",
+    "fullName": "Aarav Mehta",
+    "email": "",
+    "college": "IIT Madras",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.3",
+    "targetRoles": [
+      "Distributed Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "verified_external",
+        "confidenceScore": 85,
+        "lastAssessedAt": "2026-11-15T20:22:36.355Z",
+        "demonstratedProof": "Raft Consensus Protocol Implementation"
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:22:35.592Z",
+    "updatedAt": "2026-11-15T20:22:36.365Z",
+    "profileCompleted": true
+  },
+  "candidate-p4-user2-1794774155585": {
+    "userId": "candidate-p4-user2-1794774155585",
+    "fullName": "Diya Roy",
+    "email": "",
+    "college": "NIT Surathkal",
+    "degree": "B.Tech",
+    "branch": "Electrical Engineering",
+    "graduationYear": "2025",
+    "academicYear": "Final Year",
+    "cgpa": "7.8",
+    "targetRoles": [
+      "Embedded Firmware Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:22:35.608Z",
+    "updatedAt": "2026-11-15T20:22:35.608Z",
+    "profileCompleted": true
+  },
+  "proof-integrity-1794774156375": {
+    "userId": "proof-integrity-1794774156375",
+    "fullName": "Integrity Test Student",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "question_assessed",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-15T20:22:37.296Z",
+        "demonstratedProof": "Binary Search Arena Execution (Painter's Partition)"
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:22:36.384Z",
+    "updatedAt": "2026-11-15T20:22:37.303Z",
+    "profileCompleted": true
+  },
+  "bench-user-1794774157321": {
+    "userId": "bench-user-1794774157321",
+    "fullName": "Benchmark Candidate",
+    "email": "",
+    "college": "IIT Bombay",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.0",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:22:37.331Z",
+    "updatedAt": "2026-11-15T20:22:37.331Z",
+    "profileCompleted": true
+  },
+  "student-profile-test-1794774180458": {
+    "userId": "student-profile-test-1794774180458",
+    "fullName": "Ananya Sharma",
+    "email": "",
+    "college": "IIT Delhi",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.1",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)",
+      "Backend Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 120,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.465Z",
+    "updatedAt": "2026-11-15T20:23:00.466Z",
+    "profileCompleted": true
+  },
+  "user-a-1794774180482": {
+    "userId": "user-a-1794774180482",
+    "fullName": "Candidate A",
+    "email": "",
+    "college": "BITS Pilani",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.488Z",
+    "updatedAt": "2026-11-15T20:23:00.488Z",
+    "profileCompleted": true
+  },
+  "user-b-1794774180482": {
+    "userId": "user-b-1794774180482",
+    "fullName": "Candidate B",
+    "email": "",
+    "college": "NIT Trichy",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Data Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.501Z",
+    "updatedAt": "2026-11-15T20:23:00.501Z",
+    "profileCompleted": true
+  },
+  "student-comp-test-1794774180520": {
+    "userId": "student-comp-test-1794774180520",
+    "fullName": "Rohan V",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "code_demonstrated",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-15T20:23:00.546Z",
+        "demonstratedProof": "Passed all SQL test cases"
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.527Z",
+    "updatedAt": "2026-11-15T20:23:00.552Z",
+    "profileCompleted": true
+  },
+  "student-road-test-1794774180564": {
+    "userId": "student-road-test-1794774180564",
+    "fullName": "Priya Nair",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Amazon",
+      "Flipkart"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.571Z",
+    "updatedAt": "2026-11-15T20:23:00.571Z",
+    "profileCompleted": true
+  },
+  "cand-unassessed-1794774180711": {
+    "userId": "cand-unassessed-1794774180711",
+    "fullName": "Fresh Student",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:00.720Z",
+    "updatedAt": "2026-11-15T20:23:00.720Z",
+    "profileCompleted": true
+  },
+  "candidate-a-1794774181092": {
+    "userId": "candidate-a-1794774181092",
+    "fullName": "Candidate Alpha",
+    "email": "",
+    "college": "IIT Bombay",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "9.2",
+    "targetRoles": [
+      "Backend Systems Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:01.103Z",
+    "updatedAt": "2026-11-15T20:23:01.103Z",
+    "profileCompleted": true
+  },
+  "candidate-b-1794774181092": {
+    "userId": "candidate-b-1794774181092",
+    "fullName": "Candidate Beta",
+    "email": "",
+    "college": "NIT Trichy",
+    "degree": "B.Tech",
+    "branch": "Mechanical Engineering",
+    "graduationYear": "2025",
+    "academicYear": "Final Year",
+    "cgpa": "7.4",
+    "targetRoles": [
+      "Frontend Engineer"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:01.118Z",
+    "updatedAt": "2026-11-15T20:23:01.118Z",
+    "profileCompleted": true
+  },
+  "elevation-test-1794774185713": {
+    "userId": "elevation-test-1794774185713",
+    "fullName": "Test Candidate",
+    "email": "",
+    "college": "",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "question_assessed",
+        "confidenceScore": 95,
+        "lastAssessedAt": "2026-11-15T20:23:06.056Z",
+        "demonstratedProof": "SQL Window Functions Verified Execution"
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:05.719Z",
+    "updatedAt": "2026-11-15T20:23:06.064Z",
+    "profileCompleted": true
+  },
+  "dashboard-candidate-1794774186080": {
+    "userId": "dashboard-candidate-1794774186080",
+    "fullName": "Pooja Verma",
+    "email": "",
+    "college": "IIT Roorkee",
+    "degree": "B.Tech",
+    "branch": "Computer Science",
+    "graduationYear": "2026",
+    "academicYear": "Final Year",
+    "cgpa": "8.8",
+    "targetRoles": [
+      "Software Development Engineer (SDE-1)"
+    ],
+    "targetCompanies": [
+      "Google",
+      "Amazon",
+      "Razorpay"
+    ],
+    "opportunityType": "both",
+    "placementType": "both",
+    "targetDeadline": "2026-12-31",
+    "dailyPrepMinutes": 90,
+    "preferredLanguage": "cpp",
+    "preferredInterviewFormat": "mixed",
+    "programmingLanguages": [
+      "C++",
+      "Python",
+      "SQL"
+    ],
+    "dsaProficiencyLevel": "Intermediate",
+    "projects": [],
+    "competencies": {
+      "dsa_binary_search": {
+        "competencyId": "dsa_binary_search",
+        "name": "Binary Search & Monotonic Predicates",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_arrays_strings": {
+        "competencyId": "dsa_arrays_strings",
+        "name": "Arrays, Strings & Two Pointers",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_sliding_window": {
+        "competencyId": "dsa_sliding_window",
+        "name": "Sliding Window & Subarrays",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_trees_graphs": {
+        "competencyId": "dsa_trees_graphs",
+        "name": "Trees, Graphs & Traversals",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dsa_dp": {
+        "competencyId": "dsa_dp",
+        "name": "Dynamic Programming & Subproblems",
+        "domain": "dsa",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_proc_threads": {
+        "competencyId": "os_proc_threads",
+        "name": "Processes, Threads & Context Switching",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_deadlocks": {
+        "competencyId": "os_deadlocks",
+        "name": "Deadlocks & Banker's Algorithm",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "os_virtual_mem": {
+        "competencyId": "os_virtual_mem",
+        "name": "Virtual Memory, Paging & TLB",
+        "domain": "os",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_normalization": {
+        "competencyId": "dbms_normalization",
+        "name": "Normalization 1NF-BCNF & Anomalies",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_acid": {
+        "competencyId": "dbms_acid",
+        "name": "ACID Guarantees & Isolation Levels",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "dbms_indexing": {
+        "competencyId": "dbms_indexing",
+        "name": "B+ Tree Indexing & Query Plans",
+        "domain": "dbms",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_joins_subqueries": {
+        "competencyId": "sql_joins_subqueries",
+        "name": "Complex Joins, Subqueries & Aggregations",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sql_window_functions": {
+        "competencyId": "sql_window_functions",
+        "name": "Window Functions & DENSE_RANK",
+        "domain": "sql",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_tcp_handshake": {
+        "competencyId": "cn_tcp_handshake",
+        "name": "TCP 3-Way Handshake & Reliability",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "cn_dns_http": {
+        "competencyId": "cn_dns_http",
+        "name": "DNS Resolution, HTTP/2 & HTTPS TLS",
+        "domain": "cn",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_solid": {
+        "competencyId": "oop_solid",
+        "name": "SOLID Principles & Clean Architecture",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "oop_polymorphism": {
+        "competencyId": "oop_polymorphism",
+        "name": "Dynamic Dispatch & VTable Internals",
+        "domain": "oop",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "concurrency_locks": {
+        "competencyId": "concurrency_locks",
+        "name": "Mutexes, Condition Variables & Thread Safety",
+        "domain": "concurrency",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "sys_design_scaling": {
+        "competencyId": "sys_design_scaling",
+        "name": "High-Level Distributed Systems & Caching",
+        "domain": "system_design",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "aptitude_quant": {
+        "competencyId": "aptitude_quant",
+        "name": "Quantitative Aptitude & Placement Logic",
+        "domain": "aptitude",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      },
+      "behavioral_star": {
+        "competencyId": "behavioral_star",
+        "name": "Behavioral Leadership & STAR Technique",
+        "domain": "behavioral",
+        "tier": "unassessed",
+        "confidenceScore": 0
+      }
+    },
+    "focusImprovementAreas": [
+      "SQL Window Functions",
+      "Operating Systems Paging"
+    ],
+    "createdAt": "2026-11-15T20:23:06.087Z",
+    "updatedAt": "2026-11-15T20:23:06.087Z",
+    "profileCompleted": true
   }
 }

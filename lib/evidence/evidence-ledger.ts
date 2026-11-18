@@ -50,6 +50,7 @@ export type EvidenceType =
   | "work_implementation"
   | "education"
   | "certification"
+  | "internship"
   | "DIRECT_IMPLEMENTATION"
   | "PROJECT_USAGE"
   | "EXPLICIT_CLAIM"
@@ -88,7 +89,7 @@ export interface EvidenceRecord {
 export interface CandidateClaimRecord {
   claim_id: string;
   claim_text: string;
-  claim_type: "skill" | "project" | "education" | "experience" | "metric" | "deployment";
+  claim_type: "skill" | "project" | "education" | "experience" | "internship" | "metric" | "deployment";
   source_section: string;
   evidence_ids: string[];
   status: VerificationStatus;

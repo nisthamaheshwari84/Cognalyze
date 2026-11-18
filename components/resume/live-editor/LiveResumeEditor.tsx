@@ -13,6 +13,13 @@ import { createDefaultResumeDocument, checkBulletEditValidity } from "@/lib/resu
 import { runATSValidation } from "@/lib/resume/ats-validator";
 import { validateBeforeExport, printPDF, downloadDOCX } from "@/lib/resume/export-engine";
 import { calculatePageUtilization } from "@/lib/resume/page-fitting-engine";
+import {
+  generateResumeLaTeX,
+  LaTeXTemplateFamily,
+} from "@/lib/resume/latex-engine";
+import { convertResumeDocumentToOptimizedContent } from "@/lib/resume/converter";
+import { evaluateResumeQuality } from "@/lib/resume/quality-evaluator";
+import { auditResumeIntegrity } from "@/lib/resume/integrity-engine";
 import { DocumentCanvas } from "./DocumentCanvas";
 import { LeftOutlinePanel } from "./LeftOutlinePanel";
 import { RightInspectorPanel } from "./RightInspectorPanel";
@@ -73,6 +80,70 @@ export default function LiveResumeEditor({
 
   // Export Modal state
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isLatexModalOpen, setIsLatexModalOpen] = useState(false);
+  const [isQualityModalOpen, setIsQualityModalOpen] = useState(false);
+  const [copiedLatex, setCopiedLatex] = useState(false);
+
+  // Compute Overleaf LaTeX Source dynamically from canonical document
+  const latexSource = useMemo(() => {
+    try {
+      const optimized = convertResumeDocumentToOptimizedContent(document);
+      const templateKey = (document.settings?.template || "ats-classic") as LaTeXTemplateFamily;
+      return generateResumeLaTeX(optimized, {
+        template: templateKey,
+        paperSize: document.settings?.paperSize === "Letter" ? "letterpaper" : "a4paper",
+      });
+    } catch (e) {
+      return "% Error generating LaTeX source";
+    }
+  }, [document]);
+
+  // Compute 5-Dimensional Quality Scorecard
+  const qualityReport = useMemo(() => {
+    try {
+      const optimized = convertResumeDocumentToOptimizedContent(document);
+      const dummyIntel = {
+        candidateId: "current",
+        name: optimized.name,
+        contact: optimized.contact,
+        targetRole: optimized.title,
+        yearsOfExperience: 3,
+        careerStage: optimized.strategy.careerStage,
+        skills: [],
+        education: [],
+        experience: [],
+        projects: [],
+        certifications: optimized.certifications.map((c, i) => ({
+          id: `c_${i}`,
+          name: c,
+          attribution: { source: "USER_INPUT" as const, corroboration: "CANDIDATE_REPORTED" as const, timestamp: "" }
+        })),
+        achievements: [],
+        rawBackgroundText: JSON.stringify(optimized),
+      };
+      const integrity = auditResumeIntegrity(optimized, dummyIntel);
+      return evaluateResumeQuality({
+        content: optimized,
+        integrityAudit: integrity,
+        targetJdText: document.targetJdText,
+      });
+    } catch (e) {
+      return null;
+    }
+  }, [document]);
+
+  const handleDownloadLatex = () => {
+    const blob = new Blob([latexSource], { type: "application/x-latex" });
+    const url = URL.createObjectURL(blob);
+    const a = window.document.createElement("a");
+    const filename = `${document.contact.name.toLowerCase().replace(/[^a-z0-9]/g, "_") || "resume"}.tex`;
+    a.href = url;
+    a.download = filename;
+    window.document.body.appendChild(a);
+    a.click();
+    window.document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   // Real-time ATS validation on current canonical document (debounced to avoid typing lag)
   const [atsResult, setAtsResult] = useState<ATSValidationResult>(() =>
@@ -389,8 +460,54 @@ export default function LiveResumeEditor({
           </div>
         </div>
 
-        {/* Right: Export Buttons */}
+        {/* Right: Export Buttons & Quality Scorecard */}
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {qualityReport && (
+            <button
+              type="button"
+              onClick={() => setIsQualityModalOpen(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                borderRadius: 6,
+                backgroundColor: qualityReport.overallScore >= 80 ? "#EAF4EE" : "#FEF7ED",
+                border: `1px solid ${qualityReport.overallScore >= 80 ? "#C8E4D3" : "#F8D8A7"}`,
+                color: qualityReport.overallScore >= 80 ? "#2E7D5B" : "#B54708",
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              title="View 5-Dimensional Quality & Integrity Scorecard"
+            >
+              <span>⭐</span> {qualityReport.overallScore}/100 Quality
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setIsLatexModalOpen(true)}
+            style={{
+              padding: "6px 12px",
+              backgroundColor: "#FFFFFF",
+              color: "#162A43",
+              border: "1px solid #E4E1DA",
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              transition: "all 0.15s ease",
+            }}
+            title="View & Download LaTeX Source for Overleaf"
+          >
+            <span>📜</span> LaTeX
+          </button>
+
           <button
             type="button"
             onClick={() => downloadDOCX(document)}
@@ -634,7 +751,306 @@ export default function LiveResumeEditor({
             setIsExportModalOpen(false);
             downloadDOCX(document);
           }}
+          onExportLaTeX={() => {
+            setIsExportModalOpen(false);
+            handleDownloadLatex();
+          }}
         />
+      )}
+
+      {/* Overleaf LaTeX Source Modal */}
+      {isLatexModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(10, 15, 29, 0.55)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px",
+          }}
+          onClick={() => setIsLatexModalOpen(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "760px",
+              maxHeight: "85vh",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "12px",
+              boxShadow: "0 20px 45px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #E4E1DA",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#FAF9F6",
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#162A43" }}>
+                  Overleaf LaTeX Resume Source
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "#667085" }}>
+                  Overleaf-ready, ATS-compliant single-column LaTeX source code with selectable fonts.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLatexModalOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: 18,
+                  color: "#667085",
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ flex: 1, padding: 16, overflowY: "auto", backgroundColor: "#0F172A" }}>
+              <pre
+                style={{
+                  margin: 0,
+                  color: "#E2E8F0",
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+                  fontSize: 12,
+                  lineHeight: 1.5,
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {latexSource}
+              </pre>
+            </div>
+
+            <div
+              style={{
+                padding: "14px 20px",
+                borderTop: "1px solid #E4E1DA",
+                backgroundColor: "#FFFFFF",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ fontSize: 12, color: "#667085" }}>
+                Template: <strong>{document.settings?.template || "ats-classic"}</strong>
+              </span>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(latexSource);
+                    setCopiedLatex(true);
+                    setTimeout(() => setCopiedLatex(false), 2000);
+                  }}
+                  style={{
+                    padding: "8px 16px",
+                    borderRadius: 6,
+                    border: "1px solid #E4E1DA",
+                    backgroundColor: "#FFFFFF",
+                    color: "#162A43",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {copiedLatex ? "✓ Copied!" : "📋 Copy Source"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadLatex}
+                  style={{
+                    padding: "8px 18px",
+                    borderRadius: 6,
+                    border: "none",
+                    backgroundColor: "#356AE6",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  📥 Download .TEX File
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5-Dimensional Quality Scorecard Modal */}
+      {isQualityModalOpen && qualityReport && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(10, 15, 29, 0.55)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px",
+          }}
+          onClick={() => setIsQualityModalOpen(false)}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "680px",
+              maxHeight: "85vh",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "12px",
+              boxShadow: "0 20px 45px rgba(0, 0, 0, 0.2)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                padding: "16px 20px",
+                borderBottom: "1px solid #E4E1DA",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: "#FAF9F6",
+              }}
+            >
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#162A43" }}>
+                  5-Dimensional Quality & Integrity Certification
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "#667085" }}>
+                  Continuous multi-dimensional evaluation covering content, evidence integrity, ATS, and typography.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsQualityModalOpen(false)}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  fontSize: 18,
+                  color: "#667085",
+                  cursor: "pointer",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ flex: 1, padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 14 }}>
+              {/* Overall Banner */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 18px",
+                  borderRadius: 8,
+                  backgroundColor: qualityReport.overallScore >= 80 ? "#EAF4EE" : "#FEF7ED",
+                  border: `1px solid ${qualityReport.overallScore >= 80 ? "#C8E4D3" : "#F8D8A7"}`,
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: qualityReport.overallScore >= 80 ? "#2E7D5B" : "#B54708" }}>
+                    {qualityReport.isExportReady ? "✓ EXPORT READY & ATS CERTIFIED" : "⚠️ IMPROVEMENTS RECOMMENDED"}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>{qualityReport.summary}</div>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: qualityReport.overallScore >= 80 ? "#2E7D5B" : "#B54708" }}>
+                  {qualityReport.overallScore}/100
+                </div>
+              </div>
+
+              {/* Dimensions Breakdown */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {Object.values(qualityReport.dimensions).map((dim) => (
+                  <div
+                    key={dim.name}
+                    style={{
+                      padding: 12,
+                      borderRadius: 8,
+                      border: "1px solid #E4E1DA",
+                      backgroundColor: "#FAF9F6",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>{dim.name}</span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                          backgroundColor: dim.score >= 80 ? "#EAF4EE" : "#FEF7ED",
+                          color: dim.score >= 80 ? "#2E7D5B" : "#B54708",
+                        }}
+                      >
+                        {dim.score}/100
+                      </span>
+                    </div>
+                    {dim.findings.slice(0, 2).map((f, i) => (
+                      <div key={i} style={{ fontSize: 11, color: "#667085", lineHeight: 1.4, marginTop: 4 }}>
+                        • {f}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                padding: "12px 20px",
+                borderTop: "1px solid #E4E1DA",
+                backgroundColor: "#FAF9F6",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setIsQualityModalOpen(false)}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: 6,
+                  border: "none",
+                  backgroundColor: "#162A43",
+                  color: "#FFFFFF",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

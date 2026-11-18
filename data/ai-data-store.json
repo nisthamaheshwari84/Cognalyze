@@ -46,7 +46,11 @@
     "cand-store-test-1794413284954": "data_engineer",
     "cand-base-test-1794413284981": "genai_llm_engineer",
     "cand-store-test-1794502319553": "data_engineer",
-    "cand-base-test-1794502319555": "genai_llm_engineer"
+    "cand-base-test-1794502319555": "genai_llm_engineer",
+    "cand-store-test-1794679688054": "data_engineer",
+    "cand-base-test-1794679688057": "genai_llm_engineer",
+    "cand-store-test-1794774084477": "data_engineer",
+    "cand-base-test-1794774084481": "genai_llm_engineer"
   },
   "candidateActiveTracks": {
     "u-cand-A": "data_science_analytics",
@@ -94,7 +98,11 @@
     "cand-store-test-1794413284954": "data_eng",
     "cand-base-test-1794413284981": "genai_llm",
     "cand-store-test-1794502319553": "data_eng",
-    "cand-base-test-1794502319555": "genai_llm"
+    "cand-base-test-1794502319555": "genai_llm",
+    "cand-store-test-1794679688054": "data_eng",
+    "cand-base-test-1794679688057": "genai_llm",
+    "cand-store-test-1794774084477": "data_eng",
+    "cand-base-test-1794774084481": "genai_llm"
   },
   "candidateOnboarding": {
     "cand-store-test-1794290916562": {
@@ -622,6 +630,54 @@
       "learningStyle": "hands_on",
       "onboardingCompleted": true,
       "completedAt": "2026-11-12T16:51:59.555Z"
+    },
+    "cand-store-test-1794679688054": {
+      "candidateId": "cand-store-test-1794679688054",
+      "primaryRole": "data_engineer",
+      "secondaryRoles": [
+        "mlops_engineer"
+      ],
+      "startingLevel": "intermediate",
+      "weeklyHours": 15,
+      "languagePreference": "hinglish",
+      "learningStyle": "hands_on",
+      "onboardingCompleted": true,
+      "completedAt": "2026-11-14T18:08:08.056Z"
+    },
+    "cand-base-test-1794679688057": {
+      "candidateId": "cand-base-test-1794679688057",
+      "primaryRole": "genai_llm_engineer",
+      "secondaryRoles": [],
+      "startingLevel": "beginner",
+      "weeklyHours": 10,
+      "languagePreference": "english",
+      "learningStyle": "hands_on",
+      "onboardingCompleted": true,
+      "completedAt": "2026-11-14T18:08:08.057Z"
+    },
+    "cand-store-test-1794774084477": {
+      "candidateId": "cand-store-test-1794774084477",
+      "primaryRole": "data_engineer",
+      "secondaryRoles": [
+        "mlops_engineer"
+      ],
+      "startingLevel": "intermediate",
+      "weeklyHours": 15,
+      "languagePreference": "hinglish",
+      "learningStyle": "hands_on",
+      "onboardingCompleted": true,
+      "completedAt": "2026-11-15T20:21:24.479Z"
+    },
+    "cand-base-test-1794774084481": {
+      "candidateId": "cand-base-test-1794774084481",
+      "primaryRole": "genai_llm_engineer",
+      "secondaryRoles": [],
+      "startingLevel": "beginner",
+      "weeklyHours": 10,
+      "languagePreference": "english",
+      "learningStyle": "hands_on",
+      "onboardingCompleted": true,
+      "completedAt": "2026-11-15T20:21:24.481Z"
     }
   },
   "candidateBaselines": {
@@ -1079,9 +1135,179 @@
         "prompt_engineering_structured_outputs"
       ],
       "diagnosticSummary": "Mastery demonstrated"
+    },
+    "cand-base-test-1794679688057": {
+      "candidateId": "cand-base-test-1794679688057",
+      "assessedAt": "2026-11-14T18:08:08.057Z",
+      "targetRole": "genai_llm_engineer",
+      "startingLevel": "advanced",
+      "totalQuestions": 8,
+      "correctCount": 8,
+      "overallScorePercent": 100,
+      "disciplineScores": {},
+      "skillClassifications": {},
+      "recommendedStartingStage": 3,
+      "exemptionsGranted": [
+        "rag_architecture_and_retrieval",
+        "prompt_engineering_structured_outputs"
+      ],
+      "diagnosticSummary": "Mastery demonstrated"
+    },
+    "cand-base-test-1794774084481": {
+      "candidateId": "cand-base-test-1794774084481",
+      "assessedAt": "2026-11-15T20:21:24.482Z",
+      "targetRole": "genai_llm_engineer",
+      "startingLevel": "advanced",
+      "totalQuestions": 8,
+      "correctCount": 8,
+      "overallScorePercent": 100,
+      "disciplineScores": {},
+      "skillClassifications": {},
+      "recommendedStartingStage": 3,
+      "exemptionsGranted": [
+        "rag_architecture_and_retrieval",
+        "prompt_engineering_structured_outputs"
+      ],
+      "diagnosticSummary": "Mastery demonstrated"
     }
   },
   "attempts": [
+    {
+      "id": "att_aidata_9192bf8db9",
+      "candidateId": "cand_test_1794774185340",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "py-placements-two-pointers-sliding-window",
+      "exerciseType": "code_lab",
+      "score": 100,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 6,
+        "passedCount": 6,
+        "executionTimeMs": 28,
+        "stdout": ""
+      },
+      "completedAt": "2026-11-15T20:23:05.398Z"
+    },
+    {
+      "id": "att_aidata_dfebd2b7e6",
+      "candidateId": "student_dna_A_1794774181527",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "py-placements-two-pointers-sliding-window",
+      "exerciseType": "code_lab",
+      "score": 100,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 3,
+        "passedCount": 3,
+        "executionTimeMs": 31,
+        "stdout": ""
+      },
+      "completedAt": "2026-11-15T20:23:01.559Z"
+    },
+    {
+      "id": "att_aidata_548d1c6cee",
+      "candidateId": "cand-phase2-sync-1794774084469",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-11-15T20:21:25.354Z"
+    },
+    {
+      "id": "att_aidata_a58b1c378d",
+      "candidateId": "cand-phase2-sync-1794774084469",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-11-15T20:21:24.641Z"
+    },
+    {
+      "id": "att_aidata_61af6f02e3",
+      "candidateId": "cand_test_1794679700690",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "py-placements-two-pointers-sliding-window",
+      "exerciseType": "code_lab",
+      "score": 100,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 6,
+        "passedCount": 6,
+        "executionTimeMs": 34,
+        "stdout": ""
+      },
+      "completedAt": "2026-11-14T18:08:20.765Z"
+    },
+    {
+      "id": "att_aidata_5ff9c69538",
+      "candidateId": "student_dna_A_1794679700670",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "py-placements-two-pointers-sliding-window",
+      "exerciseType": "code_lab",
+      "score": 100,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 3,
+        "passedCount": 3,
+        "executionTimeMs": 34,
+        "stdout": ""
+      },
+      "completedAt": "2026-11-14T18:08:20.706Z"
+    },
+    {
+      "id": "att_aidata_5af3d12466",
+      "candidateId": "u-cand-stats",
+      "trackSlug": "genai_llm",
+      "lessonSlug": "structured-outputs-and-pydantic-validation",
+      "exerciseType": "code_lab",
+      "score": 90,
+      "passed": true,
+      "assisted": false,
+      "executionReport": {
+        "totalTests": 2,
+        "passedCount": 2,
+        "executionTimeMs": 120
+      },
+      "completedAt": "2026-11-14T18:08:08.300Z"
+    },
+    {
+      "id": "att_aidata_7fb7a23004",
+      "candidateId": "cand-phase2-sync-1794679688043",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "cohort-retention-analysis-and-churn",
+      "exerciseType": "code_lab",
+      "score": 25,
+      "passed": false,
+      "assisted": false,
+      "completedAt": "2026-11-14T18:08:08.198Z"
+    },
+    {
+      "id": "att_aidata_4244c42b2d",
+      "candidateId": "cand-phase2-sync-1794679688043",
+      "trackSlug": "data_science_analytics",
+      "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+      "exerciseType": "code_lab",
+      "score": 95,
+      "passed": true,
+      "assisted": false,
+      "dimensions": {
+        "sql_accuracy": 95,
+        "execution_efficiency": 90
+      },
+      "completedAt": "2026-11-14T18:08:08.163Z"
+    },
     {
       "id": "att_aidata_42769b5b36",
       "candidateId": "cand_test_1794502331816",

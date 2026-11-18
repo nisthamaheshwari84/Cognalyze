@@ -247,6 +247,14 @@ export default function ResumeBuilderView() {
 
       try {
         localStorage.setItem("cognalyze_canonical_resume", JSON.stringify(canonicalDoc));
+        if (data.latexSource || data.qualityReport) {
+          localStorage.setItem("cognalyze_resume_intelligence", JSON.stringify({
+            latexSource: data.latexSource,
+            qualityReport: data.qualityReport,
+            integrityAudit: data.integrityAudit,
+            atsSimulation: data.atsSimulation,
+          }));
+        }
       } catch (e) {
         // Storage error ignored
       }
@@ -254,7 +262,10 @@ export default function ResumeBuilderView() {
       // Directly transition into the clean, unified Resume Editor!
       setStep("editor");
     } catch (e: any) {
-      setError(e.message || "Failed to generate resume. Please verify your inputs.");
+      const errText = e.message === "fetch failed"
+        ? "Network connection interrupted while contacting resume generator. Please try again."
+        : (e.message || "Failed to generate resume. Please verify your inputs.");
+      setError(errText);
       setStep("input");
     }
   };

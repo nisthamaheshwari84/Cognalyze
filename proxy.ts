@@ -23,7 +23,15 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/recruitment-simulation/") ||
     pathname === "/student/practice-interview" ||
     pathname === "/student/resume" ||
+    pathname.startsWith("/student/resume") ||
     pathname === "/resume" ||
+    pathname.startsWith("/resume") ||
+    pathname === "/candidate" ||
+    pathname.startsWith("/candidate") ||
+    pathname === "/interview" ||
+    pathname.startsWith("/interview") ||
+    pathname === "/secure-interview" ||
+    pathname.startsWith("/secure-interview") ||
     pathname === "/student/ai-mentor" ||
     pathname.startsWith("/student/ai-mentor/");
 
@@ -47,6 +55,13 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/recruitment") ||
     pathname.startsWith("/api/simulation") ||
     pathname.startsWith("/api/parse-resume") ||
+    pathname.startsWith("/api/build-resume") ||
+    pathname.startsWith("/api/rewrite-resume") ||
+    pathname.startsWith("/api/resume-intelligence") ||
+    pathname.startsWith("/api/resume") ||
+    pathname.startsWith("/api/candidate") ||
+    pathname.startsWith("/api/split-resumes") ||
+    pathname.startsWith("/api/rank-candidates") ||
     pathname.startsWith("/api/student/ai-mentor") ||
     pathname.startsWith("/api/opportunities") ||
     pathname.startsWith("/api/recommendations") ||

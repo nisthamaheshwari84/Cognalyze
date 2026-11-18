@@ -66,6 +66,12 @@ export async function POST(req: Request) {
     const roles = await getAllRoles();
     const targetRole = roles.find(r => r.id === appliedRoleId) || roles[0];
 
+    // Extract real contact information from resume text (zero hallucination)
+    const emailMatch = resumeText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    const phoneMatch = resumeText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    const candidateEmail = emailMatch ? emailMatch[0] : "";
+    const candidatePhone = phoneMatch ? phoneMatch[0] : undefined;
+
     // Detect GitHub, LinkedIn, and LeetCode links from resume text
     const githubMatch = resumeText.match(/github\.com\/([a-zA-Z0-9_-]+)/i);
     const linkedInMatch = resumeText.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/i);
@@ -74,7 +80,8 @@ export async function POST(req: Request) {
     const cand: MultiSourceCandidateProfile = {
       id: `cand-${Date.now().toString().slice(-6)}`,
       name: candidateName,
-      email: `${candidateName.toLowerCase().replace(/[^a-z0-9]+/g, ".")}@example.com`,
+      email: candidateEmail,
+      phone: candidatePhone,
       appliedRoleId: targetRole.id,
       appliedRoleTitle: targetRole.title,
       sourceType: "bulk_upload",

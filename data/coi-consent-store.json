@@ -1,0 +1,177 @@
+{
+  "grants": [
+    {
+      "id": "cg-0ca7d3f7-15e3-4128-8c25-52bbcee090d1",
+      "studentId": "test-student-alice-101",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read",
+        "placement_profiles:read"
+      ],
+      "grantedAt": "2026-11-17T16:29:45.491Z",
+      "expiresAt": "2027-11-17T16:29:45.491Z",
+      "revokedAt": "2026-11-17T16:29:46.782Z"
+    },
+    {
+      "id": "cg-a2fe99ad-a437-4532-9349-46e5f366a051",
+      "studentId": "user-alice-alpha",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-17T16:29:46.783Z",
+      "expiresAt": "2027-11-17T16:29:46.783Z",
+      "revokedAt": "2026-11-17T16:30:00.959Z"
+    },
+    {
+      "id": "cg-a5ca7ec7-9ab9-4b68-835d-9c668c8263ab",
+      "studentId": "test-student-alice-101",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read",
+        "placement_profiles:read"
+      ],
+      "grantedAt": "2026-11-17T16:30:00.142Z",
+      "expiresAt": "2027-11-17T16:30:00.142Z",
+      "revokedAt": "2026-11-17T16:30:00.958Z"
+    },
+    {
+      "id": "cg-5114d59a-6dca-46c7-a089-f2c6b308ff7e",
+      "studentId": "student-demo",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-17T16:30:00.955Z",
+      "expiresAt": "2027-11-17T16:30:00.955Z",
+      "revokedAt": "2026-11-17T16:33:20.089Z"
+    },
+    {
+      "id": "cg-cfcb06ba-c116-4c6d-8ac6-d71c5cce4ebe",
+      "studentId": "user-alice-alpha",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-17T16:30:00.959Z",
+      "expiresAt": "2027-11-17T16:30:00.959Z",
+      "revokedAt": "2026-11-17T16:33:20.094Z"
+    },
+    {
+      "id": "cg-76b7783b-f063-4e45-a5dc-af5d251d9c04",
+      "studentId": "test-student-alice-101",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read",
+        "placement_profiles:read"
+      ],
+      "grantedAt": "2026-11-17T16:33:18.954Z",
+      "expiresAt": "2027-11-17T16:33:18.954Z",
+      "revokedAt": "2026-11-17T16:33:20.093Z"
+    },
+    {
+      "id": "cg-8c195d82-db3f-4eec-9d02-b16bbc6748d3",
+      "studentId": "student-demo",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-17T16:33:20.089Z",
+      "expiresAt": "2027-11-17T16:33:20.089Z",
+      "revokedAt": "2026-11-18T05:04:03.577Z"
+    },
+    {
+      "id": "cg-dad58223-cc8f-423a-9367-ab14cb70e26e",
+      "studentId": "user-alice-alpha",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-17T16:33:20.094Z",
+      "expiresAt": "2027-11-17T16:33:20.094Z",
+      "revokedAt": "2026-11-18T05:04:03.582Z"
+    },
+    {
+      "id": "cg-8ab1457e-0f47-4964-bbe3-3f6d0f5a684d",
+      "studentId": "test-student-alice-101",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read",
+        "placement_profiles:read"
+      ],
+      "grantedAt": "2026-11-18T05:04:02.329Z",
+      "expiresAt": "2027-11-18T05:04:02.329Z",
+      "revokedAt": "2026-11-18T05:04:03.581Z"
+    },
+    {
+      "id": "cg-61091694-ff3d-4624-9ccf-06c910ee9b57",
+      "studentId": "student-demo",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-18T05:04:03.577Z",
+      "expiresAt": "2027-11-18T05:04:03.577Z",
+      "revokedAt": "2026-11-18T05:46:21.500Z"
+    },
+    {
+      "id": "cg-4f4d6a1c-75de-4a50-9fb8-9d4d0f478563",
+      "studentId": "user-alice-alpha",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-18T05:04:03.582Z",
+      "expiresAt": "2027-11-18T05:04:03.582Z",
+      "revokedAt": "2026-11-18T05:46:21.506Z"
+    },
+    {
+      "id": "cg-c26e93e6-ccc5-4a29-be31-d2e3c06937bb",
+      "studentId": "test-student-alice-101",
+      "clientId": "coi",
+      "granted": false,
+      "scopes": [
+        "student_dna:read",
+        "placement_profiles:read"
+      ],
+      "grantedAt": "2026-11-18T05:46:21.474Z",
+      "expiresAt": "2027-11-18T05:46:21.474Z",
+      "revokedAt": "2026-11-18T05:46:21.506Z"
+    },
+    {
+      "id": "cg-b0bf38b9-9b6a-4b77-9d3f-a14f06c408ee",
+      "studentId": "student-demo",
+      "clientId": "coi",
+      "granted": true,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-18T05:46:21.500Z",
+      "expiresAt": "2027-11-18T05:46:21.500Z",
+      "revokedAt": null
+    },
+    {
+      "id": "cg-1b80cb68-6673-41cf-be26-de670e677900",
+      "studentId": "user-alice-alpha",
+      "clientId": "coi",
+      "granted": true,
+      "scopes": [
+        "student_dna:read"
+      ],
+      "grantedAt": "2026-11-18T05:46:21.506Z",
+      "expiresAt": "2027-11-18T05:46:21.506Z",
+      "revokedAt": null
+    }
+  ]
+}

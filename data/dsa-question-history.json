@@ -1387,68 +1387,68 @@
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
-    "questionId": "tr-linked-list-cycle-floyd",
-    "canonicalId": "detect-a-cycle-in-a-linked-list",
+    "sessionId": "pending_sess_1794774093551",
+    "questionId": "tr-bs-monotonic-invariant",
+    "canonicalId": "binary-search",
     "area": "technical_reasoning",
-    "topic": "linked-lists",
+    "topic": "binary-search",
     "difficulty": "medium",
-    "semanticFingerprint": "fp_tr_floyd_cycle_invariant",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "semanticFingerprint": "fp_tr_bs_monotonic_invariant",
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
+    "sessionId": "pending_sess_1794774093551",
     "questionId": "lc-painter-s-partition-problem",
     "canonicalId": "painter-s-partition-problem",
     "area": "live_coding",
     "topic": "BS on Answers",
     "difficulty": "hard",
     "semanticFingerprint": "fp_lc_painter-s-partition-problem",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
-    "questionId": "dbg-two-sum-self-pair",
-    "canonicalId": "two-sum",
+    "sessionId": "pending_sess_1794774093551",
+    "questionId": "dbg-kadane-all-negative",
+    "canonicalId": "maximum-subarray-sum-kadane-s-algorithm",
     "area": "debugging",
-    "topic": "hashing",
-    "difficulty": "easy",
-    "semanticFingerprint": "fp_dbg_two_sum_self_pair",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "topic": "arrays",
+    "difficulty": "medium",
+    "semanticFingerprint": "fp_dbg_kadane_all_negative",
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
+    "sessionId": "pending_sess_1794774093551",
     "questionId": "comp-recursion-tree-subsets",
     "canonicalId": "subsets",
     "area": "code_comprehension",
     "topic": "recursion",
     "difficulty": "medium",
     "semanticFingerprint": "fp_comp_recursion_tree_subsets",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
-    "questionId": "cpx-two-sum-hash-vs-twopointer",
-    "canonicalId": "two-sum",
+    "sessionId": "pending_sess_1794774093551",
+    "questionId": "cpx-matrix-median-binary-search",
+    "canonicalId": "painter-s-partition-problem",
     "area": "complexity_optimization",
-    "topic": "arrays",
-    "difficulty": "medium",
-    "semanticFingerprint": "fp_cpx_two_sum_hash_vs_twopointer",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "topic": "binary-search",
+    "difficulty": "hard",
+    "semanticFingerprint": "fp_cpx_bs_answer_space",
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   },
   {
     "candidateId": "test-upgraded-candidate-001",
-    "sessionId": "pending_sess_1794502324858",
+    "sessionId": "pending_sess_1794774093551",
     "questionId": "afu-bs-duplicates",
     "canonicalId": "search-in-rotated-sorted-array-ii",
     "area": "adaptive_followup",
     "topic": "binary-search",
     "difficulty": "hard",
     "semanticFingerprint": "fp_afu_bs_duplicates",
-    "presentedAt": "2026-11-12T16:52:04.858Z"
+    "presentedAt": "2026-11-15T20:21:33.551Z"
   }
 ]

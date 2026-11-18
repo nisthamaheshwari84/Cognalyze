@@ -23,6 +23,35 @@ export type {
 
 export type RequirementPriority = 'CRITICAL' | 'IMPORTANT' | 'PREFERRED' | 'NICE_TO_HAVE';
 
+export type EvidenceStrengthLevel =
+  | 'LEVEL_5_INDEPENDENTLY_VERIFIED'
+  | 'LEVEL_4_ARTIFACT_BACKED'
+  | 'LEVEL_3_IMPLEMENTATION'
+  | 'LEVEL_2_CONTEXTUAL'
+  | 'LEVEL_1_MENTIONED'
+  | 'LEVEL_0_NO_EVIDENCE';
+
+export type RoleArchetype =
+  | 'ai_ml_engineer'
+  | 'frontend_engineer'
+  | 'backend_engineer'
+  | 'fullstack_engineer'
+  | 'data_engineer'
+  | 'devops_cloud_engineer'
+  | 'data_analyst'
+  | 'general_software_engineer';
+
+export type RiskCategory =
+  | 'INFORMATIONAL'
+  | 'NEEDS_CLARIFICATION'
+  | 'EVIDENCE_CONCERN'
+  | 'MATERIAL_CONTRADICTION'
+  | 'INFORMATION_NEEDED'
+  | 'UNVERIFIED_CLAIM'
+  | 'SOURCE_CONTRADICTION'
+  | 'TECHNICAL_REVIEW_REQUIRED'
+  | 'VERIFIED_DISCREPANCY';
+
 export type RequirementCategory =
   | 'technical'
   | 'domain'
@@ -57,6 +86,7 @@ export type EvidencePolicy =
 export interface CanonicalJDRequirement {
   id: string;
   original_text: string;
+  original_jd_quote?: string; // Exact verbatim quote from JD
   normalized_requirement: string;
   category: RequirementCategory;
   subcategory: string;
@@ -67,12 +97,61 @@ export interface CanonicalJDRequirement {
   explicitness: Explicitness;
   evidence_policy: EvidencePolicy;
   priority_reasoning?: string;
+  expected_proficiency?: string;
+  evidence_expectations?: string;
+  evaluation_criteria?: string;
+  parent_compound_requirement?: string;
+  is_decomposed?: boolean;
+  weight?: number; // Critical = 3.0, Important = 2.0, Preferred = 1.0, Nice to Have = 0.5
+  demonstrableLevelRequired?: "none" | "knowledge" | "hands_on_project" | "production_scale";
+  source_location?: {
+    section?: string;
+    lineRef?: string;
+  };
+  observable_indicators?: string[];
+  minimumYearsExperience?: number;
+  requirement_logic?: 'AND' | 'OR' | 'OPTIONAL' | 'PREFERRED' | 'CONDITIONAL';
+  alternative_group_id?: string;
+  alternatives?: string[];
+  acceptance_rule?: string;
+  is_alternative?: boolean;
+  parent_requirement_id?: string;
+}
+
+export interface JDQualityAudit {
+  vaguenessScore: number; // 0-100 (lower is crisper)
+  ambiguousStatements: Array<{ statement: string; reason: string }>;
+  contradictoryExperienceRanges: Array<{ titleSeniority: string; statedTenure: string; reason: string }>;
+  unrealisticCombinations: string[];
+  missingSections: string[];
+  unassessableRequirements: string[];
+  duplicateRequirements: string[];
+  recruiterReviewRequired: boolean;
+}
+
+export interface CanonicalRoleSpec {
+  id: string;
+  title: string;
+  seniorityLevel: "intern" | "entry" | "mid" | "senior" | "lead" | "principal";
+  roleArchetype: RoleArchetype;
+  atomicRequirements: CanonicalJDRequirement[];
+  rawJDVerbatim: string;
+  sourceDocHash: string;
+  documentMetadata: {
+    source: "pasted_text" | "pdf" | "docx" | "url" | "text_file";
+    fileName?: string;
+    extractedAt: string;
+    version: number;
+    extractionQualityScore: number;
+  };
+  qualityAudit: JDQualityAudit;
 }
 
 export interface ParsedJD {
   jobTitle: string;
   company?: string;
   seniority?: string;
+  roleArchetype?: RoleArchetype;
   educationRequirements?: string[];
   yearsExperience?: string;
   requiredTechnicalSkills: string[];
@@ -89,6 +168,15 @@ export interface ParsedJD {
   leadershipRequirements?: string[];
   communicationRequirements?: string[];
   requirements: CanonicalJDRequirement[];
+  rawJDVerbatim?: string;
+  sourceHash?: string;
+  qualityAudit?: JDQualityAudit;
+  documentMetadata?: {
+    source: string;
+    fileName?: string;
+    extractedAt: string;
+    extractionQualityScore: number;
+  };
 }
 
 // ============================================================
@@ -126,6 +214,7 @@ export type EvidenceType =
   | 'EDUCATION'
   | 'CERTIFICATION'
   | 'EMPLOYMENT'
+  | 'INTERNSHIP'
   | 'INDIRECT_CONTEXT'
   | 'NO_EVIDENCE';
 
@@ -168,11 +257,21 @@ export interface ParsedResume {
   location?: string;
   links: string[];
   summary?: string;
+  rawResumeVerbatim?: string;
+  sourceHash?: string;
+  experienceBreakdown?: {
+    totalNonOverlappingYears: number;
+    fullTimeYears: number;
+    internshipYears: number;
+    totalNonOverlappingMonths: number;
+    rangesFound: string[];
+  };
   education: {
     degree: string;
     institution: string;
     year: string;
     gpa?: string;
+    gpaScale?: number;
     details?: string;
   }[];
   experience: {
@@ -207,6 +306,50 @@ export interface ParsedResume {
   evidenceItems: CanonicalResumeEvidence[];
 }
 
+export interface NormalizedCandidateProfile {
+  id: string;
+  sourceHash: string;
+  rawResumeVerbatim: string;
+  contact: {
+    name: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    links: string[];
+  };
+  experienceBreakdown: {
+    totalNonOverlappingYears: number;
+    fullTimeYears: number;
+    internshipYears: number;
+    totalNonOverlappingMonths: number;
+    rangesFound: string[];
+  };
+  education: Array<{
+    degree: string;
+    institution: string;
+    graduationYear?: string;
+    cgpa?: string;
+    cgpaScale?: number;
+  }>;
+  workHistory: Array<{
+    title: string;
+    company: string;
+    dateRange: string;
+    isInternship: boolean;
+    responsibilities: string[];
+    technologies: string[];
+  }>;
+  projects: Array<{
+    title: string;
+    purpose?: string;
+    technologies: string[];
+    implementationBullets: string[];
+    liveUrl?: string;
+    repoUrl?: string;
+  }>;
+  skillsCategorized: Array<{ category: string; items: string[] }>;
+}
+
 // ============================================================
 // 3. EVIDENCE RELATIONSHIPS & STATUS MODEL
 // ============================================================
@@ -238,6 +381,9 @@ export interface RequirementEvidenceMatch {
   relationship: EvidenceRelationship;
   status: EvidenceStatus;
   evidenceStrength: EvidenceStrength;
+  evidenceStrengthLevel?: EvidenceStrengthLevel;
+  evidenceContribution?: number; // 0.10, 0.35, 0.65, 0.85, 1.00, or 0.00
+  relevanceFactor?: number;      // 0.80 - 1.00
   evidenceType: EvidenceType;
   confidence: number; // 0.0 - 1.0
   confidenceTier: ConfidenceTier;
@@ -254,6 +400,39 @@ export interface RequirementEvidenceMatch {
   status_multiplier: number;
   earned_points: number;
   possible_points: number;
+  decomposedFrom?: string;
+  limitations?: string[];
+  review_required?: boolean;
+  supporting_reason?: string;
+  demonstrableCheckPassed?: boolean;
+  nonEquivalenceApplied?: boolean;
+  requirement_logic?: 'AND' | 'OR' | 'OPTIONAL' | 'PREFERRED' | 'CONDITIONAL';
+  alternative_group_id?: string;
+  alternatives?: string[];
+  acceptance_rule?: string;
+  is_alternative?: boolean;
+  alternative_satisfied?: boolean;
+  accepted_alternative?: string;
+}
+
+export interface RequirementEvaluationRecord {
+  requirement_id: string;
+  candidate_id: string;
+  status: EvidenceStatus | 'SUPPORTED' | 'PARTIALLY_SUPPORTED' | 'CLAIM_ONLY' | 'EVIDENCE_GAP' | 'SKILL_GAP' | 'MISSING' | 'CONTRADICTED';
+  evidence_ids: string[];
+  supporting_reason: string;
+  limitations: string[];
+  confidence: number;
+  review_required: boolean;
+  demonstrableCheckPassed?: boolean;
+  nonEquivalenceApplied?: boolean;
+  requirement_logic?: 'AND' | 'OR' | 'OPTIONAL' | 'PREFERRED' | 'CONDITIONAL';
+  alternative_group_id?: string;
+  alternatives?: string[];
+  acceptance_rule?: string;
+  is_alternative?: boolean;
+  alternative_satisfied?: boolean;
+  accepted_alternative?: string;
 }
 
 // ============================================================
@@ -272,8 +451,48 @@ export interface ScoreCategoryStats {
   categoryScore: number; // 0-100
 }
 
+export interface TriPartiteScoreContract {
+  roleAlignmentPercentage: number;   // 0.00 - 100.00 (points-based: sum earned / sum possible)
+  evidenceConfidencePercentage: number; // 0.00 - 100.00 (weighted average of evidence confidence)
+  requirementCoveragePercentage: number; // 0.00 - 100.00 (assessed requirements / total requirements)
+  breakdown: {
+    totalRequirements: number;
+    totalAssessedRequirements: number;
+    totalUnassessedRequirements: number;
+    totalEarnedPoints: number;
+    totalPossiblePoints: number;
+    criticalCoverage: number; // 0-100
+    scoringDefensibility: 'STRONG' | 'MODERATE' | 'WEAK';
+    confidenceTier: ConfidenceTier;
+  };
+}
+
+export interface ScoringWeightConfig {
+  priorityWeights: {
+    CRITICAL: number;
+    IMPORTANT: number;
+    PREFERRED: number;
+    NICE_TO_HAVE: number;
+  };
+  contributionLevels: {
+    LEVEL_5_INDEPENDENTLY_VERIFIED: number;
+    LEVEL_4_ARTIFACT_BACKED: number;
+    LEVEL_3_IMPLEMENTATION: number;
+    LEVEL_2_CONTEXTUAL: number;
+    LEVEL_1_MENTIONED: number;
+    LEVEL_0_NO_EVIDENCE: number;
+  };
+  version: string;
+}
+
 export interface DeterministicScoreBreakdown {
   overallEvidenceMatch: number; // 0-100
+  roleAlignmentPercentage?: number;
+  evidenceConfidencePercentage?: number;
+  requirementCoveragePercentage?: number;
+  triPartiteScore?: TriPartiteScoreContract;
+  scoringModelVersion?: string;
+  evaluationId?: string;
   criticalScore: number;
   importantScore: number;
   preferredScore: number;
@@ -294,6 +513,14 @@ export interface DeterministicScoreBreakdown {
     missing: number;
     contradicted: number;
     totalRequirements: number;
+  };
+  levelCounts?: {
+    level5Verified: number;
+    level4ArtifactBacked: number;
+    level3Implementation: number;
+    level2Contextual: number;
+    level1Mentioned: number;
+    level0NoEvidence: number;
   };
   scoreVerdictExplanation: string; // Personalized "WHY"
   formulaExplanation: string;
@@ -332,6 +559,14 @@ export interface RiskItem {
   verificationRecommended: string;
   severity: 'HIGH' | 'MEDIUM' | 'LOW';
   sourceQuote: string;
+  category?: RiskCategory;
+  explanation?: string;
+  flagType?: string;
+  source?: string;
+  confidence?: number;
+  supporting_evidence?: string;
+  limitations?: string[];
+  recommended_action?: string;
 }
 
 export interface ExperienceAnalysis {
@@ -479,6 +714,13 @@ export interface InterviewProbeQuestion {
   evidenceTested: string;
   whatStrongProofLooksLike: string;
   candidateDefensibility: DefensibilityRating;
+  unresolvedQuestion?: string;
+  expectedAnswerIndicators?: {
+    strongSignals: string[];
+    weakSignals: string[];
+  };
+  followUpQuestions?: string[];
+  evaluationRubric?: string;
 }
 
 export interface InterviewFocusPlan {

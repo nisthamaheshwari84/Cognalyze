@@ -78,8 +78,12 @@ export async function POST(req: Request) {
       },
     ];
 
-    // Update Student DNA asynchronously with parsed skills and projects
-    const studentId = "student-demo";
+    // Generate an isolated candidate session ID to strictly prevent cross-user contamination
+    const cookieHeader = req.headers.get("cookie") || "";
+    const sessionCookie = cookieHeader.match(/cognalyze_session=([^;]+)/)?.[1];
+    const studentId = sessionCookie && sessionCookie.length >= 8
+      ? `user_${sessionCookie.slice(0, 16)}`
+      : `cand_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     try {
       const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
       const allExtractedSkills = (report.rewriter?.skills || []).flatMap((cat) =>

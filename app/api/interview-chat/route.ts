@@ -55,6 +55,15 @@ import {
   isSemanticDuplicate,
   InterviewPhase,
 } from "@/lib/interview/interview-state-machine";
+import {
+  detectUnlistedProject,
+  CandidateDisclosedEntity,
+} from "@/lib/interview/unlisted-project-detector";
+import {
+  handleHintRequest,
+  InterviewExperienceMode,
+  HintPreferenceLevel,
+} from "@/lib/interview/interview-mode-service";
 
 function trimMessages(messages: Array<{ role: string; content: string }>, maxMessages = 12) {
   if (messages.length <= maxMessages) return messages;
@@ -89,6 +98,9 @@ export async function POST(req: Request) {
     skillsFocus,
     difficulty,
     feedbackMode,
+    interviewMode: reqInterviewMode,
+    hintPreference: reqHintPreference,
+    action: reqAction,
   } = body;
 
   const effectiveTrack = reqTrack || reqInterviewTrack;
@@ -173,6 +185,8 @@ export async function POST(req: Request) {
         effectiveTrack
       );
       sessionState = createAdvancedSessionState(blueprint, dossier);
+      (sessionState as any).interviewMode = reqInterviewMode || "practice";
+      (sessionState as any).hintPreference = reqHintPreference || "subtle_hints";
       if (effectiveTrack) {
         sessionState.track = effectiveTrack;
       }
@@ -180,6 +194,12 @@ export async function POST(req: Request) {
         sessionState.currentDifficulty = difficulty as any;
       }
     } else {
+      if (reqInterviewMode) {
+        (sessionState as any).interviewMode = reqInterviewMode;
+      }
+      if (reqHintPreference) {
+        (sessionState as any).hintPreference = reqHintPreference;
+      }
       if (!sessionState.dossier) {
         sessionState.dossier = dossier;
       }
@@ -279,6 +299,57 @@ export async function POST(req: Request) {
     const lastUserMsg = userMessages.length > 0 ? userMessages[userMessages.length - 1].content : "";
     const lastAssistantMsg = assistantMessages.length > 0 ? assistantMessages[assistantMessages.length - 1].content : "";
 
+    // 4.2 INTERVIEW MODE & HINT REQUEST GATE
+    const isHintAction = reqAction === "request_hint" || (
+      Boolean(lastUserMsg) &&
+      lastUserMsg.trim().length < 60 &&
+      /\b(can (you|i) (get|have) a hint|any hints?|could you give me a hint|give me a hint|need a hint|little hint|give a hint|guide me|any guidance)\b/i.test(lastUserMsg.trim())
+    );
+
+    if (isHintAction && assistantMessages.length > 0) {
+      const currentMode = (sessionState as any).interviewMode || "practice";
+      const currentHintPref = (sessionState as any).hintPreference || "subtle_hints";
+      const lastQ = sessionState.questionsAsked[sessionState.questionsAsked.length - 1];
+      const hintDecision = handleHintRequest({
+        interviewMode: currentMode,
+        hintPreference: currentHintPref,
+        currentQuestion: lastQ?.question || lastAssistantMsg,
+        currentCompetency: lastQ?.competency,
+        turnIndex: sessionState.turns.length + 1,
+      });
+
+      if (hintDecision.isAssisted) {
+        sessionState.assistanceCount = (sessionState.assistanceCount || 0) + 1;
+        (sessionState as any).pendingAssistance = {
+          isAssisted: true,
+          assistanceLevel: currentHintPref,
+        };
+      }
+
+      await saveActiveSessionStateAsync(sessionId, sessionState);
+
+      return NextResponse.json({
+        message: hintDecision.responseMessage,
+        questionTargets: hintDecision.isAllowed ? `Practice Guidance (${hintDecision.hintLevel})` : "Evaluation Policy Notice",
+        section: sessionState.blueprint?.currentSection || "resume_projects",
+        difficulty: sessionState.currentDifficulty,
+        isFollowUp: false,
+        isHint: hintDecision.isAllowed,
+        hintLevel: hintDecision.hintLevel,
+        interviewMode: currentMode,
+        sessionId,
+        turnIndex: sessionState.turns.length,
+        openingState: sessionState.openingState,
+        currentSection: sessionState.blueprint?.currentSection,
+        conductState: sessionState.conductState || "NORMAL",
+        meta: {
+          correlationId,
+          latencyMs: Date.now() - t0,
+          dossierCacheHit,
+        }
+      });
+    }
+
     // 4.3 JUNK INPUT & KEYBOARD MASH 2-STRIKE GUARD
     if (lastUserMsg && isJunkInput(lastUserMsg)) {
       const currentStrikes = (sessionState as any).junkStrikes || 0;
@@ -373,22 +444,41 @@ export async function POST(req: Request) {
       sessionState.openingState = "INTERVIEW_IN_PROGRESS";
       sessionState.blueprint.currentSection = "resume_projects";
 
-      // Brief personalized transition (1 sentence)
-      const transition = generateIntroductionTransition(candidateIntro, dossier);
+      // Check if candidate verbally introduced a project absent from their submitted resume
+      const introUnlisted = detectUnlistedProject(candidateIntro, dossier.projects);
+      let combinedMessage = "";
+      let questionTargets = "Project Ownership & Architecture";
+      let difficultyLevel = "intermediate";
 
-      // Generate Question 1 of actual interview grounded in dossier & candidate introduction
-      const firstQ = await generateNextAdaptiveQuestion(sessionState, dossier, candidateIntro, null);
-      firstQ.question = repairUngroundedQuestion(firstQ.question, claimLedger);
+      if (introUnlisted.hasUnlistedProject && introUnlisted.unlistedProjectName) {
+        const disclosedEntity: CandidateDisclosedEntity = {
+          name: introUnlisted.unlistedProjectName,
+          firstMentionedTurn: 1,
+          provenance: "INTERVIEW-DISCLOSED",
+          turnsExplored: 1,
+        };
+        (sessionState as any).disclosedEntities = [disclosedEntity];
+        combinedMessage = `Thanks for the introduction! You mentioned ${introUnlisted.unlistedProjectName}, which sounds interesting. I noticed that this project isn't explicitly listed in the resume you submitted. Could you explain your involvement, your individual contributions, and the core technologies you used in ${introUnlisted.unlistedProjectName}?`;
+        questionTargets = `Project Discrepancy & Verification: ${introUnlisted.unlistedProjectName}`;
+      } else {
+        // Brief personalized transition (1 sentence)
+        const transition = generateIntroductionTransition(candidateIntro, dossier);
+
+        // Generate Question 1 of actual interview grounded in dossier & candidate introduction
+        const firstQ = await generateNextAdaptiveQuestion(sessionState, dossier, candidateIntro, null);
+        firstQ.question = repairUngroundedQuestion(firstQ.question, claimLedger);
+        combinedMessage = `${transition} ${firstQ.question}`;
+        questionTargets = firstQ.question_targets;
+        difficultyLevel = firstQ.difficulty_level;
+      }
+
       (sessionState as any).interviewPhase = "RESUME_DEEP_DIVE";
-
-      // Crisp combined message: [Acknowledgment & Transition] + [Question 1]
-      const combinedMessage = `${transition} ${firstQ.question}`;
 
       sessionState.questionsAsked.push({
         question: combinedMessage,
-        targets: firstQ.question_targets,
-        section: firstQ.section || "resume_projects",
-        competency: firstQ.competency_targeted || "Project Ownership & Architecture",
+        targets: questionTargets,
+        section: "resume_projects",
+        competency: "Project Ownership & Architecture",
         turnIndex: 1,
       });
 
@@ -398,9 +488,9 @@ export async function POST(req: Request) {
 
       return NextResponse.json({
         message: combinedMessage,
-        questionTargets: firstQ.question_targets,
-        section: firstQ.section || "resume_projects",
-        difficulty: firstQ.difficulty_level,
+        questionTargets,
+        section: "resume_projects",
+        difficulty: difficultyLevel,
         isFollowUp: false,
         sessionId,
         turnIndex: 1,
@@ -475,6 +565,81 @@ export async function POST(req: Request) {
             correlationId,
             latencyMs: Date.now() - t0,
             dossierCacheHit,
+          }
+        });
+      }
+
+      // 6.2 UNLISTED PROJECT DISCREPANCY & PROVENANCE GATE
+      // When candidate verbally introduces a project/system not present on the submitted resume
+      const alreadyDisclosed: CandidateDisclosedEntity[] = (sessionState as any).disclosedEntities || [];
+      const unlistedDetection = detectUnlistedProject(
+        lastUserMsg,
+        dossier.projects,
+        alreadyDisclosed
+      );
+
+      if (unlistedDetection.hasUnlistedProject && unlistedDetection.unlistedProjectName) {
+        const disclosedEntity: CandidateDisclosedEntity = {
+          name: unlistedDetection.unlistedProjectName,
+          firstMentionedTurn: sessionState.turns.length + 1,
+          provenance: "INTERVIEW-DISCLOSED",
+          turnsExplored: 1,
+        };
+        (sessionState as any).disclosedEntities = [...alreadyDisclosed, disclosedEntity];
+
+        const acknowledgmentQuestion = unlistedDetection.turnQuestion ||
+          `You mentioned ${unlistedDetection.unlistedProjectName}, which sounds interesting. I noticed that this project isn't explicitly listed in the resume you submitted. Could you explain your involvement, your individual contributions, and the core technologies you used in ${unlistedDetection.unlistedProjectName}?`;
+
+        sessionState.questionsAsked.push({
+          question: acknowledgmentQuestion,
+          targets: `Project Discrepancy & Verification: ${unlistedDetection.unlistedProjectName}`,
+          section: "resume_projects",
+          competency: "Project Provenance & Ownership",
+          turnIndex: sessionState.turns.length + 1,
+        });
+
+        sessionState.turns.push({
+          turnIndex: sessionState.turns.length + 1,
+          question: {
+            question: lastAssistantMsg,
+            question_targets: "Technical Exploration",
+            question_type: "project-defense",
+            difficulty_level: "medium",
+            is_follow_up: false,
+            section: sessionState.blueprint?.currentSection || "resume_projects",
+          },
+          answer: lastUserMsg,
+          assessment: {
+            answer_quality: "adequate",
+            reasoning: `Candidate verbally introduced unlisted project '${unlistedDetection.unlistedProjectName}'. Formally requested clarification and individual contribution breakdown.`,
+            topics_demonstrated: [unlistedDetection.unlistedProjectName],
+            next_action: "follow_up_probe",
+            difficulty_adjustment: "maintain",
+            extracted_claims: [`Disclosed project: ${unlistedDetection.unlistedProjectName}`],
+          },
+          rubricScore: 70,
+          timestamp: new Date().toISOString(),
+        });
+
+        await saveActiveSessionStateAsync(sessionId, sessionState);
+
+        return NextResponse.json({
+          message: acknowledgmentQuestion,
+          questionTargets: `Project Discrepancy & Verification: ${unlistedDetection.unlistedProjectName}`,
+          section: "resume_projects",
+          difficulty: sessionState.currentDifficulty,
+          isFollowUp: true,
+          sessionId,
+          turnIndex: sessionState.turns.length,
+          openingState: sessionState.openingState,
+          currentSection: "resume_projects",
+          conductState: sessionState.conductState || "NORMAL",
+          meta: {
+            correlationId,
+            latencyMs: Date.now() - t0,
+            dossierCacheHit,
+            unlistedProjectDetected: unlistedDetection.unlistedProjectName,
+            provenance: "INTERVIEW-DISCLOSED",
           }
         });
       }
@@ -672,6 +837,14 @@ export async function POST(req: Request) {
         modelAnswerFeedback,
         rubricScore: rubricScore ?? modelAnswerFeedback?.score,
       };
+
+      const pendingAssistance = (sessionState as any).pendingAssistance;
+      if (pendingAssistance) {
+        (turnRecord as any).isAssisted = true;
+        (turnRecord as any).assistanceLevel = pendingAssistance.assistanceLevel;
+        (sessionState as any).pendingAssistance = null;
+      }
+
       sessionState.turns.push(turnRecord);
 
       // Track asked question for anti-repetition
@@ -852,6 +1025,8 @@ export async function GET(req: Request) {
         blueprint: activeState.blueprint || null,
         report: activeState.report || null,
         candidateIntroduction: activeState.candidateIntroduction || "",
+        interviewMode: (activeState as any).interviewMode || "practice",
+        hintPreference: (activeState as any).hintPreference || "subtle_hints",
         messages: activeState.transcript && activeState.transcript.length > 0 ? activeState.transcript : messages,
       };
     };

@@ -10,6 +10,7 @@ interface PreExportModalProps {
   onClose: () => void;
   onExportPDF: () => void;
   onExportDOCX: () => void;
+  onExportLaTeX?: () => void;
 }
 
 export const PreExportModal: React.FC<PreExportModalProps> = ({
@@ -19,6 +20,7 @@ export const PreExportModal: React.FC<PreExportModalProps> = ({
   onClose,
   onExportPDF,
   onExportDOCX,
+  onExportLaTeX,
 }) => {
   return (
     <div
@@ -228,6 +230,26 @@ export const PreExportModal: React.FC<PreExportModalProps> = ({
           >
             Back to Editor
           </button>
+          {onExportLaTeX && (
+            <button
+              type="button"
+              onClick={onExportLaTeX}
+              disabled={!validation.readyToExport}
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#FFFFFF",
+                color: "#162A43",
+                border: "1px solid #E4E1DA",
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: validation.readyToExport ? "pointer" : "not-allowed",
+                opacity: validation.readyToExport ? 1 : 0.5,
+              }}
+            >
+              Export LaTeX (.tex)
+            </button>
+          )}
           <button
             type="button"
             onClick={onExportDOCX}

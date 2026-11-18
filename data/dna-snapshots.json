@@ -656,5 +656,4307 @@
         "changesSummary": "Refreshed snapshot from Student DNA version 2026-11-12T16:52:10.639Z"
       }
     ]
+  },
+  "stud_snap_test_1794594213604::role-sde-backend-test": {
+    "id": "dna_snap_1794594213604_cp6fjz",
+    "studentId": "stud_snap_test_1794594213604",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-13T18:23:33.604Z",
+    "studentDnaVersion": "2026-11-13T18:23:33.604Z",
+    "studentDNAVersion": "2026-11-13T18:23:33.604Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "UNVERIFIED",
+        "supportingEvidence": [],
+        "confidence": "MEDIUM"
+      }
+    ],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Insufficient concrete proof to substantiate requirement.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Insufficient concrete proof to substantiate requirement.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "Go"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "Go",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-13T18:23:33.607Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot to version 2 (Recruiter triggered re-evaluation)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-13T18:23:33.604Z"
+      },
+      {
+        "version": 2,
+        "reason": "Recruiter triggered re-evaluation",
+        "triggeredBy": "recruiter",
+        "timestamp": "2026-11-13T18:23:33.607Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794663328095::role-sde-platform-test": {
+    "id": "dna_snap_1794663328095_c42vgd",
+    "studentId": "cand_portal_test_1794663328095",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:28.095Z",
+    "studentDnaVersion": "2026-11-14T13:35:28.095Z",
+    "studentDNAVersion": "2026-11-14T13:35:28.095Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794663328095"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:28.095Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794663328098::role-backend-ui-test": {
+    "id": "dna_snap_1794663328098_k0lzkl",
+    "studentId": "cand_ui_test_1794663328098",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:28.098Z",
+    "studentDnaVersion": "2026-11-14T13:35:28.098Z",
+    "studentDNAVersion": "2026-11-14T13:35:28.098Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:28.098Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794663328098::role-security-eng": {
+    "id": "dna_snap_1794663328098_11ml8k",
+    "studentId": "cand_freeze_test_1794663328098",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:28.098Z",
+    "studentDnaVersion": "2026-11-14T13:35:28.098Z",
+    "studentDNAVersion": "2026-11-14T13:35:28.098Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:28.098Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794663328099::role-data-eng": {
+    "id": "dna_snap_1794663328099_efnl7y",
+    "studentId": "cand_audit_test_1794663328099",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T13:35:28.099Z",
+    "studentDnaVersion": "2026-11-14T13:35:28.099Z",
+    "studentDNAVersion": "2026-11-14T13:35:28.099Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794663328099"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T13:35:28.099Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:28.099Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-14T13:35:28.099Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794663334437::role-sde-platform-test": {
+    "id": "dna_snap_1794663334437_6uzjt1",
+    "studentId": "cand_portal_test_1794663334437",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:34.437Z",
+    "studentDnaVersion": "2026-11-14T13:35:34.437Z",
+    "studentDNAVersion": "2026-11-14T13:35:34.437Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794663334437"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:34.437Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794663334440::role-backend-ui-test": {
+    "id": "dna_snap_1794663334440_h5zmrz",
+    "studentId": "cand_ui_test_1794663334440",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:34.440Z",
+    "studentDnaVersion": "2026-11-14T13:35:34.440Z",
+    "studentDNAVersion": "2026-11-14T13:35:34.440Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:34.440Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794663334441::role-security-eng": {
+    "id": "dna_snap_1794663334441_ordjok",
+    "studentId": "cand_freeze_test_1794663334441",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T13:35:34.441Z",
+    "studentDnaVersion": "2026-11-14T13:35:34.441Z",
+    "studentDNAVersion": "2026-11-14T13:35:34.441Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:34.441Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794663334441::role-data-eng": {
+    "id": "dna_snap_1794663334441_5cwfi8",
+    "studentId": "cand_audit_test_1794663334441",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T13:35:34.441Z",
+    "studentDnaVersion": "2026-11-14T13:35:34.442Z",
+    "studentDNAVersion": "2026-11-14T13:35:34.442Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794663334441"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T13:35:34.442Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T13:35:34.441Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-14T13:35:34.442Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794672527988::role_sde_v": {
+    "id": "dna_snap_1794672527989_49cl3s",
+    "studentId": "cand_ver_test_1794672527988",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:08:47.989Z",
+    "studentDnaVersion": "2026-11-14T16:08:47.992Z",
+    "studentDNAVersion": "2026-11-14T16:08:47.992Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:08:47.992Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:08:47.989Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T16:08:47.992Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794672743756::role_sde_v": {
+    "id": "dna_snap_1794672743757_stqoho",
+    "studentId": "cand_ver_test_1794672743756",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:12:23.757Z",
+    "studentDnaVersion": "2026-11-14T16:12:23.759Z",
+    "studentDNAVersion": "2026-11-14T16:12:23.759Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:12:23.759Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:12:23.757Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T16:12:23.759Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794672855449::role_sde_v": {
+    "id": "dna_snap_1794672855449_h1llj0",
+    "studentId": "cand_ver_test_1794672855449",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:14:15.449Z",
+    "studentDnaVersion": "2026-11-14T16:14:15.452Z",
+    "studentDNAVersion": "2026-11-14T16:14:15.452Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:14:15.452Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:14:15.449Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T16:14:15.452Z"
+      }
+    ]
+  },
+  "stud_snap_test_1794672866586::role-sde-backend-test": {
+    "id": "dna_snap_1794672866586_45uz2l",
+    "studentId": "stud_snap_test_1794672866586",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:14:26.586Z",
+    "studentDnaVersion": "2026-11-14T16:14:26.586Z",
+    "studentDNAVersion": "2026-11-14T16:14:26.586Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "UNVERIFIED",
+        "supportingEvidence": [],
+        "confidence": "MEDIUM"
+      }
+    ],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Insufficient concrete proof to substantiate requirement.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Insufficient concrete proof to substantiate requirement.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "Go"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "Go",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:14:26.589Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot to version 2 (Recruiter triggered re-evaluation)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:14:26.586Z"
+      },
+      {
+        "version": 2,
+        "reason": "Recruiter triggered re-evaluation",
+        "triggeredBy": "recruiter",
+        "timestamp": "2026-11-14T16:14:26.589Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794672966818::role_sde_v": {
+    "id": "dna_snap_1794672966818_kaqwh2",
+    "studentId": "cand_ver_test_1794672966818",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:16:06.818Z",
+    "studentDnaVersion": "2026-11-14T16:16:06.821Z",
+    "studentDNAVersion": "2026-11-14T16:16:06.821Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:16:06.821Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:16:06.818Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T16:16:06.821Z"
+      }
+    ]
+  },
+  "stud_snap_test_1794672972845::role-sde-backend-test": {
+    "id": "dna_snap_1794672972845_0a3j83",
+    "studentId": "stud_snap_test_1794672972845",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T16:16:12.845Z",
+    "studentDnaVersion": "2026-11-14T16:16:12.845Z",
+    "studentDNAVersion": "2026-11-14T16:16:12.845Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "UNVERIFIED",
+        "supportingEvidence": [],
+        "confidence": "MEDIUM"
+      }
+    ],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Insufficient concrete proof to substantiate requirement.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Insufficient concrete proof to substantiate requirement.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "Go"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "Go",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T16:16:12.847Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot to version 2 (Recruiter triggered re-evaluation)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T16:16:12.845Z"
+      },
+      {
+        "version": 2,
+        "reason": "Recruiter triggered re-evaluation",
+        "triggeredBy": "recruiter",
+        "timestamp": "2026-11-14T16:16:12.847Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794679697580::role_sde_v": {
+    "id": "dna_snap_1794679697581_jq7vgj",
+    "studentId": "cand_ver_test_1794679697580",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:08:17.581Z",
+    "studentDnaVersion": "2026-11-14T18:08:17.583Z",
+    "studentDNAVersion": "2026-11-14T18:08:17.583Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:08:17.583Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:17.581Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T18:08:17.583Z"
+      }
+    ]
+  },
+  "stud_snap_test_1794679699635::role-sde-backend-test": {
+    "id": "dna_snap_1794679699635_7uy3c4",
+    "studentId": "stud_snap_test_1794679699635",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:08:19.635Z",
+    "studentDnaVersion": "2026-11-14T18:08:19.635Z",
+    "studentDNAVersion": "2026-11-14T18:08:19.635Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "UNVERIFIED",
+        "supportingEvidence": [],
+        "confidence": "MEDIUM"
+      }
+    ],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Insufficient concrete proof to substantiate requirement.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Insufficient concrete proof to substantiate requirement.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "Go"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "Go",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:08:19.637Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot to version 2 (Recruiter triggered re-evaluation)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:19.635Z"
+      },
+      {
+        "version": 2,
+        "reason": "Recruiter triggered re-evaluation",
+        "triggeredBy": "recruiter",
+        "timestamp": "2026-11-14T18:08:19.637Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794679701553::role-sde-platform-test": {
+    "id": "dna_snap_1794679701554_7jfnbz",
+    "studentId": "cand_portal_test_1794679701553",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:08:21.554Z",
+    "studentDnaVersion": "2026-11-14T18:08:21.554Z",
+    "studentDNAVersion": "2026-11-14T18:08:21.554Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794679701554"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:21.554Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794679701556::role-backend-ui-test": {
+    "id": "dna_snap_1794679701556_5lxia8",
+    "studentId": "cand_ui_test_1794679701556",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:08:21.556Z",
+    "studentDnaVersion": "2026-11-14T18:08:21.556Z",
+    "studentDNAVersion": "2026-11-14T18:08:21.556Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:21.556Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794679701557::role-security-eng": {
+    "id": "dna_snap_1794679701557_pz9i8w",
+    "studentId": "cand_freeze_test_1794679701557",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:08:21.557Z",
+    "studentDnaVersion": "2026-11-14T18:08:21.557Z",
+    "studentDNAVersion": "2026-11-14T18:08:21.557Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:21.557Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794679701558::role-data-eng": {
+    "id": "dna_snap_1794679701558_c57dme",
+    "studentId": "cand_audit_test_1794679701558",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:08:21.558Z",
+    "studentDnaVersion": "2026-11-14T18:08:21.558Z",
+    "studentDNAVersion": "2026-11-14T18:08:21.558Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794679701558"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:08:21.558Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:08:21.558Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-14T18:08:21.558Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794679780221::role_sde_v": {
+    "id": "dna_snap_1794679780221_3aprtk",
+    "studentId": "cand_ver_test_1794679780221",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:09:40.221Z",
+    "studentDnaVersion": "2026-11-14T18:09:40.226Z",
+    "studentDNAVersion": "2026-11-14T18:09:40.226Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:09:40.226Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:09:40.221Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T18:09:40.226Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794679790311::role-sde-platform-test": {
+    "id": "dna_snap_1794679790311_ukq1ct",
+    "studentId": "cand_portal_test_1794679790311",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:09:50.311Z",
+    "studentDnaVersion": "2026-11-14T18:09:50.311Z",
+    "studentDNAVersion": "2026-11-14T18:09:50.311Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794679790311"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:09:50.311Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794679790314::role-backend-ui-test": {
+    "id": "dna_snap_1794679790314_0u3mhf",
+    "studentId": "cand_ui_test_1794679790314",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:09:50.314Z",
+    "studentDnaVersion": "2026-11-14T18:09:50.314Z",
+    "studentDNAVersion": "2026-11-14T18:09:50.314Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:09:50.314Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794679790315::role-security-eng": {
+    "id": "dna_snap_1794679790315_n79ru0",
+    "studentId": "cand_freeze_test_1794679790315",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-14T18:09:50.315Z",
+    "studentDnaVersion": "2026-11-14T18:09:50.315Z",
+    "studentDNAVersion": "2026-11-14T18:09:50.315Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:09:50.315Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794679790316::role-data-eng": {
+    "id": "dna_snap_1794679790316_yt5gfo",
+    "studentId": "cand_audit_test_1794679790316",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:09:50.316Z",
+    "studentDnaVersion": "2026-11-14T18:09:50.317Z",
+    "studentDNAVersion": "2026-11-14T18:09:50.317Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794679790316"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:09:50.317Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:09:50.316Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-14T18:09:50.317Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794682233385::role_sde_v": {
+    "id": "dna_snap_1794682233385_7yy5dm",
+    "studentId": "cand_ver_test_1794682233385",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-14T18:50:33.385Z",
+    "studentDnaVersion": "2026-11-14T18:50:33.388Z",
+    "studentDNAVersion": "2026-11-14T18:50:33.388Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-14T18:50:33.388Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-14T18:50:33.385Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-14T18:50:33.388Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794726539018::role_sde_v": {
+    "id": "dna_snap_1794726539019_5docdr",
+    "studentId": "cand_ver_test_1794726539018",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-15T07:08:59.019Z",
+    "studentDnaVersion": "2026-11-15T07:08:59.023Z",
+    "studentDNAVersion": "2026-11-15T07:08:59.023Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-15T07:08:59.023Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T07:08:59.019Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-15T07:08:59.023Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794726552834::role-sde-platform-test": {
+    "id": "dna_snap_1794726552834_fh2ixe",
+    "studentId": "cand_portal_test_1794726552834",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T07:09:12.834Z",
+    "studentDnaVersion": "2026-11-15T07:09:12.834Z",
+    "studentDNAVersion": "2026-11-15T07:09:12.834Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794726552834"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T07:09:12.834Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794726552837::role-backend-ui-test": {
+    "id": "dna_snap_1794726552837_brh6et",
+    "studentId": "cand_ui_test_1794726552837",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T07:09:12.837Z",
+    "studentDnaVersion": "2026-11-15T07:09:12.837Z",
+    "studentDNAVersion": "2026-11-15T07:09:12.837Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T07:09:12.837Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794726552838::role-security-eng": {
+    "id": "dna_snap_1794726552838_6gr22q",
+    "studentId": "cand_freeze_test_1794726552838",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T07:09:12.838Z",
+    "studentDnaVersion": "2026-11-15T07:09:12.838Z",
+    "studentDNAVersion": "2026-11-15T07:09:12.838Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T07:09:12.838Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794726552838::role-data-eng": {
+    "id": "dna_snap_1794726552838_ols52x",
+    "studentId": "cand_audit_test_1794726552838",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-15T07:09:12.838Z",
+    "studentDnaVersion": "2026-11-15T07:09:12.839Z",
+    "studentDNAVersion": "2026-11-15T07:09:12.839Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794726552838"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-15T07:09:12.839Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T07:09:12.838Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-15T07:09:12.839Z"
+      }
+    ]
+  },
+  "cand_ver_test_1794774156445::role_sde_v": {
+    "id": "dna_snap_1794774156445_cpuyde",
+    "studentId": "cand_ver_test_1794774156445",
+    "candidateName": "Alex V",
+    "candidateEmail": "alex.v@example.com",
+    "roleId": "role_sde_v",
+    "roleTitle": "SDE",
+    "companyName": "Eng",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-15T20:22:36.445Z",
+    "studentDnaVersion": "2026-11-15T20:22:36.449Z",
+    "studentDNAVersion": "2026-11-15T20:22:36.449Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex V exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Python",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Python",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Python\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Python",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-15T20:22:36.449Z",
+        "reason": "Candidate submitted updated resume",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate submitted updated resume)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:22:36.445Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate submitted updated resume",
+        "triggeredBy": "recruiter@org.com",
+        "timestamp": "2026-11-15T20:22:36.449Z"
+      }
+    ]
+  },
+  "stud_snap_test_1794774178363::role-sde-backend-test": {
+    "id": "dna_snap_1794774178363_bnary3",
+    "studentId": "stud_snap_test_1794774178363",
+    "candidateName": "Alex Mercer",
+    "candidateEmail": "alex@example.com",
+    "roleId": "role-sde-backend-test",
+    "roleTitle": "Senior Backend Engineer",
+    "companyName": "Core Engineering",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-15T20:22:58.363Z",
+    "studentDnaVersion": "2026-11-15T20:22:58.363Z",
+    "studentDNAVersion": "2026-11-15T20:22:58.363Z",
+    "resumeReference": "candidate_resume.pdf",
+    "resumeRef": "candidate_resume.pdf",
+    "candidateSummary": "Alex Mercer exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "UNVERIFIED",
+        "supportingEvidence": [],
+        "confidence": "MEDIUM"
+      }
+    ],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Insufficient concrete proof to substantiate requirement.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Insufficient concrete proof to substantiate requirement.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "Go"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "Go",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-15T20:22:58.366Z",
+        "reason": "Recruiter triggered re-evaluation",
+        "changesSummary": "Refreshed snapshot to version 2 (Recruiter triggered re-evaluation)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:22:58.363Z"
+      },
+      {
+        "version": 2,
+        "reason": "Recruiter triggered re-evaluation",
+        "triggeredBy": "recruiter",
+        "timestamp": "2026-11-15T20:22:58.366Z"
+      }
+    ]
+  },
+  "cand_portal_test_1794774187108::role-sde-platform-test": {
+    "id": "dna_snap_1794774187108_tb3ket",
+    "studentId": "cand_portal_test_1794774187108",
+    "candidateName": "Devon Vance",
+    "candidateEmail": "devon@example.com",
+    "roleId": "role-sde-platform-test",
+    "roleTitle": "Senior Platform Engineer",
+    "companyName": "Cloud Infrastructure",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T20:23:07.108Z",
+    "studentDnaVersion": "2026-11-15T20:23:07.108Z",
+    "studentDNAVersion": "2026-11-15T20:23:07.108Z",
+    "resumeReference": "Devon_Vance_Resume.pdf",
+    "resumeRef": "Devon_Vance_Resume.pdf",
+    "candidateSummary": "Devon Vance exhibits developing evidence coverage with demonstrated capability in Kubernetes, Docker, Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 33,
+    "overallAlignmentPercentage": 33,
+    "evidenceCoverage": 33,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Core K8s Ingestion",
+        "techStack": [
+          "Kubernetes",
+          "Docker",
+          "Go"
+        ],
+        "description": "Automated container orchestration and deployment",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Kubernetes",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Docker",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Kubernetes",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Docker",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Kubernetes cluster administration",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_kubernetes_1794774187108"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "PostgreSQL query optimization",
+        "category": "must_have",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      },
+      {
+        "requirementId": "req_3",
+        "requirementText": "Prometheus & Grafana observability",
+        "category": "preferred",
+        "status": "UNKNOWN",
+        "candidateEvidenceSummary": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": []
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Kubernetes cluster administration",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Core K8s Ingestion). Level: Demonstrated.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "PostgreSQL query optimization",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'PostgreSQL query optimization' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      },
+      {
+        "requirementName": "Prometheus & Grafana observability",
+        "requirementType": "PREFERRED",
+        "alignmentStatus": "UNKNOWN",
+        "supportingEvidence": "Requirement 'Prometheus & Grafana observability' not evidenced in submitted candidate profile.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [
+      "PostgreSQL query optimization",
+      "Prometheus & Grafana observability"
+    ],
+    "missingOrUncertainRequirements": [
+      {
+        "requirement": "PostgreSQL query optimization",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      },
+      {
+        "requirement": "Prometheus & Grafana observability",
+        "reason": "Insufficient verifiable codebase artifacts in submitted application materials."
+      }
+    ],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:23:07.108Z"
+      }
+    ]
+  },
+  "cand_ui_test_1794774187114::role-backend-ui-test": {
+    "id": "dna_snap_1794774187114_g2y6s4",
+    "studentId": "cand_ui_test_1794774187114",
+    "candidateName": "Jordan Lee",
+    "candidateEmail": "jordan@example.com",
+    "roleId": "role-backend-ui-test",
+    "roleTitle": "Backend Engineer",
+    "companyName": "Backend",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T20:23:07.114Z",
+    "studentDnaVersion": "2026-11-15T20:23:07.114Z",
+    "studentDNAVersion": "2026-11-15T20:23:07.114Z",
+    "resumeReference": "Jordan_Lee_Resume.pdf",
+    "resumeRef": "Jordan_Lee_Resume.pdf",
+    "candidateSummary": "Jordan Lee exhibits moderate evidence coverage with demonstrated capability in Go. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 50,
+    "overallAlignmentPercentage": 50,
+    "evidenceCoverage": 50,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "go-cache-service",
+        "techStack": [
+          "Go"
+        ],
+        "description": "Redis backed caching service",
+        "githubUrl": "https://github.com/jordan/go-cache",
+        "codebaseVerified": true,
+        "evidenceProof": "Verified GitHub repository code artifacts."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Go",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 4,
+        "status": "VERIFIED",
+        "supportingEvidence": [
+          "GitHub Verified Repository"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Go",
+        "demonstratedLevel": 4,
+        "evidenceCount": 1,
+        "verificationState": "VERIFIED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Go",
+        "category": "must_have",
+        "status": "VERIFIED",
+        "candidateEvidenceSummary": "Independently verified with high reliability across github. Level: Verified.",
+        "traceableEvidenceIds": [
+          "ev_gh_go"
+        ],
+        "evidenceSourceList": [
+          "github"
+        ]
+      },
+      {
+        "requirementId": "req_2",
+        "requirementText": "Redis",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Go",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "VERIFIED",
+        "supportingEvidence": "Independently verified with high reliability across github. Level: Verified.",
+        "confidence": "HIGH"
+      },
+      {
+        "requirementName": "Redis",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"Redis\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "Redis",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:23:07.114Z"
+      }
+    ]
+  },
+  "cand_freeze_test_1794774187115::role-security-eng": {
+    "id": "dna_snap_1794774187115_4azcn2",
+    "studentId": "cand_freeze_test_1794774187115",
+    "candidateName": "Casey Stone",
+    "candidateEmail": "casey@example.com",
+    "roleId": "role-security-eng",
+    "roleTitle": "Security Engineer",
+    "companyName": "Security",
+    "snapshotVersion": 1,
+    "createdAt": "2026-11-15T20:23:07.115Z",
+    "studentDnaVersion": "2026-11-15T20:23:07.115Z",
+    "studentDNAVersion": "2026-11-15T20:23:07.115Z",
+    "resumeReference": "Casey_Stone_Resume.pdf",
+    "resumeRef": "Casey_Stone_Resume.pdf",
+    "candidateSummary": "Casey Stone exhibits developing evidence coverage with demonstrated capability in core technical areas. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 65,
+    "roleAlignmentScore": 10,
+    "overallAlignmentPercentage": 10,
+    "evidenceCoverage": 10,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [],
+    "skillsAssessment": [],
+    "relevantDemonstratedSkills": [],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "OWASP Top 10",
+        "category": "must_have",
+        "status": "SELF-REPORTED",
+        "candidateEvidenceSummary": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "traceableEvidenceIds": [],
+        "evidenceSourceList": [
+          "resume"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "OWASP Top 10",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "SELF-REPORTED",
+        "supportingEvidence": "Mentioned on resume (\"OWASP Top 10\"), but lacks verified codebase artifact.",
+        "confidence": "LOW"
+      }
+    ],
+    "unverifiedClaims": [
+      {
+        "claim": "OWASP Top 10",
+        "source": "Resume Self-Report",
+        "status": "Unverified"
+      }
+    ],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:23:07.115Z"
+      }
+    ]
+  },
+  "cand_audit_test_1794774187116::role-data-eng": {
+    "id": "dna_snap_1794774187116_rnw1ng",
+    "studentId": "cand_audit_test_1794774187116",
+    "candidateName": "Robin Banks",
+    "candidateEmail": "robin@example.com",
+    "roleId": "role-data-eng",
+    "roleTitle": "Data Engineer",
+    "companyName": "Data Platform",
+    "snapshotVersion": 2,
+    "createdAt": "2026-11-15T20:23:07.116Z",
+    "studentDnaVersion": "2026-11-15T20:23:07.116Z",
+    "studentDNAVersion": "2026-11-15T20:23:07.116Z",
+    "resumeReference": "Robin_Banks_Resume.pdf",
+    "resumeRef": "Robin_Banks_Resume.pdf",
+    "candidateSummary": "Robin Banks exhibits strong evidence coverage with demonstrated capability in Spark, Python. Profile is grounded in verified codebases.",
+    "assessmentConfidence": 85,
+    "roleAlignmentScore": 98,
+    "overallAlignmentPercentage": 98,
+    "evidenceCoverage": 100,
+    "education": {
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "college": "Engineering College",
+      "graduationYear": "2026"
+    },
+    "relevantProjects": [
+      {
+        "title": "Spark Pipeline",
+        "techStack": [
+          "Spark",
+          "Python"
+        ],
+        "description": "ETL",
+        "codebaseVerified": false,
+        "evidenceProof": "Verified via GitHub repository & candidate submission."
+      }
+    ],
+    "skillsAssessment": [
+      {
+        "skillName": "Spark",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      },
+      {
+        "skillName": "Python",
+        "selfReportedLevel": null,
+        "demonstratedLevel": 3,
+        "status": "DEMONSTRATED",
+        "supportingEvidence": [
+          "Candidate Submitted Project"
+        ],
+        "confidence": "HIGH"
+      }
+    ],
+    "relevantDemonstratedSkills": [
+      {
+        "skillName": "Spark",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      },
+      {
+        "skillName": "Python",
+        "demonstratedLevel": 3,
+        "evidenceCount": 1,
+        "verificationState": "DEMONSTRATED"
+      }
+    ],
+    "requirementAlignment": [
+      {
+        "requirementId": "req_1",
+        "requirementText": "Apache Spark",
+        "category": "must_have",
+        "status": "DEMONSTRATED",
+        "candidateEvidenceSummary": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "traceableEvidenceIds": [
+          "ev_spark_1794774187116"
+        ],
+        "evidenceSourceList": [
+          "project"
+        ]
+      }
+    ],
+    "requirementAssessments": [
+      {
+        "requirementName": "Apache Spark",
+        "requirementType": "MUST_HAVE",
+        "alignmentStatus": "DEMONSTRATED",
+        "supportingEvidence": "Concrete codebase proof identified: Demonstrated in project implementation (Spark Pipeline). Level: Demonstrated.",
+        "confidence": "HIGH"
+      }
+    ],
+    "unverifiedClaims": [],
+    "missingInformation": [],
+    "missingOrUncertainRequirements": [],
+    "detectedConflicts": [],
+    "limitations": [
+      "Evaluated only against accessible artifacts, submitted codebases, and authorized profile inputs.",
+      "Unverified self-reported claims are isolated and not counted toward demonstrated capability.",
+      "This snapshot is an explainable evaluation aid and does NOT make autonomous hiring decisions."
+    ],
+    "revisionHistory": [
+      {
+        "version": 1,
+        "refreshedAt": "2026-11-15T20:23:07.116Z",
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "changesSummary": "Refreshed snapshot to version 2 (Candidate uploaded verified GitHub portfolio)"
+      }
+    ],
+    "refreshAuditHistory": [
+      {
+        "version": 1,
+        "reason": "Initial point-of-application snapshot created",
+        "triggeredBy": "Intake",
+        "timestamp": "2026-11-15T20:23:07.116Z"
+      },
+      {
+        "version": 2,
+        "reason": "Candidate uploaded verified GitHub portfolio",
+        "triggeredBy": "recruiter@acme.corp",
+        "timestamp": "2026-11-15T20:23:07.116Z"
+      }
+    ]
   }
 }

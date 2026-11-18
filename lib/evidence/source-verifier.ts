@@ -12,6 +12,8 @@
  * State: INACCESSIBLE.
  */
 
+import crypto from "crypto";
+import { URL } from "url";
 import {
   DiscoveredSourceRecord,
   EvidenceLedger,
@@ -20,18 +22,134 @@ import {
 } from "./evidence-ledger";
 import { detectEducationStatus } from "./non-equivalence";
 
+export type SourceAccessStatus =
+  | 'ACCESSIBLE'
+  | 'PARTIALLY_ACCESSIBLE'
+  | 'INACCESSIBLE'
+  | 'INVALID_URL'
+  | 'AUTHENTICATION_REQUIRED'
+  | 'RATE_LIMITED'
+  | 'SOURCE_NOT_FOUND'
+  | 'INSPECTION_FAILED'
+  | 'NOT_PROVIDED';
+
+export type OwnershipStatus =
+  | 'CONFIRMED_AUTHOR'
+  | 'CONTRIBUTOR'
+  | 'FORK_OR_COLLABORATOR'
+  | 'NOT_INDEPENDENTLY_ESTABLISHED'
+  | 'NO_AUTHORSHIP_SIGNAL';
+
 export interface RepoInspectionResult {
   accessible: boolean;
+  accessStatus?: SourceAccessStatus;
   repoName: string;
   owner: string;
   description: string;
   hasReadme: boolean;
   readmeText: string;
-  verificationStatus?: 'VERIFIED' | 'INACCESSIBLE' | 'NOT_VERIFIED';
+  readmeTechnologiesMentioned?: string[];
+  verificationStatus?: 'VERIFIED' | 'INACCESSIBLE' | 'NOT_VERIFIED' | 'FAILED_SECURITY_CHECK';
+  ownershipStatus?: OwnershipStatus;
+  sourceHash?: string;
   dependenciesFound: string[];
   sourceTechnologiesFound: string[];
+  astSignalsFound?: Record<string, string[]>;
   checks: VerificationCheck[];
+  limitations?: string[];
   error?: string;
+}
+
+/**
+ * Validates an external URL against SSRF and private network access boundaries.
+ */
+export function validateExternalUrl(rawUrl: string): {
+  isValid: boolean;
+  sanitizedUrl?: string;
+  accessStatus: SourceAccessStatus;
+  reason?: string;
+} {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    return { isValid: false, accessStatus: 'INVALID_URL', reason: 'URL string is empty or missing.' };
+  }
+
+  const trimmed = rawUrl.trim();
+
+  // Reject non-http(s) schemes immediately if an explicit protocol is present
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//i.test(trimmed) && !/^https?:\/\//i.test(trimmed)) {
+    return {
+      isValid: false,
+      accessStatus: 'INVALID_URL',
+      reason: `Disallowed protocol scheme. Only HTTP and HTTPS are permitted.`,
+    };
+  }
+
+  let parsed: URL;
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    parsed = new URL(withProtocol);
+  } catch {
+    return { isValid: false, accessStatus: 'INVALID_URL', reason: 'Malformed URL format.' };
+  }
+
+  // Reject non-http(s) schemes
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return {
+      isValid: false,
+      accessStatus: 'INVALID_URL',
+      reason: `Disallowed protocol scheme: ${parsed.protocol}. Only HTTP and HTTPS are permitted.`,
+    };
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  // SSRF & Loopback / Private IP Guards
+  if (
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    hostname === '::1' ||
+    hostname === '0.0.0.0' ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.internal')
+  ) {
+    return {
+      isValid: false,
+      accessStatus: 'INVALID_URL',
+      reason: 'Access to loopback, localhost, and local internal domain names is strictly prohibited (SSRF guard).',
+    };
+  }
+
+  // Cloud metadata service (169.254.169.254 / metadata.google.internal)
+  if (hostname === '169.254.169.254' || hostname.includes('metadata.google') || hostname.includes('169.254.')) {
+    return {
+      isValid: false,
+      accessStatus: 'INVALID_URL',
+      reason: 'Access to cloud instance metadata services is strictly prohibited (SSRF guard).',
+    };
+  }
+
+  // Private IP CIDR ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+  const ipv4Match = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const p1 = parseInt(ipv4Match[1], 10);
+    const p2 = parseInt(ipv4Match[2], 10);
+    if (
+      p1 === 10 ||
+      (p1 === 172 && p2 >= 16 && p2 <= 31) ||
+      (p1 === 192 && p2 === 168) ||
+      p1 === 127 ||
+      p1 === 0
+    ) {
+      return {
+        isValid: false,
+        accessStatus: 'INVALID_URL',
+        reason: 'Access to private internal RFC-1918 IPv4 ranges is prohibited (SSRF guard).',
+      };
+    }
+  }
+
+  return { isValid: true, sanitizedUrl: parsed.href, accessStatus: 'ACCESSIBLE' };
 }
 
 export interface LinkedInInspectionResult {
@@ -124,6 +242,195 @@ export function discoverExternalUrls(resumeText: string): {
 }
 
 /**
+ * Inspects file contents and README to detect dependencies, AST signals, and README-only mentions.
+ */
+export function inspectCodePatterns(files: Record<string, string>, readmeText: string): {
+  dependenciesFound: string[];
+  sourceTechnologiesFound: string[];
+  readmeTechnologiesMentioned: string[];
+  astSignalsFound: Record<string, string[]>;
+  limitations: string[];
+  sourceHash: string;
+} {
+  const dependenciesFound: string[] = [];
+  const sourceTechnologiesFound: string[] = [];
+  const readmeTechnologiesMentioned: string[] = [];
+  const astSignalsFound: Record<string, string[]> = {
+    python: [],
+    react: [],
+    backend_api: [],
+    rag: [],
+    devops_cloud: [],
+    kubernetes: [],
+  };
+  const limitations: string[] = [];
+
+  const hash = crypto.createHash('sha256');
+  hash.update(readmeText || '');
+
+  for (const [filename, content] of Object.entries(files)) {
+    hash.update(`${filename}:${content}`);
+    const lowerContent = content.toLowerCase();
+    const lowerFile = filename.toLowerCase();
+
+    // 1. Python Inspection
+    if (lowerFile.endsWith('.py')) {
+      if (!sourceTechnologiesFound.includes('python')) sourceTechnologiesFound.push('python');
+      if (/\bclass\s+\w+/i.test(content)) astSignalsFound.python.push('class_definitions');
+      if (/\basync\s+def\s+\w+/i.test(content)) astSignalsFound.python.push('async_def_concurrency');
+      if (/\b(?:from\s+typing\s+import|def\s+\w+\([^)]*\)\s*->)/i.test(content)) astSignalsFound.python.push('type_annotations');
+      if (/\b(?:import\s+pytest|def\s+test_)/i.test(content)) astSignalsFound.python.push('pytest_automated_testing');
+
+      // Frameworks in Python
+      if (lowerContent.includes('from fastapi') || lowerContent.includes('import fastapi') || lowerContent.includes('fastapi()')) {
+        if (!sourceTechnologiesFound.includes('fastapi')) sourceTechnologiesFound.push('fastapi');
+        astSignalsFound.backend_api.push('fastapi_app_initialization');
+      }
+      if (lowerContent.includes('from flask') || lowerContent.includes('import flask')) {
+        if (!sourceTechnologiesFound.includes('flask')) sourceTechnologiesFound.push('flask');
+      }
+      if (lowerContent.includes('from django') || lowerContent.includes('import django')) {
+        if (!sourceTechnologiesFound.includes('django')) sourceTechnologiesFound.push('django');
+      }
+
+      // API Endpoints in Python
+      if (/@(?:app|router)\.(get|post|put|delete|patch)\b/i.test(content)) {
+        if (!sourceTechnologiesFound.includes('rest_api')) sourceTechnologiesFound.push('rest_api');
+        astSignalsFound.backend_api.push('http_method_route_handlers');
+      }
+      if (/\bclass\s+\w+\s*\(\s*BaseModel\s*\)/i.test(content)) {
+        astSignalsFound.backend_api.push('pydantic_schema_validation');
+      }
+
+      // RAG in Python
+      const hasVectorDb = /\b(pinecone|qdrant|chroma|chromadb|pgvector|faiss|weaviate)\b/i.test(content);
+      const hasEmbeddings = /\b(embeddings|sentence_transformers|text-embedding-|openai\.embeddings)\b/i.test(content);
+      const hasChunking = /\b(charactertextsplitter|recursivecharactertextsplitter|chunk_size|token_splitter)\b/i.test(content);
+      const hasRetrieval = /\b(similarity_search|as_retriever|retriever\.get_relevant_documents)\b|\.query\s*\(/i.test(content);
+
+      if (hasVectorDb || hasEmbeddings || hasChunking || hasRetrieval) {
+        if (!sourceTechnologiesFound.includes('rag')) sourceTechnologiesFound.push('rag');
+        if (hasVectorDb) astSignalsFound.rag.push('vector_database_integration');
+        if (hasEmbeddings) astSignalsFound.rag.push('semantic_embeddings');
+        if (hasChunking) astSignalsFound.rag.push('document_chunking');
+        if (hasRetrieval) astSignalsFound.rag.push('vector_retrieval_query');
+      }
+    }
+
+    // 2. Python Dependencies
+    if (lowerFile === 'requirements.txt' || lowerFile === 'pyproject.toml' || lowerFile === 'pipfile') {
+      if (lowerContent.includes('fastapi')) dependenciesFound.push('fastapi');
+      if (lowerContent.includes('flask')) dependenciesFound.push('flask');
+      if (lowerContent.includes('django')) dependenciesFound.push('django');
+      if (lowerContent.includes('psycopg2') || lowerContent.includes('asyncpg') || lowerContent.includes('sqlalchemy')) {
+        dependenciesFound.push('postgresql');
+      }
+      if (lowerContent.includes('pinecone') || lowerContent.includes('chromadb') || lowerContent.includes('qdrant-client')) {
+        dependenciesFound.push('rag');
+      }
+      if (lowerContent.includes('torch') || lowerContent.includes('pytorch')) dependenciesFound.push('pytorch');
+      if (lowerContent.includes('pandas')) dependenciesFound.push('pandas');
+      if (lowerContent.includes('pydantic')) dependenciesFound.push('pydantic');
+      if (lowerContent.includes('pytest')) dependenciesFound.push('pytest');
+    }
+
+    // 3. React / Next.js / TypeScript
+    if (lowerFile.endsWith('.tsx') || lowerFile.endsWith('.jsx') || lowerFile.endsWith('.ts') || lowerFile.endsWith('.js')) {
+      if (lowerFile.endsWith('.tsx') || lowerFile.endsWith('.ts')) {
+        if (!sourceTechnologiesFound.includes('typescript')) sourceTechnologiesFound.push('typescript');
+        astSignalsFound.react.push('typescript_interfaces_and_types');
+      }
+      if (lowerContent.includes('react') || lowerFile.endsWith('.tsx') || lowerFile.endsWith('.jsx')) {
+        if (!sourceTechnologiesFound.includes('react')) sourceTechnologiesFound.push('react');
+        if (/\b(?:useState|useEffect|useCallback|useMemo)\b/.test(content)) {
+          astSignalsFound.react.push('standard_react_hooks');
+        }
+        if (/\bfunction\s+use[A-Z]\w+|\bconst\s+use[A-Z]\w+\s*=/i.test(content)) {
+          astSignalsFound.react.push('custom_react_hooks');
+        }
+      }
+      if (lowerContent.includes('next/navigation') || lowerContent.includes('next/router') || lowerFile.includes('app/') || lowerFile.includes('pages/')) {
+        if (!sourceTechnologiesFound.includes('nextjs')) sourceTechnologiesFound.push('nextjs');
+        if (!sourceTechnologiesFound.includes('next.js')) sourceTechnologiesFound.push('next.js');
+        if (lowerContent.includes("'use client'") || lowerContent.includes('"use client"')) {
+          astSignalsFound.react.push('nextjs_client_component');
+        }
+        if (lowerContent.includes("'use server'") || lowerContent.includes('"use server"')) {
+          astSignalsFound.react.push('nextjs_server_action');
+        }
+      }
+    }
+
+    // 4. JS/TS package.json
+    if (lowerFile === 'package.json') {
+      if (lowerContent.includes('"react"')) dependenciesFound.push('react');
+      if (lowerContent.includes('"next"')) {
+        dependenciesFound.push('nextjs');
+        dependenciesFound.push('next.js');
+      }
+      if (lowerContent.includes('"typescript"')) dependenciesFound.push('typescript');
+      if (lowerContent.includes('"tailwindcss"')) dependenciesFound.push('tailwind');
+      if (lowerContent.includes('"zod"')) dependenciesFound.push('zod');
+    }
+
+    // 5. Docker & Containerization
+    if (lowerFile === 'dockerfile' || lowerFile.includes('docker-compose')) {
+      if (!sourceTechnologiesFound.includes('docker')) sourceTechnologiesFound.push('docker');
+      if (/\bFROM\s+[^\s]+\s+AS\s+[^\s]+/i.test(content)) {
+        astSignalsFound.devops_cloud.push('docker_multistage_build');
+      }
+    }
+
+    // 6. Kubernetes
+    if ((lowerFile.endsWith('.yaml') || lowerFile.endsWith('.yml')) && !lowerFile.includes('.github/')) {
+      if (lowerContent.includes('kind: deployment') || lowerContent.includes('kind: service') || lowerContent.includes('kind: ingress')) {
+        if (!sourceTechnologiesFound.includes('kubernetes')) sourceTechnologiesFound.push('kubernetes');
+        if (lowerContent.includes('kind: deployment')) astSignalsFound.kubernetes.push('k8s_deployment_manifest');
+        if (lowerContent.includes('kind: service')) astSignalsFound.kubernetes.push('k8s_service_manifest');
+        if (lowerContent.includes('kind: ingress')) astSignalsFound.kubernetes.push('k8s_ingress_manifest');
+      }
+    }
+
+    // 7. Terraform & Cloud
+    if (lowerFile.endsWith('.tf')) {
+      if (!sourceTechnologiesFound.includes('terraform')) sourceTechnologiesFound.push('terraform');
+      if (lowerContent.includes('provider "aws"') || lowerContent.includes('resource "aws_')) {
+        if (!sourceTechnologiesFound.includes('aws')) sourceTechnologiesFound.push('aws');
+        astSignalsFound.devops_cloud.push('aws_terraform_infrastructure');
+      }
+    }
+  }
+
+  // 8. README Mention vs Source Code Implementation Check
+  const keyTechsToCheck = ['kubernetes', 'docker', 'fastapi', 'react', 'nextjs', 'next.js', 'rag', 'aws', 'postgresql', 'python', 'typescript'];
+  const lowerReadme = (readmeText || '').toLowerCase();
+
+  for (const tech of keyTechsToCheck) {
+    if (lowerReadme.includes(tech)) {
+      if (!readmeTechnologiesMentioned.includes(tech)) readmeTechnologiesMentioned.push(tech);
+      const inDeps = dependenciesFound.includes(tech);
+      const inCode = sourceTechnologiesFound.includes(tech);
+
+      if (!inDeps && !inCode) {
+        const displayTech = tech === 'kubernetes' ? 'Kubernetes' : tech.charAt(0).toUpperCase() + tech.slice(1);
+        limitations.push(
+          `Technology "${displayTech}" is mentioned in repository README, but no corresponding implementation was found in source files or dependencies.`
+        );
+      }
+    }
+  }
+
+  return {
+    dependenciesFound: Array.from(new Set(dependenciesFound)),
+    sourceTechnologiesFound: Array.from(new Set(sourceTechnologiesFound)),
+    readmeTechnologiesMentioned,
+    astSignalsFound,
+    limitations,
+    sourceHash: hash.digest('hex'),
+  };
+}
+
+/**
  * Real GitHub Repository Inspector
  * Inspects repository files, dependencies, and actual implementation.
  * 
@@ -137,143 +444,144 @@ export async function inspectGithubRepository(
     accessible: boolean;
     readmeText?: string;
     files?: Record<string, string>; // filename -> content
-  }
+  },
+  candidateHandle?: string
 ): Promise<RepoInspectionResult> {
   const checks: VerificationCheck[] = [];
 
+  // SSRF & Security Validation on raw URL input
+  if (urlOrOwnerRepo.startsWith('http://') || urlOrOwnerRepo.startsWith('https://')) {
+    const urlValidation = validateExternalUrl(urlOrOwnerRepo);
+    if (!urlValidation.isValid) {
+      checks.push({
+        check: 'SSRF & URL Security Validation',
+        result: 'FAILED',
+        detail: urlValidation.reason || 'Invalid URL',
+      });
+      return {
+        accessible: false,
+        accessStatus: urlValidation.accessStatus,
+        verificationStatus: 'FAILED_SECURITY_CHECK',
+        repoName: urlOrOwnerRepo,
+        owner: '',
+        description: '',
+        hasReadme: false,
+        readmeText: '',
+        readmeTechnologiesMentioned: [],
+        dependenciesFound: [],
+        sourceTechnologiesFound: [],
+        astSignalsFound: {},
+        ownershipStatus: 'NO_AUTHORSHIP_SIGNAL',
+        checks,
+        limitations: [urlValidation.reason || 'Disallowed by SSRF protection.'],
+        error: urlValidation.reason,
+      };
+    }
+  }
+
   // Extract owner/repo
-  const cleanUrl = urlOrOwnerRepo.replace(/^https?:\/\/github\.com\//i, "").replace(/\/$/, "");
-  const parts = cleanUrl.split("/");
-  const owner = parts[0] || "";
-  const repoName = parts[1] || "";
+  const cleanUrl = urlOrOwnerRepo.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+  const parts = cleanUrl.split('/');
+  const owner = parts[0] || '';
+  const repoName = parts[1] || '';
 
   if (!owner || !repoName) {
     return {
       accessible: false,
+      accessStatus: 'INVALID_URL',
       verificationStatus: 'INACCESSIBLE',
       repoName: cleanUrl,
-      owner: "",
-      description: "",
+      owner: '',
+      description: '',
       hasReadme: false,
-      readmeText: "",
+      readmeText: '',
       dependenciesFound: [],
       sourceTechnologiesFound: [],
-      checks: [{ check: "GitHub URL Format", result: "FAILED", detail: "Invalid GitHub repository path" }],
-      error: "Invalid repository format",
+      checks: [{ check: 'GitHub URL Format', result: 'FAILED', detail: 'Invalid GitHub repository path' }],
+      error: 'Invalid repository format',
     };
   }
 
   // If mock payload provided (e.g. for deterministic anti-hallucination unit testing)
   if (mockPayload) {
     if (!mockPayload.accessible) {
-      checks.push({ check: "Repository accessible", result: "FAILED", detail: "HTTP 404 or network inaccessible" });
+      checks.push({ check: 'Repository accessible', result: 'FAILED', detail: 'HTTP 404 or network inaccessible' });
       return {
         accessible: false,
+        accessStatus: 'INACCESSIBLE',
         verificationStatus: 'INACCESSIBLE',
         repoName,
         owner,
-        description: "",
+        description: '',
         hasReadme: false,
-        readmeText: "",
+        readmeText: '',
         dependenciesFound: [],
         sourceTechnologiesFound: [],
+        ownershipStatus: 'NO_AUTHORSHIP_SIGNAL',
         checks,
-        error: "Repository could not be accessed.",
+        error: 'Repository could not be accessed.',
       };
     }
 
-    checks.push({ check: "Repository accessible", result: "PASSED", detail: "Repository confirmed accessible" });
-    checks.push({ check: "Repository identified", result: "PASSED", detail: `${owner}/${repoName}` });
+    checks.push({ check: 'Repository accessible', result: 'PASSED', detail: 'Repository confirmed accessible' });
+    checks.push({ check: 'Repository identified', result: 'PASSED', detail: `${owner}/${repoName}` });
 
-    const readme = mockPayload.readmeText || "";
+    const readme = mockPayload.readmeText || '';
     const hasReadme = readme.length > 0;
-    checks.push({ check: "README inspected", result: hasReadme ? "PASSED" : "FAILED" });
+    checks.push({ check: 'README inspected', result: hasReadme ? 'PASSED' : 'FAILED' });
 
     const files = mockPayload.files || {};
-    const dependenciesFound: string[] = [];
-    const sourceTechnologiesFound: string[] = [];
-
-    // Check package manifests and code files
-    for (const [filename, content] of Object.entries(files)) {
-      const lowerContent = content.toLowerCase();
-      const lowerFile = filename.toLowerCase();
-
-      // Check python
-      if (lowerFile.endsWith(".py")) {
-        if (!sourceTechnologiesFound.includes("python")) sourceTechnologiesFound.push("python");
-        if (lowerContent.includes("from fastapi") || lowerContent.includes("import fastapi")) {
-          if (!sourceTechnologiesFound.includes("fastapi")) sourceTechnologiesFound.push("fastapi");
-        }
-        if (lowerContent.includes("from flask") || lowerContent.includes("import flask")) {
-          if (!sourceTechnologiesFound.includes("flask")) sourceTechnologiesFound.push("flask");
-        }
-        if (lowerContent.includes("from django") || lowerContent.includes("import django")) {
-          if (!sourceTechnologiesFound.includes("django")) sourceTechnologiesFound.push("django");
-        }
-      }
-
-      // Check requirements.txt or pyproject.toml
-      if (lowerFile === "requirements.txt" || lowerFile === "pyproject.toml") {
-        if (lowerContent.includes("fastapi")) dependenciesFound.push("fastapi");
-        if (lowerContent.includes("flask")) dependenciesFound.push("flask");
-        if (lowerContent.includes("django")) dependenciesFound.push("django");
-        if (lowerContent.includes("psycopg2") || lowerContent.includes("asyncpg") || lowerContent.includes("postgres")) {
-          dependenciesFound.push("postgresql");
-        }
-        if (lowerContent.includes("pandas")) dependenciesFound.push("pandas");
-        if (lowerContent.includes("torch")) dependenciesFound.push("pytorch");
-      }
-
-      // Check Dockerfile
-      if (lowerFile === "dockerfile" || lowerFile.includes("docker-compose")) {
-        if (!sourceTechnologiesFound.includes("docker")) sourceTechnologiesFound.push("docker");
-      }
-
-      // Check package.json
-      if (lowerFile === "package.json") {
-        if (lowerContent.includes('"react"')) dependenciesFound.push("react");
-        if (lowerContent.includes('"next"')) dependenciesFound.push("nextjs");
-      }
-
-      // Check js/ts files
-      if (lowerFile.endsWith(".tsx") || lowerFile.endsWith(".jsx") || lowerFile.endsWith(".ts") || lowerFile.endsWith(".js")) {
-        if (lowerContent.includes("react")) {
-          if (!sourceTechnologiesFound.includes("react")) sourceTechnologiesFound.push("react");
-        }
-      }
-    }
+    const codePatterns = inspectCodePatterns(files, readme);
 
     // Technology-by-technology evaluation
     for (const tech of claimedTechnologies) {
       const normTech = tech.toLowerCase();
-      const inDeps = dependenciesFound.includes(normTech);
-      const inSource = sourceTechnologiesFound.includes(normTech);
+      const inDeps = codePatterns.dependenciesFound.includes(normTech);
+      const inSource = codePatterns.sourceTechnologiesFound.includes(normTech);
+      const inReadmeOnly = codePatterns.readmeTechnologiesMentioned.includes(normTech) && !inDeps && !inSource;
 
       if (inDeps || inSource) {
         checks.push({
           check: `Technology check: ${tech}`,
-          result: "PASSED",
-          detail: inSource ? "Source code implementation verified" : "Declared in package dependencies",
+          result: 'PASSED',
+          detail: inSource ? 'Source code implementation verified' : 'Declared in package dependencies',
+        });
+      } else if (inReadmeOnly) {
+        checks.push({
+          check: `Technology check: ${tech}`,
+          result: 'FAILED',
+          detail: `${tech} mentioned in README only without source implementation`,
         });
       } else {
         checks.push({
           check: `Technology check: ${tech}`,
-          result: "FAILED",
+          result: 'FAILED',
           detail: `${tech} dependency or source implementation NOT found in repository`,
         });
       }
     }
 
+    const ownershipStatus: OwnershipStatus =
+      candidateHandle && owner.toLowerCase() === candidateHandle.toLowerCase()
+        ? 'CONFIRMED_AUTHOR'
+        : 'NOT_INDEPENDENTLY_ESTABLISHED';
+
     return {
       accessible: true,
-      verificationStatus: sourceTechnologiesFound.length > 0 ? 'VERIFIED' : 'NOT_VERIFIED',
+      accessStatus: 'ACCESSIBLE',
+      verificationStatus: codePatterns.sourceTechnologiesFound.length > 0 ? 'VERIFIED' : 'NOT_VERIFIED',
       repoName,
       owner,
-      description: "Inspected repository artifact",
+      description: 'Inspected repository artifact',
       hasReadme,
       readmeText: readme,
-      dependenciesFound,
-      sourceTechnologiesFound,
+      readmeTechnologiesMentioned: codePatterns.readmeTechnologiesMentioned,
+      dependenciesFound: codePatterns.dependenciesFound,
+      sourceTechnologiesFound: codePatterns.sourceTechnologiesFound,
+      astSignalsFound: codePatterns.astSignalsFound,
+      ownershipStatus,
+      sourceHash: codePatterns.sourceHash,
+      limitations: codePatterns.limitations,
       checks,
     };
   }
@@ -610,4 +918,112 @@ export function crossCheckSources(params: {
       });
     }
   }
+}
+
+/**
+ * Detects duplicate quotations and repeated summary descriptions across evidence items.
+ * Prevents identical or paraphrased text from counting as multiple independent proofs.
+ */
+export function detectEvidenceDuplication(
+  items: Array<{ id: string; exactVerbatimText?: string; text?: string; section?: string }>
+): {
+  uniqueCount: number;
+  duplicateCount: number;
+  duplicateClusters: Array<{ originalId: string; duplicates: string[]; sharedText: string }>;
+} {
+  const seenMap = new Map<string, { originalId: string; duplicates: string[] }>();
+  let duplicateCount = 0;
+
+  for (const item of items) {
+    const raw = (item.exactVerbatimText || item.text || '').trim();
+    if (raw.length < 15) continue; // skip short generic labels
+
+    const normalized = raw.toLowerCase().replace(/\s+/g, ' ');
+    if (seenMap.has(normalized)) {
+      const cluster = seenMap.get(normalized)!;
+      cluster.duplicates.push(item.id);
+      duplicateCount++;
+    } else {
+      seenMap.set(normalized, { originalId: item.id, duplicates: [] });
+    }
+  }
+
+  const duplicateClusters = Array.from(seenMap.entries())
+    .filter(([_, cluster]) => cluster.duplicates.length > 0)
+    .map(([text, cluster]) => ({
+      originalId: cluster.originalId,
+      duplicates: cluster.duplicates,
+      sharedText: text,
+    }));
+
+  return {
+    uniqueCount: seenMap.size,
+    duplicateCount,
+    duplicateClusters,
+  };
+}
+
+/**
+ * Detects negative signals: inaccessible repositories, missing claimed tech, and metric anomalies.
+ */
+export function detectNegativeAndContradictoryEvidence(options: {
+  repoInspections?: RepoInspectionResult[];
+  claimedSkills?: string[];
+  claimedEmploymentYears?: number;
+  actualCalculatedYears?: number;
+}): {
+  inaccessibleRepositories: string[];
+  unsupportedClaims: Array<{ skill: string; reason: string }>;
+  experienceDiscrepancies: Array<{ claimed: number; actual: number; reason: string }>;
+  hasNegativeSignals: boolean;
+} {
+  const { repoInspections = [], claimedSkills = [], claimedEmploymentYears = 0, actualCalculatedYears = 0 } = options;
+  const inaccessibleRepositories: string[] = [];
+  const unsupportedClaims: Array<{ skill: string; reason: string }> = [];
+  const experienceDiscrepancies: Array<{ claimed: number; actual: number; reason: string }> = [];
+
+  // 1. Inaccessible repos
+  for (const repo of repoInspections) {
+    if (!repo.accessible || repo.verificationStatus === 'INACCESSIBLE' || repo.verificationStatus === 'FAILED_SECURITY_CHECK') {
+      inaccessibleRepositories.push(repo.repoName || `${repo.owner}/${repo.repoName}`);
+    }
+  }
+
+  // 2. Claimed technologies missing across inspected code
+  if (repoInspections.length > 0 && repoInspections.some((r) => r.accessible)) {
+    const allFound = new Set<string>();
+    for (const r of repoInspections) {
+      r.sourceTechnologiesFound.forEach((t) => allFound.add(t.toLowerCase()));
+      r.dependenciesFound.forEach((d) => allFound.add(d.toLowerCase()));
+    }
+
+    for (const claimed of claimedSkills) {
+      const cleanClaim = claimed.toLowerCase().trim();
+      if (['kubernetes', 'rag', 'docker', 'fastapi'].includes(cleanClaim) && !allFound.has(cleanClaim)) {
+        unsupportedClaims.push({
+          skill: claimed,
+          reason: `Claimed competency "${claimed}" has no observable implementation or dependencies across inspected public repositories.`,
+        });
+      }
+    }
+  }
+
+  // 3. Experience discrepancies
+  if (claimedEmploymentYears > 0 && actualCalculatedYears > 0 && claimedEmploymentYears >= actualCalculatedYears + 3) {
+    experienceDiscrepancies.push({
+      claimed: claimedEmploymentYears,
+      actual: actualCalculatedYears,
+      reason: `Claimed ${claimedEmploymentYears} years of experience, but documented non-overlapping employment spans only ${actualCalculatedYears} years.`,
+    });
+  }
+
+  const hasNegativeSignals =
+    inaccessibleRepositories.length > 0 || unsupportedClaims.length > 0 || experienceDiscrepancies.length > 0;
+
+  return {
+    inaccessibleRepositories,
+    unsupportedClaims,
+    experienceDiscrepancies,
+    hasNegativeSignals,
+  };
 }

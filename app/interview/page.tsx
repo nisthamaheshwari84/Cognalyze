@@ -58,7 +58,82 @@ interface ScoreData {
   provisional?: boolean;
 }
 interface BodyLang { overall: number; posture: number; eyeContact: number; confidence: number; expression: number; notes: string; }
-interface FinalVerdict { decision: string; confidence: number; headline: string; overview: string; hire_reasons: string[]; no_hire_reasons: string[]; standout_moments: string[]; concerning_moments: string[]; scorecard: Record<string, { score: number; comment: string }>; next_steps: string; interviewer_note: string; }
+interface FinalVerdict {
+  decision: string;
+  confidence: number;
+  headline: string;
+  overview: string;
+  hire_reasons: string[];
+  no_hire_reasons: string[];
+  standout_moments: string[];
+  concerning_moments: string[];
+  scorecard: Record<string, { score: number; comment: string }>;
+  next_steps: string;
+  interviewer_note: string;
+  interviewMode?: "practice" | "evaluation";
+  formalHiringRecommendation?: {
+    recommendation: string;
+    rationale: string;
+    confidenceLevel: number;
+    rubricSummary: string;
+    levelDistribution?: Record<string, number>;
+  };
+  practiceModeFeedback?: {
+    overallInterviewSummary: string;
+    strongestSkills: string[];
+    weakestSkills: string[];
+    assistedTurnsCount: number;
+    independentTurnsCount: number;
+    questionWiseFeedback: Array<{
+      turnIndex: number;
+      question: string;
+      answerExcerpt: string;
+      feedback: string;
+      modelExplanation?: string;
+      wasAssisted: boolean;
+      assistanceLevel?: string;
+    }>;
+    technicalMisconceptions: string[];
+    personalizedLearningRecommendations: Array<{
+      topic: string;
+      category: string;
+      priority: string;
+      observedGap: string;
+      suggestedAction: string;
+      practiceProblemOrModule?: string;
+    }>;
+    recommendedCodingPractice: string[];
+    nextSteps: string[];
+  };
+  professionalEvaluationReport?: {
+    executiveSummary: string;
+    formalHiringRecommendation: string;
+    recommendationRationale: string;
+    interviewerConfidence: number;
+    competencyScorecard: Record<string, {
+      score: number;
+      rubricLevel: string;
+      state: string;
+      notes: string;
+      evidenceTurnIndices: number[];
+    }>;
+    technicalStrengths: string[];
+    technicalWeaknesses: string[];
+    projectOwnershipObservations: string[];
+    problemSolvingPerformance: string;
+    systemDesignPerformance?: string;
+    communicationAssessment: string;
+    unassessedCompetencies: string[];
+    evidenceReferences: Array<{
+      competency: string;
+      verbatimQuote: string;
+      turnIndex: number;
+      hash?: string;
+    }>;
+    interviewLimitations: string[];
+  };
+  milestone5Report?: any;
+}
 
 // ═══ PROCTORING INTERFACES ═══
 interface Violation { time: string; type: string; severity: "critical" | "high" | "medium" | "low"; }
@@ -535,103 +610,380 @@ function ScorePanel({ score, updating }: { score: ScoreData; updating: boolean }
 
 // ═══ VERDICT MODAL ═══
 function VerdictModal({ verdict, onClose }: { verdict: FinalVerdict; onClose: () => void }) {
+  const [activeTab, setActiveTab] = useState<"overview" | "practice" | "evaluation">(
+    verdict.interviewMode === "evaluation" || verdict.professionalEvaluationReport
+      ? "evaluation"
+      : verdict.practiceModeFeedback
+        ? "practice"
+        : "overview"
+  );
+
   const isHire = verdict.decision === "HIRE" || verdict.decision === "STRONG_HIRE";
   const dc = isHire ? "#2E7D5B" : verdict.decision === "NO_HIRE" ? "#C24141" : "#B7791F";
   const bgCol = isHire ? "#EBFDF5" : verdict.decision === "NO_HIRE" ? "#FEF3F2" : "#FEF7EC";
   const borderCol = isHire ? "#A6F4C5" : verdict.decision === "NO_HIRE" ? "#F8C8C8" : "#F5DFBA";
   const dIcon = verdict.decision === "STRONG_HIRE" ? "🏆" : isHire ? "✅" : verdict.decision === "STRONG_NO_HIRE" ? "❌" : "⚠️";
 
+  const practice = verdict.practiceModeFeedback;
+  const evaluation = verdict.professionalEvaluationReport;
+  const formal = verdict.formalHiringRecommendation;
+
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(22, 42, 67, 0.45)", backdropFilter: "blur(4px)", zIndex: 1000, overflowY: "auto", display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "32px 16px" }}>
-      <div style={{ maxWidth: 740, width: "100%", background: "#FFFFFF", borderRadius: 12, border: "1px solid #E4E1DA", boxShadow: "0 20px 40px -10px rgba(22, 42, 67, 0.18)", overflow: "hidden", fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
+      <div style={{ maxWidth: 840, width: "100%", background: "#FFFFFF", borderRadius: 12, border: "1px solid #E4E1DA", boxShadow: "0 20px 40px -10px rgba(22, 42, 67, 0.18)", overflow: "hidden", fontFamily: "var(--font-inter, -apple-system, sans-serif)" }}>
         
         {/* Header */}
-        <div style={{ padding: "28px 28px 20px", borderBottom: "1px solid #E4E1DA", background: "#FAF9F6", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ padding: "24px 28px 16px", borderBottom: "1px solid #E4E1DA", background: "#FAF9F6", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
           <div>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", background: bgCol, border: `1px solid ${borderCol}`, borderRadius: 5, color: dc, fontSize: 12, fontWeight: 700, textTransform: "uppercase", marginBottom: 10 }}>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 10px", background: bgCol, border: `1px solid ${borderCol}`, borderRadius: 5, color: dc, fontSize: 12, fontWeight: 700, textTransform: "uppercase", marginBottom: 8 }}>
               <span>{dIcon}</span>
-              <span>{verdict.decision.replace("_", " ")}</span>
+              <span>{formal?.recommendation ? formal.recommendation.replace(/_/g, " ") : verdict.decision.replace(/_/g, " ")}</span>
             </div>
-            <h2 style={{ fontSize: 22, fontWeight: 700, color: "#162A43", margin: "0 0 6px", letterSpacing: "-0.01em" }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: "#162A43", margin: "0 0 6px", letterSpacing: "-0.01em" }}>
               "{verdict.headline}"
             </h2>
-            <div style={{ fontSize: 12, color: "#667085" }}>
-              Interviewer Confidence: <strong style={{ color: "#162A43" }}>{verdict.confidence}%</strong>
+            <div style={{ fontSize: 12, color: "#667085", display: "flex", alignItems: "center", gap: 12 }}>
+              <span>Interviewer Confidence: <strong style={{ color: "#162A43" }}>{formal?.confidenceLevel || verdict.confidence}%</strong></span>
+              <span>•</span>
+              <span>Mode: <strong style={{ color: "#162A43", textTransform: "capitalize" }}>{verdict.interviewMode || "Practice"}</strong></span>
             </div>
           </div>
           <button onClick={onClose} style={{ background: "transparent", border: "none", color: "#667085", fontSize: 20, cursor: "pointer", padding: "4px 8px" }}>×</button>
         </div>
 
-        <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
-          {/* Overview */}
-          <div style={{ fontSize: 14, color: "#17191C", lineHeight: 1.6, background: "#FAF9F6", padding: 16, borderRadius: 10, border: "1px solid #E4E1DA" }}>
-            {verdict.overview}
-          </div>
+        {/* Tab Navigation */}
+        <div style={{ display: "flex", borderBottom: "1px solid #E4E1DA", background: "#FFFFFF", padding: "0 28px" }}>
+          <button
+            onClick={() => setActiveTab("overview")}
+            style={{
+              padding: "12px 16px",
+              border: "none",
+              background: "transparent",
+              borderBottom: activeTab === "overview" ? "2px solid #356AE6" : "2px solid transparent",
+              color: activeTab === "overview" ? "#356AE6" : "#667085",
+              fontWeight: 700,
+              fontSize: 13,
+              cursor: "pointer",
+            }}
+          >
+            📊 Executive Overview
+          </button>
+          {practice && (
+            <button
+              onClick={() => setActiveTab("practice")}
+              style={{
+                padding: "12px 16px",
+                border: "none",
+                background: "transparent",
+                borderBottom: activeTab === "practice" ? "2px solid #356AE6" : "2px solid transparent",
+                color: activeTab === "practice" ? "#356AE6" : "#667085",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              🎓 Practice Mastery & Curriculum
+            </button>
+          )}
+          {evaluation && (
+            <button
+              onClick={() => setActiveTab("evaluation")}
+              style={{
+                padding: "12px 16px",
+                border: "none",
+                background: "transparent",
+                borderBottom: activeTab === "evaluation" ? "2px solid #C24141" : "2px solid transparent",
+                color: activeTab === "evaluation" ? "#C24141" : "#667085",
+                fontWeight: 700,
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              🏢 Recruiter Dossier
+            </button>
+          )}
+        </div>
 
-          {/* Scorecard */}
-          {verdict.scorecard && Object.keys(verdict.scorecard).length > 0 && (
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#667085", textTransform: "uppercase", marginBottom: 10 }}>
-                EVALUATION SCORECARD
+        <div style={{ padding: 28, display: "flex", flexDirection: "column", gap: 20 }}>
+          
+          {/* ════ TAB 1: EXECUTIVE OVERVIEW ════ */}
+          {activeTab === "overview" && (
+            <>
+              <div style={{ fontSize: 14, color: "#17191C", lineHeight: 1.6, background: "#FAF9F6", padding: 16, borderRadius: 10, border: "1px solid #E4E1DA" }}>
+                {verdict.overview}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-                {Object.entries(verdict.scorecard).map(([k, v]) => {
-                  const metricColor = v.score >= 70 ? "#2E7D5B" : v.score >= 50 ? "#B7791F" : "#C24141";
-                  return (
-                    <div key={k} style={{ background: "#FFFFFF", borderRadius: 8, padding: "12px 14px", border: "1px solid #E4E1DA" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                        <span style={{ fontSize: 11, color: "#667085", textTransform: "capitalize", fontWeight: 500 }}>{k}</span>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: metricColor }}>{v.score}</span>
-                      </div>
-                      <div style={{ height: 4, background: "#E4E1DA", borderRadius: 999, marginBottom: 8, overflow: "hidden" }}>
-                        <div style={{ height: "100%", width: `${v.score}%`, background: metricColor, borderRadius: 999 }} />
-                      </div>
-                      <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4 }}>{v.comment}</div>
+
+              {/* Scorecard */}
+              {verdict.scorecard && Object.keys(verdict.scorecard).length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#667085", textTransform: "uppercase", marginBottom: 10 }}>
+                    CORE COMPETENCY EVALUATION
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+                    {Object.entries(verdict.scorecard).map(([k, v]) => {
+                      const metricColor = v.score >= 70 ? "#2E7D5B" : v.score >= 50 ? "#B7791F" : "#C24141";
+                      return (
+                        <div key={k} style={{ background: "#FFFFFF", borderRadius: 8, padding: "12px 14px", border: "1px solid #E4E1DA" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                            <span style={{ fontSize: 11, color: "#667085", textTransform: "capitalize", fontWeight: 500 }}>{k.replace(/_/g, " ")}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: metricColor }}>{v.score}</span>
+                          </div>
+                          <div style={{ height: 4, background: "#E4E1DA", borderRadius: 999, marginBottom: 8, overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${v.score}%`, background: metricColor, borderRadius: 999 }} />
+                          </div>
+                          <div style={{ fontSize: 11, color: "#667085", lineHeight: 1.4 }}>{v.comment}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Demonstration Signals & Evaluation Gaps */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ background: "#EBFDF5", border: "1px solid #A6F4C5", padding: 16, borderRadius: 10 }}>
+                  <div style={{ fontSize: 11, letterSpacing: 0.5, color: "#2E7D5B", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>
+                    ✓ Demonstration Signals
+                  </div>
+                  {verdict.hire_reasons?.map((r, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 12, color: "#17191C", lineHeight: 1.5 }}>
+                      <span style={{ color: "#2E7D5B", fontWeight: 700 }}>•</span>
+                      <span>{r}</span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+
+                <div style={{ background: "#FEF3F2", border: "1px solid #F8C8C8", padding: 16, borderRadius: 10 }}>
+                  <div style={{ fontSize: 11, letterSpacing: 0.5, color: "#C24141", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>
+                    ✗ Evaluation Gaps
+                  </div>
+                  {verdict.no_hire_reasons?.map((r, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 12, color: "#17191C", lineHeight: 1.5 }}>
+                      <span style={{ color: "#C24141", fontWeight: 700 }}>•</span>
+                      <span>{r}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+
+              {/* Next Steps & Note */}
+              <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", padding: 16, borderRadius: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 6 }}>
+                  RECOMMENDED NEXT STEPS
+                </div>
+                <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, margin: "0 0 12px" }}>{verdict.next_steps}</p>
+                <div style={{ borderTop: "1px solid #E4E1DA", paddingTop: 10, fontSize: 12, color: "#667085", fontStyle: "italic" }}>
+                  Evaluator Note: “{verdict.interviewer_note}”
+                </div>
+              </div>
+            </>
           )}
 
-          {/* Hire Signals & Concerns */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <div style={{ background: "#EBFDF5", border: "1px solid #A6F4C5", padding: 16, borderRadius: 10 }}>
-              <div style={{ fontSize: 11, letterSpacing: 0.5, color: "#2E7D5B", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>
-                ✓ Demonstration Signals
-              </div>
-              {verdict.hire_reasons?.map((r, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 12, color: "#17191C", lineHeight: 1.5 }}>
-                  <span style={{ color: "#2E7D5B", fontWeight: 700 }}>•</span>
-                  <span>{r}</span>
+          {/* ════ TAB 2: PRACTICE MASTERY & CURRICULUM ════ */}
+          {activeTab === "practice" && practice && (
+            <>
+              {/* Assistance & Autonomy Banner */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 18px", background: "#EFF6FF", border: "1px solid #BFDBFE", borderRadius: 8 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1E40AF" }}>
+                    🎓 Practice Session Autonomy Ratio
+                  </div>
+                  <div style={{ fontSize: 12, color: "#3B82F6", marginTop: 2 }}>
+                    Independent performance vs. Hint-assisted turns
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            <div style={{ background: "#FEF3F2", border: "1px solid #F8C8C8", padding: 16, borderRadius: 10 }}>
-              <div style={{ fontSize: 11, letterSpacing: 0.5, color: "#C24141", fontWeight: 700, marginBottom: 10, textTransform: "uppercase" }}>
-                ✗ Evaluation Gaps
-              </div>
-              {verdict.no_hire_reasons?.map((r, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 12, color: "#17191C", lineHeight: 1.5 }}>
-                  <span style={{ color: "#C24141", fontWeight: 700 }}>•</span>
-                  <span>{r}</span>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <div style={{ padding: "6px 12px", background: "#FFFFFF", borderRadius: 6, border: "1px solid #93C5FD", textAlign: "center" }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: "#1D4ED8" }}>{practice.independentTurnsCount}</div>
+                    <div style={{ fontSize: 10, color: "#64748B" }}>Independent Turns</div>
+                  </div>
+                  <div style={{ padding: "6px 12px", background: "#FFFFFF", borderRadius: 6, border: "1px solid #93C5FD", textAlign: "center" }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: practice.assistedTurnsCount > 0 ? "#D97706" : "#16A34A" }}>
+                      {practice.assistedTurnsCount}
+                    </div>
+                    <div style={{ fontSize: 10, color: "#64748B" }}>Assisted Turns</div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          {/* Next Steps & Note */}
-          <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", padding: 16, borderRadius: 10 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 6 }}>
-              RECOMMENDED NEXT STEPS
-            </div>
-            <p style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, margin: "0 0 12px" }}>{verdict.next_steps}</p>
-            
-            <div style={{ borderTop: "1px solid #E4E1DA", paddingTop: 10, fontSize: 12, color: "#667085", fontStyle: "italic" }}>
-              Evaluator Note: “{verdict.interviewer_note}”
-            </div>
-          </div>
+              {/* Summary */}
+              <div style={{ fontSize: 13, color: "#17191C", lineHeight: 1.6, background: "#FAF9F6", padding: 16, borderRadius: 10, border: "1px solid #E4E1DA" }}>
+                <strong style={{ color: "#162A43", display: "block", marginBottom: 4 }}>Alex's Mentorship Assessment:</strong>
+                {practice.overallInterviewSummary}
+              </div>
+
+              {/* Strongest vs Weakest Skills */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                <div style={{ background: "#EBFDF5", border: "1px solid #A6F4C5", padding: 16, borderRadius: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#2E7D5B", textTransform: "uppercase", marginBottom: 8 }}>
+                    🌟 Top Demonstrated Strengths
+                  </div>
+                  {practice.strongestSkills.map((s, idx) => (
+                    <div key={idx} style={{ fontSize: 12, color: "#166534", marginBottom: 4 }}>• {s}</div>
+                  ))}
+                </div>
+                <div style={{ background: "#FEF7EC", border: "1px solid #F5DFBA", padding: 16, borderRadius: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: "#B7791F", textTransform: "uppercase", marginBottom: 8 }}>
+                    🎯 Priority Focus Areas
+                  </div>
+                  {practice.weakestSkills.map((w, idx) => (
+                    <div key={idx} style={{ fontSize: 12, color: "#92400E", marginBottom: 4 }}>• {w}</div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Personalized Learning Curriculum */}
+              {practice.personalizedLearningRecommendations && practice.personalizedLearningRecommendations.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
+                    📚 TARGETED CURRICULUM ROADMAP (COGNALYZE PRACTICE HUB)
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {practice.personalizedLearningRecommendations.map((rec, idx) => (
+                      <div key={idx} style={{ padding: "12px 14px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>{rec.topic}</span>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", background: "#F1F5F9", borderRadius: 4, color: "#475569" }}>{rec.category}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", background: rec.priority === "HIGH" ? "#FEE2E2" : "#FEF3C7", borderRadius: 4, color: rec.priority === "HIGH" ? "#991B1B" : "#92400E" }}>{rec.priority} PRIORITY</span>
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 12, color: "#64748B", marginBottom: 6 }}>
+                          <strong>Observed Gap:</strong> {rec.observedGap}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#0F172A", lineHeight: 1.4 }}>
+                          <strong>Curriculum Action:</strong> {rec.suggestedAction}
+                        </div>
+                        {rec.practiceProblemOrModule && (
+                          <div style={{ marginTop: 6, fontSize: 11, color: "#2563EB", fontWeight: 600 }}>
+                            🔗 Practice Module: {rec.practiceProblemOrModule}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Question-Wise Feedback */}
+              {practice.questionWiseFeedback && practice.questionWiseFeedback.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
+                    💬 QUESTION-BY-QUESTION FEEDBACK & COACHING
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    {practice.questionWiseFeedback.map((q, idx) => (
+                      <div key={idx} style={{ padding: "12px 14px", background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>Question {q.turnIndex}: {q.question}</span>
+                          {q.wasAssisted && (
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", background: "#FEF3C7", color: "#92400E", borderRadius: 4 }}>
+                              💡 Assisted ({q.assistanceLevel?.replace(/_/g, " ")})
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#475569", fontStyle: "italic", marginBottom: 6 }}>
+                          "{q.answerExcerpt}"
+                        </div>
+                        <div style={{ fontSize: 12, color: "#1E293B", lineHeight: 1.4 }}>
+                          <strong>Feedback:</strong> {q.feedback}
+                        </div>
+                        {q.modelExplanation && (
+                          <div style={{ marginTop: 6, fontSize: 11, color: "#2563EB", background: "#EFF6FF", padding: 8, borderRadius: 6 }}>
+                            💡 <strong>Suggested Explanation:</strong> {q.modelExplanation}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ════ TAB 3: RECRUITER DOSSIER ════ */}
+          {activeTab === "evaluation" && evaluation && (
+            <>
+              {/* Formal Recommendation Callout */}
+              <div style={{ padding: "16px 18px", background: formal?.recommendation === "STRONGLY_RECOMMEND" || formal?.recommendation === "RECOMMEND" ? "#EBFDF5" : "#FEF3F2", border: `1px solid ${formal?.recommendation === "STRONGLY_RECOMMEND" || formal?.recommendation === "RECOMMEND" ? "#A6F4C5" : "#F8C8C8"}`, borderRadius: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: formal?.recommendation === "STRONGLY_RECOMMEND" || formal?.recommendation === "RECOMMEND" ? "#166534" : "#991B1B" }}>
+                    FORMAL RECOMMENDATION: {evaluation.formalHiringRecommendation?.replace(/_/g, " ")}
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", background: "#FFFFFF", borderRadius: 4, color: "#475569" }}>
+                    Confidence: {evaluation.interviewerConfidence}%
+                  </span>
+                </div>
+                <p style={{ margin: 0, fontSize: 13, color: "#1F2937", lineHeight: 1.5 }}>
+                  {evaluation.recommendationRationale}
+                </p>
+              </div>
+
+              {/* 5-Level Rubric Competency Scorecard */}
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
+                  7-DIMENSION COMPETENCY SCORECARD (5-LEVEL RUBRIC)
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {Object.entries(evaluation.competencyScorecard || {}).map(([compName, compData]) => (
+                    <div key={compName} style={{ padding: "12px 14px", background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 8 }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>{compName.replace(/_/g, " ")}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", background: compData.score >= 70 ? "#DCFCE7" : compData.score >= 50 ? "#FEF3C7" : "#FEE2E2", color: compData.score >= 70 ? "#166534" : compData.score >= 50 ? "#92400E" : "#991B1B", borderRadius: 4 }}>
+                            {compData.rubricLevel}
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 600, padding: "2px 6px", background: "#F1F5F9", borderRadius: 4, color: "#475569" }}>
+                            {compData.state}
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: compData.score >= 70 ? "#2E7D5B" : "#B7791F" }}>{compData.score}/100</span>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 12, color: "#64748B", lineHeight: 1.4 }}>
+                        {compData.notes}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Verbatim Evidence Anchors */}
+              {evaluation.evidenceReferences && evaluation.evidenceReferences.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
+                    🎙️ VERBATIM CANDIDATE EVIDENCE ANCHORS
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {evaluation.evidenceReferences.map((ref, idx) => (
+                      <div key={idx} style={{ padding: "10px 14px", background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 8 }}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "#2563EB", marginBottom: 2 }}>
+                          {ref.competency.replace(/_/g, " ")} • Turn {ref.turnIndex}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#1E293B", fontStyle: "italic", lineHeight: 1.4 }}>
+                          "{ref.verbatimQuote}"
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Limitations & Recruiter Observations */}
+              <div style={{ background: "#FAF9F6", border: "1px solid #E4E1DA", padding: 16, borderRadius: 10 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: "#162A43", textTransform: "uppercase", marginBottom: 6 }}>
+                  RECRUITER AUDIT & NEXT STEPS
+                </div>
+                <div style={{ fontSize: 12, color: "#17191C", lineHeight: 1.5, marginBottom: 8 }}>
+                  <strong>Project Ownership:</strong> {evaluation.projectOwnershipObservations?.join("; ") || "Verified ownership across discussed projects."}
+                </div>
+                {evaluation.interviewLimitations && evaluation.interviewLimitations.length > 0 && (
+                  <div style={{ fontSize: 12, color: "#991B1B", lineHeight: 1.5 }}>
+                    <strong>Evaluation Limitations:</strong> {evaluation.interviewLimitations.join("; ")}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Footer Actions */}
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 8, borderTop: "1px solid #E4E1DA" }}>
@@ -788,6 +1140,11 @@ export default function InterviewPage() {
   const [restorationError, setRestorationError] = useState<string | null>(null);
   const [checkingSession, setCheckingSession] = useState(false);
   const [interviewTrack, setInterviewTrack] = useState<string>("traditional_coding_dsa");
+  const [interviewExperienceMode, setInterviewExperienceMode] = useState<"practice" | "evaluation">("practice");
+  const [hintPreference, setHintPreference] = useState<"subtle_hints" | "guided_hints" | "explanation" | "no_hints">("subtle_hints");
+  const [requestingHint, setRequestingHint] = useState(false);
+  const [assistedTurnsCount, setAssistedTurnsCount] = useState(0);
+  const [activeHint, setActiveHint] = useState<{ hint: string; hintLevel: string; assisted: boolean; explanation?: string } | null>(null);
 
   // ── Secure mode state ──
   const [secureMode, setSecureMode] = useState(false);
@@ -1555,6 +1912,13 @@ export default function InterviewPage() {
         setStage(sess.currentSection);
       }
 
+      if (sess.interviewMode) {
+        setInterviewExperienceMode(sess.interviewMode);
+      }
+      if (sess.hintPreference) {
+        setHintPreference(sess.hintPreference);
+      }
+
       setStarted(true);
       setActiveSessionInfo(null);
     } catch (err: any) {
@@ -1577,6 +1941,8 @@ export default function InterviewPage() {
     endedRef.current = false;
     setShowVerdict(false);
     setFinalVerdict(null);
+    setActiveHint(null);
+    setAssistedTurnsCount(0);
     setMsgs([]);
     msgsRef.current = [];
     qNumRef.current = 0;
@@ -1609,6 +1975,8 @@ export default function InterviewPage() {
           sessionId: sessionIdRef.current || undefined,
           track: interviewTrack,
           interviewTrack: interviewTrack,
+          interviewMode: interviewExperienceMode,
+          hintPreference: hintPreference,
         })
       });
       if (!res.ok) {
@@ -1683,7 +2051,8 @@ export default function InterviewPage() {
           messages: msgsRef.current.map(m => ({ role: m.role, content: m.content })),
           jd: jdRef.current,
           resume: resumeRef.current,
-          finalScore: score
+          finalScore: score,
+          interviewMode: interviewExperienceMode,
         })
       });
       if (res.ok) {
@@ -1714,6 +2083,49 @@ export default function InterviewPage() {
         if (res.ok) { const d = await res.json(); setTrustReport(d); }
       } catch {}
       setBuildingTrustReport(false);
+    }
+  };
+
+  const requestHint = async () => {
+    if (requestingHint || loading || ended || interviewExperienceMode !== "practice") return;
+    setRequestingHint(true);
+    try {
+      const res = await fetch("/api/interview-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "request_hint",
+          sessionId: sessionIdRef.current,
+          hintPreference,
+          interviewMode: "practice",
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.hint) {
+          setActiveHint({
+            hint: data.hint,
+            hintLevel: data.hintLevel || hintPreference,
+            assisted: true,
+            explanation: data.explanation,
+          });
+          setAssistedTurnsCount((prev) => prev + 1);
+          const hintMsg: Msg = {
+            role: "assistant",
+            content: `💡 **Interviewer Guidance (${(data.hintLevel || hintPreference).replace(/_/g, " ")})**:\n${data.hint}`,
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          msgsRef.current = [...msgsRef.current, hintMsg];
+          setMsgs([...msgsRef.current]);
+          if (mode === "voice") {
+            setTimeout(() => speak(data.hint), 300);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to request hint:", err);
+    } finally {
+      setRequestingHint(false);
     }
   };
 
@@ -1761,6 +2173,8 @@ export default function InterviewPage() {
           sessionId: currentSessionId || undefined,
           track: interviewTrack,
           interviewTrack: interviewTrack,
+          interviewMode: interviewExperienceMode,
+          hintPreference: hintPreference,
         }),
         signal: controller.signal,
       });
@@ -2049,9 +2463,113 @@ export default function InterviewPage() {
           </p>
         </div>
 
+        {/* Experience Mode: Practice vs Professional Evaluation */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+          <div
+            onClick={() => {
+              setInterviewExperienceMode("practice");
+              setSecureMode(false);
+            }}
+            style={{
+              padding: "16px 14px",
+              borderRadius: 10,
+              border: `2px solid ${interviewExperienceMode === "practice" ? "#356AE6" : "#E4E1DA"}`,
+              background: interviewExperienceMode === "practice" ? "#F0F5FF" : "#FFFFFF",
+              cursor: "pointer",
+              boxShadow: interviewExperienceMode === "practice" ? "0 0 0 1px #356AE6, 0 2px 4px rgba(53, 106, 230, 0.08)" : "0 1px 3px rgba(16, 24, 40, 0.04)",
+              transition: "all 0.2s ease"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 20 }}>🎓</span>
+              <span style={{ fontWeight: 700, fontSize: 14, color: interviewExperienceMode === "practice" ? "#162A43" : "#17191C" }}>
+                Interview Practice Mode
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
+              Adaptive learning dialogue with Alex. Diagnostic assistance, selectable hints, and tailored learning curriculum.
+            </p>
+            {interviewExperienceMode === "practice" && (
+              <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "#DBEAFE", borderRadius: 4, color: "#1D4ED8", fontSize: 10, fontWeight: 700 }}>
+                ✓ ACTIVE PRACTICE MODE
+              </div>
+            )}
+          </div>
+
+          <div
+            onClick={() => {
+              setInterviewExperienceMode("evaluation");
+            }}
+            style={{
+              padding: "16px 14px",
+              borderRadius: 10,
+              border: `2px solid ${interviewExperienceMode === "evaluation" ? "#C24141" : "#E4E1DA"}`,
+              background: interviewExperienceMode === "evaluation" ? "#FEF3F2" : "#FFFFFF",
+              cursor: "pointer",
+              boxShadow: interviewExperienceMode === "evaluation" ? "0 0 0 1px #C24141, 0 2px 4px rgba(194, 65, 65, 0.08)" : "0 1px 3px rgba(16, 24, 40, 0.04)",
+              transition: "all 0.2s ease"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <span style={{ fontSize: 20 }}>🏢</span>
+              <span style={{ fontWeight: 700, fontSize: 14, color: interviewExperienceMode === "evaluation" ? "#991B1B" : "#17191C" }}>
+                Professional Evaluation
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: 12, color: "#667085", lineHeight: 1.4 }}>
+              Strict unassisted competency evaluation. 5-level rubric, zero hints, and formal recruiter hiring dossier.
+            </p>
+            {interviewExperienceMode === "evaluation" && (
+              <div style={{ marginTop: 8, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", background: "#FEE2E2", borderRadius: 4, color: "#B91C1C", fontSize: 10, fontWeight: 700 }}>
+                ✓ RECRUITER RUBRIC ACTIVE
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Practice Mode: Hint Preference Selection */}
+        {interviewExperienceMode === "practice" && (
+          <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: "14px 16px", marginBottom: 14, boxShadow: "0 1px 3px rgba(16, 24, 40, 0.04)" }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#162A43", letterSpacing: 0.5, marginBottom: 8, textTransform: "uppercase" }}>
+              💡 Practice Assistance & Hint Preference
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {[
+                { id: "subtle_hints", label: "Subtle Hints", sub: "Directional clues" },
+                { id: "guided_hints", label: "Guided Hints", sub: "Reasoning approach" },
+                { id: "explanation", label: "Explanation", sub: "Deep explanation" },
+                { id: "no_hints", label: "No Hints", sub: "Pure self-testing" },
+              ].map(hp => (
+                <div
+                  key={hp.id}
+                  onClick={() => setHintPreference(hp.id as any)}
+                  style={{
+                    padding: "8px 10px",
+                    borderRadius: 6,
+                    border: `1px solid ${hintPreference === hp.id ? "#356AE6" : "#E4E1DA"}`,
+                    background: hintPreference === hp.id ? "#EFF6FF" : "#FAF9F6",
+                    color: hintPreference === hp.id ? "#1D4ED8" : "#475569",
+                    cursor: "pointer",
+                    textAlign: "center"
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700 }}>{hp.label}</div>
+                  <div style={{ fontSize: 10, color: "#64748B", marginTop: 2 }}>{hp.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Secure Mode Toggle Card */}
         <div 
-          onClick={() => setSecureMode(p => !p)} 
+          onClick={() => {
+            setSecureMode(p => {
+              const next = !p;
+              if (next) setInterviewExperienceMode("evaluation");
+              return next;
+            });
+          }} 
           style={{ 
             display: "flex", 
             alignItems: "center", 
@@ -2303,6 +2821,11 @@ export default function InterviewPage() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#2E7D5B" }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: "#FFFFFF" }}>Evaluation Studio{secureMode ? " 🛡️" : ""}</span>
+          <div style={{ padding: "2px 8px", background: interviewExperienceMode === "practice" ? "rgba(53, 106, 230, 0.15)" : "rgba(194, 65, 65, 0.15)", border: `1px solid ${interviewExperienceMode === "practice" ? "rgba(53, 106, 230, 0.35)" : "rgba(194, 65, 65, 0.35)"}`, borderRadius: 5 }}>
+            <span style={{ fontSize: 11, color: interviewExperienceMode === "practice" ? "#60A5FA" : "#F87171", fontWeight: 700 }}>
+              {interviewExperienceMode === "practice" ? "🎓 PRACTICE MODE" : "🏢 PROFESSIONAL EVALUATION"}
+            </span>
+          </div>
           <div style={{ padding: "2px 8px", background: "rgba(53, 106, 230, 0.15)", border: "1px solid rgba(53, 106, 230, 0.35)", borderRadius: 5 }}>
             <span style={{ fontSize: 11, color: "#60A5FA", fontWeight: 600 }}>{stageHeader || sl}</span>
           </div>
@@ -2446,6 +2969,38 @@ export default function InterviewPage() {
 
           {/* Input */}
           <div style={{ padding: "12px 16px", borderTop: "1px solid #233752", background: "#111C2E", flexShrink: 0 }}>
+            {interviewExperienceMode === "practice" && !ended && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10, padding: "8px 12px", background: "#1E293B", borderRadius: 7, border: "1px solid #334155" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <span style={{ fontSize: 13 }}>💡</span>
+                  <span style={{ fontSize: 11, color: "#94A3B8" }}>
+                    Guidance: <strong style={{ color: "#E2E8F0", textTransform: "capitalize" }}>{hintPreference.replace(/_/g, " ")}</strong>
+                    {assistedTurnsCount > 0 && <span style={{ color: "#FBBF24", marginLeft: 8 }}>({assistedTurnsCount} assisted turns)</span>}
+                  </span>
+                </div>
+                {hintPreference !== "no_hints" && (
+                  <button
+                    onClick={requestHint}
+                    disabled={requestingHint || loading || ended}
+                    style={{
+                      padding: "4px 10px",
+                      background: requestingHint ? "#334155" : "rgba(53, 106, 230, 0.2)",
+                      border: "1px solid #356AE6",
+                      borderRadius: 5,
+                      color: requestingHint ? "#94A3B8" : "#60A5FA",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: requestingHint || loading ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4
+                    }}
+                  >
+                    {requestingHint ? <><span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⟳</span> Alex preparing hint...</> : "💡 Get Hint"}
+                  </button>
+                )}
+              </div>
+            )}
             {ended ? (
               <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "center" }}>
                 {buildingVerdict || buildingTrustReport ? (

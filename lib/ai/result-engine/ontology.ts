@@ -180,6 +180,16 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
     parents: ['docker'],
     notImpliedBy: ['docker'],
   },
+  terraform: {
+    canonicalName: 'Terraform',
+    category: 'devops',
+    synonyms: ['infrastructure as code', 'iac', 'terraform hcl'],
+  },
+  cuda: {
+    canonicalName: 'CUDA',
+    category: 'tool',
+    synonyms: ['cuda c++', 'gpu computing', 'nvidia cuda', 'gpu acceleration'],
+  },
   cicd: {
     canonicalName: 'CI/CD Pipelines',
     category: 'devops',
@@ -238,6 +248,30 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
     parents: ['react'],
     notImpliedBy: ['react', 'javascript'],
   },
+  tailwind: {
+    canonicalName: 'Tailwind CSS',
+    category: 'framework',
+    synonyms: ['tailwind', 'tailwindcss', 'utility css'],
+    parents: ['frontend'],
+  },
+  graphql: {
+    canonicalName: 'GraphQL',
+    category: 'api',
+    synonyms: ['graphql api', 'apollo graphql'],
+    parents: ['api'],
+  },
+  kafka: {
+    canonicalName: 'Apache Kafka',
+    category: 'tool',
+    synonyms: ['kafka', 'apache kafka', 'event streaming'],
+    parents: ['data_engineering'],
+  },
+  spark: {
+    canonicalName: 'Apache Spark',
+    category: 'framework',
+    synonyms: ['spark', 'pyspark', 'apache spark'],
+    parents: ['data_engineering'],
+  },
   nodejs: {
     canonicalName: 'Node.js',
     category: 'framework',
@@ -273,11 +307,37 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
     synonyms: ['in-memory cache', 'key-value store'],
   },
 
-  // --- Core Concepts ---
+  // --- Core Concepts & Foundations ---
   dsa: {
     canonicalName: 'Data Structures & Algorithms',
     category: 'concept',
-    synonyms: ['dsa', 'algorithmic problem solving', 'leetcode', 'competitive programming', 'complexity analysis'],
+    synonyms: ['dsa', 'data structures and algorithms', 'data structures & algorithms', 'algorithmic problem solving', 'leetcode', 'competitive programming', 'complexity analysis'],
+  },
+  oop: {
+    canonicalName: 'Object-Oriented Programming (OOP)',
+    category: 'concept',
+    synonyms: ['oop', 'object-oriented programming', 'object oriented programming', 'classes and objects', 'encapsulation', 'polymorphism', 'inheritance', 'abstraction'],
+  },
+  html_css: {
+    canonicalName: 'HTML / CSS',
+    category: 'language',
+    synonyms: ['html', 'css', 'html5', 'css3', 'html/css', 'html and css', 'responsive design', 'web styling'],
+  },
+  debugging: {
+    canonicalName: 'Debugging & Analytical Skills',
+    category: 'concept',
+    synonyms: ['debugging', 'troubleshooting', 'analytical skills', 'problem-solving', 'root cause analysis', 'code debugging'],
+  },
+  csharp: {
+    canonicalName: 'C#',
+    category: 'language',
+    synonyms: ['c sharp', 'c#', '.net c#'],
+    parents: ['programming'],
+  },
+  dotnet: {
+    canonicalName: '.NET',
+    category: 'framework',
+    synonyms: ['.net', 'dotnet', 'asp.net', 'asp.net core', '.net core'],
   },
   system_design: {
     canonicalName: 'System Design & Architecture',
@@ -285,6 +345,27 @@ export const TECHNOLOGY_ONTOLOGY: Record<string, OntologyNode> = {
     synonyms: ['distributed systems', 'microservices', 'high availability', 'scalability', 'system architecture'],
   },
 };
+
+/**
+ * Robust boundary-safe token matcher.
+ * Handles tokens with non-word characters like C++, C#, .NET, OOP without false boundary dropouts.
+ */
+export function matchTokenWithBoundaries(text: string, token: string): boolean {
+  if (!text || !token) return false;
+  const cleanToken = token.trim();
+  if (!cleanToken) return false;
+
+  // Escape special regex chars
+  const escaped = cleanToken.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Boundary condition:
+  // Left: Start of string OR non-alphanumeric character
+  // Right: End of string OR non-alphanumeric character (and if token ends with '+', right cannot be '+')
+  const rightExclusion = cleanToken.endsWith('+') ? '[^a-zA-Z0-9_+]' : '[^a-zA-Z0-9_]';
+  const pattern = `(?:^|[^a-zA-Z0-9_])${escaped}(?:$|${rightExclusion})`;
+  const rx = new RegExp(pattern, 'i');
+  return rx.test(text);
+}
 
 /**
  * Normalizes an arbitrary skill string into its canonical key if recognized.
@@ -393,3 +474,77 @@ export function validateOntologyRelationship(
     reasoning: `No direct or relational evidence found for ${reqNode.canonicalName}.`,
   };
 }
+
+export interface NonEquivalenceRule {
+  targetRequirement: string;
+  incompatibleEvidence: string;
+  reason: string;
+}
+
+export const NON_EQUIVALENCE_RULES: NonEquivalenceRule[] = [
+  {
+    targetRequirement: 'Next.js',
+    incompatibleEvidence: 'React',
+    reason: 'React client component experience does not prove Next.js SSR, SSG, Server Actions, or App Router architecture mastery.',
+  },
+  {
+    targetRequirement: 'FastAPI',
+    incompatibleEvidence: 'Python',
+    reason: 'General Python language familiarity does not prove async FastAPI framework engineering (Pydantic validation, async dependency injection).',
+  },
+  {
+    targetRequirement: 'AWS',
+    incompatibleEvidence: 'Cloud',
+    reason: 'Generic cloud familiarity does not prove hands-on AWS service expertise (IAM, ECS, Lambda, CloudWatch, VPC).',
+  },
+  {
+    targetRequirement: 'PostgreSQL',
+    incompatibleEvidence: 'MySQL',
+    reason: 'MySQL database experience does not substitute for PostgreSQL-specific advanced indexing, JSONB operators, or window aggregate mechanics.',
+  },
+  {
+    targetRequirement: 'Kubernetes',
+    incompatibleEvidence: 'Docker',
+    reason: 'Basic Docker containerization does not satisfy multi-node Kubernetes cluster orchestration, Helm charts, or Ingress architecture.',
+  },
+  {
+    targetRequirement: 'TypeScript',
+    incompatibleEvidence: 'JavaScript',
+    reason: 'Dynamically typed JavaScript does not satisfy strict compile-time TypeScript type system, generics, and interface contracts.',
+  },
+  {
+    targetRequirement: 'Production ML Engineering',
+    incompatibleEvidence: 'Machine Learning',
+    reason: 'Theoretical or notebook machine learning does not satisfy production low-latency model serving, monitoring, and inference pipelines.',
+  },
+  {
+    targetRequirement: 'RAG Architecture Ownership',
+    incompatibleEvidence: 'RAG',
+    reason: 'Simple LLM wrapper API calls do not satisfy custom chunking, vector indexing, reranking, and retrieval evaluation architecture.',
+  },
+];
+
+/**
+ * Validates whether candidate evidence violates explicit non-equivalence boundaries.
+ */
+export function checkNonEquivalence(
+  targetRequirement: string,
+  candidateEvidence: string
+): { isViolated: boolean; reason?: string } {
+  const lowerReq = targetRequirement.toLowerCase();
+  const lowerEvidence = candidateEvidence.toLowerCase();
+
+  for (const rule of NON_EQUIVALENCE_RULES) {
+    if (lowerReq.includes(rule.targetRequirement.toLowerCase())) {
+      const hasTarget = lowerEvidence.includes(rule.targetRequirement.toLowerCase());
+      const hasIncompatible = new RegExp(`\\b${rule.incompatibleEvidence.toLowerCase()}\\b`, 'i').test(lowerEvidence);
+
+      if (hasIncompatible && !hasTarget) {
+        return { isViolated: true, reason: rule.reason };
+      }
+    }
+  }
+
+  return { isViolated: false };
+}
+

@@ -192,7 +192,39 @@ export const HARD_NON_EQUIVALENCE_RULES: NonEquivalenceRule[] = [
     forbiddenBroaderOrPeers: ["api", "rest api", "api integration"],
     explanation: "General REST API integration does NOT prove OpenAI / LLM API integration.",
   },
+  {
+    target: "rag",
+    forbiddenBroaderOrPeers: ["ai", "ai integration", "machine learning", "ml", "api integration", "llm", "prompt engineering"],
+    explanation: "Generic AI integration or basic LLM prompting does NOT prove RAG (Retrieval-Augmented Generation) architecture, vector embeddings, or retrieval pipelines.",
+  },
+  {
+    target: "ci_cd",
+    forbiddenBroaderOrPeers: ["git", "github", "gitlab", "version control", "bitbucket"],
+    explanation: "Using Git or GitHub for version control does NOT prove CI/CD pipeline automation or continuous integration/deployment implementation.",
+  },
+  {
+    target: "cicd",
+    forbiddenBroaderOrPeers: ["git", "github", "gitlab", "version control", "bitbucket"],
+    explanation: "Using Git or GitHub for version control does NOT prove CI/CD pipeline automation or continuous integration/deployment implementation.",
+  },
 ];
+
+export const TARGET_ALIASES: Record<string, string[]> = {
+  postgresql: ["postgresql", "postgres", "psql"],
+  kubernetes: ["kubernetes", "k8s"],
+  nextjs: ["nextjs", "next.js", "next"],
+  react: ["react", "reactjs", "react.js"],
+  typescript: ["typescript", "ts"],
+  fastapi: ["fastapi", "fast api"],
+  aws: ["aws", "amazon web services"],
+  gcp: ["gcp", "google cloud", "google cloud platform"],
+  azure: ["azure", "microsoft azure"],
+  ci_cd: ["ci/cd", "cicd", "ci-cd", "continuous integration", "continuous deployment"],
+  cicd: ["ci/cd", "cicd", "ci-cd", "continuous integration", "continuous deployment"],
+  github_actions: ["github actions", "github action"],
+  openai_api: ["openai api", "openai apis", "gpt api"],
+  rag: ["rag", "retrieval augmented generation", "retrieval-augmented generation"],
+};
 
 /**
  * Normalizes text to canonical token for comparison.
@@ -216,17 +248,31 @@ export function checkNonEquivalenceViolation(
   candidateText: string
 ): { isViolated: boolean; rule?: NonEquivalenceRule; explanation?: string } {
   const normReq = normalizeToken(requirement);
+  const reqCompact = normReq.replace(/_/g, "");
   const lowerCand = candidateText.toLowerCase();
 
   for (const rule of HARD_NON_EQUIVALENCE_RULES) {
-    if (rule.target === normReq || normReq.includes(rule.target)) {
-      // Check if candidateText only mentions forbidden broader/peer terms without mentioning the target
-      const targetRegex = new RegExp(`\\b${rule.target.replace(/_/g, "[\\s_-]?")}\\b`, "i");
-      const hasTarget = targetRegex.test(lowerCand);
+    const targetNorm = normalizeToken(rule.target);
+    const targetCompact = targetNorm.replace(/_/g, "");
+    const ruleAliases = TARGET_ALIASES[rule.target] || [];
+
+    const isTargetMatch =
+      targetCompact === reqCompact ||
+      normReq === rule.target ||
+      ruleAliases.some((a) => normalizeToken(a).replace(/_/g, "") === reqCompact);
+
+    if (isTargetMatch) {
+      // Check if candidateText mentions the target or any of its known canonical aliases
+      const targetPatterns = Array.from(new Set([rule.target, ...ruleAliases]));
+      const hasTarget = targetPatterns.some((pattern) => {
+        const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "[\\s_-]+");
+        return new RegExp(`(^|[^a-zA-Z0-9])${escaped}([^a-zA-Z0-9]|$)`, "i").test(lowerCand);
+      });
 
       if (!hasTarget) {
         for (const forbidden of rule.forbiddenBroaderOrPeers) {
-          const forbiddenRegex = new RegExp(`\\b${forbidden.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
+          const forbiddenEscaped = forbidden.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const forbiddenRegex = new RegExp(`(^|[^a-zA-Z0-9])${forbiddenEscaped}([^a-zA-Z0-9]|$)`, "i");
           if (forbiddenRegex.test(lowerCand)) {
             return {
               isViolated: true,

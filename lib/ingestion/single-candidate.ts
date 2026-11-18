@@ -112,7 +112,7 @@ export function ingestCandidateResume(
   // 2. Parse Structured Bullets & Claims from Untrusted Source
   for (const line of lines) {
     const isBullet = /^[-•*]|\d+\./.test(line);
-    const cleanLine = line.replace(/^[-•*]|\d+\.\s*/, "").trim();
+    const cleanLine = line.replace(/^([-•*]|\d+\.)\s*/, "").trim();
 
     if (cleanLine.length < 15) continue;
 

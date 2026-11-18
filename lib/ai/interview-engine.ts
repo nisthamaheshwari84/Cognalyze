@@ -64,6 +64,11 @@ import {
   findNextPlannedQuestion,
   mapSectionToStageId,
 } from "@/lib/interview/interview-planner";
+import {
+  computeResumeHash,
+  createResumeContextSnapshot,
+  ResumeContextSnapshot,
+} from "@/lib/interview/resume-context-service";
 
 export {
   createTurnQuestionBlueprint,
@@ -1309,7 +1314,9 @@ export async function buildCandidateInterviewDossier(
   const effectiveResume = typeof candidateIdOrOpts === "object" ? (candidateIdOrOpts.resume || customResume) : customResume;
   const effectiveJd = typeof candidateIdOrOpts === "object" ? (candidateIdOrOpts.jd || customJd) : customJd;
 
-  const cacheKey = `${candidateId}::${effectiveResume ? "custom" : "std"}::${effectiveJd ? effectiveJd.slice(0, 30) : "std"}`;
+  const resumeHash = effectiveResume ? computeResumeHash(effectiveResume) : "std";
+  const jdHash = effectiveJd ? computeResumeHash(effectiveJd) : "std";
+  const cacheKey = `${candidateId}::${resumeHash}::${jdHash}`;
   if (!options?.forceRefresh) {
     const cached = CANDIDATE_INTERVIEW_DOSSIER_CACHE.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < DOSSIER_CACHE_TTL_MS) {
@@ -1425,80 +1432,42 @@ export async function buildCandidateInterviewDossier(
     }
   }
 
-  // If custom resume provided, parse out explicit claims and project claims
-  if (customResume && customResume.trim().length > 0) {
+  // If custom resume provided, parse out authoritative snapshot and project claims
+  let resumeSnapshot: ResumeContextSnapshot | undefined;
+  if (effectiveResume && effectiveResume.trim().length > 0) {
+    resumeSnapshot = createResumeContextSnapshot(candidateId, effectiveResume);
     evidenceItems.push({
       source: "resume",
       claimOrObservation: "Candidate provided resume content",
       status: "CANDIDATE_CLAIM",
-      detail: customResume.slice(0, 500),
+      detail: effectiveResume.slice(0, 500),
       relatedCompetency: "Resume Claims",
       relevanceScore: 0.9,
     });
 
-    if (projects.length === 0) {
-      // 1. Check for single-line / inline projects on the same line, e.g. Projects: DistributedKV (Go, Raft); ECommerceStore (Next.js, Postgres)
-      const inlineMatch = customResume.match(/projects?:[^\S\r\n]+([^\r\n]+)/i);
-      if (inlineMatch && inlineMatch[1]) {
-        const rawItems = inlineMatch[1].split(/[;,]\s*(?=[A-Za-z0-9])/);
-        for (const item of rawItems) {
-          const itemTrimmed = item.trim();
-          if (itemTrimmed.length > 2 && !/^(skills|experience|education|certifications)/i.test(itemTrimmed)) {
-            const pMatch = itemTrimmed.match(/^([^(]+)(?:\(([^)]+)\))?/);
-            const pTitle = (pMatch ? pMatch[1] : itemTrimmed).trim();
-            const pTech = pMatch && pMatch[2] ? pMatch[2].split(",").map((t) => t.trim()) : [];
-            projects.push({
-              title: pTitle,
-              tech: pTech,
-              description: `Project declared in resume: ${itemTrimmed}`,
-              verificationStatus: "CANDIDATE_CLAIM",
-            });
-            evidenceItems.push({
-              source: "resume",
-              claimOrObservation: `Claimed project: ${pTitle}`,
-              status: "CANDIDATE_CLAIM",
-              detail: itemTrimmed,
-              relatedCompetency: "System & Project Implementation",
-              relevanceScore: 0.85,
-            });
-          }
-        }
+    if (resumeSnapshot.projects.length > 0) {
+      projects.length = 0; // Authoritative override: clear historical / profile projects
+      for (const sp of resumeSnapshot.projects) {
+        projects.push({
+          title: sp.name,
+          tech: sp.techStack,
+          description: sp.description,
+          verificationStatus: "CANDIDATE_CLAIM",
+        });
+        evidenceItems.push({
+          source: "resume",
+          claimOrObservation: `Claimed project: ${sp.name}`,
+          status: "CANDIDATE_CLAIM",
+          detail: `${sp.description} (Tech: ${sp.techStack.join(", ")})`,
+          relatedCompetency: "System & Project Implementation",
+          relevanceScore: 0.9,
+        });
       }
+    }
 
-      // 2. Multiline parsing
-      const lines = customResume.split("\n");
-      let inProjectsSection = false;
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (/^projects?:?/i.test(trimmed)) {
-          inProjectsSection = true;
-          continue;
-        }
-        if (inProjectsSection && /^(skills|experience|education|certifications):?/i.test(trimmed)) {
-          inProjectsSection = false;
-          continue;
-        }
-        if (inProjectsSection && trimmed.length > 0) {
-          const m = trimmed.match(/^(?:\d+[\.\)]|[-*•])\s*([^:\-—]+)(?:[:\-—]\s*(.*))?$/);
-          if (m) {
-            const pTitle = m[1].trim();
-            const pDesc = m[2] ? m[2].trim() : "";
-            projects.push({
-              title: pTitle,
-              tech: [],
-              description: pDesc,
-              verificationStatus: "CANDIDATE_CLAIM",
-            });
-            evidenceItems.push({
-              source: "resume",
-              claimOrObservation: `Claimed project: ${pTitle}`,
-              status: "CANDIDATE_CLAIM",
-              detail: pDesc || `Project listed in resume: ${pTitle}`,
-              relatedCompetency: "System & Project Implementation",
-              relevanceScore: 0.85,
-            });
-          }
-        }
+    for (const sk of resumeSnapshot.skills) {
+      if (!claimedSkills.includes(sk.name)) {
+        claimedSkills.push(sk.name);
       }
     }
   }
@@ -1657,7 +1626,7 @@ export async function buildCandidateInterviewDossier(
 
   if (targetRoleOverride) dossier.targetRole = targetRoleOverride;
   if (experienceModeOverride) dossier.experienceMode = experienceModeOverride;
-  if (studentProfileOverride?.past_projects?.length) {
+  if (studentProfileOverride?.past_projects?.length && (!resumeSnapshot || resumeSnapshot.projects.length === 0)) {
     dossier.projects = studentProfileOverride.past_projects.map((p: any) => ({
       title: p.title || "Project",
       tech_stack: p.tech_stack || [],
@@ -1668,6 +1637,20 @@ export async function buildCandidateInterviewDossier(
       architecturalTradeoffs: []
     }));
   }
+
+  // Authoritative Selected Resume Override: If an explicit resume was provided, its projects supersede everything
+  if (resumeSnapshot && resumeSnapshot.projects.length > 0) {
+    dossier.projects = resumeSnapshot.projects.map((p) => ({
+      title: p.name,
+      tech: p.techStack,
+      description: p.description,
+      verificationStatus: "CANDIDATE_CLAIM",
+      provenance: "RESUME-BACKED",
+      metrics: p.metrics,
+      architecturalHighlights: p.architecturalHighlights,
+    }));
+  }
+  (dossier as any).resumeContextSnapshot = resumeSnapshot;
 
   CANDIDATE_INTERVIEW_DOSSIER_CACHE.set(cacheKey, { dossier, timestamp: Date.now() });
   return dossier;
@@ -3589,7 +3572,11 @@ RULES FOR ALEX:
 5. Condition the question on the candidate's actual project (${turnBlueprint.targetProject?.title || "their work"}) and the target company's interview style (${turnBlueprint.companyProfile.companyName}).
 6. Keep the question under 60 words. Be direct, clear, and natural.
 7. NEVER repeat or paraphrase any question from the previous questions list.
-8. Return ONLY valid JSON format.
+8. UNLISTED PROJECTS & PROVENANCE:
+- The authoritative resume projects for this candidate are: ${dossier.projects.map((p) => p.title).join(", ") || "None"}.
+- If the candidate verbally introduces an entity or project that is NOT in this list (e.g. "Cognalyze"), you MUST acknowledge that it is absent from their submitted resume before probing: "You mentioned [Project Name], which sounds interesting. I noticed that this project isn't explicitly listed in the resume you submitted. Could you explain your involvement, your individual contributions, and the technologies you used?"
+- Never spend more than 2 turns exploring any single project. If 2 questions have already explored this project, transition to the next core competency.
+9. Return ONLY valid JSON format.
 
 JSON schema:
 {
@@ -3678,7 +3665,17 @@ JSON schema:
     return {
       question: plannedQ.promptStem,
       question_targets: plannedQ.competencyTargeted,
-      question_type: currentSection === "coding_system_design" ? "system-design" : currentSection === "resume_projects" ? "project-defense" : "technical",
+      question_type: turnBlueprint.questionType || (
+        currentSection === "coding_system_design"
+          ? (turnBlueprint.experienceMode === "experienced" ? "system-design" : "coding")
+          : currentSection === "resume_projects"
+          ? "project-defense"
+          : currentSection === "behavioral"
+          ? "behavioral"
+          : currentSection === "closing"
+          ? "closing"
+          : "technical"
+      ),
       difficulty_level: plannedQ.plannedDifficulty,
       is_follow_up: isFollowUp,
       follow_up_reason: determineFollowUpReason(

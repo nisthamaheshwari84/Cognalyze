@@ -23,6 +23,8 @@ import {
   ParsedResume,
   ProjectQualityItem,
   RequirementEvidenceMatch,
+  RiskCategory,
+  RiskItem,
   RoadmapMilestone,
   RoadmapPlan,
   StrengthItem,
@@ -30,7 +32,7 @@ import {
 import { EvidenceLedger } from '@/lib/evidence/evidence-ledger';
 
 /**
- * Derives evidence-backed strengths. ONLY generated from actual verified evidence.
+ * Derives evidence-backed strengths. ONLY generated from actual verified evidence (Level 3, 4, 5).
  */
 export function deriveStrengths(
   matches: RequirementEvidenceMatch[],
@@ -38,8 +40,15 @@ export function deriveStrengths(
   evidenceItems: CanonicalResumeEvidence[]
 ): StrengthItem[] {
   const strengths: StrengthItem[] = [];
-  // Strict rule: Only SUPPORTED matches with direct evidence count as strengths
-  const supported = matches.filter((m) => m.status === 'SUPPORTED');
+  // Strict rule: Only SUPPORTED matches with Level 3+ (Implementation, Artifact-Backed, or Independently Verified)
+  const supported = matches.filter(
+    (m) =>
+      m.status === 'SUPPORTED' &&
+      (!m.evidenceStrengthLevel ||
+        m.evidenceStrengthLevel === 'LEVEL_3_IMPLEMENTATION' ||
+        m.evidenceStrengthLevel === 'LEVEL_4_ARTIFACT_BACKED' ||
+        m.evidenceStrengthLevel === 'LEVEL_5_INDEPENDENTLY_VERIFIED')
+  );
 
   let idCounter = 1;
   for (const m of supported) {
@@ -50,12 +59,17 @@ export function deriveStrengths(
     const evidenceQuote = primaryEvidence ? primaryEvidence.verbatim_quote : m.evidenceQuotes[0] || `Documented in resume project implementation.`;
     const evId = primaryEvidence?.evidence_id || primaryEvidence?.canonical_evidence_id || primaryEvidence?.id || m.matchedEvidenceIds[0] || `ev_str_${idCounter}`;
     const projectTitle = primaryEvidence?.title || 'resume project';
+    const tierBadge = m.evidenceStrengthLevel === 'LEVEL_5_INDEPENDENTLY_VERIFIED'
+      ? '[Level 5: Verified]'
+      : m.evidenceStrengthLevel === 'LEVEL_4_ARTIFACT_BACKED'
+      ? '[Level 4: Artifact-Backed]'
+      : '[Level 3: Implementation]';
 
     strengths.push({
       id: `str_${idCounter++}`,
       requirement_id: m.requirementId,
       evidence_id: evId,
-      strength: `${m.requirementName} Implementation Evidence`,
+      strength: `${tierBadge} ${m.requirementName} Implementation Evidence`,
       evidence: `[${evId}] Found in ${projectTitle}: "${evidenceQuote}"`,
       whyItMatters: req
         ? `Direct evidence matches the JD requirement for ${m.requirementName} (${req.priority.toLowerCase()} priority for ${req.category}).`
@@ -77,29 +91,39 @@ export function deriveGaps(
 ): GapItem[] {
   const gaps: GapItem[] = [];
   const nonSupported = matches.filter(
-    (m) => m.status === 'EVIDENCE_GAP' || m.status === 'PARTIAL' || m.status === 'CLAIM_ONLY' || m.status === 'SKILL_GAP' || m.status === 'MISSING'
+    (m) =>
+      !m.alternative_satisfied &&
+      (m.status === 'EVIDENCE_GAP' || m.status === 'PARTIAL' || m.status === 'CLAIM_ONLY' || m.status === 'SKILL_GAP' || m.status === 'MISSING')
   );
 
   let idCounter = 1;
   for (const m of nonSupported) {
     const req = requirements.find((r) => r.id === m.requirementId);
     let gapType: GapItem['gapType'] = 'Evidence Gap';
-    if (m.status === 'CLAIM_ONLY' || m.status === 'PARTIAL') gapType = 'Partial Evidence';
+    if (m.status === 'CLAIM_ONLY') gapType = 'Partial Evidence';
+    else if (m.status === 'PARTIAL') gapType = 'Partial Evidence';
     else if (m.status === 'SKILL_GAP') gapType = 'Skill Gap';
     else if (m.status === 'MISSING') gapType = 'Missing';
 
     let currentEvidence = `${m.requirementName} is not evidenced in the submitted materials.`;
-    if (m.status === 'CLAIM_ONLY') {
-      currentEvidence = `${m.requirementName} is claimed in the submitted resume, but the submitted materials do not independently establish implementation experience.`;
-    } else if (m.status === 'PARTIAL') {
-      currentEvidence = `Related concepts are mentioned, but specific ${m.requirementName} implementation could not be independently verified from the submitted materials.`;
+    let missingEvidence = `Implementation experience for ${m.requirementName} could not be independently verified from the submitted materials.`;
+
+    if (m.evidenceStrengthLevel === 'LEVEL_1_MENTIONED' || m.status === 'CLAIM_ONLY') {
+      currentEvidence = `[Level 1: Claim Only] ${m.requirementName} is listed in resume skills/summary, but the submitted materials do not independently establish implementation experience.`;
+      missingEvidence = `Production or project implementation demonstrating hands-on usage of ${m.requirementName}.`;
+    } else if (m.evidenceStrengthLevel === 'LEVEL_2_CONTEXTUAL' || m.status === 'PARTIAL') {
+      currentEvidence = `[Level 2: Contextual] ${m.requirementName} is mentioned in project toolchains or related context, but individual implementation depth is not established.`;
+      missingEvidence = `Direct code evidence or detailed description of specific architecture components built with ${m.requirementName}.`;
+    } else {
+      currentEvidence = `[Level 0: No Evidence] ${m.requirementName} is not evidenced anywhere in the submitted materials.`;
+      missingEvidence = `Verifiable projects, coursework, or public artifacts demonstrating practical capability in ${m.requirementName}.`;
     }
 
     gaps.push({
       id: `gap_${idCounter++}`,
       requirement: m.requirementName,
       currentEvidence,
-      missingEvidence: `Implementation experience for ${m.requirementName} could not be independently verified from the submitted materials.`,
+      missingEvidence,
       gapType,
       impact: req?.priority === 'CRITICAL'
         ? `High Impact: ${m.requirementName} is marked as a critical core requirement for this role.`
@@ -113,6 +137,268 @@ export function deriveGaps(
   }
 
   return gaps;
+}
+
+/**
+ * Detects candidate risks, inconsistencies, inflated metrics, and date anomalies.
+ * Enforces Section 11 of Master Directive:
+ * - Duplicate project descriptions
+ * - Contradictory employment dates
+ * - Unsupported certifications
+ * - Unclear personal contribution / Multi-tool stuffing
+ * - Outsized / ungrounded metrics
+ * - Claims that conflict with inspected artifacts
+ * - Categorizes findings with careful, non-accusatory language.
+ */
+export function detectCandidateRisks(
+  resume: ParsedResume,
+  evidenceItems: CanonicalResumeEvidence[],
+  matches: RequirementEvidenceMatch[],
+  ledger?: EvidenceLedger
+): RiskItem[] {
+  const risks: RiskItem[] = [];
+  let riskCounter = 1;
+
+  // 1. Material Contradictions & Discrepancies from External Source Ledger
+  if (ledger) {
+    const contradictedEvidence = ledger.getAllEvidence().filter((e) => e.verification_status === 'CONTRADICTED');
+    for (const contra of contradictedEvidence) {
+      risks.push({
+        id: `risk_${riskCounter++}`,
+        claim: contra.original_text,
+        verificationRecommended: `Direct cross-examination: Request verifiable employment record or official documentation clarifying ${contra.section}.`,
+        severity: 'HIGH',
+        sourceQuote: contra.original_text,
+        category: 'SOURCE_CONTRADICTION',
+        explanation: `External cross-source verification detected conflicting information for ${contra.section}.`,
+        flagType: 'CROSS_SOURCE_DISCREPANCY',
+        source: 'External Source Ledger',
+        confidence: 0.95,
+        supporting_evidence: contra.observed_fact || contra.original_text,
+        limitations: ['Candidate may have updated records that have not propagated across public profiles'],
+        recommended_action: 'Conduct structured interview cross-examination to establish verified chronology',
+      });
+    }
+
+    const failedSources = ledger.getAllSources().filter((s) => s.verification_status === 'INACCESSIBLE' || s.verification_status === 'CONTRADICTORY');
+    for (const fs of failedSources) {
+      risks.push({
+        id: `risk_${riskCounter++}`,
+        claim: `External reference ${fs.url}`,
+        verificationRecommended: `Verify candidate's public repository or profile URL manually with candidate.`,
+        severity: 'MEDIUM',
+        sourceQuote: fs.url,
+        category: 'TECHNICAL_REVIEW_REQUIRED',
+        explanation: `Candidate supplied external source ${fs.url} which was not accessible (HTTP error or private access) during verification.`,
+        flagType: 'INACCESSIBLE_SOURCE',
+        source: 'Candidate Portfolio / Repository Link',
+        confidence: 0.90,
+        supporting_evidence: `URL: ${fs.url} returned status ${fs.verification_status}`,
+        limitations: ['Repository may be private or permissions may require authentication'],
+        recommended_action: 'Request public access or portfolio walkthrough during interview',
+      });
+    }
+  }
+
+  // 2. Date & Timeline Inconsistencies
+  for (const exp of resume.experience) {
+    const period = `${exp.period || ''} ${exp.role || ''} ${exp.company || ''}`;
+    const years = period.match(/\b(19\d\d|20\d\d)\b/g);
+    if (years && years.length >= 2) {
+      const startYear = parseInt(years[0], 10);
+      const endYear = parseInt(years[1], 10);
+      if (endYear < startYear) {
+        risks.push({
+          id: `risk_${riskCounter++}`,
+          claim: `${exp.role || 'Role'} (${startYear} - ${endYear})`,
+          verificationRecommended: `Confirm employment tenure dates for ${exp.company || 'experience'}.`,
+          severity: 'HIGH',
+          sourceQuote: period.trim(),
+          category: 'MATERIAL_CONTRADICTION',
+          explanation: `Employment end year (${endYear}) is earlier than start year (${startYear}) in stated period.`,
+          flagType: 'DATE_INCONSISTENCY',
+          source: 'Resume Work Experience',
+          confidence: 0.98,
+          supporting_evidence: `Extracted date range: ${startYear} - ${endYear}`,
+          limitations: ['Likely clerical typo in resume typography'],
+          recommended_action: 'Request verified employment dates during initial phone screen',
+        });
+      }
+    }
+  }
+
+  // Check degree year vs experience tenure claim
+  const eduYears = resume.education.flatMap((e) => (e.year.match(/\b(20\d\d)\b/g) || []).map((y) => parseInt(y, 10)));
+  const currentYear = new Date().getFullYear();
+  const futureEduYears = eduYears.filter((y) => y > currentYear);
+  const totalExpBullets = evidenceItems.filter((e) => e.section === 'EXPERIENCE');
+  if (futureEduYears.length > 0 && totalExpBullets.length >= 6) {
+    risks.push({
+      id: `risk_${riskCounter++}`,
+      claim: `Expected graduation ${Math.max(...futureEduYears)} with extensive concurrent full-time employment`,
+      verificationRecommended: `Clarify whether documented employment was full-time, part-time, or student internship during academic enrollment.`,
+      severity: 'MEDIUM',
+      sourceQuote: `Expected graduation ${Math.max(...futureEduYears)}`,
+      category: 'INFORMATION_NEEDED',
+      explanation: `Candidate documents extensive multi-year experience while expected graduation is in the future (${Math.max(...futureEduYears)}).`,
+      flagType: 'TIMELINE_OVERLAP',
+      source: 'Education vs Experience Cross-Check',
+      confidence: 0.85,
+      supporting_evidence: `Graduation year: ${Math.max(...futureEduYears)}, Experience bullets: ${totalExpBullets.length}`,
+      limitations: ['Candidate may have pursued co-op or remote employment while attending school'],
+      recommended_action: 'Clarify employment hours and academic co-op status',
+    });
+  }
+
+  // 3. Duplicate or Suspiciously Repeated Project Descriptions (Section 11)
+  if (resume.projects && resume.projects.length >= 2) {
+    for (let i = 0; i < resume.projects.length; i++) {
+      for (let j = i + 1; j < resume.projects.length; j++) {
+        const p1 = resume.projects[i];
+        const p2 = resume.projects[j];
+        for (const b1 of p1.bullets) {
+          for (const b2 of p2.bullets) {
+            const normB1 = b1.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+            const normB2 = b2.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+            if (normB1.length > 25 && (normB1 === normB2 || normB1.includes(normB2) || normB2.includes(normB1))) {
+              risks.push({
+                id: `risk_${riskCounter++}`,
+                claim: `Duplicated implementation bullet between "${p1.title}" and "${p2.title}"`,
+                verificationRecommended: `Clarify individual technical scope and whether "${p1.title}" and "${p2.title}" share code or represent the same work.`,
+                severity: 'MEDIUM',
+                sourceQuote: b1.slice(0, 120),
+                category: 'TECHNICAL_REVIEW_REQUIRED',
+                explanation: `Substantially identical implementation text was identified across two separate project entries.`,
+                flagType: 'DUPLICATE_PROJECT_TEXT',
+                source: 'Resume Project Descriptions',
+                confidence: 0.95,
+                supporting_evidence: `Bullet in "${p1.title}": "${b1.slice(0, 80)}" matches bullet in "${p2.title}"`,
+                limitations: ['Candidate may have reused architecture components across academic terms'],
+                recommended_action: 'Request source repository links to verify distinct codebases',
+              });
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 4. Multi-Tool Stuffing & Ungrounded Implementation
+  for (const proj of resume.projects) {
+    for (const b of proj.bullets) {
+      const techInBullet = (proj.technologies || []).filter((t) =>
+        new RegExp(`\\b${t.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i').test(b)
+      );
+      if (techInBullet.length >= 5) {
+        risks.push({
+          id: `risk_${riskCounter++}`,
+          claim: `Multi-tool enumeration in "${proj.title}"`,
+          verificationRecommended: `Ask candidate to isolate their individual module ownership for each claimed tool (${techInBullet.slice(0, 4).join(', ')}).`,
+          severity: 'MEDIUM',
+          sourceQuote: b.slice(0, 120),
+          category: 'EVIDENCE_CONCERN',
+          explanation: `A single bullet enumerates 5+ technologies (${techInBullet.join(', ')}). Individual implementation depth is diluted.`,
+          flagType: 'MULTI_TOOL_STUFFING',
+          source: `Project: "${proj.title}"`,
+          confidence: 0.90,
+          supporting_evidence: b.slice(0, 120),
+          limitations: ['Tools may be part of an integrated third-party pipeline'],
+          recommended_action: 'Probe individual architectural ownership for each claimed tool',
+        });
+        break; // One per project is enough
+      }
+    }
+  }
+
+  // 5. Ungrounded or Outsized Metrics (>300%, 10x, 1000%, unanchored revenue)
+  const suspiciousMetricRegex = /(?:\b|^)([3-9]\d{2,}%|\d{4,}%|10x|[2-9]\d+x|\$\d+[mMbB])(?:\s|\b|$|[.,;:!])/i;
+  for (const ev of evidenceItems) {
+    if (ev.section === 'EXPERIENCE' || ev.section === 'PROJECTS') {
+      const match = ev.text.match(suspiciousMetricRegex);
+      if (match) {
+        risks.push({
+          id: `risk_${riskCounter++}`,
+          claim: `Outsized impact metric: "${match[1] || match[0]}" in ${ev.title || ev.section}`,
+          verificationRecommended: `Ask for baseline measurement, measurement methodology, and candidate's isolated contribution to this metric.`,
+          severity: 'MEDIUM',
+          sourceQuote: ev.verbatim_quote.slice(0, 120),
+          category: 'EVIDENCE_CONCERN',
+          explanation: `Metric "${match[1] || match[0]}" represents exceptional scale or improvement that requires baseline context to be interview-defensible.`,
+          flagType: 'UNATTRIBUTED_METRIC',
+          source: `${ev.section}: "${ev.title || 'Entry'}"`,
+          confidence: 0.85,
+          supporting_evidence: ev.verbatim_quote.slice(0, 120),
+          limitations: ['Candidate may have baseline metrics documented in private engineering retrospectives'],
+          recommended_action: 'Request baseline measurement data and team attribution in interview',
+        });
+      }
+    }
+  }
+
+  // 6. Unsupported Certifications (Section 11)
+  for (const cert of (resume.certifications || [])) {
+    const hasAuthorityOrId = /(aws|google|cisco|microsoft|oracle|hashicorp|comptia|credential|certified|id:|\b\d{6,}\b)/i.test(cert);
+    const hasDate = /\b(19\d\d|20\d\d)\b/.test(cert);
+    if (!hasAuthorityOrId || !hasDate) {
+      risks.push({
+        id: `risk_${riskCounter++}`,
+        claim: `Certification claim: "${cert}"`,
+        verificationRecommended: `Request certification verification badge, link, or credential ID.`,
+        severity: 'LOW',
+        sourceQuote: cert,
+        category: 'UNVERIFIED_CLAIM',
+        explanation: `Certification is documented without an issuing date or credential verification ID.`,
+        flagType: 'UNSUPPORTED_CERTIFICATION',
+        source: 'Resume Certifications',
+        confidence: 0.75,
+        supporting_evidence: cert,
+        limitations: ['Candidate may possess official credential that was not hyperlinked in submitted text'],
+        recommended_action: 'Request official certificate or public badge verification URL',
+      });
+    }
+  }
+
+  // 7. Unsupported Skills Section Claims (Level 1 Mentioned)
+  const claimOnlyMatches = matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_1_MENTIONED' || m.status === 'CLAIM_ONLY');
+  for (const c of claimOnlyMatches.slice(0, 3)) {
+    risks.push({
+      id: `risk_${riskCounter++}`,
+      claim: `${c.requirementName} listed in skills section`,
+      verificationRecommended: `Administer a targeted technical probe or live assessment verifying practical syntax and library usage.`,
+      severity: 'LOW',
+      sourceQuote: `${c.requirementName} (Skills Section)`,
+      category: 'UNVERIFIED_CLAIM',
+      explanation: `${c.requirementName} is claimed in the skills inventory but has zero supporting code or narrative in projects or experience.`,
+      flagType: 'UNSUPPORTED_SKILL_CLAIM',
+      source: 'Skills Inventory',
+      confidence: 0.90,
+      supporting_evidence: `${c.requirementName} listed in skills list`,
+      limitations: ['Candidate may have applied technology in unlisted coursework'],
+      recommended_action: 'Administer live technical probe verifying hands-on syntax and API knowledge',
+    });
+  }
+
+  // 8. Informational: Early career candidate with strong project evidence
+  if (resume.experience.length === 0 && resume.projects.length >= 2) {
+    risks.push({
+      id: `risk_${riskCounter++}`,
+      claim: `Early-Career / Campus Profile`,
+      verificationRecommended: `Evaluate code artifacts, algorithmic depth, and architectural curiosity rather than corporate tenure.`,
+      severity: 'LOW',
+      sourceQuote: `${resume.projects.length} project(s) documented`,
+      category: 'INFORMATIONAL',
+      explanation: `Candidate is an early-career engineer evaluated primarily on hands-on project artifacts rather than corporate employment tenure.`,
+      flagType: 'EARLY_CAREER_CONTEXT',
+      source: 'Resume Overview',
+      confidence: 0.95,
+      supporting_evidence: `${resume.projects.length} project headings identified`,
+      limitations: ['Academic background only'],
+      recommended_action: 'Focus interview on algorithmic problem-solving and software design fundamentals',
+    });
+  }
+
+  return risks;
 }
 
 /**
@@ -131,15 +417,19 @@ export function deriveExperienceAnalysis(
   let profLevel: ExperienceAnalysis['professionalExperience']['level'] = 'NO_PROFESSIONAL_FOUND';
   let profDetail = 'No formal full-time corporate employment documented on resume.';
 
-  if (expBullets.length > 5) {
+  const hasFullTimeTenure =
+    expBullets.length > 0 &&
+    resume.experience.some((e) => !/\b(intern|internship|trainee|fellow|apprentice)\b/i.test(e.role));
+
+  if (hasFullTimeTenure && expBullets.length > 5) {
     profLevel = 'EXTENSIVE';
     profDetail = 'Comprehensive multi-year professional tenure documented with specific business contributions.';
-  } else if (expBullets.length > 0) {
+  } else if (hasFullTimeTenure) {
     profLevel = 'MODERATE';
     profDetail = 'Documented industry experience demonstrating corporate workflow familiarity.';
-  } else if (internshipBullets.length > 0) {
+  } else if (internshipBullets.length > 0 || resume.experience.some((e) => /\b(intern|internship|trainee|fellow|apprentice)\b/i.test(e.role))) {
     profLevel = 'EARLY';
-    profDetail = 'Documented internship experience provides real-world team collaboration exposure.';
+    profDetail = 'Documented internship experience provides real-world team collaboration exposure prior to full-time corporate employment.';
   }
 
   const projectLevel: ExperienceAnalysis['projectEvidence']['level'] =
@@ -155,10 +445,10 @@ export function deriveExperienceAnalysis(
       detail: profDetail,
     },
     internshipExperience: {
-      documented: internshipBullets.length > 0,
+      documented: internshipBullets.length > 0 || resume.experience.some((e) => /\b(intern|internship|trainee|fellow|apprentice)\b/i.test(e.role)),
       detail:
-        internshipBullets.length > 0
-          ? `${internshipBullets.length} internship bullet(s) verified in resume.`
+        internshipBullets.length > 0 || resume.experience.some((e) => /\b(intern|internship|trainee|fellow|apprentice)\b/i.test(e.role))
+          ? `${Math.max(internshipBullets.length, 1)} internship role/bullet(s) verified in resume.`
           : 'No internship bullets documented.',
     },
     projectEvidence: {
@@ -321,6 +611,166 @@ export function deriveRoadmap(
 }
 
 /**
+ * Helper to generate grounded, requirement-specific interview probes and evaluation rubrics (Section 12).
+ */
+function getTargetedProbeIndicators(
+  tech: string,
+  projectTitle: string,
+  questionType: string
+): {
+  question: string;
+  unresolvedQuestion: string;
+  strongSignals: string[];
+  weakSignals: string[];
+  followUpQuestions: string[];
+  evaluationRubric: string;
+} {
+  const lowerTech = tech.toLowerCase();
+
+  if (questionType === 'MISSING_CRITICAL_EVIDENCE') {
+    return {
+      question: `This role requires ${tech}, which is not documented on your resume. Have you worked with ${tech} in any unlisted academic or personal projects?`,
+      unresolvedQuestion: `Whether candidate has unlisted experience or transferable knowledge to bridge this critical gap.`,
+      strongSignals: [
+        `Transparently clarifies exact level of exposure and describes adjacent foundational skills.`,
+        `Articulates an actionable plan and rapid learning velocity.`,
+      ],
+      weakSignals: [
+        `Feigns deep expertise after previously omitting it from resume.`,
+        `Dismisses the requirement as trivial or irrelevant.`,
+      ],
+      followUpQuestions: [
+        `How do your demonstrated skills in adjacent technologies transfer to ${tech}?`,
+        `What specific proof-of-concept project would you construct in your first 30 days to ramp up?`,
+      ],
+      evaluationRubric: `Score 5: Honest self-appraisal with clear transferable foundations and ramp-up plan. Score 3: Modest adjacent knowledge without concrete bridge plan. Score 1: Dismissive or misleading.`,
+    };
+  }
+
+  if (questionType === 'RESUME_VERIFICATION') {
+    return {
+      question: `You list ${tech} as a technical competency. Can you describe where you personally used it, what you implemented, and what challenges you encountered?`,
+      unresolvedQuestion: `Hands-on practical capability vs passive theoretical awareness.`,
+      strongSignals: [
+        `Walks through concrete implementation files, syntax, and libraries used.`,
+        `Articulates specific debugging scenarios and production trade-offs.`,
+      ],
+      weakSignals: [
+        `Recites textbook definitions without mentioning actual code written.`,
+        `Vague or evasive answers regarding personal usage.`,
+      ],
+      followUpQuestions: [
+        `What was the most challenging technical bug you resolved using ${tech}?`,
+        `If tasked with deploying a service using ${tech} today, what would your initial setup look like?`,
+      ],
+      evaluationRubric: `Score 5: Demonstrates authentic hands-on project implementation. Score 3: Demonstrates academic or conceptual knowledge without production depth. Score 1: Purely theoretical or exaggerated claim.`,
+    };
+  }
+
+  if (lowerTech.includes('fastapi') || (projectTitle.toLowerCase().includes('fastapi') && questionType === 'PROJECT_OWNERSHIP')) {
+    return {
+      question: `Your project "${projectTitle}" describes a FastAPI backend. Walk through the request lifecycle, validation, error handling, and database interaction in the module you implemented.`,
+      unresolvedQuestion: `Whether candidate personally architected ASGI dependency injection and database session lifespans or adapted starter boilerplate.`,
+      strongSignals: [
+        `Explains Pydantic schema validation vs ORM data models.`,
+        `Discusses async route handlers with asyncio and session lifespan teardown.`,
+        `Articulates custom HTTP exception handlers and status code mapping.`,
+      ],
+      weakSignals: [
+        `Treats FastAPI as simple synchronous Flask.`,
+        `Inability to explain request lifecycle or database connection management.`,
+      ],
+      followUpQuestions: [
+        `How did you manage connection pooling and async database sessions under concurrent loads?`,
+        `How did you handle authentication and JWT token expiration in your middleware?`,
+      ],
+      evaluationRubric: `Score 5: Fluently explains async lifecycle, dependency injection, and schema validation. Score 3: Describes basic CRUD endpoints without lifecycle awareness. Score 1: Unable to describe FastAPI architecture.`,
+    };
+  }
+
+  if (lowerTech.includes('rag') || lowerTech.includes('llm') || lowerTech.includes('retrieval') || projectTitle.toLowerCase().includes('rag')) {
+    return {
+      question: `Your project "${projectTitle}" claims a retrieval-based knowledge assistant. Explain how documents are ingested, chunked, embedded, retrieved, and evaluated. Which parts did you personally implement?`,
+      unresolvedQuestion: `Whether candidate implemented end-to-end vector retrieval pipelines or made basic prompt calls to an external API.`,
+      strongSignals: [
+        `Explains chunking strategies (token vs semantic), overlap tradeoffs, and vector indexing.`,
+        `Discusses similarity metric selection (cosine vs dot product) and re-ranking.`,
+        `Addresses context window limits and hallucination reduction.`,
+      ],
+      weakSignals: [
+        `Confuses API prompting with RAG retrieval architecture.`,
+        `Unable to explain vector distance or chunking trade-offs.`,
+      ],
+      followUpQuestions: [
+        `What embedding model and vector database did you choose, and what was your retrieval latency?`,
+        `How did you evaluate retrieval accuracy or precision when irrelevant context was returned?`,
+      ],
+      evaluationRubric: `Score 5: Clear architectural mastery of embedding pipelines, vector indexing, and hybrid retrieval. Score 3: Used LangChain/LlamaIndex tutorials without underlying pipeline understanding. Score 1: Conflates standard chatbot with RAG.`,
+    };
+  }
+
+  if (lowerTech.includes('react') || lowerTech.includes('next') || projectTitle.toLowerCase().includes('react')) {
+    return {
+      question: `In your project "${projectTitle}", how did you structure state management, optimize component re-renders, and integrate backend REST/GraphQL endpoints?`,
+      unresolvedQuestion: `Whether component hierarchy and state synchronization were architected cleanly or clustered into bloated client components.`,
+      strongSignals: [
+        `Articulates state lifting, custom hooks, and memoization (useMemo/useCallback).`,
+        `Discusses asynchronous state handling and optimistic UI updates.`,
+        `Explains clean separation between presentation and data fetching.`,
+      ],
+      weakSignals: [
+        `Overuses global state for local form inputs.`,
+        `Unaware of re-rendering lifecycles or effect cleanup.`,
+      ],
+      followUpQuestions: [
+        `How did you handle error boundaries and loading states during failed network requests?`,
+        `What strategies did you use to prevent unnecessary re-renders in deep component trees?`,
+      ],
+      evaluationRubric: `Score 5: Demonstrates production-grade component state architecture and performance profiling. Score 3: Standard component rendering without lifecycle optimization. Score 1: Inability to explain component state flow.`,
+    };
+  }
+
+  if (lowerTech.includes('postgres') || lowerTech.includes('sql') || lowerTech.includes('database')) {
+    return {
+      question: `In your project "${projectTitle}", how did you design the schema, index critical query pathways, and handle database migrations?`,
+      unresolvedQuestion: `Whether candidate designed relational schemas and index strategies or only performed basic ORM lookups.`,
+      strongSignals: [
+        `Articulates B-tree indexing, foreign key constraints, and query EXPLAIN analysis.`,
+        `Discusses connection pooling, transaction isolation levels, and migration rollbacks.`,
+      ],
+      weakSignals: [
+        `Unaware of query execution plans or indexing trade-offs.`,
+        `Treats relational database as unstructured key-value store.`,
+      ],
+      followUpQuestions: [
+        `How did you analyze and optimize a slow-running query in your database?`,
+        `How did you prevent race conditions or handle concurrent updates in high-volume tables?`,
+      ],
+      evaluationRubric: `Score 5: Fluent in indexing, execution plans, and transaction integrity. Score 3: Basic CRUD without indexing depth. Score 1: Cannot explain relational concepts.`,
+    };
+  }
+
+  // Default / Project Ownership
+  return {
+    question: `Walk me through your personal contribution to "${projectTitle}". Which specific modules did you write yourself, and why did you choose ${tech}?`,
+    unresolvedQuestion: `Genuine candidate code authorship vs third-party boilerplate or collaborative group work.`,
+    strongSignals: [
+      `Articulates architectural trade-offs, debugging stories, and personal commits.`,
+      `Explains component boundaries and failure modes.`,
+    ],
+    weakSignals: [
+      `Generic buzzwords without citing specific files or modules.`,
+      `Unable to explain technical decisions.`,
+    ],
+    followUpQuestions: [
+      `What was the single hardest engineering bug you encountered in this project, and how did you diagnose it?`,
+      `If refactoring this project today, what architecture decision would you change?`,
+    ],
+    evaluationRubric: `Score 5: Comprehensive mastery of architecture, failure modes, and code ownership. Score 3: Competent explanation with minor gaps. Score 1: Superficial knowledge.`,
+  };
+}
+
+/**
  * Derives interview focus and probing questions based on actual claims, unverified claims, and contradictions.
  */
 export function deriveInterviewFocus(
@@ -348,6 +798,19 @@ export function deriveInterviewFocus(
         evidenceTested: 'Source consistency and factual integrity',
         whatStrongProofLooksLike: 'Candidate transparently explains the discrepancy with clear institutional dates.',
         candidateDefensibility: 'WEAK',
+        unresolvedQuestion: 'Factual reconciliation of conflicting dates, credentials, or repo ownership.',
+        expectedAnswerIndicators: {
+          strongSignals: [
+            'Provides clear, verifiable chronological timeline and documentary context.',
+            'Transparently resolves clerical or date formatting errors.',
+          ],
+          weakSignals: ['Defensive or evasive responses.', 'Contradicts own statements further.'],
+        },
+        followUpQuestions: [
+          'Can you provide documentary confirmation (e.g. transcript or letter) for these dates?',
+          'Which of the submitted documents reflects your actual verified status?',
+        ],
+        evaluationRubric: 'Score 5: Discrepancy fully clarified with credible factual justification. Score 3: Plausible explanation pending verification. Score 1: Material contradiction confirmed.',
       });
     }
   }
@@ -355,6 +818,7 @@ export function deriveInterviewFocus(
   // 2. Probe unverified self-claims (CLAIM_ONLY)
   const claimOnly = matches.filter((m) => m.status === 'CLAIM_ONLY');
   for (const c of claimOnly.slice(0, 2)) {
+    const indicators = getTargetedProbeIndicators(c.requirementName, 'Skills Summary', 'RESUME_VERIFICATION');
     probeQuestions.push({
       questionId: `probe_${qId++}`,
       requirementId: c.requirementId,
@@ -362,12 +826,19 @@ export function deriveInterviewFocus(
       reasonForQuestion: `Resume claims ${c.requirementName}, but submitted materials do not independently establish implementation experience.`,
       targetRequirement: c.requirementName,
       claimBeingProbed: `${c.requirementName} listed in skills/summary`,
-      question: `You list ${c.requirementName} as a skill. Can you describe where you personally used it, what you implemented, and what challenges you encountered?`,
+      question: indicators.question,
       whyAsked: `Resume claims ${c.requirementName}, but submitted materials do not independently establish implementation experience.`,
       questionType: 'RESUME_VERIFICATION',
       evidenceTested: 'Hands-on implementation experience',
       whatStrongProofLooksLike: 'Candidate walks through specific files, API routes, or modules they personally wrote using the technology.',
       candidateDefensibility: 'MODERATE',
+      unresolvedQuestion: indicators.unresolvedQuestion,
+      expectedAnswerIndicators: {
+        strongSignals: indicators.strongSignals,
+        weakSignals: indicators.weakSignals,
+      },
+      followUpQuestions: indicators.followUpQuestions,
+      evaluationRubric: indicators.evaluationRubric,
     });
   }
 
@@ -384,6 +855,8 @@ export function deriveInterviewFocus(
     const reqId = matchedMatch?.requirementId || 'req_project_impl';
     const evId = pe.evidence_id || pe.canonical_evidence_id || pe.id || `ev_proj_${qId}`;
 
+    const indicators = getTargetedProbeIndicators(tech, cleanTitle, 'PROJECT_OWNERSHIP');
+
     probeQuestions.push({
       questionId: `probe_${qId++}`,
       requirementId: reqId,
@@ -391,12 +864,19 @@ export function deriveInterviewFocus(
       reasonForQuestion: `Resume documents "${cleanTitle}" using ${pe.technologies.join(', ') || 'libraries'}; verify candidate code ownership vs templates.`,
       targetRequirement: tech,
       claimBeingProbed: pe.text,
-      question: `Walk me through your personal contribution to "${cleanTitle}". Which specific modules did you write yourself, and why did you choose ${pe.technologies.slice(0, 2).join(' and ') || 'this toolchain'}?`,
+      question: indicators.question,
       whyAsked: `Resume documents "${cleanTitle}" using ${pe.technologies.join(', ') || 'libraries'}, which interviewers test for genuine code ownership vs boilerplate templates.`,
       questionType: 'PROJECT_OWNERSHIP',
       evidenceTested: 'Code ownership and architectural reasoning',
       whatStrongProofLooksLike: 'Candidate articulates architectural trade-offs, debugging stories, and personal commits without generic buzzwords.',
       candidateDefensibility: 'STRONG',
+      unresolvedQuestion: indicators.unresolvedQuestion,
+      expectedAnswerIndicators: {
+        strongSignals: indicators.strongSignals,
+        weakSignals: indicators.weakSignals,
+      },
+      followUpQuestions: indicators.followUpQuestions,
+      evaluationRubric: indicators.evaluationRubric,
     });
     if (seenProjectTitles.size >= 3) break;
   }
@@ -404,6 +884,7 @@ export function deriveInterviewFocus(
   // 4. Probe missing critical requirements
   const criticalGaps = matches.filter((m) => m.priority === 'CRITICAL' && (m.status === 'EVIDENCE_GAP' || m.status === 'MISSING'));
   for (const cg of criticalGaps.slice(0, 1)) {
+    const indicators = getTargetedProbeIndicators(cg.requirementName, 'Role Requirement', 'MISSING_CRITICAL_EVIDENCE');
     probeQuestions.push({
       questionId: `probe_${qId++}`,
       requirementId: cg.requirementId,
@@ -411,12 +892,19 @@ export function deriveInterviewFocus(
       reasonForQuestion: `Critical role requirement ${cg.requirementName} has no verified evidence in submitted materials.`,
       targetRequirement: cg.requirementName,
       claimBeingProbed: `No documented evidence for ${cg.requirementName}`,
-      question: `This role requires ${cg.requirementName}, which is not documented on your resume. Have you worked with ${cg.requirementName} in any unlisted academic or personal projects?`,
+      question: indicators.question,
       whyAsked: `Critical qualification for role execution without documented evidence.`,
       questionType: 'MISSING_CRITICAL_EVIDENCE',
       evidenceTested: 'Relevant unlisted experience',
       whatStrongProofLooksLike: 'Candidate describes concrete unlisted project or clarifies their path to bridge the competency.',
       candidateDefensibility: 'WEAK',
+      unresolvedQuestion: indicators.unresolvedQuestion,
+      expectedAnswerIndicators: {
+        strongSignals: indicators.strongSignals,
+        weakSignals: indicators.weakSignals,
+      },
+      followUpQuestions: indicators.followUpQuestions,
+      evaluationRubric: indicators.evaluationRubric,
     });
   }
 

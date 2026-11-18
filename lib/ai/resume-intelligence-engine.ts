@@ -465,7 +465,7 @@ export async function analyzeResumeIntelligence(
 
   // Skills gap items
   const skillsGap: SkillsGapItem[] = canonical.matches
-    .filter((m) => m.status !== 'SUPPORTED')
+    .filter((m) => m.status !== 'SUPPORTED' && !m.alternative_satisfied)
     .map((m) => ({
       requirementId: m.requirementId,
       name: m.requirementName,

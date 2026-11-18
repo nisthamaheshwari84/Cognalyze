@@ -102,6 +102,72 @@
     "interviewHistory": [],
     "agentTraceLedger": [
       {
+        "id": "tr-dna-1794774089843",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-15T20:21:29.728Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794774089845",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-15T20:21:29.728Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794774089846",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-15T20:21:29.844Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      },
+      {
+        "id": "tr-dna-1794679692628",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-14T18:08:12.591Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794679692630",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-14T18:08:12.591Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794679692634",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-14T18:08:12.632Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      },
+      {
         "id": "tr-dna-1794502323389",
         "agentName": "StudentIntelligenceAgent",
         "timestamp": "2026-11-12T16:52:02.903Z",
@@ -234,7 +300,7 @@
         "outcome": "Early Foundation"
       }
     ],
-    "updatedAt": "2026-11-12T16:52:03.390Z"
+    "updatedAt": "2026-11-15T20:21:29.844Z"
   },
   {
     "candidateId": "assess-persist-1794468416453",
@@ -512,6 +578,72 @@
     "interviewHistory": [],
     "agentTraceLedger": [
       {
+        "id": "tr-dna-1794774092244",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-15T20:21:31.819Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794774092245",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-15T20:21:31.819Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794774092247",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-15T20:21:32.245Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      },
+      {
+        "id": "tr-dna-1794679692870",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-14T18:08:12.859Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794679692880",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-14T18:08:12.859Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794679692881",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-14T18:08:12.879Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      },
+      {
         "id": "tr-dna-1794502323835",
         "agentName": "StudentIntelligenceAgent",
         "timestamp": "2026-11-12T16:52:03.829Z",
@@ -644,7 +776,7 @@
         "outcome": "Early Foundation"
       }
     ],
-    "updatedAt": "2026-11-12T16:52:03.835Z"
+    "updatedAt": "2026-11-15T20:21:32.245Z"
   },
   {
     "candidateId": "verify-stu-a-1794468503479",
@@ -1819,5 +1951,719 @@
       }
     ],
     "updatedAt": "2026-11-12T16:52:03.791Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794679689475",
+    "arenaId": "gsoc-2027",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794679691432",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-14T18:08:09.896Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794679691436",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-14T18:08:09.896Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794679691459",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-14T18:08:11.457Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      }
+    ],
+    "updatedAt": "2026-11-14T18:08:11.457Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794679689475",
+    "arenaId": "gsoc-2027",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794679692553",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-14T18:08:11.459Z",
+        "inputEvidence": "2 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (MEDIUM)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Codebase Comprehension & Tracing",
+        "executionStatus": "executed",
+        "outcome": "3 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794679692572",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-14T18:08:11.459Z",
+        "inputEvidence": "Languages: Go, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect aquasecurity/trivy #6514",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794679692574",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-14T18:08:12.572Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Codebase Comprehension & Tracing Verification",
+        "agentDecision": "Prioritized 'Foundation & Codebase Comprehension & Tracing Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Codebase Comprehension & Tracing.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Building Evidence"
+      }
+    ],
+    "updatedAt": "2026-11-14T18:08:12.572Z"
+  },
+  {
+    "candidateId": "assess-persist-1794679692643",
+    "arenaId": "flipkart-grid-7",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [
+      {
+        "sessionId": "mock-session-flipkart-grid-7-1794679692643",
+        "arenaId": "flipkart-grid-7",
+        "candidateId": "assess-persist-1794679692643",
+        "startedAt": "2026-11-14T18:08:12.643Z",
+        "completedAt": "2026-11-14T18:08:12.644Z",
+        "status": "completed",
+        "targetedWeakConcepts": [
+          "Data Structures & Algorithms (Graphs, Trees, DP)",
+          "High-Concurrency Concurrency & Locking",
+          "Relational SQL, CTEs & Indexing",
+          "Distributed Caching (Redis) & Message Queues",
+          "Java / Python / Go Backend Engineering"
+        ],
+        "turns": [
+          {
+            "questionId": "q-git-adv",
+            "question": "Your local feature branch is 12 commits behind upstream main and has a conflict in CONTRIBUTING.md. Which command sequence maintains a clean linear history without force-pushing blind?",
+            "format": "conceptual",
+            "difficulty": "easy",
+            "competency": "Data Structures & Algorithms (Graphs, Trees, DP)",
+            "studentAnswer": "git fetch upstream && git rebase upstream/main, resolve conflicts, git add CONTRIBUTING.md, git rebase --continue, git push --force-with-lease origin branch",
+            "score": 25,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Verifies safe non-destructive Git branching and linear PR history hygiene."
+          },
+          {
+            "questionId": "q-debug-py-mutable",
+            "question": "In Python, what subtle bug occurs in `def append_event(evt, log=[]): log.append(evt); return log` when invoked across multiple API requests, and what is the idiomatic fix?",
+            "format": "conceptual",
+            "difficulty": "medium",
+            "competency": "High-Concurrency Concurrency & Locking",
+            "studentAnswer": "The default list object is evaluated once at function definition time and shared across all calls; fix by defaulting `log=None` and initializing `log = [] if log is None else log`",
+            "score": 25,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Assesses Python mutable default argument binding lifetime."
+          },
+          {
+            "questionId": "q-grid-1",
+            "question": "Given N flash-sale warehouse orders, each with a delivery deadline and profit value, design the O(N log N) algorithm to maximize total profit assuming each order consumes 1 unit of time and only 1 order can run per slot.",
+            "format": "coding",
+            "difficulty": "hard",
+            "competency": "Relational SQL, CTEs & Indexing",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 32,
+            "maxScore": 35,
+            "isCorrect": true,
+            "feedback": "Evaluates Greedy Job Sequencing with max-heap or Disjoint Set slot allocation."
+          },
+          {
+            "questionId": "q-grid-2",
+            "question": "Why does Redis Lua script execution guarantee atomicity in a flash-sale inventory decrement system?",
+            "format": "architecture",
+            "difficulty": "hard",
+            "competency": "Distributed Caching (Redis) & Message Queues",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 23,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Understands Redis single-threaded command serialization."
+          },
+          {
+            "questionId": "q-gap-data-structures-algorithms-graphs-trees-dp-",
+            "question": "Your Student DNA highlights a gap in \"Data Structures & Algorithms (Graphs, Trees, DP)\". Describe a concrete implementation bug or failure mode common in Data Structures & Algorithms (Graphs, Trees, DP), how you detect it with automated tests, and how you mitigate it in production.",
+            "format": "architecture",
+            "difficulty": "hard",
+            "competency": "Java / Python / Go Backend Engineering",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 27,
+            "maxScore": 30,
+            "isCorrect": true,
+            "feedback": "Evaluates applied understanding and verification strategy specifically for Data Structures & Algorithms (Graphs, Trees, DP)."
+          }
+        ],
+        "totalScore": 132,
+        "maxScore": 140,
+        "percentage": 94,
+        "verdict": "EXEMPLARY",
+        "recommendedPracticeLinks": [],
+        "nextAssessmentObjective": "Advance to deeper architectural & interview defense for Flipkart GRiD 7.0",
+        "generatedBy": "deterministic_adaptive"
+      }
+    ],
+    "interviewHistory": [],
+    "agentTraceLedger": [],
+    "updatedAt": "2026-11-14T18:08:12.653Z"
+  },
+  {
+    "candidateId": "interview-persist-1794679692675",
+    "arenaId": "amazon-hackon-2026",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [
+      {
+        "sessionId": "int-amazon-hackon-2026-1794679692760",
+        "arenaId": "amazon-hackon-2026",
+        "candidateId": "interview-persist-1794679692675",
+        "mode": "technical_interview",
+        "targetContextSummary": "Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers",
+        "status": "completed",
+        "turns": [
+          {
+            "turnNumber": 1,
+            "interviewerQuestion": "For Amazon HackOn 2026 (Amazon India), let's inspect BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: how do you guarantee correctness, bounded latency, and clean failure recovery under malformed or concurrent inputs?",
+            "focusCompetency": "Cloud Architecture & Serverless / Microservices",
+            "timestamp": "2026-11-14T18:08:12.760Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Cloud Architecture & Serverless / Microservices."
+            }
+          },
+          {
+            "turnNumber": 2,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Python / Node.js Backend API Development",
+            "timestamp": "2026-11-14T18:08:12.768Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Python / Node.js Backend API Development."
+            }
+          },
+          {
+            "turnNumber": 3,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Data Structures & Core Problem Solving",
+            "timestamp": "2026-11-14T18:08:12.778Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Data Structures & Core Problem Solving."
+            }
+          },
+          {
+            "turnNumber": 4,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Cloud Architecture & Serverless / Microservices",
+            "timestamp": "2026-11-14T18:08:12.784Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Cloud Architecture & Serverless / Microservices."
+            }
+          }
+        ],
+        "createdAt": "2026-11-14T18:08:12.760Z",
+        "updatedAt": "2026-11-14T18:08:12.792Z",
+        "finalReport": {
+          "overallVerdict": "Borderline — Needs Targeted Polish",
+          "averages": {
+            "technicalCorrectness": 7,
+            "reasoningQuality": 8,
+            "communicationClarity": 6,
+            "depth": 4
+          },
+          "keyStrengths": [
+            "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+          ],
+          "criticalGaps": [
+            "Response is too brief to prove technical ownership."
+          ],
+          "improvementPlan": [
+            {
+              "action": "Drill timed problem solving & complexity reasoning",
+              "targetHref": "/student/skills/dsa"
+            },
+            {
+              "action": "Practice codebase tracing & regression test isolation",
+              "targetHref": "/student/skills/code-comprehension"
+            },
+            {
+              "action": "Review weak concepts in Amazon HackOn 2026 Autonomous Assessment",
+              "targetHref": "/student/skills/preparations/amazon-hackon-2026?tab=mock_assessment"
+            }
+          ]
+        }
+      }
+    ],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794679692681",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-14T18:08:12.676Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Cloud Architecture & Serverless / Microservices",
+        "executionStatus": "executed",
+        "outcome": "4 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794679692682",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-14T18:08:12.676Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794679692684",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-14T18:08:12.682Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Core Foundations: Cloud Architecture & Serverless / Microservices",
+        "agentDecision": "Prioritized 'Core Foundations: Cloud Architecture & Serverless / Microservices' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Cloud Architecture & Serverless / Microservices.",
+        "recommendedAction": "Build API in Code Comprehension",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      }
+    ],
+    "updatedAt": "2026-11-14T18:08:12.792Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1794774086290",
+    "arenaId": "gsoc-2027",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794774089701",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-15T20:21:27.248Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Git & GitHub Collaborative Workflow",
+        "executionStatus": "executed",
+        "outcome": "5 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794774089704",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-15T20:21:27.248Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794774089724",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-15T20:21:29.722Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Git & GitHub Collaborative Workflow Verification",
+        "agentDecision": "Prioritized 'Foundation & Git & GitHub Collaborative Workflow Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Git & GitHub Collaborative Workflow.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      }
+    ],
+    "updatedAt": "2026-11-15T20:21:29.722Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1794774086290",
+    "arenaId": "gsoc-2027",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794774089726",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-15T20:21:29.724Z",
+        "inputEvidence": "2 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (MEDIUM)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Codebase Comprehension & Tracing",
+        "executionStatus": "executed",
+        "outcome": "3 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794774089727",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-15T20:21:29.724Z",
+        "inputEvidence": "Languages: Go, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect aquasecurity/trivy #6514",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794774089728",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-15T20:21:29.726Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Foundation & Codebase Comprehension & Tracing Verification",
+        "agentDecision": "Prioritized 'Foundation & Codebase Comprehension & Tracing Verification' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Codebase Comprehension & Tracing.",
+        "recommendedAction": "Explore Open Source Studio",
+        "executionStatus": "executed",
+        "outcome": "Building Evidence"
+      }
+    ],
+    "updatedAt": "2026-11-15T20:21:29.726Z"
+  },
+  {
+    "candidateId": "assess-persist-1794774089847",
+    "arenaId": "flipkart-grid-7",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [
+      {
+        "sessionId": "mock-session-flipkart-grid-7-1794774089847",
+        "arenaId": "flipkart-grid-7",
+        "candidateId": "assess-persist-1794774089847",
+        "startedAt": "2026-11-15T20:21:29.847Z",
+        "completedAt": "2026-11-15T20:21:29.848Z",
+        "status": "completed",
+        "targetedWeakConcepts": [
+          "Data Structures & Algorithms (Graphs, Trees, DP)",
+          "High-Concurrency Concurrency & Locking",
+          "Relational SQL, CTEs & Indexing",
+          "Distributed Caching (Redis) & Message Queues",
+          "Java / Python / Go Backend Engineering"
+        ],
+        "turns": [
+          {
+            "questionId": "q-git-adv",
+            "question": "Your local feature branch is 12 commits behind upstream main and has a conflict in CONTRIBUTING.md. Which command sequence maintains a clean linear history without force-pushing blind?",
+            "format": "conceptual",
+            "difficulty": "easy",
+            "competency": "Data Structures & Algorithms (Graphs, Trees, DP)",
+            "studentAnswer": "git fetch upstream && git rebase upstream/main, resolve conflicts, git add CONTRIBUTING.md, git rebase --continue, git push --force-with-lease origin branch",
+            "score": 25,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Verifies safe non-destructive Git branching and linear PR history hygiene."
+          },
+          {
+            "questionId": "q-debug-py-mutable",
+            "question": "In Python, what subtle bug occurs in `def append_event(evt, log=[]): log.append(evt); return log` when invoked across multiple API requests, and what is the idiomatic fix?",
+            "format": "conceptual",
+            "difficulty": "medium",
+            "competency": "High-Concurrency Concurrency & Locking",
+            "studentAnswer": "The default list object is evaluated once at function definition time and shared across all calls; fix by defaulting `log=None` and initializing `log = [] if log is None else log`",
+            "score": 25,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Assesses Python mutable default argument binding lifetime."
+          },
+          {
+            "questionId": "q-grid-1",
+            "question": "Given N flash-sale warehouse orders, each with a delivery deadline and profit value, design the O(N log N) algorithm to maximize total profit assuming each order consumes 1 unit of time and only 1 order can run per slot.",
+            "format": "coding",
+            "difficulty": "hard",
+            "competency": "Relational SQL, CTEs & Indexing",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 32,
+            "maxScore": 35,
+            "isCorrect": true,
+            "feedback": "Evaluates Greedy Job Sequencing with max-heap or Disjoint Set slot allocation."
+          },
+          {
+            "questionId": "q-grid-2",
+            "question": "Why does Redis Lua script execution guarantee atomicity in a flash-sale inventory decrement system?",
+            "format": "architecture",
+            "difficulty": "hard",
+            "competency": "Distributed Caching (Redis) & Message Queues",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 23,
+            "maxScore": 25,
+            "isCorrect": true,
+            "feedback": "Understands Redis single-threaded command serialization."
+          },
+          {
+            "questionId": "q-gap-data-structures-algorithms-graphs-trees-dp-",
+            "question": "Your Student DNA highlights a gap in \"Data Structures & Algorithms (Graphs, Trees, DP)\". Describe a concrete implementation bug or failure mode common in Data Structures & Algorithms (Graphs, Trees, DP), how you detect it with automated tests, and how you mitigate it in production.",
+            "format": "architecture",
+            "difficulty": "hard",
+            "competency": "Java / Python / Go Backend Engineering",
+            "studentAnswer": "Sort by deadline and use max-heap greedy scheduling with O(N log N) priority queue + atomic Redis Lua lock + unit test.",
+            "score": 27,
+            "maxScore": 30,
+            "isCorrect": true,
+            "feedback": "Evaluates applied understanding and verification strategy specifically for Data Structures & Algorithms (Graphs, Trees, DP)."
+          }
+        ],
+        "totalScore": 132,
+        "maxScore": 140,
+        "percentage": 94,
+        "verdict": "EXEMPLARY",
+        "recommendedPracticeLinks": [],
+        "nextAssessmentObjective": "Advance to deeper architectural & interview defense for Flipkart GRiD 7.0",
+        "generatedBy": "deterministic_adaptive"
+      }
+    ],
+    "interviewHistory": [],
+    "agentTraceLedger": [],
+    "updatedAt": "2026-11-15T20:21:29.848Z"
+  },
+  {
+    "candidateId": "interview-persist-1794774089976",
+    "arenaId": "amazon-hackon-2026",
+    "roadmapNodeStates": {},
+    "contributionWorkspaces": {},
+    "inspectedRepoNames": [],
+    "activeProjectIds": [],
+    "assessmentHistory": [],
+    "interviewHistory": [
+      {
+        "sessionId": "int-amazon-hackon-2026-1794774090807",
+        "arenaId": "amazon-hackon-2026",
+        "candidateId": "interview-persist-1794774089976",
+        "mode": "technical_interview",
+        "targetContextSummary": "Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers",
+        "status": "completed",
+        "turns": [
+          {
+            "turnNumber": 1,
+            "interviewerQuestion": "For Amazon HackOn 2026 (Amazon India), let's inspect BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: how do you guarantee correctness, bounded latency, and clean failure recovery under malformed or concurrent inputs?",
+            "focusCompetency": "Cloud Architecture & Serverless / Microservices",
+            "timestamp": "2026-11-15T20:21:30.807Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Cloud Architecture & Serverless / Microservices."
+            }
+          },
+          {
+            "turnNumber": 2,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Python / Node.js Backend API Development",
+            "timestamp": "2026-11-15T20:21:31.057Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Python / Node.js Backend API Development."
+            }
+          },
+          {
+            "turnNumber": 3,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Data Structures & Core Problem Solving",
+            "timestamp": "2026-11-15T20:21:31.283Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Data Structures & Core Problem Solving."
+            }
+          },
+          {
+            "turnNumber": 4,
+            "interviewerQuestion": "Building on your approach for Amazon HackOn 2026 (Amazon India) | Focus: technical interview | Artifact: BhashaMart: Multilingual Voice-Commerce Assistant for Rural Retailers: suppose throughput increases 20x overnight or an upstream timeout hits 5 seconds. Which component becomes the bottleneck first, and how would you instrument observability to prove it?",
+            "focusCompetency": "Cloud Architecture & Serverless / Microservices",
+            "timestamp": "2026-11-15T20:21:31.493Z",
+            "studentResponse": "Use idempotency keys backed by PostgreSQL unique transaction constraints, exponential backoff with jitter, and bounded circuit breakers.",
+            "evaluation": {
+              "technicalCorrectness": 7,
+              "reasoningQuality": 8,
+              "communicationClarity": 6,
+              "depth": 4,
+              "strengths": [
+                "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+              ],
+              "gaps": [
+                "Response is too brief to prove technical ownership."
+              ],
+              "coachingFeedback": "Strengthen your answer with concrete edge cases, complexity/latency numbers, and verification tests for Cloud Architecture & Serverless / Microservices."
+            }
+          }
+        ],
+        "createdAt": "2026-11-15T20:21:30.807Z",
+        "updatedAt": "2026-11-15T20:21:31.645Z",
+        "finalReport": {
+          "overallVerdict": "Borderline — Needs Targeted Polish",
+          "averages": {
+            "technicalCorrectness": 7,
+            "reasoningQuality": 8,
+            "communicationClarity": 6,
+            "depth": 4
+          },
+          "keyStrengths": [
+            "Referenced concrete engineering mechanisms (transaction, idempoten, backoff)."
+          ],
+          "criticalGaps": [
+            "Response is too brief to prove technical ownership."
+          ],
+          "improvementPlan": [
+            {
+              "action": "Drill timed problem solving & complexity reasoning",
+              "targetHref": "/student/skills/dsa"
+            },
+            {
+              "action": "Practice codebase tracing & regression test isolation",
+              "targetHref": "/student/skills/code-comprehension"
+            },
+            {
+              "action": "Review weak concepts in Amazon HackOn 2026 Autonomous Assessment",
+              "targetHref": "/student/skills/preparations/amazon-hackon-2026?tab=mock_assessment"
+            }
+          ]
+        }
+      }
+    ],
+    "agentTraceLedger": [
+      {
+        "id": "tr-dna-1794774090092",
+        "agentName": "StudentIntelligenceAgent",
+        "timestamp": "2026-11-15T20:21:29.983Z",
+        "inputEvidence": "0 verified, 0 demonstrated, 0 claimed skills",
+        "agentDecision": "Calibrated Student DNA profile (INSUFFICIENT_DATA)",
+        "reasoningSummary": "Separated independently verified competencies from resume claims and unassessed gaps.",
+        "recommendedAction": "Address gap in Cloud Architecture & Serverless / Microservices",
+        "executionStatus": "executed",
+        "outcome": "4 gaps identified"
+      },
+      {
+        "id": "tr-oss-1794774090093",
+        "agentName": "RepositoryAnalysisAgent",
+        "timestamp": "2026-11-15T20:21:29.983Z",
+        "inputEvidence": "Languages: General, Mode: curated_catalog_fallback",
+        "agentDecision": "Ranked 12 open issues across 20 repositories",
+        "reasoningSummary": "Offline or unauthenticated sandbox environment: showing curated open-source targets. Connect GitHub or run live verification to confirm current issue status.",
+        "recommendedAction": "Inspect astral-sh/ruff #10845",
+        "executionStatus": "fallback_used",
+        "outcome": "12 active opportunities"
+      },
+      {
+        "id": "tr-plan-1794774090095",
+        "agentName": "LearningPlannerAgent",
+        "timestamp": "2026-11-15T20:21:30.093Z",
+        "inputEvidence": "5 DAG nodes; next unblocked: Core Foundations: Cloud Architecture & Serverless / Microservices",
+        "agentDecision": "Prioritized 'Core Foundations: Cloud Architecture & Serverless / Microservices' as Primary Next Action",
+        "reasoningSummary": "Addresses core Student DNA gap in Cloud Architecture & Serverless / Microservices.",
+        "recommendedAction": "Build API in Code Comprehension",
+        "executionStatus": "executed",
+        "outcome": "Early Foundation"
+      }
+    ],
+    "updatedAt": "2026-11-15T20:21:31.645Z"
   }
 ]

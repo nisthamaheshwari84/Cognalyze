@@ -222,10 +222,12 @@ export const FULL_STACK_AI_PRODUCTS_JD: JdRequirement = {
 // 3. GROUND TRUTH PARSING & CLAIM LEDGER BUILDER
 // ══════════════════════════════════════════════════════════════
 
+import { createResumeContextSnapshot, buildClaimLedgerFromSnapshot } from "./resume-context-service";
+
 export function buildClaimLedgerFromText(
   candidateId: string,
   resumeText: string,
-  jdText: string
+  jdText: string = ""
 ): { claimLedger: ClaimLedger; jdRequirement: JdRequirement } {
   // If the resume contains Rohan Verma, use the authoritative verified fixture
   if (/rohan\s+verma/i.test(resumeText)) {
@@ -235,62 +237,38 @@ export function buildClaimLedgerFromText(
     };
   }
 
-  // Generic heuristic extraction for non-fixture resumes
-  const skills: CandidateSkillClaim[] = [];
-  const knownSkills = [
-    { name: "JavaScript", cat: "languages" as const },
-    { name: "TypeScript", cat: "languages" as const },
-    { name: "Python", cat: "languages" as const },
-    { name: "React", cat: "frontend" as const },
-    { name: "Next.js", cat: "frontend" as const },
-    { name: "Node.js", cat: "backend" as const },
-    { name: "PostgreSQL", cat: "database" as const },
-    { name: "Docker", cat: "devops" as const },
-    { name: "Redis", cat: "database" as const },
-  ];
+  // Authoritative extraction from candidate's actual selected resume
+  const snapshot = createResumeContextSnapshot(candidateId, resumeText);
+  const claimLedger = buildClaimLedgerFromSnapshot(snapshot);
 
-  for (const s of knownSkills) {
-    if (new RegExp(`\\b${s.name}\\b`, "i").test(resumeText)) {
-      skills.push({
-        name: s.name,
-        proficiency: "intermediate",
-        category: s.cat,
-        evidenceSources: ["Resume Text"],
-      });
-    }
+  // If snapshot found no projects (e.g. unstructured or empty resume), provide a fallback claim
+  if (claimLedger.projects.length === 0) {
+    claimLedger.projects.push({
+      id: "proj_primary",
+      name: "Core Software Engineering Project",
+      role: "Developer",
+      description: "Full stack web application and infrastructure",
+      techStack: claimLedger.skills.map((s) => s.name),
+      forbiddenTech: [],
+      metrics: [],
+      architecturalHighlights: [],
+      verifiedClaims: [],
+    });
   }
 
-  const claimLedger: ClaimLedger = {
-    candidateId,
-    candidateName: "Candidate",
-    education: "Undergraduate Computer Science",
-    skills,
-    projects: [
-      {
-        id: "proj_primary",
-        name: "Primary Project",
-        role: "Developer",
-        description: "Full stack web application",
-        techStack: skills.map((s) => s.name),
-        forbiddenTech: ["DistilBERT", "Kubernetes"],
-        metrics: [],
-        architecturalHighlights: [],
-        verifiedClaims: [],
-      },
-    ],
-    experience: [],
-    achievements: [],
-    disallowedClaims: ["DistilBERT", "NLP Intent Classifiers"],
-  };
-
+  // Parse JD requirements dynamically from JD text
+  const safeJd = jdText || "";
+  const skillsList = claimLedger.skills.map((s) => s.name);
   const jdRequirement: JdRequirement = {
-    title: "Software Engineer",
+    title: safeJd.split("\n")[0]?.replace(/^(role|position|title):?\s*/i, "").slice(0, 60) || "Software Engineer",
     company: "Engineering Team",
-    targetRole: "Full Stack Engineer",
-    track: "fullstack",
-    mustHaveSkills: skills.slice(0, 4).map((s) => s.name),
-    goodToHaveSkills: skills.slice(4).map((s) => s.name),
-    responsibilities: ["Develop and maintain full stack applications"],
+    targetRole: safeJd.toLowerCase().includes("backend") ? "Backend Engineer" :
+                safeJd.toLowerCase().includes("frontend") ? "Frontend Engineer" : "Full Stack Engineer",
+    track: safeJd.toLowerCase().includes("backend") ? "backend" :
+           safeJd.toLowerCase().includes("frontend") ? "frontend" : "fullstack",
+    mustHaveSkills: skillsList.slice(0, 4),
+    goodToHaveSkills: skillsList.slice(4),
+    responsibilities: ["Design, build, and deploy production software"],
   };
 
   return { claimLedger, jdRequirement };

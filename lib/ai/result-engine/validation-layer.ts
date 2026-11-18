@@ -300,6 +300,12 @@ export function validateCanonicalAnalysis(params: {
     if (m.status === 'SUPPORTED') {
       const relatedEv = params.evidenceItems.filter((e) => m.matchedEvidenceIds.includes(e.evidence_id || e.id));
       for (const ev of relatedEv) {
+        // If the evidence item explicitly mentions or contains the requirement itself, it is directly evidenced
+        const hasReqDirectly =
+          ev.technologies.some((t) => t.toLowerCase() === m.requirementName.toLowerCase()) ||
+          new RegExp(`\\b${m.requirementName.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i').test(ev.text);
+        if (hasReqDirectly) continue;
+
         for (const tech of ev.technologies) {
           if (isNonEquivalent(m.requirementName, tech)) {
             noTechnologyInference = false;
@@ -319,17 +325,38 @@ export function validateCanonicalAnalysis(params: {
   });
 
   // ============================================================
-  // CHECK 13: No duplicate evidence inflation
+  // CHECK 13: No duplicate evidence inflation & 5-Level Integrity
   // ============================================================
   const pointsAuditPassed = params.score.pointsAuditPassed !== false;
+  let levelsReconciled = true;
+  if (params.score.levelCounts) {
+    const lc = params.score.levelCounts;
+    const levelSum =
+      lc.level5Verified +
+      lc.level4ArtifactBacked +
+      lc.level3Implementation +
+      lc.level2Contextual +
+      lc.level1Mentioned +
+      lc.level0NoEvidence;
+    if (levelSum !== params.requirements.length) {
+      levelsReconciled = false;
+      violations.push(
+        `Check 13 Failed: 5-Level evidence count sum (${levelSum}) does not match total requirements (${params.requirements.length}).`
+      );
+    }
+  }
+
+  const check13Passed = pointsAuditPassed && levelsReconciled;
   if (!pointsAuditPassed) {
     violations.push(`Check 13 Failed: Deterministic score points audit failed or earned points exceeded possible.`);
   }
   checks.push({
     checkNumber: 13,
-    name: 'No duplicate evidence inflation',
-    passed: pointsAuditPassed,
-    detail: pointsAuditPassed ? 'Deterministic point ledger audited: SUM(earned_points) / SUM(possible_points) == Score' : 'Points audit mismatch',
+    name: 'No duplicate evidence inflation & 5-level reconciliation',
+    passed: check13Passed,
+    detail: check13Passed
+      ? 'Deterministic point ledger audited: SUM(earned)/SUM(possible) == Score and 5-level tier distribution fully reconciled'
+      : 'Points audit mismatch or level reconciliation discrepancy',
   });
 
   // ============================================================
@@ -367,6 +394,28 @@ export function validateCanonicalAnalysis(params: {
       );
       if (!withheldSections.includes('strengths')) {
         withheldSections.push('strengths');
+      }
+    }
+  }
+
+  // Cross-section check: Education gate enforcement
+  for (const m of params.matches) {
+    if (m.status === 'SUPPORTED' && m.evidenceStrengthLevel === 'LEVEL_3_IMPLEMENTATION') {
+      const relatedEv = params.evidenceItems.filter((e) => m.matchedEvidenceIds.includes(e.evidence_id || e.id));
+      if (relatedEv.length > 0 && relatedEv.every((e) => e.section === 'EDUCATION' || e.evidence_type === 'EDUCATION')) {
+        noContradictions = false;
+        violations.push(`Check 15 Failed: Education gate violation: Requirement "${m.requirementName}" cannot be awarded LEVEL_3_IMPLEMENTATION solely from EDUCATION section.`);
+      }
+    }
+  }
+
+  // Cross-section check: Alternative satisfaction consistency
+  for (const m of params.matches) {
+    if (m.alternative_satisfied) {
+      const inGaps = params.gaps.some((g) => g.requirement.toLowerCase() === m.requirementName.toLowerCase());
+      if (inGaps) {
+        noContradictions = false;
+        violations.push(`Check 15 Failed: Alternative logic violation: Requirement "${m.requirementName}" is satisfied via ${m.accepted_alternative} but appears in gaps.`);
       }
     }
   }

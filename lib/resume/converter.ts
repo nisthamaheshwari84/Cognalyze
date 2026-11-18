@@ -21,6 +21,7 @@ import {
   SkillCategory,
   TemplateId,
 } from './types';
+import { OptimizedResumeContent, OptimizedBullet } from './content-engine';
 
 export function convertGeneratedResumeToDocument(
   data: any,
@@ -316,6 +317,120 @@ export function convertGeneratedResumeToDocument(
       margins: 'normal',
       accentColor: validTemplate === 'ats-classic' ? 'black' : 'blue',
       singlePageMode: true,
+    },
+  };
+}
+
+/**
+ * Converts a canonical ResumeDocument into OptimizedResumeContent
+ * for LaTeX generation, integrity auditing, and ATS simulation.
+ */
+export function convertResumeDocumentToOptimizedContent(doc: ResumeDocument): OptimizedResumeContent {
+  const eduSec = doc.sections.find((s) => s.type === "education");
+  const expSec = doc.sections.find((s) => s.type === "experience");
+  const projSec = doc.sections.find((s) => s.type === "projects");
+  const skillSec = doc.sections.find((s) => s.type === "skills");
+  const certSec = doc.sections.find((s) => s.type === "certifications");
+  const achieveSec = doc.sections.find((s) => s.type === "achievements");
+
+  // Skills
+  const skillsCategorized: Record<string, string[]> = {};
+  if (skillSec && Array.isArray(skillSec.items)) {
+    for (const item of skillSec.items) {
+      if (typeof item === "object" && item !== null && "name" in item && "items" in item) {
+        const cat = item as SkillCategory;
+        skillsCategorized[cat.name] = cat.items;
+      }
+    }
+  }
+
+  // Education
+  const education = (eduSec?.items || []).map((item: any) => ({
+    institution: item.institution || item.college || "University",
+    degree: item.degree || "",
+    year: item.endDate ? (item.startDate ? `${item.startDate} – ${item.endDate}` : item.endDate) : (item.year || ""),
+    gpa: item.gpa,
+    coursework: item.coursework,
+  }));
+
+  // Experience
+  const experience = (expSec?.items || []).map((item: any) => ({
+    company: item.company || item.organization || "",
+    role: item.role || "",
+    dates: item.endDate ? (item.startDate ? `${item.startDate} – ${item.endDate}` : item.endDate) : (item.dates || item.duration || ""),
+    location: item.location,
+    bullets: (item.bullets || []).map((b: any, bIdx: number): OptimizedBullet => {
+      const text = typeof b === "string" ? b : b.text || "";
+      const firstWord = text.split(/\s+/)[0] || "";
+      return {
+        id: typeof b === "object" && b?.id ? b.id : `exp-b-${bIdx}`,
+        text,
+        actionVerb: /^[A-Z][a-z]+(?:ed|d)\b/.test(firstWord) ? firstWord : "",
+        technologiesUsed: [],
+        hasVerifiedMetric: /\b\d+(?:%|x|ms|s|k|m)\b/i.test(text),
+      };
+    }),
+  }));
+
+  // Projects
+  const projects = (projSec?.items || []).map((item: any) => ({
+    name: item.name || item.title || "",
+    techStack: item.technologies || item.techStack || [],
+    githubUrl: item.githubUrl,
+    liveUrl: item.liveUrl,
+    bullets: (item.bullets || []).map((b: any, bIdx: number): OptimizedBullet => {
+      const text = typeof b === "string" ? b : b.text || "";
+      const firstWord = text.split(/\s+/)[0] || "";
+      return {
+        id: typeof b === "object" && b?.id ? b.id : `proj-b-${bIdx}`,
+        text,
+        actionVerb: /^[A-Z][a-z]+(?:ed|d)\b/.test(firstWord) ? firstWord : "",
+        technologiesUsed: item.technologies || [],
+        hasVerifiedMetric: /\b\d+(?:%|x|ms|s|k|m)\b/i.test(text),
+      };
+    }),
+  }));
+
+  // Certifications
+  const certifications = (certSec?.items || []).map((item: any) => {
+    if (typeof item === "string") return item;
+    return item.issuer ? `${item.name} — ${item.issuer}` : (item.name || "");
+  }).filter(Boolean);
+
+  // Achievements
+  const achievements = (achieveSec?.items || []).map((item: any) => {
+    if (typeof item === "string") return item;
+    return item.text || "";
+  }).filter(Boolean);
+
+  return {
+    name: doc.contact.name || "Candidate",
+    title: doc.contact.title || doc.targetRole || "Software Engineer",
+    contact: {
+      email: doc.contact.email || "",
+      phone: doc.contact.phone || "",
+      location: doc.contact.location || "",
+      linkedin: doc.contact.linkedin,
+      github: doc.contact.github,
+    },
+    summary: doc.summary?.text || "",
+    skillsCategorized,
+    education,
+    experience,
+    projects,
+    certifications,
+    achievements,
+    strategy: {
+      targetRole: doc.contact.title || doc.targetRole || "Software Engineer",
+      careerStage: experience.length > 0 ? (experience.length > 2 ? "senior" : "1-3years") : "fresher",
+      maxTargetLines: 48,
+      sectionOrder: doc.sections.map((s) => s.title),
+      projectSelection: {
+        selectedProjectIds: projects.map((p) => p.name),
+        bulletsPerProject: {},
+      },
+      highlightedKeywords: [],
+      rationale: "Preserved exact user edits from canonical document",
     },
   };
 }

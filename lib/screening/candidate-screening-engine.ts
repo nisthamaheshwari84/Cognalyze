@@ -217,41 +217,138 @@ export function parseResumeSections(resumeText: string) {
  * Calculates documented total employment duration from explicit date ranges.
  * Warns on overlaps and prevents double counting.
  */
+const MONTH_MAP: Record<string, number> = {
+  jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6,
+  jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12
+};
+
+/**
+ * Calculates documented total employment duration from explicit date ranges.
+ * Merges overlapping calendar intervals to prevent tenure inflation and double-counting.
+ */
 export function calculateDocumentedExperienceYears(resumeText: string): {
   approxYears: number;
   rangesFound: string[];
   hasAmbiguousDates: boolean;
+  totalNonOverlappingMonths: number;
+  fullTimeYears: number;
+  internshipYears: number;
 } {
   const matches = Array.from(
-    resumeText.matchAll(/\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\.?\s*(20\d\d|19\d\d)\s*[-–—to]+\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\.?\s*(20\d\d|present|current)\b/gi)
+    resumeText.matchAll(
+      /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\.?\s*(20\d\d|19\d\d)\s*[-–—to]+\s*(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)?\.?\s*(20\d\d|present|current)\b/gi
+    )
   );
 
   if (matches.length === 0) {
-    return { approxYears: 0, rangesFound: [], hasAmbiguousDates: true };
+    return {
+      approxYears: 0,
+      rangesFound: [],
+      hasAmbiguousDates: true,
+      totalNonOverlappingMonths: 0,
+      fullTimeYears: 0,
+      internshipYears: 0,
+    };
   }
 
   const currentYear = 2026;
-  let minStart = 9999;
-  let maxEnd = 0;
+  const currentMonth = 11;
   const rangesFound: string[] = [];
+  const intervals: Array<{ startMonthIndex: number; endMonthIndex: number; isInternship: boolean }> = [];
 
   for (const m of matches) {
-    rangesFound.push(m[0]);
+    const rawRange = m[0];
+    rangesFound.push(rawRange);
+
+    const startMonthStr = m[1]?.toLowerCase();
     const startYear = parseInt(m[2], 10);
-    const endStr = m[4].toLowerCase();
-    const endYear = endStr === "present" || endStr === "current" ? currentYear : parseInt(m[4], 10);
+    const startMonth = startMonthStr && MONTH_MAP[startMonthStr.slice(0, 3)] ? MONTH_MAP[startMonthStr.slice(0, 3)] : 1;
 
-    if (!isNaN(startYear) && startYear < minStart) minStart = startYear;
-    if (!isNaN(endYear) && endYear > maxEnd) maxEnd = endYear;
+    const endMonthStr = m[3]?.toLowerCase();
+    const endTerm = m[4]?.toLowerCase();
+    const isPresent = endTerm === 'present' || endTerm === 'current';
+    const endYear = isPresent ? currentYear : parseInt(m[4], 10);
+    const endMonth = isPresent
+      ? currentMonth
+      : endMonthStr && MONTH_MAP[endMonthStr.slice(0, 3)]
+      ? MONTH_MAP[endMonthStr.slice(0, 3)]
+      : 12;
+
+    if (!isNaN(startYear) && !isNaN(endYear) && startYear <= endYear) {
+      const startIndex = startYear * 12 + startMonth;
+      const endIndex = endYear * 12 + endMonth;
+
+      // Check surrounding context (60 characters before/after) to detect internship/freelance
+      const matchIndex = m.index ?? 0;
+      const contextWindow = resumeText.slice(Math.max(0, matchIndex - 60), Math.min(resumeText.length, matchIndex + 60)).toLowerCase();
+      const isIntern = /\b(intern|internship|trainee|apprentice)\b/i.test(contextWindow);
+
+      if (endIndex >= startIndex) {
+        intervals.push({
+          startMonthIndex: startIndex,
+          endMonthIndex: endIndex,
+          isInternship: isIntern,
+        });
+      }
+    }
   }
 
-  if (minStart > maxEnd || minStart === 9999) {
-    return { approxYears: 0, rangesFound, hasAmbiguousDates: true };
+  if (intervals.length === 0) {
+    return {
+      approxYears: 0,
+      rangesFound,
+      hasAmbiguousDates: true,
+      totalNonOverlappingMonths: 0,
+      fullTimeYears: 0,
+      internshipYears: 0,
+    };
   }
 
-  // Non-overlapping interval span
-  const approxYears = Math.max(0, maxEnd - minStart);
-  return { approxYears, rangesFound, hasAmbiguousDates: false };
+  // Merge overlapping intervals to get true calendar coverage
+  const sorted = [...intervals].sort((a, b) => a.startMonthIndex - b.startMonthIndex);
+  const merged: Array<{ start: number; end: number }> = [{ start: sorted[0].startMonthIndex, end: sorted[0].endMonthIndex }];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = merged[merged.length - 1];
+    const curr = sorted[i];
+
+    if (curr.startMonthIndex <= prev.end + 1) {
+      prev.end = Math.max(prev.end, curr.endMonthIndex);
+    } else {
+      merged.push({ start: curr.startMonthIndex, end: curr.endMonthIndex });
+    }
+  }
+
+  const totalNonOverlappingMonths = merged.reduce((sum, int) => sum + Math.max(1, int.end - int.start + 1), 0);
+  const approxYears = Math.round((totalNonOverlappingMonths / 12) * 10) / 10;
+
+  // Calculate internship vs full time non-overlapping months
+  const internIntervals = intervals.filter((i) => i.isInternship).map((i) => ({ start: i.startMonthIndex, end: i.endMonthIndex }));
+  const ftIntervals = intervals.filter((i) => !i.isInternship).map((i) => ({ start: i.startMonthIndex, end: i.endMonthIndex }));
+
+  const mergeSimple = (list: Array<{ start: number; end: number }>) => {
+    if (list.length === 0) return 0;
+    const s = [...list].sort((a, b) => a.start - b.start);
+    const m = [{ ...s[0] }];
+    for (let i = 1; i < s.length; i++) {
+      const p = m[m.length - 1];
+      if (s[i].start <= p.end + 1) p.end = Math.max(p.end, s[i].end);
+      else m.push({ ...s[i] });
+    }
+    return m.reduce((acc, x) => acc + Math.max(1, x.end - x.start + 1), 0);
+  };
+
+  const internshipMonths = mergeSimple(internIntervals);
+  const ftMonths = mergeSimple(ftIntervals);
+
+  return {
+    approxYears,
+    rangesFound,
+    hasAmbiguousDates: false,
+    totalNonOverlappingMonths,
+    fullTimeYears: Math.round((ftMonths / 12) * 10) / 10,
+    internshipYears: Math.round((internshipMonths / 12) * 10) / 10,
+  };
 }
 
 /**
@@ -402,19 +499,17 @@ export function evaluateRequirementAgainstCandidate(
         requirementId: req.id,
         requirementText: reqText,
         category: reqCategory,
-        evidenceState: requiredYears ? "PARTIALLY_SUPPORTED" : "SUPPORTED",
+        evidenceState: "PARTIALLY_SUPPORTED",
         evidenceDepth: "level_1_mentioned",
         candidateEvidence: skillLine,
         sourceSection: "Skills",
         sourceText: skillLine,
-        assessmentExplanation: requiredYears
-          ? `"${reqText}" is listed in candidate's skills list, but flat keyword listing does not establish ${requiredYears}+ years of production experience.`
-          : `Keyword listed under technical skills.`,
+        assessmentExplanation: `"${reqText}" is listed in candidate's flat skills list as a self-reported keyword (Level 1 Mentioned). It does not constitute demonstrated project implementation or production capability.`,
         isRecruiterAddedRequirement: isRecruiterAdded,
         whyChain: {
           roleRequirement: reqText,
           candidateEvidence: skillLine,
-          assessment: "Skill is acknowledged in skills inventory without elaborated context.",
+          assessment: "Skill is acknowledged in self-reported skills inventory without verified implementation.",
           sourceSection: "Skills"
         }
       };

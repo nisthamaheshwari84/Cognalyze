@@ -5,10 +5,31 @@
 
 import {
   CanonicalJDRequirement,
+  ConfidenceTier,
   DeterministicScoreBreakdown,
   RequirementEvidenceMatch,
   ScoreCategoryStats,
+  ScoringWeightConfig,
+  TriPartiteScoreContract,
 } from './types';
+
+export const DEFAULT_SCORING_WEIGHT_CONFIG: ScoringWeightConfig = {
+  priorityWeights: {
+    CRITICAL: 6,
+    IMPORTANT: 3,
+    PREFERRED: 1,
+    NICE_TO_HAVE: 1,
+  },
+  contributionLevels: {
+    LEVEL_5_INDEPENDENTLY_VERIFIED: 1.00,
+    LEVEL_4_ARTIFACT_BACKED: 0.85,
+    LEVEL_3_IMPLEMENTATION: 0.65,
+    LEVEL_2_CONTEXTUAL: 0.35,
+    LEVEL_1_MENTIONED: 0.10,
+    LEVEL_0_NO_EVIDENCE: 0.00,
+  },
+  version: '2.0.0-canonical',
+};
 
 export const CANONICAL_STATUS_WEIGHTS: Record<string, number> = {
   VERIFIED: 1.0,
@@ -51,7 +72,8 @@ function computeCategoryStats(
     return stats;
   }
 
-  let totalValue = 0;
+  let catEarned = 0;
+  let catPossible = 0;
   for (const req of reqs) {
     const match = matches.find((m) => m.requirementId === req.id);
     const status = match ? match.status : 'MISSING';
@@ -80,18 +102,26 @@ function computeCategoryStats(
         break;
     }
 
-    const val = CANONICAL_STATUS_WEIGHTS[status] ?? 0;
-    totalValue += val;
+    if (match) {
+      catEarned += match.earned_points ?? 0;
+      catPossible += match.possible_points ?? 0;
+    } else {
+      const priorityWeights: Record<string, number> = { CRITICAL: 6, IMPORTANT: 3, PREFERRED: 1, NICE_TO_HAVE: 1 };
+      catPossible += priorityWeights[req.priority] ?? 3;
+    }
   }
 
-  stats.categoryScore = Math.round((totalValue / reqs.length) * 100);
+  stats.categoryScore = catPossible > 0 ? Math.round((catEarned / catPossible) * 100) : 100;
   return stats;
 }
 
 /**
  * Validates score integrity independently (Section 27 & 28).
- * Checks mathematical invariant: supported + partial + claimed + not_evidenced + contradicted = total requirements
- * and asserts that SUM(earned_points) / SUM(possible_points) equals calculated score.
+ * Checks mathematical invariants:
+ * - Total evaluated count == Total requirements
+ * - SUM(earned_points) / SUM(possible_points) equals calculated score
+ * - Zero points awarded for LEVEL_0_NO_EVIDENCE
+ * - Earned points <= Possible points for each match
  */
 export function validateScoreIntegrity(
   requirements: CanonicalJDRequirement[],
@@ -126,7 +156,106 @@ export function validateScoreIntegrity(
     };
   }
 
+  // 3. Zero Points on Level 0 Evidence Invariant
+  for (const m of matches) {
+    if (m.evidenceStrengthLevel === 'LEVEL_0_NO_EVIDENCE' && (m.earned_points ?? 0) > 0) {
+      return {
+        valid: false,
+        error: `SCORE_INTEGRITY_VIOLATION: Requirement ${m.requirementName} has LEVEL_0_NO_EVIDENCE but earned ${m.earned_points} points. Points must strictly be 0.`,
+      };
+    }
+    if ((m.earned_points ?? 0) > (m.possible_points ?? 0)) {
+      return {
+        valid: false,
+        error: `SCORE_INTEGRITY_VIOLATION: Requirement ${m.requirementName} earned ${m.earned_points} which exceeds maximum possible ${m.possible_points}.`,
+      };
+    }
+  }
+
   return { valid: true };
+}
+
+/**
+ * Calculates decoupled Tri-Partite measurements per Section 10 of Master Directive:
+ * - Role Alignment % (points-based)
+ * - Evidence Confidence % (source quality & verification status)
+ * - Requirement Coverage % (assessed requirements / total requirements)
+ */
+export function calculateTriPartiteMetrics(
+  requirements: CanonicalJDRequirement[],
+  matches: RequirementEvidenceMatch[],
+  config: ScoringWeightConfig = DEFAULT_SCORING_WEIGHT_CONFIG
+): TriPartiteScoreContract {
+  const criticalReqs = requirements.filter((r) => r.priority === 'CRITICAL');
+  const criticalMatches = matches.filter((m) => m.priority === 'CRITICAL');
+  const criticalStats = computeCategoryStats(criticalReqs, matches);
+
+  const totalEarnedPoints = matches.reduce((sum, m) => sum + (m.earned_points ?? 0), 0);
+  const totalPossiblePoints = matches.reduce((sum, m) => sum + (m.possible_points ?? 0), 0);
+
+  // 1. Role Alignment %: 100 * SUM(earned) / SUM(possible)
+  const roleAlignmentPercentage =
+    totalPossiblePoints > 0
+      ? Math.round((totalEarnedPoints / totalPossiblePoints) * 10000) / 100
+      : 0.0;
+
+  // 2. Requirement Coverage %: Assessed (evidence >= Level 1) / Total
+  const assessedReqs = matches.filter(
+    (m) => m.evidenceStrengthLevel && m.evidenceStrengthLevel !== 'LEVEL_0_NO_EVIDENCE'
+  );
+  const requirementCoveragePercentage =
+    requirements.length > 0
+      ? Math.round((assessedReqs.length / requirements.length) * 10000) / 100
+      : 0.0;
+
+  // Critical Coverage %
+  const criticalAssessed = criticalMatches.filter(
+    (m) => m.evidenceStrengthLevel && m.evidenceStrengthLevel !== 'LEVEL_0_NO_EVIDENCE'
+  );
+  const criticalCoverage =
+    criticalMatches.length > 0
+      ? Math.round((criticalAssessed.length / criticalMatches.length) * 10000) / 100
+      : 100.0;
+
+  // 3. Evidence Confidence %: Priority-weighted evidence confidence
+  const weightedConfidenceSum = matches.reduce((sum, m) => {
+    const weight = m.requirement_weight ?? config.priorityWeights[m.priority] ?? 1;
+    return sum + (m.confidence ?? 0) * weight;
+  }, 0);
+  const evidenceConfidencePercentage =
+    totalPossiblePoints > 0
+      ? Math.round((weightedConfidenceSum / totalPossiblePoints) * 10000) / 100
+      : 0.0;
+
+  // Confidence Tier
+  let confidenceTier: ConfidenceTier = 'INSUFFICIENT';
+  if (evidenceConfidencePercentage >= 70) confidenceTier = 'HIGH';
+  else if (evidenceConfidencePercentage >= 40) confidenceTier = 'MEDIUM';
+  else if (evidenceConfidencePercentage > 0) confidenceTier = 'LOW';
+
+  // Scoring Defensibility
+  let scoringDefensibility: 'STRONG' | 'MODERATE' | 'WEAK' = 'WEAK';
+  if (evidenceConfidencePercentage >= 70 && roleAlignmentPercentage >= 50 && criticalStats.categoryScore >= 60) {
+    scoringDefensibility = 'STRONG';
+  } else if (evidenceConfidencePercentage >= 40) {
+    scoringDefensibility = 'MODERATE';
+  }
+
+  return {
+    roleAlignmentPercentage,
+    evidenceConfidencePercentage,
+    requirementCoveragePercentage,
+    breakdown: {
+      totalRequirements: requirements.length,
+      totalAssessedRequirements: assessedReqs.length,
+      totalUnassessedRequirements: requirements.length - assessedReqs.length,
+      totalEarnedPoints: Math.round(totalEarnedPoints * 100) / 100,
+      totalPossiblePoints,
+      criticalCoverage,
+      scoringDefensibility,
+      confidenceTier,
+    },
+  };
 }
 
 /**
@@ -134,7 +263,8 @@ export function validateScoreIntegrity(
  */
 export function calculateDeterministicScore(
   requirements: CanonicalJDRequirement[],
-  matches: RequirementEvidenceMatch[]
+  matches: RequirementEvidenceMatch[],
+  config: ScoringWeightConfig = DEFAULT_SCORING_WEIGHT_CONFIG
 ): DeterministicScoreBreakdown {
   const criticalReqs = requirements.filter((r) => r.priority === 'CRITICAL');
   const importantReqs = requirements.filter((r) => r.priority === 'IMPORTANT');
@@ -159,6 +289,9 @@ export function calculateDeterministicScore(
     throw new Error(validation.error);
   }
 
+  // Tri-Partite Decoupled Metrics (Section 10)
+  const triPartiteScore = calculateTriPartiteMetrics(requirements, matches, config);
+
   // Summary counts
   const summaryCounts = {
     supported: matches.filter((m) => m.status === 'SUPPORTED').length,
@@ -169,6 +302,16 @@ export function calculateDeterministicScore(
     missing: matches.filter((m) => m.status === 'MISSING').length,
     contradicted: matches.filter((m) => m.status === 'CONTRADICTED').length,
     totalRequirements: requirements.length,
+  };
+
+  // 5-Level granular evidence counts
+  const levelCounts = {
+    level5Verified: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_5_INDEPENDENTLY_VERIFIED').length,
+    level4ArtifactBacked: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_4_ARTIFACT_BACKED').length,
+    level3Implementation: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_3_IMPLEMENTATION').length,
+    level2Contextual: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_2_CONTEXTUAL').length,
+    level1Mentioned: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_1_MENTIONED').length,
+    level0NoEvidence: matches.filter((m) => m.evidenceStrengthLevel === 'LEVEL_0_NO_EVIDENCE' || !m.evidenceStrengthLevel).length,
   };
 
   // Personalized Score Explanation ("WHY?")
@@ -186,6 +329,11 @@ export function calculateDeterministicScore(
 
   return {
     overallEvidenceMatch,
+    roleAlignmentPercentage: triPartiteScore.roleAlignmentPercentage,
+    evidenceConfidencePercentage: triPartiteScore.evidenceConfidencePercentage,
+    requirementCoveragePercentage: triPartiteScore.requirementCoveragePercentage,
+    triPartiteScore,
+    scoringModelVersion: config.version,
     criticalScore: criticalStats.categoryScore,
     importantScore: importantStats.categoryScore,
     preferredScore: preferredStats.categoryScore,
@@ -194,13 +342,14 @@ export function calculateDeterministicScore(
     importantStats,
     preferredStats,
     niceToHaveStats,
-    totalEarnedPoints,
+    totalEarnedPoints: Math.round(totalEarnedPoints * 100) / 100,
     totalPossiblePoints,
     pointsAuditPassed: true,
     summaryCounts,
+    levelCounts,
     scoreVerdictExplanation: explanation,
     formulaExplanation:
-      'Deterministic requirement weighting: Critical requirements (weight 6), Important requirements (weight 3), Preferred qualifications (weight 1), Nice to have (weight 1). Supported evidence confers 100% points, Partial 50%, Claimed-only 25%, and Evidence Gaps 0%. Final score = total earned points / total possible points.',
+      'Deterministic evidence-weighted scoring: Critical requirements (weight 6), Important requirements (weight 3), Preferred qualifications (weight 1), Nice to have (weight 1). Evidence contribution: Level 5 Verified (100%), Level 4 Artifact-Backed (85%), Level 3 Implementation (65%), Level 2 Contextual (35%), Level 1 Mentioned Only (10%), Level 0 Evidence Gap (0%). Final score = total earned points / total possible points.',
     calculatedAt: new Date().toISOString(),
   };
 }

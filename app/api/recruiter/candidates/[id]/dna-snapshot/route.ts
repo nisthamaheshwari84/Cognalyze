@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import { getCandidateById, getRoleById } from "@/lib/recruiter-store";
-import { getStudentDNAFull } from "@/lib/dna/store";
 import {
   getRoleDNASnapshot,
   generateRoleDNASnapshot,
   refreshRoleDNASnapshotWithAudit
 } from "@/lib/dna/recruiter-snapshot";
-import { getStudentProfileByUserId } from "@/lib/auth/store";
 
 export async function GET(
   req: NextRequest,
@@ -34,19 +32,16 @@ export async function GET(
     // 1. Check if snapshot already exists (historical preservation)
     let snapshot = getRoleDNASnapshot(candidateId, roleId);
 
-    // 2. If missing, generate point-of-application snapshot
+    // 2. If missing, generate point-of-application snapshot strictly from candidate-submitted materials
+    // Student DNA is intentionally decoupled: Recruiter evaluations evaluate only submitted candidate materials
     if (!snapshot) {
-      const dnaFull = await getStudentDNAFull(candidateId);
-      const studentProfile = getStudentProfileByUserId(candidateId);
-
       snapshot = generateRoleDNASnapshot({
         studentId: candidateId,
         candidateName: candidate.name,
         candidateEmail: candidate.email,
         role,
-        dnaFull,
         resumeText: candidate.resumeText,
-        studentProfile
+        candidate
       });
     }
 
@@ -87,25 +82,27 @@ export async function POST(
       return NextResponse.json({ success: false, error: "Associated role not found." }, { status: 404 });
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => ({}));
     const reason = body.reason || "Manual recruiter refresh request";
 
     const existing = getRoleDNASnapshot(candidateId, roleId);
-    const newDnaFull = await getStudentDNAFull(candidateId);
 
     let updatedSnapshot;
     if (existing) {
-      updatedSnapshot = refreshRoleDNASnapshotWithAudit(existing, newDnaFull, reason);
+      updatedSnapshot = refreshRoleDNASnapshotWithAudit(
+        existing,
+        candidate,
+        reason,
+        auth.user?.email || "recruiter"
+      );
     } else {
-      const studentProfile = getStudentProfileByUserId(candidateId);
       updatedSnapshot = generateRoleDNASnapshot({
         studentId: candidateId,
         candidateName: candidate.name,
         candidateEmail: candidate.email,
         role,
-        dnaFull: newDnaFull,
         resumeText: candidate.resumeText,
-        studentProfile
+        candidate
       });
     }
 

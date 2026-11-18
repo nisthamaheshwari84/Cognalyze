@@ -160,6 +160,52 @@
       "type": "github",
       "content_hash": "ece1907349745f4eed209661aee2d57c9cf5d7b634d351e1948ed32a74e66074",
       "retrieved_at": "2026-11-12T16:52:10.795Z"
+    },
+    "src_e265fea415c6f2d8": {
+      "id": "src_e265fea415c6f2d8",
+      "person_id": "candidate_spine_1794679699674",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-11-14T18:08:19.675Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_6a9c0308c1cbce3f": {
+      "id": "src_6a9c0308c1cbce3f",
+      "person_id": "candidate_spine_1794679699674",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-11-14T18:08:19.675Z"
+    },
+    "src_8f499dc00309c2f5": {
+      "id": "src_8f499dc00309c2f5",
+      "person_id": "tenant_alpha_1794679699679",
+      "type": "github",
+      "content_hash": "05e87b7a667a3bcf4eec73cb73fbbc047f8d60a2cb2d7100993899f3c13af40d",
+      "retrieved_at": "2026-11-14T18:08:19.679Z"
+    },
+    "src_0e4dfa6e3ef4a99c": {
+      "id": "src_0e4dfa6e3ef4a99c",
+      "person_id": "candidate_spine_1794774179111",
+      "type": "github",
+      "uri_blob_key": "https://github.com/candidate/fastapi-app",
+      "content_hash": "3a8b0bd59e2a09b4eaca775da5cdcc89f69d27f9507507dd40e2f88fffb22f44",
+      "retrieved_at": "2026-11-15T20:22:59.111Z",
+      "raw_text_ref": "main.py:L1-L25"
+    },
+    "src_1c91fc4302c04be2": {
+      "id": "src_1c91fc4302c04be2",
+      "person_id": "candidate_spine_1794774179111",
+      "type": "resume",
+      "content_hash": "715a821624002e4daab4d674fd0b1f1ae54e1c1ff3e7556d8a4fd72c999100f6",
+      "retrieved_at": "2026-11-15T20:22:59.111Z"
+    },
+    "src_9cf2bd2c35483fb9": {
+      "id": "src_9cf2bd2c35483fb9",
+      "person_id": "tenant_alpha_1794774180243",
+      "type": "github",
+      "content_hash": "d6f09d4847139a8cb183cfaedcc24d5510e3727d498839cd8e582c2ac33bd62f",
+      "retrieved_at": "2026-11-15T20:23:00.243Z"
     }
   },
   "claims": {
@@ -218,6 +264,22 @@
       "kind": "technical_skill",
       "text": "3 years developing production FastAPI backends with PostgreSQL",
       "created_at": "2026-11-12T16:52:10.787Z"
+    },
+    "cl_1794679699675_1": {
+      "id": "cl_1794679699675_1",
+      "person_id": "candidate_spine_1794679699674",
+      "source_id": "src_6a9c0308c1cbce3f",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-11-14T18:08:19.675Z"
+    },
+    "cl_1794774179111_1": {
+      "id": "cl_1794774179111_1",
+      "person_id": "candidate_spine_1794774179111",
+      "source_id": "src_1c91fc4302c04be2",
+      "kind": "technical_skill",
+      "text": "3 years developing production FastAPI backends with PostgreSQL",
+      "created_at": "2026-11-15T20:22:59.111Z"
     }
   },
   "evidence_items": {
@@ -486,6 +548,82 @@
       "quote_verified": true,
       "observed_at": "2026-11-12T16:52:10.795Z",
       "created_at": "2026-11-12T16:52:10.795Z"
+    },
+    "ev_1794679699674_1": {
+      "id": "ev_1794679699674_1",
+      "person_id": "candidate_spine_1794679699674",
+      "source_id": "src_e265fea415c6f2d8",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-11-14T18:08:19.675Z",
+      "created_at": "2026-11-14T18:08:19.675Z"
+    },
+    "ev_1794679699675_2": {
+      "id": "ev_1794679699675_2",
+      "person_id": "candidate_spine_1794679699674",
+      "source_id": "src_e265fea415c6f2d8",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-11-14T18:08:19.675Z",
+      "created_at": "2026-11-14T18:08:19.675Z"
+    },
+    "ev_alpha_1794679699679": {
+      "id": "ev_alpha_1794679699679",
+      "person_id": "tenant_alpha_1794679699679",
+      "source_id": "src_8f499dc00309c2f5",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-11-14T18:08:19.679Z",
+      "created_at": "2026-11-14T18:08:19.679Z"
+    },
+    "ev_1794774179111_1": {
+      "id": "ev_1794774179111_1",
+      "person_id": "candidate_spine_1794774179111",
+      "source_id": "src_0e4dfa6e3ef4a99c",
+      "quote": "@app.get('/health')\ndef health(): return {'status': 'ok'}",
+      "artifact_ref": "main.py:L1-L25",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "ast_import_parser",
+      "quote_verified": true,
+      "observed_at": "2026-11-15T20:22:59.111Z",
+      "created_at": "2026-11-15T20:22:59.111Z"
+    },
+    "ev_1794774179111_2": {
+      "id": "ev_1794774179111_2",
+      "person_id": "candidate_spine_1794774179111",
+      "source_id": "src_0e4dfa6e3ef4a99c",
+      "quote": "\"pg\": \"^8.11.0\"",
+      "artifact_ref": "package.json",
+      "tier": "T2",
+      "verification_status": "demonstrated",
+      "extractor": "manifest_parser",
+      "quote_verified": false,
+      "observed_at": "2026-11-15T20:22:59.111Z",
+      "created_at": "2026-11-15T20:22:59.111Z"
+    },
+    "ev_alpha_1794774180243": {
+      "id": "ev_alpha_1794774180243",
+      "person_id": "tenant_alpha_1794774180243",
+      "source_id": "src_9cf2bd2c35483fb9",
+      "quote": "Observed raft evidence",
+      "tier": "T3",
+      "verification_status": "verified",
+      "extractor": "code_inspection",
+      "quote_verified": true,
+      "observed_at": "2026-11-15T20:23:00.243Z",
+      "created_at": "2026-11-15T20:23:00.243Z"
     }
   },
   "evidence_links": {
@@ -656,6 +794,54 @@
       "relation": "supports",
       "coverage": "direct",
       "created_at": "2026-11-12T16:52:10.795Z"
+    },
+    "lnk_ev_1794679699674_1_node_fastapi": {
+      "id": "lnk_ev_1794679699674_1_node_fastapi",
+      "evidence_id": "ev_1794679699674_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-11-14T18:08:19.675Z"
+    },
+    "lnk_ev_1794679699675_2_node_postgresql": {
+      "id": "lnk_ev_1794679699675_2_node_postgresql",
+      "evidence_id": "ev_1794679699675_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-11-14T18:08:19.675Z"
+    },
+    "lnk_ev_alpha_1794679699679_node_raft": {
+      "id": "lnk_ev_alpha_1794679699679_node_raft",
+      "evidence_id": "ev_alpha_1794679699679",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-11-14T18:08:19.679Z"
+    },
+    "lnk_ev_1794774179111_1_node_fastapi": {
+      "id": "lnk_ev_1794774179111_1_node_fastapi",
+      "evidence_id": "ev_1794774179111_1",
+      "capability_node_id": "node_fastapi",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-11-15T20:22:59.111Z"
+    },
+    "lnk_ev_1794774179111_2_node_postgresql": {
+      "id": "lnk_ev_1794774179111_2_node_postgresql",
+      "evidence_id": "ev_1794774179111_2",
+      "capability_node_id": "node_postgresql",
+      "relation": "supports",
+      "coverage": "partial",
+      "created_at": "2026-11-15T20:22:59.111Z"
+    },
+    "lnk_ev_alpha_1794774180243_node_raft": {
+      "id": "lnk_ev_alpha_1794774180243_node_raft",
+      "evidence_id": "ev_alpha_1794774180243",
+      "capability_node_id": "node_raft",
+      "relation": "supports",
+      "coverage": "direct",
+      "created_at": "2026-11-15T20:23:00.243Z"
     }
   }
 }

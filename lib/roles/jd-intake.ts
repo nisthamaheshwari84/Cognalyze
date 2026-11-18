@@ -114,7 +114,7 @@ export function processJdIntake(rawJd: string, fallbackTitle = "Software Enginee
       continue;
     }
 
-    const cleanSnippet = line.replace(/^[-•*]|\d+\.\s*/, "").trim();
+    const cleanSnippet = line.replace(/^([-•*]|\d+\.)\s*/, "").trim();
     if (cleanSnippet.length < 5) continue;
 
     // Verify quote deterministically in source text to capture exact character span

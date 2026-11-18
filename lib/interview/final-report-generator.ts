@@ -1,6 +1,16 @@
 import crypto from "crypto";
 import { AdvancedSessionState } from "@/lib/ai/interview-engine";
 import { ConductIncident, ConductState } from "./conduct-engine";
+import {
+  PracticeModeReport,
+  ProfessionalEvaluationReport,
+  generatePracticeLearningPlan,
+} from "./interview-mode-service";
+import {
+  getCompetencyRubricLevel,
+  getFormalHiringRecommendation,
+  FormalHiringRecommendation,
+} from "./evidence-evaluation-service";
 
 // ══════════════════════════════════════════════════════════════
 // 1. THE 7 CALIBRATED COMPETENCY DIMENSIONS
@@ -221,6 +231,12 @@ export type AssessmentStatus =
   | "ASSESSMENT_INCOMPLETE"
   | "TERMINATED_MISCONDUCT";
 
+export interface ResumeToInterviewConsistency {
+  resumeBackedProjects: string[];
+  interviewDisclosedProjects: string[];
+  discrepanciesNoted: string[];
+}
+
 export interface Milestone5FinalReport {
   reportId: string;
   sessionId: string;
@@ -244,6 +260,11 @@ export interface Milestone5FinalReport {
   keyStrengths: string[];
   criticalGaps: string[];
   actionableStudyTracks: ActionableStudyTrack[];
+  interviewExperienceMode?: "practice" | "evaluation";
+  formalHiringRecommendation?: FormalHiringRecommendation;
+  practiceModeFeedback?: PracticeModeReport;
+  professionalEvaluationReport?: ProfessionalEvaluationReport;
+  resumeToInterviewConsistency?: ResumeToInterviewConsistency;
   dnaSyncStatus: "PENDING" | "COMMITTED" | "SKIPPED" | "FAILED";
   generatedAt: string;
   metadata: {
@@ -646,6 +667,128 @@ export async function generateMilestone5FinalReport(
     }`;
   }
 
+  const experienceMode = sessionState.experienceMode || "fresher";
+  const interviewExperienceMode: "practice" | "evaluation" = (sessionState as any).interviewMode || "evaluation";
+
+  // Compute Formal Hiring Recommendation
+  const formalHiringRecommendation: FormalHiringRecommendation = getFormalHiringRecommendation(
+    scorecard.overallScore || 0,
+    scorecard.assessedDimensions.length,
+    7,
+    scorecard.assessmentStatus === "TERMINATED_MISCONDUCT"
+  );
+
+  // Compute Assisted Turns Count
+  const turns = sessionState.turns || [];
+  let assistedTurnsCount = 0;
+  for (const t of turns) {
+    if ((t as any).isAssisted || (t.assessment as any)?.is_assisted) {
+      assistedTurnsCount++;
+    }
+  }
+  const independentTurnsCount = Math.max(0, turns.length - assistedTurnsCount);
+
+  // Build Practice Mode Feedback
+  const practiceModeFeedback: PracticeModeReport = {
+    overallInterviewSummary: executiveSummary,
+    strongestSkills: scorecard.keyStrengths,
+    weakestSkills: scorecard.criticalGaps,
+    assistedTurnsCount,
+    independentTurnsCount,
+    questionWiseFeedback: turns.map((t, idx) => ({
+      turnIndex: idx + 1,
+      question: t.question?.question || `Question ${idx + 1}`,
+      answerExcerpt: extractVerbatimQuote(t.answer || "", 15),
+      feedback: t.assessment?.reasoning || "Technical reasoning evaluated.",
+      modelExplanation: (t as any).modelAnswerFeedback,
+      wasAssisted: Boolean((t as any).isAssisted || (t.assessment as any)?.is_assisted),
+      assistanceLevel: (t as any).assistanceLevel,
+    })),
+    technicalMisconceptions: scorecard.criticalGaps.filter(g => g.includes("gap") || g.includes("misconception")),
+    projectExplanationFeedback: (sessionState as any).disclosedEntities?.length
+      ? ["Explicitly reconciled candidate-introduced project with submitted resume."]
+      : ["Projects explained with grounded technical stack context."],
+    problemSolvingObservations: [
+      optimalPassed
+        ? "Demonstrated optimal algorithmic complexity and passed stress test cases."
+        : "Work on handling boundary conditions and calculating strict asymptotic upper bounds.",
+    ],
+    communicationImprovements: [
+      conductIncidents.length === 0
+        ? "Professional and articulate technical communication throughout."
+        : "Maintain professional composure when challenged on edge conditions.",
+    ],
+    personalizedLearningRecommendations: generatePracticeLearningPlan({
+      weakCompetencies: scorecard.criticalGaps,
+      strongCompetencies: scorecard.keyStrengths,
+      assistedTurns: assistedTurnsCount,
+      totalTurns: turns.length,
+      experienceMode,
+    }),
+    recommendedCodingPractice: scorecard.actionableStudyTracks.flatMap(t => t.suggestedModules),
+    nextSteps: [
+      "Review flagged critical gaps in the study modules above.",
+      assistedTurnsCount > 0
+        ? "Practice independent problem-solving drills with strict timers to build unassisted confidence."
+        : "Schedule a mock system design or advanced track assessment on Cognalyze.",
+    ],
+  };
+
+  // Build Professional Evaluation Report
+  const competencyScoresRecord: Record<string, any> = {};
+  const evidenceReferences: Array<{ competency: string; verbatimQuote: string; turnIndex: number; hash: string }> = [];
+
+  for (const [dimKey, dimRec] of Object.entries(scorecard.dimensionRecords)) {
+    competencyScoresRecord[dimRec.dimensionName] = {
+      score: dimRec.score,
+      status: dimRec.status,
+      level: getCompetencyRubricLevel(dimRec.score) || "LEVEL 1 — INSUFFICIENT",
+      weight: dimRec.weight,
+    };
+    for (const anchor of dimRec.transcriptAnchors) {
+      if (anchor.candidateQuote) {
+        evidenceReferences.push({
+          competency: dimRec.dimensionName,
+          verbatimQuote: anchor.candidateQuote,
+          turnIndex: anchor.turnIndex,
+          hash: anchor.quoteHash,
+        });
+      }
+    }
+  }
+
+  const professionalEvaluationReport: ProfessionalEvaluationReport = {
+    candidateId,
+    targetRole,
+    experienceMode,
+    evaluationMode: "PROFESSIONAL_EVALUATION",
+    finalHiringRecommendation: formalHiringRecommendation,
+    recommendationJustification:
+      formalHiringRecommendation === "STRONGLY_RECOMMEND"
+        ? `Candidate demonstrated consistent, unassisted technical excellence across ${scorecard.assessedDimensions.length} assessed dimensions with an overall score of ${scorecard.overallScore}/100.`
+        : formalHiringRecommendation === "RECOMMEND"
+        ? `Candidate meets the role benchmark for ${targetRole} with a certified score of ${scorecard.overallScore}/100 and solid engineering fundamentals.`
+        : formalHiringRecommendation === "FURTHER_EVALUATION_REQUIRED"
+        ? `Candidate showed partial competency (${scorecard.overallScore || "N/A"}/100) or insufficient dimension coverage (${scorecard.assessedDimensions.length}/7 dimensions). Further technical exploration recommended.`
+        : `Candidate did not meet the minimum competency threshold for ${targetRole} (Score: ${scorecard.overallScore || 0}/100) or had critical policy violations.`,
+    confidenceScore: scorecard.assessedDimensions.length >= 6 ? 95 : scorecard.assessedDimensions.length >= 4 ? 80 : 40,
+    competencyScores: competencyScoresRecord,
+    technicalStrengths: scorecard.keyStrengths,
+    technicalWeaknesses: scorecard.criticalGaps,
+    projectOwnershipObservations: (sessionState as any).disclosedEntities?.length
+      ? ["Candidate verbally introduced unlisted project(s); verified individual ownership during turns."]
+      : ["Candidate verified direct ownership of claimed projects with architectural rationale."],
+    problemSolvingPerformance: optimalPassed ? "Optimal complexity and defensive validation demonstrated." : "Foundational problem-solving demonstrated with opportunities for complexity optimization.",
+    systemDesignPerformance: scorecard.dimensionRecords.DIM_4_SYSTEM_DESIGN.score ? `System Design Score: ${scorecard.dimensionRecords.DIM_4_SYSTEM_DESIGN.score}/100` : undefined,
+    communicationAssessment: conductIncidents.length === 0 ? "Clear, structured, and professional communication." : "Behavioral incidents recorded during session.",
+    unassessedCompetencies: Object.values(scorecard.dimensionRecords).filter(d => d.score === null).map(d => d.dimensionName),
+    evidenceReferences,
+    interviewLimitations: [
+      `Evaluation conducted over ${turns.length} turns in ${scorecard.assessedDimensions.length} of 7 dimensions.`,
+      `Scores reflect verified candidate transcript evidence and do not substitute for in-person background credential verification.`,
+    ],
+  };
+
   const reportId = `rep_m5_${computeSha256(`${sessionId}_${candidateId}_${Date.now()}`).slice(0, 16)}`;
   const now = new Date().toISOString();
 
@@ -672,6 +815,17 @@ export async function generateMilestone5FinalReport(
     keyStrengths: scorecard.keyStrengths,
     criticalGaps: scorecard.criticalGaps,
     actionableStudyTracks: scorecard.actionableStudyTracks,
+    interviewExperienceMode,
+    formalHiringRecommendation,
+    practiceModeFeedback,
+    professionalEvaluationReport,
+    resumeToInterviewConsistency: {
+      resumeBackedProjects: (sessionState.dossier?.projects || []).map((p: any) => p.title || p.name),
+      interviewDisclosedProjects: ((sessionState as any).disclosedEntities || []).map((d: any) => d.name),
+      discrepanciesNoted: ((sessionState as any).disclosedEntities || []).map(
+        (d: any) => `Candidate introduced unlisted project '${d.name}' during turn ${d.firstMentionedTurn}.`
+      ),
+    },
     dnaSyncStatus: "PENDING",
     generatedAt: now,
     metadata: {

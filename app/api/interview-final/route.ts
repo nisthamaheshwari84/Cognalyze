@@ -42,6 +42,7 @@ export async function POST(req: Request) {
       track: reqTrack,
       difficulty: reqDifficulty,
       durationMinutes: reqDurationMinutes,
+      interviewMode: reqInterviewMode,
     } = body;
 
     const effectiveTrack = reqTrack || reqInterviewTrack;
@@ -133,6 +134,9 @@ export async function POST(req: Request) {
 
     // 3. Load or reconstruct session state
     let sessionState = getActiveSessionState(sessionId, candidateId);
+    if (sessionState && reqInterviewMode) {
+      (sessionState as any).interviewMode = reqInterviewMode;
+    }
     if (!sessionState) {
       const blueprint = generateInterviewBlueprint(
         dossier,
@@ -149,6 +153,9 @@ export async function POST(req: Request) {
       sessionState = createAdvancedSessionState(blueprint, dossier);
       if (effectiveTrack) {
         sessionState.track = effectiveTrack;
+      }
+      if (reqInterviewMode) {
+        (sessionState as any).interviewMode = reqInterviewMode;
       }
 
       // Reconstruct turns from messages if needed
@@ -278,6 +285,17 @@ export async function POST(req: Request) {
       },
       sevenDimensionScorecard: milestone5Report.dimensionScores,
       milestone5Report,
+      interviewMode: (sessionState as any).interviewMode || "evaluation",
+      formalHiringRecommendation: milestone5Report.formalHiringRecommendation,
+      practiceModeFeedback: milestone5Report.practiceModeFeedback,
+      professionalEvaluationReport: milestone5Report.professionalEvaluationReport,
+      resumeToInterviewConsistency: {
+        resumeBackedProjects: (dossier.projects || []).map((p: any) => p.title || p.name),
+        interviewDisclosedProjects: ((sessionState as any).disclosedEntities || []).map((d: any) => d.name),
+        discrepanciesNoted: ((sessionState as any).disclosedEntities || []).map(
+          (d: any) => `Candidate introduced unlisted project '${d.name}' during turn ${d.firstMentionedTurn}.`
+        ),
+      },
       actionableStudyTracks: milestone5Report.actionableStudyTracks,
       next_steps: report.recommendedLearningActions.join(" | ") || "Proceed to team matching round",
       interviewer_note: report.interviewerPrivateNote,
