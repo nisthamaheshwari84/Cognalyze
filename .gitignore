@@ -42,3 +42,8 @@ next-env.d.ts
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# ephemeral active interview session cache
+/data/active-sessions/*.json
+!/data/active-sessions/.gitkeep
+
