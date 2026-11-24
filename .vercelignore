@@ -5,6 +5,7 @@
 .npm
 /tmp
 tests
+scratch
 coverage
 docs
 *.log
