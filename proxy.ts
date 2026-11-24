@@ -12,11 +12,15 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/student/opportunities/") ||
     pathname === "/student/resources" ||
     pathname === "/student/question-bank" ||
+    pathname === "/question-bank" ||
     pathname === "/student/skills" ||
     pathname.startsWith("/student/skills/") ||
+    pathname === "/skill-practice" ||
+    pathname.startsWith("/skill-practice") ||
     pathname === "/student/assessment-arena" ||
     pathname === "/student/dsa-tracker" ||
     pathname === "/student/gd-practice" ||
+    pathname === "/group-discussion" ||
     pathname === "/student/simulation" ||
     pathname.startsWith("/student/simulation/") ||
     pathname === "/recruitment-simulation" ||
