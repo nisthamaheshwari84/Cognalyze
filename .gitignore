@@ -47,3 +47,6 @@ next-env.d.ts
 /data/active-sessions/*.json
 !/data/active-sessions/.gitkeep
 
+# standalone sub-services
+interview-intelligence/
+

@@ -12224,6 +12224,30 @@
     ],
     "u-student-sample-001": [
       {
+        "id": "ev_u-student-sample-001_communication_interview_1794987968691_17bbe7",
+        "userId": "u-student-sample-001",
+        "sourceType": "interview",
+        "sourceId": "interview_sess_u-student-sample-001_1794987891920_1226403",
+        "skillId": "communication",
+        "evidenceType": "VERIFIED_MOCK_INTERVIEW",
+        "claim": "Demonstrated competency in Communication during technical interview",
+        "strength": 0.7,
+        "reliability": 0.95,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "INTERVIEW -> interview_sess_u-student-sample-001_1794987891920_1226403",
+        "createdAt": "2026-11-18T07:46:08.691Z",
+        "observedAt": "2026-11-18T07:46:08.689Z",
+        "metadata": {
+          "score": 70,
+          "verbatimQuote": "I am the founder of the Cois project and I have been working on this project from last one year...",
+          "evaluation": "Clear articulation of role and timeline, though limited in detail.",
+          "targetRole": "Position: Backend Engineer",
+          "sessionId": "sess_u-student-sample-001_1794987891920_1226403"
+        }
+      },
+      {
         "id": "ev_u-student-sample-001_machine_learning_assessment_1794405680992_b3898e",
         "userId": "u-student-sample-001",
         "sourceType": "assessment",
@@ -18274,7 +18298,7 @@
         }
       },
       {
-        "id": "ev_cand_p3_lifecycle_01_system_design_interview_1794502326813_8b5876",
+        "id": "ev_cand_p3_lifecycle_01_system_design_interview_1795119464659_e80280",
         "userId": "cand_p3_lifecycle_01",
         "sourceType": "interview",
         "sourceId": "interview_sess_p3_stage8_report",
@@ -18287,8 +18311,8 @@
         "recency": "CURRENT",
         "verificationStatus": "VERIFIED",
         "provenance": "INTERVIEW -> interview_sess_p3_stage8_report",
-        "createdAt": "2026-11-12T16:52:06.813Z",
-        "observedAt": "2026-11-12T16:52:06.813Z",
+        "createdAt": "2026-11-19T20:17:44.659Z",
+        "observedAt": "2026-11-19T20:17:44.659Z",
         "metadata": {
           "score": 88,
           "verbatimQuote": "We partitioned Kafka topics by customer ID, deployed stateless Go ingress consumers with worker pools, and batched writes with Snappy compression.",
@@ -22156,7 +22180,7 @@
     ],
     "u-rem-student-001": [
       {
-        "id": "ev_u-rem-student-001_python_assessment_1794413300640_ee4fcd",
+        "id": "ev_u-rem-student-001_python_assessment_1795119473840_99fbed",
         "userId": "u-rem-student-001",
         "sourceType": "assessment",
         "sourceId": "sess-u-rem-student-001-valid-001",
@@ -22169,11 +22193,11 @@
         "recency": "CURRENT",
         "verificationStatus": "VERIFIED",
         "provenance": "ASSESSMENT -> sess-u-rem-student-001-valid-001",
-        "createdAt": "2026-11-11T16:08:20.640Z",
-        "observedAt": "2026-11-11T16:08:20.640Z"
+        "createdAt": "2026-11-19T20:17:53.840Z",
+        "observedAt": "2026-11-19T20:17:53.840Z"
       },
       {
-        "id": "ev_u-rem-student-001_python_self_declared_1794413300625_27ea9b",
+        "id": "ev_u-rem-student-001_python_self_declared_1795119473824_81e69b",
         "userId": "u-rem-student-001",
         "sourceType": "self_declared",
         "sourceId": "manual_claim_1",
@@ -22186,8 +22210,8 @@
         "recency": "CURRENT",
         "verificationStatus": "CLAIMED",
         "provenance": "SELF_DECLARED -> manual_claim_1",
-        "createdAt": "2026-11-11T16:08:20.625Z",
-        "observedAt": "2026-11-11T16:08:20.625Z"
+        "createdAt": "2026-11-19T20:17:53.824Z",
+        "observedAt": "2026-11-19T20:17:53.824Z"
       },
       {
         "id": "ev_u-rem-student-001_python_resume_1793010837733_037264",
@@ -31873,7 +31897,7 @@
     ],
     "test-cand-001": [
       {
-        "id": "ev_test-cand-001_machine_learning_assessment_1794774085466_fb96d2",
+        "id": "ev_test-cand-001_machine_learning_assessment_1795119454339_e02dc7",
         "userId": "test-cand-001",
         "sourceType": "assessment",
         "sourceId": "att_pass_100",
@@ -31886,8 +31910,8 @@
         "recency": "CURRENT",
         "verificationStatus": "VERIFIED",
         "provenance": "ASSESSMENT -> att_pass_100",
-        "createdAt": "2026-11-15T20:21:25.466Z",
-        "observedAt": "2026-11-15T20:21:25.465Z",
+        "createdAt": "2026-11-19T20:17:34.339Z",
+        "observedAt": "2026-11-19T20:17:34.338Z",
         "metadata": {
           "score": 95,
           "trackSlug": "data_science_analytics",
@@ -32087,6 +32111,37 @@
       }
     ],
     "student_dna_test": [
+      {
+        "id": "ev_student_dna_test_golang_assessment_1795119477742_289160",
+        "userId": "student_dna_test",
+        "sourceType": "assessment",
+        "sourceId": "jny_google_sde_1795119477740_gnqc5_stage_google_oa_attempt1",
+        "skillId": "golang",
+        "evidenceType": "recruitment_stage_algorithmic_coding",
+        "claim": "Demonstrated verified 88% proficiency on Google recruitment stage: 'Google Online Assessment'.",
+        "strength": 0.88,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> jny_google_sde_1795119477740_gnqc5_stage_google_oa_attempt1",
+        "createdAt": "2026-11-19T20:17:57.742Z",
+        "observedAt": "2026-11-19T20:17:57.741Z",
+        "metadata": {
+          "journeyId": "jny_google_sde_1795119477740_gnqc5",
+          "companyId": "google",
+          "companyName": "Google",
+          "roleFamily": "sde",
+          "hiringChannel": "campus",
+          "blueprintVersion": "1.0.0",
+          "stageId": "stage_google_oa",
+          "stageTitle": "Google Online Assessment",
+          "score": 88,
+          "rawScore": 88,
+          "maxScore": 100,
+          "percentageScore": 88
+        }
+      },
       {
         "id": "ev_student_dna_test_golang_assessment_1794679705315_4834b5",
         "userId": "student_dna_test",
@@ -35110,6 +35165,731 @@
           "timeSpent": 1200,
           "isAssisted": false,
           "assistanceTier": 1
+        }
+      }
+    ],
+    "cand-phase2-sync-1795119453262": [
+      {
+        "id": "ev_cand-phase2-sync-1795119453262_machine_learning_assessment_1795119453582_b52f95",
+        "userId": "cand-phase2-sync-1795119453262",
+        "sourceType": "assessment",
+        "sourceId": "att_aidata_4eb1066cda",
+        "skillId": "machine_learning",
+        "evidenceType": "ai_data_code_lab",
+        "claim": "Demonstrated 95% proficiency on AI & Data Arena Practice (Independent).",
+        "strength": 0.95,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> att_aidata_4eb1066cda",
+        "createdAt": "2026-11-19T20:17:33.582Z",
+        "observedAt": "2026-11-19T20:17:33.468Z",
+        "metadata": {
+          "score": 95,
+          "trackSlug": "data_science_analytics",
+          "lessonSlug": "sql-for-analytics-aggregations-and-joins",
+          "lessonTitle": "AI & Data Arena Practice",
+          "canonicalSkill": "machine_learning",
+          "exerciseType": "code_lab",
+          "isIndependent": true,
+          "reliability": 0.92,
+          "dimensions": {
+            "sql_accuracy": 95,
+            "execution_efficiency": 90
+          },
+          "evidenceSnippet": "Verified lab completion on AI & Data Arena Practice in the data_science_analytics track. Scored 95/100 with zero contract violations."
+        }
+      }
+    ],
+    "verify-stu-b-1795119455618": [
+      {
+        "id": "ev_verify-stu-b-1795119455618_git_assessment_1795119456265_7e2e76",
+        "userId": "verify-stu-b-1795119455618",
+        "sourceType": "assessment",
+        "sourceId": "seed-git-1",
+        "skillId": "git",
+        "evidenceType": "assessment_verified",
+        "claim": "Verified Git rebase workflow",
+        "strength": 0.9,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> seed-git-1",
+        "createdAt": "2026-11-19T20:17:36.265Z",
+        "observedAt": "2026-11-19T20:17:36.265Z",
+        "metadata": {
+          "score": 92
+        }
+      },
+      {
+        "id": "ev_verify-stu-b-1795119455618_golang_assessment_1795119456248_865526",
+        "userId": "verify-stu-b-1795119455618",
+        "sourceType": "assessment",
+        "sourceId": "seed-go-1",
+        "skillId": "golang",
+        "evidenceType": "assessment_verified",
+        "claim": "Verified Go systems assessment",
+        "strength": 0.9,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> seed-go-1",
+        "createdAt": "2026-11-19T20:17:36.248Z",
+        "observedAt": "2026-11-19T20:17:36.248Z",
+        "metadata": {
+          "score": 90
+        }
+      }
+    ],
+    "verify-stu-a-1795119455618": [],
+    "assess-persist-1795119457361": [
+      {
+        "id": "ev_assess-persist-1795119457361_golang_assessment_1795119457372_dbd4b8",
+        "userId": "assess-persist-1795119457361",
+        "sourceType": "assessment",
+        "sourceId": "mock-session-flipkart-grid-7-1795119457361",
+        "skillId": "golang",
+        "evidenceType": "assessment_verified",
+        "claim": "Passed Flipkart GRiD 7.0 autonomous assessment (94%)",
+        "strength": 0.94,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> mock-session-flipkart-grid-7-1795119457361",
+        "createdAt": "2026-11-19T20:17:37.372Z",
+        "observedAt": "2026-11-19T20:17:37.372Z",
+        "metadata": {
+          "score": 94,
+          "arenaShortName": "Flipkart GRiD 7.0",
+          "provenance": "Preparations Arena (Flipkart GRiD 7.0) -> assessment"
+        }
+      }
+    ],
+    "interview-persist-1795119457377": [
+      {
+        "id": "ev_interview-persist-1795119457377_cs_fundamentals_interview_1795119457927_abc105",
+        "userId": "interview-persist-1795119457377",
+        "sourceType": "interview",
+        "sourceId": "int-amazon-hackon-2026-1795119457405",
+        "skillId": "cs_fundamentals",
+        "evidenceType": "interview_verified",
+        "claim": "Completed Amazon HackOn 2026 technical interview interview (Borderline — Needs Targeted Polish)",
+        "strength": 0.7,
+        "reliability": 0.95,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "INTERVIEW -> int-amazon-hackon-2026-1795119457405",
+        "createdAt": "2026-11-19T20:17:37.927Z",
+        "observedAt": "2026-11-19T20:17:37.927Z",
+        "metadata": {
+          "score": 70,
+          "arenaShortName": "Amazon HackOn 2026",
+          "provenance": "Preparations Arena (Amazon HackOn 2026) -> interview"
+        }
+      }
+    ],
+    "cand_evidence_test_1795119460980": [
+      {
+        "id": "ev_cand_evidence_test_1795119460980_golang_practice_1795119461855_8f6b3e",
+        "userId": "cand_evidence_test_1795119460980",
+        "sourceType": "practice",
+        "sourceId": "attempt_1795119460985_804668dd9",
+        "skillId": "golang",
+        "evidenceType": "practical_task",
+        "claim": "Completed assisted practice on Painter's Partition Problem (Hints/Coach guidance used, Score: 100%)",
+        "extractedValue": "Score: 100%, Questions: 1/1 (Assisted)",
+        "strength": 0.65,
+        "reliability": 0.88,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "PRACTICE -> attempt_1795119460985_804668dd9",
+        "createdAt": "2026-11-19T20:17:41.855Z",
+        "observedAt": "2026-11-19T20:17:40.985Z",
+        "metadata": {
+          "domain": "dsa_coding",
+          "score": 100,
+          "accuracy": 100,
+          "timeSpent": 400,
+          "isAssisted": true,
+          "assistanceTier": 3
+        }
+      },
+      {
+        "id": "ev_cand_evidence_test_1795119460980_golang_practice_1795119461823_f66fc5",
+        "userId": "cand_evidence_test_1795119460980",
+        "sourceType": "practice",
+        "sourceId": "attempt_1795119460980_b099e7b21",
+        "skillId": "golang",
+        "evidenceType": "practical_task",
+        "claim": "Completed practice session on Painter's Partition Problem with 100% score",
+        "extractedValue": "Score: 100%, Questions: 1/1. Feedback: All tests passed independently.",
+        "strength": 1,
+        "reliability": 0.88,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "PRACTICE -> attempt_1795119460980_b099e7b21",
+        "createdAt": "2026-11-19T20:17:41.823Z",
+        "observedAt": "2026-11-19T20:17:40.980Z",
+        "metadata": {
+          "domain": "dsa_coding",
+          "score": 100,
+          "accuracy": 100,
+          "timeSpent": 240
+        }
+      }
+    ],
+    "cand-dna-feedback-1795119463456": [
+      {
+        "id": "ev_cand-dna-feedback-1795119463456_sql_interview_1795119463484_3e7287",
+        "userId": "cand-dna-feedback-1795119463456",
+        "sourceType": "interview",
+        "sourceId": "interview_sess_1795119463456",
+        "skillId": "sql",
+        "evidenceType": "VERIFIED_MOCK_INTERVIEW",
+        "claim": "Demonstrated competency in PostgreSQL Indexing & Optimization during technical interview",
+        "strength": 0.85,
+        "reliability": 0.95,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "INTERVIEW -> interview_sess_1795119463456",
+        "createdAt": "2026-11-19T20:17:43.484Z",
+        "observedAt": "2026-11-19T20:17:43.456Z",
+        "metadata": {
+          "score": 85,
+          "verbatimQuote": "We introduced composite B-Tree indexes on tenant_id and created_at to drop P95 query times from 400ms to 12ms.",
+          "evaluation": "Deep hands-on understanding of query execution plans.",
+          "targetRole": "Full Stack Engineer",
+          "sessionId": "sess_1795119463456"
+        }
+      }
+    ],
+    "cand_p5_missing_key_1795119465358": [
+      {
+        "id": "ev_cand_p5_missing_key_1795119465358_dsa_practice_1795119465369_414288",
+        "userId": "cand_p5_missing_key_1795119465358",
+        "sourceType": "practice",
+        "sourceId": "track_act_cand_p5_missing_key_1795119465358_traditional_coding_dsa_dsa_act_1",
+        "skillId": "dsa",
+        "evidenceType": "practical_task",
+        "claim": "Completed practice workout on Traditional Coding & DSA activity 'Streaming Top-K Event Frequency Analyzer' with score of 82% (completed). Practice completion alone does not establish verified technical mastery.",
+        "strength": 0.5,
+        "reliability": 0.88,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "PRACTICE -> track_act_cand_p5_missing_key_1795119465358_traditional_coding_dsa_dsa_act_1",
+        "createdAt": "2026-11-19T20:17:45.369Z",
+        "observedAt": "2026-11-19T20:17:45.369Z",
+        "metadata": {
+          "score": 82,
+          "track": "traditional_coding_dsa",
+          "activityId": "dsa_act_1",
+          "activityTitle": "Streaming Top-K Event Frequency Analyzer",
+          "activityType": "dsa_workout",
+          "tier": "applied",
+          "verdict": "completed",
+          "establishesMastery": false,
+          "verified": false,
+          "idempotencyKey": "track_act_cand_p5_missing_key_1795119465358_traditional_coding_dsa_dsa_act_1",
+          "notes": "No key provided",
+          "timestamp": "2026-11-19T20:17:45.365Z"
+        }
+      }
+    ],
+    "cand_p5_changed_key_1795119465383": [
+      {
+        "id": "ev_cand_p5_changed_key_1795119465383_dsa_practice_1795119465396_e2e864",
+        "userId": "cand_p5_changed_key_1795119465383",
+        "sourceType": "practice",
+        "sourceId": "track_act_cand_p5_changed_key_1795119465383_traditional_coding_dsa_dsa_act_1",
+        "skillId": "dsa",
+        "evidenceType": "practical_task",
+        "claim": "Completed practice workout on Traditional Coding & DSA activity 'Streaming Top-K Event Frequency Analyzer' with score of 85% (completed). Practice completion alone does not establish verified technical mastery.",
+        "strength": 0.5,
+        "reliability": 0.88,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "PRACTICE -> track_act_cand_p5_changed_key_1795119465383_traditional_coding_dsa_dsa_act_1",
+        "createdAt": "2026-11-19T20:17:45.396Z",
+        "observedAt": "2026-11-19T20:17:45.396Z",
+        "metadata": {
+          "score": 85,
+          "track": "traditional_coding_dsa",
+          "activityId": "dsa_act_1",
+          "activityTitle": "Streaming Top-K Event Frequency Analyzer",
+          "activityType": "dsa_workout",
+          "tier": "applied",
+          "verdict": "completed",
+          "establishesMastery": false,
+          "verified": false,
+          "idempotencyKey": "uuid_attempt_key_001",
+          "notes": "First attempt with key A",
+          "timestamp": "2026-11-19T20:17:45.390Z"
+        }
+      }
+    ],
+    "cand_p5_cross_A_1795119465407": [
+      {
+        "id": "ev_cand_p5_cross_A_1795119465407_system_design_practice_1795119465425_d421d8",
+        "userId": "cand_p5_cross_A_1795119465407",
+        "sourceType": "practice",
+        "sourceId": "track_act_cand_p5_cross_A_1795119465407_system_design_sys_act_1",
+        "skillId": "system_design",
+        "evidenceType": "practical_task",
+        "claim": "Completed practice workout on System Design activity 'Architecting an Idempotent Payment Pipeline with Outbox Pattern' with score of 88% (completed). Practice completion alone does not establish verified technical mastery.",
+        "strength": 0.5,
+        "reliability": 0.88,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "PRACTICE -> track_act_cand_p5_cross_A_1795119465407_system_design_sys_act_1",
+        "createdAt": "2026-11-19T20:17:45.425Z",
+        "observedAt": "2026-11-19T20:17:45.425Z",
+        "metadata": {
+          "score": 88,
+          "track": "system_design",
+          "activityId": "sys_act_1",
+          "activityTitle": "Architecting an Idempotent Payment Pipeline with Outbox Pattern",
+          "activityType": "arch_blueprint",
+          "tier": "applied",
+          "verdict": "completed",
+          "establishesMastery": false,
+          "verified": false,
+          "idempotencyKey": "shared_key_12345",
+          "notes": "Candidate A submission",
+          "timestamp": "2026-11-19T20:17:45.420Z"
+        }
+      }
+    ],
+    "cand_p5_cross_B_1795119465407": [],
+    "iso_user_A_1795119474373": [
+      {
+        "id": "ev_iso_user_A_1795119474373_rust_github_1795119474470_236b0f",
+        "userId": "iso_user_A_1795119474373",
+        "sourceType": "github",
+        "sourceId": "repo_alpha_1",
+        "skillId": "rust",
+        "evidenceType": "code_inspection",
+        "claim": "Demonstrated safe memory management in Rust",
+        "strength": 0.8,
+        "reliability": 0.85,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "GITHUB -> repo_alpha_1",
+        "createdAt": "2026-11-19T20:17:54.470Z",
+        "observedAt": "2026-11-19T20:17:54.470Z"
+      },
+      {
+        "id": "ev_iso_user_A_1795119474373_rust_resume_1795119474461_8cede2",
+        "userId": "iso_user_A_1795119474373",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_0_rust",
+        "skillId": "rust",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Advanced in Rust (Self-Declared Skill Claim)",
+        "extractedValue": "Advanced",
+        "strength": 0.8,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_0_rust",
+        "createdAt": "2026-11-19T20:17:54.461Z",
+        "observedAt": "2026-11-05T20:17:54.460Z",
+        "metadata": {
+          "declaredLevel": "Advanced",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_iso_user_A_1795119474373_rust_project_1795119474462_4e289f",
+        "userId": "iso_user_A_1795119474373",
+        "sourceType": "project",
+        "sourceId": "proj_0_rust",
+        "sourceUrl": "https://github.com/alpha/rust-compiler",
+        "skillId": "rust",
+        "evidenceType": "project_artifact",
+        "claim": "Implemented project 'Rust Compiler' utilizing Rust",
+        "extractedValue": "Compiler in Rust",
+        "strength": 0.8,
+        "reliability": 0.75,
+        "confidence": "MEDIUM",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "PROJECT -> proj_0_rust",
+        "createdAt": "2026-11-19T20:17:54.462Z",
+        "observedAt": "2026-11-09T20:17:54.461Z",
+        "metadata": {
+          "projectTitle": "Rust Compiler",
+          "techStack": [
+            "Rust"
+          ],
+          "canonicalProjectId": "Rust Compiler",
+          "role": "Developer"
+        }
+      }
+    ],
+    "iso_user_B_1795119474373": [
+      {
+        "id": "ev_iso_user_B_1795119474373_java_github_1795119474485_fe0e30",
+        "userId": "iso_user_B_1795119474373",
+        "sourceType": "github",
+        "sourceId": "repo_beta_1",
+        "skillId": "java",
+        "evidenceType": "code_inspection",
+        "claim": "Spring Boot dependency injection configuration",
+        "strength": 0.8,
+        "reliability": 0.85,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "GITHUB -> repo_beta_1",
+        "createdAt": "2026-11-19T20:17:54.485Z",
+        "observedAt": "2026-11-19T20:17:54.485Z"
+      },
+      {
+        "id": "ev_iso_user_B_1795119474373_java_resume_1795119474480_d6b701",
+        "userId": "iso_user_B_1795119474373",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_0_java",
+        "skillId": "java",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Intermediate in Java (Self-Declared Skill Claim)",
+        "extractedValue": "Intermediate",
+        "strength": 0.6,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_0_java",
+        "createdAt": "2026-11-19T20:17:54.480Z",
+        "observedAt": "2026-11-05T20:17:54.480Z",
+        "metadata": {
+          "declaredLevel": "Intermediate",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_iso_user_B_1795119474373_java_project_1795119474480_52fb42",
+        "userId": "iso_user_B_1795119474373",
+        "sourceType": "project",
+        "sourceId": "proj_0_java",
+        "sourceUrl": "https://github.com/beta/spring-service",
+        "skillId": "java",
+        "evidenceType": "project_artifact",
+        "claim": "Implemented project 'Spring Microservice' utilizing Java",
+        "extractedValue": "Spring Boot API",
+        "strength": 0.8,
+        "reliability": 0.75,
+        "confidence": "MEDIUM",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "PROJECT -> proj_0_java",
+        "createdAt": "2026-11-19T20:17:54.480Z",
+        "observedAt": "2026-11-09T20:17:54.480Z",
+        "metadata": {
+          "projectTitle": "Spring Microservice",
+          "techStack": [
+            "Java"
+          ],
+          "canonicalProjectId": "Spring Microservice",
+          "role": "Developer"
+        }
+      }
+    ],
+    "code_insp_1795119474523": [
+      {
+        "id": "ev_code_insp_1795119474523_python_github_1795119474536_82ab2d",
+        "userId": "code_insp_1795119474523",
+        "sourceType": "github",
+        "sourceId": "repo_api_service",
+        "sourceUrl": "https://github.com/student/api-service",
+        "skillId": "python",
+        "evidenceType": "code_inspection",
+        "claim": "Implemented FastAPI async endpoints with Pydantic validation",
+        "strength": 0.8,
+        "reliability": 0.85,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "GITHUB -> repo_api_service",
+        "createdAt": "2026-11-19T20:17:54.536Z",
+        "observedAt": "2026-11-19T20:17:54.536Z",
+        "metadata": {
+          "file": "app/main.py",
+          "lines": "12-45"
+        }
+      }
+    ],
+    "role_persist_1795119474542": [],
+    "dedup_1795119474565": [
+      {
+        "id": "ev_dedup_1795119474565_python_github_1795119474581_789b18",
+        "userId": "dedup_1795119474565",
+        "sourceType": "github",
+        "sourceId": "repo_proj_123",
+        "sourceUrl": "https://github.com/user/project",
+        "skillId": "python",
+        "evidenceType": "code_inspection",
+        "claim": "Repository https://github.com/user/project",
+        "strength": 0.8,
+        "reliability": 0.85,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "GITHUB -> repo_proj_123",
+        "createdAt": "2026-11-19T20:17:54.581Z",
+        "observedAt": "2026-11-19T20:17:54.581Z"
+      }
+    ],
+    "ai_fail_1795119474587": [
+      {
+        "id": "ev_ai_fail_1795119474587_dsa_assessment_1795119474593_7a085b",
+        "userId": "ai_fail_1795119474587",
+        "sourceType": "assessment",
+        "sourceId": "dsa_diag_1",
+        "skillId": "dsa",
+        "evidenceType": "assessment_score",
+        "claim": "Scored 85% in DSA diagnostic",
+        "strength": 0.95,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> dsa_diag_1",
+        "createdAt": "2026-11-19T20:17:54.593Z",
+        "observedAt": "2026-11-19T20:17:54.593Z",
+        "metadata": {
+          "score": 85
+        }
+      }
+    ],
+    "refresh_rec_1795119474856": [
+      {
+        "id": "ev_refresh_rec_1795119474856_react_github_1795119475312_da591a",
+        "userId": "refresh_rec_1795119474856",
+        "sourceType": "github",
+        "sourceId": "react_repo_1",
+        "sourceUrl": "https://github.com/user/react-app",
+        "skillId": "react",
+        "evidenceType": "code_inspection",
+        "claim": "React component architecture",
+        "strength": 0.8,
+        "reliability": 0.85,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "GITHUB -> react_repo_1",
+        "createdAt": "2026-11-19T20:17:55.312Z",
+        "observedAt": "2026-11-19T20:17:55.312Z"
+      }
+    ],
+    "new_ev_1795119475602": [
+      {
+        "id": "ev_new_ev_1795119475602_python_assessment_1795119475607_da9e38",
+        "userId": "new_ev_1795119475602",
+        "sourceType": "assessment",
+        "sourceId": "py_diag_92",
+        "skillId": "python",
+        "evidenceType": "assessment_score",
+        "claim": "Passed Cognalyze Python Backend Diagnostic with 92%",
+        "strength": 0.95,
+        "reliability": 0.92,
+        "confidence": "HIGH",
+        "recency": "CURRENT",
+        "verificationStatus": "VERIFIED",
+        "provenance": "ASSESSMENT -> py_diag_92",
+        "createdAt": "2026-11-19T20:17:55.607Z",
+        "observedAt": "2026-11-19T20:17:55.607Z",
+        "metadata": {
+          "score": 92
+        }
+      }
+    ],
+    "victim_1795119475613": [],
+    "attacker_1795119475613": [],
+    "regression_1795119475658": [
+      {
+        "id": "ev_regression_1795119475658_typescript_resume_1795119475679_0b1cb2",
+        "userId": "regression_1795119475658",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_0_typescript",
+        "skillId": "typescript",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Intermediate in TypeScript (Self-Declared Skill Claim)",
+        "extractedValue": "Intermediate",
+        "strength": 0.6,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_0_typescript",
+        "createdAt": "2026-11-19T20:17:55.679Z",
+        "observedAt": "2026-11-05T20:17:55.679Z",
+        "metadata": {
+          "declaredLevel": "Intermediate",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_regression_1795119475658_react_resume_1795119475679_06635f",
+        "userId": "regression_1795119475658",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_1_react",
+        "skillId": "react",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Intermediate in React (Self-Declared Skill Claim)",
+        "extractedValue": "Intermediate",
+        "strength": 0.6,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_1_react",
+        "createdAt": "2026-11-19T20:17:55.679Z",
+        "observedAt": "2026-11-05T20:17:55.679Z",
+        "metadata": {
+          "declaredLevel": "Intermediate",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_regression_1795119475658_react_project_1795119475679_3cf34d",
+        "userId": "regression_1795119475658",
+        "sourceType": "project",
+        "sourceId": "proj_0_react",
+        "sourceUrl": "https://github.com/test/app",
+        "skillId": "react",
+        "evidenceType": "project_artifact",
+        "claim": "Implemented project 'Next.js App' utilizing React",
+        "extractedValue": "Next app",
+        "strength": 0.8,
+        "reliability": 0.75,
+        "confidence": "MEDIUM",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "PROJECT -> proj_0_react",
+        "createdAt": "2026-11-19T20:17:55.679Z",
+        "observedAt": "2026-11-09T20:17:55.679Z",
+        "metadata": {
+          "projectTitle": "Next.js App",
+          "techStack": [
+            "React"
+          ],
+          "canonicalProjectId": "Next.js App",
+          "role": "Developer"
+        }
+      }
+    ],
+    "u-test-user-a-1795119475737": [
+      {
+        "id": "ev_u-test-user-a-1795119475737_typescript_resume_1795119476216_9df608",
+        "userId": "u-test-user-a-1795119475737",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_0_typescript",
+        "skillId": "typescript",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Advanced in TypeScript (Self-Declared Skill Claim)",
+        "extractedValue": "Advanced",
+        "strength": 0.8,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_0_typescript",
+        "createdAt": "2026-11-19T20:17:56.216Z",
+        "observedAt": "2026-11-05T20:17:56.216Z",
+        "metadata": {
+          "declaredLevel": "Advanced",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_u-test-user-a-1795119475737_postgresql_resume_1795119476216_3c9fb5",
+        "userId": "u-test-user-a-1795119475737",
+        "sourceType": "resume",
+        "sourceId": "profile_skill_1_postgresql",
+        "skillId": "postgresql",
+        "evidenceType": "claim",
+        "claim": "Student declared proficiency as Intermediate in PostgreSQL (Self-Declared Skill Claim)",
+        "extractedValue": "Intermediate",
+        "strength": 0.6,
+        "reliability": 0.45,
+        "confidence": "LOW",
+        "recency": "CURRENT",
+        "verificationStatus": "CLAIMED",
+        "provenance": "RESUME -> profile_skill_1_postgresql",
+        "createdAt": "2026-11-19T20:17:56.216Z",
+        "observedAt": "2026-11-05T20:17:56.216Z",
+        "metadata": {
+          "declaredLevel": "Intermediate",
+          "source": "Self-Declared Skill Claim"
+        }
+      },
+      {
+        "id": "ev_u-test-user-a-1795119475737_typescript_project_1795119476216_a9918c",
+        "userId": "u-test-user-a-1795119475737",
+        "sourceType": "project",
+        "sourceId": "proj_0_typescript",
+        "sourceUrl": "https://github.com/repository",
+        "skillId": "typescript",
+        "evidenceType": "project_artifact",
+        "claim": "Implemented project 'Distributed KV Store' utilizing TypeScript",
+        "extractedValue": "High throughput key-value store with replication",
+        "strength": 0.8,
+        "reliability": 0.75,
+        "confidence": "MEDIUM",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "PROJECT -> proj_0_typescript",
+        "createdAt": "2026-11-19T20:17:56.216Z",
+        "observedAt": "2026-11-09T20:17:56.216Z",
+        "metadata": {
+          "projectTitle": "Distributed KV Store",
+          "techStack": [
+            "TypeScript",
+            "PostgreSQL"
+          ],
+          "canonicalProjectId": "Distributed KV Store",
+          "role": "Developer"
+        }
+      },
+      {
+        "id": "ev_u-test-user-a-1795119475737_postgresql_project_1795119476216_b75354",
+        "userId": "u-test-user-a-1795119475737",
+        "sourceType": "project",
+        "sourceId": "proj_0_postgresql",
+        "sourceUrl": "https://github.com/repository",
+        "skillId": "postgresql",
+        "evidenceType": "project_artifact",
+        "claim": "Implemented project 'Distributed KV Store' utilizing PostgreSQL",
+        "extractedValue": "High throughput key-value store with replication",
+        "strength": 0.8,
+        "reliability": 0.75,
+        "confidence": "MEDIUM",
+        "recency": "CURRENT",
+        "verificationStatus": "DEMONSTRATED",
+        "provenance": "PROJECT -> proj_0_postgresql",
+        "createdAt": "2026-11-19T20:17:56.216Z",
+        "observedAt": "2026-11-09T20:17:56.216Z",
+        "metadata": {
+          "projectTitle": "Distributed KV Store",
+          "techStack": [
+            "TypeScript",
+            "PostgreSQL"
+          ],
+          "canonicalProjectId": "Distributed KV Store",
+          "role": "Developer"
         }
       }
     ]
@@ -38207,6 +38987,16 @@
     ],
     "cand_p3_lifecycle_01": [
       {
+        "id": "audit_1795119464659_a709ad67",
+        "userId": "cand_p3_lifecycle_01",
+        "timestamp": "2026-11-19T20:17:44.659Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "system_design",
+        "newLevel": 4,
+        "reason": "Added new interview evidence: \"Demonstrated competency in System Architecture & Scalability during technical interview\"",
+        "evidenceId": "ev_cand_p3_lifecycle_01_system_design_interview_1795119464659_e80280"
+      },
+      {
         "id": "audit_1794502326813_fc200ee2",
         "userId": "cand_p3_lifecycle_01",
         "timestamp": "2026-11-12T16:52:06.813Z",
@@ -38522,6 +39312,16 @@
       }
     ],
     "u-student-sample-001": [
+      {
+        "id": "audit_1794987968691_58a9b614",
+        "userId": "u-student-sample-001",
+        "timestamp": "2026-11-18T07:46:08.691Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "communication",
+        "newLevel": 4,
+        "reason": "Added new interview evidence: \"Demonstrated competency in Communication during technical interview\"",
+        "evidenceId": "ev_u-student-sample-001_communication_interview_1794987968691_17bbe7"
+      },
       {
         "id": "audit_1794405680992_c2efe3e5",
         "userId": "u-student-sample-001",
@@ -39716,6 +40516,26 @@
       }
     ],
     "u-rem-student-001": [
+      {
+        "id": "audit_1795119473840_216f32ce",
+        "userId": "u-rem-student-001",
+        "timestamp": "2026-11-19T20:17:53.840Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Passed technical evaluation\"",
+        "evidenceId": "ev_u-rem-student-001_python_assessment_1795119473840_99fbed"
+      },
+      {
+        "id": "audit_1795119473824_60210967",
+        "userId": "u-rem-student-001",
+        "timestamp": "2026-11-19T20:17:53.824Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 3,
+        "reason": "Added new self_declared evidence: \"I am a Python expert\"",
+        "evidenceId": "ev_u-rem-student-001_python_self_declared_1795119473824_81e69b"
+      },
       {
         "id": "audit_1794413300640_bfdf650d",
         "userId": "u-rem-student-001",
@@ -42839,6 +43659,16 @@
     ],
     "test-cand-001": [
       {
+        "id": "audit_1795119454339_b6535bf1",
+        "userId": "test-cand-001",
+        "timestamp": "2026-11-19T20:17:34.339Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "machine_learning",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Demonstrated 95% proficiency on AI & Data Arena Practice (Independent).\"",
+        "evidenceId": "ev_test-cand-001_machine_learning_assessment_1795119454339_e02dc7"
+      },
+      {
         "id": "audit_1794774085466_3008c527",
         "userId": "test-cand-001",
         "timestamp": "2026-11-15T20:21:25.466Z",
@@ -43140,6 +43970,16 @@
       }
     ],
     "student_dna_test": [
+      {
+        "id": "audit_1795119477742_f9042e45",
+        "userId": "student_dna_test",
+        "timestamp": "2026-11-19T20:17:57.742Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "golang",
+        "newLevel": 4,
+        "reason": "Added new assessment evidence: \"Demonstrated verified 88% proficiency on Google recruitment stage: 'Google Online Assessment'.\"",
+        "evidenceId": "ev_student_dna_test_golang_assessment_1795119477742_289160"
+      },
       {
         "id": "audit_1794679705315_3a4caa89",
         "userId": "student_dna_test",
@@ -43853,6 +44693,228 @@
         "reason": "Added new practice evidence: \"Completed independent interview session on Distributed Rate Limiter with 88% score\"",
         "evidenceId": "ev_test-user-1794978285142-sessions_system_design_practice_1794978286414_5ab809"
       }
+    ],
+    "cand-phase2-sync-1795119453262": [
+      {
+        "id": "audit_1795119453582_228b0e71",
+        "userId": "cand-phase2-sync-1795119453262",
+        "timestamp": "2026-11-19T20:17:33.582Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "machine_learning",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Demonstrated 95% proficiency on AI & Data Arena Practice (Independent).\"",
+        "evidenceId": "ev_cand-phase2-sync-1795119453262_machine_learning_assessment_1795119453582_b52f95"
+      }
+    ],
+    "verify-stu-b-1795119455618": [
+      {
+        "id": "audit_1795119456265_68bf5afc",
+        "userId": "verify-stu-b-1795119455618",
+        "timestamp": "2026-11-19T20:17:36.265Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "git",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Verified Git rebase workflow\"",
+        "evidenceId": "ev_verify-stu-b-1795119455618_git_assessment_1795119456265_7e2e76"
+      },
+      {
+        "id": "audit_1795119456248_695d89d3",
+        "userId": "verify-stu-b-1795119455618",
+        "timestamp": "2026-11-19T20:17:36.248Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "golang",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Verified Go systems assessment\"",
+        "evidenceId": "ev_verify-stu-b-1795119455618_golang_assessment_1795119456248_865526"
+      }
+    ],
+    "assess-persist-1795119457361": [
+      {
+        "id": "audit_1795119457372_94b0d257",
+        "userId": "assess-persist-1795119457361",
+        "timestamp": "2026-11-19T20:17:37.372Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "golang",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Passed Flipkart GRiD 7.0 autonomous assessment (94%)\"",
+        "evidenceId": "ev_assess-persist-1795119457361_golang_assessment_1795119457372_dbd4b8"
+      }
+    ],
+    "interview-persist-1795119457377": [
+      {
+        "id": "audit_1795119457927_acdbe757",
+        "userId": "interview-persist-1795119457377",
+        "timestamp": "2026-11-19T20:17:37.927Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "cs_fundamentals",
+        "newLevel": 4,
+        "reason": "Added new interview evidence: \"Completed Amazon HackOn 2026 technical interview interview (Borderline — Needs Targeted Polish)\"",
+        "evidenceId": "ev_interview-persist-1795119457377_cs_fundamentals_interview_1795119457927_abc105"
+      }
+    ],
+    "cand_evidence_test_1795119460980": [
+      {
+        "id": "audit_1795119461855_e55f8dbe",
+        "userId": "cand_evidence_test_1795119460980",
+        "timestamp": "2026-11-19T20:17:41.855Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "golang",
+        "newLevel": 3,
+        "reason": "Added new practice evidence: \"Completed assisted practice on Painter's Partition Problem (Hints/Coach guidance used, Score: 100%)\"",
+        "evidenceId": "ev_cand_evidence_test_1795119460980_golang_practice_1795119461855_8f6b3e"
+      },
+      {
+        "id": "audit_1795119461844_2cd50f2d",
+        "userId": "cand_evidence_test_1795119460980",
+        "timestamp": "2026-11-19T20:17:41.844Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "golang",
+        "newLevel": 5,
+        "reason": "Added new practice evidence: \"Completed independent practice session on Painter's Partition Problem with 100% score\"",
+        "evidenceId": "ev_cand_evidence_test_1795119460980_golang_practice_1795119461844_a00139"
+      }
+    ],
+    "cand-dna-feedback-1795119463456": [
+      {
+        "id": "audit_1795119463484_e251f11f",
+        "userId": "cand-dna-feedback-1795119463456",
+        "timestamp": "2026-11-19T20:17:43.484Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "sql",
+        "newLevel": 4,
+        "reason": "Added new interview evidence: \"Demonstrated competency in PostgreSQL Indexing & Optimization during technical interview\"",
+        "evidenceId": "ev_cand-dna-feedback-1795119463456_sql_interview_1795119463484_3e7287"
+      }
+    ],
+    "cand_p5_missing_key_1795119465358": [
+      {
+        "id": "audit_1795119465369_6a8e18aa",
+        "userId": "cand_p5_missing_key_1795119465358",
+        "timestamp": "2026-11-19T20:17:45.369Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "dsa",
+        "newLevel": 3,
+        "reason": "Added new practice evidence: \"Completed practice workout on Traditional Coding & DSA activity 'Streaming Top-K Event Frequency Analyzer' with score of 82% (completed). Practice completion alone does not establish verified technical mastery.\"",
+        "evidenceId": "ev_cand_p5_missing_key_1795119465358_dsa_practice_1795119465369_414288"
+      }
+    ],
+    "cand_p5_changed_key_1795119465383": [
+      {
+        "id": "audit_1795119465396_8344cc5f",
+        "userId": "cand_p5_changed_key_1795119465383",
+        "timestamp": "2026-11-19T20:17:45.396Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "dsa",
+        "newLevel": 3,
+        "reason": "Added new practice evidence: \"Completed practice workout on Traditional Coding & DSA activity 'Streaming Top-K Event Frequency Analyzer' with score of 85% (completed). Practice completion alone does not establish verified technical mastery.\"",
+        "evidenceId": "ev_cand_p5_changed_key_1795119465383_dsa_practice_1795119465396_e2e864"
+      }
+    ],
+    "cand_p5_cross_A_1795119465407": [
+      {
+        "id": "audit_1795119465425_25cd0cd9",
+        "userId": "cand_p5_cross_A_1795119465407",
+        "timestamp": "2026-11-19T20:17:45.425Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "system_design",
+        "newLevel": 3,
+        "reason": "Added new practice evidence: \"Completed practice workout on System Design activity 'Architecting an Idempotent Payment Pipeline with Outbox Pattern' with score of 88% (completed). Practice completion alone does not establish verified technical mastery.\"",
+        "evidenceId": "ev_cand_p5_cross_A_1795119465407_system_design_practice_1795119465425_d421d8"
+      }
+    ],
+    "iso_user_A_1795119474373": [
+      {
+        "id": "audit_1795119474470_1398eed1",
+        "userId": "iso_user_A_1795119474373",
+        "timestamp": "2026-11-19T20:17:54.470Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "rust",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"Demonstrated safe memory management in Rust\"",
+        "evidenceId": "ev_iso_user_A_1795119474373_rust_github_1795119474470_236b0f"
+      }
+    ],
+    "iso_user_B_1795119474373": [
+      {
+        "id": "audit_1795119474485_7c9c9369",
+        "userId": "iso_user_B_1795119474373",
+        "timestamp": "2026-11-19T20:17:54.485Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "java",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"Spring Boot dependency injection configuration\"",
+        "evidenceId": "ev_iso_user_B_1795119474373_java_github_1795119474485_fe0e30"
+      }
+    ],
+    "code_insp_1795119474523": [
+      {
+        "id": "audit_1795119474536_9b1bf7d5",
+        "userId": "code_insp_1795119474523",
+        "timestamp": "2026-11-19T20:17:54.536Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"Implemented FastAPI async endpoints with Pydantic validation\"",
+        "evidenceId": "ev_code_insp_1795119474523_python_github_1795119474536_82ab2d"
+      }
+    ],
+    "dedup_1795119474565": [
+      {
+        "id": "audit_1795119474581_ec1b0dde",
+        "userId": "dedup_1795119474565",
+        "timestamp": "2026-11-19T20:17:54.581Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"Repository https://github.com/user/project\"",
+        "evidenceId": "ev_dedup_1795119474565_python_github_1795119474581_789b18"
+      },
+      {
+        "id": "audit_1795119474570_d306890f",
+        "userId": "dedup_1795119474565",
+        "timestamp": "2026-11-19T20:17:54.570Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"Repository https://github.com/user/project\"",
+        "evidenceId": "ev_dedup_1795119474565_python_github_1795119474570_70ba68"
+      }
+    ],
+    "ai_fail_1795119474587": [
+      {
+        "id": "audit_1795119474593_996d2565",
+        "userId": "ai_fail_1795119474587",
+        "timestamp": "2026-11-19T20:17:54.593Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "dsa",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Scored 85% in DSA diagnostic\"",
+        "evidenceId": "ev_ai_fail_1795119474587_dsa_assessment_1795119474593_7a085b"
+      }
+    ],
+    "refresh_rec_1795119474856": [
+      {
+        "id": "audit_1795119475312_224e29cb",
+        "userId": "refresh_rec_1795119474856",
+        "timestamp": "2026-11-19T20:17:55.312Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "react",
+        "newLevel": 4,
+        "reason": "Added new github evidence: \"React component architecture\"",
+        "evidenceId": "ev_refresh_rec_1795119474856_react_github_1795119475312_da591a"
+      }
+    ],
+    "new_ev_1795119475602": [
+      {
+        "id": "audit_1795119475607_9ce7d005",
+        "userId": "new_ev_1795119475602",
+        "timestamp": "2026-11-19T20:17:55.607Z",
+        "changeType": "EVIDENCE_ADDED",
+        "skillId": "python",
+        "newLevel": 5,
+        "reason": "Added new assessment evidence: \"Passed Cognalyze Python Backend Diagnostic with 92%\"",
+        "evidenceId": "ev_new_ev_1795119475602_python_assessment_1795119475607_da9e38"
+      }
     ]
   },
   "targetRoles": {
@@ -43941,7 +45003,9 @@
     "u-test-user-a-1794413302567": "fullstack_dev",
     "dce475fa-0436-4636-a4c1-076a66d75d69": "swe_frontend",
     "u-test-user-a-1794679704180": "fullstack_dev",
-    "cand_journey_1794774179911": "sde_backend"
+    "cand_journey_1794774179911": "sde_backend",
+    "role_persist_1795119474542": "backend_sde",
+    "u-test-user-a-1795119475737": "fullstack_dev"
   },
-  "updatedAt": "2026-11-18T05:46:21.495Z"
+  "updatedAt": "2026-11-20T09:47:01.899Z"
 }

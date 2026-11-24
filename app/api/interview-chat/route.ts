@@ -64,6 +64,14 @@ import {
   InterviewExperienceMode,
   HintPreferenceLevel,
 } from "@/lib/interview/interview-mode-service";
+import {
+  understandCandidateAnswer,
+  decideNextInterviewAction,
+  validateQuestionQuality,
+  createAutonomousSessionMemory,
+  StructuredEvaluationRecord,
+  FollowUpDecision,
+} from "@/lib/interview/autonomous-intelligence-engine";
 
 function trimMessages(messages: Array<{ role: string; content: string }>, maxMessages = 12) {
   if (messages.length <= maxMessages) return messages;
@@ -758,6 +766,34 @@ export async function POST(req: Request) {
         .map((m: any) => `${m.role === "assistant" ? "Alex (Interviewer)" : "Candidate"}: ${m.content}`)
         .join("\n");
 
+      // Autonomous Answer Understanding Layer (Mandate 2, 3, 4, 5)
+      const candidateAllSkills = [...(dossier.verifiedSkills || []), ...(dossier.claimedSkills || [])];
+      const autoMemory = (sessionState as any).autonomousMemory || createAutonomousSessionMemory({
+        sessionId,
+        candidateId,
+        dossier: {
+          candidateId,
+          name: dossier.name || "Candidate",
+          targetRole: dossier.targetRole || "Software Engineer",
+          targetCompany: dossier.targetCompany || "Technology Company",
+          experienceLevel: dossier.experienceMode === "fresher" ? "fresher" : "experienced",
+          trackId: sessionState.track || "fullstack",
+          skills: candidateAllSkills,
+          projects: dossier.projects || [],
+        },
+        mode: (sessionState as any).interviewMode === "professional" ? "professional" : "practice",
+        initialCompetency: sessionState.questionsAsked[sessionState.questionsAsked.length - 1]?.competency || "System Architecture",
+        initialDifficulty: sessionState.currentDifficulty as any,
+      });
+      (sessionState as any).autonomousMemory = autoMemory;
+
+      const autoEval = await understandCandidateAnswer({
+        questionId: `q_${sessionState.questionsAsked.length || sessionState.turns.length}`,
+        questionText: lastAssistantMsg,
+        rawAnswer: lastUserMsg,
+        memory: autoMemory,
+      });
+
       // Unified Accelerator: evaluates answer + generates next question in ONE model call
       const { assessment, nextQuestion, timingMs, modelAnswerFeedback, rubricScore } = await assessAndGenerateAdaptiveTurn(
         sessionState,
@@ -767,8 +803,27 @@ export async function POST(req: Request) {
         lastUserMsg
       );
 
+      // Dedicated Ambiguity & STT Clarification Intercept (Mandate 3 & 4)
+      if (autoEval.ambiguity.detected && autoEval.ambiguity.details && autoEval.ambiguity.details.includes("?")) {
+        nextQuestion.question = autoEval.ambiguity.details;
+        nextQuestion.is_follow_up = true;
+        nextQuestion.follow_up_reason = "verify_claimed_implementation";
+      }
+
       // Question Grounding Validation: eliminate tech-transfer hallucinations (e.g. ChatDesk + Redis)
       nextQuestion.question = repairUngroundedQuestion(nextQuestion.question, claimLedger);
+
+      // Question Quality Control Validation (Mandate 11)
+      const qualityReport = validateQuestionQuality({
+        questionText: nextQuestion.question,
+        targetRole: dossier.targetRole,
+        experienceLevel: dossier.experienceMode === "fresher" ? "fresher" : "experienced",
+        questionHistory: sessionState.questionsAsked.map(q => ({ questionText: q.question })),
+        candidateClaims: candidateAllSkills,
+      });
+      if (!qualityReport.isValid && qualityReport.repairedQuestion) {
+        nextQuestion.question = qualityReport.repairedQuestion;
+      }
 
       // Semantic duplicate check
       if (isSemanticDuplicate(nextQuestion.question, sessionState.questionsAsked.map(q => ({ text: q.question })))) {
@@ -836,6 +891,7 @@ export async function POST(req: Request) {
         section_transition: nextQuestion.section_transition,
         modelAnswerFeedback,
         rubricScore: rubricScore ?? modelAnswerFeedback?.score,
+        autonomousEvaluation: autoEval,
       };
 
       const pendingAssistance = (sessionState as any).pendingAssistance;
@@ -870,6 +926,7 @@ export async function POST(req: Request) {
         followUpReason: nextQuestion.follow_up_reason || "none",
         sectionTransition: nextQuestion.section_transition || "",
         assessment,
+        autonomousEvaluation: autoEval,
         modelAnswer: modelAnswerFeedback,
         rubricScore: rubricScore ?? modelAnswerFeedback?.score,
         sessionId,

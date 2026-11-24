@@ -29,21 +29,11 @@ import {
 
 test("Personalized Interview Arena & Actual Interview Verification Suite", async (t) => {
 
-  // ── TEST 1: Primary Navigation includes both Interviews and Personalized Interview Arena ──
-  await t.test("1. AppNav contains Interviews and Personalized Interview Arena", () => {
+  // ── TEST 1: Primary Navigation includes Personalized Interview Arena ──
+  await t.test("1. AppNav contains Personalized Interview Arena", () => {
     const appNavPath = path.join(process.cwd(), "components", "AppNav.tsx");
     assert.ok(fs.existsSync(appNavPath), "components/AppNav.tsx must exist");
     const content = fs.readFileSync(appNavPath, "utf-8");
-
-    // Must have original Interviews in navigation
-    assert.ok(
-      content.includes('label: "Interviews"'),
-      "studentNavItems must contain label 'Interviews'"
-    );
-    assert.ok(
-      content.includes('href: "/interview"'),
-      "Interviews must link directly to '/interview'"
-    );
 
     // Must have Personalized Interview Arena in navigation
     assert.ok(
@@ -66,15 +56,11 @@ test("Personalized Interview Arena & Actual Interview Verification Suite", async
     );
   });
 
-  // ── TEST 2: Active route matching for both interview modes ──
-  await t.test("2. AppNav activates correct items across /interview and /student/practice-interview", () => {
+  // ── TEST 2: Active route matching for interview modes ──
+  await t.test("2. AppNav activates correct items across /student/practice-interview", () => {
     const appNavPath = path.join(process.cwd(), "components", "AppNav.tsx");
     const content = fs.readFileSync(appNavPath, "utf-8");
 
-    assert.ok(
-      content.includes('pathname === "/interview"'),
-      "isItemActive must check pathname === '/interview'"
-    );
     assert.ok(
       content.includes('pathname === "/student/practice-interview"'),
       "isItemActive must check pathname === '/student/practice-interview'"
@@ -85,22 +71,12 @@ test("Personalized Interview Arena & Actual Interview Verification Suite", async
     );
   });
 
-  // ── TEST 3: Original interview preserved and Personalized Interview Arena rendered ──
-  await t.test("3. Original actual interview preserved in /interview and Personalized Arena in /student/practice-interview", () => {
-    const interviewPagePath = path.join(process.cwd(), "app", "interview", "page.tsx");
+  // ── TEST 3: Personalized Interview Arena rendered ──
+  await t.test("3. Personalized Arena exists in /student/practice-interview", () => {
     const practicePagePath = path.join(process.cwd(), "app", "student", "practice-interview", "page.tsx");
-
-    assert.ok(fs.existsSync(interviewPagePath), "app/interview/page.tsx must exist");
     assert.ok(fs.existsSync(practicePagePath), "app/student/practice-interview/page.tsx must exist");
 
-    const interviewContent = fs.readFileSync(interviewPagePath, "utf-8");
     const practiceContent = fs.readFileSync(practicePagePath, "utf-8");
-
-    // Original interview must contain its authentic proctoring and vision pipeline
-    assert.ok(
-      interviewContent.includes("VisionPipeline") && interviewContent.includes("TemporalTracker"),
-      "app/interview/page.tsx must preserve the original actual interview with VisionPipeline & TemporalTracker"
-    );
     assert.ok(
       practiceContent.includes("MockInterviewExperience"),
       "app/student/practice-interview/page.tsx must render MockInterviewExperience"
@@ -286,12 +262,12 @@ test("Personalized Interview Arena & Actual Interview Verification Suite", async
   });
 
   // ── TEST 10: History Page and Report Screen Navigation Integration ──
-  await t.test("10. History page links back to /interview and /skill-practice without dead ends", () => {
+  await t.test("10. History page links back to practice arena and /skill-practice without dead ends", () => {
     const historyPagePath = path.join(process.cwd(), "app", "student", "interview-prep", "history", "page.tsx");
     assert.ok(fs.existsSync(historyPagePath), "History page must exist");
     const content = fs.readFileSync(historyPagePath, "utf-8");
 
-    assert.ok(content.includes('href="/interview"'), "History page must link to '/interview'");
+    assert.ok(content.includes('href="/student/practice-interview"'), "History page must link to '/student/practice-interview'");
     assert.ok(content.includes('href="/skill-practice"'), "History page must link to '/skill-practice'");
     assert.ok(content.includes("Mock Interview"), "History page must reference Mock Interview");
   });

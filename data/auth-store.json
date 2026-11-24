@@ -9,8 +9,8 @@
       "status": "ACTIVE",
       "emailVerifiedAt": "2026-09-13T19:31:39.539Z",
       "createdAt": "2026-09-13T19:31:39.540Z",
-      "updatedAt": "2026-11-13T03:23:37.449Z",
-      "profileCompleted": false
+      "updatedAt": "2026-11-19T23:24:03.297Z",
+      "profileCompleted": true
     },
     {
       "id": "u-student-sample-002",
@@ -45736,6 +45736,1368 @@
       "emailVerifiedAt": "2026-11-18T05:04:45.745Z",
       "createdAt": "2026-11-18T05:04:45.745Z",
       "updatedAt": "2026-11-18T05:04:45.745Z"
+    },
+    {
+      "id": "1db1303c-7376-4b7a-99ea-f90a57cddf92",
+      "email": "candidate.a.1795119455081@testdomain.com",
+      "fullName": "Candidate Alpha",
+      "passwordHash": "c803324e191fb3402748fac79eb304140f4a4001ca354cbde4b9608d58e2cc05f98e1796551799f7b3beb878767a62d553a608304ccf3f25dec7744ed140c659",
+      "passwordSalt": "ad751ca9c2d26d03276ce7ec37be3ace",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:35.145Z",
+      "createdAt": "2026-11-19T20:17:35.114Z",
+      "updatedAt": "2026-11-19T20:17:35.358Z"
+    },
+    {
+      "id": "bd1eab1d-cdbe-4999-838d-9e7f010ee7d5",
+      "email": "candidate.b.1795119455081@testdomain.com",
+      "fullName": "Candidate Beta",
+      "passwordHash": "f860d13b80cb85f12269f77aef39da9d9adbfe8f60b8bdd4a7f372e3aed587ffd408e22a608d405d46919806ae4fe976f90951438dc16a4515c9fd9b8dffdffa",
+      "passwordSalt": "a25f48bb8a79d5163ed1eb483e727b35",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:35.497Z",
+      "createdAt": "2026-11-19T20:17:35.497Z",
+      "updatedAt": "2026-11-19T20:17:35.539Z"
+    },
+    {
+      "id": "7f44aa59-ccb9-4c28-b948-ca3e290296de",
+      "email": "test_student_1795119455840@university.edu",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.048Z",
+      "createdAt": "2026-11-19T20:17:36.048Z",
+      "updatedAt": "2026-11-19T20:17:36.048Z"
+    },
+    {
+      "id": "92f35ff5-adae-4d23-bcce-0fb9e6974ed9",
+      "email": "otp_test_1795119456099@example.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:36.100Z",
+      "updatedAt": "2026-11-19T20:17:36.100Z"
+    },
+    {
+      "id": "76333e0d-e838-484d-8372-70ef890e992d",
+      "email": "multiauth_1795119456232@example.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.232Z",
+      "createdAt": "2026-11-19T20:17:36.232Z",
+      "updatedAt": "2026-11-19T20:17:36.232Z"
+    },
+    {
+      "id": "235db386-671c-4888-acca-c007ccd8f42b",
+      "email": "student.test.1795119455336@university.edu",
+      "passwordHash": "c86a4c17c7d575547c5c2a70ac17aec65a24668a563a07268c4bd69672653b473f72656dfa9d772af7faa70b3ca89d73540338b53101aa6ce8de91316af1efb9",
+      "passwordSalt": "686f85b73f18971d618ade295ccfacdc",
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:35.595Z",
+      "updatedAt": "2026-11-19T20:17:35.595Z"
+    },
+    {
+      "id": "f7921dc0-eb39-45de-a0ee-12c6a4f00c69",
+      "email": "student.verify.1795119455645@university.edu",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:35.684Z",
+      "createdAt": "2026-11-19T20:17:35.646Z",
+      "updatedAt": "2026-11-19T20:17:35.646Z"
+    },
+    {
+      "id": "ae3a9f8a-17cb-4371-aa8a-40a5858a8cbf",
+      "email": "signin.student.1795119455694@college.edu",
+      "passwordHash": "12b315c890d17aaf8f173a0d21afe58f9467899ea0b15d385fecde79ddd8aba9ab948138223ed061e6ea0b51cb12f5096a658ffb796041f9797663e22def8789",
+      "passwordSalt": "e50ec570463debf14bd1db5241ea02fb",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:35.749Z",
+      "createdAt": "2026-11-19T20:17:35.749Z",
+      "updatedAt": "2026-11-19T20:17:35.749Z"
+    },
+    {
+      "id": "f650fec2-c377-4a99-acea-e51eab0d279e",
+      "email": "personalized.1795119456160@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.161Z",
+      "createdAt": "2026-11-19T20:17:36.161Z",
+      "updatedAt": "2026-11-19T20:17:36.161Z"
+    },
+    {
+      "id": "13842280-577b-4726-940c-4d0b742b8bcd",
+      "email": "dna.student.1795119456197@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.197Z",
+      "createdAt": "2026-11-19T20:17:36.197Z",
+      "updatedAt": "2026-11-19T20:17:36.197Z"
+    },
+    {
+      "id": "e9b57b7f-d649-4262-8744-5f3f5777f79a",
+      "email": "incomplete.dna.1795119456234@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.234Z",
+      "createdAt": "2026-11-19T20:17:36.234Z",
+      "updatedAt": "2026-11-19T20:17:36.234Z"
+    },
+    {
+      "id": "13768d76-524f-4181-90bb-13dbaa914af9",
+      "email": "logout.student.1795119456584@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.584Z",
+      "createdAt": "2026-11-19T20:17:36.584Z",
+      "updatedAt": "2026-11-19T20:17:36.584Z"
+    },
+    {
+      "id": "982628eb-cb0f-45e8-b98d-eae8022b19fa",
+      "email": "studenta.1795119456629@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.629Z",
+      "createdAt": "2026-11-19T20:17:36.629Z",
+      "updatedAt": "2026-11-19T20:17:36.629Z"
+    },
+    {
+      "id": "56cf30ee-0d85-404f-8d3c-90f1594373b2",
+      "email": "studentb.1795119456645@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.646Z",
+      "createdAt": "2026-11-19T20:17:36.646Z",
+      "updatedAt": "2026-11-19T20:17:36.646Z"
+    },
+    {
+      "id": "1a9d41b2-c652-41b0-9df6-62cb3d9f5410",
+      "email": "recruiter.1795119456679@stripe.com",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "recruiter",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:36.679Z",
+      "updatedAt": "2026-11-19T20:17:36.679Z"
+    },
+    {
+      "id": "02d155b6-8ba6-4af4-9e7b-97e64b8b3bae",
+      "email": "verified.recruiter.1795119456742@corp.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "recruiter",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.743Z",
+      "createdAt": "2026-11-19T20:17:36.743Z",
+      "updatedAt": "2026-11-19T20:17:36.743Z"
+    },
+    {
+      "id": "e2a4bc98-cb1b-4018-b944-f0e333fa5ae8",
+      "email": "student.blocked.1795119456776@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.776Z",
+      "createdAt": "2026-11-19T20:17:36.776Z",
+      "updatedAt": "2026-11-19T20:17:36.776Z"
+    },
+    {
+      "id": "a453d7b2-ac65-4cce-8e6a-5544640f60e0",
+      "email": "recruiter.blocked.1795119456813@corp.com",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "recruiter",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.814Z",
+      "createdAt": "2026-11-19T20:17:36.814Z",
+      "updatedAt": "2026-11-19T20:17:36.814Z"
+    },
+    {
+      "id": "0425c6fe-a388-4870-a952-277ecde22187",
+      "email": "github.student.1795119456841@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.841Z",
+      "createdAt": "2026-11-19T20:17:36.841Z",
+      "updatedAt": "2026-11-19T20:17:36.841Z"
+    },
+    {
+      "id": "5c8581f1-e19e-4324-bfd0-ca817379bb1a",
+      "email": "unique.1795119456865@college.edu",
+      "passwordHash": "existing-hash",
+      "passwordSalt": "existing-salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.865Z",
+      "createdAt": "2026-11-19T20:17:36.865Z",
+      "updatedAt": "2026-11-19T20:17:36.865Z"
+    },
+    {
+      "id": "45e571a3-c139-423a-be99-56458ce94093",
+      "email": "victim.1795119456892@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.892Z",
+      "createdAt": "2026-11-19T20:17:36.892Z",
+      "updatedAt": "2026-11-19T20:17:36.892Z"
+    },
+    {
+      "id": "71ed2291-d097-4eff-8c47-d913bfb81e3c",
+      "email": "attacker.1795119456907@college.edu",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:36.907Z",
+      "createdAt": "2026-11-19T20:17:36.907Z",
+      "updatedAt": "2026-11-19T20:17:36.907Z"
+    },
+    {
+      "id": "iso-a-1795119457943",
+      "email": "iso-a-1795119457943@test.local",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:38.186Z",
+      "createdAt": "2026-11-19T20:17:38.186Z",
+      "updatedAt": "2026-11-19T20:17:38.186Z"
+    },
+    {
+      "id": "student_a_1795119458642",
+      "email": "student_a_1795119458642@test.cognalyze.com",
+      "fullName": "Rahul Sharma",
+      "passwordHash": "hash_abc_123",
+      "passwordSalt": "salt_123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:38.996Z",
+      "createdAt": "2026-11-19T20:17:38.996Z",
+      "updatedAt": "2026-11-19T20:17:38.996Z"
+    },
+    {
+      "id": "student_b_1795119458642",
+      "email": "student_b_1795119458642@test.cognalyze.com",
+      "fullName": "Priya Patel",
+      "passwordHash": "hash_xyz_987",
+      "passwordSalt": "salt_987",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:39.051Z",
+      "createdAt": "2026-11-19T20:17:39.051Z",
+      "updatedAt": "2026-11-19T20:17:39.051Z"
+    },
+    {
+      "id": "test-student-dna-persist-a-1795119459533",
+      "email": "arjun_1795119459533@example.com",
+      "fullName": "Arjun Sharma",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:39.882Z",
+      "createdAt": "2026-11-19T20:17:39.882Z",
+      "updatedAt": "2026-11-19T20:17:39.882Z"
+    },
+    {
+      "id": "test-student-dna-persist-b-1795119459533",
+      "email": "priya_1795119459533@example.com",
+      "fullName": "Priya Patel",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:39.907Z",
+      "createdAt": "2026-11-19T20:17:39.907Z",
+      "updatedAt": "2026-11-19T20:17:39.907Z"
+    },
+    {
+      "id": "test-empty-student-1795119459533",
+      "email": "empty_1795119459533@example.com",
+      "fullName": "Brand New Student",
+      "passwordHash": "hash",
+      "passwordSalt": "salt",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:40.005Z",
+      "createdAt": "2026-11-19T20:17:40.005Z",
+      "updatedAt": "2026-11-19T20:17:40.005Z"
+    },
+    {
+      "id": "02b2012d-dce8-4432-a373-f0f960547ffb",
+      "email": "notif-1795119462486@example.com",
+      "fullName": "Notif Student",
+      "passwordHash": "hash123",
+      "passwordSalt": "salt123",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:42.486Z",
+      "createdAt": "2026-11-19T20:17:42.486Z",
+      "updatedAt": "2026-11-19T20:17:42.486Z"
+    },
+    {
+      "id": "isolated_user_a_1795119468310",
+      "email": "usera_1795119468310@test.cognalyze.com",
+      "fullName": "User Alpha Completed",
+      "passwordHash": "hash_a",
+      "passwordSalt": "salt_a",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:48.313Z",
+      "createdAt": "2026-11-19T20:17:48.313Z",
+      "updatedAt": "2026-11-19T20:17:48.313Z"
+    },
+    {
+      "id": "isolated_user_b_1795119468310",
+      "email": "userb_1795119468310@test.cognalyze.com",
+      "fullName": "User Beta Clean Slate",
+      "passwordHash": "hash_b",
+      "passwordSalt": "salt_b",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:48.366Z",
+      "createdAt": "2026-11-19T20:17:48.366Z",
+      "updatedAt": "2026-11-19T20:17:48.366Z"
+    },
+    {
+      "id": "isolated_user_c_1795119468310",
+      "email": "userc_1795119468310@test.cognalyze.com",
+      "fullName": "User Gamma Partial",
+      "passwordHash": "hash_c",
+      "passwordSalt": "salt_c",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:48.390Z",
+      "createdAt": "2026-11-19T20:17:48.390Z",
+      "updatedAt": "2026-11-19T20:17:48.390Z"
+    },
+    {
+      "id": "cand_journey_1795119471200",
+      "email": "cand_journey_1795119471200@example.com",
+      "fullName": "Alex Builder",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:51.201Z",
+      "createdAt": "2026-11-19T20:17:51.201Z",
+      "updatedAt": "2026-11-19T20:17:51.219Z"
+    },
+    {
+      "id": "test-user-1795119473660",
+      "email": "test-user-1795119473660@test.cognalyze.com",
+      "fullName": "Base Test Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:53.971Z",
+      "createdAt": "2026-11-19T20:17:53.971Z",
+      "updatedAt": "2026-11-19T20:17:53.971Z"
+    },
+    {
+      "id": "test-user-1795119473660-no-res",
+      "email": "test-user-1795119473660-no-res@test.cognalyze.com",
+      "fullName": "No Resume Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:53.984Z",
+      "createdAt": "2026-11-19T20:17:53.984Z",
+      "updatedAt": "2026-11-19T20:17:53.984Z"
+    },
+    {
+      "id": "test-user-1795119473660-corrupt-res",
+      "email": "test-user-1795119473660-corrupt-res@test.cognalyze.com",
+      "fullName": "Corrupt Resume Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.011Z",
+      "createdAt": "2026-11-19T20:17:54.011Z",
+      "updatedAt": "2026-11-19T20:17:54.011Z"
+    },
+    {
+      "id": "test-user-1795119473660-gh-inspect",
+      "email": "test-user-1795119473660-gh-inspect@test.cognalyze.com",
+      "fullName": "GitHub Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.038Z",
+      "createdAt": "2026-11-19T20:17:54.038Z",
+      "updatedAt": "2026-11-19T20:17:54.038Z"
+    },
+    {
+      "id": "test-user-1795119473660-no-hack",
+      "email": "test-user-1795119473660-no-hack@test.cognalyze.com",
+      "fullName": "No Hack Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.058Z",
+      "createdAt": "2026-11-19T20:17:54.058Z",
+      "updatedAt": "2026-11-19T20:17:54.058Z"
+    },
+    {
+      "id": "test-user-1795119473660-hack-unverified",
+      "email": "test-user-1795119473660-hack-unverified@test.cognalyze.com",
+      "fullName": "Hack Unverified Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.094Z",
+      "createdAt": "2026-11-19T20:17:54.094Z",
+      "updatedAt": "2026-11-19T20:17:54.094Z"
+    },
+    {
+      "id": "test-user-1795119473660-sessions",
+      "email": "test-user-1795119473660-sessions@test.cognalyze.com",
+      "fullName": "Active Session Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.119Z",
+      "createdAt": "2026-11-19T20:17:54.119Z",
+      "updatedAt": "2026-11-19T20:17:54.119Z"
+    },
+    {
+      "id": "test-user-1795119473660-zero-sessions",
+      "email": "test-user-1795119473660-zero-sessions@test.cognalyze.com",
+      "fullName": "Zero Sessions Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.194Z",
+      "createdAt": "2026-11-19T20:17:54.194Z",
+      "updatedAt": "2026-11-19T20:17:54.194Z"
+    },
+    {
+      "id": "test-user-1795119473660-iso-alpha",
+      "email": "test-user-1795119473660-iso-alpha@test.cognalyze.com",
+      "fullName": "Alpha Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.217Z",
+      "createdAt": "2026-11-19T20:17:54.217Z",
+      "updatedAt": "2026-11-19T20:17:54.217Z"
+    },
+    {
+      "id": "test-user-1795119473660-iso-beta",
+      "email": "test-user-1795119473660-iso-beta@test.cognalyze.com",
+      "fullName": "Beta Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.230Z",
+      "createdAt": "2026-11-19T20:17:54.230Z",
+      "updatedAt": "2026-11-19T20:17:54.230Z"
+    },
+    {
+      "id": "test-user-1795119473660-edit-proj",
+      "email": "test-user-1795119473660-edit-proj@test.cognalyze.com",
+      "fullName": "Project Editor",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.263Z",
+      "createdAt": "2026-11-19T20:17:54.263Z",
+      "updatedAt": "2026-11-19T20:17:54.263Z"
+    },
+    {
+      "id": "test-user-1795119473660-dup-cert",
+      "email": "test-user-1795119473660-dup-cert@test.cognalyze.com",
+      "fullName": "Dup Cert Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.293Z",
+      "createdAt": "2026-11-19T20:17:54.293Z",
+      "updatedAt": "2026-11-19T20:17:54.293Z"
+    },
+    {
+      "id": "test-matrix-student-a-1795119474324",
+      "email": "test-matrix-student-a-1795119474324@test.cognalyze.com",
+      "fullName": "Student A",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.569Z",
+      "createdAt": "2026-11-19T20:17:54.569Z",
+      "updatedAt": "2026-11-19T20:17:54.615Z"
+    },
+    {
+      "id": "test-matrix-student-b-1795119474324",
+      "email": "test-matrix-student-b-1795119474324@test.cognalyze.com",
+      "fullName": "Student B",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.596Z",
+      "createdAt": "2026-11-19T20:17:54.596Z",
+      "updatedAt": "2026-11-19T20:17:54.877Z"
+    },
+    {
+      "id": "student-one-hack-1795119474684",
+      "email": "student-one-hack-1795119474684@test.cognalyze.com",
+      "fullName": "One Hack Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.685Z",
+      "createdAt": "2026-11-19T20:17:54.685Z",
+      "updatedAt": "2026-11-19T20:17:54.699Z"
+    },
+    {
+      "id": "student-no-projects-1795119474736",
+      "email": "student-no-projects-1795119474736@test.cognalyze.com",
+      "fullName": "No Projects Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.736Z",
+      "createdAt": "2026-11-19T20:17:54.736Z",
+      "updatedAt": "2026-11-19T20:17:54.747Z"
+    },
+    {
+      "id": "student-broken-repo-1795119474776",
+      "email": "student-broken-repo-1795119474776@test.cognalyze.com",
+      "fullName": "Broken Repo Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.776Z",
+      "createdAt": "2026-11-19T20:17:54.776Z",
+      "updatedAt": "2026-11-19T20:17:54.798Z"
+    },
+    {
+      "id": "student-stale-1795119474938",
+      "email": "student-stale-1795119474938@test.cognalyze.com",
+      "fullName": "Stale Test User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:54.938Z",
+      "createdAt": "2026-11-19T20:17:54.938Z",
+      "updatedAt": "2026-11-19T20:17:54.960Z"
+    },
+    {
+      "id": "student-no-gh-1795119475000",
+      "email": "student-no-gh-1795119475000@test.cognalyze.com",
+      "fullName": "No GH User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:55.001Z",
+      "createdAt": "2026-11-19T20:17:55.001Z",
+      "updatedAt": "2026-11-19T20:17:55.034Z"
+    },
+    {
+      "id": "student-partial-1795119475057",
+      "email": "student-partial-1795119475057@test.cognalyze.com",
+      "fullName": "Partial User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:55.058Z",
+      "createdAt": "2026-11-19T20:17:55.058Z",
+      "updatedAt": "2026-11-19T20:17:55.058Z"
+    },
+    {
+      "id": "student-real-evidence-1795119475107",
+      "email": "student-real-evidence-1795119475107@test.cognalyze.com",
+      "fullName": "Real Evidence Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:55.107Z",
+      "createdAt": "2026-11-19T20:17:55.107Z",
+      "updatedAt": "2026-11-19T20:17:55.118Z"
+    },
+    {
+      "id": "persist_user_1795119474035",
+      "email": "persist_user_1795119474035@campus.edu",
+      "fullName": "Persistence Test Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:54.292Z",
+      "updatedAt": "2026-11-19T20:17:54.292Z"
+    },
+    {
+      "id": "iso_user_A_1795119474373",
+      "email": "iso_user_a_1795119474373@test.com",
+      "fullName": "Student Alpha",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:54.373Z",
+      "updatedAt": "2026-11-19T20:17:54.373Z"
+    },
+    {
+      "id": "iso_user_B_1795119474373",
+      "email": "iso_user_b_1795119474373@test.com",
+      "fullName": "Student Beta",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:54.386Z",
+      "updatedAt": "2026-11-19T20:17:54.386Z"
+    },
+    {
+      "id": "empty_src_1795119474498",
+      "email": "empty_src_1795119474498@test.com",
+      "fullName": "Empty Source Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:54.498Z",
+      "updatedAt": "2026-11-19T20:17:54.498Z"
+    },
+    {
+      "id": "victim_1795119475613",
+      "email": "victim_1795119475613@safe.com",
+      "fullName": "Victim",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:55.613Z",
+      "updatedAt": "2026-11-19T20:17:55.613Z"
+    },
+    {
+      "id": "attacker_1795119475613",
+      "email": "attacker_1795119475613@hacker.com",
+      "fullName": "Attacker",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:55.628Z",
+      "updatedAt": "2026-11-19T20:17:55.628Z"
+    },
+    {
+      "id": "regression_1795119475658",
+      "email": "regression_1795119475658@test.com",
+      "fullName": "Regression Tester",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-19T20:17:55.658Z",
+      "updatedAt": "2026-11-19T20:17:55.658Z"
+    },
+    {
+      "id": "u-test-user-a-1795119475737",
+      "email": "usera_1795119475737@test.cognalyze.com",
+      "fullName": "Alice Student",
+      "passwordHash": "hashA",
+      "passwordSalt": "saltA",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": true,
+      "emailVerifiedAt": "2026-11-19T20:17:56.140Z",
+      "createdAt": "2026-11-19T20:17:56.140Z",
+      "updatedAt": "2026-11-19T20:17:56.151Z"
+    },
+    {
+      "id": "u-test-user-b-1795119475737",
+      "email": "userb_1795119475737@test.cognalyze.com",
+      "fullName": "Bob Newcomer",
+      "passwordHash": "hashB",
+      "passwordSalt": "saltB",
+      "accountType": "student",
+      "status": "ACTIVE",
+      "profileCompleted": false,
+      "emailVerifiedAt": "2026-11-19T20:17:56.297Z",
+      "createdAt": "2026-11-19T20:17:56.297Z",
+      "updatedAt": "2026-11-19T20:17:56.297Z"
+    },
+    {
+      "id": "18675ebe-3712-4ab0-8d70-15e5d2a187d8",
+      "email": "disciplinary_test_1795462949104@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:42:29.104Z",
+      "updatedAt": "2026-11-23T19:42:29.123Z"
+    },
+    {
+      "id": "67450e88-4ed7-414f-9490-adcd7777001b",
+      "email": "host_1795462949133@cognalyze.test",
+      "fullName": "Host Student",
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:42:29.133Z",
+      "updatedAt": "2026-11-23T19:42:29.133Z"
+    },
+    {
+      "id": "72491f91-c747-40f4-b6eb-473ebbfa1552",
+      "email": "peer_1795462949141@cognalyze.test",
+      "fullName": "Peer Student",
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:42:29.141Z",
+      "updatedAt": "2026-11-23T19:42:29.141Z"
+    },
+    {
+      "id": "86a68176-9810-48e0-b3ba-10cd1fe8b0bd",
+      "email": "suspended_1795462949151@cognalyze.test",
+      "fullName": "Suspended User",
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:42:29.151Z",
+      "updatedAt": "2026-11-23T19:42:29.160Z"
+    },
+    {
+      "id": "f07ef308-342a-4d31-82b0-5bcd4063d6c5",
+      "email": "disciplinary_test_1795463048747@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:44:08.747Z",
+      "updatedAt": "2026-11-23T19:44:08.759Z"
+    },
+    {
+      "id": "ba678edf-986d-4490-9127-688d21359818",
+      "email": "host_1795463048768@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:44:08.768Z",
+      "updatedAt": "2026-11-23T19:44:08.768Z"
+    },
+    {
+      "id": "100c700b-e028-41c4-bfbc-750b2f9dc6ab",
+      "email": "peer_1795463048776@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:44:08.776Z",
+      "updatedAt": "2026-11-23T19:44:08.776Z"
+    },
+    {
+      "id": "fbe30482-e974-4438-b6c2-faafe6bb4a76",
+      "email": "suspended_1795463048786@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T19:44:08.786Z",
+      "updatedAt": "2026-11-23T19:44:08.796Z"
+    },
+    {
+      "id": "9724c482-12cb-4c2b-b2a5-1bfd0c8a4c9a",
+      "email": "disciplinary_test_1795465193822@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:19:53.822Z",
+      "updatedAt": "2026-11-23T20:19:53.835Z"
+    },
+    {
+      "id": "4753db45-39ee-49e0-95d9-6e479c24cf21",
+      "email": "host_1795465193845@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:19:53.845Z",
+      "updatedAt": "2026-11-23T20:19:53.845Z"
+    },
+    {
+      "id": "27f5018a-3604-4266-b491-acd96bebaa82",
+      "email": "peer_1795465193855@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:19:53.855Z",
+      "updatedAt": "2026-11-23T20:19:53.855Z"
+    },
+    {
+      "id": "c449a0ba-305d-4156-b6c1-a0c48988d0fa",
+      "email": "suspended_1795465193865@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:19:53.865Z",
+      "updatedAt": "2026-11-23T20:19:53.874Z"
+    },
+    {
+      "id": "2912bc89-bb8b-42c5-873b-99f248e127e8",
+      "email": "disciplinary_test_1795465471565@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:24:31.565Z",
+      "updatedAt": "2026-11-23T20:24:31.576Z"
+    },
+    {
+      "id": "344513fc-75b0-4ad0-8d28-09a3b3c482b7",
+      "email": "host_1795465471585@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:24:31.585Z",
+      "updatedAt": "2026-11-23T20:24:31.585Z"
+    },
+    {
+      "id": "dcf09a6f-5215-42e2-ab4f-1c1ceff9f0a3",
+      "email": "peer_1795465471592@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:24:31.592Z",
+      "updatedAt": "2026-11-23T20:24:31.592Z"
+    },
+    {
+      "id": "e1a663da-94b2-4ab5-946b-c49a16577fe3",
+      "email": "suspended_1795465471602@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:24:31.602Z",
+      "updatedAt": "2026-11-23T20:24:31.610Z"
+    },
+    {
+      "id": "d7c5cc0a-5401-4f47-befb-48e00bebfe33",
+      "email": "disciplinary_test_1795466463809@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:41:03.809Z",
+      "updatedAt": "2026-11-23T20:41:03.829Z"
+    },
+    {
+      "id": "20058f6d-b4ce-43c7-a510-812ef36c638e",
+      "email": "host_1795466463840@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:41:03.841Z",
+      "updatedAt": "2026-11-23T20:41:03.841Z"
+    },
+    {
+      "id": "d3a3f864-5520-4bf9-829c-9c9ac88c540f",
+      "email": "peer_1795466463857@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:41:03.857Z",
+      "updatedAt": "2026-11-23T20:41:03.857Z"
+    },
+    {
+      "id": "24d6d436-705c-4a31-8488-5a9d2a3e7638",
+      "email": "suspended_1795466463870@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:41:03.870Z",
+      "updatedAt": "2026-11-23T20:41:03.883Z"
+    },
+    {
+      "id": "03987933-e8ee-4c03-8909-c3abc88d09c3",
+      "email": "disciplinary_test_1795466698301@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:44:58.301Z",
+      "updatedAt": "2026-11-23T20:44:58.312Z"
+    },
+    {
+      "id": "efced214-0b9f-4dc5-9165-931b17815a54",
+      "email": "host_1795466698322@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:44:58.322Z",
+      "updatedAt": "2026-11-23T20:44:58.322Z"
+    },
+    {
+      "id": "5db0885c-5d40-4541-9841-5947bf944bea",
+      "email": "peer_1795466698330@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:44:58.330Z",
+      "updatedAt": "2026-11-23T20:44:58.330Z"
+    },
+    {
+      "id": "aec0a5d2-29dc-4833-a5a2-8577cf44a2e1",
+      "email": "suspended_1795466698340@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T20:44:58.340Z",
+      "updatedAt": "2026-11-23T20:44:58.349Z"
+    },
+    {
+      "id": "f4bcdaea-20e2-459f-b34e-60fceee6f551",
+      "email": "disciplinary_test_1795475788585@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:16:28.587Z",
+      "updatedAt": "2026-11-23T23:16:28.613Z"
+    },
+    {
+      "id": "d3dbeb2b-c27e-4b12-9c25-44036dd3e572",
+      "email": "host_1795475788629@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:16:28.629Z",
+      "updatedAt": "2026-11-23T23:16:28.629Z"
+    },
+    {
+      "id": "7d8c3012-0a1c-42f6-9789-8464f3125526",
+      "email": "peer_1795475788643@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:16:28.643Z",
+      "updatedAt": "2026-11-23T23:16:28.643Z"
+    },
+    {
+      "id": "dc10491f-da2c-4e3e-955d-d323c2e6121f",
+      "email": "suspended_1795475788657@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:16:28.658Z",
+      "updatedAt": "2026-11-23T23:16:28.669Z"
+    },
+    {
+      "id": "f4f3018e-7f0c-44fc-a515-28a320be0b4d",
+      "email": "disciplinary_test_1795476315891@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:25:15.891Z",
+      "updatedAt": "2026-11-23T23:25:15.907Z"
+    },
+    {
+      "id": "71a87e97-84f3-424f-93bd-bb6b19d6c05e",
+      "email": "host_1795476315916@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:25:15.916Z",
+      "updatedAt": "2026-11-23T23:25:15.916Z"
+    },
+    {
+      "id": "c6ef9385-568c-4980-8c1b-4b8b362d06b5",
+      "email": "peer_1795476315926@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:25:15.926Z",
+      "updatedAt": "2026-11-23T23:25:15.926Z"
+    },
+    {
+      "id": "dddea857-eda7-4fc2-affb-f57d5e40f8e3",
+      "email": "suspended_1795476315936@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-23T23:25:15.936Z",
+      "updatedAt": "2026-11-23T23:25:15.946Z"
+    },
+    {
+      "id": "cb78c919-d7f8-4b88-8f4b-19408bdbb776",
+      "email": "disciplinary_test_1795504074287@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:07:54.287Z",
+      "updatedAt": "2026-11-24T07:07:54.298Z"
+    },
+    {
+      "id": "480a9ef5-afac-4139-8d45-cfc6bdd4feef",
+      "email": "host_1795504074307@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:07:54.307Z",
+      "updatedAt": "2026-11-24T07:07:54.307Z"
+    },
+    {
+      "id": "45635143-7020-4b1d-8652-78a666a17d74",
+      "email": "peer_1795504074315@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:07:54.315Z",
+      "updatedAt": "2026-11-24T07:07:54.315Z"
+    },
+    {
+      "id": "271a1f95-1273-484e-902d-e55388d950b1",
+      "email": "suspended_1795504074325@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:07:54.325Z",
+      "updatedAt": "2026-11-24T07:07:54.333Z"
+    },
+    {
+      "id": "bcfd05dd-4f16-46a6-a619-4d29722c8c14",
+      "email": "disciplinary_test_1795504625248@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:17:05.249Z",
+      "updatedAt": "2026-11-24T07:17:05.264Z"
+    },
+    {
+      "id": "bc95d111-0a4b-4e3b-b432-4c7778408536",
+      "email": "host_1795504625273@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:17:05.273Z",
+      "updatedAt": "2026-11-24T07:17:05.273Z"
+    },
+    {
+      "id": "56713f2a-b0d1-4b4a-8c4f-bbf6edb1261b",
+      "email": "peer_1795504625280@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:17:05.280Z",
+      "updatedAt": "2026-11-24T07:17:05.280Z"
+    },
+    {
+      "id": "4f506af7-b99f-4aa1-a155-8dd685566eb5",
+      "email": "suspended_1795504625291@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:17:05.291Z",
+      "updatedAt": "2026-11-24T07:17:05.300Z"
+    },
+    {
+      "id": "6b1e3ea9-de23-424f-a803-6fea65ef352f",
+      "email": "disciplinary_test_1795504736357@cognalyze.test",
+      "fullName": "Disciplinary Candidate",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:18:56.357Z",
+      "updatedAt": "2026-11-24T07:18:56.369Z"
+    },
+    {
+      "id": "f8bf692d-e8f0-4da1-814b-97c5fa5f79f8",
+      "email": "host_1795504736378@cognalyze.test",
+      "fullName": "Host Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:18:56.378Z",
+      "updatedAt": "2026-11-24T07:18:56.378Z"
+    },
+    {
+      "id": "07969a51-4d85-495b-85b9-e95d92e38fb9",
+      "email": "peer_1795504736385@cognalyze.test",
+      "fullName": "Peer Student",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "EMAIL_PENDING",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:18:56.385Z",
+      "updatedAt": "2026-11-24T07:18:56.385Z"
+    },
+    {
+      "id": "d4a9abce-7906-4d92-8fc6-fd53f6331ea9",
+      "email": "suspended_1795504736395@cognalyze.test",
+      "fullName": "Suspended User",
+      "passwordHash": null,
+      "passwordSalt": null,
+      "accountType": "student",
+      "status": "SUSPENDED",
+      "profileCompleted": false,
+      "emailVerifiedAt": null,
+      "createdAt": "2026-11-24T07:18:56.396Z",
+      "updatedAt": "2026-11-24T07:18:56.404Z"
     }
   ],
   "studentProfiles": [
@@ -45807,8 +47169,8 @@
         "preferredDomains": [],
         "preferredLocations": []
       },
-      "profileCompleted": false,
-      "profileCompletionPercentage": 56,
+      "profileCompleted": true,
+      "profileCompletionPercentage": 67,
       "primaryInterests": [
         "Distributed Systems",
         "AI/ML",
@@ -45818,7 +47180,7 @@
       "privacySetting": "PUBLIC",
       "lastUsernameChangeAt": null,
       "createdAt": "2026-10-14T03:23:37.290Z",
-      "updatedAt": "2026-11-13T03:23:37.449Z",
+      "updatedAt": "2026-11-19T23:24:03.297Z",
       "cgpa": "",
       "year": "3rd Year",
       "email": "sample.student@cognalyze.com",
@@ -45827,10 +47189,10 @@
       "githubUrl": "https://github.com/sample-dev",
       "resumeUrl": "",
       "coursework": [],
-      "currentStep": 1,
+      "currentStep": 9,
       "linkedinUrl": "",
       "portfolioUrl": "",
-      "resumeFileName": ""
+      "resumeFileName": "sample_student_resume.pdf"
     },
     {
       "id": "sp-nistha-001",
@@ -139292,8 +140654,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -139330,8 +140692,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -139368,8 +140730,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -139404,8 +140766,8 @@
         {
           "name": "Rust",
           "level": "Expert",
-          "yearsOfExperience": 3,
-          "evidenceSource": "GitHub"
+          "evidenceSource": "GitHub",
+          "yearsOfExperience": 3
         }
       ],
       "projects": [],
@@ -139414,8 +140776,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139452,8 +140814,8 @@
         {
           "name": "Python",
           "level": "Intermediate",
-          "yearsOfExperience": 1,
-          "evidenceSource": "Projects"
+          "evidenceSource": "Projects",
+          "yearsOfExperience": 1
         }
       ],
       "projects": [],
@@ -139462,8 +140824,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139503,61 +140865,61 @@
         {
           "name": "Go",
           "level": "Intermediate",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Self-Reported & Projects"
+          "evidenceSource": "Self-Reported & Projects",
+          "yearsOfExperience": 2
         },
         {
           "name": "PostgreSQL",
           "level": "Advanced",
-          "yearsOfExperience": 3,
-          "evidenceSource": "Internship"
+          "evidenceSource": "Internship",
+          "yearsOfExperience": 3
         }
       ],
       "projects": [
         {
           "title": "Distributed Key-Value Store",
-          "description": "Raft consensus protocol implemented in Go with write-ahead logging",
+          "duration": "3 months",
+          "githubUrl": "https://github.com/arjun/raft-kv",
           "techStack": [
             "Go",
             "Raft",
             "gRPC"
           ],
-          "githubUrl": "https://github.com/arjun/raft-kv",
-          "duration": "3 months"
+          "description": "Raft consensus protocol implemented in Go with write-ahead logging"
         }
       ],
       "experience": [],
       "achievements": [],
       "certifications": [],
       "careerGoals": {
+        "careerGoals": "Aiming for distributed systems engineering roles",
         "targetRoles": [
           "Backend Engineer",
           "Systems Engineer"
-        ],
-        "preferredDomains": [
-          "Fintech"
         ],
         "targetCompanies": [
           "Razorpay",
           "Zerodha"
         ],
+        "preferredDomains": [
+          "Fintech"
+        ],
         "preferredLocations": [
           "Bengaluru"
-        ],
-        "careerGoals": "Aiming for distributed systems engineering roles"
+        ]
       },
       "savedOpportunities": [],
       "trackedApplications": [
         {
           "id": "track_1794679693545_d4fa01d",
-          "studentId": "test-student-dna-persist-a-1794679693175",
-          "opportunityId": "opp_razorpay_sde1_2026",
-          "opportunityTitle": "Tracked Opportunity",
-          "organization": "Organization",
-          "stage": "INTERVIEW",
           "notes": "First technical round scheduled for Friday",
+          "stage": "INTERVIEW",
           "savedAt": "2026-11-14T18:08:13.545Z",
-          "updatedAt": "2026-11-14T18:08:13.545Z"
+          "studentId": "test-student-dna-persist-a-1794679693175",
+          "updatedAt": "2026-11-14T18:08:13.545Z",
+          "organization": "Organization",
+          "opportunityId": "opp_razorpay_sde1_2026",
+          "opportunityTitle": "Tracked Opportunity"
         }
       ],
       "profileCompleted": false,
@@ -139592,8 +140954,8 @@
         {
           "name": "PyTorch",
           "level": "Advanced",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Research"
+          "evidenceSource": "Research",
+          "yearsOfExperience": 2
         }
       ],
       "projects": [],
@@ -139602,8 +140964,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139643,8 +141005,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139698,11 +141060,11 @@
       "projects": [
         {
           "title": "EventStream",
-          "description": "Distributed message queue in Go with Raft consensus.",
           "techStack": [
             "Go",
             "Raft"
-          ]
+          ],
+          "description": "Distributed message queue in Go with Raft consensus."
         }
       ],
       "experience": [],
@@ -139710,8 +141072,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139751,8 +141113,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139798,12 +141160,12 @@
       "projects": [
         {
           "title": "Distributed Key-Value Store",
-          "description": "Storage engine",
+          "githubUrl": "https://github.com/persist/kv-store",
           "techStack": [
             "Python",
             "Raft"
           ],
-          "githubUrl": "https://github.com/persist/kv-store"
+          "description": "Storage engine"
         }
       ],
       "experience": [],
@@ -139813,10 +141175,10 @@
         "targetRoles": [
           "Backend Infrastructure Engineer"
         ],
+        "targetCompanies": [],
         "preferredDomains": [
           "Distributed Systems"
         ],
-        "targetCompanies": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139858,11 +141220,11 @@
       "projects": [
         {
           "title": "Rust Compiler",
-          "description": "Compiler in Rust",
+          "githubUrl": "https://github.com/alpha/rust-compiler",
           "techStack": [
             "Rust"
           ],
-          "githubUrl": "https://github.com/alpha/rust-compiler"
+          "description": "Compiler in Rust"
         }
       ],
       "experience": [],
@@ -139870,8 +141232,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139913,11 +141275,11 @@
       "projects": [
         {
           "title": "Spring Microservice",
-          "description": "Spring Boot API",
+          "githubUrl": "https://github.com/beta/spring-service",
           "techStack": [
             "Java"
           ],
-          "githubUrl": "https://github.com/beta/spring-service"
+          "description": "Spring Boot API"
         }
       ],
       "experience": [],
@@ -139925,8 +141287,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -139971,8 +141333,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140012,8 +141374,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140055,8 +141417,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140094,16 +141456,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNIT 2026",
           "type": "Hackathon",
+          "title": "HackNIT 2026",
           "description": "Built automated scheduler"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140148,8 +141510,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140194,8 +141556,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140243,8 +141605,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140290,8 +141652,8 @@
       ],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140331,8 +141693,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140372,8 +141734,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140415,10 +141777,10 @@
       "projects": [
         {
           "title": "Search Engine",
-          "description": "Built inverted index",
           "techStack": [
             "Python"
-          ]
+          ],
+          "description": "Built inverted index"
         }
       ],
       "experience": [],
@@ -140426,8 +141788,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140470,16 +141832,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNITK 2026",
           "type": "Hackathon",
+          "title": "HackNITK 2026",
           "description": "Submitted automated drone payload classifier"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140524,8 +141886,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140567,12 +141929,12 @@
       "projects": [
         {
           "title": "Dead Link App",
-          "description": "A fullstack application",
+          "githubUrl": "https://github.com/nonexistent-org-random-404-dead/repo-does-not-exist",
           "techStack": [
             "TypeScript",
             "Next.js"
           ],
-          "githubUrl": "https://github.com/nonexistent-org-random-404-dead/repo-does-not-exist"
+          "description": "A fullstack application"
         }
       ],
       "experience": [],
@@ -140580,8 +141942,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140623,24 +141985,24 @@
       "projects": [
         {
           "title": "Gearbox Design",
-          "description": "Mechanical gearbox",
           "techStack": [
             "SolidWorks"
-          ]
+          ],
+          "description": "Mechanical gearbox"
         }
       ],
       "experience": [],
       "achievements": [
         {
-          "title": "CAD Contest 2026",
-          "type": "Contest"
+          "type": "Contest",
+          "title": "CAD Contest 2026"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140682,10 +142044,10 @@
       "projects": [
         {
           "title": "Go Microservice",
-          "description": "REST API in Go",
           "techStack": [
             "Go"
-          ]
+          ],
+          "description": "REST API in Go"
         }
       ],
       "experience": [],
@@ -140693,8 +142055,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140739,8 +142101,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140780,8 +142142,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140827,27 +142189,27 @@
       "projects": [
         {
           "title": "Distributed Pipeline",
-          "description": "Kafka stream ingestion",
+          "githubUrl": "https://github.com/realcandidate/pipeline",
           "techStack": [
             "Python",
             "Kafka"
           ],
-          "githubUrl": "https://github.com/realcandidate/pipeline"
+          "description": "Kafka stream ingestion"
         }
       ],
       "experience": [],
       "achievements": [
         {
-          "title": "CodeCon Hackathon 2026",
           "type": "Hackathon",
+          "title": "CodeCon Hackathon 2026",
           "description": "Runner up for data processing bot"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140893,11 +142255,11 @@
       "projects": [
         {
           "title": "Next.js App",
-          "description": "Next app",
+          "githubUrl": "https://github.com/test/app",
           "techStack": [
             "React"
           ],
-          "githubUrl": "https://github.com/test/app"
+          "description": "Next app"
         }
       ],
       "experience": [],
@@ -140905,8 +142267,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -140966,11 +142328,11 @@
         "targetRoles": [
           "fullstack_dev"
         ],
-        "preferredDomains": [
-          "Distributed Systems"
-        ],
         "targetCompanies": [
           "Stripe"
+        ],
+        "preferredDomains": [
+          "Distributed Systems"
         ],
         "preferredLocations": [
           "Remote"
@@ -141013,8 +142375,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141054,8 +142416,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141097,8 +142459,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141136,16 +142498,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNIT 2026",
           "type": "Hackathon",
+          "title": "HackNIT 2026",
           "description": "Built automated scheduler"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141190,8 +142552,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141236,8 +142598,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141285,8 +142647,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141332,8 +142694,8 @@
       ],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141373,8 +142735,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141414,8 +142776,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141454,8 +142816,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -141492,8 +142854,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -141530,8 +142892,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -141568,8 +142930,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -141604,8 +142966,8 @@
         {
           "name": "Rust",
           "level": "Expert",
-          "yearsOfExperience": 3,
-          "evidenceSource": "GitHub"
+          "evidenceSource": "GitHub",
+          "yearsOfExperience": 3
         }
       ],
       "projects": [],
@@ -141614,8 +142976,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141652,8 +143014,8 @@
         {
           "name": "Python",
           "level": "Intermediate",
-          "yearsOfExperience": 1,
-          "evidenceSource": "Projects"
+          "evidenceSource": "Projects",
+          "yearsOfExperience": 1
         }
       ],
       "projects": [],
@@ -141662,8 +143024,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141703,61 +143065,61 @@
         {
           "name": "Go",
           "level": "Intermediate",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Self-Reported & Projects"
+          "evidenceSource": "Self-Reported & Projects",
+          "yearsOfExperience": 2
         },
         {
           "name": "PostgreSQL",
           "level": "Advanced",
-          "yearsOfExperience": 3,
-          "evidenceSource": "Internship"
+          "evidenceSource": "Internship",
+          "yearsOfExperience": 3
         }
       ],
       "projects": [
         {
           "title": "Distributed Key-Value Store",
-          "description": "Raft consensus protocol implemented in Go with write-ahead logging",
+          "duration": "3 months",
+          "githubUrl": "https://github.com/arjun/raft-kv",
           "techStack": [
             "Go",
             "Raft",
             "gRPC"
           ],
-          "githubUrl": "https://github.com/arjun/raft-kv",
-          "duration": "3 months"
+          "description": "Raft consensus protocol implemented in Go with write-ahead logging"
         }
       ],
       "experience": [],
       "achievements": [],
       "certifications": [],
       "careerGoals": {
+        "careerGoals": "Aiming for distributed systems engineering roles",
         "targetRoles": [
           "Backend Engineer",
           "Systems Engineer"
-        ],
-        "preferredDomains": [
-          "Fintech"
         ],
         "targetCompanies": [
           "Razorpay",
           "Zerodha"
         ],
+        "preferredDomains": [
+          "Fintech"
+        ],
         "preferredLocations": [
           "Bengaluru"
-        ],
-        "careerGoals": "Aiming for distributed systems engineering roles"
+        ]
       },
       "savedOpportunities": [],
       "trackedApplications": [
         {
           "id": "track_1794774094028_2606303",
-          "studentId": "test-student-dna-persist-a-1794774092688",
-          "opportunityId": "opp_razorpay_sde1_2026",
-          "opportunityTitle": "Tracked Opportunity",
-          "organization": "Organization",
-          "stage": "INTERVIEW",
           "notes": "First technical round scheduled for Friday",
+          "stage": "INTERVIEW",
           "savedAt": "2026-11-15T20:21:34.028Z",
-          "updatedAt": "2026-11-15T20:21:34.028Z"
+          "studentId": "test-student-dna-persist-a-1794774092688",
+          "updatedAt": "2026-11-15T20:21:34.028Z",
+          "organization": "Organization",
+          "opportunityId": "opp_razorpay_sde1_2026",
+          "opportunityTitle": "Tracked Opportunity"
         }
       ],
       "profileCompleted": false,
@@ -141792,8 +143154,8 @@
         {
           "name": "PyTorch",
           "level": "Advanced",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Research"
+          "evidenceSource": "Research",
+          "yearsOfExperience": 2
         }
       ],
       "projects": [],
@@ -141802,8 +143164,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141843,8 +143205,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141898,11 +143260,11 @@
       "projects": [
         {
           "title": "EventStream",
-          "description": "Distributed message queue in Go with Raft consensus.",
           "techStack": [
             "Go",
             "Raft"
-          ]
+          ],
+          "description": "Distributed message queue in Go with Raft consensus."
         }
       ],
       "experience": [],
@@ -141910,8 +143272,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141951,8 +143313,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -141992,8 +143354,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142035,8 +143397,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142074,16 +143436,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNIT 2026",
           "type": "Hackathon",
+          "title": "HackNIT 2026",
           "description": "Built automated scheduler"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142128,8 +143490,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142174,8 +143536,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142223,8 +143585,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142270,8 +143632,8 @@
       ],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142311,8 +143673,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142352,8 +143714,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142399,12 +143761,12 @@
       "projects": [
         {
           "title": "Distributed Key-Value Store",
-          "description": "Storage engine",
+          "githubUrl": "https://github.com/persist/kv-store",
           "techStack": [
             "Python",
             "Raft"
           ],
-          "githubUrl": "https://github.com/persist/kv-store"
+          "description": "Storage engine"
         }
       ],
       "experience": [],
@@ -142414,10 +143776,10 @@
         "targetRoles": [
           "Backend Infrastructure Engineer"
         ],
+        "targetCompanies": [],
         "preferredDomains": [
           "Distributed Systems"
         ],
-        "targetCompanies": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142459,11 +143821,11 @@
       "projects": [
         {
           "title": "Rust Compiler",
-          "description": "Compiler in Rust",
+          "githubUrl": "https://github.com/alpha/rust-compiler",
           "techStack": [
             "Rust"
           ],
-          "githubUrl": "https://github.com/alpha/rust-compiler"
+          "description": "Compiler in Rust"
         }
       ],
       "experience": [],
@@ -142471,8 +143833,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142514,11 +143876,11 @@
       "projects": [
         {
           "title": "Spring Microservice",
-          "description": "Spring Boot API",
+          "githubUrl": "https://github.com/beta/spring-service",
           "techStack": [
             "Java"
           ],
-          "githubUrl": "https://github.com/beta/spring-service"
+          "description": "Spring Boot API"
         }
       ],
       "experience": [],
@@ -142526,8 +143888,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142569,10 +143931,10 @@
       "projects": [
         {
           "title": "Search Engine",
-          "description": "Built inverted index",
           "techStack": [
             "Python"
-          ]
+          ],
+          "description": "Built inverted index"
         }
       ],
       "experience": [],
@@ -142580,8 +143942,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142626,8 +143988,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142673,11 +144035,11 @@
       "projects": [
         {
           "title": "Next.js App",
-          "description": "Next app",
+          "githubUrl": "https://github.com/test/app",
           "techStack": [
             "React"
           ],
-          "githubUrl": "https://github.com/test/app"
+          "description": "Next app"
         }
       ],
       "experience": [],
@@ -142685,8 +144047,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142729,16 +144091,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNITK 2026",
           "type": "Hackathon",
+          "title": "HackNITK 2026",
           "description": "Submitted automated drone payload classifier"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142783,8 +144145,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142826,12 +144188,12 @@
       "projects": [
         {
           "title": "Dead Link App",
-          "description": "A fullstack application",
+          "githubUrl": "https://github.com/nonexistent-org-random-404-dead/repo-does-not-exist",
           "techStack": [
             "TypeScript",
             "Next.js"
           ],
-          "githubUrl": "https://github.com/nonexistent-org-random-404-dead/repo-does-not-exist"
+          "description": "A fullstack application"
         }
       ],
       "experience": [],
@@ -142839,8 +144201,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142882,24 +144244,24 @@
       "projects": [
         {
           "title": "Gearbox Design",
-          "description": "Mechanical gearbox",
           "techStack": [
             "SolidWorks"
-          ]
+          ],
+          "description": "Mechanical gearbox"
         }
       ],
       "experience": [],
       "achievements": [
         {
-          "title": "CAD Contest 2026",
-          "type": "Contest"
+          "type": "Contest",
+          "title": "CAD Contest 2026"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142941,10 +144303,10 @@
       "projects": [
         {
           "title": "Go Microservice",
-          "description": "REST API in Go",
           "techStack": [
             "Go"
-          ]
+          ],
+          "description": "REST API in Go"
         }
       ],
       "experience": [],
@@ -142952,8 +144314,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -142998,8 +144360,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143039,8 +144401,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143086,27 +144448,27 @@
       "projects": [
         {
           "title": "Distributed Pipeline",
-          "description": "Kafka stream ingestion",
+          "githubUrl": "https://github.com/realcandidate/pipeline",
           "techStack": [
             "Python",
             "Kafka"
           ],
-          "githubUrl": "https://github.com/realcandidate/pipeline"
+          "description": "Kafka stream ingestion"
         }
       ],
       "experience": [],
       "achievements": [
         {
-          "title": "CodeCon Hackathon 2026",
           "type": "Hackathon",
+          "title": "CodeCon Hackathon 2026",
           "description": "Runner up for data processing bot"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143166,11 +144528,11 @@
         "targetRoles": [
           "fullstack_dev"
         ],
-        "preferredDomains": [
-          "Distributed Systems"
-        ],
         "targetCompanies": [
           "Stripe"
+        ],
+        "preferredDomains": [
+          "Distributed Systems"
         ],
         "preferredLocations": [
           "Remote"
@@ -143213,61 +144575,61 @@
         {
           "name": "Go",
           "level": "Intermediate",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Self-Reported & Projects"
+          "evidenceSource": "Self-Reported & Projects",
+          "yearsOfExperience": 2
         },
         {
           "name": "PostgreSQL",
           "level": "Advanced",
-          "yearsOfExperience": 3,
-          "evidenceSource": "Internship"
+          "evidenceSource": "Internship",
+          "yearsOfExperience": 3
         }
       ],
       "projects": [
         {
           "title": "Distributed Key-Value Store",
-          "description": "Raft consensus protocol implemented in Go with write-ahead logging",
+          "duration": "3 months",
+          "githubUrl": "https://github.com/arjun/raft-kv",
           "techStack": [
             "Go",
             "Raft",
             "gRPC"
           ],
-          "githubUrl": "https://github.com/arjun/raft-kv",
-          "duration": "3 months"
+          "description": "Raft consensus protocol implemented in Go with write-ahead logging"
         }
       ],
       "experience": [],
       "achievements": [],
       "certifications": [],
       "careerGoals": {
+        "careerGoals": "Aiming for distributed systems engineering roles",
         "targetRoles": [
           "Backend Engineer",
           "Systems Engineer"
-        ],
-        "preferredDomains": [
-          "Fintech"
         ],
         "targetCompanies": [
           "Razorpay",
           "Zerodha"
         ],
+        "preferredDomains": [
+          "Fintech"
+        ],
         "preferredLocations": [
           "Bengaluru"
-        ],
-        "careerGoals": "Aiming for distributed systems engineering roles"
+        ]
       },
       "savedOpportunities": [],
       "trackedApplications": [
         {
           "id": "track_1794775133007_b4b8b21",
-          "studentId": "test-student-dna-persist-a-1794775131991",
-          "opportunityId": "opp_razorpay_sde1_2026",
-          "opportunityTitle": "Tracked Opportunity",
-          "organization": "Organization",
-          "stage": "INTERVIEW",
           "notes": "First technical round scheduled for Friday",
+          "stage": "INTERVIEW",
           "savedAt": "2026-11-15T20:38:53.007Z",
-          "updatedAt": "2026-11-15T20:38:53.007Z"
+          "studentId": "test-student-dna-persist-a-1794775131991",
+          "updatedAt": "2026-11-15T20:38:53.007Z",
+          "organization": "Organization",
+          "opportunityId": "opp_razorpay_sde1_2026",
+          "opportunityTitle": "Tracked Opportunity"
         }
       ],
       "profileCompleted": false,
@@ -143302,8 +144664,8 @@
         {
           "name": "PyTorch",
           "level": "Advanced",
-          "yearsOfExperience": 2,
-          "evidenceSource": "Research"
+          "evidenceSource": "Research",
+          "yearsOfExperience": 2
         }
       ],
       "projects": [],
@@ -143312,8 +144674,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143353,8 +144715,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143394,8 +144756,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143435,8 +144797,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143478,8 +144840,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143517,16 +144879,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNIT 2026",
           "type": "Hackathon",
+          "title": "HackNIT 2026",
           "description": "Built automated scheduler"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143571,8 +144933,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143617,8 +144979,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143666,8 +145028,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143706,8 +145068,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -143745,8 +145107,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143786,8 +145148,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143829,8 +145191,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143868,16 +145230,16 @@
       "experience": [],
       "achievements": [
         {
-          "title": "HackNIT 2026",
           "type": "Hackathon",
+          "title": "HackNIT 2026",
           "description": "Built automated scheduler"
         }
       ],
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143922,8 +145284,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -143968,8 +145330,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -144017,8 +145379,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -144064,8 +145426,8 @@
       ],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -144105,8 +145467,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "savedOpportunities": [],
@@ -144145,8 +145507,8 @@
       "certifications": [],
       "careerGoals": {
         "targetRoles": [],
-        "preferredDomains": [],
         "targetCompanies": [],
+        "preferredDomains": [],
         "preferredLocations": []
       },
       "profileCompleted": false,
@@ -144157,6 +145519,1730 @@
       "lastUsernameChangeAt": "2026-11-18T05:04:45.654Z",
       "createdAt": "2026-11-18T05:04:45.644Z",
       "updatedAt": "2026-11-18T05:04:45.654Z"
+    },
+    {
+      "id": "a06a3adc-60f0-4e9e-8fd6-d112c98d1c41",
+      "userId": "1db1303c-7376-4b7a-99ea-f90a57cddf92",
+      "username": "candidate_a_5081",
+      "fullName": "Candidate Alpha",
+      "email": "candidate.a.1795119455081@testdomain.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Stanford",
+      "degree": "B.S.",
+      "branch": "CS",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Rust",
+          "level": "Advanced"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:35.506Z",
+      "updatedAt": "2026-11-19T20:17:35.506Z"
+    },
+    {
+      "id": "7a175161-a00c-424c-a56d-7804233e8087",
+      "userId": "bd1eab1d-cdbe-4999-838d-9e7f010ee7d5",
+      "username": "candidate_b_5081",
+      "fullName": "Candidate Beta",
+      "email": "candidate.b.1795119455081@testdomain.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "MIT",
+      "degree": "M.S.",
+      "branch": "AI",
+      "year": "",
+      "graduationYear": "2027",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Expert"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:35.538Z",
+      "updatedAt": "2026-11-19T20:17:35.538Z"
+    },
+    {
+      "id": "711a8a93-d11e-4ea9-b6b1-a51cf8101f1e",
+      "userId": "7f44aa59-ccb9-4c28-b948-ca3e290296de",
+      "username": "engineer-1795119456071",
+      "fullName": "Test Builder",
+      "email": "test_student_1795119455840@university.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": "2026-11-19T20:17:36.072Z",
+      "createdAt": "2026-11-19T20:17:36.062Z",
+      "updatedAt": "2026-11-19T20:17:36.072Z"
+    },
+    {
+      "id": "a7804e39-a238-4908-8d83-38e53702f3c3",
+      "userId": "f650fec2-c377-4a99-acea-e51eab0d279e",
+      "username": "ananya_1795119456181",
+      "fullName": "Ananya Deshmukh",
+      "email": "personalized.1795119456160@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "IIT Bombay",
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:36.182Z",
+      "updatedAt": "2026-11-19T20:17:36.182Z"
+    },
+    {
+      "id": "1853a895-a2cc-4d79-a7df-ad09d2b2601f",
+      "userId": "e9b57b7f-d649-4262-8744-5f3f5777f79a",
+      "username": "dev_1795119456248",
+      "fullName": "Dev Student",
+      "email": "incomplete.dna.1795119456234@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "BITS Pilani",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:36.567Z",
+      "updatedAt": "2026-11-19T20:17:36.567Z"
+    },
+    {
+      "id": "976d13d8-31ee-4b61-b7fb-b64f1bf34c88",
+      "userId": "982628eb-cb0f-45e8-b98d-eae8022b19fa",
+      "username": "alicestudent_19fa",
+      "fullName": "Alice Student",
+      "email": "studenta.1795119456629@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Stanford",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Rust",
+          "level": "Expert",
+          "evidenceSource": "GitHub",
+          "yearsOfExperience": 3
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:36.655Z",
+      "updatedAt": "2026-11-19T20:17:36.655Z"
+    },
+    {
+      "id": "0afaebf3-3b79-46e5-9787-8b6e1f8692ab",
+      "userId": "56cf30ee-0d85-404f-8d3c-90f1594373b2",
+      "username": "bobstudent_73b2",
+      "fullName": "Bob Student",
+      "email": "studentb.1795119456645@college.edu",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "MIT",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Intermediate",
+          "evidenceSource": "Projects",
+          "yearsOfExperience": 1
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:36.666Z",
+      "updatedAt": "2026-11-19T20:17:36.666Z"
+    },
+    {
+      "id": "20ad4736-da02-403b-afe3-33095ae18697",
+      "userId": "test-student-dna-persist-a-1795119459533",
+      "username": "arjunsharma_9533",
+      "fullName": "Arjun Sharma",
+      "email": "arjun_1795119459533@example.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "BITS Pilani",
+      "degree": "B.Tech Computer Science",
+      "branch": "Computer Science",
+      "year": "3rd Year",
+      "graduationYear": "2027",
+      "cgpa": "8.9",
+      "currentStep": 4,
+      "coursework": [
+        "Distributed Systems",
+        "Database Internals"
+      ],
+      "skills": [
+        {
+          "name": "Go",
+          "level": "Intermediate",
+          "evidenceSource": "Self-Reported & Projects",
+          "yearsOfExperience": 2
+        },
+        {
+          "name": "PostgreSQL",
+          "level": "Advanced",
+          "evidenceSource": "Internship",
+          "yearsOfExperience": 3
+        }
+      ],
+      "projects": [
+        {
+          "title": "Distributed Key-Value Store",
+          "duration": "3 months",
+          "githubUrl": "https://github.com/arjun/raft-kv",
+          "techStack": [
+            "Go",
+            "Raft",
+            "gRPC"
+          ],
+          "description": "Raft consensus protocol implemented in Go with write-ahead logging"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "careerGoals": "Aiming for distributed systems engineering roles",
+        "targetRoles": [
+          "Backend Engineer",
+          "Systems Engineer"
+        ],
+        "targetCompanies": [
+          "Razorpay",
+          "Zerodha"
+        ],
+        "preferredDomains": [
+          "Fintech"
+        ],
+        "preferredLocations": [
+          "Bengaluru"
+        ]
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [
+        {
+          "id": "track_1795119460160_c579119",
+          "notes": "First technical round scheduled for Friday",
+          "stage": "INTERVIEW",
+          "savedAt": "2026-11-19T20:17:40.160Z",
+          "studentId": "test-student-dna-persist-a-1795119459533",
+          "updatedAt": "2026-11-19T20:17:40.160Z",
+          "organization": "Organization",
+          "opportunityId": "opp_razorpay_sde1_2026",
+          "opportunityTitle": "Tracked Opportunity"
+        }
+      ],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:39.921Z",
+      "updatedAt": "2026-11-19T20:17:40.197Z"
+    },
+    {
+      "id": "10b1c7db-d1dd-4034-9012-f76eb1dab593",
+      "userId": "test-student-dna-persist-b-1795119459533",
+      "username": "priyapatel_9533",
+      "fullName": "Priya Patel",
+      "email": "priya_1795119459533@example.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "IIT Bombay",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 2,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "PyTorch",
+          "level": "Advanced",
+          "evidenceSource": "Research",
+          "yearsOfExperience": 2
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:39.972Z",
+      "updatedAt": "2026-11-19T20:17:39.972Z"
+    },
+    {
+      "id": "d9458259-3f27-48dd-9e0d-1d3301b4795c",
+      "userId": "test-empty-student-1795119459533",
+      "username": "brandnewstud_9533",
+      "fullName": "Brand New Student",
+      "email": "empty_1795119459533@example.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:40.084Z",
+      "updatedAt": "2026-11-19T20:17:40.084Z"
+    },
+    {
+      "id": "d4fa7bd0-a580-4c4e-8806-e4a57345b359",
+      "userId": "cand_journey_1795119471200",
+      "username": "alexbuilder_1200",
+      "fullName": "Alex Builder",
+      "email": "cand_journey_1795119471200@example.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "National Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "branch": "",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Go",
+          "level": "Advanced"
+        },
+        {
+          "name": "Distributed Systems",
+          "level": "Intermediate"
+        },
+        {
+          "name": "PostgreSQL",
+          "level": "Intermediate"
+        },
+        {
+          "name": "Kafka",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "EventStream",
+          "techStack": [
+            "Go",
+            "Raft"
+          ],
+          "description": "Distributed message queue in Go with Raft consensus."
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:51.217Z",
+      "updatedAt": "2026-11-19T20:17:51.217Z"
+    },
+    {
+      "id": "6398dd38-8552-4dba-a609-c5d6bc77ca53",
+      "userId": "test-user-1795119473660-no-res",
+      "username": "noresumestud_-res",
+      "fullName": "No Resume Student",
+      "email": "test-user-1795119473660-no-res@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "National Tech",
+      "degree": "B.Tech",
+      "branch": "CSE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:53.996Z",
+      "updatedAt": "2026-11-19T20:17:53.996Z"
+    },
+    {
+      "id": "a6b11385-c367-4173-808a-52f0f6f7920a",
+      "userId": "test-user-1795119473660-corrupt-res",
+      "username": "testuser1795_-res",
+      "fullName": "Corrupt Resume Student",
+      "email": "test-user-1795119473660-corrupt-res@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "resumeUrl": "https://storage.cognalyze.com/corrupt.pdf",
+      "resumeFileName": "corrupt.pdf",
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.024Z",
+      "updatedAt": "2026-11-19T20:17:54.024Z"
+    },
+    {
+      "id": "a8a06b82-cd7a-4f3a-a814-c05b815880c2",
+      "userId": "test-user-1795119473660-no-hack",
+      "username": "testuser1795_hack",
+      "fullName": "No Hack Student",
+      "email": "test-user-1795119473660-no-hack@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.084Z",
+      "updatedAt": "2026-11-19T20:17:54.084Z"
+    },
+    {
+      "id": "880b1a85-2d24-4b1d-b1a1-1d77eab0d561",
+      "userId": "test-user-1795119473660-hack-unverified",
+      "username": "testuser1795_fied",
+      "fullName": "Hack Unverified Student",
+      "email": "test-user-1795119473660-hack-unverified@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [
+        {
+          "type": "Hackathon",
+          "title": "HackNIT 2026",
+          "description": "Built automated scheduler"
+        }
+      ],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.103Z",
+      "updatedAt": "2026-11-19T20:17:54.103Z"
+    },
+    {
+      "id": "92b4511f-9323-485d-88c5-9ba4dd3ad014",
+      "userId": "test-user-1795119473660-iso-alpha",
+      "username": "testuser1795_lpha",
+      "fullName": "Alpha Candidate",
+      "email": "test-user-1795119473660-iso-alpha@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Rust",
+          "level": "Expert"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.240Z",
+      "updatedAt": "2026-11-19T20:17:54.240Z"
+    },
+    {
+      "id": "776a3893-1437-4f35-911f-557a1ad75467",
+      "userId": "test-user-1795119473660-iso-beta",
+      "username": "testuser1795_beta",
+      "fullName": "Beta Candidate",
+      "email": "test-user-1795119473660-iso-beta@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Cobol",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.252Z",
+      "updatedAt": "2026-11-19T20:17:54.252Z"
+    },
+    {
+      "id": "d426558c-d0e4-4b5a-8eca-b2d9689d134a",
+      "userId": "test-user-1795119473660-edit-proj",
+      "username": "testuser1795_proj",
+      "fullName": "Project Editor",
+      "email": "test-user-1795119473660-edit-proj@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [
+        {
+          "title": "Updated Title",
+          "techStack": [
+            "C++"
+          ],
+          "description": "Updated"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.272Z",
+      "updatedAt": "2026-11-19T20:17:54.283Z"
+    },
+    {
+      "id": "9f0a4bcc-d1ed-484c-a637-f235dce101d8",
+      "userId": "test-user-1795119473660-dup-cert",
+      "username": "testuser1795_cert",
+      "fullName": "Dup Cert Student",
+      "email": "test-user-1795119473660-dup-cert@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [
+        {
+          "title": "AWS Solutions Architect",
+          "issuer": "Amazon Web Services",
+          "credentialUrl": "https://aws.com/cert/1"
+        }
+      ],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.304Z",
+      "updatedAt": "2026-11-19T20:17:54.304Z"
+    },
+    {
+      "id": "21c5f187-4bad-4364-b275-ab40c7800014",
+      "userId": "test-matrix-student-a-1795119474324",
+      "username": "studenta_4324",
+      "fullName": "Student A",
+      "email": "test-matrix-student-a-1795119474324@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Test University",
+      "degree": "B.Tech",
+      "branch": "Computer Science",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Search Engine",
+          "techStack": [
+            "Python"
+          ],
+          "description": "Built inverted index"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.614Z",
+      "updatedAt": "2026-11-19T20:17:54.614Z"
+    },
+    {
+      "id": "20572778-92d1-4661-9577-a33a8561da08",
+      "userId": "student-one-hack-1795119474684",
+      "username": "onehackstude_4684",
+      "fullName": "One Hack Student",
+      "email": "student-one-hack-1795119474684@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Tech College",
+      "degree": "B.Tech",
+      "branch": "ECE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "C++",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [
+        {
+          "type": "Hackathon",
+          "title": "HackNITK 2026",
+          "description": "Submitted automated drone payload classifier"
+        }
+      ],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.698Z",
+      "updatedAt": "2026-11-19T20:17:54.698Z"
+    },
+    {
+      "id": "b315a4b8-eba6-4a47-9446-ec8ef30ffa71",
+      "userId": "student-no-projects-1795119474736",
+      "username": "noprojectsst_4736",
+      "fullName": "No Projects Student",
+      "email": "student-no-projects-1795119474736@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Institute",
+      "degree": "B.Tech",
+      "branch": "IT",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Beginner"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.746Z",
+      "updatedAt": "2026-11-19T20:17:54.746Z"
+    },
+    {
+      "id": "1d99af2c-9d08-48f8-8170-8843b1054602",
+      "userId": "student-broken-repo-1795119474776",
+      "username": "brokenrepost_4776",
+      "fullName": "Broken Repo Student",
+      "email": "student-broken-repo-1795119474776@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Institute",
+      "degree": "B.Tech",
+      "branch": "IT",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Dead Link App",
+          "githubUrl": "https://github.com/nonexistent-org-random-404-dead/repo-does-not-exist",
+          "techStack": [
+            "TypeScript",
+            "Next.js"
+          ],
+          "description": "A fullstack application"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.797Z",
+      "updatedAt": "2026-11-19T20:17:54.797Z"
+    },
+    {
+      "id": "a4a79a2f-ba08-44d4-ad10-13f991f1a244",
+      "userId": "test-matrix-student-b-1795119474324",
+      "username": "studentb_4324",
+      "fullName": "Student B",
+      "email": "test-matrix-student-b-1795119474324@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Another University",
+      "degree": "B.Tech",
+      "branch": "Mechanical",
+      "year": "",
+      "graduationYear": "2027",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "SolidWorks",
+          "level": "Advanced"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Gearbox Design",
+          "techStack": [
+            "SolidWorks"
+          ],
+          "description": "Mechanical gearbox"
+        }
+      ],
+      "experience": [],
+      "achievements": [
+        {
+          "type": "Contest",
+          "title": "CAD Contest 2026"
+        }
+      ],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.877Z",
+      "updatedAt": "2026-11-19T20:17:54.877Z"
+    },
+    {
+      "id": "72757f9f-1134-4e2c-b98b-3e144b662770",
+      "userId": "student-stale-1795119474938",
+      "username": "staletestuse_4938",
+      "fullName": "Stale Test User",
+      "email": "student-stale-1795119474938@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "College",
+      "degree": "B.Tech",
+      "branch": "CSE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Go",
+          "level": "Beginner"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Go Microservice",
+          "techStack": [
+            "Go"
+          ],
+          "description": "REST API in Go"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.956Z",
+      "updatedAt": "2026-11-19T20:17:54.990Z"
+    },
+    {
+      "id": "f74d5fab-6dd2-4ee2-b31d-ffeba2e88d1b",
+      "userId": "student-no-gh-1795119475000",
+      "username": "noghuser_5000",
+      "fullName": "No GH User",
+      "email": "student-no-gh-1795119475000@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "College",
+      "degree": "B.Tech",
+      "branch": "CSE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "SQL",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:55.034Z",
+      "updatedAt": "2026-11-19T20:17:55.034Z"
+    },
+    {
+      "id": "0de1bf36-5a2e-452f-8ec5-e00dd9c74098",
+      "userId": "student-partial-1795119475057",
+      "username": "partialuser_5057",
+      "fullName": "Partial User",
+      "email": "student-partial-1795119475057@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "College",
+      "degree": "B.Tech",
+      "branch": "CSE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 2,
+      "coursework": [],
+      "skills": [],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:55.076Z",
+      "updatedAt": "2026-11-19T20:17:55.076Z"
+    },
+    {
+      "id": "11d37a13-cdce-4c9a-b5ce-3e99dc04b48e",
+      "userId": "student-real-evidence-1795119475107",
+      "username": "realevidence_5107",
+      "fullName": "Real Evidence Candidate",
+      "email": "student-real-evidence-1795119475107@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "National Tech",
+      "degree": "B.Tech",
+      "branch": "CSE",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "",
+      "currentStep": 9,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Advanced"
+        },
+        {
+          "name": "React",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Distributed Pipeline",
+          "githubUrl": "https://github.com/realcandidate/pipeline",
+          "techStack": [
+            "Python",
+            "Kafka"
+          ],
+          "description": "Kafka stream ingestion"
+        }
+      ],
+      "experience": [],
+      "achievements": [
+        {
+          "type": "Hackathon",
+          "title": "CodeCon Hackathon 2026",
+          "description": "Runner up for data processing bot"
+        }
+      ],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:55.118Z",
+      "updatedAt": "2026-11-19T20:17:55.118Z"
+    },
+    {
+      "id": "2ef19d57-ca3c-467f-8adb-134777796565",
+      "userId": "persist_user_1795119474035",
+      "username": "persistences_4035",
+      "fullName": "Persistence Student",
+      "email": "persist_user_1795119474035@campus.edu",
+      "phone": "9876543210",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Indian Institute of Technology",
+      "degree": "B.Tech Computer Science",
+      "branch": "",
+      "year": "",
+      "graduationYear": "2026",
+      "cgpa": "8.8",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Python",
+          "level": "Advanced"
+        },
+        {
+          "name": "PostgreSQL",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Distributed Key-Value Store",
+          "githubUrl": "https://github.com/persist/kv-store",
+          "techStack": [
+            "Python",
+            "Raft"
+          ],
+          "description": "Storage engine"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [
+          "Backend Infrastructure Engineer"
+        ],
+        "targetCompanies": [],
+        "preferredDomains": [
+          "Distributed Systems"
+        ],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.334Z",
+      "updatedAt": "2026-11-19T20:17:54.334Z"
+    },
+    {
+      "id": "0ac8dc27-47d3-4ffd-aab6-b3473b6280b2",
+      "userId": "iso_user_A_1795119474373",
+      "username": "studentalpha_4373",
+      "fullName": "Student Alpha",
+      "email": "iso_user_a_1795119474373@test.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Rust",
+          "level": "Advanced"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Rust Compiler",
+          "githubUrl": "https://github.com/alpha/rust-compiler",
+          "techStack": [
+            "Rust"
+          ],
+          "description": "Compiler in Rust"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.416Z",
+      "updatedAt": "2026-11-19T20:17:54.416Z"
+    },
+    {
+      "id": "2f38d325-114f-410d-b474-4abe150cba4f",
+      "userId": "iso_user_B_1795119474373",
+      "username": "studentbeta_4373",
+      "fullName": "Student Beta",
+      "email": "iso_user_b_1795119474373@test.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "Java",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Spring Microservice",
+          "githubUrl": "https://github.com/beta/spring-service",
+          "techStack": [
+            "Java"
+          ],
+          "description": "Spring Boot API"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.432Z",
+      "updatedAt": "2026-11-19T20:17:54.432Z"
+    },
+    {
+      "id": "e21a2263-4d30-45f3-b1ba-f5f2b4986274",
+      "userId": "empty_src_1795119474498",
+      "username": "emptysources_4498",
+      "fullName": "Empty Source Student",
+      "email": "empty_src_1795119474498@test.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "HTML",
+          "level": "Beginner"
+        }
+      ],
+      "projects": [],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:54.512Z",
+      "updatedAt": "2026-11-19T20:17:54.512Z"
+    },
+    {
+      "id": "23b94362-82b4-4a47-ba75-87d4a2ca71c0",
+      "userId": "regression_1795119475658",
+      "username": "regressionte_5658",
+      "fullName": "Regression Tester",
+      "email": "regression_1795119475658@test.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "",
+      "degree": "",
+      "branch": "",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Intermediate"
+        },
+        {
+          "name": "React",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Next.js App",
+          "githubUrl": "https://github.com/test/app",
+          "techStack": [
+            "React"
+          ],
+          "description": "Next app"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [],
+        "targetCompanies": [],
+        "preferredDomains": [],
+        "preferredLocations": []
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": false,
+      "profileCompletionPercentage": 0,
+      "primaryInterests": [],
+      "profileStatus": "PARTIAL",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:55.668Z",
+      "updatedAt": "2026-11-19T20:17:55.668Z"
+    },
+    {
+      "id": "a876b04b-b38a-4f23-add1-b193aa879d4f",
+      "userId": "u-test-user-a-1795119475737",
+      "username": "alicestudent_5737",
+      "fullName": "Alice Student",
+      "email": "usera_1795119475737@test.cognalyze.com",
+      "phone": "",
+      "location": "",
+      "linkedinUrl": "",
+      "githubUrl": "",
+      "portfolioUrl": "",
+      "college": "Stanford University",
+      "degree": "B.S.",
+      "branch": "Computer Science",
+      "year": "",
+      "graduationYear": "",
+      "cgpa": "",
+      "currentStep": 1,
+      "coursework": [],
+      "skills": [
+        {
+          "name": "TypeScript",
+          "level": "Advanced"
+        },
+        {
+          "name": "PostgreSQL",
+          "level": "Intermediate"
+        }
+      ],
+      "projects": [
+        {
+          "title": "Distributed KV Store",
+          "techStack": [
+            "TypeScript",
+            "PostgreSQL"
+          ],
+          "description": "High throughput key-value store with replication"
+        }
+      ],
+      "experience": [],
+      "achievements": [],
+      "certifications": [],
+      "careerGoals": {
+        "targetRoles": [
+          "fullstack_dev"
+        ],
+        "targetCompanies": [
+          "Stripe"
+        ],
+        "preferredDomains": [
+          "Distributed Systems"
+        ],
+        "preferredLocations": [
+          "Remote"
+        ]
+      },
+      "savedOpportunities": [],
+      "trackedApplications": [],
+      "profileCompleted": true,
+      "profileCompletionPercentage": 100,
+      "primaryInterests": [],
+      "profileStatus": "IDENTITY_VERIFIED",
+      "privacySetting": "PUBLIC",
+      "lastUsernameChangeAt": null,
+      "createdAt": "2026-11-19T20:17:56.150Z",
+      "updatedAt": "2026-11-19T20:17:56.150Z"
     }
   ],
   "recruiterProfiles": [
@@ -145369,6 +148455,17 @@
       "status": "EMAIL_PENDING",
       "createdAt": "2026-11-15T20:21:26.915Z",
       "updatedAt": "2026-11-15T20:21:26.915Z"
+    },
+    {
+      "id": "d34a27da-b43a-472e-b970-35353ab36a05",
+      "userId": "1a9d41b2-c652-41b0-9df6-62cb3d9f5410",
+      "organizationId": null,
+      "fullName": "Sarah Jenkins",
+      "designation": "Senior Technical Recruiter",
+      "workEmail": "recruiter.1795119456679@stripe.com",
+      "status": "EMAIL_PENDING",
+      "createdAt": "2026-11-19T20:17:36.700Z",
+      "updatedAt": "2026-11-19T20:17:36.700Z"
     }
   ],
   "organizations": [
@@ -148407,6 +151504,42 @@
       "verifiedAt": "2026-11-18T05:04:45.668Z",
       "createdAt": "2026-11-18T05:04:45.668Z",
       "updatedAt": "2026-11-18T05:04:45.668Z"
+    },
+    {
+      "id": "5fff14b3-96be-4850-bf31-eba4d315d63d",
+      "name": "CloudScale Systems",
+      "domain": "cloudscale.io",
+      "website": "https://cloudscale.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-11-19T20:17:36.085Z",
+      "createdAt": "2026-11-19T20:17:36.085Z",
+      "updatedAt": "2026-11-19T20:17:36.085Z"
+    },
+    {
+      "id": "a2c21701-73ec-4bd8-8102-ffedecf1c72b",
+      "name": "Stripe",
+      "domain": "stripe.com",
+      "website": "https://stripe.com",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "VERIFIED",
+      "verifiedAt": "2026-11-19T20:17:36.711Z",
+      "createdAt": "2026-11-19T20:17:36.711Z",
+      "updatedAt": "2026-11-19T20:17:36.711Z"
+    },
+    {
+      "id": "ba108c54-4ed3-4071-a525-e74955b83a06",
+      "name": "Acme",
+      "domain": "some-unrelated-startup.io",
+      "website": "https://some-unrelated-startup.io",
+      "industry": "Technology",
+      "companySize": "10-50",
+      "verificationStatus": "PENDING",
+      "verifiedAt": null,
+      "createdAt": "2026-11-19T20:17:36.723Z",
+      "updatedAt": "2026-11-19T20:17:36.723Z"
     }
   ],
   "connectedAccounts": [
@@ -151277,8 +154410,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151295,8 +154428,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": false,
-        "commitHistoryRetrieved": false,
-        "evidenceAnalyzed": false
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
       }
     },
     {
@@ -151316,8 +154449,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151337,8 +154470,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151358,8 +154491,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151380,8 +154513,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151401,8 +154534,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151419,8 +154552,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": false,
-        "commitHistoryRetrieved": false,
-        "evidenceAnalyzed": false
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
       }
     },
     {
@@ -151440,8 +154573,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151458,8 +154591,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": false,
-        "commitHistoryRetrieved": false,
-        "evidenceAnalyzed": false
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
       }
     },
     {
@@ -151479,8 +154612,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151500,8 +154633,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151521,8 +154654,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151543,8 +154676,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151564,8 +154697,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151582,8 +154715,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": false,
-        "commitHistoryRetrieved": false,
-        "evidenceAnalyzed": false
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
       }
     },
     {
@@ -151603,8 +154736,8 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": true,
-        "commitHistoryRetrieved": true,
-        "evidenceAnalyzed": true
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     },
     {
@@ -151621,8 +154754,132 @@
       "syncStatus": {
         "connected": true,
         "reposRetrieved": false,
-        "commitHistoryRetrieved": false,
-        "evidenceAnalyzed": false
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
+      }
+    },
+    {
+      "id": "3ac70e19-a1e4-4f75-ae08-7e66c6fa0dcf",
+      "userId": "76333e0d-e838-484d-8372-70ef890e992d",
+      "provider": "github",
+      "providerUserId": "gh_1795119456248",
+      "providerEmail": "multiauth_1795119456232@example.com",
+      "connectedAt": "2026-11-19T20:17:36.249Z",
+      "verifiedAt": "2026-11-19T20:17:36.249Z",
+      "encryptedAccessToken": null,
+      "tokenScope": [
+        "read:user",
+        "repo"
+      ],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
+      }
+    },
+    {
+      "id": "10f1292d-1704-41b3-b733-125daa84a886",
+      "userId": "0425c6fe-a388-4870-a952-277ecde22187",
+      "provider": "github",
+      "providerUserId": "octocat-eng-1795119456850",
+      "providerEmail": "github.student.1795119456841@college.edu",
+      "connectedAt": "2026-11-19T20:17:36.851Z",
+      "verifiedAt": "2026-11-19T20:17:36.851Z",
+      "encryptedAccessToken": null,
+      "tokenScope": [
+        "read:user",
+        "repo"
+      ],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
+      }
+    },
+    {
+      "id": "5496e4dd-6279-4966-97b3-920da3de80bb",
+      "userId": "5c8581f1-e19e-4324-bfd0-ca817379bb1a",
+      "provider": "github",
+      "providerUserId": "github-uid-1795119456876",
+      "providerEmail": "unique.1795119456865@college.edu",
+      "connectedAt": "2026-11-19T20:17:36.876Z",
+      "verifiedAt": "2026-11-19T20:17:36.876Z",
+      "encryptedAccessToken": null,
+      "tokenScope": [
+        "read:user",
+        "repo"
+      ],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
+      }
+    },
+    {
+      "id": "22fe53f8-6565-421d-8c94-0505211c0dc5",
+      "userId": "76333e0d-e838-484d-8372-70ef890e992d",
+      "provider": "linkedin",
+      "providerUserId": "li_1795119456264",
+      "providerEmail": "multiauth_1795119456232@example.com",
+      "connectedAt": "2026-11-19T20:17:36.264Z",
+      "verifiedAt": "2026-11-19T20:17:36.264Z",
+      "encryptedAccessToken": null,
+      "tokenScope": [],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": false,
+        "evidenceAnalyzed": false,
+        "commitHistoryRetrieved": false
+      }
+    },
+    {
+      "id": "2be3d663-496a-4d01-a436-550b024541e9",
+      "userId": "u-sec-test-oauth",
+      "provider": "github",
+      "providerUserId": "gh_usr_1795119456703",
+      "providerEmail": "oauth.verified.flow@example.com",
+      "connectedAt": "2026-11-19T20:17:37.425Z",
+      "verifiedAt": "2026-11-19T20:17:37.425Z",
+      "encryptedAccessToken": null,
+      "tokenScope": [
+        "read:user",
+        "repo"
+      ],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
+      }
+    },
+    {
+      "id": "52e6b88f-76b3-4ef1-8292-83763af84ccf",
+      "userId": "user_oauth_test_1795119469802",
+      "provider": "github",
+      "providerUserId": "gh_uid_1795119469802",
+      "providerEmail": "student_1795119469802@university.edu",
+      "connectedAt": "2026-11-19T20:17:49.802Z",
+      "verifiedAt": "2026-11-19T20:17:49.825Z",
+      "encryptedAccessToken": "enc_v1:b5f5507394b46e34f711d741:55ed530070f37663601897f899db2b21:b9611d052a3881769b5401e15969f289843b2de6e4e26f36",
+      "tokenScope": [
+        "read:user",
+        "repo",
+        "read:org"
+      ],
+      "tokenExpiresAt": null,
+      "syncStatus": {
+        "connected": true,
+        "reposRetrieved": true,
+        "evidenceAnalyzed": true,
+        "commitHistoryRetrieved": true
       }
     }
   ],
@@ -154037,15 +157294,92 @@
       "createdAt": "2026-11-15T20:21:26.499Z"
     },
     {
-      "id": "e363116d-5865-4038-abf1-eac65d12e909",
+      "id": "3351f3ba-08be-4f8b-a084-8d22a8206774",
+      "userId": "e0d34a99-e1bb-4214-8889-446e13d26521",
+      "email": "otp_test_1794933207857@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-11-17T16:48:27.873Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-11-17T16:33:27.873Z",
+      "verifiedAt": null,
+      "createdAt": "2026-11-17T16:33:27.873Z"
+    },
+    {
+      "id": "30082275-f2ec-41bd-bf8f-31ce4485d107",
+      "userId": "5f4636d1-1e9a-4c4b-b297-be18062b040a",
+      "email": "otp_test_1794978285678@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-11-18T05:19:45.689Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-11-18T05:04:45.689Z",
+      "verifiedAt": null,
+      "createdAt": "2026-11-18T05:04:45.689Z"
+    },
+    {
+      "id": "a33abd09-7376-4599-a3ca-d4a078d77b42",
+      "userId": "1db1303c-7376-4b7a-99ea-f90a57cddf92",
+      "email": "candidate.a.1795119455081@testdomain.com",
+      "codeHash": "9f70895d79daf266e1e7f20827392de1ced680a9ef712f8884dedbf58dad5142",
+      "expiresAt": "2026-11-19T20:32:35.133Z",
+      "attemptCount": 0,
+      "lastSentAt": "2026-11-19T20:17:35.133Z",
+      "verifiedAt": "2026-11-19T20:17:35.145Z",
+      "createdAt": "2026-11-19T20:17:35.133Z"
+    },
+    {
+      "id": "20a3313d-f27e-4238-b921-8f5fb6ccda20",
+      "userId": "92f35ff5-adae-4d23-bcce-0fb9e6974ed9",
+      "email": "otp_test_1795119456099@example.com",
+      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
+      "expiresAt": "2026-11-19T20:32:36.118Z",
+      "attemptCount": 5,
+      "lastSentAt": "2026-11-19T20:17:36.118Z",
+      "verifiedAt": null,
+      "createdAt": "2026-11-19T20:17:36.118Z"
+    },
+    {
+      "id": "2af2c97e-6bfe-46d6-a0b2-482b2cf89011",
+      "userId": "235db386-671c-4888-acca-c007ccd8f42b",
+      "email": "student.test.1795119455336@university.edu",
+      "codeHash": "63bfb931ef6260bc8b9dc8e60be0a7d7f3a5b5b8af12cd279c4d1f1e9e7cdb2c",
+      "expiresAt": "2026-11-19T20:32:35.627Z",
+      "attemptCount": 0,
+      "lastSentAt": "2026-11-19T20:17:35.627Z",
+      "verifiedAt": null,
+      "createdAt": "2026-11-19T20:17:35.627Z"
+    },
+    {
+      "id": "0c67c6b2-b0f0-4bb6-a802-4ae50e9e721f",
+      "userId": "f7921dc0-eb39-45de-a0ee-12c6a4f00c69",
+      "email": "student.verify.1795119455645@university.edu",
+      "codeHash": "25c0c26c913ba25dfc9b91a290ecf3e1931bc6a4f825afeee2b0181700a6002c",
+      "expiresAt": "2026-11-19T20:32:35.666Z",
+      "attemptCount": 0,
+      "lastSentAt": "2026-11-19T20:17:35.666Z",
+      "verifiedAt": "2026-11-19T20:17:35.684Z",
+      "createdAt": "2026-11-19T20:17:35.666Z"
+    },
+    {
+      "id": "82624adf-5d58-4c72-847e-0bcd0fcfcbb5",
       "userId": "user-999",
       "email": "fallback@example.com",
       "codeHash": "e0e322e9f9e6a3eecf3819649e685cae1aec8c6e769aa4524f247bfddc8ae86d",
-      "expiresAt": "2026-11-15T20:36:49.865Z",
+      "expiresAt": "2026-11-19T20:32:42.514Z",
       "attemptCount": 0,
+      "lastSentAt": "2026-11-19T20:17:42.514Z",
+      "verifiedAt": null,
+      "createdAt": "2026-11-19T20:17:42.514Z"
+    },
+    {
+      "id": "e363116d-5865-4038-abf1-eac65d12e909",
+      "email": "fallback@example.com",
+      "userId": "user-999",
+      "codeHash": "e0e322e9f9e6a3eecf3819649e685cae1aec8c6e769aa4524f247bfddc8ae86d",
+      "createdAt": "2026-11-15T20:21:49.865Z",
+      "expiresAt": "2026-11-15T20:36:49.865Z",
       "lastSentAt": "2026-11-15T20:21:49.865Z",
       "verifiedAt": null,
-      "createdAt": "2026-11-15T20:21:49.865Z"
+      "attemptCount": 0
     },
     {
       "id": "143e7efe-7d6e-4715-9ad1-a5eb958b9cff",
@@ -154288,28 +157622,6 @@
       "lastSentAt": "2026-10-26T14:34:21.263Z",
       "verifiedAt": null,
       "attemptCount": 0
-    },
-    {
-      "id": "3351f3ba-08be-4f8b-a084-8d22a8206774",
-      "userId": "e0d34a99-e1bb-4214-8889-446e13d26521",
-      "email": "otp_test_1794933207857@example.com",
-      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-      "expiresAt": "2026-11-17T16:48:27.873Z",
-      "attemptCount": 5,
-      "lastSentAt": "2026-11-17T16:33:27.873Z",
-      "verifiedAt": null,
-      "createdAt": "2026-11-17T16:33:27.873Z"
-    },
-    {
-      "id": "30082275-f2ec-41bd-bf8f-31ce4485d107",
-      "userId": "5f4636d1-1e9a-4c4b-b297-be18062b040a",
-      "email": "otp_test_1794978285678@example.com",
-      "codeHash": "481f6cc0511143ccdd7e2d1b1b94faf0a700a8b49cd13922a70b5ae28acaa8c5",
-      "expiresAt": "2026-11-18T05:19:45.689Z",
-      "attemptCount": 5,
-      "lastSentAt": "2026-11-18T05:04:45.689Z",
-      "verifiedAt": null,
-      "createdAt": "2026-11-18T05:04:45.689Z"
     }
   ],
   "passwordResetTokens": [
@@ -155095,6 +158407,51 @@
       "expiresAt": "2026-11-15T21:21:31.095Z",
       "usedAt": "2026-11-15T20:21:31.103Z",
       "createdAt": "2026-11-15T20:21:31.095Z"
+    },
+    {
+      "id": "532c5018-1c74-4892-90bb-eb0cd3dc45ae",
+      "userId": "1db1303c-7376-4b7a-99ea-f90a57cddf92",
+      "email": "candidate.a.1795119455081@testdomain.com",
+      "tokenHash": "2179acba76f05c6cdabddea95f432fad2849cd4e48bb271f60590b42958a5c04",
+      "expiresAt": "2026-11-19T21:17:35.322Z",
+      "usedAt": "2026-11-19T20:17:35.376Z",
+      "createdAt": "2026-11-19T20:17:35.322Z"
+    },
+    {
+      "id": "0740817b-2b69-45ac-bb08-b6cb03582eb9",
+      "userId": "u-sec-test-setup-pwd",
+      "email": "oauth.setup.pwd@example.com",
+      "tokenHash": "ec1f2d37ceeffb00d68d898c399af140d7a4b0c368986d725f8de074ccca4433",
+      "expiresAt": "2026-11-19T21:17:37.478Z",
+      "usedAt": "2026-11-19T20:17:37.490Z",
+      "createdAt": "2026-11-19T20:17:37.478Z"
+    },
+    {
+      "id": "de430153-3a15-4906-a52d-85d6d6fe111d",
+      "userId": "u-sec-test-token-reuse",
+      "email": "token.reuse.test@example.com",
+      "tokenHash": "ecaf03944a74c1e4df755a7a84019f0dc18a1d01a53db8d7127cfd57ac9446a3",
+      "expiresAt": "2026-11-19T21:17:37.611Z",
+      "usedAt": "2026-11-19T20:17:37.636Z",
+      "createdAt": "2026-11-19T20:17:37.611Z"
+    },
+    {
+      "id": "a196e3d6-728c-44f8-b151-b5358bb2eb1a",
+      "userId": "u-sec-test-setup-fail",
+      "email": "setup.fail.nomutate@example.com",
+      "tokenHash": "f8dd36ca156e4403be250ba454081ac866f07444c26ba07a5505181010889542",
+      "expiresAt": "2026-11-19T21:17:37.790Z",
+      "usedAt": null,
+      "createdAt": "2026-11-19T20:17:37.790Z"
+    },
+    {
+      "id": "248697d0-f740-4010-8580-fa6644a745c9",
+      "userId": "u-sec-test-concurrent",
+      "email": "concurrent.reset@example.com",
+      "tokenHash": "a33364d0a22a2abbb26d652c7585a7bea0bf1aec32f5e74724eb9859231ce764",
+      "expiresAt": "2026-11-19T21:17:37.818Z",
+      "usedAt": "2026-11-19T20:17:37.836Z",
+      "createdAt": "2026-11-19T20:17:37.818Z"
     }
   ],
   "usernameHistory": [
@@ -155468,6 +158825,13 @@
       "oldUsername": "builder-1794978285644",
       "newUsername": "engineer-1794978285654",
       "changedAt": "2026-11-18T05:04:45.654Z"
+    },
+    {
+      "id": "6b15647d-93b6-436b-be74-c9ddee893751",
+      "studentProfileId": "711a8a93-d11e-4ea9-b6b1-a51cf8101f1e",
+      "oldUsername": "builder-1795119456061",
+      "newUsername": "engineer-1795119456071",
+      "changedAt": "2026-11-19T20:17:36.072Z"
     }
   ],
   "sessions": [
@@ -164689,6 +168053,302 @@
       "accountType": "student",
       "expiresAt": "2026-12-17T10:06:10.471Z",
       "createdAt": "2026-11-17T10:06:10.471Z"
+    },
+    {
+      "id": "51d455c7-64ae-4bc9-a755-ca6008f5dd9d",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjUxZDQ1NWM3LTY0YWUtNGJjOS1hNzU1LWNhNjAwOGY1ZGQ5ZCIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOFQxMTo0Nzo1MS42MzZaIn0.a5ULYGu12MJxCsB11khtucNthPTfM21RiZ80Pq3R0rI",
+      "accountType": "student",
+      "expiresAt": "2026-12-18T11:47:51.636Z",
+      "createdAt": "2026-11-18T11:47:51.637Z"
+    },
+    {
+      "id": "6405ccbc-65fa-41ed-a504-e6e0927322d5",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjY0MDVjY2JjLTY1ZmEtNDFlZC1hNTA0LWU2ZTA5MjczMjJkNSIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOFQxMTo0Nzo1Ny4yODNaIn0.6IY0lH-h_NK_RPHzOEN-wV6N-y0gkhMPTNtSMJA8Occ",
+      "accountType": "student",
+      "expiresAt": "2026-12-18T11:47:57.283Z",
+      "createdAt": "2026-11-18T11:47:57.283Z"
+    },
+    {
+      "id": "c7dd0fcf-e01e-4cbe-b04f-1c9d3ffb19ae",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6ImM3ZGQwZmNmLWUwMWUtNGNiZS1iMDRmLTFjOWQzZmZiMTlhZSIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOFQxMzo1ODowMi40NzlaIn0.DVnCnzrK4VPb84ucsostcPBfJPi4d19ZLrKwBQ9OboI",
+      "accountType": "student",
+      "expiresAt": "2026-12-18T13:58:02.479Z",
+      "createdAt": "2026-11-18T13:58:02.482Z"
+    },
+    {
+      "id": "3cc7878f-516a-44a5-bff8-f8eab230ab5d",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjNjYzc4NzhmLTUxNmEtNDRhNS1iZmY4LWY4ZWFiMjMwYWI1ZCIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOFQxMzo1ODowNS43ODRaIn0.FTq9CPEc4AE6rl15y46BsksDcxkcxNMHpIKs9nGXpJw",
+      "accountType": "student",
+      "expiresAt": "2026-12-18T13:58:05.784Z",
+      "createdAt": "2026-11-18T13:58:05.784Z"
+    },
+    {
+      "id": "adf30536-b95e-48a2-a28c-dcfb0466a7e0",
+      "userId": "u-recruiter-demo-001",
+      "token": "eyJpZCI6ImFkZjMwNTM2LWI5NWUtNDhhMi1hMjhjLWRjZmIwNDY2YTdlMCIsInVzZXJJZCI6InUtcmVjcnVpdGVyLWRlbW8tMDAxIiwiYWNjb3VudFR5cGUiOiJyZWNydWl0ZXIiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDEwOjQ1OjA0LjM0MFoifQ.NUScQWD2zOs9OHmWpYbUgBvhTr3ke6qaEsmWhaje9cc",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T10:45:04.340Z",
+      "createdAt": "2026-11-19T10:45:04.340Z"
+    },
+    {
+      "id": "be3eafd7-887e-4f2f-9869-5c7155d27a7c",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6ImJlM2VhZmQ3LTg4N2UtNGYyZi05ODY5LTVjNzE1NWQyN2E3YyIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQxMDo0NToxNC45MjhaIn0.Yg10jK4EYyYutF7hEpGBhQTiO_yaJlrXOyLbobBsmVE",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T10:45:14.928Z",
+      "createdAt": "2026-11-19T10:45:14.928Z"
+    },
+    {
+      "id": "1d6bac70-96f3-4721-bb7a-57d04250b069",
+      "userId": "u-recruiter-demo-001",
+      "token": "eyJpZCI6IjFkNmJhYzcwLTk2ZjMtNDcyMS1iYjdhLTU3ZDA0MjUwYjA2OSIsInVzZXJJZCI6InUtcmVjcnVpdGVyLWRlbW8tMDAxIiwiYWNjb3VudFR5cGUiOiJyZWNydWl0ZXIiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDEwOjQ1OjE2LjgzNVoifQ.fkHarLpcMQ9CFH0qDk1eb7iUjI_n1jcvhBdHqaeOsU4",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T10:45:16.835Z",
+      "createdAt": "2026-11-19T10:45:16.835Z"
+    },
+    {
+      "id": "8bd6f030-869a-4bab-a626-624bc0579b30",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjhiZDZmMDMwLTg2OWEtNGJhYi1hNjI2LTYyNGJjMDU3OWIzMCIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQxNzowMzowNC4xNzBaIn0.SfO49E2GUHT9FG1tx7K3yKr6_WBtoAsXUu_B9h7xzPs",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T17:03:04.170Z",
+      "createdAt": "2026-11-19T17:03:04.172Z"
+    },
+    {
+      "id": "55758928-09be-4306-a486-622cbedaa383",
+      "userId": "ae3a9f8a-17cb-4371-aa8a-40a5858a8cbf",
+      "token": "eyJpZCI6IjU1NzU4OTI4LTA5YmUtNDMwNi1hNDg2LTYyMmNiZWRhYTM4MyIsInVzZXJJZCI6ImFlM2E5ZjhhLTE3Y2ItNDM3MS1hYThhLTQwYTU4NThhOGNiZiIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6MzYuMTQwWiJ9.RNatJ2k3-06GVRhkPrEKfx5vRM4-kCR__dhFEivY-rY",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:36.140Z",
+      "createdAt": "2026-11-19T20:17:36.141Z"
+    },
+    {
+      "id": "80f38160-c3b1-4c25-9f10-1e8aaecf2784",
+      "userId": "13842280-577b-4726-940c-4d0b742b8bcd",
+      "token": "eyJpZCI6IjgwZjM4MTYwLWMzYjEtNGMyNS05ZjEwLTFlOGFhZWNmMjc4NCIsInVzZXJJZCI6IjEzODQyMjgwLTU3N2ItNDcyNi05NDBjLTRkMGI3NDJiOGJjZCIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6MzYuMjE2WiJ9.MTHXELQ5r8oFm5RDF_yV4YpgKNdGDmLhboGOlrEofV8",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:36.216Z",
+      "createdAt": "2026-11-19T20:17:36.216Z"
+    },
+    {
+      "id": "62e71678-e9d4-40c9-ae4c-bccd7ff775de",
+      "userId": "02d155b6-8ba6-4af4-9e7b-97e64b8b3bae",
+      "token": "eyJpZCI6IjYyZTcxNjc4LWU5ZDQtNDBjOS1hZTRjLWJjY2Q3ZmY3NzVkZSIsInVzZXJJZCI6IjAyZDE1NWI2LThiYTYtNGFmNC05ZTdiLTk3ZTY0YjhiM2JhZSIsImFjY291bnRUeXBlIjoicmVjcnVpdGVyIiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzozNi43NTlaIn0.kPybUm1jUjS5qQcrkynewjeZw6g8TYEaBcPTjLOvFkU",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T20:17:36.759Z",
+      "createdAt": "2026-11-19T20:17:36.759Z"
+    },
+    {
+      "id": "569a7c87-cb95-4e1c-987e-2d0ab64993e2",
+      "userId": "e2a4bc98-cb1b-4018-b944-f0e333fa5ae8",
+      "token": "eyJpZCI6IjU2OWE3Yzg3LWNiOTUtNGUxYy05ODdlLTJkMGFiNjQ5OTNlMiIsInVzZXJJZCI6ImUyYTRiYzk4LWNiMWItNDAxOC1iOTQ0LWYwZTMzM2ZhNWFlOCIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6MzYuNzk2WiJ9.R5mJekVDFJnBao3fAlZYWQKgV9aBhXTrxVRIxsNGdOA",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:36.796Z",
+      "createdAt": "2026-11-19T20:17:36.798Z"
+    },
+    {
+      "id": "0ccc3607-cf67-4bbf-80e5-5ddb9e554c91",
+      "userId": "a453d7b2-ac65-4cce-8e6a-5544640f60e0",
+      "token": "eyJpZCI6IjBjY2MzNjA3LWNmNjctNGJiZi04MGU1LTVkZGI5ZTU1NGM5MSIsInVzZXJJZCI6ImE0NTNkN2IyLWFjNjUtNGNjZS04ZTZhLTU1NDQ2NDBmNjBlMCIsImFjY291bnRUeXBlIjoicmVjcnVpdGVyIiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzozNi44MzFaIn0.osoplKL_sabUTQ8G_aH3Ufbjcu6jwBc5hel-EqLRB_o",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T20:17:36.831Z",
+      "createdAt": "2026-11-19T20:17:36.831Z"
+    },
+    {
+      "id": "d62afa3f-1b0a-4c51-92c2-b2edb2ba3f57",
+      "userId": "71ed2291-d097-4eff-8c47-d913bfb81e3c",
+      "token": "eyJpZCI6ImQ2MmFmYTNmLTFiMGEtNGM1MS05MmMyLWIyZWRiMmJhM2Y1NyIsInVzZXJJZCI6IjcxZWQyMjkxLWQwOTctNGVmZi04YzQ3LWQ5MTNiZmI4MWUzYyIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6MzYuOTE3WiJ9.FdryDXPtkwIYrXi1BbUxtZjvZ_ZSArPDPhh2ANPiCjk",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:36.917Z",
+      "createdAt": "2026-11-19T20:17:36.917Z"
+    },
+    {
+      "id": "2861fc41-d7e4-4196-8d72-6928316febdc",
+      "userId": "u-sec-test-legit-login",
+      "token": "eyJpZCI6IjI4NjFmYzQxLWQ3ZTQtNDE5Ni04ZDcyLTY5MjgzMTZmZWJkYyIsInVzZXJJZCI6InUtc2VjLXRlc3QtbGVnaXQtbG9naW4iLCJhY2NvdW50VHlwZSI6InN0dWRlbnQiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM2LjY4MFoifQ.MHyHDMkwp9aM1aoVGCRRuDm3Io3NYP8NA37H4grqjOw",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:36.680Z",
+      "createdAt": "2026-11-19T20:17:36.680Z"
+    },
+    {
+      "id": "b7090c30-0542-44fc-a570-078386a81e4e",
+      "userId": "u-sec-test-oauth",
+      "token": "eyJpZCI6ImI3MDkwYzMwLTA1NDItNDRmYy1hNTcwLTA3ODM4NmE4MWU0ZSIsInVzZXJJZCI6InUtc2VjLXRlc3Qtb2F1dGgiLCJhY2NvdW50VHlwZSI6InN0dWRlbnQiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM3LjQ0NVoifQ.3GT7xc8z2s-P255htKbocteLxkvaiQK6U5rKsukCNYs",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:37.445Z",
+      "createdAt": "2026-11-19T20:17:37.445Z"
+    },
+    {
+      "id": "4d7fb09c-ca22-4d89-bd3d-ce0db63cd90a",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjRkN2ZiMDljLWNhMjItNGQ4OS1iZDNkLWNlMGRiNjNjZDkwYSIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzozNy45MDVaIn0.ufQHbllzt-UyQmpoTcnl354LZOX1SgRCi3sVKkgkmiU",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:37.905Z",
+      "createdAt": "2026-11-19T20:17:37.905Z"
+    },
+    {
+      "id": "8ae25afd-7371-44cb-9f93-db72dad75076",
+      "userId": "u-recruiter-demo-001",
+      "token": "eyJpZCI6IjhhZTI1YWZkLTczNzEtNDRjYi05ZjkzLWRiNzJkYWQ3NTA3NiIsInVzZXJJZCI6InUtcmVjcnVpdGVyLWRlbW8tMDAxIiwiYWNjb3VudFR5cGUiOiJyZWNydWl0ZXIiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM3LjkxOVoifQ.q7kwmuEu6-WdSKHQBWVU8iOmUYz3uiFBMRO7rMD_XFU",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T20:17:37.919Z",
+      "createdAt": "2026-11-19T20:17:37.919Z"
+    },
+    {
+      "id": "d8df70b5-96b3-41c3-aa4a-d1444d854742",
+      "userId": "u-student-sample-002",
+      "token": "eyJpZCI6ImQ4ZGY3MGI1LTk2YjMtNDFjMy1hYTRhLWQxNDQ0ZDg1NDc0MiIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAyIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzozNy45MzBaIn0.tIMNLUYV9VgBi_0r-ihHP5l_8toyGbkKASJhjqHWKEM",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:37.930Z",
+      "createdAt": "2026-11-19T20:17:37.930Z"
+    },
+    {
+      "id": "564b7ae7-51b9-468f-8989-e2abe7045c1e",
+      "userId": "iso-a-1795119457943",
+      "token": "eyJpZCI6IjU2NGI3YWU3LTUxYjktNDY4Zi04OTg5LWUyYWJlNzA0NWMxZSIsInVzZXJJZCI6Imlzby1hLTE3OTUxMTk0NTc5NDMiLCJhY2NvdW50VHlwZSI6InN0dWRlbnQiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM4LjE5OFoifQ.fEi6z93vVoiV3TCTePw866LtsIr5SLrUNdUmgl1Z4LE",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:38.198Z",
+      "createdAt": "2026-11-19T20:17:38.199Z"
+    },
+    {
+      "id": "397acde1-0147-4bd9-b613-1a09f779fde9",
+      "userId": "u-recruiter-demo-001",
+      "token": "eyJpZCI6IjM5N2FjZGUxLTAxNDctNGJkOS1iNjEzLTFhMDlmNzc5ZmRlOSIsInVzZXJJZCI6InUtcmVjcnVpdGVyLWRlbW8tMDAxIiwiYWNjb3VudFR5cGUiOiJyZWNydWl0ZXIiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM3Ljk5MFoifQ.eNg_CpodepaRis0b8mX41IDjp_yJgXek_Onk0nnrmxQ",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-19T20:17:37.990Z",
+      "createdAt": "2026-11-19T20:17:37.990Z"
+    },
+    {
+      "id": "cb42e495-7cde-41e5-8b73-2e81e23a5bbe",
+      "userId": "u-sec-test-pending",
+      "token": "eyJpZCI6ImNiNDJlNDk1LTdjZGUtNDFlNS04YjczLTJlODFlMjNhNWJiZSIsInVzZXJJZCI6InUtc2VjLXRlc3QtcGVuZGluZyIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6MzguMDU1WiJ9.SoaNlbVzVV-apYNaPOR49QZsYtuCUooMQcRNVO61_UE",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:38.055Z",
+      "createdAt": "2026-11-19T20:17:38.055Z"
+    },
+    {
+      "id": "fc35ea1d-2563-4063-91d1-039f4ac15fdf",
+      "userId": "u-sec-test-cookie",
+      "token": "eyJpZCI6ImZjMzVlYTFkLTI1NjMtNDA2My05MWQxLTAzOWY0YWMxNWZkZiIsInVzZXJJZCI6InUtc2VjLXRlc3QtY29va2llIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzozOC4xNTJaIn0.aXLXffK83JKXLJpRG5-ucc3Oh9k-K4oKuK92kwOWxSY",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:38.152Z",
+      "createdAt": "2026-11-19T20:17:38.152Z"
+    },
+    {
+      "id": "e668cba0-30bb-4a06-8c3f-2f6e5c9bff57",
+      "userId": "u-sec-test-student-tenant",
+      "token": "eyJpZCI6ImU2NjhjYmEwLTMwYmItNGEwNi04YzNmLTJmNmU1YzliZmY1NyIsInVzZXJJZCI6InUtc2VjLXRlc3Qtc3R1ZGVudC10ZW5hbnQiLCJhY2NvdW50VHlwZSI6InN0dWRlbnQiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTE5VDIwOjE3OjM4LjU0MFoifQ.mT2eXCRIDIHZxp1cwPfud3-ClDZKmMH11qZAFbAhRFA",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:38.540Z",
+      "createdAt": "2026-11-19T20:17:38.540Z"
+    },
+    {
+      "id": "155d4a73-40f3-4dfa-94be-1d3c131f8afd",
+      "userId": "isolated_user_b_1795119468310",
+      "token": "eyJpZCI6IjE1NWQ0YTczLTQwZjMtNGRmYS05NGJlLTFkM2MxMzFmOGFmZCIsInVzZXJJZCI6Imlzb2xhdGVkX3VzZXJfYl8xNzk1MTE5NDY4MzEwIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzo0OC4zODFaIn0.UPf67hx4hWqLNJSUzca0tDgYf1OYGRK5TbCPEGAJ5GE",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:48.381Z",
+      "createdAt": "2026-11-19T20:17:48.382Z"
+    },
+    {
+      "id": "8ad63c9b-8ec3-4662-8bc8-10cb1cfb64f8",
+      "userId": "isolated_user_c_1795119468310",
+      "token": "eyJpZCI6IjhhZDYzYzliLThlYzMtNDY2Mi04YmM4LTEwY2IxY2ZiNjRmOCIsInVzZXJJZCI6Imlzb2xhdGVkX3VzZXJfY18xNzk1MTE5NDY4MzEwIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzo0OC40MTlaIn0.62_WZgu4B4sJ_chAJIVuXC1BLXeykV-uY3O90bEdoJY",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:48.419Z",
+      "createdAt": "2026-11-19T20:17:48.419Z"
+    },
+    {
+      "id": "ded262fa-04d7-4780-9836-77bf0aee6d9e",
+      "userId": "u-rem-student-001",
+      "token": "eyJpZCI6ImRlZDI2MmZhLTA0ZDctNDc4MC05ODM2LTc3YmYwYWVlNmQ5ZSIsInVzZXJJZCI6InUtcmVtLXN0dWRlbnQtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzo1My42MzJaIn0.WlUPhtmL01neRBWhvy7qmlfHd3917NLom9f-UTn_dw0",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:53.632Z",
+      "createdAt": "2026-11-19T20:17:53.632Z"
+    },
+    {
+      "id": "d841670b-49f8-48c1-89ce-46346fa4ecef",
+      "userId": "u-rem-student-002",
+      "token": "eyJpZCI6ImQ4NDE2NzBiLTQ5ZjgtNDhjMS04OWNlLTQ2MzQ2ZmE0ZWNlZiIsInVzZXJJZCI6InUtcmVtLXN0dWRlbnQtMDAyIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzo1My42NDRaIn0.Qpmua4WOgSSHiZQkSeN4NsWbcNaGLcfgEEDJTW2tu3Q",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:53.644Z",
+      "createdAt": "2026-11-19T20:17:53.644Z"
+    },
+    {
+      "id": "e4c0f920-d9d8-4e13-aa7f-1cfe81c2a791",
+      "userId": "persist_user_1795119474035",
+      "token": "eyJpZCI6ImU0YzBmOTIwLWQ5ZDgtNGUxMy1hYTdmLTFjZmU4MWMyYTc5MSIsInVzZXJJZCI6InBlcnNpc3RfdXNlcl8xNzk1MTE5NDc0MDM1IiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0xOVQyMDoxNzo1NC4zNTZaIn0.vwBGZnk5GgvgQA0xuJEetOo9F4QX1MfdSDF2WEDFyLA",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:54.356Z",
+      "createdAt": "2026-11-19T20:17:54.356Z"
+    },
+    {
+      "id": "09cf3af1-1d2b-4b6c-b2a0-0665a83afd5f",
+      "userId": "u-test-user-a-1795119475737",
+      "token": "eyJpZCI6IjA5Y2YzYWYxLTFkMmItNGI2Yy1iMmEwLTA2NjVhODNhZmQ1ZiIsInVzZXJJZCI6InUtdGVzdC11c2VyLWEtMTc5NTExOTQ3NTczNyIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6NTYuMDQ3WiJ9.-fJOJLwS0dwuZEZTshRXUYaJLs57V1fwkTO7UoDmcYU",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:56.047Z",
+      "createdAt": "2026-11-19T20:17:56.047Z"
+    },
+    {
+      "id": "a2e9bbbc-a82b-43c8-95df-e4dd6201faaa",
+      "userId": "u-test-user-a-1795119475737",
+      "token": "eyJpZCI6ImEyZTliYmJjLWE4MmItNDNjOC05NWRmLWU0ZGQ2MjAxZmFhYSIsInVzZXJJZCI6InUtdGVzdC11c2VyLWEtMTc5NTExOTQ3NTczNyIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6NTYuMDg5WiJ9.qIDVepKqquTa8dmke4cIJCBbpq_8x5M0C3JLXY59CuU",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:56.089Z",
+      "createdAt": "2026-11-19T20:17:56.089Z"
+    },
+    {
+      "id": "bd4c82e6-fd28-412e-90e4-21b0f6da3134",
+      "userId": "u-test-user-a-1795119475737",
+      "token": "eyJpZCI6ImJkNGM4MmU2LWZkMjgtNDEyZS05MGU0LTIxYjBmNmRhMzEzNCIsInVzZXJJZCI6InUtdGVzdC11c2VyLWEtMTc5NTExOTQ3NTczNyIsImFjY291bnRUeXBlIjoic3R1ZGVudCIsImV4cGlyZXNBdCI6IjIwMjYtMTItMTlUMjA6MTc6NTYuMjc5WiJ9.3FZZlc61FINv2a_zm3wAvCLFjbrTgv7riTBpo9g1bak",
+      "accountType": "student",
+      "expiresAt": "2026-12-19T20:17:56.279Z",
+      "createdAt": "2026-11-19T20:17:56.279Z"
+    },
+    {
+      "id": "456c9bc6-d0e1-43e9-b3d8-12c6e4f5ec58",
+      "userId": "u-recruiter-demo-001",
+      "token": "eyJpZCI6IjQ1NmM5YmM2LWQwZTEtNDNlOS1iM2Q4LTEyYzZlNGY1ZWM1OCIsInVzZXJJZCI6InUtcmVjcnVpdGVyLWRlbW8tMDAxIiwiYWNjb3VudFR5cGUiOiJyZWNydWl0ZXIiLCJleHBpcmVzQXQiOiIyMDI2LTEyLTIwVDA5OjQ2OjUxLjkyM1oifQ.JF2NJXPpLcgg5-t1WxAeThs9w-3FJwyhxCEecmhhn1E",
+      "accountType": "recruiter",
+      "expiresAt": "2026-12-20T09:46:51.923Z",
+      "createdAt": "2026-11-20T09:46:51.925Z"
+    },
+    {
+      "id": "7a8bb479-348a-41d9-b928-369ad421660b",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjdhOGJiNDc5LTM0OGEtNDFkOS1iOTI4LTM2OWFkNDIxNjYwYiIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0yM1QxNzo0Mzo1MC40NzRaIn0.AlQRkOzEnUkWuPMy1SMo3bLIbC5KXrUGYeoA79E0X4U",
+      "accountType": "student",
+      "expiresAt": "2026-12-23T17:43:50.474Z",
+      "createdAt": "2026-11-23T17:43:50.477Z"
+    },
+    {
+      "id": "a190296b-34c8-4fb3-b555-84ca8cf6fe28",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6ImExOTAyOTZiLTM0YzgtNGZiMy1iNTU1LTg0Y2E4Y2Y2ZmUyOCIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0yM1QxNzo0Mzo1My4zODdaIn0.thAZ-FEeA6maQySnX_HcOUSvjeHWikBUt1R48z5GxTc",
+      "accountType": "student",
+      "expiresAt": "2026-12-23T17:43:53.387Z",
+      "createdAt": "2026-11-23T17:43:53.388Z"
+    },
+    {
+      "id": "5655d1fe-0693-40e2-9960-d88ec47f1d51",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6IjU2NTVkMWZlLTA2OTMtNDBlMi05OTYwLWQ4OGVjNDdmMWQ1MSIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0yM1QxNzo0Mzo1Ny42ODFaIn0.OV3kgd1EfSRceCluIcmKqO5G3VWagp7xmE7T9FoJmWk",
+      "accountType": "student",
+      "expiresAt": "2026-12-23T17:43:57.681Z",
+      "createdAt": "2026-11-23T17:43:57.682Z"
+    },
+    {
+      "id": "a9d00747-937f-4795-9839-cd72fccdb069",
+      "userId": "u-student-sample-001",
+      "token": "eyJpZCI6ImE5ZDAwNzQ3LTkzN2YtNDc5NS05ODM5LWNkNzJmY2NkYjA2OSIsInVzZXJJZCI6InUtc3R1ZGVudC1zYW1wbGUtMDAxIiwiYWNjb3VudFR5cGUiOiJzdHVkZW50IiwiZXhwaXJlc0F0IjoiMjAyNi0xMi0yM1QyMDoxNTo0OS42NzBaIn0.m6mUgTdRnQ8hs3mRnBVoP4Sxc3w2pHMxFAUiO9UxD14",
+      "accountType": "student",
+      "expiresAt": "2026-12-23T20:15:49.670Z",
+      "createdAt": "2026-11-23T20:15:49.673Z"
     }
   ]
 }

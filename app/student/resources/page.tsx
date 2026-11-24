@@ -36,15 +36,6 @@ export default function StudentResourcesPage() {
       accentColor: "#356AE6",
       tools: [
         {
-          title: "FAANG Mock Interview",
-          description: "Interactive AI face & voice technical interview with 7-axis rubric scoring and hiring signals.",
-          href: "/interview",
-          icon: "🎙️",
-          badge: "Voice & Face AI",
-          tagColor: "#356AE6",
-          actionText: "Launch Interview"
-        },
-        {
           title: "Opportunity Practice Interview",
           description: "Targeted practice session tailored specifically to the requirements of any saved opportunity.",
           href: "/student/practice-interview",

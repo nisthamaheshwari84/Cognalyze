@@ -122,6 +122,18 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     setSidebarOpen(false);
   }, [pathname]);
 
+  // Robust immediate navigation helper preventing click drops in React 19 / Next.js
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    if (pathname === href) {
+      setSidebarOpen(false);
+      return;
+    }
+    router.push(href);
+    requestAnimationFrame(() => {
+      setSidebarOpen(false);
+    });
+  };
+
   // Close sidebar on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -459,6 +471,15 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && searchQuery.trim()) {
+                    const q = encodeURIComponent(searchQuery.trim());
+                    const targetUrl = role === "recruiter"
+                      ? `/recruiter/candidates?q=${q}`
+                      : `/student/opportunities?q=${q}`;
+                    router.push(targetUrl);
+                  }
+                }}
                 placeholder="Search candidates, roles, evidence..."
                 style={{
                   width: "100%",
@@ -771,7 +792,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={(e) => handleNavClick(e, item.href)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -906,7 +927,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
                 <>
                   <Link
                     href="/student/profile"
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={(e) => handleNavClick(e, "/student/profile")}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -953,7 +974,7 @@ export default function AppNav({ role = "student" }: AppNavProps) {
               ) : (
                 <Link
                   href={`/login?redirect=${encodeURIComponent(pathname)}`}
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={(e) => handleNavClick(e, `/login?redirect=${encodeURIComponent(pathname)}`)}
                   style={{
                     display: "flex",
                     alignItems: "center",

@@ -1,6 +1,37 @@
 {
   "roles": [
     {
+      "id": "role-backend-lead-3876",
+      "title": "Backend Lead",
+      "department": "Engineering",
+      "seniority": "Senior",
+      "targetHires": 1,
+      "workMode": "Remote",
+      "businessOutcomes": [],
+      "tieredRequirements": [
+        {
+          "id": "req-default-1",
+          "name": "General Engineering Fundamentals",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Verified core programming and problem solving fundamentals",
+          "weightPct": 100,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        }
+      ],
+      "structuredRequirements": [],
+      "uncertaintyThreshold": 0.2,
+      "status": "active",
+      "version": 1,
+      "createdAt": "2026-11-19T20:17:53.876Z",
+      "updatedAt": "2026-11-19T20:17:53.876Z"
+    },
+    {
       "id": "role-test-version-1794774197718",
       "title": "Senior Cloud Architect",
       "department": "Cloud Engineering",
@@ -3282,6 +3313,75 @@
   ],
   "candidates": [
     {
+      "id": "cand-473885",
+      "name": "sample resume",
+      "email": "",
+      "appliedRoleId": "role-backend-lead-3876",
+      "appliedRoleTitle": "Backend Lead",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-19T20:17:53.885Z",
+      "resumeText": "sample resume",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand-473871",
+      "name": "Test Cand",
+      "email": "test.cand@example.com",
+      "appliedRoleId": "role-1",
+      "appliedRoleTitle": "Engineering Role",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-19T20:17:53.871Z",
+      "resumeText": "",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand_tenant_b_1795119473073",
+      "name": "Bob Databricks",
+      "email": "bob@example.com",
+      "appliedRoleId": "role-sde",
+      "appliedRoleTitle": "Software Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-19T20:17:53.073Z",
+      "organizationId": "org-databricks-inc",
+      "resumeText": "Spark and Delta Lake engineer at Databricks",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand_tenant_a_1795119473073",
+      "name": "Alice Stripe",
+      "email": "alice@example.com",
+      "appliedRoleId": "role-sde",
+      "appliedRoleTitle": "Software Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-19T20:17:53.073Z",
+      "organizationId": "org-stripe-tech",
+      "resumeText": "Full stack engineer at Stripe",
+      "currentStage": "Applied"
+    },
+    {
+      "id": "cand-real-1795119458642",
+      "name": "Arjun Verma",
+      "email": "arjun.v@sample.edu",
+      "appliedRoleId": "role-backend-eng",
+      "appliedRoleTitle": "Backend Infrastructure Engineer",
+      "sourceType": "bulk_upload",
+      "appliedAt": "2026-11-19T20:17:39.110Z",
+      "resumeText": "Arjun Verma. GitHub: github.com/arjun-infra. LeetCode: leetcode.com/arjun_codes.",
+      "githubData": {
+        "handle": "arjun-infra",
+        "profileUrl": "https://github.com/arjun-infra",
+        "verifiedReposCount": 0,
+        "repos": []
+      },
+      "leetCodeProfile": {
+        "username": "arjun_codes",
+        "profileUrl": "https://leetcode.com/arjun_codes",
+        "problemsSolved": 0,
+        "rankingBadge": "Pending Verification"
+      },
+      "currentStage": "Interviewing"
+    },
+    {
       "id": "cand_tenant_b_1794774187117",
       "name": "Bob Databricks",
       "email": "bob@example.com",
@@ -3291,7 +3391,16 @@
       "appliedAt": "2026-11-15T20:23:07.117Z",
       "organizationId": "org-databricks-inc",
       "resumeText": "Spark and Delta Lake engineer at Databricks",
-      "currentStage": "Applied"
+      "currentStage": "Decision Completed",
+      "decisionJournal": {
+        "verdict": "Reject",
+        "decidedAt": "2026-11-19T10:46:33.827Z",
+        "rationale": "Candidate transitioned to Decision Completed based on verified evidence.",
+        "holdLoopCount": 0,
+        "citedEvidenceIds": [],
+        "isOverride": false,
+        "decidedBy": "Recruiter / Hiring Committee"
+      }
     },
     {
       "id": "cand_tenant_a_1794774187117",
@@ -5017,7 +5126,7 @@
       },
       "decisionJournal": {
         "verdict": "Hire",
-        "decidedAt": "2026-11-15T20:23:23.438Z",
+        "decidedAt": "2026-11-19T20:17:57.820Z",
         "rationale": "Candidate cleared all Critical Role DNA hurdles with verified proof.",
         "holdLoopCount": 0,
         "citedEvidenceIds": []
@@ -5606,6 +5715,35 @@
     }
   ],
   "roleVersions": [
+    {
+      "id": "ver-role-backend-lead-3876-1-3876",
+      "roleId": "role-backend-lead-3876",
+      "version": 1,
+      "title": "Backend Lead",
+      "department": "Engineering",
+      "seniority": "Senior",
+      "status": "published",
+      "tieredRequirements": [
+        {
+          "id": "req-default-1",
+          "name": "General Engineering Fundamentals",
+          "tier": "Critical",
+          "category": "Technical",
+          "description": "Verified core programming and problem solving fundamentals",
+          "weightPct": 100,
+          "verificationMethod": "work_sample",
+          "dealBreakerIfMissing": true,
+          "acceptableProofTypes": [
+            "production_code",
+            "github_commit"
+          ]
+        }
+      ],
+      "structuredRequirements": [],
+      "changeSummary": "Initial role creation (v1)",
+      "createdAt": "2026-11-19T20:17:53.876Z",
+      "createdBy": "recruiter"
+    },
     {
       "id": "ver-role-test-version-1794774197718-2-8004",
       "roleId": "role-test-version-1794774197718",

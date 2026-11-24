@@ -28,6 +28,14 @@ import {
   getCanonicalProblem,
   CanonicalProblem
 } from "@/lib/skills/dsa-canonical-problems";
+import {
+  getDraftKey,
+  getProblemStarterCode,
+  loadDraftsFromStorage,
+  saveDraftToStorage,
+  resolveProblemCode,
+  SupportedLanguage
+} from "@/lib/skills/dsa-code-persistence";
 import CanonicalProblemView from "@/components/skills/CanonicalProblemView";
 import { DsaInterviewSession } from "@/lib/skills/dsa-interview-store";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
@@ -38,6 +46,7 @@ import { DsaDebugLab } from "@/components/skills/DsaDebugLab";
 import { COMPANY_TRACKS, getCompanyTrackBySlug } from "@/lib/skills/dsa-company-prep";
 import { DsaUpgradedInterviewView } from "@/components/skills/DsaUpgradedInterviewView";
 import DsaMasteryTrackerView from "@/components/skills/DsaMasteryTrackerView";
+import ConceptMasteryHub from "@/components/skills/learn/ConceptMasteryHub";
 
 export type DSAMode = "learn" | "practice" | "coach" | "interview" | "tracker";
 
@@ -70,13 +79,37 @@ function DSACodingArenaContent() {
   const [activeLabTab, setActiveLabTab] = useState<"tutorial" | "dryrun" | "approaches" | "debug">("tutorial");
 
   // Learn Mode State
+  const [learnSubView, setLearnSubView] = useState<"concept_mastery" | "problem_labs">("concept_mastery");
   const [revealedSolution, setRevealedSolution] = useState(false);
   const [activeLearnSection, setActiveLearnSection] = useState<"concept" | "bruteforce" | "optimal" | "dryrun">("concept");
   const [checkpointSubmitted, setCheckpointSubmitted] = useState(false);
   const [selectedCheckpointOption, setSelectedCheckpointOption] = useState<number | null>(null);
 
-  // Practice & Code Editor State
+  // Practice & Code Editor State (Protected Single Source of Truth & LocalStorage Partitioning)
+  const draftsRef = useRef<Record<string, string>>({});
+  const activeProblemIdRef = useRef<string>(activeProblem.id);
+  const activeLanguageRef = useRef<string>(selectedLanguage);
+  const isCodeInitializedRef = useRef<boolean>(false);
   const [code, setCode] = useState("");
+
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
+    const key = getDraftKey(activeProblem.id, selectedLanguage);
+    draftsRef.current[key] = newCode;
+    saveDraftToStorage(candidateId, activeProblem.id, selectedLanguage as SupportedLanguage, newCode);
+  };
+
+  const handleResetStarter = () => {
+    const starter = getProblemStarterCode(activeProblem, selectedLanguage as SupportedLanguage);
+    const key = getDraftKey(activeProblem.id, selectedLanguage);
+    draftsRef.current[key] = starter;
+    saveDraftToStorage(candidateId, activeProblem.id, selectedLanguage as SupportedLanguage, starter);
+    setCode(starter);
+    setTestOutput(null);
+    setPostFeedback(null);
+    setLastSubmissionVerdict(null);
+  };
+
   const [runningTests, setRunningTests] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
   const [testOutput, setTestOutput] = useState<{
@@ -118,6 +151,7 @@ function DSACodingArenaContent() {
     "What is the optimal complexity?",
     "Explain in Hinglish"
   ]);
+  const [coachViewMode, setCoachViewMode] = useState<"both" | "editor" | "coach">("both");
 
   // ── INTERVIEW MODE STATE (Persistent Server-Backed Session) ──
   const [interviewTopic, setInterviewTopic] = useState("binary-search");
@@ -180,7 +214,7 @@ function DSACodingArenaContent() {
     }
 
     const queryProblemId = searchParams.get("problemId") || searchParams.get("id");
-    if (queryProblemId) {
+    if (queryProblemId && queryProblemId !== activeProblemIdRef.current) {
       const p = getStriverProblemById(queryProblemId);
       setActiveProblem(p);
       setSelectedStepId(p.step_id);
@@ -211,6 +245,10 @@ function DSACodingArenaContent() {
       const brief = generateSessionBrief(paramTrack, "dsa_coding", finalId);
       setSessionBrief(brief);
 
+      // Merge persisted drafts from storage without clobbering active in-memory typing
+      const userDrafts = loadDraftsFromStorage(finalId);
+      draftsRef.current = { ...userDrafts, ...draftsRef.current };
+
       // Check saved selection in localStorage if query parameters weren't explicitly provided
       if (typeof window !== "undefined" && !queryStepId && !queryProblemId) {
         try {
@@ -220,7 +258,7 @@ function DSACodingArenaContent() {
             if (parsed.stepId && STRIVER_STEPS.some(s => s.id === parsed.stepId)) {
               setSelectedStepId(parsed.stepId);
             }
-            if (parsed.problemId) {
+            if (parsed.problemId && parsed.problemId !== activeProblemIdRef.current) {
               const p = getStriverProblemById(parsed.problemId);
               setActiveProblem(p);
               setSelectedStepId(p.step_id);
@@ -247,9 +285,11 @@ function DSACodingArenaContent() {
             const activeQ = s.questions[s.currentQuestionIndex];
             if (activeQ) {
               const qProb = getStriverProblemById(activeQ.problemId);
-              setActiveProblem(qProb);
+              if (qProb.id !== activeProblemIdRef.current) {
+                setActiveProblem(qProb);
+              }
               if (activeQ.submittedCode) {
-                setCode(activeQ.submittedCode);
+                handleCodeChange(activeQ.submittedCode);
               }
               if (activeQ.testResults) {
                 setTestOutput(activeQ.testResults as any);
@@ -297,6 +337,7 @@ function DSACodingArenaContent() {
   };
 
   const handleSelectProblem = (problemId: string) => {
+    if (problemId === activeProblem.id) return;
     const prob = getStriverProblemById(problemId);
     setActiveProblem(prob);
     if (prob.step_id && prob.step_id !== selectedStepId) {
@@ -340,34 +381,72 @@ function DSACodingArenaContent() {
     }
   }, [activeProblem, mode]);
 
-  // Sync starter code when active problem or language changes (outside active interview with existing code)
+  // Initial mount: load persisted drafts from localStorage and resolve starting code
   useEffect(() => {
-    if (activeProblem) {
-      const canonical = getCanonicalProblem(activeProblem.id);
-      const starter = canonical?.starterCode[selectedLanguage] ||
-                      activeProblem.starterCode[selectedLanguage] ||
-                      activeProblem.starterCode.python;
+    const stored = loadDraftsFromStorage(candidateId);
+    draftsRef.current = { ...stored, ...draftsRef.current };
 
-      // In active interview, preserve existing submitted code for the question if present
-      if (mode === "interview" && activeSession && interviewStarted) {
-        const q = activeSession.questions[activeSession.currentQuestionIndex];
-        if (q && q.submittedCode) {
-          setCode(q.submittedCode);
-          return;
-        }
-      }
+    const res = resolveProblemCode({
+      problem: activeProblem,
+      language: selectedLanguage as SupportedLanguage,
+      candidateId,
+      inMemoryDrafts: draftsRef.current,
+      interviewSubmittedCode: mode === "interview" && activeSession ? activeSession.questions[activeSession.currentQuestionIndex]?.submittedCode : null
+    });
 
-      setCode(starter);
-      setTestOutput(null);
-      setPostFeedback(null);
-      setRevealedSolution(false);
-      setInterviewerFollowUp(null);
-      setCandidateFollowUpResponse("");
-      setFollowUpSaved(false);
-      setCheckpointSubmitted(false);
-      setSelectedCheckpointOption(null);
+    setCode(res.code);
+    draftsRef.current[getDraftKey(activeProblem.id, selectedLanguage)] = res.code;
+    activeProblemIdRef.current = activeProblem.id;
+    activeLanguageRef.current = selectedLanguage;
+    isCodeInitializedRef.current = true;
+  }, []);
+
+  // Controlled transition: Sync code ONLY when activeProblem.id or selectedLanguage genuinely changes
+  useEffect(() => {
+    if (!isCodeInitializedRef.current) return;
+
+    const prevProblemId = activeProblemIdRef.current;
+    const prevLanguage = activeLanguageRef.current;
+    const newProblemId = activeProblem.id;
+    const newLanguage = selectedLanguage;
+
+    // Strict guard: Do nothing if neither the problem ID nor the programming language changed!
+    if (prevProblemId === newProblemId && prevLanguage === newLanguage) {
+      return;
     }
-  }, [activeProblem, selectedLanguage, mode]);
+
+    // 1. Preserve current editor code into outgoing draft slot
+    const outgoingKey = getDraftKey(prevProblemId, prevLanguage);
+    draftsRef.current[outgoingKey] = code;
+    saveDraftToStorage(candidateId, prevProblemId, prevLanguage as SupportedLanguage, code);
+
+    // 2. Resolve code for incoming problem & language
+    const res = resolveProblemCode({
+      problem: activeProblem,
+      language: newLanguage as SupportedLanguage,
+      candidateId,
+      inMemoryDrafts: draftsRef.current,
+      interviewSubmittedCode: mode === "interview" && activeSession ? activeSession.questions[activeSession.currentQuestionIndex]?.submittedCode : null
+    });
+
+    setCode(res.code);
+    const incomingKey = getDraftKey(newProblemId, newLanguage);
+    draftsRef.current[incomingKey] = res.code;
+
+    // 3. Update tracked refs
+    activeProblemIdRef.current = newProblemId;
+    activeLanguageRef.current = newLanguage;
+
+    // 4. Reset transient problem-specific diagnostics
+    setTestOutput(null);
+    setPostFeedback(null);
+    setRevealedSolution(false);
+    setInterviewerFollowUp(null);
+    setCandidateFollowUpResponse("");
+    setFollowUpSaved(false);
+    setCheckpointSubmitted(false);
+    setSelectedCheckpointOption(null);
+  }, [activeProblem.id, selectedLanguage]);
 
   // Interview Timer Countdown
   useEffect(() => {
@@ -482,8 +561,8 @@ function DSACodingArenaContent() {
         if (firstQ) {
           const prob = getStriverProblemById(firstQ.problemId);
           setActiveProblem(prob);
-          const canonical = getCanonicalProblem(prob.id);
-          setCode(canonical?.starterCode[selectedLanguage] || prob.starterCode[selectedLanguage] || prob.starterCode.python);
+          const starter = getProblemStarterCode(prob, selectedLanguage as SupportedLanguage);
+          handleCodeChange(starter);
           if (firstQ.followUpQuestion) {
             setInterviewerFollowUp(firstQ.followUpQuestion.question);
           }
@@ -693,8 +772,8 @@ function DSACodingArenaContent() {
         if (nextQ) {
           const nextProb = getStriverProblemById(nextQ.problemId);
           setActiveProblem(nextProb);
-          const canonical = getCanonicalProblem(nextProb.id);
-          setCode(nextQ.submittedCode || canonical?.starterCode[selectedLanguage] || nextProb.starterCode[selectedLanguage] || nextProb.starterCode.python);
+          const nextCode = nextQ.submittedCode || getProblemStarterCode(nextProb, selectedLanguage as SupportedLanguage);
+          handleCodeChange(nextCode);
           setTestOutput(nextQ.testResults as any || null);
           setInterviewerFollowUp(nextQ.followUpQuestion?.question || null);
           setCandidateFollowUpResponse(nextQ.followUpQuestion?.candidateResponse || "");
@@ -831,6 +910,13 @@ function DSACodingArenaContent() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", color: "#17191C", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <style>{`
+        @media (max-width: 860px) {
+          .dsa-arena-split-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
       
       {/* ── HEADER ── */}
       <header style={{ borderBottom: "1px solid #E4E1DA", backgroundColor: "#FFFFFF", padding: "12px 24px", position: "sticky", top: 0, zIndex: 40, boxShadow: "0 1px 3px rgba(0,0,0,0.02)" }}>
@@ -925,9 +1011,36 @@ function DSACodingArenaContent() {
               <span>DSA Mentor</span>
             </button>
 
-            <span style={{ fontSize: 11, padding: "4px 9px", background: "#EFF4FE", color: "#356AE6", border: "1px solid #D2E0FB", borderRadius: 6, fontWeight: 700 }}>
-              🏛️ {trackSlug.replace("_", " ").toUpperCase()} BAR
-            </span>
+            {/* Target Placement Bar Selector */}
+            <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
+              <select
+                value={trackSlug}
+                onChange={(e) => setTrackSlug(e.target.value as any)}
+                aria-label="Target Placement Bar"
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  background: "#EFF4FE",
+                  border: "1px solid #D2E0FB",
+                  color: "#356AE6",
+                  padding: "6px 26px 6px 10px",
+                  borderRadius: 7,
+                  fontSize: 11,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                  outline: "none",
+                  boxShadow: "0 1px 2px rgba(16,24,40,0.03)"
+                }}
+              >
+                <option value="service_mass">🎯 Mass Recruiters (TCS / Infy / Wipro)</option>
+                <option value="service_elite">🚀 Service Elite (TCS Digital / GenC)</option>
+                <option value="product_mid">⭐ Product Mid-Tier (Swiggy / Zomato)</option>
+                <option value="product_faang">🦄 Tier-1 Product / FAANG (Google / MSFT)</option>
+              </select>
+              <span style={{ position: "absolute", right: 8, pointerEvents: "none", fontSize: 9, color: "#356AE6", fontWeight: 900 }}>
+                ▼
+              </span>
+            </div>
           </div>
 
         </div>
@@ -936,19 +1049,22 @@ function DSACodingArenaContent() {
       {/* Dynamic Focus Strip */}
       <div style={{ backgroundColor: "#FFFFFF", borderBottom: "1px solid #E4E1DA", padding: "8px 24px" }}>
         <div style={{ maxWidth: 1440, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, flexWrap: "wrap", gap: 8 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ color: "#667085" }}>Current Focus:</span>
-            <strong style={{ color: "#162A43" }}>{currentFocus.topic}</strong>
-            <span style={{ color: "#E4E1DA" }}>|</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <span style={{ color: "#667085", fontWeight: 600 }}>Current Focus:</span>
+            <span style={{ color: "#162A43", fontWeight: 800, background: "#F6F5F1", padding: "2px 8px", borderRadius: 5, border: "1px solid #E4E1DA" }}>
+              {currentFocus.topic}
+            </span>
+            <span style={{ color: "#D1CDC4" }}>•</span>
             <span style={{ color: "#475467" }}>{currentFocus.reason}</span>
-            <span style={{ color: "#E4E1DA" }}>|</span>
-            <span style={{ color: "#2E7D5B", fontWeight: 700 }}>
-              📊 Striver SDE 455 Mastery: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved
+            <span style={{ color: "#D1CDC4" }}>•</span>
+            <span style={{ color: "#2E7D5B", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <span>📊</span>
+              <span>Striver SDE 455: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved</span>
             </span>
             <button
               onClick={() => handleSwitchMode("tracker")}
               style={{
-                padding: "2px 8px",
+                padding: "3px 10px",
                 borderRadius: 5,
                 background: mode === "tracker" ? "#162A43" : "#EFF4FE",
                 color: mode === "tracker" ? "#FFFFFF" : "#356AE6",
@@ -991,7 +1107,64 @@ function DSACodingArenaContent() {
             MODE 1: LEARN MODE
             ══════════════════════════════════════════════════════════════ */}
         {mode === "learn" && (
-          <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 18, marginBottom: 24 }}>
+          <div style={{ marginBottom: 24 }}>
+            {/* Learn Sub-View Switcher */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 16, background: "#FFFFFF", padding: 5, borderRadius: 10, border: "1px solid #E4E1DA", boxShadow: "0 1px 3px rgba(16,24,40,0.03)" }}>
+              <button
+                type="button"
+                onClick={() => setLearnSubView("concept_mastery")}
+                style={{
+                  flex: 1,
+                  padding: "8px 14px",
+                  borderRadius: 7,
+                  border: "none",
+                  background: learnSubView === "concept_mastery" ? "#162A43" : "transparent",
+                  color: learnSubView === "concept_mastery" ? "#FFFFFF" : "#667085",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  transition: "all 0.15s ease"
+                }}
+              >
+                <span>🌟 Concept Mastery Platform (17 Steps)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLearnSubView("problem_labs")}
+                style={{
+                  flex: 1,
+                  padding: "8px 14px",
+                  borderRadius: 7,
+                  border: "none",
+                  background: learnSubView === "problem_labs" ? "#162A43" : "transparent",
+                  color: learnSubView === "problem_labs" ? "#FFFFFF" : "#667085",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 6,
+                  transition: "all 0.15s ease"
+                }}
+              >
+                <span>📖 Problem Deep Dive &amp; Labs</span>
+              </button>
+            </div>
+
+            {learnSubView === "concept_mastery" ? (
+              <ConceptMasteryHub
+                onNavigateToPractice={(probId) => {
+                  handleSelectProblem(probId);
+                  setMode("practice");
+                }}
+              />
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 18 }}>
             
             {/* Left: Striver Roadmap Steps & Company Tracks Browser */}
             <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, height: "calc(100vh - 180px)", overflowY: "auto", position: "sticky", top: 80, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
@@ -1445,7 +1618,7 @@ function DSACodingArenaContent() {
                   problemTitle={activeProblem.title}
                   selectedLanguage={selectedLanguage}
                   onApplyCode={(c) => {
-                    setCode(c);
+                    handleCodeChange(c);
                     setMode("practice");
                   }}
                 />
@@ -1456,7 +1629,7 @@ function DSACodingArenaContent() {
                   problemId={activeProblem.id}
                   problemTitle={activeProblem.title}
                   onApplyFixToMainEditor={(c) => {
-                    setCode(c);
+                    handleCodeChange(c);
                     setMode("practice");
                   }}
                 />
@@ -1496,6 +1669,8 @@ function DSACodingArenaContent() {
               </div>
             </div>
 
+              </div>
+            )}
           </div>
         )}
 
@@ -1503,10 +1678,28 @@ function DSACodingArenaContent() {
             MODE 2 & 3: PRACTICE & COACH MODE
             ══════════════════════════════════════════════════════════════ */}
         {(mode === "practice" || mode === "coach") && (
-          <div style={{ display: "grid", gridTemplateColumns: mode === "coach" ? "1fr 340px" : "1fr 300px", gap: 18, marginBottom: 24 }}>
+          <div
+            className="dsa-arena-split-layout"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(340px, 1fr) minmax(380px, 1.15fr)",
+              gap: 18,
+              marginBottom: 24,
+              alignItems: "start"
+            }}
+          >
             
-            {/* Left: Problem Details & Code Editor */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {/* Left Column: Problem Details & Scaffolding (Scrollable & Sticky) */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              maxHeight: "calc(100vh - 140px)",
+              overflowY: "auto",
+              position: "sticky",
+              top: 76,
+              paddingRight: 6
+            }}>
               
               {/* Problem Statement Card */}
               <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 20, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
@@ -1595,79 +1788,177 @@ function DSACodingArenaContent() {
                 )}
               </div>
 
-              {/* Code Editor */}
-              <div style={{ background: "#162A43", border: "1px solid #233752", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(16,24,40,0.06)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#111C2E", padding: "8px 16px", borderBottom: "1px solid #233752" }}>
-                  <span style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, fontFamily: "monospace" }}>
-                    solution.{selectedLanguage === "cpp" ? "cpp" : selectedLanguage === "python" ? "py" : selectedLanguage === "javascript" ? "js" : "java"}
-                  </span>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      onClick={() => {
-                        const canonical = getCanonicalProblem(activeProblem.id);
-                        setCode(canonical?.starterCode[selectedLanguage] || activeProblem.starterCode[selectedLanguage] || activeProblem.starterCode.python);
-                      }}
-                      style={{ padding: "4px 8px", borderRadius: 5, border: "1px solid #233752", background: "transparent", color: "#94A3B8", fontSize: 10, cursor: "pointer" }}
-                    >
-                      Reset Starter
-                    </button>
-                    <button
-                      onClick={handleRunCode}
-                      disabled={runningTests}
-                      style={{
-                        padding: "5px 14px",
-                        borderRadius: 6,
-                        border: "none",
-                        background: "#2E7D5B",
-                        color: "#FFFFFF",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        cursor: runningTests ? "not-allowed" : "pointer"
-                      }}
-                    >
-                      {runningTests ? "Compiling & Running..." : "▶ Run Visible Tests"}
-                    </button>
-                    <button
-                      onClick={handleSubmitCode}
-                      disabled={evaluating}
-                      style={{
-                        padding: "5px 16px",
-                        borderRadius: 6,
-                        border: "none",
-                        background: "#356AE6",
-                        color: "#FFFFFF",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        cursor: evaluating ? "not-allowed" : "pointer"
-                      }}
-                    >
-                      {evaluating ? "Evaluating..." : "Submit Solution ➔"}
-                    </button>
-                  </div>
+              {/* Scaffolding, Hints & Progression */}
+              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
+                <h3 style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
+                  Practice Scaffolding &amp; Hints
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {activeProblem.hints.map((hint, idx) => (
+                    <div key={idx} style={{ padding: "8px 10px", borderRadius: 6, background: "#F6F5F1", border: "1px solid #E4E1DA", fontSize: 12, color: "#475467", lineHeight: 1.4 }}>
+                      {hint}
+                    </div>
+                  ))}
                 </div>
 
-                <textarea
-                  value={code}
-                  onChange={e => setCode(e.target.value)}
-                  rows={16}
+                <button
+                  onClick={() => handleStartReTest(activeProblem.topic_id, activeProblem.id)}
                   style={{
                     width: "100%",
-                    background: "transparent",
-                    color: "#FFFFFF",
-                    fontFamily: "monospace",
-                    fontSize: 12.5,
-                    lineHeight: 1.5,
-                    padding: 14,
-                    border: "none",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    resize: "vertical"
+                    marginTop: 14,
+                    padding: "9px",
+                    borderRadius: 7,
+                    border: "1px solid #D2E0FB",
+                    background: "#EFF4FE",
+                    color: "#356AE6",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer"
                   }}
-                />
+                >
+                  🔄 Try Another in {activeProblem.subtopic_title}
+                </button>
+
+                <button
+                  onClick={() => setMode("interview")}
+                  style={{
+                    width: "100%",
+                    marginTop: 8,
+                    padding: "9px",
+                    borderRadius: 7,
+                    border: "none",
+                    background: "#162A43",
+                    color: "#FFFFFF",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Ready: Multi-Question Interview ➔
+                </button>
               </div>
 
+            </div>
+
+            {/* Right Column: Code Editor & Execution Diagnostics & Coach */}
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 14,
+              maxHeight: "calc(100vh - 140px)",
+              overflowY: "auto",
+              position: "sticky",
+              top: 76,
+              paddingRight: 6
+            }}>
+
+              {/* Mode Coach View Switcher if in Coach Mode */}
+              {mode === "coach" && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#FFFFFF", border: "1px solid #E4E1DA", padding: "6px 12px", borderRadius: 8 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#162A43", display: "flex", alignItems: "center", gap: 6 }}>
+                    <span>🎓</span> Coach Mode Active
+                  </span>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    {[
+                      { id: "both", label: "Split (Both)" },
+                      { id: "editor", label: "Editor Only" },
+                      { id: "coach", label: `Coach (${coachLog.length})` }
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setCoachViewMode(tab.id as any)}
+                        style={{
+                          padding: "3px 8px",
+                          borderRadius: 4,
+                          border: coachViewMode === tab.id ? "1px solid #356AE6" : "1px solid #E4E1DA",
+                          background: coachViewMode === tab.id ? "#EFF4FE" : "#F6F5F1",
+                          color: coachViewMode === tab.id ? "#356AE6" : "#667085",
+                          fontSize: 10,
+                          fontWeight: 700,
+                          cursor: "pointer"
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Code Editor */}
+              {(mode !== "coach" || coachViewMode !== "coach") && (
+                <div style={{ background: "#162A43", border: "1px solid #233752", borderRadius: 10, overflow: "hidden", boxShadow: "0 1px 3px rgba(16,24,40,0.06)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#111C2E", padding: "8px 16px", borderBottom: "1px solid #233752" }}>
+                    <span style={{ fontSize: 11, color: "#94A3B8", fontWeight: 700, fontFamily: "monospace" }}>
+                      solution.{selectedLanguage === "cpp" ? "cpp" : selectedLanguage === "python" ? "py" : selectedLanguage === "javascript" ? "js" : "java"}
+                    </span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button
+                        onClick={handleResetStarter}
+                        style={{ padding: "4px 8px", borderRadius: 5, border: "1px solid #233752", background: "transparent", color: "#94A3B8", fontSize: 10, cursor: "pointer" }}
+                      >
+                        Reset Starter
+                      </button>
+                      <button
+                        onClick={handleRunCode}
+                        disabled={runningTests}
+                        style={{
+                          padding: "5px 14px",
+                          borderRadius: 6,
+                          border: "none",
+                          background: "#2E7D5B",
+                          color: "#FFFFFF",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: runningTests ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        {runningTests ? "Compiling & Running..." : "▶ Run Visible Tests"}
+                      </button>
+                      <button
+                        onClick={handleSubmitCode}
+                        disabled={evaluating}
+                        style={{
+                          padding: "5px 16px",
+                          borderRadius: 6,
+                          border: "none",
+                          background: "#356AE6",
+                          color: "#FFFFFF",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          cursor: evaluating ? "not-allowed" : "pointer"
+                        }}
+                      >
+                        {evaluating ? "Evaluating..." : "Submit Solution ➔"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={code}
+                    onChange={e => handleCodeChange(e.target.value)}
+                    rows={mode === "coach" && coachViewMode === "both" ? 14 : 22}
+                    style={{
+                      width: "100%",
+                      minHeight: mode === "coach" && coachViewMode === "both" ? 260 : 420,
+                      background: "transparent",
+                      color: "#FFFFFF",
+                      fontFamily: "'Fira Code', 'JetBrains Mono', Menlo, Monaco, Consolas, monospace",
+                      fontSize: 12.5,
+                      lineHeight: 1.5,
+                      padding: 14,
+                      border: "none",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      resize: "vertical",
+                      tabSize: 4
+                    }}
+                  />
+                </div>
+              )}
+
               {/* Execution & Test Case Diagnostics */}
-              {testOutput && (
+              {testOutput && (mode !== "coach" || coachViewMode !== "coach") && (
                 <div style={{
                   background: "#FFFFFF",
                   border: testOutput.compilationError ? "1px solid #F8C8C8" : testOutput.passed ? "1px solid #C8E4D3" : "1px solid #F8C8C8",
@@ -1734,144 +2025,104 @@ function DSACodingArenaContent() {
                 </div>
               )}
 
-            </div>
+              {/* Socratic Coach Panel (if in Coach mode and view includes coach) */}
+              {mode === "coach" && coachViewMode !== "editor" && (
+                <div style={{
+                  background: "#FFFFFF",
+                  border: "1px solid #E4E1DA",
+                  borderRadius: 10,
+                  padding: 16,
+                  display: "flex",
+                  flexDirection: "column",
+                  minHeight: coachViewMode === "coach" ? 560 : 360,
+                  boxShadow: "0 1px 3px rgba(16,24,40,0.04)"
+                }}>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
+                    <span>Socratic Coach</span>
+                    <span style={{ fontSize: 10, color: "#2E7D5B" }}>● Online</span>
+                  </div>
 
-            {/* Right: Socratic Coach OR Scaffolding */}
-            {mode === "coach" ? (
-              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, display: "flex", flexDirection: "column", height: 600, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
-                  <span>Socratic Coach</span>
-                  <span style={{ fontSize: 10, color: "#2E7D5B" }}>● Online</span>
-                </div>
-
-                <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, paddingRight: 4, marginBottom: 12 }}>
-                  {coachLog.map((m, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        alignSelf: m.sender === "coach" ? "flex-start" : "flex-end",
-                        background: m.sender === "coach" ? "#EFF4FE" : "#162A43",
-                        color: m.sender === "coach" ? "#162A43" : "#FFFFFF",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        maxWidth: "85%",
-                        fontSize: 12,
-                        lineHeight: 1.4
-                      }}
-                    >
-                      <MarkdownRenderer content={m.text} compact isDark={m.sender !== "coach"} />
-                    </div>
-                  ))}
-                  {coachThinking && (
-                    <div style={{ alignSelf: "flex-start", background: "#EFF4FE", color: "#356AE6", padding: "6px 12px", borderRadius: 8, fontSize: 11, fontStyle: "italic", display: "flex", alignItems: "center", gap: 6 }}>
-                      <span>Coach is reasoning through your code and invariants...</span>
-                    </div>
-                  )}
-                </div>
-
-                {suggestedChips.length > 0 && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
-                    {suggestedChips.map((chip, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleAskCoach(chip)}
-                        disabled={coachThinking}
+                  <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, paddingRight: 4, marginBottom: 12, maxHeight: coachViewMode === "coach" ? 420 : 220 }}>
+                    {coachLog.map((m, idx) => (
+                      <div
+                        key={idx}
                         style={{
-                          background: "#F6F5F1",
-                          border: "1px solid #E4E1DA",
-                          borderRadius: 12,
-                          padding: "3px 8px",
-                          fontSize: 10,
-                          color: "#162A43",
-                          cursor: coachThinking ? "not-allowed" : "pointer",
-                          fontWeight: 600,
-                          opacity: coachThinking ? 0.6 : 1
+                          alignSelf: m.sender === "coach" ? "flex-start" : "flex-end",
+                          background: m.sender === "coach" ? "#EFF4FE" : "#162A43",
+                          color: m.sender === "coach" ? "#162A43" : "#FFFFFF",
+                          padding: "8px 12px",
+                          borderRadius: 8,
+                          maxWidth: "85%",
+                          fontSize: 12,
+                          lineHeight: 1.4
                         }}
                       >
-                        {chip}
-                      </button>
+                        <MarkdownRenderer content={m.text} compact isDark={m.sender !== "coach"} />
+                      </div>
                     ))}
+                    {coachThinking && (
+                      <div style={{ alignSelf: "flex-start", background: "#EFF4FE", color: "#356AE6", padding: "6px 12px", borderRadius: 8, fontSize: 11, fontStyle: "italic", display: "flex", alignItems: "center", gap: 6 }}>
+                        <span>Coach is reasoning through your code and invariants...</span>
+                      </div>
+                    )}
                   </div>
-                )}
 
-                <div style={{ display: "flex", gap: 6 }}>
-                  <input
-                    type="text"
-                    value={coachInput}
-                    disabled={coachThinking}
-                    onChange={e => setCoachInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && !coachThinking && handleAskCoach()}
-                    placeholder="Ask about invariants, bounds, or pointers..."
-                    style={{ flex: 1, background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 6, padding: "8px 10px", fontSize: 12, outline: "none" }}
-                  />
-                  <button
-                    onClick={() => handleAskCoach()}
-                    disabled={coachThinking || !coachInput.trim()}
-                    style={{
-                      padding: "8px 14px",
-                      borderRadius: 6,
-                      border: "none",
-                      background: coachThinking ? "#93C5FD" : "#356AE6",
-                      color: "#FFFFFF",
-                      fontSize: 11,
-                      fontWeight: 700,
-                      cursor: coachThinking ? "not-allowed" : "pointer"
-                    }}
-                  >
-                    {coachThinking ? "..." : "Ask"}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-                <h3 style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 10 }}>
-                  Practice Scaffolding &amp; Hints
-                </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {activeProblem.hints.map((hint, idx) => (
-                    <div key={idx} style={{ padding: "8px 10px", borderRadius: 6, background: "#F6F5F1", border: "1px solid #E4E1DA", fontSize: 12, color: "#475467", lineHeight: 1.4 }}>
-                      {hint}
+                  {suggestedChips.length > 0 && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+                      {suggestedChips.map((chip, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleAskCoach(chip)}
+                          disabled={coachThinking}
+                          style={{
+                            background: "#F6F5F1",
+                            border: "1px solid #E4E1DA",
+                            borderRadius: 12,
+                            padding: "3px 8px",
+                            fontSize: 10,
+                            color: "#162A43",
+                            cursor: coachThinking ? "not-allowed" : "pointer",
+                            fontWeight: 600,
+                            opacity: coachThinking ? 0.6 : 1
+                          }}
+                        >
+                          {chip}
+                        </button>
+                      ))}
                     </div>
-                  ))}
+                  )}
+
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <input
+                      type="text"
+                      value={coachInput}
+                      disabled={coachThinking}
+                      onChange={e => setCoachInput(e.target.value)}
+                      onKeyDown={e => e.key === "Enter" && !coachThinking && handleAskCoach()}
+                      placeholder="Ask about invariants, bounds, or pointers..."
+                      style={{ flex: 1, background: "#F6F5F1", border: "1px solid #E4E1DA", borderRadius: 6, padding: "8px 10px", fontSize: 12, outline: "none" }}
+                    />
+                    <button
+                      onClick={() => handleAskCoach()}
+                      disabled={coachThinking || !coachInput.trim()}
+                      style={{
+                        padding: "8px 14px",
+                        borderRadius: 6,
+                        border: "none",
+                        background: coachThinking ? "#93C5FD" : "#356AE6",
+                        color: "#FFFFFF",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: coachThinking ? "not-allowed" : "pointer"
+                      }}
+                    >
+                      {coachThinking ? "..." : "Ask"}
+                    </button>
+                  </div>
                 </div>
+              )}
 
-                <button
-                  onClick={() => handleStartReTest(activeProblem.topic_id, activeProblem.id)}
-                  style={{
-                    width: "100%",
-                    marginTop: 18,
-                    padding: "9px",
-                    borderRadius: 7,
-                    border: "1px solid #D2E0FB",
-                    background: "#EFF4FE",
-                    color: "#356AE6",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  🔄 Try Another in {activeProblem.subtopic_title}
-                </button>
-
-                <button
-                  onClick={() => setMode("interview")}
-                  style={{
-                    width: "100%",
-                    marginTop: 8,
-                    padding: "9px",
-                    borderRadius: 7,
-                    border: "none",
-                    background: "#162A43",
-                    color: "#FFFFFF",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  Ready: Multi-Question Interview ➔
-                </button>
-              </div>
-            )}
+            </div>
 
           </div>
         )}

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import { useTheme } from "@/components/ThemeProvider";
 import CompanyLogo from "@/components/CompanyLogo";
@@ -36,10 +37,22 @@ interface Recommendation {
 }
 
 export default function StudentDashboardOverview() {
+  const router = useRouter();
   const { isDark } = useTheme();
-  const [candidateId, setCandidateId] = useState<string>("");
+  const [candidateId, setCandidateId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("cognalyze_student_id") || "";
+    }
+    return "";
+  });
   const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return !!localStorage.getItem("cognalyze_student_id");
+    }
+    return false;
+  });
   const [authPromptOpen, setAuthPromptOpen] = useState<boolean>(false);
   const [authPromptConfig, setAuthPromptConfig] = useState<{
     title?: string;
@@ -157,58 +170,41 @@ export default function StudentDashboardOverview() {
         setApplicationsCount(0);
         setUserApplications([]);
       }
+      setAuthChecking(false);
 
-      // 2. If authenticated, fetch private Student DNA & Intelligence
-      if (isAuthed && activeCId) {
-        try {
-          const dnaRes = await fetch(`/api/student/dna?candidateId=${activeCId}`);
-          if (dnaRes.ok) {
-            const dnaData = await dnaRes.json();
-            if (dnaData.intelligence) {
-              setIntelligence(dnaData.intelligence);
-            }
-          }
-        } catch (e) {
-          console.warn("Could not load private DNA:", e);
-        }
+      // Parallel execution of secondary data requests via Promise.allSettled
+      const [dnaResult, appResult, calResult, recResult] = await Promise.allSettled([
+        isAuthed && activeCId
+          ? fetch(`/api/student/dna?candidateId=${activeCId}`).then(r => r.ok ? r.json() : null)
+          : Promise.resolve(null),
+        isAuthed && activeCId
+          ? fetch(`/api/applications?candidateId=${activeCId}`).then(r => r.ok ? r.json() : null)
+          : Promise.resolve(null),
+        fetch(`/api/student/calendar${activeCId ? `?candidateId=${activeCId}` : ""}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/recommendations${activeCId ? `?candidateId=${activeCId}` : ""}&limit=3`).then(r => r.ok ? r.json() : null),
+      ]);
 
-        // 3. Applications Count & List
-        try {
-          const appRes = await fetch(`/api/applications?candidateId=${activeCId}`);
-          if (appRes.ok) {
-            const appData = await appRes.json();
-            const apps = appData.applications || appData;
-            if (Array.isArray(apps)) {
-              setApplicationsCount(apps.length);
-              setUserApplications(apps);
-            }
-          }
-        } catch (e) {
-          console.warn("Could not load private applications:", e);
+      if (dnaResult.status === "fulfilled" && dnaResult.value?.intelligence) {
+        setIntelligence(dnaResult.value.intelligence);
+      }
+      if (appResult.status === "fulfilled" && appResult.value) {
+        const apps = appResult.value.applications || appResult.value;
+        if (Array.isArray(apps)) {
+          setApplicationsCount(apps.length);
+          setUserApplications(apps);
         }
       }
-
-      // 4. Placement Calendar Events (public or scoped)
-      const calRes = await fetch(`/api/student/calendar${activeCId ? `?candidateId=${activeCId}` : ""}`);
-      if (calRes.ok) {
-        const calData = await calRes.json();
-        if (calData.events) {
-          setCalendarEvents(calData.events);
-        }
+      if (calResult.status === "fulfilled" && calResult.value?.events) {
+        setCalendarEvents(calResult.value.events);
       }
-
-      // 5. Opportunities Recommendations
-      const recRes = await fetch(`/api/recommendations${activeCId ? `?candidateId=${activeCId}` : ""}&limit=3`);
-      if (recRes.ok) {
-        const recData = await recRes.json();
-        if (recData.recommendations) {
-          setRecommendations(recData.recommendations);
-        }
+      if (recResult.status === "fulfilled" && recResult.value?.recommendations) {
+        setRecommendations(recResult.value.recommendations);
       }
     } catch (err) {
       console.error("Error loading Student Overview data:", err);
     } finally {
       setLoading(false);
+      setAuthChecking(false);
     }
   };
 
@@ -384,7 +380,7 @@ export default function StudentDashboardOverview() {
                   setAuthPromptOpen(true);
                   return;
                 }
-                window.location.href = "/student/dna";
+                router.push("/student/dna");
               }}
               style={{
                 border: "none",

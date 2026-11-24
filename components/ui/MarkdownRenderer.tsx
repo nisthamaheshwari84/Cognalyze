@@ -208,6 +208,8 @@ export function sanitizeMarkdownContent(content: string): string {
 
   // 5. Normalize Unicode bullets to standard markdown list dashes at line starts
   text = text.replace(/^([ \t]*)[•●◦⁃–—]\s+/gm, "$1- ");
+  // Also normalize asterisks used as unordered list bullets at line starts so they don't collide with italic formatting
+  text = text.replace(/^([ \t]*)\*\s+/gm, "$1- ");
 
   // 6. Fix headings missing space after hash, e.g. "###1. Introduction" or "##Overview" on its own line
   // Exclude C/C++ preprocessor directives: #include, #define, #pragma, #ifdef, #ifndef, #endif, #undef, #error
@@ -216,13 +218,11 @@ export function sanitizeMarkdownContent(content: string): string {
   // 7. Ensure blank line before markdown headings if attached directly to paragraph text
   text = text.replace(/([^\n])\n(#{1,6}\s+)/g, "$1\n\n$2");
 
-  // 8. Fix bold with trailing/leading spaces inside asterisks: "** bold **" or "**bold **" or "** bold**"
-  text = text.replace(/\*\*\s+([^\s*][^*]*?)\s*\*\*/g, " **$1** ");
-  text = text.replace(/\*\*([^\s*][^*]*?)\s+\*\*/g, "**$1** ");
-  text = text.replace(/\*\*\s+([^\s*][^*]*?)\*\*/g, " **$1**");
+  // 8. Fix bold with trailing/leading spaces inside asterisks strictly on the same line (never match across \n)
+  text = text.replace(/\*\*[ \t]*([^\n*]+?)[ \t]*\*\*/g, (match, inner) => inner.trim() ? `**${inner.trim()}**` : match);
 
-  // 9. Fix italic with interior whitespace: "* italic *" -> "*italic*"
-  text = text.replace(/(?<!\*)\*\s+([^\s*][^*]*?)\s+\*(?!\*)/g, " *$1* ");
+  // 9. Fix italic with interior whitespace strictly on the same line (never match across \n)
+  text = text.replace(/(?<!\*)\*[ \t]*([^\n*]+?)[ \t]*\*(?!\*)/g, (match, inner) => inner.trim() ? `*${inner.trim()}*` : match);
 
   // 10. Fix markdown links with spaces inside parentheses: "[text]( url )"
   text = text.replace(/\[([^\]]+)\]\(\s*([^\s)]+)\s*\)/g, "[$1]($2)");

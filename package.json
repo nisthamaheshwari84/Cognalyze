@@ -9,7 +9,10 @@
     "lint": "eslint",
     "test": "tsx --test tests/*.test.ts",
     "check-no-simulation": "tsx scripts/check-no-simulation.ts",
-    "audit:recruiter-store": "tsx scripts/reconcile-recruiter-store.ts"
+    "audit:recruiter-store": "tsx scripts/reconcile-recruiter-store.ts",
+    "interview:intelligence:dev": "node scripts/start-interview-intelligence.js",
+    "interview:intelligence:build": "cd interview-intelligence && (bun run build || npm run build)",
+    "interview:intelligence:start": "cd interview-intelligence && (bun run start || npm run start)"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.3",

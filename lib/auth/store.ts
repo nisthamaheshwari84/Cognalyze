@@ -344,10 +344,18 @@ export async function syncStoreWithCloud(): Promise<void> {
 // Global in-memory cache and timestamp tracking
 let store: AuthStoreData = { ...initialData };
 let lastMtimeMs: number = 0;
+let lastCheckTimeMs: number = 0;
+const STAT_THROTTLE_MS = 2500; // Throttle disk stat checks to prevent event-loop blocking
 
 function loadStoreFromDisk(force = false) {
   try {
     if (typeof window === "undefined") {
+      const now = Date.now();
+      if (!force && now - lastCheckTimeMs < STAT_THROTTLE_MS) {
+        return;
+      }
+      lastCheckTimeMs = now;
+
       const filePath = resolveAuthFilePath();
 
       // If running in /tmp (e.g. serverless) and file doesn't exist yet, seed from repo data

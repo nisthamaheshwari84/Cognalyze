@@ -768,6 +768,7 @@ export interface InterviewTurn {
   alternativeApproachDetected?: boolean;
   evaluationError?: string;
   codeExecutionReport?: any;
+  autonomousEvaluation?: any;
 }
 
 export type OpeningState =

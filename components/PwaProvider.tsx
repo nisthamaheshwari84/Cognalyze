@@ -25,8 +25,8 @@ export default function PwaProvider({ children }: { children: React.ReactNode })
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
-    // 3. Register Service Worker
-    if ("serviceWorker" in navigator && process.env.NODE_ENV !== "test") {
+    // 3. Register Service Worker (strictly production only to prevent caching collisions during development)
+    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       window.addEventListener("load", () => {
         navigator.serviceWorker
           .register("/sw.js")

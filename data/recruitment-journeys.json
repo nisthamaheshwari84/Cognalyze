@@ -954,19 +954,66 @@
     "roleFamily": "sde",
     "hiringChannel": "campus",
     "currentStageId": "stage_google_oa",
-    "status": "IN_PROGRESS",
-    "overallScore": 0,
+    "status": "DID_NOT_PASS",
+    "overallScore": 25,
     "stageProgress": {
       "stage_google_oa": {
         "stageId": "stage_google_oa",
         "stageType": "algorithmic_coding",
         "title": "Google Online Challenge (GOC)",
         "order": 1,
-        "status": "NOT_STARTED",
-        "rawScore": 0,
+        "status": "FAILED",
+        "rawScore": 25,
         "maxScore": 100,
-        "percentageScore": 0,
-        "attemptCount": 0
+        "percentageScore": 25,
+        "attemptCount": 1,
+        "durationSeconds": 0,
+        "telemetry": {
+          "executionTimeMs": 126,
+          "status": "failed",
+          "outcomes": [
+            {
+              "testId": "tc_goc_1_pub",
+              "passed": false,
+              "status": "failed",
+              "input": "[[[1,5,2],[2,4,5],[3,8,1]],1]",
+              "expected": "1",
+              "actual": "0",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_2_pub",
+              "passed": false,
+              "status": "failed",
+              "input": "[[[1,4,3],[2,6,2],[5,8,4]],2]",
+              "expected": "2",
+              "actual": "0",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_3_hid",
+              "passed": false,
+              "status": "failed",
+              "timeMs": 0,
+              "isHidden": true
+            },
+            {
+              "testId": "tc_goc_4_hid",
+              "passed": true,
+              "status": "passed",
+              "timeMs": 0,
+              "isHidden": true
+            }
+          ]
+        },
+        "rubricEvaluations": {
+          "algorithmic_correctness": 25,
+          "execution_efficiency": 100
+        },
+        "evaluatorFeedback": "Passed 1/4 test cases. Failed edge cases on boundary conditions.",
+        "completedAt": "2026-11-23T07:48:00.663Z"
       },
       "stage_google_tech_1": {
         "stageId": "stage_google_tech_1",
@@ -1013,9 +1060,13 @@
         "attemptCount": 0
       }
     },
-    "competencyScores": {},
+    "competencyScores": {
+      "algorithmic_problem_solving": 25,
+      "coding_quality": 25
+    },
     "startedAt": "2026-11-11T16:55:56.911Z",
-    "updatedAt": "2026-11-11T16:55:56.911Z"
+    "updatedAt": "2026-11-23T07:48:00.663Z",
+    "completedAt": "2026-11-23T07:48:00.663Z"
   },
   {
     "id": "jny_amazon_sde_1794502332217_c7a3u",
@@ -1927,5 +1978,350 @@
     "competencyScores": {},
     "startedAt": "2026-11-15T20:23:06.770Z",
     "updatedAt": "2026-11-15T20:23:06.770Z"
+  },
+  {
+    "id": "jny_amazon_sde_1795119472431_r0hyl",
+    "studentId": "persisted_student_99",
+    "companyId": "amazon",
+    "blueprintId": "bp_amazon_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_amzn_oa1",
+    "status": "IN_PROGRESS",
+    "overallScore": 0,
+    "stageProgress": {
+      "stage_amzn_oa1": {
+        "stageId": "stage_amzn_oa1",
+        "stageType": "algorithmic_coding",
+        "title": "Amazon OA1: Algorithmic Code Assessment",
+        "order": 1,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_oa2": {
+        "stageId": "stage_amzn_oa2",
+        "stageType": "work_simulation",
+        "title": "Amazon OA2: SDE Work Simulation & Work Styles",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_1": {
+        "stageId": "stage_amzn_onsite_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Virtual Onsite 1: Algorithms & Data Structures + 2 LPs",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_onsite_2": {
+        "stageId": "stage_amzn_onsite_2",
+        "stageType": "system_design_lld",
+        "title": "Virtual Onsite 2: Object-Oriented Design (LLD) + 2 LPs",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_bar_raiser": {
+        "stageId": "stage_amzn_bar_raiser",
+        "stageType": "behavioral_competency",
+        "title": "Virtual Onsite 3: The Bar Raiser Round",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_amzn_verdict": {
+        "stageId": "stage_amzn_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Bar Raiser Debrief & Placement Verdict",
+        "order": 6,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {},
+    "startedAt": "2026-11-19T20:17:52.431Z",
+    "updatedAt": "2026-11-19T20:17:52.431Z"
+  },
+  {
+    "id": "jny_google_sde_1795420088390_k88xz",
+    "studentId": "student-demo",
+    "companyId": "google",
+    "blueprintId": "bp_google_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_google_oa",
+    "status": "DID_NOT_PASS",
+    "overallScore": 25,
+    "stageProgress": {
+      "stage_google_oa": {
+        "stageId": "stage_google_oa",
+        "stageType": "algorithmic_coding",
+        "title": "Google Online Challenge (GOC)",
+        "order": 1,
+        "status": "FAILED",
+        "rawScore": 25,
+        "maxScore": 100,
+        "percentageScore": 25,
+        "attemptCount": 1,
+        "durationSeconds": 0,
+        "telemetry": {
+          "executionTimeMs": 43,
+          "status": "failed",
+          "outcomes": [
+            {
+              "testId": "tc_goc_1_pub",
+              "passed": false,
+              "status": "failed",
+              "input": "[[[1,5,2],[2,4,5],[3,8,1]],1]",
+              "expected": "1",
+              "actual": "0",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_2_pub",
+              "passed": false,
+              "status": "failed",
+              "input": "[[[1,4,3],[2,6,2],[5,8,4]],2]",
+              "expected": "2",
+              "actual": "0",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_3_hid",
+              "passed": false,
+              "status": "failed",
+              "timeMs": 0,
+              "isHidden": true
+            },
+            {
+              "testId": "tc_goc_4_hid",
+              "passed": true,
+              "status": "passed",
+              "timeMs": 0,
+              "isHidden": true
+            }
+          ]
+        },
+        "rubricEvaluations": {
+          "algorithmic_correctness": 25,
+          "execution_efficiency": 100
+        },
+        "evaluatorFeedback": "Passed 1/4 test cases. Failed edge cases on boundary conditions.",
+        "completedAt": "2026-11-23T07:48:12.845Z"
+      },
+      "stage_google_tech_1": {
+        "stageId": "stage_google_tech_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Interview 1: Data Structures & Algorithms",
+        "order": 2,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_google_tech_2": {
+        "stageId": "stage_google_tech_2",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Interview 2: Advanced Algorithms & Edge Cases",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_google_behavioral": {
+        "stageId": "stage_google_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Googlyness & Leadership Interview",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_google_verdict": {
+        "stageId": "stage_google_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Google Hiring Committee Review & Placement Verdict",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {
+      "algorithmic_problem_solving": 25,
+      "coding_quality": 25
+    },
+    "startedAt": "2026-11-23T07:48:08.390Z",
+    "updatedAt": "2026-11-23T07:48:12.845Z",
+    "completedAt": "2026-11-23T07:48:12.845Z"
+  },
+  {
+    "id": "jny_google_sde_1795420104549_f2a89",
+    "studentId": "student-demo",
+    "companyId": "google",
+    "blueprintId": "bp_google_sde_campus_v1",
+    "blueprintVersion": "1.0.0",
+    "roleFamily": "sde",
+    "hiringChannel": "campus",
+    "currentStageId": "stage_google_tech_1",
+    "status": "DID_NOT_PASS",
+    "overallScore": 62.5,
+    "stageProgress": {
+      "stage_google_oa": {
+        "stageId": "stage_google_oa",
+        "stageType": "algorithmic_coding",
+        "title": "Google Online Challenge (GOC)",
+        "order": 1,
+        "status": "PASSED",
+        "rawScore": 75,
+        "maxScore": 100,
+        "percentageScore": 75,
+        "attemptCount": 1,
+        "durationSeconds": 0,
+        "telemetry": {
+          "executionTimeMs": 64,
+          "status": "failed",
+          "outcomes": [
+            {
+              "testId": "tc_goc_1_pub",
+              "passed": true,
+              "status": "passed",
+              "input": "[[[1,5,2],[2,4,5],[3,8,1]],1]",
+              "expected": "1",
+              "actual": "1",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_2_pub",
+              "passed": false,
+              "status": "failed",
+              "input": "[[[1,4,3],[2,6,2],[5,8,4]],2]",
+              "expected": "2",
+              "actual": "3",
+              "timeMs": 0,
+              "isHidden": false
+            },
+            {
+              "testId": "tc_goc_3_hid",
+              "passed": true,
+              "status": "passed",
+              "timeMs": 0,
+              "isHidden": true
+            },
+            {
+              "testId": "tc_goc_4_hid",
+              "passed": true,
+              "status": "passed",
+              "timeMs": 0,
+              "isHidden": true
+            }
+          ]
+        },
+        "rubricEvaluations": {
+          "algorithmic_correctness": 75,
+          "execution_efficiency": 100
+        },
+        "evaluatorFeedback": "Optimal solution! Passed 3/4 test cases in 64ms.",
+        "completedAt": "2026-11-23T07:52:53.986Z"
+      },
+      "stage_google_tech_1": {
+        "stageId": "stage_google_tech_1",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Interview 1: Data Structures & Algorithms",
+        "order": 2,
+        "status": "FAILED",
+        "rawScore": 50,
+        "maxScore": 100,
+        "percentageScore": 50,
+        "attemptCount": 1,
+        "durationSeconds": 300,
+        "telemetry": {
+          "starBreakdown": {
+            "situationPresent": false,
+            "taskPresent": false,
+            "actionPresent": false,
+            "resultPresent": false
+          }
+        },
+        "rubricEvaluations": {
+          "behavioral_competency": 50,
+          "communication_clarity": 70
+        },
+        "evaluatorFeedback": "STAR Structure: ",
+        "completedAt": "2026-11-23T07:54:04.472Z"
+      },
+      "stage_google_tech_2": {
+        "stageId": "stage_google_tech_2",
+        "stageType": "technical_interview_dsa",
+        "title": "Technical Interview 2: Advanced Algorithms & Edge Cases",
+        "order": 3,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_google_behavioral": {
+        "stageId": "stage_google_behavioral",
+        "stageType": "behavioral_competency",
+        "title": "Googlyness & Leadership Interview",
+        "order": 4,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      },
+      "stage_google_verdict": {
+        "stageId": "stage_google_verdict",
+        "stageType": "holistic_verdict",
+        "title": "Google Hiring Committee Review & Placement Verdict",
+        "order": 5,
+        "status": "NOT_STARTED",
+        "rawScore": 0,
+        "maxScore": 100,
+        "percentageScore": 0,
+        "attemptCount": 0
+      }
+    },
+    "competencyScores": {
+      "algorithmic_problem_solving": 62.5,
+      "coding_quality": 62.5,
+      "communication_reasoning": 50
+    },
+    "startedAt": "2026-11-23T07:48:24.549Z",
+    "updatedAt": "2026-11-23T07:54:04.472Z",
+    "completedAt": "2026-11-23T07:54:04.472Z"
   }
 ]

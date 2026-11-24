@@ -14,7 +14,8 @@ import {
   EXPANDED_PLACEMENT_QUESTIONS,
   SUBTOPICS_BY_TOPIC
 } from "@/lib/question-bank-catalog";
-import { COMPANY_PREP_GUIDES } from "@/lib/company-prep-data";
+import { getMasterQuestionsPool } from "@/lib/question-bank/company-question-store";
+import { COMPANY_PREP_GUIDES, getCompanyPrepGuide } from "@/lib/company-prep-data";
 import { QuestionItem, CompanyPrepGuide, TestCase } from "@/lib/question-bank-types";
 import {
   Search,
@@ -46,7 +47,7 @@ export default function QuestionBankPage() {
   const { isDark } = useTheme();
 
   // Dynamic Question Pool
-  const [questionsPool, setQuestionsPool] = useState<QuestionItem[]>(EXPANDED_PLACEMENT_QUESTIONS);
+  const [questionsPool, setQuestionsPool] = useState<QuestionItem[]>(() => getMasterQuestionsPool());
 
   // Filter States
   const [selectedCompany, setSelectedCompany] = useState<string>("All Companies");
@@ -333,9 +334,9 @@ export default function QuestionBankPage() {
     );
   }, [questionsPool, targetRole]);
 
-  // Active Company Prep Guide Data
+  // Active Company Prep Guide Data (100% coverage across all 57 companies, no fallback to Amazon)
   const currentCompanyGuide: CompanyPrepGuide | undefined = useMemo(() => {
-    return COMPANY_PREP_GUIDES[prepCompany] || COMPANY_PREP_GUIDES["Amazon"];
+    return getCompanyPrepGuide(prepCompany);
   }, [prepCompany]);
 
   // Questions specific to the active company prep workspace

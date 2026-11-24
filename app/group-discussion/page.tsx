@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useRouter } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import { useTheme } from "@/components/ThemeProvider";
 import {
@@ -53,6 +54,7 @@ interface GDEvaluationFeedback {
 }
 
 export default function GroupDiscussionPage() {
+  const router = useRouter();
   const { isDark } = useTheme();
 
   // Dynamic Topic Pool (curated + AI freshly generated topics)
@@ -65,6 +67,18 @@ export default function GroupDiscussionPage() {
   const [selectedFreshness, setSelectedFreshness] = useState<string>("All Freshness");
   const [searchQuery, setSearchQuery] = useState("");
   const [targetRole, setTargetRole] = useState("AI/ML Engineer");
+
+  // Simulation Format & Difficulty Calibration
+  const [simulationFormat, setSimulationFormat] = useState<"collaborative" | "competitive" | "corporate" | "technical_business">("competitive");
+  const [difficultyTier, setDifficultyTier] = useState<"beginner" | "intermediate" | "advanced" | "expert">("intermediate");
+
+  // Friends GD Multiplayer Modal State
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const [friendsTab, setFriendsTab] = useState<"join" | "create">("join");
+  const [friendsJoinCode, setFriendsJoinCode] = useState("");
+  const [friendsCreateTopic, setFriendsCreateTopic] = useState("");
+  const [isProcessingFriendsRoom, setIsProcessingFriendsRoom] = useState(false);
+  const [friendsRoomError, setFriendsRoomError] = useState<string | null>(null);
 
   // AI Fresh Topic Generator Modal State
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -444,9 +458,32 @@ export default function GroupDiscussionPage() {
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                setFriendsRoomError(null);
+                setShowFriendsModal(true);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 14px",
+                borderRadius: 7,
+                backgroundColor: isDark ? "rgba(99,102,241,0.18)" : "#EEF2FF",
+                border: `1px solid ${isDark ? "#6366f1" : "#C7D2FE"}`,
+                color: isDark ? "#c7d2fe" : "#4338ca",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
+            >
+              <Users size={15} />
+              <span>👥 Friends GD Mode</span>
+            </button>
+
             <a
-              href="/student/gd-practice"
+              href={`/student/gd-practice?format=${simulationFormat}&difficulty=${difficultyTier}`}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -1299,6 +1336,282 @@ export default function GroupDiscussionPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── FRIENDS MULTIPLAYER GD MODAL ── */}
+      {showFriendsModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(7, 17, 31, 0.85)",
+            backdropFilter: "blur(12px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 540,
+              width: "100%",
+              background: isDark ? "#0E1B2E" : "#FFFFFF",
+              border: `1px solid ${isDark ? "#223750" : "#E4E1DA"}`,
+              borderRadius: 16,
+              padding: "24px",
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              color: isDark ? "#F4F7FF" : "#162A43",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 22 }}>👥</span>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+                  Friends Group Discussion Mode
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowFriendsModal(false)}
+                style={{ background: "none", border: "none", color: isDark ? "#8292AA" : "#667085", cursor: "pointer", fontSize: 18 }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <p style={{ fontSize: 12, color: isDark ? "#B7C4D8" : "#667085", margin: "0 0 16px", lineHeight: 1.5 }}>
+              Conduct voice-based placement Group Discussions with peer students. Active AI Moderator oversees the floor with Cognalyze&apos;s 3-Warning Disciplinary Policy.
+            </p>
+
+            {/* Segmented Tabs */}
+            <div style={{ display: "flex", gap: 8, padding: 4, background: isDark ? "rgba(255,255,255,0.05)" : "#F2F4F7", borderRadius: 8, marginBottom: 16 }}>
+              <button
+                type="button"
+                onClick={() => setFriendsTab("join")}
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  borderRadius: 6,
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  background: friendsTab === "join" ? (isDark ? "#1E293B" : "#FFFFFF") : "transparent",
+                  color: friendsTab === "join" ? (isDark ? "#FFFFFF" : "#162A43") : (isDark ? "#8292AA" : "#667085"),
+                  boxShadow: friendsTab === "join" ? "0 1px 3px rgba(0,0,0,0.1)" : "none"
+                }}
+              >
+                Join Friends Room
+              </button>
+              <button
+                type="button"
+                onClick={() => setFriendsTab("create")}
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  borderRadius: 6,
+                  border: "none",
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  background: friendsTab === "create" ? (isDark ? "#1E293B" : "#FFFFFF") : "transparent",
+                  color: friendsTab === "create" ? (isDark ? "#FFFFFF" : "#162A43") : (isDark ? "#8292AA" : "#667085"),
+                  boxShadow: friendsTab === "create" ? "0 1px 3px rgba(0,0,0,0.1)" : "none"
+                }}
+              >
+                Create New Room
+              </button>
+            </div>
+
+            {friendsRoomError && (
+              <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", color: "#fca5a5", fontSize: 12, marginBottom: 16 }}>
+                {friendsRoomError}
+              </div>
+            )}
+
+            {friendsTab === "join" ? (
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, display: "block", marginBottom: 6 }}>
+                  Enter 6-Character Room Code:
+                </label>
+                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                  <input
+                    type="text"
+                    placeholder="e.g. GD-7A4B"
+                    value={friendsJoinCode}
+                    onChange={(e) => setFriendsJoinCode(e.target.value.toUpperCase())}
+                    style={{
+                      flex: 1,
+                      padding: "10px 14px",
+                      borderRadius: 8,
+                      border: `1px solid ${isDark ? "#334155" : "#D0D5DD"}`,
+                      background: isDark ? "#0B1524" : "#FFFFFF",
+                      color: isDark ? "#FFFFFF" : "#162A43",
+                      fontSize: 14,
+                      fontWeight: 700,
+                      letterSpacing: "1px"
+                    }}
+                  />
+                  <button
+                    type="button"
+                    disabled={isProcessingFriendsRoom || !friendsJoinCode.trim()}
+                    onClick={async () => {
+                      setIsProcessingFriendsRoom(true);
+                      setFriendsRoomError(null);
+                      try {
+                        const res = await fetch("/api/gd/friends", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ action: "join_room", roomCodeOrId: friendsJoinCode.trim() })
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.success) {
+                          throw new Error(data.message || "Unable to join room.");
+                        }
+                        router.push(`/student/gd-practice?room=${data.room.roomCode}`);
+                      } catch (err: any) {
+                        setFriendsRoomError(err.message);
+                      } finally {
+                        setIsProcessingFriendsRoom(false);
+                      }
+                    }}
+                    style={{
+                      padding: "10px 18px",
+                      borderRadius: 8,
+                      background: "#3478F6",
+                      color: "#FFFFFF",
+                      border: "none",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      cursor: "pointer"
+                    }}
+                  >
+                    {isProcessingFriendsRoom ? "Joining..." : "Join Room ➔"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, display: "block", marginBottom: 6 }}>
+                  Discussion Topic:
+                </label>
+                <input
+                  type="text"
+                  placeholder="Select a topic or type custom..."
+                  value={friendsCreateTopic || (activePracticeTopic ? activePracticeTopic.title : topicsPool[0]?.title || "")}
+                  onChange={(e) => setFriendsCreateTopic(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px 12px",
+                    borderRadius: 8,
+                    border: `1px solid ${isDark ? "#334155" : "#D0D5DD"}`,
+                    background: isDark ? "#0B1524" : "#FFFFFF",
+                    color: isDark ? "#FFFFFF" : "#162A43",
+                    fontSize: 12,
+                    marginBottom: 14,
+                    boxSizing: "border-box"
+                  }}
+                />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: isDark ? "#8292AA" : "#667085", display: "block", marginBottom: 4 }}>
+                      Format:
+                    </label>
+                    <select
+                      value={simulationFormat}
+                      onChange={(e: any) => setSimulationFormat(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: 6,
+                        border: `1px solid ${isDark ? "#334155" : "#D0D5DD"}`,
+                        background: isDark ? "#0B1524" : "#FFFFFF",
+                        color: isDark ? "#FFFFFF" : "#162A43",
+                        fontSize: 11
+                      }}
+                    >
+                      <option value="competitive">Competitive Placement</option>
+                      <option value="collaborative">Collaborative</option>
+                      <option value="corporate">Corporate Assessment</option>
+                      <option value="technical_business">Technical & Business</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: 10, fontWeight: 700, color: isDark ? "#8292AA" : "#667085", display: "block", marginBottom: 4 }}>
+                      Difficulty:
+                    </label>
+                    <select
+                      value={difficultyTier}
+                      onChange={(e: any) => setDifficultyTier(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "8px",
+                        borderRadius: 6,
+                        border: `1px solid ${isDark ? "#334155" : "#D0D5DD"}`,
+                        background: isDark ? "#0B1524" : "#FFFFFF",
+                        color: isDark ? "#FFFFFF" : "#162A43",
+                        fontSize: 11
+                      }}
+                    >
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                      <option value="expert">Expert</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={isProcessingFriendsRoom}
+                  onClick={async () => {
+                    setIsProcessingFriendsRoom(true);
+                    setFriendsRoomError(null);
+                    try {
+                      const topicToUse = friendsCreateTopic.trim() || (activePracticeTopic ? activePracticeTopic.title : topicsPool[0]?.title || "Campus Placement GD");
+                      const res = await fetch("/api/gd/friends", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          action: "create_room",
+                          topicTitle: topicToUse,
+                          format: simulationFormat,
+                          difficulty: difficultyTier,
+                          durationMinutes: 15
+                        })
+                      });
+                      const data = await res.json();
+                      if (!res.ok || !data.success) {
+                        throw new Error(data.message || "Unable to create room.");
+                      }
+                      router.push(`/student/gd-practice?room=${data.room.roomCode}`);
+                    } catch (err: any) {
+                      setFriendsRoomError(err.message);
+                    } finally {
+                      setIsProcessingFriendsRoom(false);
+                    }
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: 8,
+                    background: "linear-gradient(135deg, #6366f1, #a855f7)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontWeight: 800,
+                    fontSize: 13,
+                    cursor: "pointer"
+                  }}
+                >
+                  {isProcessingFriendsRoom ? "Generating Secure Room..." : "Launch Private Friends Room ➔"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

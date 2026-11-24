@@ -1,0 +1,481 @@
+[
+  {
+    "roomId": "room_1795462949149_8nkzxp",
+    "roomCode": "GD-PYZD",
+    "hostUserId": "67450e88-4ed7-414f-9490-adcd7777001b",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "67450e88-4ed7-414f-9490-adcd7777001b",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T19:42:29.149Z",
+        "lastPingAt": "2026-11-23T19:42:29.149Z"
+      },
+      {
+        "userId": "72491f91-c747-40f4-b6eb-473ebbfa1552",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T19:42:29.149Z",
+        "lastPingAt": "2026-11-23T19:42:29.149Z"
+      }
+    ],
+    "createdAt": "2026-11-23T19:42:29.149Z",
+    "updatedAt": "2026-11-23T19:42:29.150Z",
+    "activeSessionId": "gd_sess_1795462949150_sq5cyb"
+  },
+  {
+    "roomId": "room_1795463048785_wjpnco",
+    "roomCode": "GD-M3PX",
+    "hostUserId": "ba678edf-986d-4490-9127-688d21359818",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "ba678edf-986d-4490-9127-688d21359818",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T19:44:08.785Z",
+        "lastPingAt": "2026-11-23T19:44:08.785Z"
+      },
+      {
+        "userId": "100c700b-e028-41c4-bfbc-750b2f9dc6ab",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T19:44:08.785Z",
+        "lastPingAt": "2026-11-23T19:44:08.785Z"
+      }
+    ],
+    "createdAt": "2026-11-23T19:44:08.785Z",
+    "updatedAt": "2026-11-23T19:44:08.785Z",
+    "activeSessionId": "gd_sess_1795463048785_8clhzw"
+  },
+  {
+    "roomId": "room_1795465161247_m4vq76",
+    "roomCode": "GD-98N9",
+    "hostUserId": "u-student-sample-001",
+    "hostName": "Candidate Friend",
+    "topicTitle": "Autonomous AI Coding Agents vs Junior Software Engineers: Redefining Campus Hiring in 2026",
+    "format": "competitive",
+    "difficulty": "intermediate",
+    "durationMinutes": 15,
+    "status": "WAITING_ROOM",
+    "maxParticipants": 6,
+    "participants": [
+      {
+        "userId": "u-student-sample-001",
+        "fullName": "Candidate Friend",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:19:21.247Z",
+        "lastPingAt": "2026-11-23T20:19:21.247Z"
+      }
+    ],
+    "createdAt": "2026-11-23T20:19:21.247Z",
+    "updatedAt": "2026-11-23T20:19:21.247Z"
+  },
+  {
+    "roomId": "room_1795465193864_437opu",
+    "roomCode": "GD-HARF",
+    "hostUserId": "4753db45-39ee-49e0-95d9-6e479c24cf21",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "4753db45-39ee-49e0-95d9-6e479c24cf21",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:19:53.864Z",
+        "lastPingAt": "2026-11-23T20:19:53.864Z"
+      },
+      {
+        "userId": "27f5018a-3604-4266-b491-acd96bebaa82",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:19:53.864Z",
+        "lastPingAt": "2026-11-23T20:19:53.864Z"
+      }
+    ],
+    "createdAt": "2026-11-23T20:19:53.864Z",
+    "updatedAt": "2026-11-23T20:19:53.865Z",
+    "activeSessionId": "gd_sess_1795465193864_u7r5w3"
+  },
+  {
+    "roomId": "room_1795465471601_k4tayv",
+    "roomCode": "GD-DUFK",
+    "hostUserId": "344513fc-75b0-4ad0-8d28-09a3b3c482b7",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "344513fc-75b0-4ad0-8d28-09a3b3c482b7",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:24:31.601Z",
+        "lastPingAt": "2026-11-23T20:24:31.601Z"
+      },
+      {
+        "userId": "dcf09a6f-5215-42e2-ab4f-1c1ceff9f0a3",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:24:31.601Z",
+        "lastPingAt": "2026-11-23T20:24:31.601Z"
+      }
+    ],
+    "createdAt": "2026-11-23T20:24:31.601Z",
+    "updatedAt": "2026-11-23T20:24:31.602Z",
+    "activeSessionId": "gd_sess_1795465471601_on1oow"
+  },
+  {
+    "roomId": "room_1795466463867_xheg42",
+    "roomCode": "GD-GG4P",
+    "hostUserId": "20058f6d-b4ce-43c7-a510-812ef36c638e",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "20058f6d-b4ce-43c7-a510-812ef36c638e",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:41:03.867Z",
+        "lastPingAt": "2026-11-23T20:41:03.867Z"
+      },
+      {
+        "userId": "d3a3f864-5520-4bf9-829c-9c9ac88c540f",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:41:03.867Z",
+        "lastPingAt": "2026-11-23T20:41:03.867Z"
+      }
+    ],
+    "createdAt": "2026-11-23T20:41:03.867Z",
+    "updatedAt": "2026-11-23T20:41:03.870Z",
+    "activeSessionId": "gd_sess_1795466463868_p171x9"
+  },
+  {
+    "roomId": "room_1795466698339_3rnt6r",
+    "roomCode": "GD-TNUQ",
+    "hostUserId": "efced214-0b9f-4dc5-9165-931b17815a54",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "efced214-0b9f-4dc5-9165-931b17815a54",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:44:58.339Z",
+        "lastPingAt": "2026-11-23T20:44:58.339Z"
+      },
+      {
+        "userId": "5db0885c-5d40-4541-9841-5947bf944bea",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T20:44:58.339Z",
+        "lastPingAt": "2026-11-23T20:44:58.339Z"
+      }
+    ],
+    "createdAt": "2026-11-23T20:44:58.339Z",
+    "updatedAt": "2026-11-23T20:44:58.340Z",
+    "activeSessionId": "gd_sess_1795466698339_3nihkg"
+  },
+  {
+    "roomId": "room_1795475788654_ht0kz3",
+    "roomCode": "GD-J9PZ",
+    "hostUserId": "d3dbeb2b-c27e-4b12-9c25-44036dd3e572",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "d3dbeb2b-c27e-4b12-9c25-44036dd3e572",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T23:16:28.654Z",
+        "lastPingAt": "2026-11-23T23:16:28.654Z"
+      },
+      {
+        "userId": "7d8c3012-0a1c-42f6-9789-8464f3125526",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T23:16:28.655Z",
+        "lastPingAt": "2026-11-23T23:16:28.655Z"
+      }
+    ],
+    "createdAt": "2026-11-23T23:16:28.654Z",
+    "updatedAt": "2026-11-23T23:16:28.657Z",
+    "activeSessionId": "gd_sess_1795475788655_bn0zwo"
+  },
+  {
+    "roomId": "room_1795476315934_ci20ga",
+    "roomCode": "GD-SPR5",
+    "hostUserId": "71a87e97-84f3-424f-93bd-bb6b19d6c05e",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "71a87e97-84f3-424f-93bd-bb6b19d6c05e",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T23:25:15.934Z",
+        "lastPingAt": "2026-11-23T23:25:15.934Z"
+      },
+      {
+        "userId": "c6ef9385-568c-4980-8c1b-4b8b362d06b5",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-23T23:25:15.935Z",
+        "lastPingAt": "2026-11-23T23:25:15.935Z"
+      }
+    ],
+    "createdAt": "2026-11-23T23:25:15.934Z",
+    "updatedAt": "2026-11-23T23:25:15.936Z",
+    "activeSessionId": "gd_sess_1795476315935_zo0l05"
+  },
+  {
+    "roomId": "room_1795504074323_ymgtyh",
+    "roomCode": "GD-CPC4",
+    "hostUserId": "480a9ef5-afac-4139-8d45-cfc6bdd4feef",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "480a9ef5-afac-4139-8d45-cfc6bdd4feef",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:07:54.323Z",
+        "lastPingAt": "2026-11-24T07:07:54.323Z"
+      },
+      {
+        "userId": "45635143-7020-4b1d-8652-78a666a17d74",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:07:54.323Z",
+        "lastPingAt": "2026-11-24T07:07:54.323Z"
+      }
+    ],
+    "createdAt": "2026-11-24T07:07:54.323Z",
+    "updatedAt": "2026-11-24T07:07:54.324Z",
+    "activeSessionId": "gd_sess_1795504074323_s6yht2"
+  },
+  {
+    "roomId": "room_1795504625289_h7t7e5",
+    "roomCode": "GD-JWK4",
+    "hostUserId": "bc95d111-0a4b-4e3b-b432-4c7778408536",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "bc95d111-0a4b-4e3b-b432-4c7778408536",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:17:05.289Z",
+        "lastPingAt": "2026-11-24T07:17:05.289Z"
+      },
+      {
+        "userId": "56713f2a-b0d1-4b4a-8c4f-bbf6edb1261b",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:17:05.290Z",
+        "lastPingAt": "2026-11-24T07:17:05.290Z"
+      }
+    ],
+    "createdAt": "2026-11-24T07:17:05.289Z",
+    "updatedAt": "2026-11-24T07:17:05.291Z",
+    "activeSessionId": "gd_sess_1795504625290_dx0hbo"
+  },
+  {
+    "roomId": "room_1795504736393_x6d1do",
+    "roomCode": "GD-GTSD",
+    "hostUserId": "f8bf692d-e8f0-4da1-814b-97c5fa5f79f8",
+    "hostName": "Host Student",
+    "topicTitle": "Central Bank Digital Currencies vs Commercial UPI",
+    "format": "competitive",
+    "difficulty": "advanced",
+    "durationMinutes": 15,
+    "status": "IN_PROGRESS",
+    "maxParticipants": 5,
+    "participants": [
+      {
+        "userId": "f8bf692d-e8f0-4da1-814b-97c5fa5f79f8",
+        "fullName": "Host Student",
+        "avatar": "👑",
+        "isHost": true,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:18:56.394Z",
+        "lastPingAt": "2026-11-24T07:18:56.394Z"
+      },
+      {
+        "userId": "07969a51-4d85-495b-85b9-e95d92e38fb9",
+        "fullName": "Peer Student",
+        "avatar": "🎓",
+        "isHost": false,
+        "micActive": false,
+        "handRaised": false,
+        "warningCount": 0,
+        "isSuspended": false,
+        "joinedAt": "2026-11-24T07:18:56.394Z",
+        "lastPingAt": "2026-11-24T07:18:56.394Z"
+      }
+    ],
+    "createdAt": "2026-11-24T07:18:56.394Z",
+    "updatedAt": "2026-11-24T07:18:56.395Z",
+    "activeSessionId": "gd_sess_1795504736394_hct9a3"
+  }
+]

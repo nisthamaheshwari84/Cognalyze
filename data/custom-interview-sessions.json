@@ -40330,5 +40330,819 @@
       "windowBlurs": 0,
       "events": []
     }
+  },
+  "custom-int-1795119458668_2faaa849": {
+    "sessionId": "custom-int-1795119458668_2faaa849",
+    "userId": "test-candidate-mix",
+    "createdAt": "2026-11-19T20:17:38.668Z",
+    "updatedAt": "2026-11-19T20:17:38.669Z",
+    "targetRole": "Systems Engineer",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 30,
+    "timeRemainingSeconds": 1800,
+    "selectedSubjects": [
+      "os",
+      "concurrency"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "os-q-scheduling",
+        "subject": "os",
+        "subtopicTitle": "Operating Systems",
+        "type": "conceptual",
+        "title": "Preemptive Shortest Job First vs Round Robin Trade-offs",
+        "difficulty": "Medium",
+        "statement": "Compare Preemptive Shortest Job First (SRTF) and Round Robin scheduling. Which minimizes average waiting time, and under what workloads does each algorithm fail?",
+        "expectedPoints": [
+          "SRTF is provably optimal for minimizing average waiting time",
+          "SRTF requires prior knowledge of CPU burst times, which is impossible to know with certainty in general-purpose OS",
+          "SRTF can cause indefinite starvation of CPU-intensive long processes",
+          "Round Robin guarantees bounded response time and prevents starvation using a time slice quantum",
+          "Round Robin performs poorly if time quantum is either too small (context switch thrashing) or too large (degrades to FCFS)"
+        ],
+        "followUpPrompt": {
+          "question": "How does Linux Completely Fair Scheduler (CFS) balance fairness and interactivity without a fixed round-robin quantum?",
+          "whyAsked": "Tests transition from textbook knowledge to real-world production OS design.",
+          "expectedDefense": "CFS uses virtual runtime (vruntime) tracked in a red-black tree, always picking the task with smallest vruntime and scaling time slices based on nice values."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "conc-q-bounded-buffer",
+        "subject": "concurrency",
+        "subtopicTitle": "Concurrency & Multithreading",
+        "type": "conceptual",
+        "title": "Thread-Safe Producer-Consumer Bounded Queue",
+        "difficulty": "Hard",
+        "statement": "Implement a thread-safe Bounded Blocking Queue in Java or C++ with fixed capacity. It must support enqueue(item) (blocks when full) and dequeue() (blocks when empty). Explain why wait() must be inside a while loop and why two condition variables (notEmpty, notFull) are superior to a single condition variable.",
+        "expectedPoints": [
+          "Uses a mutex/lock and two condition variables: notFull and notEmpty",
+          "enqueue() checks while (queue.size() == capacity) notFull.wait()",
+          "dequeue() checks while (queue.isEmpty()) notEmpty.wait()",
+          "enqueue() signals notEmpty; dequeue() signals notFull",
+          "Separating notEmpty and notFull avoids thundering herd problem and prevents waking up producers when a consumer needs to run"
+        ],
+        "followUpPrompt": {
+          "question": "How would you implement a non-blocking lock-free bounded queue using atomic CAS operations?",
+          "whyAsked": "Probes high-performance lock-free data structure design.",
+          "expectedDefense": "Use a circular array with atomic sequence numbers per cell (like the LMAX Disruptor ring buffer), using atomic compare-and-swap on head and tail pointers."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119458684_25f0bf10": {
+    "sessionId": "custom-int-1795119458684_25f0bf10",
+    "userId": "user_alice_cs",
+    "createdAt": "2026-11-19T20:17:38.684Z",
+    "updatedAt": "2026-11-19T20:17:38.684Z",
+    "targetRole": "Systems Engineer",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 15,
+    "timeRemainingSeconds": 900,
+    "selectedSubjects": [
+      "os"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "os-q-scheduling",
+        "subject": "os",
+        "subtopicTitle": "Operating Systems",
+        "type": "conceptual",
+        "title": "Preemptive Shortest Job First vs Round Robin Trade-offs",
+        "difficulty": "Medium",
+        "statement": "Compare Preemptive Shortest Job First (SRTF) and Round Robin scheduling. Which minimizes average waiting time, and under what workloads does each algorithm fail?",
+        "expectedPoints": [
+          "SRTF is provably optimal for minimizing average waiting time",
+          "SRTF requires prior knowledge of CPU burst times, which is impossible to know with certainty in general-purpose OS",
+          "SRTF can cause indefinite starvation of CPU-intensive long processes",
+          "Round Robin guarantees bounded response time and prevents starvation using a time slice quantum",
+          "Round Robin performs poorly if time quantum is either too small (context switch thrashing) or too large (degrades to FCFS)"
+        ],
+        "followUpPrompt": {
+          "question": "How does Linux Completely Fair Scheduler (CFS) balance fairness and interactivity without a fixed round-robin quantum?",
+          "whyAsked": "Tests transition from textbook knowledge to real-world production OS design.",
+          "expectedDefense": "CFS uses virtual runtime (vruntime) tracked in a red-black tree, always picking the task with smallest vruntime and scaling time slices based on nice values."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "maximum-subarray-sum-kadane-s-algorithm",
+        "subject": "dsa",
+        "subtopicTitle": "Medium Array Problems",
+        "type": "coding",
+        "title": "Maximum Subarray Sum (Kadane's Algorithm)",
+        "difficulty": "Medium",
+        "statement": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+        "functionSignature": "int maxSubArray(vector<int>& nums)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119458696_a7f0b51b": {
+    "sessionId": "custom-int-1795119458696_a7f0b51b",
+    "userId": "user_bob_cs",
+    "createdAt": "2026-11-19T20:17:38.696Z",
+    "updatedAt": "2026-11-19T20:17:38.696Z",
+    "targetRole": "Database Engineer",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "sql",
+    "totalDurationMinutes": 15,
+    "timeRemainingSeconds": 900,
+    "selectedSubjects": [
+      "dbms"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "dbms-q-composite-index",
+        "subject": "dbms",
+        "subtopicTitle": "Database Management Systems",
+        "type": "conceptual",
+        "title": "B-Tree Leftmost Prefix Rule and Unindexed Filters",
+        "difficulty": "Hard",
+        "statement": "A high-traffic e-commerce database has a table orders with 50,000,000 rows. A composite index exists on (status, created_at, customer_id). Explain how the query engine executes the following query: SELECT * FROM orders WHERE created_at >= '2025-01-01' AND customer_id = 42. Can it use an Index Seek? How would you optimize the index?",
+        "expectedPoints": [
+          "Explain that B+ tree is sorted primarily by status, then created_at, then customer_id",
+          "Because status is missing from WHERE clause, the engine CANNOT perform an Index Seek",
+          "It must fall back to an Index Full Scan or a Table Scan",
+          "Explain that range filter on created_at prevents following columns from acting as seek predicates",
+          "Optimization: Create an index with equality columns first: (customer_id, created_at) or (status, customer_id, created_at)"
+        ],
+        "followUpPrompt": {
+          "question": "What is an Index Covering Query (Covering Index), and why does it avoid disk lookups entirely?",
+          "whyAsked": "Probes deep understanding of clustered vs secondary index mechanics.",
+          "expectedDefense": "A covering index contains all columns requested in SELECT, WHERE, and JOIN. The engine satisfies the entire query from index leaf pages without fetching the physical data row."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "maximum-subarray-sum-kadane-s-algorithm",
+        "subject": "dsa",
+        "subtopicTitle": "Medium Array Problems",
+        "type": "coding",
+        "title": "Maximum Subarray Sum (Kadane's Algorithm)",
+        "difficulty": "Medium",
+        "statement": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+        "functionSignature": "int maxSubArray(vector<int>& nums)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119470998_1c084db5": {
+    "sessionId": "custom-int-1795119470998_1c084db5",
+    "userId": "cand-int-1795119470998",
+    "createdAt": "2026-11-19T20:17:50.998Z",
+    "updatedAt": "2026-11-19T20:17:50.998Z",
+    "targetRole": "Software Development Engineer (SDE-1)",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 45,
+    "timeRemainingSeconds": 2700,
+    "selectedSubjects": [
+      "dsa",
+      "sql",
+      "os"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "department-top-three-salaries",
+        "subject": "sql",
+        "subtopicTitle": "Window Functions",
+        "type": "sql",
+        "title": "Department Top Three Salaries",
+        "difficulty": "Hard",
+        "statement": "A company's executives are interested in seeing who earns the most money in each of the company's departments. Write a SQL query to find employees who earn the top three unique salaries in each department.",
+        "codeSnippet": "CREATE TABLE Department (id INT PRIMARY KEY, name VARCHAR(50)); CREATE TABLE Employee (id INT PRIMARY KEY, name VARCHAR(50), salary INT, departmentId INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 2,
+        "questionId": "os-q-scheduling",
+        "subject": "os",
+        "subtopicTitle": "Operating Systems",
+        "type": "conceptual",
+        "title": "Preemptive Shortest Job First vs Round Robin Trade-offs",
+        "difficulty": "Medium",
+        "statement": "Compare Preemptive Shortest Job First (SRTF) and Round Robin scheduling. Which minimizes average waiting time, and under what workloads does each algorithm fail?",
+        "expectedPoints": [
+          "SRTF is provably optimal for minimizing average waiting time",
+          "SRTF requires prior knowledge of CPU burst times, which is impossible to know with certainty in general-purpose OS",
+          "SRTF can cause indefinite starvation of CPU-intensive long processes",
+          "Round Robin guarantees bounded response time and prevents starvation using a time slice quantum",
+          "Round Robin performs poorly if time quantum is either too small (context switch thrashing) or too large (degrades to FCFS)"
+        ],
+        "followUpPrompt": {
+          "question": "How does Linux Completely Fair Scheduler (CFS) balance fairness and interactivity without a fixed round-robin quantum?",
+          "whyAsked": "Tests transition from textbook knowledge to real-world production OS design.",
+          "expectedDefense": "CFS uses virtual runtime (vruntime) tracked in a red-black tree, always picking the task with smallest vruntime and scaling time slices based on nice values."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471008_02d46a73": {
+    "sessionId": "custom-int-1795119471008_02d46a73",
+    "userId": "cand-lock-1795119471008",
+    "createdAt": "2026-11-19T20:17:51.008Z",
+    "updatedAt": "2026-11-19T20:17:51.008Z",
+    "targetRole": "Backend Engineer",
+    "difficulty": "Hard",
+    "format": "coding",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 30,
+    "timeRemainingSeconds": 1800,
+    "selectedSubjects": [
+      "dsa",
+      "sql"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "department-top-three-salaries",
+        "subject": "sql",
+        "subtopicTitle": "Window Functions",
+        "type": "sql",
+        "title": "Department Top Three Salaries",
+        "difficulty": "Hard",
+        "statement": "A company's executives are interested in seeing who earns the most money in each of the company's departments. Write a SQL query to find employees who earn the top three unique salaries in each department.",
+        "codeSnippet": "CREATE TABLE Department (id INT PRIMARY KEY, name VARCHAR(50)); CREATE TABLE Employee (id INT PRIMARY KEY, name VARCHAR(50), salary INT, departmentId INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471018_41c0e457": {
+    "sessionId": "custom-int-1795119471018_41c0e457",
+    "userId": "user-a-int-1795119471018",
+    "createdAt": "2026-11-19T20:17:51.018Z",
+    "updatedAt": "2026-11-19T20:17:51.018Z",
+    "targetRole": "SDE-1",
+    "difficulty": "Medium",
+    "format": "coding",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 30,
+    "timeRemainingSeconds": 1800,
+    "selectedSubjects": [
+      "dsa"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "maximum-subarray-sum-kadane-s-algorithm",
+        "subject": "dsa",
+        "subtopicTitle": "Medium Array Problems",
+        "type": "coding",
+        "title": "Maximum Subarray Sum (Kadane's Algorithm)",
+        "difficulty": "Medium",
+        "statement": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+        "functionSignature": "int maxSubArray(vector<int>& nums)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471035_469b5ef8": {
+    "sessionId": "custom-int-1795119471035_469b5ef8",
+    "userId": "cand-scorecard-test-1795119471035",
+    "createdAt": "2026-11-19T20:17:51.035Z",
+    "updatedAt": "2026-11-19T20:17:51.054Z",
+    "targetRole": "SDE-1",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 45,
+    "timeRemainingSeconds": 2700,
+    "selectedSubjects": [
+      "dsa",
+      "sql",
+      "os"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "submitted",
+        "candidateSubmission": {
+          "codeOrAnswer": "int paintersPartition(...) { return 35; }",
+          "language": "cpp",
+          "submittedAt": "2026-11-19T20:17:51.054Z",
+          "testResults": {
+            "passedCount": 5,
+            "totalCount": 5
+          },
+          "score": 100,
+          "verdict": "Passed All Tests"
+        }
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "department-top-three-salaries",
+        "subject": "sql",
+        "subtopicTitle": "Window Functions",
+        "type": "sql",
+        "title": "Department Top Three Salaries",
+        "difficulty": "Hard",
+        "statement": "A company's executives are interested in seeing who earns the most money in each of the company's departments. Write a SQL query to find employees who earn the top three unique salaries in each department.",
+        "codeSnippet": "CREATE TABLE Department (id INT PRIMARY KEY, name VARCHAR(50)); CREATE TABLE Employee (id INT PRIMARY KEY, name VARCHAR(50), salary INT, departmentId INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 2,
+        "questionId": "os-q-scheduling",
+        "subject": "os",
+        "subtopicTitle": "Operating Systems",
+        "type": "conceptual",
+        "title": "Preemptive Shortest Job First vs Round Robin Trade-offs",
+        "difficulty": "Medium",
+        "statement": "Compare Preemptive Shortest Job First (SRTF) and Round Robin scheduling. Which minimizes average waiting time, and under what workloads does each algorithm fail?",
+        "expectedPoints": [
+          "SRTF is provably optimal for minimizing average waiting time",
+          "SRTF requires prior knowledge of CPU burst times, which is impossible to know with certainty in general-purpose OS",
+          "SRTF can cause indefinite starvation of CPU-intensive long processes",
+          "Round Robin guarantees bounded response time and prevents starvation using a time slice quantum",
+          "Round Robin performs poorly if time quantum is either too small (context switch thrashing) or too large (degrades to FCFS)"
+        ],
+        "followUpPrompt": {
+          "question": "How does Linux Completely Fair Scheduler (CFS) balance fairness and interactivity without a fixed round-robin quantum?",
+          "whyAsked": "Tests transition from textbook knowledge to real-world production OS design.",
+          "expectedDefense": "CFS uses virtual runtime (vruntime) tracked in a red-black tree, always picking the task with smallest vruntime and scaling time slices based on nice values."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "IN_PROGRESS",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471060_5b5f3454": {
+    "sessionId": "custom-int-1795119471060_5b5f3454",
+    "userId": "cand-def-1795119471060",
+    "createdAt": "2026-11-19T20:17:51.060Z",
+    "updatedAt": "2026-11-19T20:17:51.117Z",
+    "targetRole": "SDE-1",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 30,
+    "timeRemainingSeconds": 1800,
+    "selectedSubjects": [
+      "dsa",
+      "sql"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "completed",
+        "candidateSubmission": {
+          "codeOrAnswer": "Binary search on monotonic answer space",
+          "language": "cpp",
+          "submittedAt": "2026-11-19T20:17:51.087Z",
+          "score": 45,
+          "verdict": "Brief Answer"
+        },
+        "candidateFollowUpDefense": {
+          "defenseText": "The feasibility function is strictly monotonic: if K painters cannot finish in time T, they certainly cannot finish in T-1.",
+          "submittedAt": "2026-11-19T20:17:51.099Z",
+          "defenseScore": 85,
+          "feedback": "Articulate defense of trade-offs."
+        }
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "department-top-three-salaries",
+        "subject": "sql",
+        "subtopicTitle": "Window Functions",
+        "type": "sql",
+        "title": "Department Top Three Salaries",
+        "difficulty": "Hard",
+        "statement": "A company's executives are interested in seeing who earns the most money in each of the company's departments. Write a SQL query to find employees who earn the top three unique salaries in each department.",
+        "codeSnippet": "CREATE TABLE Department (id INT PRIMARY KEY, name VARCHAR(50)); CREATE TABLE Employee (id INT PRIMARY KEY, name VARCHAR(50), salary INT, departmentId INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 1,
+    "state": "IN_PROGRESS",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471123_9c0fa4fa": {
+    "sessionId": "custom-int-1795119471123_9c0fa4fa",
+    "userId": "cand-complete-1795119471123",
+    "createdAt": "2026-11-19T20:17:51.123Z",
+    "updatedAt": "2026-11-19T20:17:51.202Z",
+    "targetRole": "SDE-1",
+    "difficulty": "Medium",
+    "format": "mixed",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 30,
+    "timeRemainingSeconds": 1800,
+    "selectedSubjects": [
+      "sql",
+      "os"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "second-highest-salary",
+        "subject": "sql",
+        "subtopicTitle": "Subqueries & Window Functions",
+        "type": "sql",
+        "title": "Second Highest Salary",
+        "difficulty": "Medium",
+        "statement": "Write a SQL query to find the second highest distinct salary from the Employee table. If there is no second highest salary, return NULL.",
+        "codeSnippet": "CREATE TABLE Employee (id INT PRIMARY KEY, salary INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "completed",
+        "candidateSubmission": {
+          "codeOrAnswer": "SELECT DENSE_RANK() OVER (...) FROM Employee;",
+          "language": "sql",
+          "submittedAt": "2026-11-19T20:17:51.136Z",
+          "testResults": {
+            "passedCount": 4,
+            "totalCount": 4
+          },
+          "score": 100,
+          "verdict": "Passed All Tests"
+        },
+        "candidateFollowUpDefense": {
+          "defenseText": "DENSE_RANK preserves consecutive rank intervals without gaps for ties.",
+          "submittedAt": "2026-11-19T20:17:51.146Z",
+          "defenseScore": 85,
+          "feedback": "Articulate defense of trade-offs."
+        }
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "os-q-scheduling",
+        "subject": "os",
+        "subtopicTitle": "Operating Systems",
+        "type": "conceptual",
+        "title": "Preemptive Shortest Job First vs Round Robin Trade-offs",
+        "difficulty": "Medium",
+        "statement": "Compare Preemptive Shortest Job First (SRTF) and Round Robin scheduling. Which minimizes average waiting time, and under what workloads does each algorithm fail?",
+        "expectedPoints": [
+          "SRTF is provably optimal for minimizing average waiting time",
+          "SRTF requires prior knowledge of CPU burst times, which is impossible to know with certainty in general-purpose OS",
+          "SRTF can cause indefinite starvation of CPU-intensive long processes",
+          "Round Robin guarantees bounded response time and prevents starvation using a time slice quantum",
+          "Round Robin performs poorly if time quantum is either too small (context switch thrashing) or too large (degrades to FCFS)"
+        ],
+        "followUpPrompt": {
+          "question": "How does Linux Completely Fair Scheduler (CFS) balance fairness and interactivity without a fixed round-robin quantum?",
+          "whyAsked": "Tests transition from textbook knowledge to real-world production OS design.",
+          "expectedDefense": "CFS uses virtual runtime (vruntime) tracked in a red-black tree, always picking the task with smallest vruntime and scaling time slices based on nice values."
+        },
+        "status": "completed",
+        "candidateSubmission": {
+          "codeOrAnswer": "Context switching causes TLB flushes on process boundaries.",
+          "language": "conceptual",
+          "submittedAt": "2026-11-19T20:17:51.172Z",
+          "score": 40,
+          "verdict": "Lacks Key Concepts"
+        },
+        "candidateFollowUpDefense": {
+          "defenseText": "Because page table pointers in CR3 register switch, invalidating cached virtual address mappings.",
+          "submittedAt": "2026-11-19T20:17:51.185Z",
+          "defenseScore": 85,
+          "feedback": "Articulate defense of trade-offs."
+        }
+      }
+    ],
+    "currentQuestionIndex": 1,
+    "state": "COMPLETED",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    },
+    "finalEvaluation": {
+      "overallScore": 75,
+      "verdict": "Hire",
+      "categoryScores": {
+        "codingCorrectness": 75,
+        "systemDepth": 80,
+        "conceptualAccuracy": 75,
+        "technicalCommunication": 85
+      },
+      "strengths": [
+        "Solid grasp of Second Highest Salary and relevant invariant trade-offs."
+      ],
+      "gaps": [
+        "Needs deeper practice in Preemptive Shortest Job First vs Round Robin Trade-offs under time pressure."
+      ],
+      "evidenceSummary": [
+        "Second Highest Salary (SQL): 96% score, verdict \"Passed All Tests\"",
+        "Preemptive Shortest Job First vs Round Robin Trade-offs (OS): 54% score, verdict \"Lacks Key Concepts\""
+      ],
+      "evaluatorNotes": "Completed multi-question simulation covering SQL, OS across 2 questions."
+    }
+  },
+  "custom-int-1795119471212_24bb5bfd": {
+    "sessionId": "custom-int-1795119471212_24bb5bfd",
+    "userId": "sim-user-1-1795119471212",
+    "createdAt": "2026-11-19T20:17:51.213Z",
+    "updatedAt": "2026-11-19T20:17:51.213Z",
+    "targetRole": "Software Engineer",
+    "difficulty": "Easy",
+    "format": "coding",
+    "preferredLanguage": "python",
+    "totalDurationMinutes": 20,
+    "timeRemainingSeconds": 1200,
+    "selectedSubjects": [
+      "dsa"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "painter-s-partition-problem",
+        "subject": "dsa",
+        "subtopicTitle": "BS on Answers",
+        "type": "coding",
+        "title": "Painter's Partition Problem",
+        "difficulty": "Hard",
+        "statement": "Given an array `boards` of `n` integers where `boards[i]` represents the length of the i-th board, and an integer `k` representing the number of painters available. Each painter takes 1 unit of time to paint 1 unit length of a board. Each painter can only paint contiguous sections of boards. Any board can be painted by at most one painter. Determine the minimum time required to get all boards painted.",
+        "functionSignature": "int paintersPartition(vector<int>& boards, int k)",
+        "followUpPrompt": {
+          "question": "Why is your chosen time complexity optimal for this input range?",
+          "whyAsked": "Assesses algorithm invariant awareness.",
+          "expectedDefense": "Rigorous complexity proof."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "maximum-subarray-sum-kadane-s-algorithm",
+        "subject": "dsa",
+        "subtopicTitle": "Medium Array Problems",
+        "type": "coding",
+        "title": "Maximum Subarray Sum (Kadane's Algorithm)",
+        "difficulty": "Medium",
+        "statement": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+        "functionSignature": "int maxSubArray(vector<int>& nums)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
+  },
+  "custom-int-1795119471227_aaa8ef90": {
+    "sessionId": "custom-int-1795119471227_aaa8ef90",
+    "userId": "sim-user-2-1795119471212",
+    "createdAt": "2026-11-19T20:17:51.227Z",
+    "updatedAt": "2026-11-19T20:17:51.227Z",
+    "targetRole": "Data Engineer",
+    "difficulty": "Hard",
+    "format": "coding",
+    "preferredLanguage": "cpp",
+    "totalDurationMinutes": 45,
+    "timeRemainingSeconds": 2700,
+    "selectedSubjects": [
+      "sql"
+    ],
+    "questions": [
+      {
+        "questionIndex": 0,
+        "questionId": "second-highest-salary",
+        "subject": "sql",
+        "subtopicTitle": "Subqueries & Window Functions",
+        "type": "sql",
+        "title": "Second Highest Salary",
+        "difficulty": "Medium",
+        "statement": "Write a SQL query to find the second highest distinct salary from the Employee table. If there is no second highest salary, return NULL.",
+        "codeSnippet": "CREATE TABLE Employee (id INT PRIMARY KEY, salary INT);",
+        "followUpPrompt": {
+          "question": "How does the query optimizer plan this execution, and what index would make it an index-only scan?",
+          "whyAsked": "Tests practical database engine execution awareness.",
+          "expectedDefense": "An index covering the join and filter columns allows the engine to satisfy the query entirely from the B+ tree."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 1,
+        "questionId": "maximum-subarray-sum-kadane-s-algorithm",
+        "subject": "dsa",
+        "subtopicTitle": "Medium Array Problems",
+        "type": "coding",
+        "title": "Maximum Subarray Sum (Kadane's Algorithm)",
+        "difficulty": "Medium",
+        "statement": "Given an integer array `nums`, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum.",
+        "functionSignature": "int maxSubArray(vector<int>& nums)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      },
+      {
+        "questionIndex": 2,
+        "questionId": "search-in-rotated-sorted-array",
+        "subject": "dsa",
+        "subtopicTitle": "BS on 1D Arrays",
+        "type": "coding",
+        "title": "Search in Rotated Sorted Array",
+        "difficulty": "Medium",
+        "statement": "Given the integer array `nums` sorted in ascending order (with distinct values) that is possibly rotated at an unknown pivot index, and an integer `target`, return the index of `target` if it is in `nums`, or -1 if it is not in `nums`. You must write an algorithm with O(log n) runtime complexity.",
+        "functionSignature": "int searchRotated(vector<int>& nums, int target)",
+        "followUpPrompt": {
+          "question": "Explain the space-time trade-off in your implementation.",
+          "whyAsked": "Evaluates resource awareness.",
+          "expectedDefense": "Clear articulation of asymptotic auxiliary memory."
+        },
+        "status": "unanswered"
+      }
+    ],
+    "currentQuestionIndex": 0,
+    "state": "READY",
+    "telemetry": {
+      "tabSwitches": 0,
+      "windowBlurs": 0,
+      "events": []
+    }
   }
 }

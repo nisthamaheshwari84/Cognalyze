@@ -581,3 +581,22 @@ html {
   color: #F4F7FF !important;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important;
 }
+
+/* Custom Scrollbar Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide Next.js Development floating badges and route indicators that block UI */
+[data-nextjs-toast],
+nextjs-portal,
+div[data-nextjs-router-announcer],
+div:has(> svg[viewBox="0 0 180 180"]),
+div[class*="nextjs-dev-overlay"],
+button[aria-label="Open Next.js DevTools"] {
+  display: none !important;
+}

@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import AppNav from "@/components/AppNav";
+import { getStudentConceptMastery, ConceptMasterySummary } from "@/lib/skills/learn/mastery-store";
+import ConceptKnowledgeGraph from "@/components/skills/learn/ConceptKnowledgeGraph";
 
 interface DsaTopic {
   id: string;
@@ -178,6 +180,7 @@ const STRIVER_STEPS_OPTIONS = [
 ];
 
 function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded?: boolean; onSelectProblem?: (probId: string) => void }) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const topicParam = searchParams.get("topic");
   const opportunityParam = searchParams.get("for_opportunity");
@@ -239,7 +242,8 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
   const [friendsList, setFriendsList] = useState<any[]>([]);
 
   // Active view tab
-  const [activeTab, setActiveTab] = useState<"problems" | "spaced_review" | "heatmap" | "social" | "badges">("problems");
+  const [activeTab, setActiveTab] = useState<"problems" | "spaced_review" | "heatmap" | "social" | "badges" | "concept_graph">("problems");
+  const [conceptMastery, setConceptMastery] = useState<ConceptMasterySummary>(() => getStudentConceptMastery(studentId || "default-student"));
 
   // Problem timers & Notes state
   const [activeTimerId, setActiveTimerId] = useState<string | null>(null);
@@ -323,6 +327,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
         setDisplayHandle(leadData.my_preference?.display_handle || "");
       }
       if (friendData.friends) setFriendsList(friendData.friends);
+      setConceptMastery(getStudentConceptMastery(sId || "default-student"));
 
       // Handle Topic Deep Link
       if (topicParam) {
@@ -781,8 +786,8 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
               onClick={() => {
                 if (onSelectProblem) {
                   onSelectProblem(prob.id);
-                } else if (typeof window !== "undefined") {
-                  window.location.href = `/student/skills/dsa?problemId=${prob.id}&mode=practice`;
+                } else {
+                  router.push(`/student/skills/dsa?problemId=${prob.id}&mode=practice`);
                 }
               }}
               style={{
@@ -1200,6 +1205,30 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
             <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>{Math.round((totalSolved / Math.max(1, problems.length)) * 100)}% Curriculum Cleared</div>
           </div>
 
+          {/* CONCEPTS UNDERSTOOD METRIC CARD (PHASE 9) */}
+          <div
+            onClick={() => setActiveTab("concept_graph")}
+            style={{
+              padding: "1.2rem",
+              background: activeTab === "concept_graph" ? "#EFF4FE" : "#FFFFFF",
+              border: activeTab === "concept_graph" ? "1.5px solid #356AE6" : "1px solid #E4E1DA",
+              borderRadius: 10,
+              boxShadow: "0 1px 3px rgba(16,24,40,0.04)",
+              cursor: "pointer",
+              transition: "all 0.15s ease"
+            }}
+          >
+            <div style={{ fontSize: 11, color: "#356AE6", textTransform: "uppercase", letterSpacing: 0.5, fontWeight: 700, marginBottom: 4 }}>
+              🧠 Concepts Understood
+            </div>
+            <div style={{ fontSize: "2rem", fontWeight: 800, color: "#356AE6" }}>
+              {conceptMastery.totalUnderstoodCount} <span style={{ fontSize: 13, color: "#98A2B3" }}>/ {conceptMastery.totalAvailableConcepts}</span>
+            </div>
+            <div style={{ fontSize: 11, color: "#667085", marginTop: 4 }}>
+              {conceptMastery.overallMasteryPercentage}% Invariant Mastery Verified
+            </div>
+          </div>
+
           <div
             onClick={() => setActiveTab("spaced_review")}
             style={{
@@ -1330,6 +1359,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
         <div style={{ display: "flex", gap: 8, borderBottom: "1px solid #E4E1DA", paddingBottom: "0.75rem", marginBottom: "1.5rem", overflowX: "auto" }}>
           {[
             { key: "problems", label: "📚 Problem Bank" },
+            { key: "concept_graph", label: "🧠 Concept Knowledge Graph (17 Steps)" },
             { key: "spaced_review", label: `🔁 Review Deck (${dueProblems.length})` },
             { key: "heatmap", label: "📊 Topic Mastery Heatmap" },
             { key: "social", label: "👥 Social Arena & Leaderboard" },
@@ -2653,6 +2683,13 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ─── TAB 6: CONCEPT KNOWLEDGE GRAPH (Phase 9) ─── */}
+        {activeTab === "concept_graph" && (
+          <div style={{ animation: "fadeIn 0.2s ease-in", marginTop: 8 }}>
+            <ConceptKnowledgeGraph candidateId={studentId || "default-student"} />
           </div>
         )}
       </main>

@@ -66,6 +66,14 @@ export function proxy(req: NextRequest) {
     pathname.startsWith("/api/opportunities") ||
     pathname.startsWith("/api/recommendations") ||
     pathname.startsWith("/api/internal/opportunities") ||
+    pathname.startsWith("/api/interviews") ||
+    pathname.startsWith("/api/reports") ||
+    pathname.startsWith("/api/speech") ||
+    pathname.startsWith("/api/code") ||
+    pathname.startsWith("/api/qa") ||
+    pathname === "/api/audit" ||
+    pathname === "/api/health" ||
+    pathname.startsWith("/personalized-arena") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/images/") ||
     pathname.startsWith("/icons/") ||

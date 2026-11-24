@@ -103,7 +103,7 @@ export default function InterviewPrepHistoryPage() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
               <Link
-                href="/interview"
+                href="/student/practice-interview"
                 style={{
                   fontSize: 12,
                   color: isDark ? "#3478F6" : "#356AE6",
@@ -115,7 +115,7 @@ export default function InterviewPrepHistoryPage() {
                   fontWeight: 600,
                 }}
               >
-                ← Back to Mock Interview
+                ← Back to Personalized Arena
               </Link>
               <span style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085" }}>
                 Session History & Performance Telemetry
@@ -139,7 +139,7 @@ export default function InterviewPrepHistoryPage() {
 
           <div style={{ display: "flex", gap: 10 }}>
             <Link
-              href="/interview"
+              href="/student/practice-interview"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -332,7 +332,7 @@ export default function InterviewPrepHistoryPage() {
             </p>
             <div style={{ display: "flex", justifyContent: "center", gap: 12 }}>
               <Link
-                href="/interview"
+                href="/student/practice-interview"
                 style={{
                   padding: "8px 18px",
                   borderRadius: 8,
@@ -455,7 +455,7 @@ export default function InterviewPrepHistoryPage() {
                       {session.target_role}
                     </h3>
                     <div style={{ fontSize: 12, color: isDark ? "#B6C4D6" : "#667085", marginBottom: 8 }}>
-                      Target: {session.target_company || "FAANG / Tier 1 Standard"}
+                      Target: {session.target_company || "Industry-Standard Role-Aligned"}
                     </div>
 
                     {session.topics_covered && session.topics_covered.length > 0 && (
@@ -581,7 +581,7 @@ export default function InterviewPrepHistoryPage() {
                     SAVED EVALUATION REPORT
                   </div>
                   <h2 style={{ fontSize: 20, fontWeight: 800, margin: "4px 0 0", color: isDark ? "#F2F6FC" : "#162A43" }}>
-                    {selectedSessionReport.target_role} · {selectedSessionReport.target_company || "FAANG / Tier 1"}
+                    {selectedSessionReport.target_role} · {selectedSessionReport.target_company || "Industry-Standard Role-Aligned"}
                   </h2>
                 </div>
                 <button

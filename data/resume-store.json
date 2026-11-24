@@ -1,5 +1,51 @@
 [
   {
+    "id": "a43f32f7-1502-4b93-970e-1e6676282a66",
+    "candidateId": "cand-473885",
+    "fileName": "Uploaded Resume.txt",
+    "parsedText": "sample resume",
+    "atsScore": 60,
+    "skills": [],
+    "projects": [],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-19T20:17:53.890Z",
+    "updatedAt": "2026-11-19T20:17:53.890Z"
+  },
+  {
+    "id": "9224b231-4b67-4dc2-8b27-881e59b9d126",
+    "candidateId": "student_a_1795119458642",
+    "fileName": "Rahul_Sharma_Resume.pdf",
+    "parsedText": "Rahul Sharma. Built Distributed Message Broker in Python using Raft protocol. Skills: Python, gRPC, Redis.",
+    "atsScore": 71,
+    "skills": [
+      {
+        "name": "Python",
+        "level": "Expert",
+        "proficiency": "0.9"
+      },
+      {
+        "name": "gRPC",
+        "level": "Advanced",
+        "proficiency": "0.8"
+      }
+    ],
+    "projects": [
+      {
+        "title": "Distributed Message Broker",
+        "tech_stack": [
+          "Python",
+          "gRPC"
+        ],
+        "description": "High concurrency messaging queue."
+      }
+    ],
+    "experience": [],
+    "education": [],
+    "uploadedAt": "2026-11-19T20:17:39.041Z",
+    "updatedAt": "2026-11-19T20:17:39.041Z"
+  },
+  {
     "id": "b908f635-9027-4b98-b891-f150e5ab60ba",
     "candidateId": "cand-189843",
     "fileName": "Uploaded Resume.txt",
@@ -783,7 +829,7 @@
     "updatedAt": "2026-10-26T14:34:18.375Z"
   },
   {
-    "id": "a77017bc-aa07-4249-9595-456d8f90f65b",
+    "id": "6886d794-2213-4898-9287-f388e8095383",
     "candidateId": "u-rem-student-001",
     "fileName": "resume.pdf",
     "parsedText": "123 456 789 !@#$%^&*() -- empty symbols without skills",
@@ -802,8 +848,8 @@
     ],
     "experience": [],
     "education": [],
-    "uploadedAt": "2026-11-15T20:23:08.110Z",
-    "updatedAt": "2026-11-15T20:23:08.110Z"
+    "uploadedAt": "2026-11-19T20:17:53.805Z",
+    "updatedAt": "2026-11-19T20:17:53.805Z"
   },
   {
     "id": "748c67ee-d767-459c-8138-5dbfa7c342ba",

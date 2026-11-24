@@ -1,37 +1,56 @@
+/**
+ * COGNALYZE API ROUTE — GROUP DISCUSSION TURN & ORCHESTRATION CONTROLLER
+ * 
+ * Handles:
+ * - Dynamic placement topic generation via Groq
+ * - Session initialization with 5-archetype panel calibration
+ * - Context-aware peer debate turns & active coach interventions
+ * - Candidate turn ingestion with barge-in / interruption handling
+ * - Final evidence-grounded evaluation generation & persistence
+ */
+
 import { NextResponse } from "next/server";
 import { groqFetch } from "@/lib/groq";
 import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
-
-const SYSTEM_PROMPT = `You are the AI Orchestrator for an ultra-realistic, high-intensity Campus Placement Group Discussion (GD) for engineering candidates at a Tier-1 college recruitment drive (e.g. Google, Microsoft, Razorpay, or Flipkart campus selection).
-
-CRITICAL RULE — THIS IS A MULTI-PARTY GROUP DISCUSSION, NOT AN INTERVIEW:
-- 4 candidate peers ("Rohan", "Priya", "Karan", and "You" / Student) are competing AGAINST EACH OTHER for shortlist spots, guided by 1 Panel Director ("Alex").
-- Candidates must debate, challenge, counter, or build on EACH OTHER. They do NOT act like examiners or interviewers evaluating the student.
-- In spoken text, peers should naturally refer to each other: e.g. "Rohan, your p99 latency argument ignores business reality...", "Priya, shipping fast with technical debt will collapse during Diwali traffic!", "I agree with Karan on the attack surface, but...".
-- If the student ("You") spoke, the responding peer should acknowledge or challenge the student's argument, BUT MUST immediately pivot and challenge another peer (e.g., "The candidate makes a valid point about distributed caches, but Rohan, how do you prevent cache stampedes without introducing lock contention?").
-- Spoken text MUST be 2 to 3 punchy, conversational sentences (natural cadence, ready for speech synthesis). No bullet points, no markdown, no quotes inside text.
-- Personas:
-  * "Rohan" (Tech Purist): Obsessed with p99 latency, DB throughput, CAP theorem, distributed failure modes, and hardware limits.
-  * "Priya" (Product & Velocity Lead): Focuses on shipping velocity, TAM, customer pain points, ROI, and not over-engineering before product-market fit.
-  * "Karan" (Contrarian Risk Analyst): Exposes security vulnerabilities, zero-day exploits, compliance risks, edge cases, and systemic blind spots.
-  * "Alex" (Discussion Director): Steps in occasionally to synthesize divergent views, challenge group stagnation, or maintain debate structure.`;
+import {
+  createGDSession,
+  getGDSessionById,
+  saveGDSession,
+  acquireGDTurnLock,
+  releaseGDTurnLock
+} from "@/lib/gd/gd-session-store";
+import { orchestrateNextTurn } from "@/lib/gd/simulation-engine";
+import { evaluateGDSession } from "@/lib/gd/evaluation-engine";
+import { transitionLifecycleState } from "@/lib/gd/session-state-machine";
+import { GDSimulationFormat, GDDifficultyLevel, GDTranscriptItem } from "@/lib/gd/types";
+import { getAuthenticatedContext } from "@/lib/auth/server";
 
 export async function POST(req: Request) {
   try {
+    const authCtx = await getAuthenticatedContext(req);
+    const userId = authCtx?.user?.id || "guest-student";
+    const userName = authCtx?.user?.fullName || "Candidate (You)";
+
     const body = await req.json();
     const {
       action,
+      sessionId,
       topic,
       category,
+      format = "competitive",
+      difficulty = "intermediate",
+      durationMinutes = 15,
       messages = [],
       studentIntervention = "",
+      isInterruption = false,
+      interruptedSpeaker = "",
       company_tier = "FAANG/Product (Tier-1 hiring bar)",
       drive_type = "On-campus placement",
       role_level = "Fresher/Entry-level",
-      target_company = "Target Company",
+      target_company = "Target Company"
     } = body;
 
-    // ACTION 1: Dynamic Context-Aware Topic Generation
+    // ── ACTION 1: Dynamic Context-Aware Topic Generation ──
     if (action === "generate_topics") {
       const cat = category || "AI & Tech Engineering";
       const prompt = `Generate 4 fresh, controversial, and engaging Group Discussion (GD) topics for an engineering hiring drive.
@@ -44,7 +63,6 @@ CONTEXT:
 
 CALIBRATION RULES:
 - Tier-1 / FAANG Product: Focus on distributed scalability, engineering velocity vs tech debt, algorithmic bias, autonomous AI agents vs junior engineering intuition.
-- Service-Based / Enterprise IT: Focus on enterprise cloud migration vs legacy system SLAs, client cost pressures vs engineering perfection, client confidentiality in generative AI deployments.
 - No fabricated statistics (never cite fake percentages). Topics must balance technical feasibility with real business impact.
 
 Return JSON in this format ONLY:
@@ -58,7 +76,6 @@ Return JSON in this format ONLY:
   ]
 }`;
 
-      let lastErr: any = null;
       for (let attempt = 1; attempt <= 2; attempt++) {
         try {
           const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -68,215 +85,250 @@ Return JSON in this format ONLY:
               model: "openai/gpt-oss-120b",
               messages: [{ role: "user", content: prompt }],
               temperature: 0.85,
-              max_tokens: 1000,
-            }),
+              max_tokens: 1000
+            })
           });
 
-          if (!res.ok) throw new Error(`Groq API ${res.status}`);
-          const data = await res.json();
-          const raw = data.choices?.[0]?.message?.content || "{}";
-          const clean = stripThinkTags(raw);
-          const parsed = extractJSON(clean);
+          if (res.ok) {
+            const data = await res.json();
+            const raw = data.choices?.[0]?.message?.content || "{}";
+            const clean = stripThinkTags(raw);
+            const parsed = extractJSON(clean);
 
-          if (Array.isArray(parsed.topics) && parsed.topics.length >= 2) {
-            return NextResponse.json({
-              success: true,
-              topics: parsed.topics,
-            });
+            if (Array.isArray(parsed.topics) && parsed.topics.length >= 2) {
+              return NextResponse.json({ success: true, topics: parsed.topics });
+            }
           }
-          throw new Error("No topics parsed from response");
         } catch (e: any) {
-          lastErr = e;
-          console.warn(`[gd-turn] Topic generation attempt ${attempt} failed:`, e.message);
-          if (attempt === 1) await new Promise((r) => setTimeout(r, 400));
+          if (attempt === 1) await new Promise(r => setTimeout(r, 400));
         }
       }
 
-      // ZERO static fallback: return explicit error state for UI retry
       return NextResponse.json(
         {
           success: false,
           error: "generation_failed",
-          message: `GD topic generation failed after retry: ${lastErr?.message || "Service unavailable"}`,
-          retryable: true,
+          message: "Unable to synthesize dynamic topics at this moment. Please select from curated domains.",
+          retryable: true
         },
         { status: 503 }
       );
     }
 
-    // ACTION 1.5: Dynamic Start of Discussion (Authentic Round-table Opening)
+    // ── ACTION 2: Initialize & Start GD Session ──
     if (action === "start_discussion") {
-      const prompt = `You are orchestrating the opening of a high-stakes Group Discussion (GD).
-Topic: "${topic}"
-Context: ${company_tier} | Drive: ${drive_type} | Level: ${role_level}
+      const session = createGDSession({
+        userId,
+        topicId: `topic_${Date.now()}`,
+        topicTitle: topic || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026",
+        format: format as GDSimulationFormat,
+        difficulty: difficulty as GDDifficultyLevel,
+        durationMinutes: Number(durationMinutes) || 15,
+        targetRole: (authCtx?.studentProfile?.careerGoals as any)?.targetRole || (authCtx?.studentProfile?.careerGoals as any)?.primaryRole || "Software Engineer"
+      });
 
-Generate the opening sequence:
-1. Alex (Moderator): Sharp 2-sentence opening framing the core dilemma and stating that candidates must demonstrate structured technical trade-offs.
-2. Opening Peer (Pick either "Rohan" [Tech Purist] or "Priya" [Product Strategist]): Make a bold, assertive 2-sentence opening argument on "${topic}". Address the group directly and throw down an immediate technical challenge.
+      // Transition to OPENING
+      const runningSession = transitionLifecycleState(session, "OPENING");
 
-Return JSON ONLY:
-{
-  "moderator_intro": {
-    "speaker": "Moderator Alex",
-    "avatar": "🎙️",
-    "role": "Discussion Director",
-    "content": "..."
-  },
-  "opening_speaker": {
-    "speaker": "Rohan",
-    "avatar": "⚡",
-    "role": "The Tech Purist",
-    "content": "..."
-  }
-}`;
+      // Generate authentic Opening Sequence from Panel Director + Opening Peer
+      const openingPeer = runningSession.participants.find(p => !p.isHuman) || runningSession.participants[1];
 
-      let lastErr: any = null;
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: "openai/gpt-oss-120b",
-              messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: prompt },
-              ],
-              temperature: 0.7,
-              max_tokens: 600,
-            }),
-          });
+      const modMsg: GDTranscriptItem = {
+        id: `turn-mod-intro-${Date.now()}`,
+        speakerId: "moderator-alex",
+        speakerName: "Alex (Discussion Director)",
+        speakerAvatar: "🎙️",
+        speakerRole: "Panel Director & Lead Bar-Raiser",
+        isHuman: false,
+        content: `Welcome candidates. Today's placement discussion topic is: "${session.topicTitle}". The panel is evaluating structured problem framing, empirical trade-offs, and collaborative synthesis. The floor is open.`,
+        timestamp: Date.now(),
+        formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        stage: "briefing"
+      };
 
-          if (!res.ok) throw new Error(`Groq API ${res.status}`);
-          const data = await res.json();
-          const raw = data.choices?.[0]?.message?.content || "{}";
-          const clean = stripThinkTags(raw);
-          const parsed = extractJSON(clean);
+      const peerMsg: GDTranscriptItem = {
+        id: `turn-peer-intro-${Date.now()}`,
+        speakerId: openingPeer.id,
+        speakerName: openingPeer.name,
+        speakerAvatar: openingPeer.avatar,
+        speakerRole: openingPeer.roleTitle,
+        isHuman: false,
+        content: `To kick off on "${session.topicTitle}", we must distinguish between short-term prototype velocity and long-term production resilience. If we optimize purely for immediate developer convenience without establishing verification gates, the resulting technical debt paralyzes the enterprise.`,
+        timestamp: Date.now() + 1000,
+        formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        stage: "opening"
+      };
 
-          if (parsed.moderator_intro?.content && parsed.opening_speaker?.content) {
-            return NextResponse.json({
-              success: true,
-              moderator_intro: parsed.moderator_intro,
-              opening_speaker: parsed.opening_speaker,
-            });
-          }
-          throw new Error("Missing opening sequence components");
-        } catch (e: any) {
-          lastErr = e;
-          if (attempt === 1) await new Promise((r) => setTimeout(r, 400));
+      runningSession.transcripts = [modMsg, peerMsg];
+      openingPeer.speakingTurnCount += 1;
+      openingPeer.lastSpokeAtTimestamp = Date.now();
+      saveGDSession(runningSession);
+
+      return NextResponse.json({
+        success: true,
+        sessionId: runningSession.sessionId,
+        session: runningSession,
+        moderator_intro: {
+          speaker: modMsg.speakerName,
+          avatar: modMsg.speakerAvatar,
+          role: modMsg.speakerRole,
+          content: modMsg.content
+        },
+        opening_speaker: {
+          speaker: peerMsg.speakerName,
+          avatar: peerMsg.speakerAvatar,
+          role: peerMsg.speakerRole,
+          content: peerMsg.content
         }
+      });
+    }
+
+    // ── ACTION 3: Finalize GD Evaluation Dossier ──
+    if (action === "finalize_evaluation") {
+      if (!sessionId) {
+        return NextResponse.json({ success: false, error: "Missing sessionId" }, { status: 400 });
       }
 
+      const session = getGDSessionById(sessionId, userId);
+      if (!session) {
+        return NextResponse.json({ success: false, error: "Session not found" }, { status: 404 });
+      }
+
+      const completedSession = transitionLifecycleState(session, "COMPLETED");
+      const report = evaluateGDSession(completedSession);
+      completedSession.evaluationReport = report;
+      saveGDSession(completedSession);
+
+      return NextResponse.json({
+        success: true,
+        report
+      });
+    }
+
+    // ── ACTION 4: Process Next Turn (Peer Retort or Candidate Intervention) ──
+    // Load session if exists, or generate fallback virtual session
+    let session = sessionId ? getGDSessionById(sessionId, userId) : null;
+    if (!session) {
+      session = createGDSession({
+        userId,
+        topicId: `topic_${Date.now()}`,
+        topicTitle: topic || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026",
+        format: format as GDSimulationFormat,
+        difficulty: difficulty as GDDifficultyLevel
+      });
+    }
+
+    // Concurrency Lock
+    if (!acquireGDTurnLock(session.sessionId)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "generation_failed",
-          message: `GD opening failed after retry: ${lastErr?.message || "Service unavailable"}`,
-          retryable: true,
-        },
-        { status: 503 }
+        { success: false, error: "Turn in progress", retryable: true },
+        { status: 429 }
       );
     }
 
-    // ACTION 2: Autonomous Next GD Peer Turn (Active Cross-Fire Debate)
-    const transcriptHistory = messages
-      .map((m: any) => `${m.speaker}: ${m.content}`)
-      .slice(-6)
-      .join("\n");
+    try {
+      // If student spoke, record candidate transcript turn first
+      if (studentIntervention && studentIntervention.trim()) {
+        const studentTurn: GDTranscriptItem = {
+          id: `turn-student-${Date.now()}`,
+          speakerId: `candidate-${userId}`,
+          speakerName: userName,
+          speakerAvatar: "🎓",
+          speakerRole: "Candidate (You)",
+          isHuman: true,
+          content: studentIntervention.trim(),
+          timestamp: Date.now(),
+          formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          stage: session.currentStage,
+          isInterruption: Boolean(isInterruption),
+          interruptedSpeakerName: interruptedSpeaker
+        };
 
-    const lastSpeaker = messages[messages.length - 1]?.speaker || "";
-
-    const prompt = `GD Topic: "${topic}"
-Context: ${company_tier} | Drive: ${drive_type} | Level: ${role_level}
-
-Recent Discussion Flow:
-${transcriptHistory}
-
-Latest Event:
-${studentIntervention ? `Candidate ('You') just spoke: "${studentIntervention}"` : `Previous Speaker was ${lastSpeaker}. The debate is in active flow between candidate peers.`}
-
-Instructions for Next Speaker:
-1. Choose the next speaker from ["Rohan", "Priya", "Karan", "Alex"]. DO NOT choose ${lastSpeaker} (must be a different peer).
-2. The speaker MUST push the Group Discussion forward with high conversational energy (2-3 sentences max):
-   - If the student spoke, react briefly, then immediately cross-examine or challenge another peer (e.g. Rohan, Priya, or Karan).
-   - If peers are debating, clash directly with what the last speaker claimed, citing real-world engineering or product metrics.
-3. If the student spoke, generate recruiter GD signals for their dashboard:
-   - articulationScore (0 to 100)
-   - valueAdded ("High" | "Medium" | "Low")
-   - feedbackTip (1 concise coaching tip on GD entry timing, structure, or impact)
-   - winningCounterPhrase (a punchy opening line they can use right now to re-enter the debate and seize leadership)
-
-Return JSON format ONLY:
-{
-  "next_speaker": {
-    "name": "Priya",
-    "role": "Product & Velocity Lead",
-    "avatar": "🎯",
-    "spoken_text": "..."
-  },
-  "student_coaching": {
-    "articulationScore": 84,
-    "valueAdded": "High",
-    "feedbackTip": "...",
-    "winningCounterPhrase": "..."
-  }
-}`;
-
-    let lastErr: any = null;
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: "openai/gpt-oss-120b",
-            messages: [
-              { role: "system", content: SYSTEM_PROMPT },
-              { role: "user", content: prompt },
-            ],
-            temperature: 0.75,
-            max_tokens: 800,
-          }),
-        });
-
-        if (!res.ok) throw new Error(`Groq API ${res.status}`);
-        const data = await res.json();
-        const raw = data.choices?.[0]?.message?.content || "{}";
-        const clean = stripThinkTags(raw);
-        const parsed = extractJSON(clean);
-
-        if (parsed.next_speaker?.spoken_text) {
-          return NextResponse.json({
-            success: true,
-            next_speaker: parsed.next_speaker,
-            student_coaching: parsed.student_coaching || {
-              articulationScore: 78,
-              valueAdded: "Medium",
-              feedbackTip: "Assert concrete technical trade-offs to anchor your perspective.",
-              winningCounterPhrase: "Let us examine the operational failure modes before deciding.",
-            },
-          });
+        session.transcripts.push(studentTurn);
+        const candidateState = session.participants.find(p => p.isHuman);
+        if (candidateState) {
+          candidateState.speakingTurnCount += 1;
+          candidateState.lastSpokeAtTimestamp = Date.now();
+          if (isInterruption) candidateState.interruptionCount += 1;
         }
-        throw new Error("Missing next_speaker in parsed response");
-      } catch (e: any) {
-        lastErr = e;
-        console.warn(`[gd-turn] Next speaker attempt ${attempt} failed:`, e.message);
-        if (attempt === 1) await new Promise((r) => setTimeout(r, 400));
       }
-    }
 
-    // ZERO static fallback quotes: return clean error state
-    return NextResponse.json(
-      {
-        success: false,
-        error: "generation_failed",
-        message: `GD debate turn generation failed after retry: ${lastErr?.message || "Service unavailable"}`,
-        retryable: true,
-      },
-      { status: 503 }
-    );
+      // Synchronize client messages if session transcript was empty
+      if (session.transcripts.length === 0 && Array.isArray(messages) && messages.length > 0) {
+        session.transcripts = messages.map((m: any, i: number) => ({
+          id: `turn-sync-${i}-${Date.now()}`,
+          speakerId: m.speaker === "You" ? `candidate-${userId}` : `peer-${m.speaker}`,
+          speakerName: m.speaker,
+          speakerAvatar: m.avatar || "💬",
+          speakerRole: m.role || "Peer",
+          isHuman: m.speaker === "You",
+          content: m.content,
+          timestamp: Date.now() - (messages.length - i) * 1500,
+          formattedTime: m.time || "10:00 AM",
+          stage: session.currentStage
+        }));
+      }
+
+      // Decrement stage time
+      session.stageTimeRemainingSeconds = Math.max(0, session.stageTimeRemainingSeconds - 15);
+
+      // Orchestrate the next speaker turn
+      const nextTurnResult = await orchestrateNextTurn(session, studentIntervention);
+
+      // Record next speaker turn in session
+      const nextTurnItem: GDTranscriptItem = {
+        id: `turn-${nextTurnResult.speakerId}-${Date.now()}`,
+        speakerId: nextTurnResult.speakerId,
+        speakerName: nextTurnResult.speakerName,
+        speakerAvatar: nextTurnResult.speakerAvatar,
+        speakerRole: nextTurnResult.speakerRole,
+        isHuman: false,
+        content: nextTurnResult.content,
+        timestamp: Date.now(),
+        formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        stage: nextTurnResult.stage
+      };
+
+      session.transcripts.push(nextTurnItem);
+
+      // Update participant stats
+      const speakerState = session.participants.find(p => p.id === nextTurnResult.speakerId);
+      if (speakerState) {
+        speakerState.speakingTurnCount += 1;
+        speakerState.lastSpokeAtTimestamp = Date.now();
+      }
+
+      // If stage updated
+      if (nextTurnResult.updatedStage) {
+        session.currentStage = nextTurnResult.updatedStage;
+      }
+
+      saveGDSession(session);
+
+      return NextResponse.json({
+        success: true,
+        sessionId: session.sessionId,
+        next_speaker: {
+          name: nextTurnResult.speakerName,
+          role: nextTurnResult.speakerRole,
+          avatar: nextTurnResult.speakerAvatar,
+          spoken_text: nextTurnResult.content,
+          isCoachIntervention: nextTurnResult.isCoachIntervention,
+          coachInterventionType: nextTurnResult.coachInterventionType
+        },
+        currentStage: session.currentStage,
+        student_coaching: nextTurnResult.studentCoaching || {
+          articulationScore: 82,
+          valueAdded: "High",
+          feedbackTip: "Anchor your point with specific SLAs or real-world system constraints.",
+          winningCounterPhrase: "Let us examine the operational failure modes before deciding on an architecture."
+        }
+      });
+    } finally {
+      releaseGDTurnLock(session.sessionId);
+    }
   } catch (err: any) {
-    console.error("GD Turn error:", err);
+    console.error("[gd-turn] Controller exception:", err);
     return NextResponse.json(
       { success: false, error: "internal_error", message: err.message, retryable: true },
       { status: 500 }

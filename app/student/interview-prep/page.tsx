@@ -9,18 +9,18 @@ export default function StudentInterviewPrepPage() {
 
   const arenas = [
     {
-      id: "vision-interview",
-      title: "FAANG AI Mock Interview (Live Vision & Voice)",
-      interviewer: "Alex, Lead Architect & Vision Panel",
-      desc: "Cognalyze's flagship full-screen FAANG technical interview. Features Alex's interactive animated avatar, real-time voice speech synthesis (TTS) & mic transcription (STT), webcam proctoring telemetry, posture & eye contact monitoring, and 7-axis precision scoring.",
-      track: "product",
-      href: "/interview",
-      badge: "Flagship FAANG Experience",
+      id: "personalized-arena",
+      title: "Personalized Interview Arena (Autonomous AI Studio)",
+      interviewer: "Autonomous Adaptive Panel",
+      desc: "Cognalyze's flagship personalized interview studio. Features 3-stage adaptive orchestration, dynamic follow-up questioning, real-time MediaPipe eye & gaze proctoring, Student DNA skill trajectories, code sandbox execution, and comprehensive executive reports.",
+      track: "all",
+      href: "/student/practice-interview",
+      badge: "✨ Flagship Autonomous Studio",
       badgeColor: "#356AE6",
       badgeBg: "#EFF4FE",
       badgeBorder: "#D2E0FB",
-      icon: "🎙️",
-      features: ["Interactive 3D Avatar", "Webcam Vision & Eye Contact", "Voice STT & TTS Audio", "7-Axis Scoring & Verdict"]
+      icon: "⚡",
+      features: ["3-Stage Adaptive Orchestration", "Student DNA Tracking", "MediaPipe Eye Tracking", "Executive Reports & Rubrics"]
     },
     {
       id: "cs-technical",
@@ -48,7 +48,7 @@ export default function StudentInterviewPrepPage() {
       badgeBg: "#FEF7ED",
       badgeBorder: "#F8D8A7",
       icon: "👔",
-      features: ["STAR Structure Scoring", "Voice Response Mode", "Service & FAANG Track", "16+ Scenarios"]
+      features: ["STAR Structure Scoring", "Voice Response Mode", "Service & Product Track", "16+ Scenarios"]
     },
     {
       id: "system-design",
@@ -220,7 +220,7 @@ export default function StudentInterviewPrepPage() {
                   transition: "all 0.15s ease"
                 }}
               >
-                Product / FAANG
+                Product Track
               </button>
               <button
                 onClick={() => setSelectedTrack("service")}
@@ -245,7 +245,7 @@ export default function StudentInterviewPrepPage() {
         {/* ARENA CARDS GRID */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 380px), 1fr))", gap: 20 }}>
           {filteredArenas.map(arena => {
-            const isFlagship = arena.id === "vision-interview";
+            const isFlagship = arena.id === "personalized-arena";
             return (
               <div
                 key={arena.id}
@@ -275,7 +275,7 @@ export default function StudentInterviewPrepPage() {
                     borderBottomLeftRadius: 8,
                     letterSpacing: 0.5
                   }}>
-                    MOST POPULAR
+                    FLAGSHIP STUDIO
                   </div>
                 )}
                 <div>
@@ -345,7 +345,7 @@ export default function StudentInterviewPrepPage() {
                     transition: "all 0.15s ease"
                   }}
                 >
-                  {isFlagship ? "🎙️ Launch Flagship FAANG Interview ➔" : "Enter Arena Session ➔"}
+                  {isFlagship ? "⚡ Launch Autonomous Arena ➔" : "Enter Arena Session ➔"}
                 </Link>
               </div>
             );

@@ -7899,5 +7899,145 @@
     "assessmentResult": {
       "score": 90
     }
+  },
+  {
+    "id": "comp_1795119457871_17c22dbce",
+    "candidateId": "candidate_comp_A",
+    "challengeId": "detective-taskflow-auth",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "active",
+    "startedAt": "2026-11-19T20:17:37.871Z",
+    "workingFiles": {},
+    "events": [],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.871Z"
+      }
+    ]
+  },
+  {
+    "id": "comp_1795119457872_8d7f56afe",
+    "candidateId": "cand_edit_test",
+    "challengeId": "bughunter-taskflow-rbac",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "active",
+    "startedAt": "2026-11-19T20:17:37.872Z",
+    "workingFiles": {
+      "src/routes/task.routes.ts": "import { Router } from \"express\";\nimport { authenticateUser, requireRole } from \"../middleware/auth\";\nimport { TaskController } from \"../controllers/task.controller\";\n\nconst router = Router();\nconst controller = new TaskController();\n\nrouter.use(authenticateUser);\n\nrouter.get(\"/\", controller.listTasks);\nrouter.post(\"/\", requireRole([\"admin\", \"member\"]), controller.createTask);\nrouter.get(\"/:id\", controller.getTaskById);\nrouter.patch(\"/:id/status\", requireRole([\"admin\", \"member\"]), controller.updateTaskStatus);\nrouter.delete(\"/:id\", requireRole([\"admin\"]), controller.deleteTask);\n\nexport { router as taskRouter };\n"
+    },
+    "events": [
+      {
+        "id": "ev_1795119457873_8a8e224",
+        "sessionId": "comp_1795119457872_8d7f56afe",
+        "candidateId": "cand_edit_test",
+        "eventType": "file_edit",
+        "payload": {
+          "filePath": "src/routes/task.routes.ts",
+          "length": 620
+        },
+        "timestamp": "2026-11-19T20:17:37.873Z"
+      }
+    ],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.872Z"
+      }
+    ]
+  },
+  {
+    "id": "comp_1795119457883_685aef6bb",
+    "candidateId": "cand_assess_math",
+    "challengeId": "bughunter-taskflow-rbac",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "active",
+    "startedAt": "2026-11-19T20:17:37.883Z",
+    "workingFiles": {
+      "src/routes/task.routes.ts": "import { Router } from \"express\";\nimport { authenticateUser, requireRole } from \"../middleware/auth\";\nimport { TaskController } from \"../controllers/task.controller\";\n\nconst router = Router();\nconst controller = new TaskController();\n\nrouter.use(authenticateUser);\n\nrouter.get(\"/\", controller.listTasks);\nrouter.post(\"/\", requireRole([\"admin\", \"member\"]), controller.createTask);\nrouter.get(\"/:id\", controller.getTaskById);\nrouter.patch(\"/:id/status\", requireRole([\"admin\", \"member\"]), controller.updateTaskStatus);\nrouter.delete(\"/:id\", requireRole([\"admin\"]), controller.deleteTask);\n\nexport { router as taskRouter };\n"
+    },
+    "events": [
+      {
+        "id": "ev_1795119457885_b47dbd7",
+        "sessionId": "comp_1795119457883_685aef6bb",
+        "candidateId": "cand_assess_math",
+        "eventType": "file_edit",
+        "payload": {
+          "filePath": "src/routes/task.routes.ts",
+          "length": 620
+        },
+        "timestamp": "2026-11-19T20:17:37.885Z"
+      }
+    ],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.883Z"
+      }
+    ]
+  },
+  {
+    "id": "comp_1795119457891_343ff9b8d",
+    "candidateId": "cand_empty_test",
+    "challengeId": "bughunter-taskflow-rbac",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "active",
+    "startedAt": "2026-11-19T20:17:37.891Z",
+    "workingFiles": {},
+    "events": [],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.891Z"
+      }
+    ]
+  },
+  {
+    "id": "comp_1795119457895_0b3e529b5",
+    "candidateId": "cand_dna_sync_test",
+    "challengeId": "detective-taskflow-auth",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "active",
+    "startedAt": "2026-11-19T20:17:37.895Z",
+    "workingFiles": {},
+    "events": [],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.895Z"
+      }
+    ]
+  },
+  {
+    "id": "comp_1795119457941_4e85fea1d",
+    "candidateId": "cand_lock_test",
+    "challengeId": "detective-taskflow-auth",
+    "codebaseId": "taskflow-api-v1",
+    "practiceMode": "practice",
+    "status": "completed",
+    "startedAt": "2026-11-19T20:17:37.941Z",
+    "workingFiles": {},
+    "events": [],
+    "tutorMessages": [
+      {
+        "sender": "tutor",
+        "text": "Welcome to the Code Comprehension Lab! You are investigating the TaskFlow Distributed API. How would you like to begin exploring the codebase?",
+        "timestamp": "2026-11-19T20:17:37.941Z"
+      }
+    ],
+    "completedAt": "2026-11-19T20:17:37.943Z",
+    "assessmentResult": {
+      "score": 90
+    }
   }
 ]

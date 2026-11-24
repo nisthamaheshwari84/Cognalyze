@@ -26,7 +26,6 @@ async function runSidebarValidation() {
     { label: "Opportunities", href: "/student/opportunities" },
     { label: "Applications", href: "/student/applications" },
     { label: "Resume", href: "/resume" },
-    { label: "Interviews", href: "/interview" },
     { label: "Personalized Interview Arena", href: "/student/practice-interview", badge: "AI" },
     { label: "Skill Practice Hub", href: "/skill-practice" },
     { label: "Recruitment Simulation", href: "/recruitment-simulation" },
@@ -60,7 +59,7 @@ async function runSidebarValidation() {
 
   if (studentNavMatch) {
     const listStr = studentNavMatch[1];
-    const interviewIdx = listStr.indexOf('"Mock Interview"') !== -1 ? listStr.indexOf('"Mock Interview"') : listStr.indexOf('"Interviews"');
+    const interviewIdx = listStr.indexOf('"Personalized Interview Arena"');
     const skillHubIdx = listStr.indexOf('"Skill Practice Hub"');
     const simIdx = listStr.indexOf('"Recruitment Simulation"');
     const dsaIdx = listStr.indexOf('"DSA Tracker"');
@@ -68,8 +67,8 @@ async function runSidebarValidation() {
     const gdIdx = listStr.indexOf('"Group Discussion"');
     const mentorIdx = listStr.indexOf('"Cognalyze AI Mentor"');
 
-    assert(interviewIdx !== -1, "Mock Interview is in list");
-    assert(skillHubIdx > interviewIdx, "Skill Practice Hub is immediately after Interviews");
+    assert(interviewIdx !== -1, "Personalized Interview Arena is in list");
+    assert(skillHubIdx > interviewIdx, "Skill Practice Hub is immediately after Personalized Interview Arena");
     assert(simIdx > skillHubIdx, "Recruitment Simulation is immediately after Skill Practice Hub");
     assert(dsaIdx > simIdx, "DSA Tracker is immediately after Recruitment Simulation");
     assert(qbIdx > dsaIdx, "Question Bank is immediately after DSA Tracker");

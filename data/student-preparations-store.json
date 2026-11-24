@@ -581,5 +581,74 @@
     "readinessScore": 100,
     "evidenceCount": 1,
     "lastActiveAt": "2026-11-15T20:23:00.933Z"
+  },
+  {
+    "candidateId": "verify-stu-a-1795119455618",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-19T20:17:36.272Z"
+  },
+  {
+    "candidateId": "verify-stu-b-1795119455618",
+    "arenaId": "gsoc-2027",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-19T20:17:37.337Z"
+  },
+  {
+    "candidateId": "assess-persist-1795119457361",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {
+      "mock-session-flipkart-grid-7-1795119457361": {
+        "score": 132,
+        "percentage": 94,
+        "passed": true,
+        "completedAt": "2026-11-19T20:17:37.365Z"
+      }
+    },
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-19T20:17:37.365Z"
+  },
+  {
+    "candidateId": "interview-persist-1795119457377",
+    "arenaId": "amazon-hackon-2026",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 0,
+    "evidenceCount": 0,
+    "lastActiveAt": "2026-11-19T20:17:37.377Z"
+  },
+  {
+    "candidateId": "test_cand_1795119470740",
+    "arenaId": "flipkart-grid-7",
+    "selectedLevel": "beginner",
+    "completedTaskIds": [
+      "grid-ab-1"
+    ],
+    "activeTaskIndex": 0,
+    "submittedProjectIds": [],
+    "mockAssessmentScores": {},
+    "readinessScore": 100,
+    "evidenceCount": 1,
+    "lastActiveAt": "2026-11-19T20:17:50.741Z"
   }
 ]

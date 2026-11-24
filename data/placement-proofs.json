@@ -4610,5 +4610,133 @@
       "verifiedAt": "2026-11-15T20:23:05.732Z",
       "createdAt": "2026-11-15T20:23:05.732Z"
     }
+  ],
+  "candidate-p4-user1-1795119467190": [
+    {
+      "id": "proof_1795119467251_7dba16a",
+      "userId": "candidate-p4-user1-1795119467190",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "github_repo",
+      "title": "Raft Consensus Protocol Implementation",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_analysis",
+      "confidenceScore": 85,
+      "metadata": {},
+      "verifiedAt": "2026-11-19T20:17:47.251Z",
+      "createdAt": "2026-11-19T20:17:47.251Z"
+    }
+  ],
+  "proof-integrity-1795119467308": [
+    {
+      "id": "proof_1795119467380_2d4f524",
+      "userId": "proof-integrity-1795119467308",
+      "skillOrClaim": "dsa_binary_search",
+      "evidenceType": "coding_assessment",
+      "title": "Binary Search Arena Execution (Painter's Partition)",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_test_cases",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-11-19T20:17:47.380Z",
+      "createdAt": "2026-11-19T20:17:47.380Z"
+    },
+    {
+      "id": "proof_1795119467326_ec28728",
+      "userId": "proof-integrity-1795119467308",
+      "skillOrClaim": "dsa_binary_search",
+      "evidenceType": "certificate",
+      "title": "Self-Claimed LeetCode Mastery",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 70,
+      "metadata": {},
+      "createdAt": "2026-11-19T20:17:47.326Z"
+    }
+  ],
+  "proof-test-user-1795119471251": [
+    {
+      "id": "proof_1795119471340_a0528f5",
+      "userId": "proof-test-user-1795119471251",
+      "skillOrClaim": "Distributed Systems",
+      "evidenceType": "certificate",
+      "title": "Claimed Passing Score",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "unverified_form",
+      "confidenceScore": 80,
+      "metadata": {},
+      "createdAt": "2026-11-19T20:17:51.340Z"
+    },
+    {
+      "id": "proof_1795119471320_f01b00b",
+      "userId": "proof-test-user-1795119471251",
+      "skillOrClaim": "Operating Systems",
+      "evidenceType": "coding_assessment",
+      "title": "CS Fundamentals OS Benchmark",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "compiler_and_rubric_evaluation",
+      "confidenceScore": 90,
+      "assessmentScore": 92,
+      "metadata": {},
+      "verifiedAt": "2026-11-19T20:17:51.320Z",
+      "createdAt": "2026-11-19T20:17:51.320Z"
+    },
+    {
+      "id": "proof_1795119471290_bd60b69",
+      "userId": "proof-test-user-1795119471251",
+      "skillOrClaim": "Data Structures",
+      "evidenceType": "github_repo",
+      "title": "GitHub Repository with 40 Commits",
+      "description": "",
+      "sourceUrl": "https://github.com/candidate/algo-solutions",
+      "verificationTier": "source_connected",
+      "verificationMethod": "github_commit_history",
+      "confidenceScore": 75,
+      "metadata": {},
+      "verifiedAt": "2026-11-19T20:17:51.290Z",
+      "createdAt": "2026-11-19T20:17:51.290Z"
+    },
+    {
+      "id": "proof_1795119471251_a025e24",
+      "userId": "proof-test-user-1795119471251",
+      "skillOrClaim": "SQL Window Functions",
+      "evidenceType": "github_repo",
+      "title": "Self-Reported SQL Study",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "self_reported",
+      "verificationMethod": "candidate_claim",
+      "confidenceScore": 40,
+      "metadata": {},
+      "createdAt": "2026-11-19T20:17:51.252Z"
+    }
+  ],
+  "elevation-test-1795119471378": [
+    {
+      "id": "proof_1795119471411_440a05b",
+      "userId": "elevation-test-1795119471378",
+      "skillOrClaim": "sql_window_functions",
+      "evidenceType": "coding_assessment",
+      "title": "SQL Window Functions Verified Execution",
+      "description": "",
+      "sourceUrl": "",
+      "verificationTier": "assessment_verified",
+      "verificationMethod": "sqlite_database_sync",
+      "confidenceScore": 95,
+      "assessmentScore": 100,
+      "metadata": {},
+      "verifiedAt": "2026-11-19T20:17:51.411Z",
+      "createdAt": "2026-11-19T20:17:51.411Z"
+    }
   ]
 }
