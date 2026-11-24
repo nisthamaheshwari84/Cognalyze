@@ -1562,7 +1562,930 @@ export const COMPANY_INTELLIGENCE_REGISTRY: Record<string, CompanyPrepGuide> = {
     ],
     difficultyDistribution: { easy: 15, medium: 55, hard: 30 },
     sampleQuestionIds: ["qb-dsa-001", "qb-sys-001"]
+  },
+
+  "Adobe": {
+    company: "Adobe",
+    logoText: "AD",
+    overview: "Adobe technical evaluations prioritize low-level performance, algorithmic problem solving, core computer science concepts (Operating Systems, Memory Management, Graphics / Document Engineering), and adherence to Adobe's four core values (Genuine, Exceptional, Innovative, Involved).",
+    rolesAvailable: ["Member of Technical Staff", "Software Engineer", "SDE", "Frontend Developer", "Backend Developer", "ML Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Aptitude, Core CS MCQs (OS, DBMS, OOP) and 2 rigorous algorithmic coding challenges on HackerEarth.",
+        keyFocusTopics: ["Data Structures", "Operating Systems", "C++ / OOP Fundamentals"],
+        typicalEliminationRate: "70%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "45-minute live coding focusing on data structures (Trees, Linked Lists, Graphs) and C++/Java memory efficiency.",
+        keyFocusTopics: ["Trees & Graphs", "Memory Management", "Clean Code"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Low-level system design, concurrency primitives, design patterns, and algorithmic optimization.",
+        keyFocusTopics: ["Low-Level Design", "Concurrency", "Design Patterns"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "HR",
+        description: "Probing Adobe core values: Genuine, Exceptional, Innovative, and Involved with engineering leadership.",
+        keyFocusTopics: ["Adobe Core Values", "Innovation", "Craftsmanship"],
+        typicalEliminationRate: "20%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Algorithms", percentage: 35 },
+      { topic: "Low-Level Design & OOP", percentage: 25 },
+      { topic: "OS & Computer Architecture", percentage: 20 },
+      { topic: "Adobe Core Values", percentage: 20 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-dsa-003", "qb-os-001"]
+  },
+
+  "ByteDance": {
+    company: "ByteDance",
+    logoText: "BD",
+    overview: "ByteDance (TikTok parent) technical assessments are renowned for rigorous algorithmic standards, ultra-high concurrency feed engines, and low-latency microservices. Candidates face intense live coding on LeetCode Medium/Hard algorithmic challenges followed by distributed backend architecture.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Frontend Developer", "ML Engineer", "AI Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "90-minute OA with 4 challenging algorithmic problems emphasizing dynamic programming, graph traversals, and string manipulations.",
+        keyFocusTopics: ["Dynamic Programming", "Graph Algorithms", "Strings & Arrays"],
+        typicalEliminationRate: "75%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Live coding on CoderPad: writing optimal algorithmic solutions with strict time and memory complexity bounds.",
+        keyFocusTopics: ["Algorithmic Correctness", "Complexity Analysis", "In-place Manipulation"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Deep algorithmic problem solving and low-level concurrency (goroutines, locks, ring buffers).",
+        keyFocusTopics: ["Concurrency", "Data Structures", "Thread Safety"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "System Design",
+        description: "High-concurrency feed architecture, distributed caching (Redis clusters), message queues (Kafka), and write-heavy workloads.",
+        keyFocusTopics: ["High-Concurrency Feed", "Redis Caching", "Kafka Streaming"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "Behavioral",
+        description: "Alignment with ByteDance ByteStyle values: Aim for the Highest, Be Candid and Clear, Grounded and Courageous.",
+        keyFocusTopics: ["ByteStyle Culture", "Aim for Highest", "Ownership"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Algorithms", percentage: 40 },
+      { topic: "High-Concurrency System Design", percentage: 30 },
+      { topic: "Distributed Systems & Caching", percentage: 20 },
+      { topic: "ByteStyle Values", percentage: 10 }
+    ],
+    difficultyDistribution: { easy: 10, medium: 50, hard: 40 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-dsa-002", "qb-sys-001"]
+  },
+
+  "Airbnb": {
+    company: "Airbnb",
+    logoText: "AB",
+    overview: "Airbnb engineering emphasizes code craftsmanship, production-ready implementation, elegant API design, and core cultural values (Be a Host, Champion the Mission). Candidates write modular code with unit tests during interactive pair-programming sessions.",
+    rolesAvailable: ["Software Engineer", "SDE", "Frontend Developer", "Backend Developer", "Full Stack Developer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "90-minute coding challenge on HackerRank with 2 practical engineering problems focusing on data processing and clean code.",
+        keyFocusTopics: ["Clean Code", "Data Structures", "Input Validation"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Pair programming in a realistic environment with unit testing and edge case handling.",
+        keyFocusTopics: ["Pair Programming", "Unit Testing", "Modular Design"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Object-oriented design and domain modeling for travel marketplace entities.",
+        keyFocusTopics: ["Domain Modeling", "OOP Principles", "Extensibility"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Distributed systems design focusing on service boundaries, caching, search indexing, and payment workflows.",
+        keyFocusTopics: ["Service Boundaries", "Elasticsearch / Search Indexing", "Caching"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Two dedicated interviews evaluating cultural alignment, empathy, and community impact.",
+        keyFocusTopics: ["Be a Host", "Champion the Mission", "Empathy"],
+        typicalEliminationRate: "20%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Code Craftsmanship & DSA", percentage: 35 },
+      { topic: "System Design & APIs", percentage: 30 },
+      { topic: "OOP & Modular Design", percentage: 20 },
+      { topic: "Core Values", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-002", "qb-sys-001", "qb-db-001"]
+  },
+
+  "Salesforce": {
+    company: "Salesforce",
+    logoText: "SF",
+    overview: "Salesforce technical evaluations center on enterprise multi-tenant cloud architecture, distributed microservices, reliable API contracts, and high-availability database designs with adherence to the Ohana culture of trust and equality.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Full Stack Developer", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "60-minute coding assessment on HackerRank covering algorithmic problem solving and SQL/database queries.",
+        keyFocusTopics: ["Algorithms", "SQL / Relational Queries", "Data Structures"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Data structures and algorithms: Hash maps, trees, sliding window, and recursion.",
+        keyFocusTopics: ["Hash Maps", "Binary Trees", "Sliding Window"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Object-oriented design, multi-threading, and enterprise design patterns.",
+        keyFocusTopics: ["Multi-Threading", "Design Patterns", "Clean Code"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Large-scale multi-tenant SaaS architecture, data partitioning, and queue-based asynchronous processing.",
+        keyFocusTopics: ["Multi-Tenant Architecture", "Data Partitioning", "Message Queues"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Evaluation of core values: Trust, Customer Success, Innovation, and Equality.",
+        keyFocusTopics: ["Trust & Ethics", "Customer Success", "Equality"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Problem Solving", percentage: 35 },
+      { topic: "Enterprise Architecture & Multi-Tenancy", percentage: 30 },
+      { topic: "DBMS & Concurrency", percentage: 20 },
+      { topic: "Ohana Culture", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 60, hard: 20 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-sys-001", "qb-db-001"]
+  },
+
+  "NVIDIA": {
+    company: "NVIDIA",
+    logoText: "NV",
+    overview: "NVIDIA technical interviews evaluate candidates on high-performance computing, low-level concurrency, GPU architectures, memory hierarchies, C/C++ systems programming, and algorithmic optimization for deep learning and graphics pipelines.",
+    rolesAvailable: ["Software Engineer", "SDE", "AI Engineer", "ML Engineer", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Technical screening on C/C++, pointer arithmetic, memory layouts, and algorithmic optimization.",
+        keyFocusTopics: ["Pointer Arithmetic", "Memory Layouts", "Algorithmic Efficiency"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Low-level C/C++ problem solving: bit manipulation, memory management, and thread safety.",
+        keyFocusTopics: ["Bit Manipulation", "Pointers & Memory", "Thread Safety"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Computer architecture, cache coherence, SIMD/vectorization, and GPU acceleration fundamentals.",
+        keyFocusTopics: ["Computer Architecture", "SIMD / Vectorization", "Cache Coherence"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 3",
+        description: "High-performance systems or deep learning pipeline design (TensorRT, CUDA, distributed training).",
+        keyFocusTopics: ["High-Performance Computing", "CUDA Basics", "Distributed Training"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "Behavioral",
+        description: "Intellectual agility, ownership, and cross-functional hardware-software collaboration.",
+        keyFocusTopics: ["Intellectual Agility", "Cross-Functional Collaboration", "Problem Ownership"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Low-Level C/C++ & OS", percentage: 35 },
+      { topic: "Algorithms & Optimization", percentage: 30 },
+      { topic: "Computer Architecture & Concurrency", percentage: 25 },
+      { topic: "Culture & Collaboration", percentage: 10 }
+    ],
+    difficultyDistribution: { easy: 10, medium: 55, hard: 35 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-aiml-001", "qb-os-001"]
+  },
+
+  "Bloomberg": {
+    company: "Bloomberg",
+    logoText: "BB",
+    overview: "Bloomberg technical assessments focus on real-time financial market systems, low-latency C++/Python development, concurrency, memory management, and algorithmic efficiency under extreme throughput.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Full Stack Developer", "Data Analyst"],
+    hiringRounds: [
+      {
+        round: "Technical Screen",
+        description: "45-minute phone interview solving 1-2 algorithmic problems on HackerRank CodePair.",
+        keyFocusTopics: ["Arrays & Hash Maps", "Linked Lists", "Complexity Analysis"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "In-depth data structures: Heaps, graphs, double-ended queues, and binary search.",
+        keyFocusTopics: ["Heaps & Priority Queues", "Graphs", "Binary Search"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Low-level C++/Python internals, multi-threading, socket programming, and memory bounds.",
+        keyFocusTopics: ["Multi-Threading", "Memory Bounds", "Low-Latency Logic"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Real-time pub-sub architectures, streaming financial ticker engines, and fault-tolerant storage.",
+        keyFocusTopics: ["Pub-Sub Messaging", "Financial Tickers", "Fault Tolerance"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Company awareness, passion for financial technology, and communication skills.",
+        keyFocusTopics: ["Fintech Awareness", "Communication", "Leadership"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Data Structures & Algorithms", percentage: 40 },
+      { topic: "Low-Latency C++/Python", percentage: 30 },
+      { topic: "System Design & Concurrency", percentage: 20 },
+      { topic: "Behavioral & Impact", percentage: 10 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-sys-001", "qb-db-001"]
+  },
+
+  "Oracle": {
+    company: "Oracle",
+    logoText: "OR",
+    overview: "Oracle evaluates candidates on relational database internals, transaction ACID semantics, distributed cloud infrastructure (Oracle Cloud Infrastructure - OCI), and robust core Java/C++ systems engineering.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Cloud Engineer", "Database Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "MCQs on Core CS (OS, DBMS, Computer Networks) plus 2 algorithmic coding problems.",
+        keyFocusTopics: ["DBMS Fundamentals", "Operating Systems", "Algorithmic Coding"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Data structures, pointer arithmetic, and algorithmic complexity analysis.",
+        keyFocusTopics: ["Trees & Graphs", "Sorting & Searching", "Complexity Bounds"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Database internals: B+ trees, WAL, indexing strategies, isolation levels, and lock escalation.",
+        keyFocusTopics: ["B+ Trees & Indexing", "ACID & Transactions", "Locking Mechanics"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Distributed storage engines, high-availability replication, and OCI cloud services design.",
+        keyFocusTopics: ["Storage Engines", "Replication & Consensus", "Cloud Infrastructure"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Project walkthrough, conflict management, and technical leadership.",
+        keyFocusTopics: ["Technical Leadership", "Project Deep-Dive", "Accountability"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Algorithms", percentage: 35 },
+      { topic: "DBMS & Storage Internals", percentage: 30 },
+      { topic: "Operating Systems & Networks", percentage: 20 },
+      { topic: "Behavioral & Leadership", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 60, hard: 20 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-sys-001"]
+  },
+
+  "Cisco": {
+    company: "Cisco",
+    logoText: "CS",
+    overview: "Cisco assessments center on computer networking (TCP/IP stack, socket programming, routing protocols), kernel-level programming, network security, and distributed edge infrastructure.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Cloud Engineer", "Cybersecurity Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Aptitude, Networking fundamentals (OSI model, routing, subnetting), and 2 coding problems.",
+        keyFocusTopics: ["Networking Protocols", "Subnetting", "Algorithmic Coding"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Data structures, bitwise operations, linked lists, and string manipulation.",
+        keyFocusTopics: ["Bitwise Logic", "Linked Lists", "Arrays & Strings"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Deep networking & OS: Socket programming, TCP handshakes, packet fragmentation, and process synchronization.",
+        keyFocusTopics: ["Socket Programming", "TCP/IP Stack", "Synchronization"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Network topology design, load balancers, software-defined networking (SDN), and edge compute.",
+        keyFocusTopics: ["Load Balancing", "SDN Fundamentals", "Edge Computing"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Managerial",
+        description: "Cultural fit, adaptability, and collaborative mindset.",
+        keyFocusTopics: ["Collaboration", "Adaptability", "Integrity"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Computer Networking & Protocols", percentage: 35 },
+      { topic: "DSA & C/C++", percentage: 30 },
+      { topic: "Operating Systems & Security", percentage: 20 },
+      { topic: "Behavioral & Teamwork", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 60, hard: 20 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-os-001", "qb-sys-001"]
+  },
+
+  "Intel": {
+    company: "Intel",
+    logoText: "IN",
+    overview: "Intel evaluations delve into computer architecture, memory models, cache coherence protocols, embedded systems, firmware/driver development, and hardware-software co-design.",
+    rolesAvailable: ["Software Engineer", "SDE", "Cloud Engineer", "AI Engineer", "ML Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Digital logic, microprocessor architecture, and algorithmic programming.",
+        keyFocusTopics: ["Digital Logic", "Microprocessors", "C Programming"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "C/C++ programming: memory allocation, pointer arithmetic, and bit manipulation.",
+        keyFocusTopics: ["Pointers & Structs", "Bit Manipulation", "Memory Layout"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Processor architecture, cache memory (L1/L2/L3), pipelining, and multi-threaded synchronization.",
+        keyFocusTopics: ["Cache Coherence", "Pipelining & Hazards", "Multi-Threading"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "Technical Round 3",
+        description: "Device drivers, interrupt handling, or performance profiling using VTune.",
+        keyFocusTopics: ["Interrupts & Drivers", "Performance Profiling", "Hardware Co-design"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "Behavioral",
+        description: "Collaboration, innovation culture, and continuous learning.",
+        keyFocusTopics: ["Continuous Learning", "Teamwork", "Accountability"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Computer Architecture & Memory", percentage: 35 },
+      { topic: "C/C++ Systems Programming", percentage: 30 },
+      { topic: "DSA & Algorithms", percentage: 20 },
+      { topic: "Behavioral & Learning Agility", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 55, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-os-001", "qb-aiml-001"]
+  },
+
+  "Qualcomm": {
+    company: "Qualcomm",
+    logoText: "QC",
+    overview: "Qualcomm assessments focus on wireless communications (5G/Wi-Fi), digital signal processing, embedded C/C++, real-time operating systems (RTOS), and mobile SoC performance optimization.",
+    rolesAvailable: ["Software Engineer", "SDE", "AI Engineer", "ML Engineer", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Technical MCQs on C, OS concepts, and 2 algorithmic coding problems.",
+        keyFocusTopics: ["C Programming", "OS Fundamentals", "Algorithmic Coding"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Embedded C/C++, memory management, bitwise manipulation, and data structures.",
+        keyFocusTopics: ["Embedded C", "Bitwise Hacks", "Data Structures"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "RTOS concepts: context switching, mutexes, semaphores, priority inversion, and interrupt service routines.",
+        keyFocusTopics: ["RTOS Primitives", "Priority Inversion", "Interrupt Handlers"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 3",
+        description: "SoC architecture, DSP pipelines, or wireless protocol stack deep dive.",
+        keyFocusTopics: ["SoC Architecture", "DSP Pipelines", "Wireless Protocols"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "HR",
+        description: "Values, adaptability, and cross-functional team dynamics.",
+        keyFocusTopics: ["Cross-Functional Dynamics", "Adaptability", "Integrity"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Embedded C/C++ & RTOS", percentage: 40 },
+      { topic: "DSA & Optimization", percentage: 25 },
+      { topic: "Computer Architecture", percentage: 20 },
+      { topic: "Behavioral & Communication", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-os-001", "qb-sys-001"]
+  },
+
+  "Atlassian": {
+    company: "Atlassian",
+    logoText: "AT",
+    overview: "Atlassian evaluates candidates on collaborative engineering, clean software architecture, distributed SaaS scalability, and core cultural values (e.g. Open Company, No Bullshit, Build with Heart and Balance, Don't #@!% the Customer).",
+    rolesAvailable: ["Software Engineer", "SDE", "Frontend Developer", "Backend Developer", "Full Stack Developer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "90-minute OA on HackerRank with 3 coding problems focusing on arrays, strings, and trees.",
+        keyFocusTopics: ["Arrays & Strings", "Trees & Recursion", "Code Modularity"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Pair programming in CoderPad: writing clean, modular, extensible object-oriented code.",
+        keyFocusTopics: ["Clean Code", "Design Patterns", "Unit Testing"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Algorithmic problem solving and data structures (Graphs, DP, Hash Maps).",
+        keyFocusTopics: ["Graph Traversals", "Dynamic Programming", "Hash Tables"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Scalable collaboration architecture (collaborative editing, notification dispatch, Jira board sync).",
+        keyFocusTopics: ["Event-Driven Systems", "Operational Transformation / CRDTs", "Caching"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Deep dive into Atlassian core values with dedicated behavioral scenarios.",
+        keyFocusTopics: ["Open Company No Bullshit", "Build with Heart & Balance", "Customer Focus"],
+        typicalEliminationRate: "20%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Clean Code & Object-Oriented Design", percentage: 35 },
+      { topic: "DSA & Problem Solving", percentage: 25 },
+      { topic: "Scalable System Design", percentage: 25 },
+      { topic: "Atlassian Core Values", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-002", "qb-sys-001", "qb-dsa-003"]
+  },
+
+  "ServiceNow": {
+    company: "ServiceNow",
+    logoText: "SN",
+    overview: "ServiceNow assesses enterprise cloud workflow automation, database scalability, JavaScript/Java full-stack patterns, and multi-tenant SaaS architecture.",
+    rolesAvailable: ["Software Engineer", "SDE", "Full Stack Developer", "Backend Developer", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Technical coding test on HackerRank with 2 algorithmic problems and CS fundamentals MCQs.",
+        keyFocusTopics: ["Data Structures", "DBMS", "Algorithmic Logic"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Algorithmic problem solving: Trees, Graphs, Hash Tables, and Two Pointers.",
+        keyFocusTopics: ["Binary Trees", "Graphs", "Hash Maps"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Object-oriented design, multi-threading, and relational database schema design.",
+        keyFocusTopics: ["OOP Modeling", "Database Schemas", "Concurrency"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Enterprise workflow engine design, high-throughput task queueing, and multi-tenant data isolation.",
+        keyFocusTopics: ["Workflow State Machines", "Task Queues", "Multi-Tenant Isolation"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Customer focus, team collaboration, and accountability.",
+        keyFocusTopics: ["Customer Obsession", "Accountability", "Collaboration"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Problem Solving", percentage: 35 },
+      { topic: "OOP & System Design", percentage: 30 },
+      { topic: "DBMS & Concurrency", percentage: 20 },
+      { topic: "Behavioral & Culture", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 60, hard: 20 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-sys-001"]
+  },
+
+  "PayPal": {
+    company: "PayPal",
+    logoText: "PP",
+    overview: "PayPal focuses on high-throughput payments processing, distributed transaction consistency (Saga, 2PC), fraud detection pipelines, and microservices resilience.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Full Stack Developer", "Data Analyst"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "HackerRank test featuring 2 DSA problems and MCQs on DBMS, OS, and Networks.",
+        keyFocusTopics: ["Arrays & Dynamic Programming", "DBMS Transactions", "Operating Systems"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Live coding on arrays, strings, dynamic programming, and hash maps.",
+        keyFocusTopics: ["Dynamic Programming", "Hash Tables", "String Algorithms"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Concurrency in Java/Node, transaction management, and database indexing.",
+        keyFocusTopics: ["Thread Concurrency", "ACID Semantics", "Indexing"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Payment gateway architecture, idempotency, distributed lock managers, and reconciliation systems.",
+        keyFocusTopics: ["Idempotency", "Distributed Locks", "Payment Gateways"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Customer focus, collaboration, integrity, and resilience under pressure.",
+        keyFocusTopics: ["Integrity", "Collaboration", "Customer Value"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Problem Solving", percentage: 35 },
+      { topic: "Payment Systems & Concurrency", percentage: 30 },
+      { topic: "Distributed Transactions", percentage: 20 },
+      { topic: "Behavioral & Integrity", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-sys-001"]
+  },
+
+  "Spotify": {
+    company: "Spotify",
+    logoText: "SP",
+    overview: "Spotify evaluates audio streaming pipelines, event-driven microservices architecture, recommendation engines, and candidate alignment with autonomous squad culture.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Frontend Developer", "ML Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Coding assessment testing clean code, data manipulation, and algorithmic efficiency.",
+        keyFocusTopics: ["Clean Code", "Data Manipulation", "Algorithmic Efficiency"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Live algorithmic problem solving and time/space complexity optimization.",
+        keyFocusTopics: ["Trees & Graphs", "Dynamic Programming", "Hash Maps"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Practical engineering / code review: debugging, refactoring, and modular design.",
+        keyFocusTopics: ["Code Review", "Refactoring", "Testing"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "High-volume event streaming (Kafka), audio CDN caching, and recommendation serving.",
+        keyFocusTopics: ["Kafka Streaming", "CDN Caching", "Recommendation Serving"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Autonomous engineering, continuous delivery, and peer collaboration.",
+        keyFocusTopics: ["Autonomous Squads", "Collaboration", "Agile Mindset"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "System Design & Streaming", percentage: 35 },
+      { topic: "DSA & Clean Code", percentage: 35 },
+      { topic: "Microservices Architecture", percentage: 15 },
+      { topic: "Squad Culture", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 60, hard: 25 },
+    sampleQuestionIds: ["qb-dsa-002", "qb-sys-001", "qb-aiml-001"]
+  },
+
+  "Snowflake": {
+    company: "Snowflake",
+    logoText: "SF",
+    overview: "Snowflake interviews rigorously test database engine architecture, query optimization, columnar storage formats, distributed consensus, and cloud-native data warehousing.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Data Scientist", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Technical Screen",
+        description: "Algorithmic screening focusing on trees, hash maps, and low-level data structures.",
+        keyFocusTopics: ["Trees", "Hash Maps", "Complexity Invariants"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Complex algorithmic coding: Segment trees, binary search on answer, and concurrency.",
+        keyFocusTopics: ["Binary Search on Range", "Segment Trees", "Concurrency"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Database internals: Columnar storage, query planning, cost-based optimizers, and vectorization.",
+        keyFocusTopics: ["Columnar Storage", "Query Planning", "Vectorized Execution"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "System Design",
+        description: "Multi-cluster shared data architecture, distributed metadata caching (FoundationDB), and multi-cloud resilience.",
+        keyFocusTopics: ["Multi-Cluster Architecture", "Metadata Layer", "Multi-Cloud Storage"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "Behavioral",
+        description: "Ownership, intellectual rigor, and alignment with Snowflake values.",
+        keyFocusTopics: ["Intellectual Rigor", "Customer First", "Execution"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Database Engine Internals", percentage: 35 },
+      { topic: "Algorithms & Data Structures", percentage: 35 },
+      { topic: "Distributed Systems Architecture", percentage: 20 },
+      { topic: "Behavioral & Execution", percentage: 10 }
+    ],
+    difficultyDistribution: { easy: 10, medium: 50, hard: 40 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-sys-001"]
+  },
+
+  "Databricks": {
+    company: "Databricks",
+    logoText: "DB",
+    overview: "Databricks emphasizes Apache Spark internals, lakehouse storage layers (Delta Lake), distributed computing primitives, and high-performance machine learning pipelines.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "ML Engineer", "AI Engineer"],
+    hiringRounds: [
+      {
+        round: "Technical Screen",
+        description: "Algorithmic screening on LeetCode Medium/Hard problems.",
+        keyFocusTopics: ["Algorithmic Correctness", "Time Complexity", "Clean Code"],
+        typicalEliminationRate: "65%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Advanced data structures: Graph algorithms, tries, and memory-efficient computation.",
+        keyFocusTopics: ["Graph Algorithms", "Tries", "Memory Bounds"],
+        typicalEliminationRate: "50%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Distributed systems primitives: RPC mechanisms, shuffle operations, and distributed state machines.",
+        keyFocusTopics: ["RPC & Serialization", "Shuffle Mechanics", "Distributed State"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "System Design",
+        description: "Large-scale data processing engine design, lakehouse transaction isolation, and serverless compute clusters.",
+        keyFocusTopics: ["Lakehouse Architecture", "Delta Lake ACID", "Serverless Compute"],
+        typicalEliminationRate: "35%"
+      },
+      {
+        round: "Behavioral",
+        description: "Engineering excellence, customer obsession, and intellectual humility.",
+        keyFocusTopics: ["Intellectual Humility", "Engineering Excellence", "Ownership"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Distributed Computing & Spark", percentage: 35 },
+      { topic: "Advanced DSA", percentage: 35 },
+      { topic: "System Design & Storage", percentage: 20 },
+      { topic: "Behavioral & Teamwork", percentage: 10 }
+    ],
+    difficultyDistribution: { easy: 10, medium: 50, hard: 40 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-sys-001", "qb-aiml-001"]
+  },
+
+  "Walmart Global Tech": {
+    company: "Walmart Global Tech",
+    logoText: "WM",
+    overview: "Walmart Global Tech assesses ultra-high-scale retail supply chain systems, distributed inventory management, microservices caching, and robust high-availability architectures.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Frontend Developer", "Data Analyst"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Aptitude and 2 coding problems on HackerEarth testing arrays, strings, and dynamic programming.",
+        keyFocusTopics: ["Arrays & Strings", "Dynamic Programming", "Aptitude"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Data structures and algorithms: Binary search, trees, heaps, and graphs.",
+        keyFocusTopics: ["Binary Search", "Trees & Graphs", "Heaps"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Object-oriented design, multi-threading, Spring Boot/Java microservices, and Kafka eventing.",
+        keyFocusTopics: ["Spring Boot Microservices", "Kafka Eventing", "Multi-Threading"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "High-scale flash sale inventory management, distributed locks, and order tracking systems.",
+        keyFocusTopics: ["Inventory Locking", "Order Tracking", "Distributed Caching"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Managerial",
+        description: "Customer-first mindset, leadership, and collaboration in global cross-functional teams.",
+        keyFocusTopics: ["Customer Obsession", "Global Collaboration", "Ownership"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "DSA & Problem Solving", percentage: 35 },
+      { topic: "System Design & Microservices", percentage: 30 },
+      { topic: "Java / OOP Fundamentals", percentage: 20 },
+      { topic: "Behavioral & Customer Mindset", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 20, medium: 60, hard: 20 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-sys-001", "qb-db-001"]
+  },
+
+  "LinkedIn": {
+    company: "LinkedIn",
+    logoText: "LI",
+    overview: "LinkedIn technical interviews focus on graph algorithms, real-time message streaming (Kafka), distributed caching, and scalable social graph infrastructure with strong culture alignment.",
+    rolesAvailable: ["Software Engineer", "SDE", "Backend Developer", "Frontend Developer", "ML Engineer"],
+    hiringRounds: [
+      {
+        round: "Technical Screen",
+        description: "45-minute live coding on CoderPad with 2 algorithmic problems.",
+        keyFocusTopics: ["Hash Tables", "Two Pointers", "String Algorithms"],
+        typicalEliminationRate: "60%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Graph algorithms (BFS, DFS, Dijkstra, topological sort) and social connection traversal.",
+        keyFocusTopics: ["Graph BFS/DFS", "Topological Sort", "Shortest Path"],
+        typicalEliminationRate: "45%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Algorithmic problem solving: Dynamic programming, two pointers, and prefix sums.",
+        keyFocusTopics: ["Dynamic Programming", "Prefix Sums", "Recursion"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "System Design",
+        description: "Feed generation, notification delivery, member connection graph caching, and search indexing.",
+        keyFocusTopics: ["Feed Architecture", "Kafka Streaming", "Social Graph Caching"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "Behavioral",
+        description: "Relationships Matter, Be Open Honest and Constructive, Demand High Standards.",
+        keyFocusTopics: ["Relationships Matter", "High Standards", "Integrity"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Graph Algorithms & DSA", percentage: 40 },
+      { topic: "System Design & Social Graph", percentage: 30 },
+      { topic: "Distributed Streaming & Caching", percentage: 15 },
+      { topic: "Culture & Collaboration", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 15, medium: 55, hard: 30 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-sys-001", "qb-dsa-002"]
+  },
+
+  "Capgemini": {
+    company: "Capgemini",
+    logoText: "CG",
+    overview: "Capgemini evaluates enterprise software development, cloud migration, full-stack delivery, agile engineering practices, and customer-centric software consulting.",
+    rolesAvailable: ["Software Engineer", "SDE", "Full Stack Developer", "Cloud Engineer", "Data Analyst"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Cognitive aptitude, pseudocode comprehension, English communication, and coding.",
+        keyFocusTopics: ["Pseudocode", "Cognitive Aptitude", "Basic Coding"],
+        typicalEliminationRate: "55%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Core Java/Python concepts, OOP principles, SQL queries, and basic data structures.",
+        keyFocusTopics: ["OOP Principles", "SQL Joins", "Arrays & Strings"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Project architectural discussion, web services/REST APIs, and cloud basics.",
+        keyFocusTopics: ["REST APIs", "Project Discussion", "Cloud Basics"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "HR",
+        description: "Communication skills, adaptability to international client projects, and career aspirations.",
+        keyFocusTopics: ["Client Communication", "Adaptability", "Values"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Core Programming & OOP", percentage: 35 },
+      { topic: "Database & SQL", percentage: 25 },
+      { topic: "Aptitude & Problem Solving", percentage: 25 },
+      { topic: "Communication & Consulting", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 35, medium: 50, hard: 15 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-os-001"]
+  },
+
+  "HCLTech": {
+    company: "HCLTech",
+    logoText: "HCL",
+    overview: "HCLTech assesses full-stack application development, enterprise IT infrastructure, database management, and cloud modernization across global delivery projects.",
+    rolesAvailable: ["Software Engineer", "SDE", "Full Stack Developer", "Backend Developer", "Cloud Engineer"],
+    hiringRounds: [
+      {
+        round: "Online Assessment",
+        description: "Aptitude, logical reasoning, and 2 programming challenges.",
+        keyFocusTopics: ["Quantitative Aptitude", "Logical Reasoning", "Basic Coding"],
+        typicalEliminationRate: "55%"
+      },
+      {
+        round: "Technical Round 1",
+        description: "Data structures, sorting algorithms, OOP principles, and SQL joins.",
+        keyFocusTopics: ["Sorting Algorithms", "OOP Concepts", "SQL Queries"],
+        typicalEliminationRate: "40%"
+      },
+      {
+        round: "Technical Round 2",
+        description: "Web development frameworks (Spring Boot/React/Node), API integration, and debugging.",
+        keyFocusTopics: ["Web Frameworks", "API Integration", "Debugging"],
+        typicalEliminationRate: "30%"
+      },
+      {
+        round: "HR",
+        description: "Client communication, team collaboration, and professional alignment.",
+        keyFocusTopics: ["Team Collaboration", "Communication", "Professionalism"],
+        typicalEliminationRate: "15%"
+      }
+    ],
+    topicWeightage: [
+      { topic: "Core Programming & DSA", percentage: 35 },
+      { topic: "Database & Web Frameworks", percentage: 25 },
+      { topic: "Aptitude & Reasoning", percentage: 25 },
+      { topic: "Behavioral & Collaboration", percentage: 15 }
+    ],
+    difficultyDistribution: { easy: 35, medium: 50, hard: 15 },
+    sampleQuestionIds: ["qb-dsa-001", "qb-db-001", "qb-sys-001"]
   }
+
 };
 
 /**

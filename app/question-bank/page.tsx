@@ -339,12 +339,19 @@ export default function QuestionBankPage() {
     return getCompanyPrepGuide(prepCompany);
   }, [prepCompany]);
 
+  // Synchronize target role when active company changes
+  useEffect(() => {
+    if (currentCompanyGuide?.rolesAvailable?.length) {
+      if (!currentCompanyGuide.rolesAvailable.includes(prepRole)) {
+        setPrepRole(currentCompanyGuide.rolesAvailable[0]);
+      }
+    }
+  }, [prepCompany, currentCompanyGuide, prepRole]);
+
   // Questions specific to the active company prep workspace
   const companyPrepQuestions = useMemo(() => {
     return questionsPool.filter(
-      (q) =>
-        (q.company || "").toLowerCase() === prepCompany.toLowerCase() ||
-        (q.tags || []).some((t) => t.toLowerCase() === prepCompany.toLowerCase())
+      (q) => (q.company || "").toLowerCase() === prepCompany.toLowerCase()
     );
   }, [questionsPool, prepCompany]);
 
@@ -566,7 +573,11 @@ export default function QuestionBankPage() {
                   </label>
                   <select
                     value={prepCompany}
-                    onChange={(e) => setPrepCompany(e.target.value)}
+                    onChange={(e) => {
+                      const newComp = e.target.value;
+                      setPrepCompany(newComp);
+                      setSelectedCompany(newComp);
+                    }}
                     style={{
                       padding: "8px 12px",
                       borderRadius: 6,
@@ -816,7 +827,13 @@ export default function QuestionBankPage() {
             {/* Company Dropdown */}
             <select
               value={selectedCompany}
-              onChange={(e) => setSelectedCompany(e.target.value)}
+              onChange={(e) => {
+                const newComp = e.target.value;
+                setSelectedCompany(newComp);
+                if (newComp !== "All Companies") {
+                  setPrepCompany(newComp);
+                }
+              }}
               style={{
                 padding: "8px 12px",
                 borderRadius: 7,

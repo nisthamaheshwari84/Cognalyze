@@ -373,5 +373,155 @@
       "completenessScore": 0
     },
     "startedAt": "2026-11-24T07:18:56.791Z"
+  },
+  {
+    "researchJobId": "job-testcorp_1795506343821-software-engineer",
+    "companyId": "comp-testcorp_1795506343821",
+    "companyName": "TestCorp_1795506343821",
+    "roleId": "role-software-engineer",
+    "roleName": "Software Engineer",
+    "jobStatus": "researching",
+    "createdAt": "2026-11-24T07:45:43.822Z",
+    "lastUpdatedAt": "2026-11-24T07:45:43.823Z",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "researchPlan": [
+      {
+        "category": "DSA & Problem Solving",
+        "targetCount": 15,
+        "searchQueries": [
+          "TestCorp_1795506343821 Software Engineer interview questions",
+          "TestCorp_1795506343821 coding round problems",
+          "TestCorp_1795506343821 technical assessment HackerRank"
+        ],
+        "priority": "high"
+      },
+      {
+        "category": "System Design & Architecture",
+        "targetCount": 8,
+        "searchQueries": [
+          "TestCorp_1795506343821 system design interview questions",
+          "TestCorp_1795506343821 architecture engineering blog",
+          "TestCorp_1795506343821 low level design machine coding"
+        ],
+        "priority": "high"
+      },
+      {
+        "category": "Core CS & Database",
+        "targetCount": 10,
+        "searchQueries": [
+          "TestCorp_1795506343821 sql interview questions",
+          "TestCorp_1795506343821 concurrency multithreading interview",
+          "TestCorp_1795506343821 dbms indexing questions"
+        ],
+        "priority": "medium"
+      },
+      {
+        "category": "Behavioral & Leadership",
+        "targetCount": 6,
+        "searchQueries": [
+          "TestCorp_1795506343821 behavioral interview questions",
+          "TestCorp_1795506343821 culture fit questions",
+          "TestCorp_1795506343821 managerial round experience"
+        ],
+        "priority": "standard"
+      }
+    ],
+    "sources": [],
+    "sourceCount": 0,
+    "extractedQuestionCount": 0,
+    "verifiedQuestionCount": 0,
+    "deduplicatedQuestionCount": 0,
+    "coverageReport": {
+      "categoriesCovered": [],
+      "missingCategories": [
+        "DSA",
+        "System Design",
+        "Core CS",
+        "Behavioral"
+      ],
+      "qualityDistribution": {
+        "tier1": 0,
+        "tier2": 0,
+        "tier3": 0
+      },
+      "completenessScore": 0
+    },
+    "startedAt": "2026-11-24T07:45:43.823Z"
+  },
+  {
+    "researchJobId": "job-testcorp_1795506418864-software-engineer",
+    "companyId": "comp-testcorp_1795506418864",
+    "companyName": "TestCorp_1795506418864",
+    "roleId": "role-software-engineer",
+    "roleName": "Software Engineer",
+    "jobStatus": "researching",
+    "createdAt": "2026-11-24T07:46:58.865Z",
+    "lastUpdatedAt": "2026-11-24T07:46:58.865Z",
+    "retryCount": 0,
+    "maxRetries": 3,
+    "researchPlan": [
+      {
+        "category": "DSA & Problem Solving",
+        "targetCount": 15,
+        "searchQueries": [
+          "TestCorp_1795506418864 Software Engineer interview questions",
+          "TestCorp_1795506418864 coding round problems",
+          "TestCorp_1795506418864 technical assessment HackerRank"
+        ],
+        "priority": "high"
+      },
+      {
+        "category": "System Design & Architecture",
+        "targetCount": 8,
+        "searchQueries": [
+          "TestCorp_1795506418864 system design interview questions",
+          "TestCorp_1795506418864 architecture engineering blog",
+          "TestCorp_1795506418864 low level design machine coding"
+        ],
+        "priority": "high"
+      },
+      {
+        "category": "Core CS & Database",
+        "targetCount": 10,
+        "searchQueries": [
+          "TestCorp_1795506418864 sql interview questions",
+          "TestCorp_1795506418864 concurrency multithreading interview",
+          "TestCorp_1795506418864 dbms indexing questions"
+        ],
+        "priority": "medium"
+      },
+      {
+        "category": "Behavioral & Leadership",
+        "targetCount": 6,
+        "searchQueries": [
+          "TestCorp_1795506418864 behavioral interview questions",
+          "TestCorp_1795506418864 culture fit questions",
+          "TestCorp_1795506418864 managerial round experience"
+        ],
+        "priority": "standard"
+      }
+    ],
+    "sources": [],
+    "sourceCount": 0,
+    "extractedQuestionCount": 0,
+    "verifiedQuestionCount": 0,
+    "deduplicatedQuestionCount": 0,
+    "coverageReport": {
+      "categoriesCovered": [],
+      "missingCategories": [
+        "DSA",
+        "System Design",
+        "Core CS",
+        "Behavioral"
+      ],
+      "qualityDistribution": {
+        "tier1": 0,
+        "tier2": 0,
+        "tier3": 0
+      },
+      "completenessScore": 0
+    },
+    "startedAt": "2026-11-24T07:46:58.865Z"
   }
 ]
