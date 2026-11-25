@@ -9,31 +9,55 @@ import { runEvidenceEngine } from "@/lib/intelligence/evidence-engine";
 import { getStudentDNAFull } from "@/lib/dna/store";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 
+export const dynamic = "force-dynamic";
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, private",
+  Pragma: "no-cache",
+  Vary: "Cookie, Authorization",
+};
+
 export async function GET(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const { searchParams } = new URL(req.url);
     const queryCandidateId = searchParams.get("candidateId");
 
-    if (auth && auth.user.accountType === "recruiter") {
-      return NextResponse.json({
-        success: false,
-        error: "Forbidden. Recruiter accounts are restricted from accessing Student DNA directly.",
-        authenticated: true,
-      }, { status: 403 });
+    if (!auth || !auth.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized. Student DNA requires authentication.",
+          authenticated: false,
+          requiresAuth: true
+        },
+        { status: 401, headers: NO_STORE_HEADERS }
+      );
     }
 
-    // Resolve candidate ID from authenticated session, explicit query parameter, or demo fallback
-    const candidateId = auth?.user?.id || queryCandidateId || (process.env.NODE_ENV !== "production" ? "student-demo" : null);
-
-    if (!candidateId) {
-      return NextResponse.json({
-        success: false,
-        error: "Unauthorized. Student DNA requires authentication.",
-        authenticated: false,
-        requiresAuth: true
-      }, { status: 401 });
+    if (auth.user.accountType === "recruiter") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Forbidden. Recruiter accounts are restricted from accessing Student DNA directly.",
+          authenticated: true,
+        },
+        { status: 403, headers: NO_STORE_HEADERS }
+      );
     }
+
+    if (queryCandidateId && queryCandidateId !== auth.user.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Forbidden. Cannot read another student's DNA.",
+          authenticated: true,
+        },
+        { status: 403, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    const candidateId = auth.user.id;
 
     const refresh = searchParams.get("refresh") === "true";
 

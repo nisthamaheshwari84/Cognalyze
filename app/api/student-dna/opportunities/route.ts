@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedContext } from "@/lib/auth/server";
+import { authorizeStudentDnaAccess, DNA_NO_STORE_HEADERS } from "@/lib/dna/security-audit";
 import { getStudentDNAFull } from "@/lib/dna/store";
 import {
   getAllPersonalizedOpportunities,
@@ -13,25 +13,18 @@ import {
 
 import { getStudentProfileCompletionState } from "@/lib/auth/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req);
-    if (!auth) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Please sign in to view Personalized Opportunities." },
-        { status: 401 }
-      );
-    }
-
-    if (auth.user.accountType === "recruiter") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden. Recruiter accounts cannot access Student Opportunity Intelligence." },
-        { status: 403 }
-      );
-    }
-
-    const candidateId = auth.user.id;
     const { searchParams } = new URL(req.url);
+    const authCheck = await authorizeStudentDnaAccess(req, {
+      requestedCandidateId: searchParams.get("candidateId"),
+      resourceName: "/api/student-dna/opportunities",
+    });
+    if (!authCheck.ok) return authCheck.response;
+
+    const candidateId = authCheck.studentId;
     const categoryFilter = searchParams.get("category");
     const freshnessFilter = searchParams.get("freshness");
     const matchFilter = searchParams.get("matchCategory");

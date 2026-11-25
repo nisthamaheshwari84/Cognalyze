@@ -213,7 +213,6 @@ export default function AppNav({ role = "student" }: AppNavProps) {
     { href: "/student/opportunities", label: "Opportunities", icon: Compass },
     { href: "/student/applications", label: "Applications", icon: FileCheck },
     { href: "/resume", label: "Resume", icon: FileText },
-    { href: "/interview", label: "Interviews", icon: Video },
     { href: "/student/practice-interview", label: "Personalized Interview Arena", icon: Sparkles, badge: "AI" },
     { href: "/skill-practice", label: "Skill Practice Hub", icon: Target },
     { href: "/recruitment-simulation", label: "Recruitment Simulation", icon: Award },
@@ -295,14 +294,9 @@ export default function AppNav({ role = "student" }: AppNavProps) {
         pathname === "/student/practice-interview" ||
         pathname.startsWith("/student/practice-interview") ||
         pathname === "/student/interview-prep" ||
-        pathname.startsWith("/student/interview-prep")
-      );
-    }
-    if (href === "/interview") {
-      return (
+        pathname.startsWith("/student/interview-prep") ||
         pathname === "/interview" ||
-        pathname.startsWith("/interview/") ||
-        pathname.startsWith("/secure-interview")
+        pathname.startsWith("/interview/")
       );
     }
     return (

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { isTestRuntime } from "@/lib/env";
 import {
   evaluateTurn,
   PerTurnEvaluation,
@@ -18,6 +19,12 @@ export interface EvidenceMarker {
 export async function POST(req: Request) {
   try {
     const auth = await getAuthenticatedContext(req as any);
+    if (!auth?.user?.id && !isTestRuntime()) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in." },
+        { status: 401, headers: { "Cache-Control": "no-store, no-cache, must-revalidate, private" } }
+      );
+    }
     const body = await req.json();
     const {
       messages = [],
@@ -29,7 +36,7 @@ export async function POST(req: Request) {
       studentId: reqStudentId,
     } = body;
 
-    const studentId = auth?.user?.id || reqStudentId || "student-demo";
+    const studentId = auth?.user?.id || (isTestRuntime() ? (reqStudentId || "student-demo") : "");
     const userMsgs = messages.filter((m: any) => m.role === "user");
     const n = userMsgs.length;
 

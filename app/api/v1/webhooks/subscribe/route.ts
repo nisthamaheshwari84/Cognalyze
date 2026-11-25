@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { DNA_NO_STORE_HEADERS, recordDnaSecurityAudit } from "@/lib/dna/security-audit";
+import { isSafePublicUrl } from "@/lib/resilience/security";
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
 import { COIWebhookSubscription } from "@/lib/integrations/coi/types";
 
+export const dynamic = "force-dynamic";
+
 const WEBHOOKS_FILE = path.join(process.cwd(), "data", "coi-webhooks-store.json");
 
-function loadWebhooks(): COIWebhookSubscription[] {
+function loadWebhooks(): Array<COIWebhookSubscription & { userId?: string }> {
   try {
     if (fs.existsSync(WEBHOOKS_FILE)) {
       return JSON.parse(fs.readFileSync(WEBHOOKS_FILE, "utf-8"));
@@ -16,7 +20,7 @@ function loadWebhooks(): COIWebhookSubscription[] {
   return [];
 }
 
-function saveWebhooks(items: COIWebhookSubscription[]) {
+function saveWebhooks(items: Array<COIWebhookSubscription & { userId?: string }>) {
   try {
     const dir = path.dirname(WEBHOOKS_FILE);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -26,22 +30,44 @@ function saveWebhooks(items: COIWebhookSubscription[]) {
 
 /**
  * POST /api/v1/webhooks/subscribe
- * 
- * Registers approved event subscriptions for COI.
+ * Registers approved event subscriptions for COI strictly for the authenticated user
+ * with SSRF validation on targetUrl and secret omission/redaction safeguards.
  */
 export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(req);
     const body = await req.json().catch(() => ({}));
-    const isDemo = process.env.NODE_ENV !== "production" && (req.nextUrl.searchParams.get("demo") === "true" || body.demo === true);
 
-    if (!auth && !isDemo) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!auth?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401, headers: DNA_NO_STORE_HEADERS }
+      );
     }
 
     const { targetUrl, events } = body;
     if (!targetUrl || typeof targetUrl !== "string") {
-      return NextResponse.json({ error: "targetUrl is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "targetUrl is required" },
+        { status: 400, headers: DNA_NO_STORE_HEADERS }
+      );
+    }
+
+    const urlSafety = isSafePublicUrl(targetUrl);
+    if (!urlSafety.safe) {
+      recordDnaSecurityAudit({
+        userId: auth.user.id,
+        actorId: auth.user.id,
+        actorRole: auth.user.accountType,
+        action: "SSRF_URL_BLOCKED",
+        targetResource: "/api/v1/webhooks/subscribe",
+        outcome: "DENIED",
+        details: `Blocked unsafe webhook URL (${urlSafety.reason}).`,
+      });
+      return NextResponse.json(
+        { error: `Invalid or restricted targetUrl: ${urlSafety.reason}` },
+        { status: 400, headers: DNA_NO_STORE_HEADERS }
+      );
     }
 
     const validEvents = [
@@ -54,14 +80,16 @@ export async function POST(req: NextRequest) {
     ];
 
     const selectedEvents = Array.isArray(events)
-      ? events.filter((e) => validEvents.includes(e))
+      ? events.filter((e: unknown) => typeof e === "string" && validEvents.includes(e))
       : ["student_dna.updated", "student.consent.revoked"];
 
-    const sub: COIWebhookSubscription = {
+    const secret = crypto.randomBytes(32).toString("hex");
+    const sub: COIWebhookSubscription & { userId: string } = {
       id: `sub-${crypto.randomUUID()}`,
-      targetUrl,
+      userId: auth.user.id,
+      targetUrl: targetUrl.trim(),
       events: selectedEvents as any,
-      secret: crypto.randomBytes(32).toString("hex"),
+      secret,
       createdAt: new Date().toISOString(),
       active: true,
     };
@@ -70,11 +98,24 @@ export async function POST(req: NextRequest) {
     subs.push(sub);
     saveWebhooks(subs);
 
-    return NextResponse.json({
-      success: true,
-      subscription: sub,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        subscription: {
+          id: sub.id,
+          userId: sub.userId,
+          targetUrl: sub.targetUrl,
+          events: sub.events,
+          createdAt: sub.createdAt,
+          active: sub.active,
+        },
+      },
+      { status: 201, headers: DNA_NO_STORE_HEADERS }
+    );
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Webhook registration failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Webhook registration failed" },
+      { status: 500, headers: DNA_NO_STORE_HEADERS }
+    );
   }
 }

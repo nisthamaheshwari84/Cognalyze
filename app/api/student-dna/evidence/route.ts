@@ -1,58 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedContext } from "@/lib/auth/server";
+import {
+  authorizeStudentDnaAccess,
+  DNA_NO_STORE_HEADERS,
+  recordDnaSecurityAudit,
+} from "@/lib/dna/security-audit";
 import { getStudentEvidenceList, addStudentEvidenceRecord, retractEvidenceBySource } from "@/lib/dna/store";
 import { DNASourceType } from "@/lib/dna/evidence-pipeline";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req);
-    if (!auth?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Valid student session required." },
-        { status: 401 }
-      );
-    }
-
     const { searchParams } = new URL(req.url);
     const skillId = searchParams.get("skillId") || undefined;
     const sourceType = (searchParams.get("sourceType") as DNASourceType) || undefined;
-    const candidateId = auth.user.id;
 
+    const authCheck = await authorizeStudentDnaAccess(req, {
+      requestedCandidateId: searchParams.get("candidateId"),
+      resourceName: "/api/student-dna/evidence",
+    });
+    if (!authCheck.ok) return authCheck.response;
+
+    const candidateId = authCheck.studentId;
     const evidence = await getStudentEvidenceList(candidateId, { skillId, sourceType });
 
-    return NextResponse.json({
-      success: true,
-      candidateId,
-      totalCount: evidence.length,
-      evidence
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        candidateId,
+        totalCount: evidence.length,
+        evidence,
+      },
+      { headers: DNA_NO_STORE_HEADERS }
+    );
   } catch (error: any) {
     console.error("GET /api/student-dna/evidence error:", error);
-    return NextResponse.json({ success: false, error: error.message || "Failed to fetch evidence" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to fetch evidence" },
+      { status: 500, headers: DNA_NO_STORE_HEADERS }
+    );
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req);
-    if (!auth?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Valid student session required." },
-        { status: 401 }
-      );
-    }
-
-    const candidateId = auth.user.id;
     const body = await req.json();
+    const authCheck = await authorizeStudentDnaAccess(req, {
+      requestedCandidateId: body.userId || body.candidateId,
+      resourceName: "/api/student-dna/evidence",
+    });
+    if (!authCheck.ok) return authCheck.response;
 
-    // 1. Cross-candidate write prevention (P1 Fix SEC-EVID-01)
-    if (body.userId && body.userId !== candidateId) {
-      return NextResponse.json(
-        { success: false, error: "Forbidden. Cannot add or forge evidence for another candidate." },
-        { status: 403 }
-      );
-    }
-
+    const candidateId = authCheck.studentId;
     let isServerVerified = false;
 
     // 2. Strict validation for assessment and interview evidence
@@ -109,48 +108,80 @@ export async function POST(req: NextRequest) {
     const result = await addStudentEvidenceRecord(candidateId, sanitizedPayload);
 
     if (!result.success) {
-      return NextResponse.json({ success: false, error: result.error }, { status: 400 });
+      return NextResponse.json({ success: false, error: result.error }, { status: 400, headers: DNA_NO_STORE_HEADERS });
     }
 
-    return NextResponse.json({
-      success: true,
-      evidence: result.evidence,
-      auditLog: result.auditLog
+    recordDnaSecurityAudit({
+      userId: candidateId,
+      actorId: candidateId,
+      actorRole: "student",
+      action: "EVIDENCE_MUTATED",
+      targetResource: "/api/student-dna/evidence",
+      outcome: "COMPLETED",
+      details: `Added ${sanitizedPayload.sourceType || "manual"} evidence (${result.evidence?.id}).`,
     });
+
+    return NextResponse.json(
+      {
+        success: true,
+        evidence: result.evidence,
+        auditLog: result.auditLog,
+      },
+      { headers: DNA_NO_STORE_HEADERS }
+    );
   } catch (error: any) {
     console.error("POST /api/student-dna/evidence error:", error);
-    return NextResponse.json({ success: false, error: error.message || "Failed to add evidence" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to add evidence" },
+      { status: 500, headers: DNA_NO_STORE_HEADERS }
+    );
   }
 }
 
 export async function DELETE(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req);
-    if (!auth?.user) {
+    const { searchParams } = new URL(req.url);
+    const authCheck = await authorizeStudentDnaAccess(req, {
+      requestedCandidateId: searchParams.get("candidateId"),
+      resourceName: "/api/student-dna/evidence",
+    });
+    if (!authCheck.ok) return authCheck.response;
+
+    const sourceType = searchParams.get("sourceType") as DNASourceType;
+    if (!sourceType) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized. Valid student session required." },
-        { status: 401 }
+        { success: false, error: "Missing sourceType query parameter." },
+        { status: 400, headers: DNA_NO_STORE_HEADERS }
       );
     }
 
-    const { searchParams } = new URL(req.url);
-    const sourceType = searchParams.get("sourceType") as DNASourceType;
-
-    if (!sourceType) {
-      return NextResponse.json({ success: false, error: "Missing sourceType query parameter." }, { status: 400 });
-    }
-
-    const candidateId = auth.user.id;
+    const candidateId = authCheck.studentId;
     const result = await retractEvidenceBySource(candidateId, sourceType);
 
-    return NextResponse.json({
-      success: true,
-      candidateId,
-      sourceType,
-      removedCount: result.removedCount
+    recordDnaSecurityAudit({
+      userId: candidateId,
+      actorId: candidateId,
+      actorRole: "student",
+      action: "EVIDENCE_DELETED",
+      targetResource: `/api/student-dna/evidence?sourceType=${sourceType}`,
+      outcome: "COMPLETED",
+      details: `Retracted ${result.removedCount} evidence items for source ${sourceType}.`,
     });
+
+    return NextResponse.json(
+      {
+        success: true,
+        candidateId,
+        sourceType,
+        removedCount: result.removedCount,
+      },
+      { headers: DNA_NO_STORE_HEADERS }
+    );
   } catch (error: any) {
     console.error("DELETE /api/student-dna/evidence error:", error);
-    return NextResponse.json({ success: false, error: error.message || "Failed to retract evidence" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to retract evidence" },
+      { status: 500, headers: DNA_NO_STORE_HEADERS }
+    );
   }
 }

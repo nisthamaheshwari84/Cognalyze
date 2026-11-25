@@ -1,3 +1,4 @@
+import { isTestRuntime } from "@/lib/env";
 import { NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import {
@@ -115,11 +116,21 @@ export async function POST(req: Request) {
 
   // 1. Authenticate candidate with strict server-side validation
   const auth = await getAuthenticatedContext(req as any);
-  const candidateId = auth?.user?.id || reqCandidateId || body.studentId || "student-demo";
+  if (!auth?.user?.id && !isTestRuntime()) {
+    return NextResponse.json(
+      { error: "Unauthorized. Please sign in to continue your interview." },
+      { status: 401, headers: { "Cache-Control": "no-store, no-cache, must-revalidate, private" } }
+    );
+  }
 
   // Prevent cross-user leakage: if authenticated, candidateId MUST match auth.user.id
   if (auth?.user?.id && reqCandidateId && reqCandidateId !== auth.user.id) {
     return NextResponse.json({ error: "Access denied. Candidate identity mismatch." }, { status: 403 });
+  }
+
+  const candidateId = auth?.user?.id || (isTestRuntime() ? (reqCandidateId || body.studentId || "student-demo") : "");
+  if (!candidateId) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
   const defaultJd = "Full-Stack Software Engineer (General SWE at FAANG level). Core skills: Algorithms, Data Structures, System Design, React/Next.js, Node.js/Python, and scalable cloud architecture.";

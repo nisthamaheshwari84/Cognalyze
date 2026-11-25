@@ -124,16 +124,23 @@ export function validateUploadFile(file?: { name?: string; size?: number; type?:
 }
 
 /**
- * SSRF Safety Validator (Section 20 Requirement)
- * Blocks loopback, internal private subnets, cloud metadata endpoints, and non-http(s) protocols.
+ * SSRF Safety Validator (Phase 2 & Section 20 Requirement)
+ * Blocks loopback, private RFC1918/RFC4193/RFC6598 subnets, IPv6 local ranges,
+ * hex/octal/integer IP encodings, userinfo credentials, cloud metadata services,
+ * and non-http(s) protocols.
  */
 export function isSafePublicUrl(rawUrl: string): { safe: boolean; reason?: string } {
   if (!rawUrl || typeof rawUrl !== "string") {
     return { safe: false, reason: "Empty or invalid URL" };
   }
+  const trimmed = rawUrl.trim();
+  if (trimmed.length > 2048) {
+    return { safe: false, reason: "URL exceeds maximum allowed length" };
+  }
+
   let parsed: URL;
   try {
-    parsed = new URL(rawUrl.trim());
+    parsed = new URL(trimmed);
   } catch {
     return { safe: false, reason: "Malformed URL format" };
   }
@@ -142,30 +149,72 @@ export function isSafePublicUrl(rawUrl: string): { safe: boolean; reason?: strin
     return { safe: false, reason: `Disallowed protocol: ${parsed.protocol}` };
   }
 
-  const hostname = parsed.hostname.toLowerCase();
+  if (parsed.username || parsed.password) {
+    return { safe: false, reason: "Embedded credentials in URL are not permitted" };
+  }
 
-  // Loopback / Localhost
+  if (parsed.port && !["80", "443", ""].includes(parsed.port)) {
+    return { safe: false, reason: `Restricted destination port: ${parsed.port}` };
+  }
+
+  const rawHost = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  if (!rawHost) {
+    return { safe: false, reason: "Missing destination hostname" };
+  }
+
+  // Loopback / internal hostnames / cloud metadata aliases
   if (
-    hostname === "localhost" ||
-    hostname === "127.0.0.1" ||
-    hostname === "::1" ||
-    hostname === "0.0.0.0" ||
-    hostname.endsWith(".localhost") ||
-    hostname.endsWith(".local") ||
-    hostname.endsWith(".internal") ||
-    hostname.endsWith(".lan") ||
-    hostname.endsWith(".localdomain")
+    rawHost === "localhost" ||
+    rawHost === "127.0.0.1" ||
+    rawHost === "::1" ||
+    rawHost === "::" ||
+    rawHost === "0.0.0.0" ||
+    rawHost === "metadata.google.internal" ||
+    rawHost === "metadata" ||
+    rawHost.endsWith(".localhost") ||
+    rawHost.endsWith(".local") ||
+    rawHost.endsWith(".internal") ||
+    rawHost.endsWith(".lan") ||
+    rawHost.endsWith(".localdomain") ||
+    rawHost.endsWith(".home.arpa")
   ) {
-    return { safe: false, reason: "Restricted local destination (SSRF Protection)" };
+    return { safe: false, reason: "Restricted local/internal destination (SSRF Protection)" };
+  }
+
+  // Block integer / hex / octal IP representations (e.g. 2130706433, 0x7f000001, 0177.0.0.1)
+  if (/^\d+$/.test(rawHost) || /^0x[0-9a-f]+$/i.test(rawHost)) {
+    return { safe: false, reason: "Encoded numeric IP hostnames are disallowed (SSRF Protection)" };
+  }
+  if (rawHost.includes(".") && rawHost.split(".").every((part) => /^(0x[0-9a-f]+|0[0-7]+|\d+)$/i.test(part))) {
+    // Reject non-canonical octal/hex segments outright
+    const hasEncodedPart = rawHost.split(".").some((part) => /^0x/i.test(part) || (part.length > 1 && part.startsWith("0")));
+    if (hasEncodedPart) {
+      return { safe: false, reason: "Hex/octal obfuscated IP address is disallowed (SSRF Protection)" };
+    }
+  }
+
+  // IPv6 private, link-local, loopback & IPv4-mapped checks
+  if (rawHost.includes(":")) {
+    if (
+      rawHost === "::1" ||
+      rawHost === "::" ||
+      rawHost.startsWith("fe80:") ||
+      rawHost.startsWith("fc") ||
+      rawHost.startsWith("fd") ||
+      rawHost.startsWith("::ffff:") ||
+      rawHost.startsWith("ff")
+    ) {
+      return { safe: false, reason: "Restricted IPv6 loopback/private/mapped range (SSRF Protection)" };
+    }
   }
 
   // AWS / GCP / Azure Cloud Metadata
-  if (hostname === "169.254.169.254" || hostname.startsWith("169.254.")) {
+  if (rawHost === "169.254.169.254" || rawHost.startsWith("169.254.")) {
     return { safe: false, reason: "Restricted cloud metadata service (SSRF Protection)" };
   }
 
-  // IPv4 Private subnets
-  const ipMatch = hostname.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  // Standard IPv4 private / CGNAT / loopback / reserved ranges
+  const ipMatch = rawHost.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
   if (ipMatch) {
     const oct1 = parseInt(ipMatch[1], 10);
     const oct2 = parseInt(ipMatch[2], 10);
@@ -179,8 +228,11 @@ export function isSafePublicUrl(rawUrl: string): { safe: boolean; reason?: strin
     if (oct1 === 192 && oct2 === 168) {
       return { safe: false, reason: "Restricted private RFC1918 subnet (192.168.0.0/16)" };
     }
-    if (oct1 === 127 || oct1 === 0) {
-      return { safe: false, reason: "Restricted loopback/zero subnet" };
+    if (oct1 === 100 && oct2 >= 64 && oct2 <= 127) {
+      return { safe: false, reason: "Restricted CGNAT subnet (100.64.0.0/10)" };
+    }
+    if (oct1 === 127 || oct1 === 0 || oct1 >= 224) {
+      return { safe: false, reason: "Restricted loopback/zero/multicast subnet" };
     }
   }
 

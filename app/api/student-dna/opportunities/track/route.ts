@@ -1,30 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthenticatedContext } from "@/lib/auth/server";
+import { authorizeStudentDnaAccess, DNA_NO_STORE_HEADERS } from "@/lib/dna/security-audit";
 import {
   toggleStudentSavedOpportunity,
   upsertStudentTrackedApplication,
   ApplicationTrackerStage
 } from "@/lib/dna/opportunity-intelligence";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
-    const auth = await getAuthenticatedContext(req);
-    if (!auth) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Please sign in." },
-        { status: 401 }
-      );
-    }
-
-    if (auth.user.accountType === "recruiter") {
-      return NextResponse.json(
-        { success: false, error: "Forbidden. Recruiter accounts cannot track student opportunities." },
-        { status: 403 }
-      );
-    }
-
-    const candidateId = auth.user.id;
     const body = await req.json();
+    const authCheck = await authorizeStudentDnaAccess(req, {
+      requestedCandidateId: body.userId || body.candidateId,
+      resourceName: "/api/student-dna/opportunities/track",
+    });
+    if (!authCheck.ok) return authCheck.response;
+
+    const candidateId = authCheck.studentId;
     const { action, opportunityId, stage, notes, interviewDate } = body;
 
     if (!opportunityId) {

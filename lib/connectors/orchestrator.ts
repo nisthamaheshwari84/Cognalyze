@@ -215,9 +215,14 @@ export class SourceRetrievalOrchestrator {
     };
     const githubRes = await executeSafeConnector("github", () => githubConnector.retrieve(studentId, githubConfig));
 
-    // 3. LeetCode Connector
+    // 3. LeetCode Connector (never confuse generic skill names like "DSA" with a LeetCode handle)
+    const explicitLeetcodeHandle =
+      (profile as any)?.leetcodeUrl ||
+      (profile as any)?.leetcodeHandle ||
+      (profile as any)?.connectedHandles?.leetcode ||
+      undefined;
     const leetcodeConfig: LeetCodeConnectorConfig = options?.mockConfigs?.leetcode || {
-      usernameOrUrl: profile?.skills?.find(s => /dsa|leetcode/i.test(s.name))?.name,
+      usernameOrUrl: explicitLeetcodeHandle,
     };
     const leetcodeRes = await executeSafeConnector("leetcode", () => leetcodeConnector.retrieve(studentId, leetcodeConfig));
 

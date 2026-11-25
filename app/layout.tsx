@@ -75,6 +75,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="dns-prefetch" href="https://interview-intelligence-sigma.vercel.app" />
+        <link rel="preconnect" href="https://interview-intelligence-sigma.vercel.app" crossOrigin="anonymous" />
         <script
           dangerouslySetInnerHTML={{
             __html: `

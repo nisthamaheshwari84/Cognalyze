@@ -10,7 +10,7 @@
  * 5. AUDIT TRAIL: History of DNA state changes.
  */
 
-import { supabase } from "@/lib/supabase";
+import { supabase, supabaseAdmin, isSupabaseAvailable } from "@/lib/supabase";
 import { isTestRuntime } from "@/lib/env";
 import { generateSecureId } from "@/lib/crypto-utils";
 import { DNAEvidence, RawSourceData, validateRawSourceData, processEvidencePipeline, detectContradictions, EvidenceFilter } from "./evidence-pipeline";
@@ -83,6 +83,7 @@ export interface FullStudentDNAResponse {
 const USER_EVIDENCE_STORE: Map<string, DNAEvidence[]> = new Map();
 const USER_AUDIT_LOGS: Map<string, DNAAuditLog[]> = new Map();
 const USER_TARGET_ROLES: Map<string, string> = new Map();
+const EXPLICITLY_PURGED_USERS: Set<string> = new Set();
 
 // ─── DNA DATA PERSISTENCE ENGINE (ACID Disk + Canonical Supabase) ───
 let isDNAStoreLoaded = false;
@@ -289,6 +290,9 @@ export function invalidateUserDNAScope(userId: string): void {
  */
 export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNAEvidence[]> {
   loadDNAStoreFromDisk();
+  if (EXPLICITLY_PURGED_USERS.has(userId)) {
+    return USER_EVIDENCE_STORE.get(userId) || [];
+  }
   let existing = USER_EVIDENCE_STORE.get(userId);
   if (existing && existing.length > 0) {
     return existing;
@@ -300,8 +304,8 @@ export async function initializeUserEvidenceIfEmpty(userId: string): Promise<DNA
     ? (await getStudentProfile(userId) || DEMO_STUDENT_PROFILE)
     : await getStudentProfile(userId);
 
-  // 1. Technical Skills from Auth Profile / Placement Profile
-  const skillsList = authProfile?.skills?.length ? authProfile.skills : (profile?.skills || []);
+  // 1. Technical Skills from Auth Profile (use placement fallback ONLY when no authProfile exists)
+  const skillsList = authProfile ? (authProfile.skills || []) : (profile?.skills || []);
   if (skillsList.length > 0) {
     skillsList.forEach((s: any, idx: number) => {
       const skillName = typeof s === "string" ? s : s.name;
@@ -507,6 +511,7 @@ export async function addStudentEvidenceRecord(
   userId: string,
   raw: RawSourceData
 ): Promise<{ success: boolean; evidence?: DNAEvidence; error?: string; auditLog?: DNAAuditLog }> {
+  EXPLICITLY_PURGED_USERS.delete(userId);
   // 1. Validation
   const validation = validateRawSourceData(raw.sourceType, userId, raw.metadata || raw);
   if (!validation.valid) {
@@ -596,6 +601,46 @@ export async function retractEvidenceBySource(
   invalidateCandidateEvidence(userId);
 
   return { success: true, removedCount };
+}
+
+/**
+ * Purge all stored Student DNA evidence, target role, audit logs, and caches for a student
+ * during explicit privacy data deletion. Strictly scoped by userId.
+ */
+export async function purgeUserStudentDNA(userId: string): Promise<{
+  removedEvidenceCount: number;
+  removedAuditCount: number;
+}> {
+  loadDNAStoreFromDisk();
+  const prevEvidence = USER_EVIDENCE_STORE.get(userId) || [];
+  const prevLogs = USER_AUDIT_LOGS.get(userId) || [];
+
+  USER_EVIDENCE_STORE.set(userId, []);
+  USER_AUDIT_LOGS.delete(userId);
+  USER_TARGET_ROLES.delete(userId);
+  EXPLICITLY_PURGED_USERS.add(userId);
+
+  invalidateCandidateEvidence(userId);
+  persistDNAStoreToDisk();
+
+  // Clear cloud rows strictly for this userId when Supabase is active
+  if (!isTestRuntime()) {
+    try {
+      if ((await isSupabaseAvailable()) && supabaseAdmin) {
+        await supabaseAdmin.from("dna_evidence").delete().eq("user_id", userId);
+        await supabaseAdmin.from("dna_audit_logs").delete().eq("user_id", userId);
+        await supabaseAdmin.from("dna_tracked_applications").delete().eq("student_id", userId);
+        await supabaseAdmin.from("dna_saved_opportunities").delete().eq("student_id", userId);
+      }
+    } catch {
+      // Non-fatal cleanup
+    }
+  }
+
+  return {
+    removedEvidenceCount: prevEvidence.length,
+    removedAuditCount: prevLogs.length,
+  };
 }
 
 /**

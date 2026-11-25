@@ -78,8 +78,9 @@ test("Personalized Interview Arena & Actual Interview Verification Suite", async
 
     const practiceContent = fs.readFileSync(practicePagePath, "utf-8");
     assert.ok(
-      practiceContent.includes("MockInterviewExperience"),
-      "app/student/practice-interview/page.tsx must render MockInterviewExperience"
+      practiceContent.includes("Personalized Interview Arena") &&
+        practiceContent.includes("/api/interview-intelligence/launch"),
+      "app/student/practice-interview/page.tsx must render Personalized Interview Arena with secure Cognalyze launch",
     );
   });
 

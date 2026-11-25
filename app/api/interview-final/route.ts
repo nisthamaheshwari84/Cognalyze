@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { isTestRuntime } from "@/lib/env";
 import {
   buildCandidateInterviewDossier,
   generateInterviewBlueprint,
@@ -49,11 +50,21 @@ export async function POST(req: Request) {
 
     // 1. Authenticate candidate with strict server-side validation
     const auth = await getAuthenticatedContext(req as any);
-    const candidateId = auth?.user?.id || reqCandidateId || body.studentId || "student-demo";
+    if (!auth?.user?.id && !isTestRuntime()) {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in to finalize your interview." },
+        { status: 401, headers: { "Cache-Control": "no-store, no-cache, must-revalidate, private" } }
+      );
+    }
 
     // Multi-tenant security guard
     if (auth?.user?.id && reqCandidateId && reqCandidateId !== auth.user.id) {
       return NextResponse.json({ error: "Access denied. Candidate identity mismatch." }, { status: 403 });
+    }
+
+    const candidateId = auth?.user?.id || (isTestRuntime() ? (reqCandidateId || body.studentId || "student-demo") : "");
+    if (!candidateId) {
+      return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
     const sessionId = reqSessionId || `session_${candidateId}_${Date.now()}`;

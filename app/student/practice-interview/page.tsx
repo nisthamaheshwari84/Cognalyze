@@ -1,21 +1,91 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
 import AppNav from "@/components/AppNav";
-import MockInterviewExperience from "@/components/interview/MockInterviewExperience";
-import { Sparkles, ExternalLink, RefreshCw, Server, AlertCircle } from "lucide-react";
+import {
+  ExternalLink,
+  RefreshCw,
+  ShieldCheck,
+  Lock,
+  AlertCircle,
+  Dna,
+} from "lucide-react";
+
+const DEFAULT_ENGINE_ORIGIN = (
+  process.env.NEXT_PUBLIC_INTERVIEW_INTELLIGENCE_URL ||
+  "https://interview-intelligence-sigma.vercel.app"
+).replace(/\/+$/, "");
+
+interface LaunchSessionData {
+  ticket: string;
+  expiresAt: string;
+  launchOrigin: string;
+  postLaunchUrl: string;
+  identity: {
+    userId: string;
+    username: string;
+    fullName: string;
+  };
+  contextHints?: {
+    targetRole?: string;
+    companyContext?: string;
+    opportunityId?: string;
+    roundType?: string;
+    focusAreas?: string[];
+  };
+}
 
 export default function StudentPracticeInterviewPage() {
-  const [viewMode, setViewMode] = useState<"autonomous" | "classic">("autonomous");
   const [isServerHealthy, setIsServerHealthy] = useState<boolean>(true);
   const [checking, setChecking] = useState<boolean>(false);
+  const [iframeLoaded, setIframeLoaded] = useState<boolean>(false);
 
-  const checkServerHealth = async () => {
+  // Unified Identity Launch State (non-blocking: iframe starts loading immediately in parallel)
+  const [launchState, setLaunchState] = useState<
+    "initializing" | "ready" | "unauthenticated" | "forbidden" | "error"
+  >("initializing");
+  const [launchData, setLaunchData] = useState<LaunchSessionData | null>(null);
+  const [launchError, setLaunchError] = useState<string | null>(null);
+  const [engineOriginLabel, setEngineOriginLabel] = useState<string>(DEFAULT_ENGINE_ORIGIN);
+  const [openingDedicated, setOpeningDedicated] = useState<boolean>(false);
+
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const ticketDispatchedRef = useRef<string | null>(null);
+  const iframeReadyRef = useRef<boolean>(false);
+
+  const readContextHintsFromUrl = useCallback(() => {
+    if (typeof window === "undefined") return {};
+    const params = new URLSearchParams(window.location.search);
+    const focus = params.get("focus") || params.get("skills");
+    return {
+      targetRole: params.get("role") || params.get("title") || undefined,
+      companyContext: params.get("company") || undefined,
+      opportunityId: params.get("oppId") || undefined,
+      roundType: params.get("mode") || undefined,
+      focusAreas: focus ? focus.split(",").map((s) => s.trim()).filter(Boolean) : undefined,
+    };
+  }, []);
+
+  const checkServerHealth = useCallback(async () => {
     setChecking(true);
     try {
-      const res = await fetch("/api/health", { method: "GET" });
+      const origin = launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN;
+      const directRes = await fetch(`${origin}/api/health`, { method: "GET", cache: "no-store" }).catch(() => null);
+      if (directRes && directRes.ok) {
+        const directData = await directRes.json().catch(() => ({}));
+        setIsServerHealthy(Boolean(directData.status === "ok" || directData.reachable));
+        setEngineOriginLabel(origin);
+        return;
+      }
+
+      const res = await fetch("/api/health", { method: "GET", cache: "no-store" });
       if (res.ok) {
-        setIsServerHealthy(true);
+        const data = await res.json();
+        setIsServerHealthy(Boolean(data.reachable ?? data.status === "ok"));
+        if (data.engineOrigin) {
+          setEngineOriginLabel(data.engineOrigin);
+        }
       } else {
         setIsServerHealthy(false);
       }
@@ -24,13 +94,178 @@ export default function StudentPracticeInterviewPage() {
     } finally {
       setChecking(false);
     }
-  };
+  }, [launchData?.launchOrigin, engineOriginLabel]);
+
+  const requestLaunchTicket = useCallback(async (): Promise<LaunchSessionData | null> => {
+    try {
+      const hints = readContextHintsFromUrl();
+      const res = await fetch("/api/interview-intelligence/launch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+        body: JSON.stringify(hints),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        setLaunchState("unauthenticated");
+        setLaunchError(data.message || "Please sign in to Cognalyze to access Interview Intelligence.");
+        return null;
+      }
+      if (res.status === 403) {
+        setLaunchState("forbidden");
+        setLaunchError(data.message || "A student account is required to launch the Interview Arena.");
+        return null;
+      }
+      if (!res.ok || !data.success || !data.ticket) {
+        setLaunchState("error");
+        setLaunchError(data.message || "Unable to issue verified Cognalyze launch ticket.");
+        return null;
+      }
+
+      const payload: LaunchSessionData = {
+        ticket: data.ticket,
+        expiresAt: data.expiresAt,
+        launchOrigin: data.launchOrigin || DEFAULT_ENGINE_ORIGIN,
+        postLaunchUrl: data.postLaunchUrl,
+        identity: data.identity,
+        contextHints: data.contextHints,
+      };
+      setLaunchData(payload);
+      setEngineOriginLabel(payload.launchOrigin);
+      setLaunchState("ready");
+      setLaunchError(null);
+      return payload;
+    } catch (err: any) {
+      setLaunchState("error");
+      setLaunchError(err?.message || "Network error initializing Interview Intelligence session.");
+      return null;
+    }
+  }, [readContextHintsFromUrl]);
 
   useEffect(() => {
-    checkServerHealth();
-    const interval = setInterval(checkServerHealth, 10000);
+    void requestLaunchTicket();
+    void checkServerHealth();
+    const interval = setInterval(() => {
+      void checkServerHealth();
+    }, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [requestLaunchTicket, checkServerHealth]);
+
+  const dispatchTicketToIframe = useCallback(
+    async (payload: LaunchSessionData, forceRefresh = false) => {
+      const targetWindow = iframeRef.current?.contentWindow;
+      if (!targetWindow) return;
+
+      let activePayload = payload;
+      if (forceRefresh || ticketDispatchedRef.current === activePayload.ticket) {
+        const refreshed = await requestLaunchTicket();
+        if (!refreshed) return;
+        activePayload = refreshed;
+      }
+
+      ticketDispatchedRef.current = activePayload.ticket;
+      targetWindow.postMessage(
+        {
+          type: "COGNALYZE_LAUNCH_TICKET",
+          ticket: activePayload.ticket,
+          contextHints: activePayload.contextHints || {},
+        },
+        activePayload.launchOrigin
+      );
+    },
+    [requestLaunchTicket]
+  );
+
+  // Immediately dispatch ticket if iframe finished booting before /launch completed
+  useEffect(() => {
+    if (launchState === "ready" && launchData && iframeReadyRef.current && !ticketDispatchedRef.current) {
+      void dispatchTicketToIframe(launchData, false);
+    }
+  }, [launchState, launchData, dispatchTicketToIframe]);
+
+  // Secure Origin-Validated Handoff via postMessage (never exposes tokens in URL query strings)
+  useEffect(() => {
+    const expectedOrigin = (launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN).replace(
+      /\/+$/,
+      ""
+    );
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== expectedOrigin) return;
+      if (!event.data || typeof event.data !== "object") return;
+      const msgType = String((event.data as { type?: string }).type || "");
+
+      if (msgType === "COGNALYZE_READY") {
+        iframeReadyRef.current = true;
+        setIsServerHealthy(true);
+        if (launchData && launchState === "ready") {
+          void dispatchTicketToIframe(launchData, false);
+        }
+      } else if (msgType === "COGNALYZE_TICKET_NEEDED") {
+        iframeReadyRef.current = true;
+        if (launchData) {
+          void dispatchTicketToIframe(launchData, true);
+        } else {
+          void requestLaunchTicket();
+        }
+      } else if (msgType === "COGNALYZE_INTERVIEW_COMPLETED") {
+        void checkServerHealth();
+      } else if (msgType === "COGNALYZE_LOGOUT_REQUESTED") {
+        window.location.href = "/login?redirect=/student/practice-interview";
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [launchData, launchState, engineOriginLabel, dispatchTicketToIframe, requestLaunchTicket, checkServerHealth]);
+
+  // Dedicated window launch strictly via POST form (single-use ticket in POST body, zero tokens in URL)
+  const handleOpenDedicatedWindow = async () => {
+    if (openingDedicated) return;
+    setOpeningDedicated(true);
+    try {
+      const fresh = await requestLaunchTicket();
+      if (!fresh) return;
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = fresh.postLaunchUrl;
+      form.target = "_blank";
+      form.style.display = "none";
+
+      const ticketInput = document.createElement("input");
+      ticketInput.type = "hidden";
+      ticketInput.name = "ticket";
+      ticketInput.value = fresh.ticket;
+      form.appendChild(ticketInput);
+
+      if (fresh.contextHints?.targetRole) {
+        const roleInput = document.createElement("input");
+        roleInput.type = "hidden";
+        roleInput.name = "targetRole";
+        roleInput.value = fresh.contextHints.targetRole;
+        form.appendChild(roleInput);
+      }
+      if (fresh.contextHints?.companyContext) {
+        const compInput = document.createElement("input");
+        compInput.type = "hidden";
+        compInput.name = "companyContext";
+        compInput.value = fresh.contextHints.companyContext;
+        form.appendChild(compInput);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    } finally {
+      setOpeningDedicated(false);
+    }
+  };
+
+  const activeOrigin = launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN;
+  const shouldShowIframe =
+    launchState === "initializing" || (launchState === "ready" && Boolean(launchData));
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", display: "flex", flexDirection: "column" }}>
@@ -68,7 +303,7 @@ export default function StudentPracticeInterviewPage() {
             ⚡
           </div>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <h1 style={{ fontSize: 15, fontWeight: 800, color: "#162A43", margin: 0 }}>
                 Personalized Interview Arena
               </h1>
@@ -86,17 +321,36 @@ export default function StudentPracticeInterviewPage() {
               >
                 Autonomous Studio
               </span>
+              {launchData?.identity && (
+                <span
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: 6,
+                    backgroundColor: "#EAF4EE",
+                    color: "#2E7D5B",
+                    border: "1px solid #C8E4D3",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <ShieldCheck size={11} />
+                  @{launchData.identity.username} · Student DNA Synced
+                </span>
+              )}
             </div>
             <p style={{ fontSize: 11, color: "#667085", margin: 0 }}>
-              Live AI Adaptive Orchestration · Student DNA Progression · Real-Time Proctoring
+              Single-Identity Adaptive Orchestration · Shared Cognalyze Student DNA · Real-Time Proctoring
             </p>
           </div>
         </div>
 
-        {/* Mode Switcher & Actions */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          {/* Health Status Indicator */}
+        {/* Status & Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <div
+            title={`Engine endpoint: ${activeOrigin}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -118,9 +372,9 @@ export default function StudentPracticeInterviewPage() {
                 backgroundColor: isServerHealthy ? "#2E7D5B" : "#B7791F",
               }}
             />
-            <span>{isServerHealthy ? "Engine Active (Port 3001)" : "Engine Offline"}</span>
+            <span>{isServerHealthy ? "Engine Active" : "Engine Offline"}</span>
             <button
-              onClick={checkServerHealth}
+              onClick={() => void checkServerHealth()}
               disabled={checking}
               title="Refresh engine connection"
               style={{
@@ -137,86 +391,191 @@ export default function StudentPracticeInterviewPage() {
             </button>
           </div>
 
-          {/* Mode Switch: Autonomous vs Classic */}
-          <div
-            style={{
-              display: "flex",
-              background: "#F6F5F1",
-              padding: 3,
-              borderRadius: 8,
-              border: "1px solid #E4E1DA",
-            }}
-          >
+          {launchState === "ready" && launchData && (
             <button
-              onClick={() => setViewMode("autonomous")}
+              type="button"
+              onClick={() => void handleOpenDedicatedWindow()}
+              disabled={openingDedicated}
               style={{
-                padding: "6px 12px",
-                borderRadius: 6,
-                border: "none",
-                background: viewMode === "autonomous" ? "#162A43" : "transparent",
-                color: viewMode === "autonomous" ? "#FFFFFF" : "#667085",
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: "pointer",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
                 gap: 5,
-                transition: "all 0.15s ease",
-              }}
-            >
-              <Sparkles size={12} />
-              <span>Personalized Arena</span>
-            </button>
-            <button
-              onClick={() => setViewMode("classic")}
-              style={{
-                padding: "6px 12px",
-                borderRadius: 6,
-                border: "none",
-                background: viewMode === "classic" ? "#162A43" : "transparent",
-                color: viewMode === "classic" ? "#FFFFFF" : "#667085",
                 fontSize: 11,
                 fontWeight: 700,
-                cursor: "pointer",
-                transition: "all 0.15s ease",
+                padding: "6px 12px",
+                borderRadius: 7,
+                backgroundColor: "#FFFFFF",
+                color: "#356AE6",
+                border: "1px solid #D2E0FB",
+                cursor: openingDedicated ? "wait" : "pointer",
+                boxShadow: "0 1px 2px rgba(16,24,40,0.04)",
               }}
             >
-              <span>Classic Experience</span>
+              <span>{openingDedicated ? "Launching..." : "Open Dedicated Window"}</span>
+              <ExternalLink size={12} />
             </button>
-          </div>
-
-          {/* Open in Full Window */}
-          <a
-            href="http://localhost:3001"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 5,
-              fontSize: 11,
-              fontWeight: 700,
-              padding: "6px 12px",
-              borderRadius: 7,
-              backgroundColor: "#FFFFFF",
-              color: "#356AE6",
-              border: "1px solid #D2E0FB",
-              textDecoration: "none",
-              boxShadow: "0 1px 2px rgba(16,24,40,0.04)",
-            }}
-          >
-            <span>Open Dedicated Window</span>
-            <ExternalLink size={12} />
-          </a>
+          )}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {viewMode === "autonomous" ? (
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", position: "relative" }}>
+        {launchState === "unauthenticated" ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: 460,
+                width: "100%",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E4E1DA",
+                borderRadius: 16,
+                padding: 32,
+                textAlign: "center",
+                boxShadow: "0 4px 16px rgba(16, 24, 40, 0.05)",
+              }}
+            >
+              <div
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 12,
+                  backgroundColor: "#EFF4FE",
+                  color: "#356AE6",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 16,
+                }}
+              >
+                <Lock size={22} />
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "#162A43", margin: "0 0 8px" }}>
+                Sign In with Your Cognalyze Account
+              </h2>
+              <p style={{ fontSize: 13, color: "#667085", lineHeight: 1.6, margin: "0 0 24px" }}>
+                Interview Intelligence automatically connects to your verified Cognalyze identity, @username,
+                and Student DNA — no separate registration needed.
+              </p>
+              <Link
+                href="/login?redirect=/student/practice-interview"
+                style={{
+                  padding: "10px 20px",
+                  borderRadius: 9,
+                  backgroundColor: "#162A43",
+                  color: "#FFFFFF",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                <Dna size={15} />
+                <span>Sign In to Cognalyze</span>
+              </Link>
+            </div>
+          </div>
+        ) : launchState === "forbidden" || launchState === "error" ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: 460,
+                width: "100%",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #FECDCA",
+                borderRadius: 16,
+                padding: 28,
+                textAlign: "center",
+              }}
+            >
+              <AlertCircle size={28} style={{ color: "#D92D20", margin: "0 auto 12px" }} />
+              <h2 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: "0 0 8px" }}>
+                Unable to Launch Personalized Interview Arena
+              </h2>
+              <p style={{ fontSize: 13, color: "#667085", margin: "0 0 20px" }}>
+                {launchError || "Could not verify interview handoff session."}
+              </p>
+              <button
+                type="button"
+                onClick={() => void requestLaunchTicket()}
+                style={{
+                  padding: "9px 18px",
+                  borderRadius: 8,
+                  backgroundColor: "#356AE6",
+                  color: "#FFFFFF",
+                  border: "none",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Retry Handshake
+              </button>
+            </div>
+          </div>
+        ) : shouldShowIframe ? (
           <div style={{ flex: 1, position: "relative", minHeight: "calc(100vh - 120px)" }}>
+            {!iframeLoaded && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 10,
+                  backgroundColor: "#F6F5F1",
+                  zIndex: 5,
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    border: "3px solid #D2E0FB",
+                    borderTopColor: "#356AE6",
+                    animation: "spin 0.8s linear infinite",
+                  }}
+                />
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#162A43", margin: 0 }}>
+                  Loading Personalized Interview Arena...
+                </p>
+              </div>
+            )}
             <iframe
-              src="http://localhost:3001"
+              ref={iframeRef}
+              src={`${activeOrigin}/?embed=1`}
+              onLoad={() => {
+                setIframeLoaded(true);
+                setIsServerHealthy(true);
+                if (launchState === "ready" && launchData && !ticketDispatchedRef.current) {
+                  window.setTimeout(() => {
+                    if (!ticketDispatchedRef.current) {
+                      void dispatchTicketToIframe(launchData, false);
+                    }
+                  }, 100);
+                }
+              }}
               style={{
                 width: "100%",
                 height: "calc(100vh - 120px)",
@@ -228,28 +587,7 @@ export default function StudentPracticeInterviewPage() {
               title="Cognalyze Personalized Interview Arena"
             />
           </div>
-        ) : (
-          <Suspense
-            fallback={
-              <div
-                style={{
-                  minHeight: "100vh",
-                  backgroundColor: "#F6F5F1",
-                  color: "#667085",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                Loading Classic Experience...
-              </div>
-            }
-          >
-            <MockInterviewExperience />
-          </Suspense>
-        )}
+        ) : null}
       </div>
     </div>
   );

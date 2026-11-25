@@ -1539,6 +1539,68 @@ export function getConnectedAccountsByUserId(userId: string): ConnectedAccount[]
   return store.connectedAccounts.filter(c => c.userId === userId);
 }
 
+export function disconnectAccountForUser(
+  userId: string,
+  provider: "github" | "linkedin" | "email"
+): { disconnected: boolean; removedCount: number } {
+  loadStoreFromDisk();
+  const before = store.connectedAccounts.length;
+  store.connectedAccounts = store.connectedAccounts.filter(
+    (c) => !(c.userId === userId && c.provider === provider)
+  );
+  const removedCount = before - store.connectedAccounts.length;
+
+  // Also clear corresponding profile link so no orphaned pointer remains
+  const profile = store.studentProfiles.find((p) => p.userId === userId);
+  if (profile) {
+    if (provider === "github") profile.githubUrl = "";
+    if (provider === "linkedin") profile.linkedinUrl = "";
+    profile.updatedAt = new Date().toISOString();
+  }
+
+  if (removedCount > 0 || profile) {
+    persistStoreToDisk();
+  }
+  return { disconnected: removedCount > 0, removedCount };
+}
+
+export function purgeStudentProfileDataForUser(userId: string): {
+  removedConnections: number;
+  clearedSavedOpps: number;
+  clearedTrackedApps: number;
+} {
+  loadStoreFromDisk();
+  const beforeConn = store.connectedAccounts.length;
+  store.connectedAccounts = store.connectedAccounts.filter((c) => c.userId !== userId);
+  const removedConnections = beforeConn - store.connectedAccounts.length;
+
+  const profile = store.studentProfiles.find((p) => p.userId === userId);
+  const clearedSavedOpps = (profile?.savedOpportunities || []).length;
+  const clearedTrackedApps = (profile?.trackedApplications || []).length;
+
+  if (profile) {
+    profile.savedOpportunities = [];
+    profile.trackedApplications = [];
+    profile.githubUrl = "";
+    profile.linkedinUrl = "";
+    profile.portfolioUrl = "";
+    profile.resumeUrl = undefined;
+    profile.resumeFileName = undefined;
+    profile.skills = [];
+    profile.projects = [];
+    profile.experience = [];
+    profile.achievements = [];
+    profile.certifications = [];
+    profile.profileCompleted = false;
+    profile.profileCompletionPercentage = 0;
+    profile.profileStatus = "PARTIAL";
+    profile.updatedAt = new Date().toISOString();
+  }
+
+  persistStoreToDisk();
+  return { removedConnections, clearedSavedOpps, clearedTrackedApps };
+}
+
 export function findUserByConnectedAccount(
   provider: "github" | "linkedin",
   providerUserId: string
