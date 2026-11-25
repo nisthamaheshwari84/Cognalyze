@@ -73,7 +73,7 @@ function getGoogleCalendarUrl(event: CalendarEventItem): string {
     event.application_status ? `📋 Live Application Status: ${event.application_status}` : "",
     event.prep_window ? `🛠️ Suggested Prep Sprint: ${event.prep_window.start_date} to ${event.prep_window.end_date}` : "",
     event.notes ? `📝 Notes: ${event.notes}` : "",
-    `🔗 Cognalyze Season Calendar: http://localhost:3001/student/calendar`
+    `🔗 Cognalyze Season Calendar: ${typeof window !== "undefined" ? window.location.origin : "https://cognalyze-gules.vercel.app"}/student/calendar`
   ].filter(Boolean);
 
   const details = encodeURIComponent(detailsLines.join("\n"));

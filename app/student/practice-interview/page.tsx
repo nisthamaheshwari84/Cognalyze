@@ -12,10 +12,14 @@ import {
   Dna,
 } from "lucide-react";
 
-const DEFAULT_ENGINE_ORIGIN = (
-  process.env.NEXT_PUBLIC_INTERVIEW_INTELLIGENCE_URL ||
-  "https://interview-intelligence-sigma.vercel.app"
-).replace(/\/+$/, "");
+const RAW_ENV_ENGINE_ORIGIN = (
+  process.env.NEXT_PUBLIC_INTERVIEW_INTELLIGENCE_URL || ""
+).trim().replace(/\/+$/, "");
+
+const DEFAULT_ENGINE_ORIGIN =
+  RAW_ENV_ENGINE_ORIGIN && !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(RAW_ENV_ENGINE_ORIGIN)
+    ? RAW_ENV_ENGINE_ORIGIN
+    : "https://interview-intelligence-sigma.vercel.app";
 
 interface LaunchSessionData {
   ticket: string;

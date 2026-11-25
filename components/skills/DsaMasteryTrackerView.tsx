@@ -448,7 +448,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
       (prob.time_complexity ? `⏱️ Target Time: ${prob.time_complexity}\n` : "") +
       (prob.problem_url ? `🔗 LeetCode: ${prob.problem_url}\n` : "") +
       (prob.article_url ? `📖 Striver Article: ${prob.article_url}\n` : "") +
-      `\nTrack progress on Cognalyze: http://localhost:3001/student/dsa-tracker`
+      `\nTrack progress on Cognalyze: ${typeof window !== "undefined" ? window.location.origin : "https://cognalyze-gules.vercel.app"}/student/dsa-tracker`
     );
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=LeetCode`;
   };
