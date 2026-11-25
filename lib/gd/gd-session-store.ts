@@ -14,7 +14,7 @@ import path from "path";
 import { GDSessionData, GDSimulationFormat, GDDifficultyLevel, GDExperienceMode } from "./types";
 import { generateCalibratedAIParticipants } from "./participant-archetypes";
 import { generateDynamicAIPanelAsync } from "./dynamic-agent-generator";
-import { buildExperienceBlueprintAsync } from "./experience-engine";
+import { buildExperienceBlueprintAsync, buildFallbackBlueprint } from "./experience-engine";
 import {
   upsertGDSessionCloud,
   fetchGDSessionCloud,
@@ -180,25 +180,48 @@ export async function createGDSessionAsync(params: {
   friendsRoomCode?: string;
 }): Promise<GDSessionData> {
   const session = createGDSession(params);
-  const [dynamicPeers, blueprint] = await Promise.all([
+
+  // Enforce a crisp 4.5s upper bound on optional AI persona/scenario customization so session launch stays snappy
+  const initEnrichmentPromise = Promise.all([
     generateDynamicAIPanelAsync({
       topicTitle: session.topicTitle,
       format: session.format,
       difficulty: session.difficulty,
       targetRole: session.targetRole
-    }),
+    }).catch(() => []),
     buildExperienceBlueprintAsync({
       topicTitle: session.topicTitle,
       format: session.format,
       difficulty: session.difficulty,
       experienceMode: params.experienceMode || "standard_round"
-    })
+    }).catch(() => undefined)
   ]);
-  if (dynamicPeers.length === 4) {
-    const humans = session.participants.filter((p) => p.isHuman);
-    session.participants = [...humans, ...dynamicPeers];
+
+  let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+  const deadlinePromise = new Promise<null>((resolve) => {
+    timeoutHandle = setTimeout(() => resolve(null), 4500);
+  });
+
+  const enriched = await Promise.race([initEnrichmentPromise, deadlinePromise]);
+  if (timeoutHandle) clearTimeout(timeoutHandle);
+
+  if (Array.isArray(enriched)) {
+    const [dynamicPeers, blueprint] = enriched;
+    if (Array.isArray(dynamicPeers) && dynamicPeers.length === 4) {
+      const humans = session.participants.filter((p) => p.isHuman);
+      session.participants = [...humans, ...dynamicPeers];
+    }
+    if (blueprint) {
+      session.experienceBlueprint = blueprint;
+    }
+  } else {
+    session.experienceBlueprint = buildFallbackBlueprint({
+      topicTitle: session.topicTitle,
+      format: session.format,
+      mode: params.experienceMode || "standard_round"
+    });
   }
-  session.experienceBlueprint = blueprint;
+
   inMemorySessions.set(session.sessionId, session);
   persistSessionsToDisk();
   await upsertGDSessionCloud(session);

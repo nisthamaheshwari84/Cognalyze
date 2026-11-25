@@ -25,6 +25,7 @@ import {
 } from "@/lib/gd/performance-analytics";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(req: Request) {
   try {

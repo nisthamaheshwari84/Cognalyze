@@ -13,6 +13,9 @@ import {
 } from "@/lib/gd/topic-service";
 import { getStudentDNAFull } from "@/lib/dna/store";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 export interface GeneratedGDTopic {
   id: string;
   title: string;

@@ -21,7 +21,7 @@ import { GD_EXPERIENCE_MODE_META } from "@/components/gd/gd-theme";
 
 export { GD_EXPERIENCE_MODE_META };
 
-function buildFallbackBlueprint(params: {
+export function buildFallbackBlueprint(params: {
   topicTitle: string;
   format: GDSimulationFormat;
   mode: GDExperienceMode;
@@ -114,6 +114,8 @@ Return JSON ONLY:
 
   const aiResult = await runGDJsonCompletion<Omit<GDExperienceBlueprint, "mode" | "modeLabel">>({
     role: "experience_engine",
+    timeoutMsOverride: 3800,
+    maxAttemptsOverride: 1,
     systemPrompt:
       "You create high-realism scenario briefs and adaptive mid-session constraints for university & engineering Group Discussions.",
     userPrompt,

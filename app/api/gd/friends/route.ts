@@ -25,6 +25,9 @@ import {
 import { getGDSessionByIdAsync } from "@/lib/gd/gd-session-store";
 import { submitDisciplinaryAppealAsync } from "@/lib/gd/disciplinary-system";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 function jsonNoStore(data: any, status = 200) {
   return NextResponse.json(data, { status, headers: GD_NO_STORE_HEADERS });
 }

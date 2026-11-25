@@ -127,15 +127,16 @@ async function invokeProvider(params: {
   messages: Array<{ role: string; content: string }>;
   temperature: number;
   max_tokens: number;
+  timeoutMs?: number;
 }): Promise<{ text: string; provider: string }> {
   if (customExecutorForTest) {
     const out = await customExecutorForTest(params);
     return { text: out.text, provider: out.provider || "test-executor" };
   }
-  const timeoutMs = 12000;
+  const timeoutMs = params.timeoutMs ?? 6500;
   let timerId: ReturnType<typeof setTimeout> | null = null;
   const timeoutPromise = new Promise<never>((_, reject) => {
-    timerId = setTimeout(() => reject(new Error("AI provider timeout exceeded (12s)")), timeoutMs);
+    timerId = setTimeout(() => reject(new Error(`AI provider timeout exceeded (${timeoutMs}ms)`)), timeoutMs);
   });
   try {
     const res = await Promise.race([
@@ -167,6 +168,8 @@ export async function runGDJsonCompletion<T>(params: {
   userPrompt: string;
   validate: (parsed: any) => T | null;
   temperatureOverride?: number;
+  timeoutMsOverride?: number;
+  maxAttemptsOverride?: 1 | 2;
 }): Promise<GDAICompletionResult<T>> {
   const budget = GD_AI_ROLE_GOVERNANCE[params.role];
   const t0 = Date.now();
@@ -180,7 +183,9 @@ export async function runGDJsonCompletion<T>(params: {
   let lastError = "No completion produced";
   let providerUsed = "unknown";
 
-  for (let pass = 1; pass <= 2; pass++) {
+  const maxAttempts = params.maxAttemptsOverride ?? 2;
+
+  for (let pass = 1; pass <= maxAttempts; pass++) {
     attempts = pass;
     const isRepair = pass === 2;
     const messages = isRepair
@@ -204,7 +209,8 @@ export async function runGDJsonCompletion<T>(params: {
         model: budget.preferredModel,
         messages,
         temperature: isRepair ? Math.min(0.2, baseTemperature) : baseTemperature,
-        max_tokens: budget.maxTokens
+        max_tokens: budget.maxTokens,
+        timeoutMs: params.timeoutMsOverride
       });
 
       providerUsed = result.provider;
@@ -233,6 +239,8 @@ export async function runGDJsonCompletion<T>(params: {
       }
     } catch (err: any) {
       lastError = err?.message || "Provider request failed";
+      // Never spend another full timeout budget if pass 1 hit a hard deadline
+      if (lastError.includes("timeout exceeded")) break;
     }
   }
 

@@ -916,7 +916,10 @@ function GDPracticeContent() {
       startedRef.current = false;
       setAutoFlow(false);
       autoFlowRef.current = false;
-      const msg = err?.message || "Connection interrupted while starting the GD panel.";
+      const rawMsg = String(err?.message || "");
+      const msg = /load failed|failed to fetch|network|abort/i.test(rawMsg)
+        ? "Server connection timed out or was interrupted while starting the GD panel. Please click Launch again."
+        : rawMsg || "Connection interrupted while starting the GD panel.";
       setLaunchError(msg);
       setModeratorAlert(msg);
     } finally {
@@ -1969,21 +1972,24 @@ function GDPracticeContent() {
                 <span>
                   {launchError || "Sign in with your Cognalyze student account to launch the live AI GD panel and record verified evaluations."}
                 </span>
-                <a
-                  href={`/login?redirect=${encodeURIComponent("/student/gd-practice")}`}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: 8,
-                    background: "#4f46e5",
-                    color: "#FFFFFF",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    textDecoration: "none",
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  Sign In as Student →
-                </a>
+                {(authStatus === "unauthenticated" ||
+                  Boolean(launchError && /sign in|unauthorized|authentication/i.test(launchError))) && (
+                  <a
+                    href={`/login?redirect=${encodeURIComponent("/student/gd-practice")}`}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: 8,
+                      background: "#4f46e5",
+                      color: "#FFFFFF",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      textDecoration: "none",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    Sign In as Student →
+                  </a>
+                )}
               </div>
             )}
 

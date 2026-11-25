@@ -82,6 +82,8 @@ Return JSON ONLY:
 
   const result = await runGDJsonCompletion<any[]>({
     role: "dynamic_agent_generator",
+    timeoutMsOverride: 3800,
+    maxAttemptsOverride: 1,
     systemPrompt:
       "You architect balanced, realistic AI Group Discussion panels tailored to the exact debate domain and student target role.",
     userPrompt,

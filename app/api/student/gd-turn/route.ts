@@ -30,6 +30,9 @@ import { transitionLifecycleState } from "@/lib/gd/session-state-machine";
 import { updateParticipantMemoryAfterTurn } from "@/lib/gd/dynamic-agent-generator";
 import { GDSimulationFormat, GDDifficultyLevel, GDExperienceMode, GDTranscriptItem } from "@/lib/gd/types";
 
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 function jsonNoStore(data: any, status = 200) {
   return NextResponse.json(data, { status, headers: GD_NO_STORE_HEADERS });
 }
