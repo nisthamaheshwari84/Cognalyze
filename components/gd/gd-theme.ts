@@ -14,6 +14,49 @@ export type GDArenaTabId =
   | "performance"
   | "guidelines";
 
+export type GDClientExperienceMode =
+  | "standard_round"
+  | "crisis_room"
+  | "boardroom_debate"
+  | "ethical_dilemma"
+  | "case_data_discussion";
+
+export const GD_EXPERIENCE_MODE_META: Record<
+  GDClientExperienceMode,
+  { label: string; badge: string; description: string; defaultTwistLabel: string }
+> = {
+  standard_round: {
+    label: "Standard Roundtable",
+    badge: "Classic",
+    description: "Structured placement roundtable moving cleanly from framing to synthesis.",
+    defaultTwistLabel: "Stress-Test Constraint"
+  },
+  crisis_room: {
+    label: "Crisis War-Room",
+    badge: "Live Incident",
+    description: "Simulates an active service, PR, or security incident demanding immediate triage.",
+    defaultTwistLabel: "Breaking Incident Escalation"
+  },
+  boardroom_debate: {
+    label: "Boardroom Strategy",
+    badge: "Executive",
+    description: "High-stakes leadership committee evaluating capital efficiency and risk.",
+    defaultTwistLabel: "CFO / Board Mandate Shift"
+  },
+  ethical_dilemma: {
+    label: "Ethical & Policy Dilemma",
+    badge: "Governance",
+    description: "Explores privacy, algorithmic fairness, whistleblower duties, and public trust.",
+    defaultTwistLabel: "Public Accountability Shock"
+  },
+  case_data_discussion: {
+    label: "Case & Constraint Brief",
+    badge: "Analytical",
+    description: "Grounds debate around explicit scenario constraints and adoption bottlenecks.",
+    defaultTwistLabel: "Updated Field Constraint"
+  }
+};
+
 export interface GDArenaTabMeta {
   id: GDArenaTabId;
   label: string;

@@ -121,9 +121,11 @@ export function proxy(req: NextRequest) {
 
   // Session & Role Token Extraction
   const sessionToken = req.cookies.get("cognalyze_session")?.value;
+  const sbAccessToken = req.cookies.get("sb-access-token")?.value;
   const roleCookie = req.cookies.get("cognalyze_role")?.value;
   const hasValidSession = Boolean(
-    sessionToken && (/^[a-f0-9]{64}$/i.test(sessionToken) || sessionToken.length >= 8)
+    (sessionToken && (/^[a-f0-9]{64}$/i.test(sessionToken) || sessionToken.length >= 8)) ||
+      (sbAccessToken && sbAccessToken.length >= 16)
   );
 
   // If attempting to access strictly private student data without authentication

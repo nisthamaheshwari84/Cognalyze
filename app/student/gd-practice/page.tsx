@@ -215,6 +215,11 @@ function GDPracticeContent() {
   const [evaluationReport, setEvaluationReport] = useState<GDComprehensiveReport | null>(null);
   const [reportDnaSynced, setReportDnaSynced] = useState<boolean | null>(null);
   const [evaluatingReport, setEvaluatingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+
+  // Student Auth Verification for Live Simulation
+  const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">("checking");
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   // Mobile layout
   const [isMobile, setIsMobile] = useState(false);
@@ -230,6 +235,7 @@ function GDPracticeContent() {
   const heartbeatIntervalRef = useRef<any>(null);
   const lastSpeechEndTimeRef = useRef<number>(Date.now());
   const activeSpeakerRef = useRef<string | null>(null);
+  const lastSubmittedSpeechRef = useRef<string>("");
 
   const messagesRef = useRef<GDMessage[]>(messages);
   messagesRef.current = messages;
@@ -241,8 +247,39 @@ function GDPracticeContent() {
   loadingRef.current = loading;
   const micActiveRef = useRef(micActive);
   micActiveRef.current = micActive;
+  const sessionIdRef = useRef<string | null>(sessionId);
+  sessionIdRef.current = sessionId;
+  const friendsRoomRef = useRef<GDFriendsRoom | null>(friendsRoom);
+  friendsRoomRef.current = friendsRoom;
+  const formatRef = useRef<GDSimulationFormat>(format);
+  formatRef.current = format;
+  const experienceModeRef = useRef<GDExperienceMode>(experienceMode);
+  experienceModeRef.current = experienceMode;
+  const difficultyRef = useRef<GDDifficultyLevel>(difficulty);
+  difficultyRef.current = difficulty;
+  const currentStageRef = useRef<GDDiscussionStage>(currentStage);
+  currentStageRef.current = currentStage;
 
   const activeTopic = customTopicInput.trim() || selectedTopic;
+  const activeTopicRef = useRef<string>(activeTopic);
+  activeTopicRef.current = activeTopic;
+
+  const triggerPeerTurnRef = useRef<() => Promise<void>>(async () => {});
+  const handleStudentInterventionRef = useRef<(spokenText?: string) => Promise<void>>(async () => {});
+
+  // Check student authentication cleanly before launching verified GD sessions
+  useEffect(() => {
+    fetch("/api/auth/session", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data?.user?.accountType !== "recruiter") {
+          setAuthStatus("authenticated");
+        } else {
+          setAuthStatus("unauthenticated");
+        }
+      })
+      .catch(() => setAuthStatus("unauthenticated"));
+  }, []);
 
   // Responsive layout listener
   useEffect(() => {
@@ -449,10 +486,12 @@ function GDPracticeContent() {
 
           if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
           silenceTimeoutRef.current = setTimeout(() => {
-            if (current.trim().length > 3) {
-              handleStudentIntervention(current);
+            const cleanText = current.trim();
+            if (cleanText.length > 3 && cleanText !== lastSubmittedSpeechRef.current) {
+              lastSubmittedSpeechRef.current = cleanText;
+              handleStudentInterventionRef.current(cleanText);
             }
-          }, 1800);
+          }, 1600);
         };
 
         recognition.onerror = () => setMicActive(false);
@@ -576,14 +615,14 @@ function GDPracticeContent() {
     }
   }, [soundEnabled]);
 
-  // Schedule Next Turn in Autonomous Debate
+  // Schedule Next Turn in Autonomous Debate (uses live ref to avoid stale mount closures)
   const scheduleNextTurn = useCallback(() => {
     if (autoTurnTimeoutRef.current) clearTimeout(autoTurnTimeoutRef.current);
     if (!autoFlowRef.current || !startedRef.current) return;
 
     // Realistic human GD turn-taking pause (1.4s)
     autoTurnTimeoutRef.current = setTimeout(() => {
-      triggerPeerTurn();
+      triggerPeerTurnRef.current();
     }, 1400);
   }, []);
 
@@ -599,7 +638,7 @@ function GDPracticeContent() {
         !activeSpeakerRef.current &&
         now - lastSpeechEndTimeRef.current > 2200
       ) {
-        triggerPeerTurn();
+        triggerPeerTurnRef.current();
       }
     }, 1600);
 
@@ -647,7 +686,7 @@ function GDPracticeContent() {
 
     try {
       // Multi-student Friends Room mode: sync live peer state instead of generating bot turns
-      if (friendsRoom) {
+      if (friendsRoomRef.current) {
         await syncFriendsRoomState();
         return;
       }
@@ -656,15 +695,28 @@ function GDPracticeContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId,
-          topic: activeTopic,
-          format,
-          difficulty,
+          sessionId: sessionIdRef.current,
+          topic: activeTopicRef.current,
+          format: formatRef.current,
+          difficulty: difficultyRef.current,
           messages: messagesRef.current.slice(-8)
         })
       });
 
       const data = await res.json();
+      if (!res.ok || !data.success) {
+        setModeratorAlert(data?.message || data?.error || "Unable to advance GD turn.");
+        if (res.status === 401 || res.status === 403) {
+          setAutoFlow(false);
+          autoFlowRef.current = false;
+        }
+        return;
+      }
+
+      if (data.sessionId && !sessionIdRef.current) {
+        setSessionId(data.sessionId);
+        sessionIdRef.current = data.sessionId;
+      }
 
       if (data.next_speaker) {
         const isCoach = Boolean(data.next_speaker.isCoachIntervention);
@@ -674,7 +726,7 @@ function GDPracticeContent() {
           role: data.next_speaker.role || (isCoach ? "Discussion Director" : "Peer"),
           content: data.next_speaker.spoken_text,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          stage: data.currentStage || currentStage,
+          stage: data.currentStage || currentStageRef.current,
           isCoach
         };
 
@@ -703,13 +755,18 @@ function GDPracticeContent() {
       lastSpeechEndTimeRef.current = Date.now();
     }
   };
+  triggerPeerTurnRef.current = triggerPeerTurn;
 
   // Launch GD Session
   const startGD = async () => {
+    setLaunchError(null);
+    setModeratorAlert(null);
     setStarted(true);
+    startedRef.current = true;
     setAutoFlow(true);
     autoFlowRef.current = true;
     setLoading(true);
+    loadingRef.current = true;
     setSecondsElapsed(0);
     lastSpeechEndTimeRef.current = Date.now();
 
@@ -717,34 +774,41 @@ function GDPracticeContent() {
       speaker: "Moderator Alex",
       avatar: "🎙️",
       role: "Discussion Director",
-      content: `Connecting you to the panel for: "${activeTopic}" (${format.toUpperCase()} format)...`,
+      content: `Connecting you to the panel for: "${activeTopicRef.current}" (${formatRef.current.toUpperCase()} format)...`,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       stage: "briefing",
       isCoach: true
     };
     setMessages([initialPlaceholder]);
+    messagesRef.current = [initialPlaceholder];
 
     try {
       // Multi-student Friends Room mode: host launches shared room
-      if (friendsRoom) {
+      if (friendsRoomRef.current) {
         const res = await fetch("/api/gd/friends", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "start_room",
-            roomId: friendsRoom.roomId
+            roomId: friendsRoomRef.current.roomId
           })
         });
         const data = await res.json();
         if (!res.ok || !data.success) {
           setStarted(false);
-          setModeratorAlert(data.message || "Only the room host can start the discussion.");
+          startedRef.current = false;
+          const msg = data.message || "Only the room host can start the discussion.";
+          setLaunchError(msg);
+          setModeratorAlert(msg);
           return;
         }
         setAutoFlow(false);
         autoFlowRef.current = false;
         setFriendsRoom(data.room);
-        if (data.sessionId) setSessionId(data.sessionId);
+        if (data.sessionId) {
+          setSessionId(data.sessionId);
+          sessionIdRef.current = data.sessionId;
+        }
         if (Array.isArray(data.transcripts)) {
           const mapped = mapTranscriptsToMessages(data.transcripts);
           setMessages(mapped);
@@ -759,22 +823,32 @@ function GDPracticeContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "start_discussion",
-          topic: activeTopic,
-          format,
-          experienceMode,
-          difficulty,
+          topic: activeTopicRef.current,
+          format: formatRef.current,
+          experienceMode: experienceModeRef.current,
+          difficulty: difficultyRef.current,
           durationMinutes: 15
         })
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
+        setStarted(false);
+        startedRef.current = false;
         setAutoFlow(false);
         autoFlowRef.current = false;
-        setModeratorAlert(data.message || "Please sign in as a student to start a verified GD session.");
+        const msg =
+          res.status === 401
+            ? "Please sign in with a student account to launch the AI GD panel and save evaluation scores."
+            : data?.message || data?.error || "Unable to start GD session right now. Please retry.";
+        setLaunchError(msg);
+        setModeratorAlert(msg);
         return;
       }
-      if (data.sessionId) setSessionId(data.sessionId);
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+        sessionIdRef.current = data.sessionId;
+      }
       if (Array.isArray(data.session?.participants)) {
         const aiSlots = data.session.participants.filter((p: any) => !p.isHuman);
         const palette = [
@@ -812,7 +886,7 @@ function GDPracticeContent() {
         speaker: data.moderator_intro?.speaker || "Alex (Discussion Director)",
         avatar: data.moderator_intro?.avatar || "🎙️",
         role: data.moderator_intro?.role || "Discussion Director",
-        content: data.moderator_intro?.content || `Welcome candidates. Today's placement topic is: "${activeTopic}". The floor is open.`,
+        content: data.moderator_intro?.content || `Welcome candidates. Today's placement topic is: "${activeTopicRef.current}". The floor is open.`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         stage: "briefing",
         isCoach: true
@@ -822,7 +896,7 @@ function GDPracticeContent() {
         speaker: data.opening_speaker?.speaker || "Rohan V.",
         avatar: data.opening_speaker?.avatar || "⚡",
         role: data.opening_speaker?.role || "The Velocity Architect",
-        content: data.opening_speaker?.content || `To kick off on "${activeTopic}", we must analyze the real-world operational trade-offs rather than generic theoretical models.`,
+        content: data.opening_speaker?.content || `To kick off on "${activeTopicRef.current}", we must analyze the real-world operational trade-offs rather than generic theoretical models.`,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         stage: "opening"
       };
@@ -831,21 +905,30 @@ function GDPracticeContent() {
       setMessages(initialList);
       messagesRef.current = initialList;
       setCurrentStage("opening");
+      currentStageRef.current = "opening";
 
       speakVoice(peerMsg.content, peerMsg.speaker, () => {
         scheduleNextTurn();
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to start GD:", err);
+      setStarted(false);
+      startedRef.current = false;
+      setAutoFlow(false);
+      autoFlowRef.current = false;
+      const msg = err?.message || "Connection interrupted while starting the GD panel.";
+      setLaunchError(msg);
+      setModeratorAlert(msg);
     } finally {
       setLoading(false);
+      loadingRef.current = false;
     }
   };
 
-  // Student Speaks / Intervenes
+  // Student Speaks / Intervenes (uses refs so voice callbacks never hit stale closures)
   const handleStudentIntervention = async (spokenText?: string) => {
     const text = (spokenText || input).trim();
-    if (!text || loading) return;
+    if (!text || loadingRef.current) return;
 
     if (autoTurnTimeoutRef.current) clearTimeout(autoTurnTimeoutRef.current);
     if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
@@ -859,10 +942,10 @@ function GDPracticeContent() {
       role: "Candidate (You)",
       content: text,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      stage: currentStage
+      stage: currentStageRef.current
     };
 
-    const updated = [...messages, userMsg];
+    const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
     messagesRef.current = updated;
     setInput("");
@@ -876,17 +959,19 @@ function GDPracticeContent() {
 
     try {
       // Multi-student Friends Room mode: submit live human turn
-      if (friendsRoom) {
+      if (friendsRoomRef.current) {
         const res = await fetch("/api/gd/friends", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "submit_turn",
-            roomId: friendsRoom.roomId,
+            roomId: friendsRoomRef.current.roomId,
             content: text
           })
         });
         const data = await res.json();
+        setActiveSpeaker(null);
+        activeSpeakerRef.current = null;
         if (!res.ok || !data.success) {
           setModeratorAlert(data.message || "Unable to submit turn in Friends room.");
           return;
@@ -910,16 +995,36 @@ function GDPracticeContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId,
-          topic: activeTopic,
-          format,
-          difficulty,
+          sessionId: sessionIdRef.current,
+          topic: activeTopicRef.current,
+          format: formatRef.current,
+          difficulty: difficultyRef.current,
           messages: updated.slice(-8),
           studentIntervention: text
         })
       });
 
       const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setActiveSpeaker(null);
+        activeSpeakerRef.current = null;
+        setModeratorAlert(
+          res.status === 401
+            ? "Session unauthenticated — please sign in as a student so the GD panel can respond."
+            : data?.message || data?.error || "AI panel could not process that turn."
+        );
+        if (res.status === 401 || res.status === 403) {
+          setAutoFlow(false);
+          autoFlowRef.current = false;
+        }
+        return;
+      }
+
+      if (data.sessionId && !sessionIdRef.current) {
+        setSessionId(data.sessionId);
+        sessionIdRef.current = data.sessionId;
+      }
 
       if (data.next_speaker) {
         const isCoach = Boolean(data.next_speaker.isCoachIntervention);
@@ -929,7 +1034,7 @@ function GDPracticeContent() {
           role: data.next_speaker.role || (isCoach ? "Discussion Director" : "Peer"),
           content: data.next_speaker.spoken_text,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          stage: data.currentStage || currentStage,
+          stage: data.currentStage || currentStageRef.current,
           isCoach
         };
 
@@ -944,19 +1049,27 @@ function GDPracticeContent() {
         speakVoice(peerMsg.content, peerMsg.speaker, () => {
           scheduleNextTurn();
         });
+      } else {
+        setActiveSpeaker(null);
+        activeSpeakerRef.current = null;
+        scheduleNextTurn();
       }
 
       if (data.student_coaching) {
         setCoaching(data.student_coaching);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Student intervention error:", err);
+      setActiveSpeaker(null);
+      activeSpeakerRef.current = null;
+      setModeratorAlert(err?.message || "Network error sending your point. Retrying flow.");
     } finally {
       setLoading(false);
       loadingRef.current = false;
       lastSpeechEndTimeRef.current = Date.now();
     }
   };
+  handleStudentInterventionRef.current = handleStudentIntervention;
 
   const toggleMic = async () => {
     const nextMic = !micActive;
@@ -1012,27 +1125,35 @@ function GDPracticeContent() {
   const finishAndShowReport = async () => {
     cleanupSession();
     setEvaluatingReport(true);
+    setReportError(null);
     setShowReportModal(true);
 
     try {
       // Multi-student Friends Room mode: generate caller's isolated evaluation & DNA sync
-      if (friendsRoom) {
+      if (friendsRoomRef.current) {
         const res = await fetch("/api/gd/friends", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "finalize_room_evaluation",
-            roomId: friendsRoom.roomId,
-            closeRoom: Boolean(currentUserId && friendsRoom.hostUserId === currentUserId)
+            roomId: friendsRoomRef.current.roomId,
+            closeRoom: Boolean(currentUserId && friendsRoomRef.current.hostUserId === currentUserId)
           })
         });
         const data = await res.json();
-        if (data.success && data.report) {
+        if (res.ok && data.success && data.report) {
           setFriendsRoom(data.room);
           setEvaluationReport(data.report);
           setReportDnaSynced(typeof data.dnaSynced === "boolean" ? data.dnaSynced : null);
           realtimeRoom.broadcastRoomNudge();
+        } else {
+          setReportError(data?.message || data?.error || "Unable to finalize Friends GD report.");
         }
+        return;
+      }
+
+      if (!sessionIdRef.current) {
+        setReportError("No active GD session initialized. Please sign in and launch a discussion first.");
         return;
       }
 
@@ -1041,16 +1162,19 @@ function GDPracticeContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "finalize_evaluation",
-          sessionId
+          sessionId: sessionIdRef.current
         })
       });
       const data = await res.json();
-      if (data.success && data.report) {
+      if (res.ok && data.success && data.report) {
         setEvaluationReport(data.report);
         setReportDnaSynced(typeof data.dnaSynced === "boolean" ? data.dnaSynced : null);
+      } else {
+        setReportError(data?.message || data?.error || "Unable to generate evaluation dossier.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to finalize evaluation:", err);
+      setReportError(err?.message || "Network error finalizing report.");
     } finally {
       setEvaluatingReport(false);
     }
@@ -1823,6 +1947,45 @@ function GDPracticeContent() {
                 }}
               />
             </div>
+
+            {(authStatus === "unauthenticated" || launchError) && (
+              <div
+                style={{
+                  marginBottom: "1.25rem",
+                  padding: "12px 16px",
+                  borderRadius: 12,
+                  background: "rgba(239, 68, 68, 0.12)",
+                  border: "1px solid rgba(239, 68, 68, 0.35)",
+                  color: isDark ? "#fca5a5" : "#b91c1c",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 10
+                }}
+              >
+                <span>
+                  {launchError || "Sign in with your Cognalyze student account to launch the live AI GD panel and record verified evaluations."}
+                </span>
+                <a
+                  href={`/login?redirect=${encodeURIComponent("/student/gd-practice")}`}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 8,
+                    background: "#4f46e5",
+                    color: "#FFFFFF",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    textDecoration: "none",
+                    whiteSpace: "nowrap"
+                  }}
+                >
+                  Sign In as Student →
+                </a>
+              </div>
+            )}
 
             {/* Launch Meeting Room Button */}
             <button
@@ -2869,7 +3032,9 @@ function GDPracticeContent() {
               </div>
             ) : (
               <div style={{ textAlign: "center", padding: "2rem" }}>
-                <p style={{ color: C.textPrimary, fontSize: 14 }}>Report generation failed or was cancelled.</p>
+                <p style={{ color: C.textPrimary, fontSize: 14, marginBottom: 12 }}>
+                  {reportError || "Report generation failed or was cancelled."}
+                </p>
                 <button onClick={() => setShowReportModal(false)} style={{ padding: "8px 16px", borderRadius: 8, background: "#6366f1", color: "white", border: "none", cursor: "pointer" }}>Close</button>
               </div>
             )}

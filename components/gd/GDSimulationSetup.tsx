@@ -12,10 +12,9 @@ import {
   Sliders,
   Volume2
 } from "lucide-react";
-import { GDThemeTokens, GD_EXPERIENCE_MODES } from "./gd-theme";
+import { GDThemeTokens, GD_EXPERIENCE_MODES, GD_EXPERIENCE_MODE_META } from "./gd-theme";
 import { GDTopicItem } from "@/lib/group-discussion-data";
 import type { GDExperienceMode } from "@/lib/gd/types";
-import { GD_EXPERIENCE_MODE_META } from "@/lib/gd/experience-engine";
 
 interface GDSimulationSetupProps {
   T: GDThemeTokens;

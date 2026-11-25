@@ -25,9 +25,10 @@ import {
   GD_CATEGORIES,
   GD_DOMAINS,
   GD_FRESHNESS_OPTIONS,
-  GDTopicItem
+  GDTopicItem,
+  scoreTopicForStudentDNA,
+  normalizeGDTopicItem
 } from "@/lib/group-discussion-data";
-import { scoreTopicForStudentDNA } from "@/lib/gd/topic-service";
 import {
   Users,
   Search,
@@ -70,13 +71,80 @@ interface GDEvaluationFeedback {
   overallAssessment: string;
 }
 
+interface GDSectionErrorBoundaryState {
+  hasError: boolean;
+  errorMessage: string;
+}
+
+class GDSectionErrorBoundary extends React.Component<
+  { children: React.ReactNode; onResetTab?: () => void },
+  GDSectionErrorBoundaryState
+> {
+  constructor(props: { children: React.ReactNode; onResetTab?: () => void }) {
+    super(props);
+    this.state = { hasError: false, errorMessage: "" };
+  }
+
+  static getDerivedStateFromError(error: Error): GDSectionErrorBoundaryState {
+    return { hasError: true, errorMessage: error?.message || "Unexpected render interruption" };
+  }
+
+  componentDidCatch(error: Error) {
+    console.warn("[Cognalyze GD Arena] Isolated panel error recovered:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div
+          style={{
+            padding: 24,
+            borderRadius: 12,
+            border: "1px solid #E4E1DA",
+            backgroundColor: "#FFFFFF",
+            color: "#162A43",
+            textAlign: "center"
+          }}
+        >
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
+            This Arena panel encountered a temporary hiccup
+          </div>
+          <div style={{ fontSize: 12, color: "#667085", marginBottom: 14 }}>
+            Your workspace and session data remain intact. Retry rendering this view cleanly.
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              this.setState({ hasError: false, errorMessage: "" });
+              this.props.onResetTab?.();
+            }}
+            style={{
+              padding: "8px 16px",
+              borderRadius: 7,
+              backgroundColor: "#4F46E5",
+              color: "#FFFFFF",
+              border: "none",
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: "pointer"
+            }}
+          >
+            Reload Arena View
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function GroupDiscussionArenaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isDark } = useTheme();
   const T = useMemo(() => getGDTheme(isDark), [isDark]);
 
-  const initialViewParam = (searchParams.get("view") as GDArenaTabId) || "overview";
+  const initialViewParam = (searchParams?.get("view") as GDArenaTabId) || "overview";
   const validTabIds = new Set(GD_ARENA_TABS.map((t) => t.id));
   const [activeArenaTab, setActiveArenaTab] = useState<GDArenaTabId>(
     validTabIds.has(initialViewParam) ? initialViewParam : "overview"
@@ -85,7 +153,7 @@ function GroupDiscussionArenaContent() {
   // Sync tab with URL query cleanly
   const handleSwitchArenaTab = (tab: GDArenaTabId) => {
     setActiveArenaTab(tab);
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || "");
     params.set("view", tab);
     router.replace(`/group-discussion?${params.toString()}`, { scroll: false });
   };
@@ -184,12 +252,17 @@ function GroupDiscussionArenaContent() {
         .then((data) => {
           if (!data?.success) return;
           const full = data.dnaFull || {};
-          const roleTitle = full.targetRoleTitle || data.dna?.targetRole || "AI/ML Engineer";
+          const rawRole = full.targetRoleTitle || data.dna?.targetRole;
+          const roleTitle = typeof rawRole === "string" && rawRole.trim() ? rawRole.trim() : "AI/ML Engineer";
           const skillsList: string[] = Array.isArray(full.skills)
-            ? full.skills.map((s: any) => s.name || s.skillName).filter(Boolean)
+            ? full.skills
+                .map((s: any) => (typeof s === "string" ? s : s?.name || s?.skillName || ""))
+                .filter((s: any): s is string => typeof s === "string" && s.length > 0)
             : [];
           const gapsList: string[] = Array.isArray(full.gapReport?.gaps)
-            ? full.gapReport.gaps.map((g: any) => g.skill || g.label || g.name).filter(Boolean)
+            ? full.gapReport.gaps
+                .map((g: any) => (typeof g === "string" ? g : g?.skill || g?.skillName || g?.label || g?.name || ""))
+                .filter((g: any): g is string => typeof g === "string" && g.length > 0)
             : [];
           setTargetRole(roleTitle);
           setGenerateTargetRole(roleTitle);
@@ -212,23 +285,26 @@ function GroupDiscussionArenaContent() {
             if (data.analytics) setPerformanceAnalytics(data.analytics);
             if (data.conductStanding) setConductStanding(data.conductStanding);
             if (Array.isArray(data.disciplinaryRecords)) setDisciplinaryRecords(data.disciplinaryRecords);
+            const latestScoreRaw = data.sessions[0]?.overallScore;
             setDnaSummary((prev) => ({
               ...prev,
               gdSessionsCompleted: data.sessions.length,
-              lastGdScore: data.sessions.length > 0 ? data.sessions[0].overallScore : null
+              lastGdScore: typeof latestScoreRaw === "number" ? latestScoreRaw : null
             }));
           }
         })
         .catch(() => {})
         .finally(() => setLoadingPerformance(false));
 
-      // Load cached fresh topics
+      // Load cached fresh topics (normalized safely against legacy shapes)
       const storedFresh = localStorage.getItem("cognalyze_gd_fresh_topics");
       if (storedFresh) {
-        const parsed: GDTopicItem[] = JSON.parse(storedFresh);
+        const parsed: any = JSON.parse(storedFresh);
         if (Array.isArray(parsed) && parsed.length > 0) {
           const defaultIds = new Set(GD_TOPICS.map((t) => t.id));
-          const uniqueStored = parsed.filter((t) => !defaultIds.has(t.id));
+          const uniqueStored = parsed
+            .map((t: any) => normalizeGDTopicItem(t))
+            .filter((t: GDTopicItem | null): t is GDTopicItem => Boolean(t && !defaultIds.has(t.id)));
           if (uniqueStored.length > 0) {
             setTopicsPool([...uniqueStored, ...GD_TOPICS]);
           }
@@ -478,8 +554,10 @@ function GroupDiscussionArenaContent() {
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchesTitle = t.title.toLowerCase().includes(q);
-        const matchesPoints = t.preparationPoints.some((p) => p.toLowerCase().includes(q));
+        const matchesTitle = (t.title || "").toLowerCase().includes(q);
+        const matchesPoints = Array.isArray(t.preparationPoints)
+          ? t.preparationPoints.some((p) => typeof p === "string" && p.toLowerCase().includes(q))
+          : false;
         const matchesDomain = (t.domain || "").toLowerCase().includes(q);
         const matchesContext = (t.source_context || "").toLowerCase().includes(q);
         if (!matchesTitle && !matchesPoints && !matchesDomain && !matchesContext) return false;
@@ -644,6 +722,7 @@ function GroupDiscussionArenaContent() {
           })}
         </nav>
 
+        <GDSectionErrorBoundary onResetTab={() => handleSwitchArenaTab("overview")}>
         {/* ── VIEW: OVERVIEW ── */}
         {activeArenaTab === "overview" && (
           <GDArenaOverview
@@ -720,6 +799,7 @@ function GroupDiscussionArenaContent() {
 
         {/* ── VIEW: GUIDELINES & CONDUCT ── */}
         {activeArenaTab === "guidelines" && <GDGuidelinesView T={T} />}
+        </GDSectionErrorBoundary>
 
         {/* ── VIEW: TOPIC LIBRARY (Preserved Full Catalog + AI Generator) ── */}
         {activeArenaTab === "topics" && (
@@ -1192,7 +1272,7 @@ function GroupDiscussionArenaContent() {
                     Key Preparation Points:
                   </div>
                   <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: isDark ? "#D4DEEB" : "#475467", lineHeight: 1.5 }}>
-                    {topic.preparationPoints.slice(0, 2).map((pt, i) => (
+                    {(Array.isArray(topic.preparationPoints) ? topic.preparationPoints : []).slice(0, 2).map((pt, i) => (
                       <li key={i}>{pt}</li>
                     ))}
                   </ul>

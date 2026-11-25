@@ -7,8 +7,10 @@
  */
 
 import { isSupabaseAvailable, supabaseAdmin } from "@/lib/supabase";
-import { GDTopicItem } from "@/lib/group-discussion-data";
+import { GDTopicItem, scoreTopicForStudentDNA } from "@/lib/group-discussion-data";
 import { runGDJsonCompletion, sanitizeGDPromptInput } from "./ai-gateway";
+
+export { scoreTopicForStudentDNA };
 
 const inMemoryTopicHistory = new Map<string, string[]>();
 
@@ -129,36 +131,4 @@ export async function prepareCustomTopicBrief(params: {
     ],
     category: "Technical"
   };
-}
-
-export function scoreTopicForStudentDNA(
-  topic: GDTopicItem,
-  dna: { targetRole?: string; topSkills?: string[]; skillGaps?: string[] }
-): number {
-  let score = 0;
-  const roleLower = (dna.targetRole || "").toLowerCase();
-  const titleAndPoints = `${topic.title} ${topic.whyRecommended} ${topic.preparationPoints.join(" ")}`.toLowerCase();
-
-  if (
-    roleLower &&
-    topic.recommendedRoles.some(
-      (r) => r.toLowerCase().includes(roleLower) || roleLower.includes(r.toLowerCase())
-    )
-  ) {
-    score += 40;
-  }
-
-  for (const skill of dna.topSkills || []) {
-    if (skill.length >= 2 && titleAndPoints.includes(skill.toLowerCase())) {
-      score += 12;
-    }
-  }
-
-  for (const gap of dna.skillGaps || []) {
-    if (gap.length >= 2 && titleAndPoints.includes(gap.toLowerCase())) {
-      score += 20;
-    }
-  }
-
-  return score;
 }

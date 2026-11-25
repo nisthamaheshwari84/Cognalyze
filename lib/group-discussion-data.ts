@@ -403,3 +403,68 @@ export function getGroupedTopicsForPracticeRoom(): Record<string, PracticeRoomTo
   }
   return grouped;
 }
+
+export function normalizeGDTopicItem(raw: any): GDTopicItem | null {
+  if (!raw || typeof raw !== "object" || typeof raw.title !== "string" || !raw.title.trim()) {
+    return null;
+  }
+  const prepPoints = Array.isArray(raw.preparationPoints)
+    ? raw.preparationPoints.filter((p: any) => typeof p === "string")
+    : [];
+  const recRoles = Array.isArray(raw.recommendedRoles)
+    ? raw.recommendedRoles.filter((r: any) => typeof r === "string")
+    : [];
+  return {
+    id: typeof raw.id === "string" && raw.id.trim() ? raw.id : `topic_${raw.title.slice(0, 24)}`,
+    title: raw.title.trim(),
+    category: raw.category || "Technical",
+    domain: typeof raw.domain === "string" ? raw.domain : undefined,
+    difficulty: raw.difficulty === "Easy" || raw.difficulty === "Hard" ? raw.difficulty : "Medium",
+    timeLimitMinutes: typeof raw.timeLimitMinutes === "number" && raw.timeLimitMinutes > 0 ? raw.timeLimitMinutes : 15,
+    freshness: raw.freshness === "Latest" || raw.freshness === "Trending" || raw.freshness === "Evergreen" ? raw.freshness : "Latest",
+    source_context: typeof raw.source_context === "string" ? raw.source_context : undefined,
+    preparationPoints: prepPoints,
+    recommendedRoles: recRoles,
+    whyRecommended: typeof raw.whyRecommended === "string" ? raw.whyRecommended : "Balanced analytical Group Discussion prompt.",
+    isAiGenerated: Boolean(raw.isAiGenerated),
+    generatedAt: typeof raw.generatedAt === "string" ? raw.generatedAt : undefined,
+    perspectives: raw.perspectives,
+    practiceCategoryKey: raw.practiceCategoryKey
+  };
+}
+
+export function scoreTopicForStudentDNA(
+  topic: GDTopicItem,
+  dna: { targetRole?: string; topSkills?: string[]; skillGaps?: string[] }
+): number {
+  if (!topic || typeof topic.title !== "string") return 0;
+  let score = 0;
+  const roleLower = typeof dna?.targetRole === "string" ? dna.targetRole.toLowerCase() : "";
+  const prepPoints = Array.isArray(topic.preparationPoints) ? topic.preparationPoints : [];
+  const recRoles = Array.isArray(topic.recommendedRoles) ? topic.recommendedRoles : [];
+  const whyRec = typeof topic.whyRecommended === "string" ? topic.whyRecommended : "";
+  const titleAndPoints = `${topic.title} ${whyRec} ${prepPoints.join(" ")}`.toLowerCase();
+
+  if (
+    roleLower &&
+    recRoles.some(
+      (r) => typeof r === "string" && (r.toLowerCase().includes(roleLower) || roleLower.includes(r.toLowerCase()))
+    )
+  ) {
+    score += 40;
+  }
+
+  for (const skill of Array.isArray(dna?.topSkills) ? dna.topSkills : []) {
+    if (typeof skill === "string" && skill.length >= 2 && titleAndPoints.includes(skill.toLowerCase())) {
+      score += 12;
+    }
+  }
+
+  for (const gap of Array.isArray(dna?.skillGaps) ? dna.skillGaps : []) {
+    if (typeof gap === "string" && gap.length >= 2 && titleAndPoints.includes(gap.toLowerCase())) {
+      score += 20;
+    }
+  }
+
+  return score;
+}

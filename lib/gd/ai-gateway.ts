@@ -132,17 +132,29 @@ async function invokeProvider(params: {
     const out = await customExecutorForTest(params);
     return { text: out.text, provider: out.provider || "test-executor" };
   }
-  const res = await callGroqCatalog({
-    model: params.model,
-    messages: params.messages,
-    temperature: params.temperature,
-    max_tokens: params.max_tokens,
-    response_format: { type: "json_object" }
+  const timeoutMs = 12000;
+  let timerId: ReturnType<typeof setTimeout> | null = null;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timerId = setTimeout(() => reject(new Error("AI provider timeout exceeded (12s)")), timeoutMs);
   });
-  return {
-    text: res.text,
-    provider: res.raw?.model || params.model
-  };
+  try {
+    const res = await Promise.race([
+      callGroqCatalog({
+        model: params.model,
+        messages: params.messages,
+        temperature: params.temperature,
+        max_tokens: params.max_tokens,
+        response_format: { type: "json_object" }
+      }),
+      timeoutPromise
+    ]);
+    return {
+      text: res.text,
+      provider: res.raw?.model || params.model
+    };
+  } finally {
+    if (timerId) clearTimeout(timerId);
+  }
 }
 
 /**

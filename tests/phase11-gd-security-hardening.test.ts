@@ -315,4 +315,32 @@ describe("PHASE 11 — GD ARENA SECURITY, SANITIZATION & HARDENING AUDIT", () =>
     const appealBody = await appealRes.json();
     assert.equal(appealBody.success, true);
   });
+
+  test("6. Client Arena shell has zero server-module imports and handles legacy localStorage topics without crashing", async () => {
+    const { normalizeGDTopicItem, scoreTopicForStudentDNA } = await import("../lib/group-discussion-data");
+
+    const legacyPartialTopic = normalizeGDTopicItem({
+      id: "legacy-ai-1",
+      title: "AI Inference Cost Optimization"
+      // intentionally missing preparationPoints, recommendedRoles, whyRecommended
+    });
+    assert.ok(legacyPartialTopic);
+    assert.deepEqual(legacyPartialTopic.preparationPoints, []);
+    assert.deepEqual(legacyPartialTopic.recommendedRoles, []);
+
+    assert.doesNotThrow(() => {
+      const score = scoreTopicForStudentDNA(legacyPartialTopic, {
+        targetRole: "AI/ML Engineer",
+        topSkills: ["AI" as any, null as any],
+        skillGaps: [undefined as any, "Inference"]
+      });
+      assert.ok(typeof score === "number" && score > 0);
+    });
+
+    const pageSource = fs.readFileSync(path.join(process.cwd(), "app", "group-discussion", "page.tsx"), "utf-8");
+    const setupSource = fs.readFileSync(path.join(process.cwd(), "components", "gd", "GDSimulationSetup.tsx"), "utf-8");
+    assert.equal(pageSource.includes("@/lib/gd/topic-service"), false);
+    assert.equal(pageSource.includes("@/lib/supabase"), false);
+    assert.equal(setupSource.includes("@/lib/gd/experience-engine"), false);
+  });
 });

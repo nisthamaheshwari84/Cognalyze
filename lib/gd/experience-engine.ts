@@ -17,42 +17,9 @@ import {
   GDTranscriptItem
 } from "./types";
 import { runGDJsonCompletion, sanitizeGDPromptInput } from "./ai-gateway";
+import { GD_EXPERIENCE_MODE_META } from "@/components/gd/gd-theme";
 
-export const GD_EXPERIENCE_MODE_META: Record<
-  GDExperienceMode,
-  { label: string; badge: string; description: string; defaultTwistLabel: string }
-> = {
-  standard_round: {
-    label: "Standard Roundtable",
-    badge: "Classic",
-    description: "Structured placement roundtable moving cleanly from framing to synthesis.",
-    defaultTwistLabel: "Stress-Test Constraint"
-  },
-  crisis_room: {
-    label: "Crisis War-Room",
-    badge: "Live Incident",
-    description: "Simulates an active service, PR, or security incident demanding immediate triage.",
-    defaultTwistLabel: "Breaking Incident Escalation"
-  },
-  boardroom_debate: {
-    label: "Boardroom Strategy",
-    badge: "Executive",
-    description: "High-stakes leadership committee evaluating capital efficiency and risk.",
-    defaultTwistLabel: "CFO / Board Mandate Shift"
-  },
-  ethical_dilemma: {
-    label: "Ethical & Policy Dilemma",
-    badge: "Governance",
-    description: "Explores privacy, algorithmic fairness, whistleblower duties, and public trust.",
-    defaultTwistLabel: "Public Accountability Shock"
-  },
-  case_data_discussion: {
-    label: "Case & Constraint Brief",
-    badge: "Analytical",
-    description: "Grounds debate around explicit scenario constraints and adoption bottlenecks.",
-    defaultTwistLabel: "Updated Field Constraint"
-  }
-};
+export { GD_EXPERIENCE_MODE_META };
 
 function buildFallbackBlueprint(params: {
   topicTitle: string;
