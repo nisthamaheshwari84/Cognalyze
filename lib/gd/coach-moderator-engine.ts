@@ -16,9 +16,11 @@ import {
   GDTranscriptItem,
   GDModerationIncident,
   GDSimulationFormat,
-  GDDifficultyLevel
+  GDDifficultyLevel,
+  GDExperienceBlueprint
 } from "./types";
 import { evaluateUtteranceForMisconduct, issueDisciplinaryAction } from "./disciplinary-system";
+import { generateDynamicScenarioTwistAsync } from "./experience-engine";
 
 export interface CoachInterventionDecision {
   shouldIntervene: boolean;
@@ -38,6 +40,76 @@ export interface CoachInterventionDecision {
   suggestedNextSpeakerId?: string;
   newStage?: GDDiscussionStage;
   incident?: GDModerationIncident;
+  twistLabel?: string;
+}
+
+/**
+ * Topic-agnostic semantic stagnation detector: catches circular repetition
+ * across recent turns (any domain: HR, Ethics, FinTech, Strategy, Systems).
+ */
+export function detectConversationalStagnation(transcripts: GDTranscriptItem[]): {
+  stagnant: boolean;
+  repeatedTerms: string[];
+} {
+  if (transcripts.length < 5) {
+    return { stagnant: false, repeatedTerms: [] };
+  }
+
+  const stopWords = new Set([
+    "the", "and", "that", "this", "with", "from", "they", "have", "must", "would",
+    "could", "should", "about", "their", "there", "which", "while", "where", "being",
+    "because", "point", "agree", "disagree", "think", "believe", "group", "panel"
+  ]);
+
+  const recentNonCoach = transcripts.filter((t) => !t.speakerId.includes("moderator")).slice(-3);
+  if (recentNonCoach.length < 3) {
+    return { stagnant: false, repeatedTerms: [] };
+  }
+
+  const tokenSets = recentNonCoach.map((t) => {
+    const tokens = t.content
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, "")
+      .split(/\s+/)
+      .filter((w) => w.length > 3 && !stopWords.has(w));
+    return new Set(tokens);
+  });
+
+  // Measure average pairwise Jaccard similarity across recent turns
+  let pairCount = 0;
+  let totalSim = 0;
+  const termFreq = new Map<string, number>();
+
+  for (const s of tokenSets) {
+    for (const w of s) {
+      termFreq.set(w, (termFreq.get(w) || 0) + 1);
+    }
+  }
+
+  for (let i = 0; i < tokenSets.length; i++) {
+    for (let j = i + 1; j < tokenSets.length; j++) {
+      let inter = 0;
+      for (const w of tokenSets[i]) {
+        if (tokenSets[j].has(w)) inter++;
+      }
+      const union = new Set([...tokenSets[i], ...tokenSets[j]]).size;
+      if (union > 0) {
+        totalSim += inter / union;
+        pairCount++;
+      }
+    }
+  }
+
+  const avgSim = pairCount > 0 ? totalSim / pairCount : 0;
+  const dominantTerms = Array.from(termFreq.entries())
+    .filter(([, count]) => count >= recentNonCoach.length)
+    .map(([word]) => word)
+    .slice(0, 3);
+
+  return {
+    stagnant: avgSim >= 0.36 || dominantTerms.length >= 2,
+    repeatedTerms: dominantTerms
+  };
 }
 
 /**
@@ -57,12 +129,12 @@ export async function evaluateCoachIntervention(params: {
   studentName?: string;
   isFriendsRoom?: boolean;
   roomCode?: string;
+  experienceBlueprint?: GDExperienceBlueprint;
 }): Promise<CoachInterventionDecision> {
   const {
     sessionId,
     topicTitle,
     format,
-    difficulty,
     currentStage,
     secondsElapsed,
     totalDurationSeconds,
@@ -71,72 +143,15 @@ export async function evaluateCoachIntervention(params: {
     studentUserId,
     studentName = "You",
     isFriendsRoom = false,
-    roomCode
+    roomCode,
+    experienceBlueprint
   } = params;
 
   const timeRemainingSeconds = Math.max(0, totalDurationSeconds - secondsElapsed);
   const totalTurns = transcripts.length;
   const lastTurn = transcripts[transcripts.length - 1];
 
-  // 1. TIME-BASED STAGE TRANSITIONS
-  // Stage 1: Briefing (0 - 30s) -> Opening
-  if (currentStage === "briefing" && secondsElapsed >= 25) {
-    return {
-      shouldIntervene: true,
-      type: "STAGE_TRANSITION",
-      newStage: "opening",
-      moderatorUtterance: `The briefing is complete. The floor is now open for initial framing on "${topicTitle}". Who would like to initiate with a structured opening perspective?`
-    };
-  }
-
-  // Stage 2: Opening -> Active Discussion (approx 20% of time)
-  if (currentStage === "opening" && (secondsElapsed >= totalDurationSeconds * 0.20 || totalTurns >= 4)) {
-    return {
-      shouldIntervene: true,
-      type: "STAGE_TRANSITION",
-      newStage: "active_discussion",
-      moderatorUtterance: `We have our opening perspectives on the table. Let us move into active cross-examination of the architectural and business trade-offs. Feel free to challenge and build on each other's points.`
-    };
-  }
-
-  // Stage 3: Active Discussion -> Dynamic Challenge (approx 50% mark)
-  if (currentStage === "active_discussion" && secondsElapsed >= totalDurationSeconds * 0.50 && secondsElapsed < totalDurationSeconds * 0.55) {
-    const challengePrompts: Record<GDSimulationFormat, string> = {
-      technical_business: `Let us introduce an unexpected production constraint: What happens if latency SLAs degrade by 5x during a high-concurrency burst, or our third-party infrastructure experiences an outage? How does the group adapt the proposed architecture?`,
-      competitive: `The panel has heard theoretical arguments, but how do we justify the Capex cost and ROI when upper management demands a 40% efficiency improvement within the first quarter?`,
-      corporate: `Let us stress-test this strategy against regulatory compliance and data privacy requirements. If state audits mandate full provenance, does our solution survive?`,
-      collaborative: `We are seeing a divergence between delivery velocity and operational reliability. How can the team synthesize these two competing objectives into a unified roadmap?`
-    };
-
-    return {
-      shouldIntervene: true,
-      type: "DYNAMIC_CHALLENGE",
-      newStage: "dynamic_challenge",
-      moderatorUtterance: challengePrompts[format] || `Let's introduce a critical operational constraint to test our model under real-world pressure.`
-    };
-  }
-
-  // Stage 4: Dynamic Challenge -> Synthesis (approx 75% mark)
-  if ((currentStage === "active_discussion" || currentStage === "dynamic_challenge") && secondsElapsed >= totalDurationSeconds * 0.75) {
-    return {
-      shouldIntervene: true,
-      type: "STAGE_TRANSITION",
-      newStage: "synthesis",
-      moderatorUtterance: `We are entering the final quarter of our discussion. Rather than introducing new arguments, I would like the group to focus on synthesis. What common ground and strategic consensus have we built?`
-    };
-  }
-
-  // Stage 5: Synthesis -> Conclusion (approx 90% mark)
-  if (currentStage === "synthesis" && secondsElapsed >= totalDurationSeconds * 0.90) {
-    return {
-      shouldIntervene: true,
-      type: "STAGE_TRANSITION",
-      newStage: "conclusion",
-      moderatorUtterance: `We have less than two minutes remaining. Let us begin concluding remarks. I invite candidates to provide their final 30-second summary recommendations.`
-    };
-  }
-
-  // 2. CONDUCT & MISCONDUCT EVALUATION (Last turn analysis)
+  // 1. PRIORITY: CONDUCT & MISCONDUCT EVALUATION (Never bypassed by stage boundaries)
   if (lastTurn && lastTurn.content) {
     const isCandidate = lastTurn.isHuman;
     const speakerHistory = transcripts.slice(-5).map(t => ({
@@ -206,6 +221,72 @@ export async function evaluateCoachIntervention(params: {
     }
   }
 
+  // 2. TIME-BASED STAGE TRANSITIONS
+  // Stage 1: Briefing (0 - 30s) -> Opening
+  if (currentStage === "briefing" && secondsElapsed >= 25) {
+    return {
+      shouldIntervene: true,
+      type: "STAGE_TRANSITION",
+      newStage: "opening",
+      moderatorUtterance: `The briefing is complete. The floor is now open for initial framing on "${topicTitle}". Who would like to initiate with a structured opening perspective?`
+    };
+  }
+
+  // Stage 2: Opening -> Active Discussion (approx 20% of time)
+  if (currentStage === "opening" && (secondsElapsed >= totalDurationSeconds * 0.20 || totalTurns >= 4)) {
+    return {
+      shouldIntervene: true,
+      type: "STAGE_TRANSITION",
+      newStage: "active_discussion",
+      moderatorUtterance: `We have our opening perspectives on the table. Let us move into active cross-examination of the architectural and business trade-offs. Feel free to challenge and build on each other's points.`
+    };
+  }
+
+  // Stage 3: Active Discussion -> Dynamic Challenge / Experience Twist (approx 50% mark or 6+ turns)
+  if (
+    currentStage === "active_discussion" &&
+    ((secondsElapsed >= totalDurationSeconds * 0.50 && secondsElapsed < totalDurationSeconds * 0.58) ||
+      (totalTurns >= 7 && !experienceBlueprint?.twistInjected))
+  ) {
+    const twist = await generateDynamicScenarioTwistAsync({
+      topicTitle,
+      experienceBlueprint,
+      recentTranscripts: transcripts
+    });
+
+    if (experienceBlueprint) {
+      experienceBlueprint.twistInjected = true;
+    }
+
+    return {
+      shouldIntervene: true,
+      type: "DYNAMIC_CHALLENGE",
+      newStage: "dynamic_challenge",
+      twistLabel: twist.label,
+      moderatorUtterance: `${twist.label}: ${twist.prompt}`
+    };
+  }
+
+  // Stage 4: Dynamic Challenge -> Synthesis (approx 75% mark)
+  if ((currentStage === "active_discussion" || currentStage === "dynamic_challenge") && secondsElapsed >= totalDurationSeconds * 0.75) {
+    return {
+      shouldIntervene: true,
+      type: "STAGE_TRANSITION",
+      newStage: "synthesis",
+      moderatorUtterance: `We are entering the final quarter of our discussion. Rather than introducing new arguments, I would like the group to focus on synthesis. What common ground and strategic consensus have we built?`
+    };
+  }
+
+  // Stage 5: Synthesis -> Conclusion (approx 90% mark)
+  if (currentStage === "synthesis" && secondsElapsed >= totalDurationSeconds * 0.90) {
+    return {
+      shouldIntervene: true,
+      type: "STAGE_TRANSITION",
+      newStage: "conclusion",
+      moderatorUtterance: `We have less than two minutes remaining. Let us begin concluding remarks. I invite candidates to provide their final 30-second summary recommendations.`
+    };
+  }
+
   // 3. FLOOR DOMINANCE ARBITRATION
   // If the last 3 consecutive turns were by the same speaker
   if (transcripts.length >= 3) {
@@ -240,17 +321,18 @@ export async function evaluateCoachIntervention(params: {
     };
   }
 
-  // 5. STAGNATION DETECTION (Group circling same argument)
-  if (transcripts.length >= 6) {
-    const last6Contents = transcripts.slice(-6).map(t => t.content.toLowerCase()).join(" ");
-    const latencyCount = (last6Contents.match(/latency|speed|fast/g) || []).length;
-    if (latencyCount >= 6) {
-      return {
-        shouldIntervene: true,
-        type: "PROBING_QUESTION",
-        moderatorUtterance: `The group has thoroughly explored latency and response times. Let us pivot: What are the security, data consistency, and developer operational costs of this approach?`
-      };
-    }
+  // 5. SEMANTIC STAGNATION DETECTION (Group circling same argument in any domain)
+  const stagnation = detectConversationalStagnation(transcripts);
+  if (stagnation.stagnant && totalTurns >= 5) {
+    const repeatedContext =
+      stagnation.repeatedTerms.length > 0
+        ? `around ${stagnation.repeatedTerms.join(", ")}`
+        : "on the same narrow premise";
+    return {
+      shouldIntervene: true,
+      type: "PROBING_QUESTION",
+      moderatorUtterance: `The panel has explored points ${repeatedContext}. Let us widen the lens: What are the unexamined implementation risks, stakeholder incentives, and measurable failure criteria we have missed so far?`
+    };
   }
 
   return { shouldIntervene: false, type: "NONE" };

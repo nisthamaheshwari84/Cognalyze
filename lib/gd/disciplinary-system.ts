@@ -18,6 +18,11 @@ import fs from "fs";
 import path from "path";
 import { GDConductViolationCategory, GDWarningSeverity, GDModerationIncident } from "./types";
 import { updateUser, getUserById } from "@/lib/auth/store";
+import {
+  insertDisciplinaryRecordCloud,
+  fetchUserDisciplinaryRecordsCloud,
+  updateDisciplinaryAppealCloud
+} from "./gd-cloud-db";
 
 export interface DisciplinaryRecord {
   id: string;
@@ -219,7 +224,7 @@ export async function issueDisciplinaryAction(params: {
   const nextWarningNumber = (priorSessionWarnings.length + 1) as 1 | 2 | 3;
 
   const now = Date.now();
-  const appealToken = `appeal_${now}_${Math.random().toString(36).substring(2, 9)}`;
+  const appealToken = `appeal_${now}_${globalThis.crypto.randomUUID().slice(0, 8)}`;
 
   let severity: GDWarningSeverity = "WARNING_1";
   let moderatorUtterance = "";
@@ -255,7 +260,7 @@ export async function issueDisciplinaryAction(params: {
   }
 
   const record: DisciplinaryRecord = {
-    id: `disc_${now}_${Math.random().toString(36).substring(2, 7)}`,
+    id: `disc_${now}_${globalThis.crypto.randomUUID().slice(0, 8)}`,
     userId,
     userEmail: getUserById(userId)?.email || "student@cognalyze.internal",
     userName,
@@ -279,6 +284,7 @@ export async function issueDisciplinaryAction(params: {
 
   inMemoryDisciplinaryLogs.push(record);
   persistDisciplinaryLogs();
+  await insertDisciplinaryRecordCloud(record);
 
   return {
     warningNumber: record.warningNumber,
@@ -288,6 +294,67 @@ export async function issueDisciplinaryAction(params: {
     suspensionExpiresAt,
     disciplinaryRecord: record
   };
+}
+
+export async function isUserSuspendedAsync(userId: string): Promise<{
+  suspended: boolean;
+  expiresAt?: string;
+  reason?: string;
+  appealToken?: string;
+}> {
+  const localCheck = isUserSuspended(userId);
+  if (localCheck.suspended) return localCheck;
+
+  const cloudRecords = await fetchUserDisciplinaryRecordsCloud(userId);
+  const latestSuspension = cloudRecords
+    .filter((r) => r.severity === "WARNING_3" && r.suspensionExpiresAt)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+
+  if (!latestSuspension || !latestSuspension.suspensionExpiresAt) {
+    return { suspended: false };
+  }
+
+  const expiry = new Date(latestSuspension.suspensionExpiresAt).getTime();
+  if (Date.now() > expiry) {
+    return { suspended: false };
+  }
+
+  return {
+    suspended: true,
+    expiresAt: latestSuspension.suspensionExpiresAt,
+    reason: `Suspended for repeated conduct violations (${latestSuspension.violationCategory}).`,
+    appealToken: latestSuspension.appealToken
+  };
+}
+
+export async function submitDisciplinaryAppealAsync(params: {
+  appealToken: string;
+  userId: string;
+  explanation: string;
+}): Promise<{ success: boolean; message: string }> {
+  const local = submitDisciplinaryAppeal(params);
+  if (local.success) {
+    await updateDisciplinaryAppealCloud(params);
+    return local;
+  }
+
+  const cloudUpdated = await updateDisciplinaryAppealCloud(params);
+  if (cloudUpdated) {
+    return {
+      success: true,
+      message: "Appeal submitted successfully. Cognalyze Integrity Review Committee will audit the session recording within 24 hours."
+    };
+  }
+  return local;
+}
+
+export async function getUserDisciplinaryHistoryAsync(userId: string): Promise<DisciplinaryRecord[]> {
+  loadDisciplinaryLogs();
+  const cloud = await fetchUserDisciplinaryRecordsCloud(userId);
+  if (cloud.length > 0) return cloud;
+  return inMemoryDisciplinaryLogs
+    .filter((r) => r.userId === userId)
+    .sort((a, b) => b.timestamp - a.timestamp);
 }
 
 /**

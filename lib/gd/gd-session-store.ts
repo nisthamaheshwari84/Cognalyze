@@ -11,8 +11,16 @@
 
 import fs from "fs";
 import path from "path";
-import { GDSessionData, GDSimulationFormat, GDDifficultyLevel } from "./types";
+import { GDSessionData, GDSimulationFormat, GDDifficultyLevel, GDExperienceMode } from "./types";
 import { generateCalibratedAIParticipants } from "./participant-archetypes";
+import { generateDynamicAIPanelAsync } from "./dynamic-agent-generator";
+import { buildExperienceBlueprintAsync } from "./experience-engine";
+import {
+  upsertGDSessionCloud,
+  fetchGDSessionCloud,
+  fetchUserGDSessionsCloud,
+  fetchFriendsRoomCloud
+} from "./gd-cloud-db";
 
 function isServerless(): boolean {
   return Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NEXT_RUNTIME === "edge");
@@ -75,6 +83,7 @@ export function createGDSession(params: {
   topicId: string;
   topicTitle: string;
   format?: GDSimulationFormat;
+  experienceMode?: GDExperienceMode;
   difficulty?: GDDifficultyLevel;
   durationMinutes?: number;
   targetRole?: string;
@@ -88,6 +97,7 @@ export function createGDSession(params: {
     topicId,
     topicTitle,
     format = "competitive",
+    experienceMode = "standard_round",
     difficulty = "intermediate",
     durationMinutes = 15,
     targetRole = "Software Engineer",
@@ -95,7 +105,7 @@ export function createGDSession(params: {
     friendsRoomCode
   } = params;
 
-  const sessionId = `gd_sess_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+  const sessionId = `gd_sess_${Date.now()}_${globalThis.crypto.randomUUID().slice(0, 8)}`;
   const totalDurationSeconds = durationMinutes * 60;
 
   // Calibrate 4 AI participant identities
@@ -133,6 +143,7 @@ export function createGDSession(params: {
     topicId,
     topicTitle,
     format,
+    experienceMode,
     difficulty,
     targetRole,
     lifecycleState: "BRIEFING",
@@ -152,6 +163,45 @@ export function createGDSession(params: {
 
   inMemorySessions.set(sessionId, session);
   persistSessionsToDisk();
+  void upsertGDSessionCloud(session);
+  return session;
+}
+
+export async function createGDSessionAsync(params: {
+  userId: string;
+  topicId: string;
+  topicTitle: string;
+  format?: GDSimulationFormat;
+  experienceMode?: GDExperienceMode;
+  difficulty?: GDDifficultyLevel;
+  durationMinutes?: number;
+  targetRole?: string;
+  isFriendsRoom?: boolean;
+  friendsRoomCode?: string;
+}): Promise<GDSessionData> {
+  const session = createGDSession(params);
+  const [dynamicPeers, blueprint] = await Promise.all([
+    generateDynamicAIPanelAsync({
+      topicTitle: session.topicTitle,
+      format: session.format,
+      difficulty: session.difficulty,
+      targetRole: session.targetRole
+    }),
+    buildExperienceBlueprintAsync({
+      topicTitle: session.topicTitle,
+      format: session.format,
+      difficulty: session.difficulty,
+      experienceMode: params.experienceMode || "standard_round"
+    })
+  ]);
+  if (dynamicPeers.length === 4) {
+    const humans = session.participants.filter((p) => p.isHuman);
+    session.participants = [...humans, ...dynamicPeers];
+  }
+  session.experienceBlueprint = blueprint;
+  inMemorySessions.set(session.sessionId, session);
+  persistSessionsToDisk();
+  await upsertGDSessionCloud(session);
   return session;
 }
 
@@ -160,9 +210,51 @@ export function getGDSessionById(sessionId: string, requestingUserId?: string): 
   const session = inMemorySessions.get(sessionId);
   if (!session) return null;
 
-  // User isolation check: if requestingUserId is provided, reject if not owner or room member
-  if (requestingUserId && session.userId !== requestingUserId && !session.isFriendsRoom) {
-    throw new Error(`[gd-session-store] Unauthorized access: session ${sessionId} does not belong to user ${requestingUserId}`);
+  // User isolation check: if requestingUserId is provided, reject if not owner or explicit participant
+  if (requestingUserId && session.userId !== requestingUserId) {
+    const isHumanParticipant = session.participants.some(
+      (p) => p.isHuman && p.userId === requestingUserId
+    );
+    if (!session.isFriendsRoom || !isHumanParticipant) {
+      throw new Error(`[gd-session-store] Unauthorized access: session ${sessionId} does not belong to user ${requestingUserId}`);
+    }
+  }
+
+  return session;
+}
+
+export async function getGDSessionByIdAsync(
+  sessionId: string,
+  requestingUserId?: string
+): Promise<GDSessionData | null> {
+  loadSessionsFromDisk();
+  let session = inMemorySessions.get(sessionId) || null;
+  if (!session) {
+    session = await fetchGDSessionCloud(sessionId);
+    if (session) {
+      inMemorySessions.set(session.sessionId, session);
+    }
+  }
+  if (!session) return null;
+
+  if (requestingUserId && session.userId !== requestingUserId) {
+    const isSessionParticipant = session.participants.some(
+      (p) => p.isHuman && p.userId === requestingUserId
+    );
+    let isRoomMember = isSessionParticipant;
+    if (!isRoomMember && session.isFriendsRoom && session.friendsRoomCode) {
+      const room = await fetchFriendsRoomCloud(session.friendsRoomCode);
+      isRoomMember = Boolean(
+        room &&
+          (room.hostUserId === requestingUserId ||
+            room.participants.some((p) => p.userId === requestingUserId))
+      );
+    }
+    if (!isRoomMember) {
+      throw new Error(
+        `[gd-session-store] Unauthorized access: session ${sessionId} does not belong to user ${requestingUserId}`
+      );
+    }
   }
 
   return session;
@@ -172,9 +264,19 @@ export function saveGDSession(session: GDSessionData): GDSessionData {
   loadSessionsFromDisk();
   const existing = inMemorySessions.get(session.sessionId);
 
-  // Immutability Check: completed sessions cannot be modified
-  if (existing && existing.lifecycleState === "COMPLETED" && session.lifecycleState !== "COMPLETED") {
-    throw new Error(`[gd-session-store] Immutability violation: completed session ${session.sessionId} cannot be mutated.`);
+  // Immutability Check: completed sessions cannot be modified or tampered with post-evaluation
+  if (existing && existing.lifecycleState === "COMPLETED") {
+    const revertedState = session.lifecycleState !== "COMPLETED";
+    const postEvalMutation =
+      Boolean(existing.evaluationReport) &&
+      (session.topicTitle !== existing.topicTitle ||
+        session.transcripts.length !== existing.transcripts.length ||
+        session.evaluationReport?.overallScore !== existing.evaluationReport?.overallScore);
+    if (revertedState || postEvalMutation) {
+      throw new Error(
+        `[gd-session-store] Immutability violation: completed session ${session.sessionId} cannot be mutated.`
+      );
+    }
   }
 
   // Isolation Guard
@@ -190,11 +292,32 @@ export function saveGDSession(session: GDSessionData): GDSessionData {
   session.updatedAt = new Date().toISOString();
   inMemorySessions.set(session.sessionId, session);
   persistSessionsToDisk();
+  void upsertGDSessionCloud(session);
   return session;
+}
+
+export async function saveGDSessionAsync(session: GDSessionData): Promise<GDSessionData> {
+  const saved = saveGDSession(session);
+  await upsertGDSessionCloud(saved);
+  return saved;
 }
 
 export function listGDSessionsForUser(userId: string): GDSessionData[] {
   loadSessionsFromDisk();
+  return Array.from(inMemorySessions.values())
+    .filter(s => s.userId === userId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function listGDSessionsForUserAsync(userId: string): Promise<GDSessionData[]> {
+  loadSessionsFromDisk();
+  const cloudRows = await fetchUserGDSessionsCloud(userId);
+  for (const row of cloudRows) {
+    const existing = inMemorySessions.get(row.sessionId);
+    if (!existing || new Date(row.updatedAt).getTime() >= new Date(existing.updatedAt).getTime()) {
+      inMemorySessions.set(row.sessionId, row);
+    }
+  }
   return Array.from(inMemorySessions.values())
     .filter(s => s.userId === userId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());

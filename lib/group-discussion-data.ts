@@ -12,6 +12,11 @@ export interface GDTopicItem {
   preparationPoints: string[];
   recommendedRoles: string[];
   whyRecommended: string;
+  perspectives?: {
+    proposition: string;
+    opposition: string;
+  };
+  practiceCategoryKey?: "ai" | "arch" | "fintech" | "hiring" | "web3" | "ethics";
 }
 
 export const GD_CATEGORIES = [
@@ -130,7 +135,8 @@ export const GD_TOPICS: GDTopicItem[] = [
       "Merchant adoption: UPI's zero-MDR infrastructure has massive existing merchant lock-in."
     ],
     recommendedRoles: ["FinTech Candidate", "Consultant", "Product Manager"],
-    whyRecommended: "Frequent national campus hiring topic testing knowledge of monetary policy, digital public infrastructure, and fintech."
+    whyRecommended: "Frequent national campus hiring topic testing knowledge of monetary policy, digital public infrastructure, and fintech.",
+    practiceCategoryKey: "fintech"
   },
   {
     id: "gd-current-002",
@@ -241,6 +247,159 @@ export const GD_TOPICS: GDTopicItem[] = [
       "Clear transparent employment contracts: Distinguishing competitive moonlighting from non-conflicting creative endeavors."
     ],
     recommendedRoles: ["Campus Placement Candidate", "Software Engineer", "HR Specialist"],
-    whyRecommended: "Frequently asked by Indian IT services companies (TCS, Infosys, Wipro) during campus interview panels."
+    whyRecommended: "Frequently asked by Indian IT services companies (TCS, Infosys, Wipro) during campus interview panels.",
+    practiceCategoryKey: "hiring"
+  },
+  {
+    id: "gd-arch-003",
+    title: "Serverless Edge Functions vs Dedicated Kubernetes Clusters: The Cost-to-Performance Inflection Point",
+    category: "Technical",
+    domain: "Software Engineering",
+    difficulty: "Hard",
+    timeLimitMinutes: 15,
+    freshness: "Trending",
+    source_context: "Cold-start latency and egress bill shocks challenge serverless paradigms for sustained high-throughput workloads.",
+    preparationPoints: [
+      "Serverless eliminates idle capacity costs and zero-ops scaling for bursty traffic.",
+      "Dedicated Kubernetes delivers predictable p99 latency and lower unit costs past sustained concurrency thresholds.",
+      "Cold-start variance vs node warm-pool overhead and DevOps cluster maintenance.",
+      "Hybrid routing: edge stateless Auth/API gateways backed by stateful container pools."
+    ],
+    recommendedRoles: ["Backend Developer", "Cloud Architect", "DevOps/SRE"],
+    whyRecommended: "Tests infrastructure economics and latency reasoning common in backend & cloud placement panels.",
+    perspectives: {
+      proposition: "Serverless maximizes velocity and scales to zero with zero operational burden.",
+      opposition: "Kubernetes guarantees predictable unit economics and zero cold-starts at scale."
+    },
+    practiceCategoryKey: "arch"
+  },
+  {
+    id: "gd-arch-004",
+    title: "ACID Strict Consistency vs Eventual Consistency for High-Throughput Fintech Payment Ledgers",
+    category: "Technical",
+    domain: "Finance",
+    difficulty: "Hard",
+    timeLimitMinutes: 15,
+    freshness: "Evergreen",
+    source_context: "Handling concurrent financial transactions while guaranteeing zero double-spend anomalies under partition pressure.",
+    preparationPoints: [
+      "ACID transactions ensure non-negotiable ledger correctness and auditability.",
+      "Eventual consistency lowers lock contention and unlocks sub-millisecond read throughput.",
+      "Idempotency keys, saga orchestration, and compensating transactions in distributed payment rails.",
+      "Selective strictness: ACID for money movement, eventual consistency for analytics and notifications."
+    ],
+    recommendedRoles: ["Backend Developer", "Systems Architect", "FinTech Candidate"],
+    whyRecommended: "Directly probes distributed data integrity vs latency trade-offs for top FinTech hiring.",
+    perspectives: {
+      proposition: "Strict ACID serialization prevents catastrophic double-spend and reconciliation drift.",
+      opposition: "Bounded eventual consistency with idempotency sustains extreme peak throughput."
+    },
+    practiceCategoryKey: "arch"
+  },
+  {
+    id: "gd-ai-003",
+    title: "Agentic Autonomous Workflows vs Human-in-the-Loop for Mission-Critical Production Systems",
+    category: "AI & Technology",
+    domain: "AI & Machine Learning",
+    difficulty: "Hard",
+    timeLimitMinutes: 15,
+    freshness: "Latest",
+    source_context: "Multi-agent execution accelerates workflows but introduces hallucination and silent state-corruption risks.",
+    preparationPoints: [
+      "Autonomous pipelines compress triage and remediation cycles from hours to seconds.",
+      "Human sign-off gates contain blast radius on financial, medical, or production mutations.",
+      "Bounded autonomy: reversible read-only automation vs gated high-privilege writes.",
+      "Observability and deterministic rollback protocols as non-negotiable prerequisites."
+    ],
+    recommendedRoles: ["AI/ML Engineer", "Software Engineer", "Product Manager"],
+    whyRecommended: "Tests practical production governance around autonomous AI deployment.",
+    perspectives: {
+      proposition: "End-to-end autonomous pipelines unlock step-function speed and reliability.",
+      opposition: "Strict human-in-the-loop gates prevent irreversible cascading failures."
+    },
+    practiceCategoryKey: "ai"
+  },
+  {
+    id: "gd-web3-001",
+    title: "Public Blockchains vs Centralized Cloud Ledgers for Real-World Asset Tokenization",
+    category: "Technical",
+    domain: "Technology",
+    difficulty: "Medium",
+    timeLimitMinutes: 15,
+    freshness: "Trending",
+    source_context: "Institutional finance balances permissionless settlement composability against compliance and dispute finality.",
+    preparationPoints: [
+      "Permissionless ledgers offer transparent settlement and global programmatic liquidity.",
+      "Centralized cloud ledgers provide clear legal recourse, privacy, and zero gas-fee volatility.",
+      "KYC/AML compliance friction on public mempools.",
+      "Permissioned consortium bridges combining cryptographic proofs with institutional governance."
+    ],
+    recommendedRoles: ["Backend Developer", "FinTech Candidate", "Product Manager"],
+    whyRecommended: "Evaluates pragmatic technology fit vs decentralization hype.",
+    perspectives: {
+      proposition: "Permissionless composability unlocks borderless liquidity and cryptographic auditability.",
+      opposition: "Centralized regulated ledgers guarantee legal recourse, privacy, and deterministic SLAs."
+    },
+    practiceCategoryKey: "web3"
+  },
+  {
+    id: "gd-ethics-001",
+    title: "Algorithmic Transparency vs Trade Secrets: Should AI Models in Hiring & Lending Be Auditable?",
+    category: "Current / Relevant",
+    domain: "Ethics",
+    difficulty: "Medium",
+    timeLimitMinutes: 15,
+    freshness: "Latest",
+    source_context: "Automated screening models affect candidate livelihoods without human-interpretable explanations.",
+    preparationPoints: [
+      "Mandatory external audits uncover demographic bias and proxy discrimination early.",
+      "Forcing full model weight disclosure risks IP theft and adversarial gaming of scoring rules.",
+      "Zero-knowledge or counterfactual explanation APIs as privacy-preserving audit middle ground.",
+      "Regulatory liability when automated hiring tools reject qualified candidates silently."
+    ],
+    recommendedRoles: ["AI/ML Engineer", "Product Manager", "Data Scientist"],
+    whyRecommended: "Blends AI governance, fairness metrics, and enterprise IP law.",
+    perspectives: {
+      proposition: "Mandatory external auditability is essential to prevent silent systemic bias.",
+      opposition: "Forced model disclosure leaks proprietary IP and enables score gaming."
+    },
+    practiceCategoryKey: "ethics"
   }
 ];
+
+export interface PracticeRoomTopicSummary {
+  title: string;
+  context?: string;
+  category?: string;
+  key_perspectives?: string[];
+}
+
+export function getGroupedTopicsForPracticeRoom(): Record<string, PracticeRoomTopicSummary[]> {
+  const grouped: Record<string, PracticeRoomTopicSummary[]> = {
+    ai: [],
+    arch: [],
+    fintech: [],
+    hiring: [],
+    web3: [],
+    ethics: []
+  };
+
+  for (const t of GD_TOPICS) {
+    let key: keyof typeof grouped = t.practiceCategoryKey || "arch";
+    if (!t.practiceCategoryKey) {
+      if (t.category === "AI & Technology") key = "ai";
+      else if (t.title.toLowerCase().includes("cbdc") || t.domain === "Finance") key = "fintech";
+      else if (t.category === "HR") key = "hiring";
+      else if (t.id.includes("deepfake")) key = "ethics";
+    }
+    grouped[key].push({
+      title: t.title,
+      context: t.source_context || t.whyRecommended,
+      category: t.category,
+      key_perspectives: t.perspectives
+        ? [t.perspectives.proposition, t.perspectives.opposition]
+        : t.preparationPoints.slice(0, 2)
+    });
+  }
+  return grouped;
+}

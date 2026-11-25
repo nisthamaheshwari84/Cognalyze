@@ -20,8 +20,8 @@ import {
 } from "./types";
 import { ARCHETYPE_PROFILES } from "./participant-archetypes";
 import { evaluateCoachIntervention } from "./coach-moderator-engine";
-import { groqFetch } from "@/lib/groq";
-import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
+import { runGDJsonCompletion, sanitizeGDPromptInput } from "./ai-gateway";
+import { updateParticipantMemoryAfterTurn } from "./dynamic-agent-generator";
 
 export interface NextTurnResult {
   speakerId: string;
@@ -34,6 +34,7 @@ export interface NextTurnResult {
   isCoachIntervention: boolean;
   coachInterventionType?: string;
   updatedStage?: GDDiscussionStage;
+  twistLabel?: string;
   studentCoaching?: {
     articulationScore: number;
     valueAdded: "High" | "Medium" | "Low";
@@ -91,11 +92,11 @@ export function selectNextSpeaker(params: {
     if (a.speakingTurnCount !== b.speakingTurnCount) {
       return a.speakingTurnCount - b.speakingTurnCount;
     }
-    // Lowest assertiveness vs highest based on format
+    // Lowest assertiveness vs highest based on format, deterministic tie-breaker by peer id
     if (format === "competitive") {
       return b.assertiveness - a.assertiveness;
     }
-    return Math.random() - 0.5;
+    return a.id.localeCompare(b.id);
   });
 
   return sorted[0];
@@ -135,7 +136,8 @@ export async function orchestrateNextTurn(session: GDSessionData, studentInterve
     studentUserId: userId,
     studentName: "Candidate (You)",
     isFriendsRoom,
-    roomCode: friendsRoomCode
+    roomCode: friendsRoomCode,
+    experienceBlueprint: session.experienceBlueprint
   });
 
   if (coachDecision.shouldIntervene && coachDecision.moderatorUtterance) {
@@ -149,7 +151,8 @@ export async function orchestrateNextTurn(session: GDSessionData, studentInterve
       stage: coachDecision.newStage || currentStage,
       isCoachIntervention: true,
       coachInterventionType: coachDecision.type,
-      updatedStage: coachDecision.newStage
+      updatedStage: coachDecision.newStage,
+      twistLabel: coachDecision.twistLabel
     };
   }
 
@@ -163,29 +166,44 @@ export async function orchestrateNextTurn(session: GDSessionData, studentInterve
   });
 
   const profile = ARCHETYPE_PROFILES[selectedPeer.archetype];
-  const lastTurnsText = transcripts.slice(-6).map(t => `${t.speakerName} (${t.speakerRole}): "${t.content}"`).join("\n");
+  const effectiveTemperament = selectedPeer.temperament || profile.temperament;
+  const effectiveStyle = selectedPeer.speakingStyle || profile.speakingStyle;
+  const effectiveLens = selectedPeer.reasoningLens || selectedPeer.roleTitle;
+  const safeTopic = sanitizeGDPromptInput(topicTitle, 240);
+  const safeIntervention = sanitizeGDPromptInput(studentIntervention, 500);
+  const lastTurnsText = transcripts
+    .slice(-6)
+    .map(t => `${sanitizeGDPromptInput(t.speakerName, 40)} (${sanitizeGDPromptInput(t.speakerRole, 40)}): "${sanitizeGDPromptInput(t.content, 280)}"`)
+    .join("\n");
   const lastSpeaker = transcripts[transcripts.length - 1];
+  const memorySummary = [
+    selectedPeer.agreementsWith.length > 0 ? `Agreed previously with: ${selectedPeer.agreementsWith.join(", ")}` : "",
+    selectedPeer.disagreementsWith.length > 0 ? `Challenged previously: ${selectedPeer.disagreementsWith.join(", ")}` : "",
+    selectedPeer.argumentsPresented.length > 0 ? `Your prior points: ${selectedPeer.argumentsPresented.slice(-2).join(" | ")}` : ""
+  ].filter(Boolean).join("\n");
 
-  // 3. Compose contextual prompt for Groq LLM
-  const prompt = `You are roleplaying as "${selectedPeer.name}", a campus recruitment candidate in a premier engineering placement Group Discussion.
-TOPIC: "${topicTitle}"
+  // 3. Compose contextual prompt for AI Gateway
+  const userPrompt = `You are roleplaying as "${selectedPeer.name}", a campus recruitment candidate in a premier engineering placement Group Discussion.
+TOPIC: "${safeTopic}"
 DISCUSSION FORMAT: ${format.toUpperCase()}
 DIFFICULTY TIER: ${difficulty.toUpperCase()}
 CURRENT DISCUSSION STAGE: ${currentStage.toUpperCase()}
 
 YOUR PERSONA:
-- Archetype: ${selectedPeer.archetype} (${profile.temperament})
+- Archetype: ${selectedPeer.archetype} (${effectiveTemperament})
 - Role Title: ${selectedPeer.roleTitle}
-- Speaking Style: ${profile.speakingStyle}
-- Current Stance: ${selectedPeer.currentStance}
+- Reasoning Lens: ${effectiveLens}
+- Speaking Style: ${effectiveStyle}
+- Current Stance: ${selectedPeer.currentStance} (Emotion: ${selectedPeer.currentEmotionState})
 - Assertiveness Level: ${selectedPeer.assertiveness.toFixed(2)}
+${memorySummary ? `\nYOUR CONVERSATION MEMORY:\n${memorySummary}` : ""}
 
 RECENT GROUP TRANSCRIPT:
 ${lastTurnsText || "The discussion has just commenced."}
 
 LATEST EVENT:
-${studentIntervention 
-  ? `Candidate ('You') just stated: "${studentIntervention}". React to their point, evaluate their premise, and pivot to challenge another peer.`
+${safeIntervention
+  ? `Candidate ('You') just stated: "${safeIntervention}". React to their point, evaluate their premise, and pivot to challenge another peer.`
   : `Previous speaker was ${lastSpeaker?.speakerName || "the group"}. Deliver your next perspective in natural conversational rhythm.`}
 
 CONVERSATION INSTRUCTIONS:
@@ -207,51 +225,51 @@ Return JSON in this EXACT format:
   }
 }`;
 
-  try {
-    const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "openai/gpt-oss-120b",
-        messages: [
-          {
-            role: "system",
-            content: "You are the AI conversation engine for high-stakes campus placement Group Discussions. Never repeat pre-scripted phrases. Generate realistic, context-aware dialogue with active peer-to-peer engagement."
-          },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.72,
-        max_tokens: 650
-      })
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const raw = data.choices?.[0]?.message?.content || "{}";
-      const clean = stripThinkTags(raw);
-      const parsed = extractJSON(clean);
-
-      if (parsed.spoken_text && typeof parsed.spoken_text === "string") {
-        return {
-          speakerId: selectedPeer.id,
-          speakerName: selectedPeer.name,
-          speakerAvatar: selectedPeer.avatar,
-          speakerRole: selectedPeer.roleTitle,
-          isHuman: false,
-          content: parsed.spoken_text.replace(/["\n\r]/g, " ").trim(),
-          stage: currentStage,
-          isCoachIntervention: false,
-          studentCoaching: parsed.student_coaching
-        };
+  const aiResult = await runGDJsonCompletion<{
+    spoken_text: string;
+    student_coaching?: NextTurnResult["studentCoaching"];
+  }>({
+    role: "participant_agent",
+    systemPrompt:
+      "You are the AI conversation engine for high-stakes campus placement Group Discussions. Never repeat pre-scripted phrases. Generate realistic, context-aware dialogue with active peer-to-peer engagement.",
+    userPrompt,
+    validate: (parsed) => {
+      if (typeof parsed?.spoken_text !== "string" || parsed.spoken_text.trim().length < 12) {
+        return null;
       }
+      return {
+        spoken_text: parsed.spoken_text.replace(/["\n\r]/g, " ").trim(),
+        student_coaching: parsed.student_coaching
+      };
     }
-  } catch (err) {
-    console.warn("[simulation-engine] LLM call failed, generating calibrated archetype response:", err);
+  });
+
+  if (aiResult.ok) {
+    updateParticipantMemoryAfterTurn({
+      session,
+      speakerId: selectedPeer.id,
+      utterance: aiResult.data.spoken_text,
+      stage: currentStage
+    });
+    return {
+      speakerId: selectedPeer.id,
+      speakerName: selectedPeer.name,
+      speakerAvatar: selectedPeer.avatar,
+      speakerRole: selectedPeer.roleTitle,
+      isHuman: false,
+      content: aiResult.data.spoken_text,
+      stage: currentStage,
+      isCoachIntervention: false,
+      studentCoaching: aiResult.data.student_coaching
+    };
   }
+
+  console.warn("[simulation-engine] AI gateway failed, generating calibrated archetype fallback:", aiResult.error);
 
   // Archetype-calibrated deterministic response if LLM is unavailable
   const fallbackTransitions = profile.preferredTransitions;
-  const pickedTransition = fallbackTransitions[Math.floor(Math.random() * fallbackTransitions.length)];
+  const pickedTransition =
+    fallbackTransitions[session.transcripts.length % fallbackTransitions.length];
   const fallbackContent = `${pickedTransition} When balancing ${topicTitle.toLowerCase().split(":")[0]}, optimizing purely for one dimension inevitably shifts failure modes to secondary services.`;
 
   return {
@@ -262,12 +280,6 @@ Return JSON in this EXACT format:
     isHuman: false,
     content: fallbackContent,
     stage: currentStage,
-    isCoachIntervention: false,
-    studentCoaching: {
-      articulationScore: 78,
-      valueAdded: "Medium",
-      feedbackTip: "Anchor your point with specific SLAs or real-world system constraints.",
-      winningCounterPhrase: "Let us examine the operational failure modes before deciding on an architecture."
-    }
+    isCoachIntervention: false
   };
 }

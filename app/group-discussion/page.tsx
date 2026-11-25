@@ -1,9 +1,25 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AppNav from "@/components/AppNav";
 import { useTheme } from "@/components/ThemeProvider";
+import {
+  getGDTheme,
+  GD_ARENA_TABS,
+  GDArenaTabId
+} from "@/components/gd/gd-theme";
+import GDArenaOverview, { StudentDNASummaryView } from "@/components/gd/GDArenaOverview";
+import GDSimulationSetup from "@/components/gd/GDSimulationSetup";
+import GDFriendsHub from "@/components/gd/GDFriendsHub";
+import GDSkillsLabView from "@/components/gd/GDSkillsLabView";
+import GDPerformanceView, {
+  GDPerformanceSummaryItem,
+  GDConductStandingView,
+  GDDisciplinaryRecordView
+} from "@/components/gd/GDPerformanceView";
+import type { GDPerformanceAnalytics } from "@/lib/gd/performance-analytics";
+import GDGuidelinesView from "@/components/gd/GDGuidelinesView";
 import {
   GD_TOPICS,
   GD_CATEGORIES,
@@ -11,6 +27,7 @@ import {
   GD_FRESHNESS_OPTIONS,
   GDTopicItem
 } from "@/lib/group-discussion-data";
+import { scoreTopicForStudentDNA } from "@/lib/gd/topic-service";
 import {
   Users,
   Search,
@@ -53,9 +70,40 @@ interface GDEvaluationFeedback {
   overallAssessment: string;
 }
 
-export default function GroupDiscussionPage() {
+function GroupDiscussionArenaContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isDark } = useTheme();
+  const T = useMemo(() => getGDTheme(isDark), [isDark]);
+
+  const initialViewParam = (searchParams.get("view") as GDArenaTabId) || "overview";
+  const validTabIds = new Set(GD_ARENA_TABS.map((t) => t.id));
+  const [activeArenaTab, setActiveArenaTab] = useState<GDArenaTabId>(
+    validTabIds.has(initialViewParam) ? initialViewParam : "overview"
+  );
+
+  // Sync tab with URL query cleanly
+  const handleSwitchArenaTab = (tab: GDArenaTabId) => {
+    setActiveArenaTab(tab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", tab);
+    router.replace(`/group-discussion?${params.toString()}`, { scroll: false });
+  };
+
+  // Authentic Student DNA & Session History hydration (zero fabricated defaults)
+  const [dnaSummary, setDnaSummary] = useState<StudentDNASummaryView>({
+    authenticated: false,
+    targetRole: "AI/ML Engineer",
+    topSkills: [],
+    skillGaps: [],
+    gdSessionsCompleted: 0,
+    lastGdScore: null
+  });
+  const [performanceSessions, setPerformanceSessions] = useState<GDPerformanceSummaryItem[]>([]);
+  const [performanceAnalytics, setPerformanceAnalytics] = useState<GDPerformanceAnalytics | null>(null);
+  const [conductStanding, setConductStanding] = useState<GDConductStandingView | null>(null);
+  const [disciplinaryRecords, setDisciplinaryRecords] = useState<GDDisciplinaryRecordView[]>([]);
+  const [loadingPerformance, setLoadingPerformance] = useState(true);
 
   // Dynamic Topic Pool (curated + AI freshly generated topics)
   const [topicsPool, setTopicsPool] = useState<GDTopicItem[]>(GD_TOPICS);
@@ -126,8 +174,53 @@ export default function GroupDiscussionPage() {
         if (parsed.target_role) {
           setTargetRole(parsed.target_role);
           setGenerateTargetRole(parsed.target_role);
+          setDnaSummary((prev) => ({ ...prev, targetRole: parsed.target_role }));
         }
       }
+
+      // Hydrate real Student DNA when authenticated (silent fallback if unauthenticated)
+      fetch("/api/student/dna")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data?.success) return;
+          const full = data.dnaFull || {};
+          const roleTitle = full.targetRoleTitle || data.dna?.targetRole || "AI/ML Engineer";
+          const skillsList: string[] = Array.isArray(full.skills)
+            ? full.skills.map((s: any) => s.name || s.skillName).filter(Boolean)
+            : [];
+          const gapsList: string[] = Array.isArray(full.gapReport?.gaps)
+            ? full.gapReport.gaps.map((g: any) => g.skill || g.label || g.name).filter(Boolean)
+            : [];
+          setTargetRole(roleTitle);
+          setGenerateTargetRole(roleTitle);
+          setDnaSummary((prev) => ({
+            ...prev,
+            authenticated: true,
+            targetRole: roleTitle,
+            topSkills: skillsList,
+            skillGaps: gapsList
+          }));
+        })
+        .catch(() => {});
+
+      // Hydrate real verified GD session history & scores
+      fetch("/api/gd/sessions")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data?.success && Array.isArray(data.sessions)) {
+            setPerformanceSessions(data.sessions);
+            if (data.analytics) setPerformanceAnalytics(data.analytics);
+            if (data.conductStanding) setConductStanding(data.conductStanding);
+            if (Array.isArray(data.disciplinaryRecords)) setDisciplinaryRecords(data.disciplinaryRecords);
+            setDnaSummary((prev) => ({
+              ...prev,
+              gdSessionsCompleted: data.sessions.length,
+              lastGdScore: data.sessions.length > 0 ? data.sessions[0].overallScore : null
+            }));
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoadingPerformance(false));
 
       // Load cached fresh topics
       const storedFresh = localStorage.getItem("cognalyze_gd_fresh_topics");
@@ -395,16 +488,19 @@ export default function GroupDiscussionPage() {
     });
   }, [topicsPool, selectedCategory, selectedDomain, selectedDifficulty, selectedFreshness, searchQuery]);
 
-  // Recommended for DNA target role
+  // Recommended for DNA target role, skills & gaps
   const recommendedTopics = useMemo(() => {
-    return topicsPool.filter((t) =>
-      t.recommendedRoles.some(
-        (r) =>
-          r.toLowerCase().includes(targetRole.toLowerCase()) ||
-          targetRole.toLowerCase().includes(r.toLowerCase())
-      )
-    );
-  }, [topicsPool, targetRole]);
+    const scored = topicsPool.map((t) => ({
+      topic: t,
+      score: scoreTopicForStudentDNA(t, {
+        targetRole,
+        topSkills: dnaSummary.topSkills,
+        skillGaps: dnaSummary.skillGaps
+      })
+    }));
+    const filtered = scored.filter((s) => s.score > 0).sort((a, b) => b.score - a.score);
+    return filtered.length > 0 ? filtered.map((s) => s.topic) : topicsPool.slice(0, 4);
+  }, [topicsPool, targetRole, dnaSummary.topSkills, dnaSummary.skillGaps]);
 
   return (
     <div
@@ -505,6 +601,129 @@ export default function GroupDiscussionPage() {
           </div>
         </div>
 
+        {/* ── ARENA SUB-NAVIGATION BAR ── */}
+        <nav
+          aria-label="Cognalyze GD Arena Sections"
+          style={{
+            display: "flex",
+            gap: 6,
+            overflowX: "auto",
+            padding: "6px",
+            marginBottom: 20,
+            backgroundColor: T.bgCard,
+            border: `1px solid ${T.border}`,
+            borderRadius: 10,
+            boxShadow: T.shadowCard,
+            scrollbarWidth: "none"
+          }}
+        >
+          {GD_ARENA_TABS.map((tab) => {
+            const isSelected = activeArenaTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => handleSwitchArenaTab(tab.id)}
+                title={tab.description}
+                style={{
+                  padding: "8px 14px",
+                  borderRadius: 7,
+                  border: isSelected ? `1px solid ${T.accentBorder}` : "1px solid transparent",
+                  backgroundColor: isSelected ? T.accentSoft : "transparent",
+                  color: isSelected ? T.accent : T.textSecondary,
+                  fontSize: 12,
+                  fontWeight: isSelected ? 700 : 600,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 120ms ease"
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* ── VIEW: OVERVIEW ── */}
+        {activeArenaTab === "overview" && (
+          <GDArenaOverview
+            T={T}
+            isDark={isDark}
+            dnaSummary={dnaSummary}
+            recommendedTopics={recommendedTopics}
+            onSwitchTab={handleSwitchArenaTab}
+            onStartTopicPrep={handleStartPractice}
+            onLaunchLiveWithTopic={(topicTitle, fmt) => {
+              const targetFormat = fmt || simulationFormat;
+              router.push(
+                `/student/gd-practice?format=${encodeURIComponent(targetFormat)}&difficulty=${encodeURIComponent(difficultyTier)}&topic=${encodeURIComponent(topicTitle)}`
+              );
+            }}
+          />
+        )}
+
+        {/* ── VIEW: START / SETUP GD ── */}
+        {activeArenaTab === "setup" && (
+          <GDSimulationSetup
+            T={T}
+            topicsPool={topicsPool}
+            simulationFormat={simulationFormat}
+            setSimulationFormat={setSimulationFormat}
+            difficultyTier={difficultyTier}
+            setDifficultyTier={setDifficultyTier}
+            onLaunchSession={({ topicTitle, format, experienceMode, difficulty, durationMinutes }) => {
+              router.push(
+                `/student/gd-practice?format=${encodeURIComponent(format)}&experienceMode=${encodeURIComponent(experienceMode)}&difficulty=${encodeURIComponent(difficulty)}&duration=${durationMinutes}&topic=${encodeURIComponent(topicTitle)}`
+              );
+            }}
+          />
+        )}
+
+        {/* ── VIEW: FRIENDS GD ── */}
+        {activeArenaTab === "friends" && (
+          <GDFriendsHub
+            T={T}
+            topicsPool={topicsPool}
+            simulationFormat={simulationFormat}
+            setSimulationFormat={setSimulationFormat}
+            difficultyTier={difficultyTier}
+            setDifficultyTier={setDifficultyTier}
+          />
+        )}
+
+        {/* ── VIEW: GD SKILLS LAB ── */}
+        {activeArenaTab === "skills-lab" && (
+          <GDSkillsLabView
+            T={T}
+            dnaSkillGaps={dnaSummary.skillGaps}
+            onPracticeInArena={(topicTitle) => {
+              router.push(
+                `/student/gd-practice?format=${encodeURIComponent(simulationFormat)}&difficulty=${encodeURIComponent(difficultyTier)}&topic=${encodeURIComponent(topicTitle)}`
+              );
+            }}
+          />
+        )}
+
+        {/* ── VIEW: PERFORMANCE CENTRE ── */}
+        {activeArenaTab === "performance" && (
+          <GDPerformanceView
+            T={T}
+            sessions={performanceSessions}
+            analytics={performanceAnalytics}
+            conductStanding={conductStanding}
+            disciplinaryRecords={disciplinaryRecords}
+            loading={loadingPerformance}
+            authenticated={dnaSummary.authenticated}
+            onSwitchTab={handleSwitchArenaTab}
+          />
+        )}
+
+        {/* ── VIEW: GUIDELINES & CONDUCT ── */}
+        {activeArenaTab === "guidelines" && <GDGuidelinesView T={T} />}
+
+        {/* ── VIEW: TOPIC LIBRARY (Preserved Full Catalog + AI Generator) ── */}
+        {activeArenaTab === "topics" && (
+          <>
         {/* ── 5. STUDENT DNA RECOMMENDATION ── */}
         <div
           style={{
@@ -1008,6 +1227,8 @@ export default function GroupDiscussionPage() {
             </div>
           ))}
         </div>
+          </>
+        )}
       </main>
 
       {/* ── AI FRESH TOPIC GENERATOR OPTIONS MODAL ── */}
@@ -2024,5 +2245,30 @@ export default function GroupDiscussionPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function GroupDiscussionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          style={{
+            minHeight: "100vh",
+            backgroundColor: "#F6F5F1",
+            color: "#162A43",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontWeight: 600,
+            fontSize: 14
+          }}
+        >
+          Loading Cognalyze GD Arena...
+        </div>
+      }
+    >
+      <GroupDiscussionArenaContent />
+    </Suspense>
   );
 }

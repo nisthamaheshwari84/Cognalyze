@@ -10,26 +10,35 @@
  */
 
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
-import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
+import { runGDJsonCompletion, sanitizeGDPromptInput } from "@/lib/gd/ai-gateway";
 import {
-  createGDSession,
-  getGDSessionById,
-  saveGDSession,
+  createGDSessionAsync,
+  getGDSessionByIdAsync,
+  saveGDSessionAsync,
   acquireGDTurnLock,
   releaseGDTurnLock
 } from "@/lib/gd/gd-session-store";
+import { insertGDEvaluationCloud } from "@/lib/gd/gd-cloud-db";
+import {
+  requireAuthenticatedGDStudent,
+  GD_NO_STORE_HEADERS
+} from "@/lib/gd/api-security";
 import { orchestrateNextTurn } from "@/lib/gd/simulation-engine";
-import { evaluateGDSession } from "@/lib/gd/evaluation-engine";
+import { evaluateGDSessionAsync } from "@/lib/gd/evaluation-engine";
+import { syncGDReportToStudentDNAAsync } from "@/lib/gd/dna-sync";
 import { transitionLifecycleState } from "@/lib/gd/session-state-machine";
-import { GDSimulationFormat, GDDifficultyLevel, GDTranscriptItem } from "@/lib/gd/types";
-import { getAuthenticatedContext } from "@/lib/auth/server";
+import { updateParticipantMemoryAfterTurn } from "@/lib/gd/dynamic-agent-generator";
+import { GDSimulationFormat, GDDifficultyLevel, GDExperienceMode, GDTranscriptItem } from "@/lib/gd/types";
+
+function jsonNoStore(data: any, status = 200) {
+  return NextResponse.json(data, { status, headers: GD_NO_STORE_HEADERS });
+}
 
 export async function POST(req: Request) {
   try {
-    const authCtx = await getAuthenticatedContext(req);
-    const userId = authCtx?.user?.id || "guest-student";
-    const userName = authCtx?.user?.fullName || "Candidate (You)";
+    const guard = await requireAuthenticatedGDStudent(req);
+    if (!guard.ok) return guard.response;
+    const { userId, userName, authCtx } = guard.student;
 
     const body = await req.json();
     const {
@@ -38,6 +47,7 @@ export async function POST(req: Request) {
       topic,
       category,
       format = "competitive",
+      experienceMode = "standard_round",
       difficulty = "intermediate",
       durationMinutes = 15,
       messages = [],
@@ -76,52 +86,36 @@ Return JSON in this format ONLY:
   ]
 }`;
 
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              model: "openai/gpt-oss-120b",
-              messages: [{ role: "user", content: prompt }],
-              temperature: 0.85,
-              max_tokens: 1000
-            })
-          });
+      const topicGenResult = await runGDJsonCompletion<any[]>({
+        role: "topic_generator",
+        systemPrompt: "Return a strict JSON object with a non-empty 'topics' array of debatable GD topics.",
+        userPrompt: sanitizeGDPromptInput(prompt, 1400),
+        validate: (parsed) => (Array.isArray(parsed?.topics) && parsed.topics.length >= 2 ? parsed.topics : null)
+      });
 
-          if (res.ok) {
-            const data = await res.json();
-            const raw = data.choices?.[0]?.message?.content || "{}";
-            const clean = stripThinkTags(raw);
-            const parsed = extractJSON(clean);
-
-            if (Array.isArray(parsed.topics) && parsed.topics.length >= 2) {
-              return NextResponse.json({ success: true, topics: parsed.topics });
-            }
-          }
-        } catch (e: any) {
-          if (attempt === 1) await new Promise(r => setTimeout(r, 400));
-        }
+      if (topicGenResult.ok) {
+        return jsonNoStore({ success: true, topics: topicGenResult.data });
       }
 
-      return NextResponse.json(
+      return jsonNoStore(
         {
           success: false,
           error: "generation_failed",
           message: "Unable to synthesize dynamic topics at this moment. Please select from curated domains.",
           retryable: true
         },
-        { status: 503 }
+        503
       );
     }
 
     // ── ACTION 2: Initialize & Start GD Session ──
     if (action === "start_discussion") {
-      const session = createGDSession({
+      const session = await createGDSessionAsync({
         userId,
         topicId: `topic_${Date.now()}`,
         topicTitle: topic || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026",
         format: format as GDSimulationFormat,
+        experienceMode: experienceMode as GDExperienceMode,
         difficulty: difficulty as GDDifficultyLevel,
         durationMinutes: Number(durationMinutes) || 15,
         targetRole: (authCtx?.studentProfile?.careerGoals as any)?.targetRole || (authCtx?.studentProfile?.careerGoals as any)?.primaryRole || "Software Engineer"
@@ -132,6 +126,7 @@ Return JSON in this format ONLY:
 
       // Generate authentic Opening Sequence from Panel Director + Opening Peer
       const openingPeer = runningSession.participants.find(p => !p.isHuman) || runningSession.participants[1];
+      const briefText = runningSession.experienceBlueprint?.openingScenarioBrief;
 
       const modMsg: GDTranscriptItem = {
         id: `turn-mod-intro-${Date.now()}`,
@@ -140,7 +135,9 @@ Return JSON in this format ONLY:
         speakerAvatar: "🎙️",
         speakerRole: "Panel Director & Lead Bar-Raiser",
         isHuman: false,
-        content: `Welcome candidates. Today's placement discussion topic is: "${session.topicTitle}". The panel is evaluating structured problem framing, empirical trade-offs, and collaborative synthesis. The floor is open.`,
+        content: briefText
+          ? `Welcome candidates. ${briefText} The floor is open.`
+          : `Welcome candidates. Today's placement discussion topic is: "${session.topicTitle}". The panel is evaluating structured problem framing, empirical trade-offs, and collaborative synthesis. The floor is open.`,
         timestamp: Date.now(),
         formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         stage: "briefing"
@@ -162,9 +159,9 @@ Return JSON in this format ONLY:
       runningSession.transcripts = [modMsg, peerMsg];
       openingPeer.speakingTurnCount += 1;
       openingPeer.lastSpokeAtTimestamp = Date.now();
-      saveGDSession(runningSession);
+      await saveGDSessionAsync(runningSession);
 
-      return NextResponse.json({
+      return jsonNoStore({
         success: true,
         sessionId: runningSession.sessionId,
         session: runningSession,
@@ -186,33 +183,68 @@ Return JSON in this format ONLY:
     // ── ACTION 3: Finalize GD Evaluation Dossier ──
     if (action === "finalize_evaluation") {
       if (!sessionId) {
-        return NextResponse.json({ success: false, error: "Missing sessionId" }, { status: 400 });
+        return jsonNoStore({ success: false, error: "Missing sessionId" }, 400);
       }
 
-      const session = getGDSessionById(sessionId, userId);
+      let session;
+      try {
+        session = await getGDSessionByIdAsync(sessionId, userId);
+      } catch (err: any) {
+        return jsonNoStore({ success: false, error: "forbidden", message: err.message }, 403);
+      }
       if (!session) {
-        return NextResponse.json({ success: false, error: "Session not found" }, { status: 404 });
+        return jsonNoStore({ success: false, error: "Session not found" }, 404);
       }
 
       const completedSession = transitionLifecycleState(session, "COMPLETED");
-      const report = evaluateGDSession(completedSession);
+      const report = await evaluateGDSessionAsync(completedSession, {
+        targetUserId: userId,
+        targetUserName: userName
+      });
       completedSession.evaluationReport = report;
-      saveGDSession(completedSession);
+      await saveGDSessionAsync(completedSession);
 
-      return NextResponse.json({
+      const dnaSync = await syncGDReportToStudentDNAAsync({ userId, report }).catch(() => ({
+        synced: false,
+        reason: "sync_failed",
+        recordedEvidenceIds: []
+      }));
+
+      await insertGDEvaluationCloud({
+        session: completedSession,
+        userId,
+        report,
+        dnaSynced: dnaSync.synced
+      });
+
+      return jsonNoStore({
         success: true,
-        report
+        report,
+        dnaSynced: dnaSync.synced,
+        dnaSyncReason: dnaSync.reason || null
       });
     }
 
     // ── ACTION 4: Process Next Turn (Peer Retort or Candidate Intervention) ──
-    // Load session if exists, or generate fallback virtual session
-    let session = sessionId ? getGDSessionById(sessionId, userId) : null;
-    if (!session) {
-      session = createGDSession({
+    let session = null;
+    if (sessionId) {
+      try {
+        session = await getGDSessionByIdAsync(sessionId, userId);
+      } catch (err: any) {
+        return jsonNoStore({ success: false, error: "forbidden", message: err.message }, 403);
+      }
+      if (!session) {
+        return jsonNoStore({ success: false, error: "Session not found" }, 404);
+      }
+    } else {
+      session = await createGDSessionAsync({
         userId,
         topicId: `topic_${Date.now()}`,
-        topicTitle: topic || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026",
+        topicTitle:
+          sanitizeGDPromptInput(
+            String(topic || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026"),
+            240
+          ) || "Autonomous AI Coding Agents vs Junior Software Engineers in 2026",
         format: format as GDSimulationFormat,
         difficulty: difficulty as GDDifficultyLevel
       });
@@ -220,15 +252,17 @@ Return JSON in this format ONLY:
 
     // Concurrency Lock
     if (!acquireGDTurnLock(session.sessionId)) {
-      return NextResponse.json(
-        { success: false, error: "Turn in progress", retryable: true },
-        { status: 429 }
-      );
+      return jsonNoStore({ success: false, error: "Turn in progress", retryable: true }, 429);
     }
+
+    const cleanStudentIntervention =
+      typeof studentIntervention === "string"
+        ? sanitizeGDPromptInput(studentIntervention, 2000)
+        : "";
 
     try {
       // If student spoke, record candidate transcript turn first
-      if (studentIntervention && studentIntervention.trim()) {
+      if (cleanStudentIntervention) {
         const studentTurn: GDTranscriptItem = {
           id: `turn-student-${Date.now()}`,
           speakerId: `candidate-${userId}`,
@@ -236,12 +270,12 @@ Return JSON in this format ONLY:
           speakerAvatar: "🎓",
           speakerRole: "Candidate (You)",
           isHuman: true,
-          content: studentIntervention.trim(),
+          content: cleanStudentIntervention,
           timestamp: Date.now(),
           formattedTime: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
           stage: session.currentStage,
           isInterruption: Boolean(isInterruption),
-          interruptedSpeakerName: interruptedSpeaker
+          interruptedSpeakerName: sanitizeGDPromptInput(String(interruptedSpeaker || ""), 80)
         };
 
         session.transcripts.push(studentTurn);
@@ -250,30 +284,42 @@ Return JSON in this format ONLY:
           candidateState.speakingTurnCount += 1;
           candidateState.lastSpokeAtTimestamp = Date.now();
           if (isInterruption) candidateState.interruptionCount += 1;
+          updateParticipantMemoryAfterTurn({
+            session,
+            speakerId: candidateState.id,
+            utterance: cleanStudentIntervention,
+            stage: session.currentStage
+          });
         }
       }
 
-      // Synchronize client messages if session transcript was empty
+      // Synchronize client messages only when session transcript is empty (peer/moderator intro only)
       if (session.transcripts.length === 0 && Array.isArray(messages) && messages.length > 0) {
-        session.transcripts = messages.map((m: any, i: number) => ({
-          id: `turn-sync-${i}-${Date.now()}`,
-          speakerId: m.speaker === "You" ? `candidate-${userId}` : `peer-${m.speaker}`,
-          speakerName: m.speaker,
-          speakerAvatar: m.avatar || "💬",
-          speakerRole: m.role || "Peer",
-          isHuman: m.speaker === "You",
-          content: m.content,
-          timestamp: Date.now() - (messages.length - i) * 1500,
-          formattedTime: m.time || "10:00 AM",
-          stage: session.currentStage
-        }));
+        session.transcripts = messages
+          .filter((m: any) => m && typeof m.content === "string" && m.speaker !== "You")
+          .slice(0, 12)
+          .map((m: any, i: number) => {
+            const cleanSpeaker = sanitizeGDPromptInput(String(m.speaker || "Peer"), 60) || "Peer";
+            return {
+              id: `turn-sync-${i}-${Date.now()}`,
+              speakerId: `peer-${cleanSpeaker}`,
+              speakerName: cleanSpeaker,
+              speakerAvatar: "💬",
+              speakerRole: sanitizeGDPromptInput(String(m.role || "Peer"), 60) || "Peer",
+              isHuman: false,
+              content: sanitizeGDPromptInput(m.content, 1500),
+              timestamp: Date.now() - (messages.length - i) * 1500,
+              formattedTime: "Synced",
+              stage: session.currentStage
+            };
+          });
       }
 
       // Decrement stage time
       session.stageTimeRemainingSeconds = Math.max(0, session.stageTimeRemainingSeconds - 15);
 
       // Orchestrate the next speaker turn
-      const nextTurnResult = await orchestrateNextTurn(session, studentIntervention);
+      const nextTurnResult = await orchestrateNextTurn(session, cleanStudentIntervention);
 
       // Record next speaker turn in session
       const nextTurnItem: GDTranscriptItem = {
@@ -303,9 +349,9 @@ Return JSON in this format ONLY:
         session.currentStage = nextTurnResult.updatedStage;
       }
 
-      saveGDSession(session);
+      await saveGDSessionAsync(session);
 
-      return NextResponse.json({
+      return jsonNoStore({
         success: true,
         sessionId: session.sessionId,
         next_speaker: {
@@ -314,24 +360,20 @@ Return JSON in this format ONLY:
           avatar: nextTurnResult.speakerAvatar,
           spoken_text: nextTurnResult.content,
           isCoachIntervention: nextTurnResult.isCoachIntervention,
-          coachInterventionType: nextTurnResult.coachInterventionType
+          coachInterventionType: nextTurnResult.coachInterventionType,
+          twistLabel: nextTurnResult.twistLabel
         },
         currentStage: session.currentStage,
-        student_coaching: nextTurnResult.studentCoaching || {
-          articulationScore: 82,
-          valueAdded: "High",
-          feedbackTip: "Anchor your point with specific SLAs or real-world system constraints.",
-          winningCounterPhrase: "Let us examine the operational failure modes before deciding on an architecture."
-        }
+        student_coaching: nextTurnResult.studentCoaching || null
       });
     } finally {
       releaseGDTurnLock(session.sessionId);
     }
   } catch (err: any) {
     console.error("[gd-turn] Controller exception:", err);
-    return NextResponse.json(
+    return jsonNoStore(
       { success: false, error: "internal_error", message: err.message, retryable: true },
-      { status: 500 }
+      500
     );
   }
 }

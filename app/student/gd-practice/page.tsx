@@ -7,10 +7,13 @@ import { useTheme } from "@/components/ThemeProvider";
 import {
   GDSimulationFormat,
   GDDifficultyLevel,
+  GDExperienceMode,
   GDDiscussionStage,
   GDComprehensiveReport,
   GDFriendsRoom
 } from "@/lib/gd/types";
+import { getGroupedTopicsForPracticeRoom } from "@/lib/group-discussion-data";
+import { useFriendsRealtimeRoom } from "@/components/gd/useFriendsRealtimeRoom";
 import {
   Mic,
   MicOff,
@@ -65,92 +68,7 @@ const GD_CATEGORIES = [
   { id: "ethics", label: "🏛️ Tech Ethics & Governance", name: "Corporate Tech Ethics & Privacy" }
 ];
 
-const TOPICS_BY_CATEGORY: Record<string, GDTopic[]> = {
-  "ai": [
-    {
-      title: "Autonomous AI Coding Agents vs Junior Software Engineers: Redefining Campus Hiring in 2026",
-      context: "AI generates 80% of boilerplate code; top recruiters evaluate system architecture over LeetCode syntax.",
-      category: "AI & Autonomous Agents",
-      key_perspectives: ["Junior devs become obsolete", "Junior devs become high-leverage systems architects"]
-    },
-    {
-      title: "Agentic Autonomous Workflows vs Human-in-the-Loop for Mission-Critical Production Systems",
-      context: "Deploying multi-agent reasoning introduces severe hallucination and downtime risks in financial infra.",
-      category: "AI & Autonomous Agents",
-      key_perspectives: ["Autonomous pipelines maximize shipping velocity", "Strict human sign-off gates prevent catastrophic data loss"]
-    },
-    {
-      title: "Open-Source LLMs vs Closed Proprietary APIs (OpenAI, Anthropic): Enterprise Dominance in 2026",
-      context: "Enterprises balance strict IP data sovereignty and self-hosting infra costs against frontier model reasoning power.",
-      category: "AI & Autonomous Agents",
-      key_perspectives: ["Fine-tuned open weights guarantee data privacy", "Frontier proprietary models outperform on complex edge-cases"]
-    }
-  ],
-  "arch": [
-    {
-      title: "Should early-stage startups build Monoliths or Microservices for high concurrency?",
-      context: "Balancing rapid feature shipping velocity against distributed network latency and operational telemetry complexity.",
-      category: "System Architecture & Scalability",
-      key_perspectives: ["Speed and simplicity favor modular monoliths", "Decoupled team ownership favors independent microservices"]
-    },
-    {
-      title: "Serverless Edge Functions vs Dedicated Kubernetes Clusters: The Cost-to-Performance Inflection Point",
-      context: "Cold-start latency and egress bill shocks challenge the serverless paradigm for high-volume data workloads.",
-      category: "System Architecture & Scalability",
-      key_perspectives: ["Serverless scales to zero effortlessly with zero ops", "Kubernetes guarantees predictable unit economics at scale"]
-    },
-    {
-      title: "ACID Strict Consistency vs Eventual Consistency for High-Throughput Fintech Payment Ledgers",
-      context: "Handling tens of thousands of concurrent transactions while mathematically guaranteeing zero double-spend anomalies.",
-      category: "System Architecture & Scalability",
-      key_perspectives: ["ACID transactions ensure non-negotiable financial correctness", "Eventual consistency unlocks sub-millisecond p99 latency"]
-    }
-  ],
-  "fintech": [
-    {
-      title: "Real-Time Payment Security: Instant UPI Settlement vs Zero-Day Fraud Prevention",
-      context: "Sub-second payment convenience introduces major vulnerability windows for social engineering & bot attacks.",
-      category: "FinTech, UPI & Security",
-      key_perspectives: ["Frictionless velocity drives mass merchant adoption", "Mandatory delay buffers protect consumer capital"]
-    },
-    {
-      title: "Central Bank Digital Currencies (CBDC / e-Rupee) vs Commercial UPI Apps: Financial Inclusion or Surveillance?",
-      context: "Sovereign programmable money threatens the fee-free convenience of private fintech payment rails.",
-      category: "FinTech, UPI & Security",
-      key_perspectives: ["Sovereign security and offline settlements empower rural economy", "State overreach and transaction censorship risks"]
-    }
-  ],
-  "hiring": [
-    {
-      title: "Remote Engineering vs In-Office Collaboration: The Real Impact on Junior Mentorship",
-      context: "Remote work grants global autonomy but senior developer code pairing and ambient learning take a hit.",
-      category: "Campus Placement & Career Trends",
-      key_perspectives: ["Asynchronous documentation and deep work win", "Physical whiteboarding accelerates breakthroughs and career growth"]
-    },
-    {
-      title: "LeetCode Grind vs Production Project Portfolios: Which Better Predicts Day-1 FAANG Engineering Output?",
-      context: "Algorithmic trick questions fail to test real-world debugging, code reviews, and distributed system trade-offs.",
-      category: "Campus Placement & Career Trends",
-      key_perspectives: ["Data structures test fundamental problem-solving IQ", "Full-stack shipping proves real-world engineering readiness"]
-    }
-  ],
-  "web3": [
-    {
-      title: "Public Blockchains vs Centralized Cloud Ledgers for Real-World Asset (RWA) Tokenization",
-      context: "Institutional finance demands compliance, finality guarantees, and dispute resolution.",
-      category: "Web3 & Open Source Ecosystem",
-      key_perspectives: ["Permissionless composability unlocks global liquidity", "Centralized ledgers offer legal recourse and zero gas fees"]
-    }
-  ],
-  "ethics": [
-    {
-      title: "Algorithmic Transparency vs Trade Secrets: Should AI Models in Hiring & Lending Be Auditable?",
-      context: "Deep neural networks make automated life-altering decisions without explainable human reasoning.",
-      category: "Corporate Tech Ethics & Privacy",
-      key_perspectives: ["Mandatory auditability prevents systemic demographic bias", "Forced disclosure leaks sensitive IP to foreign competitors"]
-    }
-  ]
-};
+const TOPICS_BY_CATEGORY: Record<string, GDTopic[]> = getGroupedTopicsForPracticeRoom();
 
 interface PanelParticipantConfig {
   id: string;
@@ -162,6 +80,8 @@ interface PanelParticipantConfig {
   gradient: string;
   badgeBg: string;
   badgeColor: string;
+  pitch?: number;
+  rate?: number;
   isCandidate?: boolean;
   isModerator?: boolean;
 }
@@ -243,22 +163,32 @@ function GDPracticeContent() {
   const { isDark } = useTheme();
 
   const initialFormat = (searchParams.get("format") as GDSimulationFormat) || "competitive";
+  const initialExperienceMode = (searchParams.get("experienceMode") as GDExperienceMode) || "standard_round";
   const initialDifficulty = (searchParams.get("difficulty") as GDDifficultyLevel) || "intermediate";
+  const initialTopicParam = searchParams.get("topic") || "";
   const friendsRoomCodeParam = searchParams.get("room") || null;
 
   // Configuration States
   const [format, setFormat] = useState<GDSimulationFormat>(initialFormat);
+  const [experienceMode, setExperienceMode] = useState<GDExperienceMode>(initialExperienceMode);
   const [difficulty, setDifficulty] = useState<GDDifficultyLevel>(initialDifficulty);
   const [selectedCategory, setSelectedCategory] = useState<string>("ai");
   const [topicsByCategory, setTopicsByCategory] = useState<Record<string, GDTopic[]>>(TOPICS_BY_CATEGORY);
-  const [selectedTopic, setSelectedTopic] = useState<string>(TOPICS_BY_CATEGORY["ai"][0].title);
-  const [customTopicInput, setCustomTopicInput] = useState<string>("");
+  const [selectedTopic, setSelectedTopic] = useState<string>(
+    initialTopicParam || TOPICS_BY_CATEGORY["ai"][0].title
+  );
+  const [customTopicInput, setCustomTopicInput] = useState<string>(initialTopicParam);
   const [generatingTopics, setGeneratingTopics] = useState(false);
   const [generationNotice, setGenerationNotice] = useState<string | null>(null);
 
   // Active Session & Multiplayer States
+  const [panelParticipants, setPanelParticipants] = useState<PanelParticipantConfig[]>(PANEL_PARTICIPANTS);
+  const panelParticipantsRef = useRef<PanelParticipantConfig[]>(PANEL_PARTICIPANTS);
+  panelParticipantsRef.current = panelParticipants;
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [friendsRoom, setFriendsRoom] = useState<GDFriendsRoom | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [friendsCopyFeedback, setFriendsCopyFeedback] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
   const [currentStage, setCurrentStage] = useState<GDDiscussionStage>("briefing");
   const [messages, setMessages] = useState<GDMessage[]>([]);
@@ -283,6 +213,7 @@ function GDPracticeContent() {
   // Comprehensive Report Modal
   const [showReportModal, setShowReportModal] = useState(false);
   const [evaluationReport, setEvaluationReport] = useState<GDComprehensiveReport | null>(null);
+  const [reportDnaSynced, setReportDnaSynced] = useState<boolean | null>(null);
   const [evaluatingReport, setEvaluatingReport] = useState(false);
 
   // Mobile layout
@@ -321,25 +252,146 @@ function GDPracticeContent() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Check and join Friends Room if query param is set
-  useEffect(() => {
-    if (friendsRoomCodeParam) {
-      fetch("/api/gd/friends", {
+  const mapTranscriptsToMessages = useCallback(
+    (items: any[]): GDMessage[] =>
+      items.map((t: any) => ({
+        speaker:
+          currentUserId && t.speakerId === `candidate-${currentUserId}`
+            ? "You"
+            : t.speakerName || "Participant",
+        avatar: t.speakerAvatar || (t.isHuman ? "🎓" : "🎙️"),
+        role: t.speakerRole || "Participant",
+        content: t.content,
+        time: t.formattedTime || "",
+        stage: t.stage || "active_discussion",
+        isCoach: Boolean(t.speakerId && String(t.speakerId).includes("moderator"))
+      })),
+    [currentUserId]
+  );
+
+  const syncFriendsRoomState = useCallback(async () => {
+    if (!friendsRoomCodeParam) return;
+    try {
+      const res = await fetch("/api/gd/friends", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "join_room", roomCodeOrId: friendsRoomCodeParam })
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.room) {
-            setFriendsRoom(data.room);
-            setSelectedTopic(data.room.topicTitle);
-            setFormat(data.room.format);
-            setDifficulty(data.room.difficulty);
-          }
+        body: JSON.stringify({
+          action: "poll_room",
+          roomCodeOrId: friendsRoom?.roomId || friendsRoomCodeParam
         })
-        .catch(err => console.warn("Failed to join friends room:", err));
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.success || !data.room) return;
+
+      if (data.currentUserId) setCurrentUserId(data.currentUserId);
+      setFriendsRoom(data.room);
+      if (data.sessionId) setSessionId(data.sessionId);
+      if (data.currentStage) setCurrentStage(data.currentStage);
+
+      if (data.room.status === "IN_PROGRESS") {
+        setStarted(true);
+        setAutoFlow(false);
+        autoFlowRef.current = false;
+      }
+
+      if (Array.isArray(data.transcripts) && data.transcripts.length > 0) {
+        const mapped = mapTranscriptsToMessages(data.transcripts);
+        setMessages(mapped);
+        messagesRef.current = mapped;
+      }
+
+      if (Array.isArray(data.room.participants)) {
+        const palette = [
+          { gradient: "linear-gradient(135deg, #f59e0b, #d97706)", badgeBg: "rgba(245, 158, 11, 0.16)", badgeColor: "#fbbf24" },
+          { gradient: "linear-gradient(135deg, #10b981, #059669)", badgeBg: "rgba(16, 185, 129, 0.16)", badgeColor: "#34d399" },
+          { gradient: "linear-gradient(135deg, #ef4444, #dc2626)", badgeBg: "rgba(239, 68, 68, 0.16)", badgeColor: "#f87171" },
+          { gradient: "linear-gradient(135deg, #ec4899, #db2777)", badgeBg: "rgba(236, 72, 153, 0.16)", badgeColor: "#f472b6" }
+        ];
+        const friendCards: PanelParticipantConfig[] = data.room.participants.map((fp: any, idx: number) => {
+          const isMe = data.currentUserId && fp.userId === data.currentUserId;
+          const styleSlot = palette[idx % palette.length];
+          const initials = String(fp.fullName || "FR")
+            .split(/\s+/)
+            .map((w: string) => w[0]?.toUpperCase() || "")
+            .join("")
+            .slice(0, 2);
+          return {
+            id: `candidate-${fp.userId}`,
+            name: isMe ? "You (Candidate)" : fp.fullName,
+            initials: isMe ? "YOU" : initials,
+            role: fp.isHost ? "Host • Student" : "Peer Student",
+            archetype: "human_peer",
+            tagline: fp.micActive ? "Mic Active" : fp.handRaised ? "Hand Raised" : "Connected",
+            gradient: isMe ? "linear-gradient(135deg, #4f46e5, #7c3aed)" : styleSlot.gradient,
+            badgeBg: isMe ? "rgba(99, 102, 241, 0.16)" : styleSlot.badgeBg,
+            badgeColor: isMe ? "#818cf8" : styleSlot.badgeColor,
+            isCandidate: Boolean(isMe)
+          };
+        });
+        const modCard = PANEL_PARTICIPANTS.find((p) => p.isModerator)!;
+        setPanelParticipants([...friendCards, modCard]);
+      }
+    } catch {}
+  }, [friendsRoom?.roomId, friendsRoomCodeParam, mapTranscriptsToMessages]);
+
+  const realtimeRoom = useFriendsRealtimeRoom({
+    room: friendsRoom,
+    selfUserId: currentUserId,
+    micActive,
+    onRemoteRoomSync: (payload) => {
+      setFriendsRoom(payload.room);
+      if (payload.sessionId) setSessionId(payload.sessionId);
+      if (payload.currentStage) setCurrentStage(payload.currentStage as GDDiscussionStage);
+      if (payload.room.status === "IN_PROGRESS") {
+        setStarted(true);
+        setAutoFlow(false);
+        autoFlowRef.current = false;
+      }
+      if (Array.isArray(payload.transcripts) && payload.transcripts.length > 0) {
+        const mapped = mapTranscriptsToMessages(payload.transcripts);
+        setMessages(mapped);
+        messagesRef.current = mapped;
+      }
     }
+  });
+
+  // Check and join Friends Room if query param is set + periodic fallback poll
+  useEffect(() => {
+    if (!friendsRoomCodeParam) return;
+    fetch("/api/gd/friends", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "join_room", roomCodeOrId: friendsRoomCodeParam })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.room) {
+          if (data.currentUserId) setCurrentUserId(data.currentUserId);
+          setFriendsRoom(data.room);
+          setSelectedTopic(data.room.topicTitle);
+          setFormat(data.room.format);
+          setDifficulty(data.room.difficulty);
+          if (data.room.status === "IN_PROGRESS") {
+            setStarted(true);
+            setAutoFlow(false);
+            autoFlowRef.current = false;
+            if (Array.isArray(data.transcripts)) {
+              const mapped = mapTranscriptsToMessages(data.transcripts);
+              setMessages(mapped);
+              messagesRef.current = mapped;
+            }
+          }
+        } else if (data.message) {
+          setModeratorAlert(data.message);
+        }
+      })
+      .catch(err => console.warn("Failed to join friends room:", err));
+
+    const pollInterval = setInterval(() => {
+      syncFriendsRoomState();
+    }, 2500);
+    return () => clearInterval(pollInterval);
   }, [friendsRoomCodeParam]);
 
   // Cleanup session on unmount or navigation
@@ -484,7 +536,16 @@ function GDPracticeContent() {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 1.04;
 
-      if (speaker.includes("Rohan")) {
+      const matchedPanelMember = panelParticipantsRef.current.find(
+        (p) =>
+          p.name === speaker ||
+          speaker.toLowerCase().includes(p.name.toLowerCase().split(" ")[0])
+      );
+
+      if (matchedPanelMember?.pitch && matchedPanelMember?.rate) {
+        utterance.pitch = matchedPanelMember.pitch;
+        utterance.rate = matchedPanelMember.rate;
+      } else if (speaker.includes("Rohan")) {
         utterance.pitch = 0.88;
         utterance.rate = 1.08;
       } else if (speaker.includes("Ananya")) {
@@ -585,6 +646,12 @@ function GDPracticeContent() {
     loadingRef.current = true;
 
     try {
+      // Multi-student Friends Room mode: sync live peer state instead of generating bot turns
+      if (friendsRoom) {
+        await syncFriendsRoomState();
+        return;
+      }
+
       const res = await fetch("/api/student/gd-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -658,6 +725,35 @@ function GDPracticeContent() {
     setMessages([initialPlaceholder]);
 
     try {
+      // Multi-student Friends Room mode: host launches shared room
+      if (friendsRoom) {
+        const res = await fetch("/api/gd/friends", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "start_room",
+            roomId: friendsRoom.roomId
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          setStarted(false);
+          setModeratorAlert(data.message || "Only the room host can start the discussion.");
+          return;
+        }
+        setAutoFlow(false);
+        autoFlowRef.current = false;
+        setFriendsRoom(data.room);
+        if (data.sessionId) setSessionId(data.sessionId);
+        if (Array.isArray(data.transcripts)) {
+          const mapped = mapTranscriptsToMessages(data.transcripts);
+          setMessages(mapped);
+          messagesRef.current = mapped;
+        }
+        realtimeRoom.broadcastRoomNudge();
+        return;
+      }
+
       const res = await fetch("/api/student/gd-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -665,13 +761,52 @@ function GDPracticeContent() {
           action: "start_discussion",
           topic: activeTopic,
           format,
+          experienceMode,
           difficulty,
           durationMinutes: 15
         })
       });
 
       const data = await res.json();
+      if (!res.ok || !data.success) {
+        setAutoFlow(false);
+        autoFlowRef.current = false;
+        setModeratorAlert(data.message || "Please sign in as a student to start a verified GD session.");
+        return;
+      }
       if (data.sessionId) setSessionId(data.sessionId);
+      if (Array.isArray(data.session?.participants)) {
+        const aiSlots = data.session.participants.filter((p: any) => !p.isHuman);
+        const palette = [
+          { gradient: "linear-gradient(135deg, #f59e0b, #d97706)", badgeBg: "rgba(245, 158, 11, 0.16)", badgeColor: "#fbbf24" },
+          { gradient: "linear-gradient(135deg, #10b981, #059669)", badgeBg: "rgba(16, 185, 129, 0.16)", badgeColor: "#34d399" },
+          { gradient: "linear-gradient(135deg, #ef4444, #dc2626)", badgeBg: "rgba(239, 68, 68, 0.16)", badgeColor: "#f87171" },
+          { gradient: "linear-gradient(135deg, #ec4899, #db2777)", badgeBg: "rgba(236, 72, 153, 0.16)", badgeColor: "#f472b6" }
+        ];
+        const dynamicPeers: PanelParticipantConfig[] = aiSlots.slice(0, 4).map((p: any, idx: number) => {
+          const styleSlot = palette[idx % palette.length];
+          const parts = String(p.name || "AI Peer").trim().split(/\s+/);
+          const initials = parts.map((w: string) => w[0]?.toUpperCase() || "").join("").slice(0, 2) || "AI";
+          return {
+            id: p.id,
+            name: p.name,
+            initials,
+            role: p.roleTitle || "Panelist",
+            archetype: p.archetype,
+            tagline: p.reasoningLens || p.roleTitle || "Adaptive Peer",
+            gradient: styleSlot.gradient,
+            badgeBg: styleSlot.badgeBg,
+            badgeColor: styleSlot.badgeColor,
+            pitch: p.voiceProfile?.pitch,
+            rate: p.voiceProfile?.rate
+          };
+        });
+        const candidateCard = PANEL_PARTICIPANTS.find((p) => p.isCandidate)!;
+        const modCard = PANEL_PARTICIPANTS.find((p) => p.isModerator)!;
+        if (dynamicPeers.length > 0) {
+          setPanelParticipants([candidateCard, ...dynamicPeers, modCard]);
+        }
+      }
 
       const modMsg: GDMessage = {
         speaker: data.moderator_intro?.speaker || "Alex (Discussion Director)",
@@ -740,6 +875,37 @@ function GDPracticeContent() {
     setCurrentSubtitle(`You: "${text}"`);
 
     try {
+      // Multi-student Friends Room mode: submit live human turn
+      if (friendsRoom) {
+        const res = await fetch("/api/gd/friends", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "submit_turn",
+            roomId: friendsRoom.roomId,
+            content: text
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          setModeratorAlert(data.message || "Unable to submit turn in Friends room.");
+          return;
+        }
+        setFriendsRoom(data.room);
+        if (data.currentStage) setCurrentStage(data.currentStage);
+        if (Array.isArray(data.transcripts)) {
+          const mapped = mapTranscriptsToMessages(data.transcripts);
+          setMessages(mapped);
+          messagesRef.current = mapped;
+        }
+        if (data.coachIntervention?.content) {
+          setModeratorAlert(data.coachIntervention.content);
+          setTimeout(() => setModeratorAlert(null), 8000);
+        }
+        realtimeRoom.broadcastRoomNudge();
+        return;
+      }
+
       const res = await fetch("/api/student/gd-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -792,8 +958,22 @@ function GDPracticeContent() {
     }
   };
 
-  const toggleMic = () => {
+  const toggleMic = async () => {
+    const nextMic = !micActive;
+    if (friendsRoom) {
+      fetch("/api/gd/friends", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle_presence", roomId: friendsRoom.roomId, micActive: nextMic })
+      }).then(() => realtimeRoom.broadcastRoomNudge()).catch(() => {});
+    }
+
     if (!recognitionRef.current) {
+      if (friendsRoom) {
+        setMicActive(nextMic);
+        micActiveRef.current = nextMic;
+        return;
+      }
       alert("Speech recognition is not supported in this browser. You can type your points in the input box or click Quick Points.");
       return;
     }
@@ -813,7 +993,12 @@ function GDPracticeContent() {
         setMicActive(true);
         micActiveRef.current = true;
       } catch (err) {
-        console.error(err);
+        if (friendsRoom) {
+          setMicActive(true);
+          micActiveRef.current = true;
+        } else {
+          console.error(err);
+        }
       }
     }
   };
@@ -830,6 +1015,27 @@ function GDPracticeContent() {
     setShowReportModal(true);
 
     try {
+      // Multi-student Friends Room mode: generate caller's isolated evaluation & DNA sync
+      if (friendsRoom) {
+        const res = await fetch("/api/gd/friends", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "finalize_room_evaluation",
+            roomId: friendsRoom.roomId,
+            closeRoom: Boolean(currentUserId && friendsRoom.hostUserId === currentUserId)
+          })
+        });
+        const data = await res.json();
+        if (data.success && data.report) {
+          setFriendsRoom(data.room);
+          setEvaluationReport(data.report);
+          setReportDnaSynced(typeof data.dnaSynced === "boolean" ? data.dnaSynced : null);
+          realtimeRoom.broadcastRoomNudge();
+        }
+        return;
+      }
+
       const res = await fetch("/api/student/gd-turn", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -841,6 +1047,7 @@ function GDPracticeContent() {
       const data = await res.json();
       if (data.success && data.report) {
         setEvaluationReport(data.report);
+        setReportDnaSynced(typeof data.dnaSynced === "boolean" ? data.dnaSynced : null);
       }
     } catch (err) {
       console.error("Failed to finalize evaluation:", err);
@@ -947,7 +1154,7 @@ function GDPracticeContent() {
           <button
             onClick={() => {
               cleanupSession();
-              router.push("/student");
+              router.push("/group-discussion?view=overview");
             }}
             style={{
               display: "flex",
@@ -966,7 +1173,7 @@ function GDPracticeContent() {
             }}
           >
             <LogOut size={13} />
-            <span>Exit</span>
+            <span>Back to Arena</span>
           </button>
 
           {started && (
@@ -1096,6 +1303,7 @@ function GDPracticeContent() {
               }}
             >
               <span style={{ fontSize: 10, color: "#818cf8", fontWeight: 800, textTransform: "uppercase" }}>
+                {experienceMode !== "standard_round" ? `${experienceMode.replace(/_/g, " ")} · ` : ""}
                 {currentStage.replace(/_/g, " ")}
               </span>
             </div>
@@ -1241,6 +1449,111 @@ function GDPracticeContent() {
             padding: "2rem 1.5rem"
           }}
         >
+          {friendsRoom ? (
+            <div
+              style={{
+                maxWidth: 760,
+                width: "100%",
+                padding: "2rem",
+                background: C.bgCard,
+                border: `1px solid ${C.borderLight}`,
+                borderRadius: 24,
+                boxShadow: isDark ? "0 25px 50px -12px rgba(0,0,0,0.8)" : "0 20px 40px -12px rgba(0,0,0,0.08)"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 18 }}>
+                <div>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: "#6366f1", textTransform: "uppercase" }}>
+                    Friends Multiplayer Waiting Lobby · {realtimeRoom.realtimeStatus === "realtime_active" ? "Realtime Live" : "Sync Active"}
+                  </span>
+                  <h1 style={{ fontSize: 22, fontWeight: 900, margin: "4px 0 0", color: C.textPrimary }}>
+                    Room {friendsRoom.roomCode}
+                  </h1>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(`${window.location.origin}/student/gd-practice?room=${friendsRoom.roomCode}`);
+                      setFriendsCopyFeedback("Invite Link Copied!");
+                      setTimeout(() => setFriendsCopyFeedback(null), 2500);
+                    }
+                  }}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: 10,
+                    background: "rgba(99,102,241,0.14)",
+                    border: "1px solid rgba(99,102,241,0.35)",
+                    color: "#818cf8",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  {friendsCopyFeedback || "Copy Room Invite Link"}
+                </button>
+              </div>
+
+              <div style={{ padding: 14, borderRadius: 12, background: C.inputBg, border: `1px solid ${C.borderLight}`, marginBottom: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase" }}>Topic</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.textPrimary, marginTop: 4 }}>{friendsRoom.topicTitle}</div>
+                <div style={{ fontSize: 11, color: C.textSecondary, marginTop: 4 }}>
+                  Format: {friendsRoom.format} · Difficulty: {friendsRoom.difficulty} · Max Peers: {friendsRoom.maxParticipants}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: C.textMuted, textTransform: "uppercase", marginBottom: 8 }}>
+                  Joined Participants ({friendsRoom.participants.length}/{friendsRoom.maxParticipants})
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 8 }}>
+                  {friendsRoom.participants.map((fp) => (
+                    <div
+                      key={fp.userId}
+                      style={{
+                        padding: "10px 12px",
+                        borderRadius: 10,
+                        background: C.inputBg,
+                        border: `1px solid ${fp.userId === currentUserId ? "#6366f1" : C.borderLight}`,
+                        fontSize: 12
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, color: C.textPrimary }}>
+                        {fp.avatar} {fp.fullName} {fp.userId === currentUserId ? "(You)" : ""}
+                      </div>
+                      <div style={{ fontSize: 10, color: C.textMuted, marginTop: 2 }}>
+                        {fp.isHost ? "Host" : "Peer"} · {fp.micActive ? "Mic Ready" : "Muted"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {currentUserId === friendsRoom.hostUserId ? (
+                <button
+                  type="button"
+                  onClick={startGD}
+                  style={{
+                    width: "100%",
+                    padding: "1rem",
+                    background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: 12,
+                    fontWeight: 800,
+                    fontSize: 14,
+                    cursor: "pointer"
+                  }}
+                >
+                  Launch Shared Friends GD Session ({friendsRoom.participants.length} Joined)
+                </button>
+              ) : (
+                <div style={{ textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(99,102,241,0.1)", color: "#818cf8", fontSize: 13, fontWeight: 700 }}>
+                  Waiting for Host ({friendsRoom.hostName}) to start the live discussion...
+                </div>
+              )}
+            </div>
+          ) : (
           <div
             style={{
               maxWidth: 920,
@@ -1384,6 +1697,34 @@ function GDPracticeContent() {
               </div>
             </div>
 
+            {/* Scenario Experience Mode */}
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={{ fontSize: 11, color: C.textSecondary, fontWeight: 800, textTransform: "uppercase", display: "block", marginBottom: 6 }}>
+                Experience Engine Scenario
+              </label>
+              <select
+                value={experienceMode}
+                onChange={(e: any) => setExperienceMode(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  background: C.inputBg,
+                  border: `1px solid ${C.borderLight}`,
+                  color: C.textPrimary,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  outline: "none"
+                }}
+              >
+                <option value="standard_round">Standard Placement Roundtable</option>
+                <option value="crisis_room">Crisis War-Room (Live Incident Shockwave)</option>
+                <option value="boardroom_debate">Boardroom Strategy (ROI & Budget Pressure)</option>
+                <option value="ethical_dilemma">Ethical & Policy Dilemma</option>
+                <option value="case_data_discussion">Case & Constraint Analysis</option>
+              </select>
+            </div>
+
             {/* Domain Category Filter Chips */}
             <div style={{ marginBottom: "1.5rem" }}>
               <label style={{ fontSize: 11, color: C.textSecondary, fontWeight: 800, textTransform: "uppercase", display: "block", marginBottom: 8 }}>
@@ -1508,6 +1849,7 @@ function GDPracticeContent() {
               <span>Launch Live Placement Meeting Room (Continuous Auto-Debate)</span>
             </button>
           </div>
+          )}
         </div>
       ) : (
         /* ── LIVE MEETING ROOM ── */
@@ -1540,7 +1882,7 @@ function GDPracticeContent() {
                   gap: "0.6rem"
                 }}
               >
-                {PANEL_PARTICIPANTS.map(p => {
+                {panelParticipants.map(p => {
                   const isUser = p.isCandidate;
                   const isCoach = p.isModerator;
                   const isSpeaking = activeSpeaker
@@ -2399,35 +2741,67 @@ function GDPracticeContent() {
                   </div>
                 </div>
 
-                {/* Candidate Spoken Quotes & Senior Recruiter Rewrites */}
+                {/* Candidate Spoken Quotes & AI Evaluator Feedback */}
                 <div style={{ marginBottom: "1.75rem" }}>
-                  <div style={{ fontSize: 11, color: C.textMuted, fontWeight: 800, letterSpacing: 1, marginBottom: 10, textTransform: "uppercase" }}>
-                    Candidate Intervention Analysis ({evaluationReport.speakingTimeAnalysis.studentTurnCount} Spoken Turns)
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                    <div style={{ fontSize: 11, color: C.textMuted, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase" }}>
+                      Candidate Intervention Analysis ({evaluationReport.speakingTimeAnalysis.studentTurnCount} Spoken Turns)
+                    </div>
+                    {reportDnaSynced !== null && (
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          padding: "3px 8px",
+                          borderRadius: 6,
+                          background: reportDnaSynced ? "rgba(16,185,129,0.14)" : "rgba(245,158,11,0.14)",
+                          color: reportDnaSynced ? "#10b981" : "#f59e0b"
+                        }}
+                      >
+                        {reportDnaSynced ? "Verified & Synced to Student DNA" : "Not synced to Student DNA (Insufficient turns)"}
+                      </span>
+                    )}
                   </div>
                   {candidateInterventions.length > 0 ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {candidateInterventions.map((ci, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            padding: "0.9rem 1.15rem",
-                            background: "rgba(99,102,241,0.06)",
-                            border: "1px solid rgba(99,102,241,0.2)",
-                            borderRadius: 14
-                          }}
-                        >
-                          <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, marginBottom: 2 }}>
-                            Your Spoken Statement #{idx + 1}:
+                      {candidateInterventions.map((ci, idx) => {
+                        const matchedWeak = evaluationReport.weakestContributions.find(
+                          (w) => w.quote && ci.content && w.quote.slice(0, 40) === ci.content.slice(0, 40)
+                        ) || (idx === candidateInterventions.length - 1 ? evaluationReport.weakestContributions[0] : undefined);
+                        const matchedStrong = evaluationReport.strongestContributions.find(
+                          (s) => s.quote && ci.content && s.quote.slice(0, 40) === ci.content.slice(0, 40)
+                        );
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: "0.9rem 1.15rem",
+                              background: "rgba(99,102,241,0.06)",
+                              border: "1px solid rgba(99,102,241,0.2)",
+                              borderRadius: 14
+                            }}
+                          >
+                            <div style={{ fontSize: 11, color: "#6366f1", fontWeight: 700, marginBottom: 2 }}>
+                              Your Spoken Statement #{idx + 1}:
+                            </div>
+                            <div style={{ fontSize: 12, color: C.textPrimary, fontStyle: "italic", marginBottom: 6 }}>
+                              &quot;{ci.content}&quot;
+                            </div>
+                            {matchedStrong && (
+                              <div style={{ fontSize: 11, color: "#10b981", background: isDark ? "rgba(0,0,0,0.3)" : "#FFFFFF", padding: "6px 10px", borderRadius: 8, marginBottom: matchedWeak ? 6 : 0 }}>
+                                <strong>Strength: </strong>
+                                {matchedStrong.whyStrong}
+                              </div>
+                            )}
+                            {matchedWeak?.recruiterRewrite && (
+                              <div style={{ fontSize: 11, color: "#818cf8", background: isDark ? "rgba(0,0,0,0.3)" : "#FFFFFF", padding: "6px 10px", borderRadius: 8 }}>
+                                <strong>Elevated Reframe: </strong>
+                                &quot;{matchedWeak.recruiterRewrite}&quot;
+                              </div>
+                            )}
                           </div>
-                          <div style={{ fontSize: 12, color: C.textPrimary, fontStyle: "italic", marginBottom: 6 }}>
-                            &quot;{ci.content}&quot;
-                          </div>
-                          <div style={{ fontSize: 11, color: "#10b981", background: isDark ? "rgba(0,0,0,0.3)" : "#FFFFFF", padding: "6px 10px", borderRadius: 8 }}>
-                            <strong>✨ Senior Recruiter Rewrite: </strong>
-                            &quot;While the initial delivery velocity is critical, our long-term bottleneck shifts to distributed consensus latency under 10x traffic spikes.&quot;
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div style={{ padding: "1.25rem", background: isDark ? "rgba(255,255,255,0.03)" : "#F8FAFC", borderRadius: 14, fontSize: 12, color: C.textSecondary }}>

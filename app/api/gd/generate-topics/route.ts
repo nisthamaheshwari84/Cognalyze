@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
-import { groqFetch } from "@/lib/groq";
-import { extractJSON, stripThinkTags } from "@/lib/ai/placement-intelligence";
 import { generateSecureId } from "@/lib/crypto-utils";
 import { isDuplicateOrSimilar } from "@/lib/gd/topic-utils";
+import { runGDJsonCompletion, sanitizeGDPromptInput } from "@/lib/gd/ai-gateway";
+import {
+  requireAuthenticatedGDStudent,
+  GD_NO_STORE_HEADERS
+} from "@/lib/gd/api-security";
+import {
+  getUserTopicHistoryAsync,
+  recordGeneratedTopicsAsync,
+  prepareCustomTopicBrief
+} from "@/lib/gd/topic-service";
+import { getStudentDNAFull } from "@/lib/dna/store";
 
 export interface GeneratedGDTopic {
   id: string;
@@ -126,26 +135,59 @@ const DOMAIN_TOPIC_BANKS: Record<string, { title: string; context: string; point
 
 export async function POST(req: Request) {
   try {
+    const guard = await requireAuthenticatedGDStudent(req);
+    if (!guard.ok) return guard.response;
+    const { userId } = guard.student;
+
     const body = await req.json();
+
+    // Custom Prompt Validation & Balanced Brief Enrichment
+    if (body.action === "enrich_custom") {
+      const dnaProfile = await getStudentDNAFull(userId).catch(() => null);
+      const brief = await prepareCustomTopicBrief({
+        rawPrompt: String(body.prompt || ""),
+        targetRole: body.targetRole || dnaProfile?.targetRoleTitle || "Software Engineer"
+      });
+      return NextResponse.json(
+        { success: brief.valid, ...brief },
+        { status: brief.valid ? 200 : 400, headers: GD_NO_STORE_HEADERS }
+      );
+    }
+
+    const dnaProfile = await getStudentDNAFull(userId).catch(() => null);
+    const dnaRole = dnaProfile?.targetRoleTitle;
+    const dnaSkills = Array.isArray(dnaProfile?.skills)
+      ? dnaProfile.skills.slice(0, 6).map((s: any) => s.name || s.skillName).filter(Boolean)
+      : [];
+
     const {
       domains = ["AI & Machine Learning", "Software Engineering"],
       difficulty = "Mixed",
-      targetRole = "AI/ML Engineer",
+      targetRole = dnaRole || "AI/ML Engineer",
       freshness = "Latest",
       count = 5,
       existingTitles = [],
     } = body;
 
+    const serverHistory = await getUserTopicHistoryAsync(userId);
+    const mergedExistingTitles = Array.from(
+      new Set([
+        ...(Array.isArray(existingTitles) ? existingTitles : []),
+        ...serverHistory
+      ])
+    );
+
     const targetCount = Math.min(Math.max(Number(count) || 5, 3), 20);
     const domainList = Array.isArray(domains) && domains.length > 0 ? domains : ["AI & Machine Learning", "Software Engineering"];
 
-    // 1. Attempt dynamic LLM generation using groqFetch
+    // 1. Attempt dynamic LLM generation using ai-gateway
     const systemPrompt = `You are a Senior Placement Director and Technical Hiring Committee Lead at a premier engineering university.
 Your task is to generate ${targetCount + 4} unique, highly engaging, and controversial Group Discussion (GD) topics for upcoming 2026 campus placement recruitment drives.
 
 TARGET PARAMETERS:
 - Domains: ${domainList.join(", ")}
 - Target Role: ${targetRole}
+${dnaSkills.length > 0 ? `- Student DNA Focus Skills: ${dnaSkills.join(", ")}` : ""}
 - Difficulty Level: ${difficulty}
 - Freshness: ${freshness}
 
@@ -180,52 +222,38 @@ Return strictly valid JSON with this exact schema:
 
     let generatedTopics: GeneratedGDTopic[] = [];
 
-    try {
-      const llmRes = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "openai/gpt-oss-120b",
-          messages: [{ role: "user", content: systemPrompt }],
-          temperature: 0.9,
-          max_tokens: 2500,
-        }),
-      });
+    const aiTopicRes = await runGDJsonCompletion<any[]>({
+      role: "topic_generator",
+      systemPrompt:
+        "You synthesize debatable, non-trivial Group Discussion prompts calibrated to target roles without fabricated statistics.",
+      userPrompt: sanitizeGDPromptInput(systemPrompt, 2400),
+      validate: (parsed) => (Array.isArray(parsed?.topics) && parsed.topics.length > 0 ? parsed.topics : null)
+    });
 
-      if (llmRes.ok) {
-        const data = await llmRes.json();
-        const raw = data.choices?.[0]?.message?.content || "{}";
-        const clean = stripThinkTags(raw);
-        const parsed = extractJSON(clean);
-
-        if (Array.isArray(parsed.topics)) {
-          for (const t of parsed.topics) {
-            if (t.title && !isDuplicateOrSimilar(t.title, existingTitles)) {
-              generatedTopics.push({
-                id: generateSecureId(`gd-ai-${Date.now()}`, 7),
-                title: t.title,
-                domain: t.domain || domainList[0],
-                category: t.category || "AI & Technology",
-                difficulty: t.difficulty || (difficulty === "Mixed" ? "Medium" : difficulty),
-                timeLimitMinutes: t.timeLimitMinutes || 15,
-                freshness: freshness === "Mixed" ? "Latest" : freshness,
-                source_context: t.source_context || "Context derived from active 2026 tech recruitment hiring committee standards.",
-                preparationPoints: Array.isArray(t.preparationPoints) ? t.preparationPoints : [
-                  "Examine architectural scalability and operational friction.",
-                  "Weigh capital expenditure against developer productivity.",
-                  "Address security posture and regulatory compliance."
-                ],
-                recommendedRoles: Array.isArray(t.recommendedRoles) ? t.recommendedRoles : [targetRole],
-                whyRecommended: t.whyRecommended || `Curated specifically for ${targetRole} recruitment interviews.`,
-                isAiGenerated: true,
-                generatedAt: new Date().toISOString(),
-              });
-            }
-          }
+    if (aiTopicRes.ok) {
+      for (const t of aiTopicRes.data) {
+        if (t?.title && !isDuplicateOrSimilar(t.title, mergedExistingTitles)) {
+          generatedTopics.push({
+            id: generateSecureId(`gd-ai-${Date.now()}`, 7),
+            title: t.title,
+            domain: t.domain || domainList[0],
+            category: t.category || "AI & Technology",
+            difficulty: t.difficulty || (difficulty === "Mixed" ? "Medium" : difficulty),
+            timeLimitMinutes: t.timeLimitMinutes || 15,
+            freshness: freshness === "Mixed" ? "Latest" : freshness,
+            source_context: t.source_context || "Context derived from active 2026 tech recruitment hiring committee standards.",
+            preparationPoints: Array.isArray(t.preparationPoints) ? t.preparationPoints : [
+              "Examine architectural scalability and operational friction.",
+              "Weigh capital expenditure against developer productivity.",
+              "Address security posture and regulatory compliance."
+            ],
+            recommendedRoles: Array.isArray(t.recommendedRoles) ? t.recommendedRoles : [targetRole],
+            whyRecommended: t.whyRecommended || `Curated specifically for ${targetRole} recruitment interviews.`,
+            isAiGenerated: true,
+            generatedAt: new Date().toISOString(),
+          });
         }
       }
-    } catch (llmErr) {
-      console.warn("[generate-topics] LLM generation error, utilizing dynamic topic synthesis matrix:", llmErr);
     }
 
     // 2. Supplement or fulfill using high-entropy dynamic domain topic synthesis
@@ -235,7 +263,7 @@ Return strictly valid JSON with this exact schema:
 
       for (const item of allFallbackBanks) {
         if (generatedTopics.length >= targetCount) break;
-        if (!isDuplicateOrSimilar(item.title, existingTitles) && !generatedTopics.some(g => g.title === item.title)) {
+        if (!isDuplicateOrSimilar(item.title, mergedExistingTitles) && !generatedTopics.some(g => g.title === item.title)) {
           generatedTopics.push({
             id: generateSecureId(`gd-synth-${Date.now()}`, 7),
             title: item.title,
@@ -255,16 +283,21 @@ Return strictly valid JSON with this exact schema:
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      count: generatedTopics.length,
-      topics: generatedTopics,
-    });
+    await recordGeneratedTopicsAsync(userId, generatedTopics);
+
+    return NextResponse.json(
+      {
+        success: true,
+        count: generatedTopics.length,
+        topics: generatedTopics,
+      },
+      { status: 200, headers: GD_NO_STORE_HEADERS }
+    );
   } catch (error: any) {
     console.error("[generate-topics] Top-level failure:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to generate fresh topics." },
-      { status: 500 }
+      { status: 500, headers: GD_NO_STORE_HEADERS }
     );
   }
 }

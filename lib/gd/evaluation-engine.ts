@@ -24,8 +24,34 @@ import {
   GDEvaluationDimension,
   GDTranscriptItem
 } from "./types";
+import { runGDJsonCompletion, sanitizeGDPromptInput } from "./ai-gateway";
 
-export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport {
+export interface GDEvaluationTargetOptions {
+  targetUserId?: string;
+  targetUserName?: string;
+}
+
+function getTargetCandidateTurns(
+  session: GDSessionData,
+  options?: GDEvaluationTargetOptions
+): GDTranscriptItem[] {
+  const { transcripts, userId, isFriendsRoom } = session;
+  const targetUserId = options?.targetUserId || userId;
+  const specificSpeakerId = `candidate-${targetUserId}`;
+
+  const exactIdMatches = transcripts.filter(
+    (t) => t.isHuman && t.speakerId === specificSpeakerId
+  );
+  if (exactIdMatches.length > 0 || isFriendsRoom) {
+    return exactIdMatches;
+  }
+  return transcripts.filter((t) => t.isHuman);
+}
+
+export function evaluateGDSession(
+  session: GDSessionData,
+  options?: GDEvaluationTargetOptions
+): GDComprehensiveReport {
   const {
     sessionId,
     userId,
@@ -38,7 +64,9 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
     participants
   } = session;
 
-  const candidateTurns = transcripts.filter(t => t.isHuman);
+  const evalUserId = options?.targetUserId || userId;
+  const evalStudentName = options?.targetUserName || "Candidate (You)";
+  const candidateTurns = getTargetCandidateTurns(session, options);
   const totalTurns = transcripts.length;
   const studentTurnCount = candidateTurns.length;
 
@@ -235,7 +263,10 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
   };
 
   // --- Dimension 8: Professional Conduct (10%) ---
-  const humanIncidents = moderationIncidents.filter(i => i.isHuman);
+  const targetParticipantId = `candidate-${evalUserId}`;
+  const humanIncidents = moderationIncidents.filter(
+    i => i.isHuman && (!options?.targetUserId || i.participantId === targetParticipantId)
+  );
   let conductScore = 95;
   if (humanIncidents.some(i => i.severity === "WARNING_3")) conductScore = 20;
   else if (humanIncidents.some(i => i.severity === "WARNING_2")) conductScore = 50;
@@ -285,16 +316,24 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
     whyStrong: "Addressed core operational constraints and pushed the debate forward with tangible engineering trade-offs."
   }));
 
-  const weakestContributions = candidateTurns.slice(-1).map(t => ({
-    quote: t.content,
-    whyNeedsImprovement: "Statement could be more assertive and grounded in specific production benchmarks.",
-    recruiterRewrite: "While the initial delivery velocity is critical, our long-term bottleneck shifts to distributed consensus latency under 10x traffic spikes."
-  }));
+  const firstPeerName = participants.find(p => !p.isHuman)?.name || "your peer";
+  const secondPeerName = participants.filter(p => !p.isHuman)[1]?.name || "the panel";
+
+  const weakestContributions = studentTurnCount === 0
+    ? []
+    : candidateTurns.slice(-1).map(t => ({
+        quote: t.content,
+        whyNeedsImprovement:
+          totalCandidateWords < 35
+            ? "Intervention was brief; expand with a concrete mechanism, constraint, or failure trade-off."
+            : "Good core point, which can be strengthened further with a specific metric, timeline, or stakeholder impact.",
+        recruiterRewrite: `Building on ${firstPeerName}'s point on ${topicTitle.split(":")[0]}, the decisive constraint is balancing operational resilience against execution velocity with measurable guardrails.`
+      }));
 
   return {
     sessionId,
-    studentId: userId,
-    studentName: "Candidate (You)",
+    studentId: evalUserId,
+    studentName: evalStudentName,
     topicTitle,
     format,
     difficulty,
@@ -302,7 +341,9 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
     overallScore,
     hiringVerdict,
     verdictSummary:
-      hiringVerdict === "STRONG_HIRE"
+      studentTurnCount === 0
+        ? "Insufficient spoken participation to evaluate communication competency. Join earlier in opening or challenge stages next round."
+        : hiringVerdict === "STRONG_HIRE"
         ? "Exceptional round-table command. Demonstrated senior-level systems thinking, active listening, and constructive conflict resolution."
         : hiringVerdict === "HIRE"
         ? "Solid technical competency and professional communication. Ready for technical personal interview rounds."
@@ -312,10 +353,12 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
     dimensions,
     strongestContributions,
     weakestContributions,
-    missedOpportunities: [
-      "Could have quantified the database latency SLA earlier to challenge Rohan's premise.",
-      "Opportunity to synthesize consensus between Priya and Karan at the 75% discussion mark."
-    ],
+    missedOpportunities: studentTurnCount === 0
+      ? ["Did not claim a turn during the opening framing or mid-discussion synthesis windows."]
+      : [
+          `Could have cited a concrete operational threshold when responding to ${firstPeerName}.`,
+          `Opportunity to bridge viewpoints alongside ${secondPeerName} during the synthesis stage.`
+        ],
     unsupportedClaims: candidateTurns
       .filter(t => !technicalKeywords.some(k => t.content.toLowerCase().includes(k)))
       .map(t => t.content)
@@ -327,13 +370,206 @@ export function evaluateGDSession(session: GDSessionData): GDComprehensiveReport
       groupAverageTurnCount,
       dominanceRatio
     },
-    moderationHistory: moderationIncidents,
+    moderationHistory: humanIncidents,
     targetedImprovementPlan: [
       "Practice bridging polarized viewpoints by acknowledging valid trade-offs before asserting your proposal.",
-      "Ground architectural claims with specific SLAs and failure recovery protocols.",
+      "Ground claims with specific operational criteria, user constraints, or recovery protocols.",
       "Time your interventions during stage transitions to seize natural leadership moments."
     ],
-    nextRecommendedPracticeTopic: "Eventual Consistency vs ACID Transactions in High-Throughput Fintech Rails",
+    nextRecommendedPracticeTopic: `Structured Trade-Offs Beyond "${topicTitle.slice(0, 60)}"`,
     createdAt: new Date().toISOString()
+  };
+}
+
+/**
+ * AI-reasoned, transcript-grounded asynchronous evaluator (Phase 7).
+ * Evaluates a specific human candidate fairly across all 8 dimensions using
+ * exact numbered transcript excerpts and zero fabricated scores on silence.
+ */
+export async function evaluateGDSessionAsync(
+  session: GDSessionData,
+  options?: GDEvaluationTargetOptions
+): Promise<GDComprehensiveReport> {
+  const baseline = evaluateGDSession(session, options);
+  const candidateTurns = getTargetCandidateTurns(session, options);
+
+  // Strict zero-fabrication guard on silent rounds
+  if (candidateTurns.length === 0) {
+    return baseline;
+  }
+
+  const numberedTranscript = session.transcripts
+    .map((t, idx) => {
+      const turnNum = idx + 1;
+      const isTarget = candidateTurns.includes(t);
+      const tag = isTarget ? "[TARGET CANDIDATE]" : t.isHuman ? "[OTHER STUDENT]" : `[${t.speakerRole}]`;
+      return `Turn #${turnNum} (${t.stage}) ${t.speakerName} ${tag}: "${sanitizeGDPromptInput(t.content, 360)}"`;
+    })
+    .join("\n");
+
+  const aiEval = await runGDJsonCompletion<any>({
+    role: "evaluator",
+    systemPrompt:
+      "You are Cognalyze's Always-Present GD Evaluator. Assess ONLY the [TARGET CANDIDATE] objectively based strictly on their observed turns in the transcript. NEVER invent quotes or penalize unobservable criteria unfairly when turns are sparse; mark genuinely unobserved dimensions as 'insufficient_evidence' with score 0 if zero evidence exists.",
+    userPrompt: `TOPIC: "${sanitizeGDPromptInput(session.topicTitle, 200)}"
+FORMAT: ${session.format} | DIFFICULTY: ${session.difficulty} | TARGET ROLE: ${sanitizeGDPromptInput(session.targetRole, 80)}
+TARGET CANDIDATE TURN COUNT: ${candidateTurns.length}
+CONDUCT INCIDENTS FOR TARGET: ${baseline.moderationHistory.length}
+
+TRANSCRIPT:
+${numberedTranscript}
+
+Evaluate the [TARGET CANDIDATE] across the exact 8 dimension IDs:
+1. communication_clarity (weight 0.15)
+2. content_quality (weight 0.20)
+3. logical_reasoning (weight 0.15)
+4. active_listening (weight 0.10)
+5. critical_thinking (weight 0.10)
+6. collaboration (weight 0.10)
+7. leadership (weight 0.10)
+8. professional_conduct (weight 0.10)
+
+Return JSON ONLY:
+{
+  "verdictSummary": "2-sentence executive summary grounded in observed turns",
+  "dimensions": [
+    {
+      "dimension": "communication_clarity",
+      "score": 82,
+      "verdict": "proficient",
+      "feedback": "Specific grounded feedback citing what the candidate actually said",
+      "turnNumber": 3
+    }
+  ],
+  "strongestContributions": [
+    { "turnNumber": 3, "whyStrong": "..." }
+  ],
+  "weakestContributions": [
+    {
+      "turnNumber": 3,
+      "whyNeedsImprovement": "...",
+      "recruiterRewrite": "A concrete executive rewrite of that exact statement"
+    }
+  ],
+  "missedOpportunities": ["Specific missed opportunity referencing actual panel speakers"],
+  "targetedImprovementPlan": ["Concrete action 1", "Concrete action 2", "Concrete action 3"],
+  "nextRecommendedPracticeTopic": "Relevant follow-up GD topic"
+}`,
+    validate: (parsed) => {
+      if (!Array.isArray(parsed?.dimensions) || parsed.dimensions.length < 4) {
+        return null;
+      }
+      return parsed;
+    }
+  });
+
+  if (!aiEval.ok) {
+    return baseline;
+  }
+
+  const aiData = aiEval.data;
+  const candidateTurnSet = new Map<number, GDTranscriptItem>();
+  candidateTurns.forEach((t) => {
+    candidateTurnSet.set(session.transcripts.indexOf(t) + 1, t);
+  });
+
+  const mergedDimensions: GDEvaluationDimension[] = baseline.dimensions.map((baseDim) => {
+    // Keep authoritative Conduct score grounded in actual moderation logs
+    if (baseDim.dimension === "professional_conduct") {
+      return baseDim;
+    }
+    const found = aiData.dimensions.find((d: any) => d?.dimension === baseDim.dimension);
+    if (!found || typeof found.score !== "number") {
+      return baseDim;
+    }
+    const clampedScore = Math.max(0, Math.min(100, Math.round(found.score)));
+    const validVerdicts = ["exemplary", "proficient", "developing", "insufficient_evidence"];
+    const verdict = validVerdicts.includes(found.verdict)
+      ? found.verdict
+      : clampedScore >= 85
+      ? "exemplary"
+      : clampedScore >= 72
+      ? "proficient"
+      : clampedScore > 0
+      ? "developing"
+      : "insufficient_evidence";
+
+    const citedTurn = candidateTurnSet.get(Number(found.turnNumber)) || candidateTurns[0];
+    return {
+      ...baseDim,
+      score: clampedScore,
+      verdict,
+      feedback: String(found.feedback || baseDim.feedback).trim(),
+      citedExcerpts: citedTurn
+        ? [
+            {
+              quote: citedTurn.content,
+              timestamp: citedTurn.timestamp,
+              turnNumber: session.transcripts.indexOf(citedTurn) + 1,
+              significance: `Evaluator citation for ${baseDim.label}`
+            }
+          ]
+        : baseDim.citedExcerpts
+    };
+  });
+
+  const overallScore = Math.round(
+    mergedDimensions.reduce((acc, d) => acc + d.score * d.weight, 0)
+  );
+  const conductDim = mergedDimensions.find((d) => d.dimension === "professional_conduct");
+  const conductScore = conductDim ? conductDim.score : 95;
+
+  let hiringVerdict: GDComprehensiveReport["hiringVerdict"] = "LEAN_HIRE";
+  if (conductScore < 60 || overallScore < 50) hiringVerdict = "NO_HIRE";
+  else if (overallScore >= 85 && candidateTurns.length >= 2) hiringVerdict = "STRONG_HIRE";
+  else if (overallScore >= 70) hiringVerdict = "HIRE";
+
+  const strongestContributions = Array.isArray(aiData.strongestContributions)
+    ? aiData.strongestContributions
+        .map((item: any) => {
+          const turn = candidateTurnSet.get(Number(item?.turnNumber)) || candidateTurns[0];
+          if (!turn) return null;
+          return {
+            quote: turn.content,
+            stage: turn.stage,
+            whyStrong: String(item.whyStrong || "Effective intervention.").trim()
+          };
+        })
+        .filter(Boolean)
+    : baseline.strongestContributions;
+
+  const weakestContributions = Array.isArray(aiData.weakestContributions)
+    ? aiData.weakestContributions
+        .map((item: any) => {
+          const turn = candidateTurnSet.get(Number(item?.turnNumber)) || candidateTurns[candidateTurns.length - 1];
+          if (!turn) return null;
+          return {
+            quote: turn.content,
+            whyNeedsImprovement: String(item.whyNeedsImprovement || "Expand with concrete criteria.").trim(),
+            recruiterRewrite: String(item.recruiterRewrite || baseline.weakestContributions[0]?.recruiterRewrite || "").trim()
+          };
+        })
+        .filter(Boolean)
+    : baseline.weakestContributions;
+
+  return {
+    ...baseline,
+    overallScore,
+    hiringVerdict,
+    verdictSummary: String(aiData.verdictSummary || baseline.verdictSummary).trim(),
+    dimensions: mergedDimensions,
+    strongestContributions: strongestContributions.length > 0 ? strongestContributions : baseline.strongestContributions,
+    weakestContributions: weakestContributions.length > 0 ? weakestContributions : baseline.weakestContributions,
+    missedOpportunities:
+      Array.isArray(aiData.missedOpportunities) && aiData.missedOpportunities.length > 0
+        ? aiData.missedOpportunities.slice(0, 4).map(String)
+        : baseline.missedOpportunities,
+    targetedImprovementPlan:
+      Array.isArray(aiData.targetedImprovementPlan) && aiData.targetedImprovementPlan.length > 0
+        ? aiData.targetedImprovementPlan.slice(0, 4).map(String)
+        : baseline.targetedImprovementPlan,
+    nextRecommendedPracticeTopic: String(
+      aiData.nextRecommendedPracticeTopic || baseline.nextRecommendedPracticeTopic
+    ).trim()
   };
 }

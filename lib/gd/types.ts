@@ -16,6 +16,23 @@ export type GDSimulationFormat =
   | "corporate"          // Recruiter-style structured trade-offs, executive business focus
   | "technical_business"; // Engineering architecture, p99 latency vs shipping velocity, security
 
+export type GDExperienceMode =
+  | "standard_round"
+  | "crisis_room"
+  | "boardroom_debate"
+  | "ethical_dilemma"
+  | "case_data_discussion";
+
+export interface GDExperienceBlueprint {
+  mode: GDExperienceMode;
+  modeLabel: string;
+  openingScenarioBrief: string;
+  midSessionTwistLabel: string;
+  midSessionTwistPrompt: string;
+  keyConstraints: string[];
+  twistInjected?: boolean;
+}
+
 export type GDDifficultyLevel = 
   | "beginner"
   | "intermediate"
@@ -64,7 +81,11 @@ export interface GDParticipantState {
     pitch: number;
     rate: number;
     voiceName?: string;
+    genderHint?: "male" | "female";
   };
+  reasoningLens?: string;
+  temperament?: string;
+  speakingStyle?: string;
   currentStance: "pro" | "con" | "neutral" | "nuanced";
   assertiveness: number; // 0.0 - 1.0
   speakingTurnCount: number;
@@ -163,6 +184,8 @@ export interface GDComprehensiveReport {
   studentName: string;
   topicTitle: string;
   format: GDSimulationFormat;
+  experienceMode?: GDExperienceMode;
+  experienceBlueprint?: GDExperienceBlueprint;
   difficulty: GDDifficultyLevel;
   totalDurationSeconds: number;
   overallScore: number; // 0 - 100 weighted
@@ -200,6 +223,8 @@ export interface GDSessionData {
   topicId: string;
   topicTitle: string;
   format: GDSimulationFormat;
+  experienceMode?: GDExperienceMode;
+  experienceBlueprint?: GDExperienceBlueprint;
   difficulty: GDDifficultyLevel;
   targetRole: string;
   targetCompany?: string;
@@ -228,6 +253,8 @@ export interface GDFriendsRoom {
   topicTitle: string;
   topicContext?: string;
   format: GDSimulationFormat;
+  experienceMode?: GDExperienceMode;
+  experienceBlueprint?: GDExperienceBlueprint;
   difficulty: GDDifficultyLevel;
   durationMinutes: number;
   status: "WAITING_ROOM" | "IN_PROGRESS" | "COMPLETED" | "ABORTED";
