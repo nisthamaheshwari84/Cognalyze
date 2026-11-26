@@ -140,7 +140,7 @@ describe("Bilingual Preference & Stage Progress Persistence", () => {
   });
 
   it("tracks and advances 10-stage progression per topic", () => {
-    const cid = "test-prog-candidate-002";
+    const cid = `test-prog-candidate-${Date.now()}`;
     const topicId = "py-01-intro";
 
     assert.equal(getCandidateTopicProgress(cid, topicId), 1);

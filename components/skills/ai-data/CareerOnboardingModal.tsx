@@ -8,7 +8,7 @@ import {
   BASELINE_DIAGNOSTIC_BANK,
   BaselineAssessmentResult
 } from "@/lib/skills/ai-data/baseline-assessment-engine";
-import { CandidateOnboardingProfile } from "@/lib/skills/ai-data/store";
+import type { CandidateOnboardingProfile } from "@/lib/skills/ai-data/store";
 
 interface CareerOnboardingModalProps {
   isOpen: boolean;

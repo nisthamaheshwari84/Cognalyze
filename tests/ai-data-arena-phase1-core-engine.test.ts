@@ -125,9 +125,9 @@ describe("Phase 1: Baseline Diagnostic Assessment Engine", () => {
 });
 
 describe("Phase 1: Personalized Roadmap & Prerequisite Unlocking Engine", () => {
-  it("generates distinct tailored roadmaps across all 8 career roles", () => {
+  it("generates distinct tailored roadmaps across all 10 career roles", () => {
     const allRoleSlugs = Object.keys(TARGET_ROLE_PROFILES) as TargetRoleSlug[];
-    assert.equal(allRoleSlugs.length, 8, "Expected 8 target roles");
+    assert.equal(allRoleSlugs.length, 10, "Expected 10 target roles");
 
     for (const role of allRoleSlugs) {
       const roadmap = generatePersonalizedRoadmap({

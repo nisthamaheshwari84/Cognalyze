@@ -91,6 +91,11 @@ export default function TopicAssessmentView({
     setQuestions(curated);
   }, [topic, subtopic, subject]);
 
+  const latestSubmitRef = React.useRef<() => void>(() => {});
+  useEffect(() => {
+    latestSubmitRef.current = handleFinalSubmit;
+  });
+
   // Assessment Timer
   useEffect(() => {
     if (assessmentStatus === "in_progress") {
@@ -98,7 +103,7 @@ export default function TopicAssessmentView({
         setSecondsRemaining((prev) => {
           if (prev <= 1) {
             clearInterval(timerRef.current!);
-            handleFinalSubmit();
+            latestSubmitRef.current();
             return 0;
           }
           return prev - 1;

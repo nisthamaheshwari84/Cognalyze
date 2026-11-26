@@ -34,12 +34,13 @@ import {
 } from "../lib/skills/ai-data/curated-coding-library";
 import { executeAndEvaluateCodingSubmission } from "../lib/skills/ai-data/curated-coding-server";
 import { TARGET_ROLE_PROFILES } from "../lib/skills/ai-data/roles";
+import { updateTopicMasteryRecord, getTopicMasteryMap } from "../lib/skills/ai-data/store";
 import { SKILL_DOMAINS } from "../lib/skill-hub-store";
 
 describe("Pillar 1: Personalized Roadmap Engine & Prerequisite DAG", () => {
-  test("generates unique, role-calibrated roadmaps across all 8 target industry roles", () => {
+  test("generates unique, role-calibrated roadmaps across all 10 target industry roles", () => {
     const roles = Object.keys(TARGET_ROLE_PROFILES) as any[];
-    assert.equal(roles.length, 8, "Must support exactly 8 industry roles");
+    assert.equal(roles.length, 10, "Must support exactly 10 industry roles");
 
     for (const role of roles) {
       const roadmap = buildStudentPersonalizedRoadmap({
@@ -217,7 +218,13 @@ describe("Pillar 5: Intelligent Notes & Knowledge System", () => {
   });
 
   test("generates Type B Personal Weakness Notes with concrete observed evidence and remediation", () => {
-    const weaknessNote = generatePersonalWeaknessNotes("cand-test-dna");
+    updateTopicMasteryRecord("cand-test-dna", "numpy-vectorization-and-broadcasting", () => ({
+      status: "learning",
+      remediationRequired: true,
+      assessmentScore: 45,
+      weakConcepts: ["Shape Broadcasting & Strides"],
+    }));
+    const weaknessNote = generatePersonalWeaknessNotes("cand-test-dna", getTopicMasteryMap("cand-test-dna"));
 
     assert.ok(weaknessNote.totalWeaknessesDetected >= 1);
     assert.ok(weaknessNote.weaknesses.every(w => 

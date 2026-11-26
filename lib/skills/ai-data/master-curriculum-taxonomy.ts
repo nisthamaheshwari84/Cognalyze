@@ -65,7 +65,7 @@ export interface TaxonomyTopic {
   estimatedMinutes: number;
   difficulty: "beginner" | "intermediate" | "advanced";
   prerequisites: string[];
-  roleRelevance: Record<TargetRoleSlug, { importance: "CRITICAL" | "HIGH" | "SUPPORTING"; why: string }>;
+  roleRelevance: Partial<Record<TargetRoleSlug, { importance: "CRITICAL" | "HIGH" | "SUPPORTING"; why: string }>>;
   learningObjectives: string[];
   conceptsCovered: string[];
   subtopics?: TaxonomySubtopic[];
@@ -725,6 +725,58 @@ export const TOPIC_ID_ALIASES: Record<string, string> = {
   "sql-03-window-functions": "sql-04-window-functions-framing",
   "ml-03-metrics": "ml-63-regression-metrics",
   "genai-02-structured-outputs": "genai-05-structured-outputs-json",
+  // Legacy AI_DATA_TRACKS lesson slug mappings
+  "numpy-vectorization-and-broadcasting": "np-04-broadcasting-rules",
+  "pandas-groupby-and-aggregations": "pan-02-groupby-merging",
+  "matrix-operations-and-linear-algebra": "np-02-math-linear-algebra",
+  "probability-distributions-and-bayes": "stats-01-probability-bayes",
+  "feature-engineering-and-encoding": "ml-10-feature-scaling-and-encoding",
+  "linear-and-logistic-regression": "ml-01-linear-regression-gradient-descent",
+  "decision-trees-and-impurity-splitting": "ml-04-decision-trees-entropy-gini",
+  "gradient-boosting-vs-random-forests": "ml-05-ensembles-rf-xgboost",
+  "k-means-and-hierarchical-clustering": "ml-07-unsupervised-kmeans-pca",
+  "pca-and-dimensionality-reduction": "ml-07-unsupervised-kmeans-pca",
+  "roc-auc-vs-precision-recall-curves": "ml-03-bias-variance-evaluation",
+  "data-leakage-detection-and-prevention": "ml-03-bias-variance-evaluation",
+  "probability-calibration-platt-scaling": "ml-03-bias-variance-evaluation",
+  "pytorch-tensors-and-autograd": "dl-01-neural-nets-backprop",
+  "convolutional-neural-networks": "dl-01-neural-nets-backprop",
+  "transformers-and-self-attention": "dl-02-transformers-attention",
+  "window-functions-dense-rank-and-lead-lag": "sql-04-window-functions-framing",
+  "cohort-retention-and-triangular-grids": "sql-08-cohort-funnel-retention",
+  "recursive-ctes-and-hierarchies": "sql-03-ctes-subqueries-recursion",
+  "hypothesis-testing-and-sample-size": "stats-02-ab-testing-srm",
+  "sample-ratio-mismatch-and-network-effects": "stats-02-ab-testing-srm",
+  "multi-armed-bandits-vs-ab-testing": "stats-02-ab-testing-srm",
+  "metric-trees-and-funnel-conversion": "sql-08-cohort-funnel-retention",
+  "customer-lifetime-value-and-churn": "proj-01-customer-churn-pipeline",
+  "structured-outputs-and-pydantic-validation": "genai-05-structured-outputs-json",
+  "few-shot-prompting-and-cot": "genai-03-prompt-engineering-few-shot",
+  "embeddings-vector-indexes-and-ann": "rag-01-chunking-embeddings",
+  "chunking-strategies-and-hybrid-search": "rag-01-chunking-embeddings",
+  "reranking-with-cross-encoders": "rag-02-vector-dbs-reranking",
+  "the-rag-triad-evaluations": "eval-01-rag-benchmarks-llm-judge",
+  "prompt-injection-defense-and-guardrails": "eval-02-guardrails-prompt-injection",
+  "tool-calling-schemas-and-execution-loops": "agent-01-react-loop-tools",
+  "agent-memory-and-state-management": "agent-02-multi-agent-state-graphs",
+  "star-schema-and-slowly-changing-dimensions": "de-01-star-schema-scd",
+  "partitioning-and-clustering-strategies": "de-01-star-schema-scd",
+  "idempotency-and-watermarking": "de-02-idempotent-pipelines",
+  "write-audit-publish-pattern": "de-02-idempotent-pipelines",
+  "pyspark-shuffle-and-skew-optimization": "de-03-pyspark-kafka-streaming",
+  "kafka-event-streams-and-consumer-groups": "de-03-pyspark-kafka-streaming",
+  "serving-models-with-fastapi": "mlops-01-mlflow-fastapi-serving",
+  "model-quantization-and-onnx-runtime": "mlops-01-mlflow-fastapi-serving",
+  "mlflow-tracking-and-model-versioning": "mlops-01-mlflow-fastapi-serving",
+  "feature-stores-feast-architecture": "mlops-01-mlflow-fastapi-serving",
+  "data-drift-and-population-stability-index": "mlops-02-drift-canary-rollouts",
+  "canary-deployments-and-automated-rollbacks": "mlops-02-drift-canary-rollouts",
+  "production-financial-rag-analyst": "proj-02-enterprise-rag-assistant",
+  "autonomous-customer-support-agent": "proj-02-enterprise-rag-assistant",
+  "real-time-fraud-detection-stream": "proj-01-customer-churn-pipeline",
+  "end-to-end-ab-testing-decision-engine": "stats-02-ab-testing-srm",
+  "capstone-technical-architecture-defense": "proj-02-enterprise-rag-assistant",
+  "production-mlops-drift-incident-postmortem": "mlops-02-drift-canary-rollouts",
 };
 
 // Master lookup helper

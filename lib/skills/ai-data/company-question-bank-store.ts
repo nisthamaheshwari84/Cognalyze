@@ -41,8 +41,10 @@ export interface QuestionFilterCriteria {
   subtopicId?: string;
   difficulty?: QuestionDifficultyLevel | "all";
   patternType?: QuestionPatternType | "all";
+  pattern?: QuestionPatternType | "ALL" | "all";
   companySlug?: string | "all";
-  status?: "all" | "unattempted" | "solved" | "incorrect" | "bookmarked";
+  company?: string | "ALL" | "all";
+  status?: "all" | "ALL" | "unattempted" | "UNATTEMPTED" | "solved" | "SOLVED" | "incorrect" | "INCORRECT" | "bookmarked" | "BOOKMARKED";
   searchQuery?: string;
 }
 
@@ -96,32 +98,37 @@ export function queryCompanyQuestions(
   const candidateAttempts = ATTEMPT_HISTORY.get(candidateId) || [];
   const candidateBookmarks = BOOKMARKS.get(candidateId) || new Set();
 
+  const effectiveDifficulty = filters.difficulty ? String(filters.difficulty).toLowerCase() : "all";
+  const effectivePattern = String(filters.patternType || filters.pattern || "all").toLowerCase();
+  const effectiveCompany = String(filters.companySlug || filters.company || "all").toLowerCase();
+  const effectiveStatus = String(filters.status || "all").toLowerCase();
+
   const filtered = questions.filter((q) => {
     // Difficulty filter
-    if (filters.difficulty && filters.difficulty !== "all" && q.difficulty !== filters.difficulty) {
+    if (effectiveDifficulty !== "all" && q.difficulty !== effectiveDifficulty) {
       return false;
     }
 
     // Pattern filter
-    if (filters.patternType && filters.patternType !== "all" && q.questionType !== filters.patternType) {
+    if (effectivePattern !== "all" && q.questionType !== effectivePattern) {
       return false;
     }
 
     // Company filter
-    if (filters.companySlug && filters.companySlug !== "all") {
-      const hasCompany = q.relevantCompanies.some((c) => c.slug === filters.companySlug);
+    if (effectiveCompany !== "all") {
+      const hasCompany = q.relevantCompanies.some((c) => c.slug.toLowerCase() === effectiveCompany);
       if (!hasCompany) return false;
     }
 
     // Status filter
-    if (filters.status && filters.status !== "all") {
+    if (effectiveStatus !== "all") {
       const isBookmarked = candidateBookmarks.has(q.id);
       const attempt = candidateAttempts.find((a) => a.questionId === q.id);
 
-      if (filters.status === "bookmarked" && !isBookmarked) return false;
-      if (filters.status === "unattempted" && attempt) return false;
-      if (filters.status === "solved" && (!attempt || !attempt.isCorrect)) return false;
-      if (filters.status === "incorrect" && (!attempt || attempt.isCorrect)) return false;
+      if (effectiveStatus === "bookmarked" && !isBookmarked) return false;
+      if (effectiveStatus === "unattempted" && attempt) return false;
+      if (effectiveStatus === "solved" && (!attempt || !attempt.isCorrect)) return false;
+      if (effectiveStatus === "incorrect" && (!attempt || attempt.isCorrect)) return false;
     }
 
     // Search query filter
@@ -164,7 +171,17 @@ export function recordQuestionSubmission(submission: QuestionSubmission): {
 
   if (question) {
     if (question.questionType === "mcq") {
-      isCorrect = submission.userAnswer.trim().toLowerCase() === question.correctAnswer.trim().toLowerCase();
+      const ansTrim = submission.userAnswer.trim();
+      const normAns = ansTrim.toLowerCase();
+      const normCorrect = question.correctAnswer.trim().toLowerCase();
+      let letterMatch = false;
+      if (Array.isArray(question.options) && ansTrim.length === 1) {
+        const idx = ansTrim.toUpperCase().charCodeAt(0) - 65;
+        if (idx >= 0 && idx < question.options.length) {
+          letterMatch = question.options[idx].trim().toLowerCase() === normCorrect;
+        }
+      }
+      isCorrect = normAns === normCorrect || letterMatch;
       scoreAwarded = isCorrect ? 100 : 0;
       feedback = isCorrect
         ? "Excellent! You identified the exact architectural invariant."

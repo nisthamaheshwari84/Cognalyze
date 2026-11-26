@@ -70,15 +70,7 @@ export async function GET(req: NextRequest) {
 
     // 2. Home Gateway Screen Data (Requirement 20)
     if (mode === "home") {
-      const progress = candidateId
-        ? getSimpleCandidateProgress(candidateId)
-        : {
-            completedCount: 0,
-            totalQuestions: EXPANDED_BEHAVIORAL_QUESTION_BANK.length,
-            avgScore: 0,
-            workOnNext: "Structuring answers using the STAR method",
-            competencyBreakdown: {}
-          };
+      const progress = getSimpleCandidateProgress(candidateId || "guest");
       const quickQuestion = candidateId
         ? getNextCandidateQuestion(candidateId, "practice")
         : EXPANDED_BEHAVIORAL_QUESTION_BANK[0];
@@ -86,8 +78,8 @@ export async function GET(req: NextRequest) {
         success: true,
         candidateId: candidateId || "",
         progress,
+        weakSpot: progress.workOnNext?.title || "Personal Specificity",
         quickQuestion,
-        weakSpot: progress.workOnNext
       });
     }
 

@@ -1615,12 +1615,44 @@ export function findUserByConnectedAccount(
 
 // ─── SESSIONS (Stateless Cryptographic Signature + In-Memory/Disk Store) ───
 
-const SESSION_SIGNING_SECRET = process.env.SESSION_SECRET || "cognalyze_cryptographic_session_hmac_secret_2026";
+let ephemeralDevSessionSecret: string | null = null;
+let warnedMissingSessionSecret = false;
+
+function getSessionSigningSecret(): string {
+  const configured = (
+    process.env.SESSION_SECRET ||
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    ""
+  ).trim();
+  if (configured.length >= 16) {
+    return configured;
+  }
+
+  if (isTestRuntime()) {
+    return "cognalyze_test_only_session_hmac_secret_not_for_production";
+  }
+
+  const isProd = process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+  if (isProd) {
+    throw new Error("SESSION_SECRET must be configured in production.");
+  }
+
+  if (!ephemeralDevSessionSecret) {
+    ephemeralDevSessionSecret = crypto.randomBytes(32).toString("hex");
+    if (!warnedMissingSessionSecret) {
+      warnedMissingSessionSecret = true;
+      console.warn("[auth/store] SESSION_SECRET not set in local dev; using ephemeral process signing key.");
+    }
+  }
+  return ephemeralDevSessionSecret;
+}
+
 const REVOKED_SESSION_IDS = new Set<string>();
 
 function signSessionToken(payload: { id: string; userId: string; accountType: "student" | "recruiter"; expiresAt: string }): string {
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const hmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+  const hmac = crypto.createHmac("sha256", getSessionSigningSecret()).update(data).digest("base64url");
   return `${data}.${hmac}`;
 }
 
@@ -1630,7 +1662,7 @@ function verifySignedSessionToken(token: string): { id: string; userId: string; 
   if (parts.length !== 2) return null;
   const [data, hmac] = parts;
   try {
-    const expectedHmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+    const expectedHmac = crypto.createHmac("sha256", getSessionSigningSecret()).update(data).digest("base64url");
     if (hmac.length !== expectedHmac.length || !crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) {
       return null;
     }
@@ -1676,7 +1708,7 @@ export function createAccountLinkingProof(payload: {
       expiresAt
     })
   ).toString("base64url");
-  const hmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+  const hmac = crypto.createHmac("sha256", getSessionSigningSecret()).update(data).digest("base64url");
   return `${data}.${hmac}`;
 }
 
@@ -1698,7 +1730,7 @@ export function verifyAndConsumeAccountLinkingProof(
   }
   const [data, hmac] = parts;
   try {
-    const expectedHmac = crypto.createHmac("sha256", SESSION_SIGNING_SECRET).update(data).digest("base64url");
+    const expectedHmac = crypto.createHmac("sha256", getSessionSigningSecret()).update(data).digest("base64url");
     if (hmac.length !== expectedHmac.length || !crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac))) {
       return { valid: false, error: "Tampered or forged account linking proof." };
     }

@@ -57,7 +57,7 @@ describe("Phase 2: Navigation & Dedicated Topic Workspace", () => {
 
   test("Every target role maps cleanly to a valid primary curriculum track", () => {
     const roles = getAllTargetRoles();
-    assert.strictEqual(roles.length, 8, "Expected 8 sourced target roles");
+    assert.strictEqual(roles.length, 10, "Expected 10 sourced target roles");
 
     for (const role of roles) {
       assert.ok(role.primaryTrack, `Role ${role.slug} must specify primaryTrack`);

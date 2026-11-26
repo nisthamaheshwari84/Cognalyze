@@ -6,15 +6,15 @@ import {
   MASTER_CURRICULUM_SUBJECTS,
   TaxonomySubject,
   TaxonomyModule,
-  TaxonomyTopic,
-  CanonicalMasterTrack,
 } from "@/lib/skills/ai-data/master-curriculum-taxonomy";
 import { TARGET_ROLE_PROFILES, getAllTargetRoles } from "@/lib/skills/ai-data/roles";
-import { TargetRoleSlug, TargetRoleProfile } from "@/lib/skills/ai-data/types";
+import { TargetRoleSlug } from "@/lib/skills/ai-data/types";
 
 export interface MasterCurriculumSidebarProps {
   activeTopicId: string;
   completedTopicIds: string[];
+  lockedTopicReasons?: Record<string, string>;
+  remediationTopicIds?: string[];
   activeRole: TargetRoleSlug;
   onSelectTopic: (topicId: string) => void;
   onSelectRole: (role: TargetRoleSlug) => void;
@@ -27,13 +27,13 @@ export interface MasterCurriculumSidebarProps {
 export default function MasterCurriculumSidebar({
   activeTopicId,
   completedTopicIds,
+  lockedTopicReasons = {},
+  remediationTopicIds = [],
   activeRole,
   onSelectTopic,
   onSelectRole,
   isCollapsed,
   onToggleCollapse,
-  isMobileOpen = false,
-  onCloseMobile,
 }: MasterCurriculumSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTrackId, setActiveTrackId] = useState<"track_a_foundations" | "track_b_specialized">("track_a_foundations");
@@ -72,7 +72,7 @@ export default function MasterCurriculumSidebar({
     const currentTrackConfig = CANONICAL_MASTER_TRACKS.find((t) => t.id === activeTrackId);
     if (!currentTrackConfig) return [];
 
-    let subjects = currentTrackConfig.subjectIds
+    const subjects = currentTrackConfig.subjectIds
       .map((id) => MASTER_CURRICULUM_SUBJECTS.find((s) => s.id === id))
       .filter((s): s is TaxonomySubject => !!s);
 
@@ -434,13 +434,19 @@ export default function MasterCurriculumSidebar({
                             {mod.topics.map((topic) => {
                               const isActive = topic.id === activeTopicId;
                               const isCompleted = completedTopicIds.includes(topic.id);
+                              const lockReason = lockedTopicReasons[topic.id];
+                              const isLocked = Boolean(lockReason) && !isCompleted;
+                              const needsRemediation = remediationTopicIds.includes(topic.id);
                               const roleImportance = topic.roleRelevance?.[activeRole]?.importance;
                               const isCriticalForRole = roleImportance === "CRITICAL";
 
                               return (
                                 <button
                                   key={topic.id}
-                                  onClick={() => onSelectTopic(topic.id)}
+                                  onClick={() => {
+                                    if (!isLocked) onSelectTopic(topic.id);
+                                  }}
+                                  title={isLocked ? lockReason : topic.title}
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -449,19 +455,20 @@ export default function MasterCurriculumSidebar({
                                     borderRadius: 6,
                                     border: "none",
                                     backgroundColor: isActive ? "#162A43" : "transparent",
-                                    color: isActive ? "#FFFFFF" : "#17191C",
+                                    color: isActive ? "#FFFFFF" : isLocked ? "#98A2B3" : "#17191C",
                                     fontSize: 11.5,
                                     fontWeight: isActive ? 700 : 500,
                                     textAlign: "left",
-                                    cursor: "pointer",
+                                    cursor: isLocked ? "not-allowed" : "pointer",
+                                    opacity: isLocked ? 0.72 : 1,
                                     transition: "all 0.1s ease",
                                     gap: 6,
                                     width: "100%",
                                   }}
                                 >
                                   <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-                                    <span style={{ fontSize: 10, color: isCompleted ? "#2E7D5B" : isActive ? "#93C5FD" : "#98A2B3" }}>
-                                      {isCompleted ? "●" : "○"}
+                                    <span style={{ fontSize: 10, color: isCompleted ? "#2E7D5B" : needsRemediation ? "#D97706" : isActive ? "#C4B5FD" : "#98A2B3" }}>
+                                      {isCompleted ? "●" : isLocked ? "🔒" : needsRemediation ? "⚠" : "○"}
                                     </span>
                                     <span
                                       style={{

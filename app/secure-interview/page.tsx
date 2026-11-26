@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import { VisionPipeline } from "@/lib/camera/vision-models";
 import { TemporalTracker } from "@/lib/camera/temporal-tracker";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
@@ -257,7 +257,11 @@ export default function SecureInterviewPage() {
   const githubRef = useRef<any>(null);
   const linkedinRef = useRef<any>(null);
   const [mode, setMode] = useState<"text" | "voice">("text");
-  const [voiceOk] = useState(() => typeof window !== "undefined" && ("SpeechRecognition" in window || "webkitSpeechRecognition" in window));
+  const voiceOk = useSyncExternalStore(
+    () => () => {},
+    () => "SpeechRecognition" in window || "webkitSpeechRecognition" in window,
+    () => false
+  );
 
   // Interview
   const [msgs, setMsgs] = useState<Msg[]>([]);

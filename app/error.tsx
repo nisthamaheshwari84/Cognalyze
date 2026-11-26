@@ -17,6 +17,20 @@ export default function GlobalAppError({ error, reset }: ErrorProps) {
 
   const friendly = toFriendlyError(error);
 
+  const handleRetry = () => {
+    const msg = `${error?.name || ""} ${error?.message || ""}`.toLowerCase();
+    if (
+      msg.includes("chunkloaderror") ||
+      msg.includes("loading chunk") ||
+      msg.includes("dynamically imported module") ||
+      msg.includes("reading 'call'")
+    ) {
+      window.location.reload();
+      return;
+    }
+    reset();
+  };
+
   return (
     <div
       style={{
@@ -120,7 +134,7 @@ export default function GlobalAppError({ error, reset }: ErrorProps) {
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           {friendly.retryable && (
             <button
-              onClick={() => reset()}
+              onClick={handleRetry}
               style={{
                 padding: "10px 22px",
                 borderRadius: 8,

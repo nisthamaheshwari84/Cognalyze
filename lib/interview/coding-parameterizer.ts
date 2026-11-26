@@ -14,6 +14,7 @@
  */
 
 import crypto from "crypto";
+import { isTestRuntime } from "@/lib/env";
 import {
   getCanonicalProblem,
   CanonicalProblem,
@@ -94,8 +95,24 @@ const DOMAIN_METAPHORS: DomainMetaphor[] = [
 
 // ── 2. SEED DERIVATION ────────────────────────────────────────────────────────
 
+let ephemeralDevParamSecret: string | null = null;
+
+function resolveParameterizerSecret(): string {
+  const configured = (process.env.APP_SECRET || process.env.SESSION_SECRET || "").trim();
+  if (configured.length >= 16) return configured;
+  if (isTestRuntime()) return "cognalyze_test_only_parameterizer_seed";
+  const isProd = process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+  if (isProd) {
+    throw new Error("APP_SECRET (or SESSION_SECRET) must be configured in production.");
+  }
+  if (!ephemeralDevParamSecret) {
+    ephemeralDevParamSecret = crypto.randomBytes(32).toString("hex");
+  }
+  return ephemeralDevParamSecret;
+}
+
 export function deriveSessionSeed(sessionId: string, problemId: string): string {
-  const secret = process.env.APP_SECRET || "cognalyze_sec_seed_2026";
+  const secret = resolveParameterizerSecret();
   return crypto
     .createHmac("sha256", secret)
     .update(`${sessionId}:${problemId}`)

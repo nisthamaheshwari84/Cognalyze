@@ -1,11 +1,22 @@
+import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { extractOpportunityFromDescription } from "@/lib/ai/placement-intelligence";
 import { getAllOpportunities, insertOpportunity } from "@/lib/placement-store";
 
+function timingSafeKeyMatch(provided: string, expected: string): boolean {
+  const a = Buffer.from(provided, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 function verifyAdminAuth(req: Request): boolean {
-  const adminKey = req.headers.get("x-admin-key") || new URL(req.url).searchParams.get("adminKey");
-  const expectedKey = process.env.ADMIN_API_KEY || "cognalyze-admin-secret";
-  return adminKey === expectedKey;
+  const adminKey = (req.headers.get("x-admin-key") || "").trim();
+  const expectedKey = (process.env.ADMIN_API_KEY || "").trim();
+  if (!expectedKey || !adminKey) {
+    return false;
+  }
+  return timingSafeKeyMatch(adminKey, expectedKey);
 }
 
 export async function GET(req: Request) {

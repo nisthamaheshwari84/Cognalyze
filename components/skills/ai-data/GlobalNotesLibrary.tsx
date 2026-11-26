@@ -14,11 +14,13 @@ import {
   CanonicalTopicNote,
   PersonalWeaknessNote,
 } from "@/lib/skills/ai-data/intelligent-notes-engine";
+import type { TopicMasteryRecord } from "@/lib/skills/ai-data/types";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface GlobalNotesLibraryProps {
   initialTopicId?: string;
   candidateId?: string;
+  topicMasteryMap?: Record<string, TopicMasteryRecord>;
   onNavigateToTopic?: (topicId: string) => void;
   onOpenPractice?: (topicId: string) => void;
 }
@@ -34,6 +36,7 @@ export type NoteType =
 export default function GlobalNotesLibrary({
   initialTopicId = "py-01-intro",
   candidateId = "student-demo",
+  topicMasteryMap = {},
   onNavigateToTopic,
   onOpenPractice,
 }: GlobalNotesLibraryProps) {
@@ -71,8 +74,8 @@ export default function GlobalNotesLibrary({
   }, [activeTopic.id]);
 
   const weaknessNotes = useMemo(() => {
-    return generatePersonalWeaknessNotes(candidateId);
-  }, [candidateId]);
+    return generatePersonalWeaknessNotes(candidateId, topicMasteryMap);
+  }, [candidateId, topicMasteryMap]);
 
   const handlePrint = () => {
     window.print();

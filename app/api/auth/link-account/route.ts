@@ -7,6 +7,7 @@ import {
   verifyAndConsumeAccountLinkingProof
 } from "@/lib/auth/store";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+import { sanitizeConnectedAccountForClient } from "@/lib/dna/security-audit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json({
       success: true,
       message: `Successfully connected ${provider === "github" ? "GitHub" : "LinkedIn"} to your Cognalyze profile.`,
-      connectedAccount: connected,
+      connectedAccount: sanitizeConnectedAccountForClient(connected),
       nextUrl
     });
 

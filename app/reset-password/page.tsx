@@ -48,7 +48,7 @@ function ResetPasswordContent() {
 
     try {
       // 1. Try Supabase Auth password update
-      const { supabase } = await import("@/lib/supabase");
+      const { supabase } = await import("@/lib/supabase-browser");
       const sbRes = await supabase.auth.updateUser({ password });
       if (!sbRes.error) {
         setSuccess(true);

@@ -1,6 +1,14 @@
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { opportunityService } from "@/lib/opportunities/opportunity-service";
 import { getAuthenticatedContext } from "@/lib/auth/server";
+
+function timingSafeEqualStr(aStr: string, bStr: string): boolean {
+  const a = Buffer.from(aStr, "utf8");
+  const b = Buffer.from(bStr, "utf8");
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
 
 /**
  * POST /api/admin/opportunities/import
@@ -11,9 +19,11 @@ import { getAuthenticatedContext } from "@/lib/auth/server";
 export async function POST(request: NextRequest) {
   try {
     const auth = await getAuthenticatedContext(request);
-    const adminKeyHeader = request.headers.get("x-admin-key");
-    const configuredAdminKey = process.env.ADMIN_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-    const isAuthorizedByHeader = Boolean(configuredAdminKey && adminKeyHeader && adminKeyHeader === configuredAdminKey);
+    const adminKeyHeader = (request.headers.get("x-admin-key") || "").trim();
+    const configuredAdminKey = (process.env.ADMIN_SECRET_KEY || process.env.ADMIN_API_KEY || "").trim();
+    const isAuthorizedByHeader = Boolean(
+      configuredAdminKey && adminKeyHeader && timingSafeEqualStr(adminKeyHeader, configuredAdminKey)
+    );
     const isAuthorizedBySession = Boolean(
       auth && (
         (auth.user as any).role === "admin" ||

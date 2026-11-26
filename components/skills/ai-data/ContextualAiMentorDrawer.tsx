@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { TaxonomyTopic, TaxonomySubject } from "@/lib/skills/ai-data/master-curriculum-taxonomy";
 import { TargetRoleSlug } from "@/lib/skills/ai-data/types";
 import { TARGET_ROLE_PROFILES } from "@/lib/skills/ai-data/roles";
@@ -8,89 +8,144 @@ import { TARGET_ROLE_PROFILES } from "@/lib/skills/ai-data/roles";
 export interface ContextualAiMentorDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  candidateId?: string;
   topic: TaxonomyTopic;
   subject: TaxonomySubject;
-  targetRole: TargetRoleSlug;
+  moduleTitle?: string;
+  subtopicTitle?: string;
+  learningPhase?: string;
+  language?: "english" | "hinglish";
+  userCode?: string;
+  executionStdout?: string;
+  executionStderr?: string;
+  weakConcepts?: string[];
+  assessmentScore?: number | null;
+  targetRole: TargetRoleSlug | string;
 }
 
 interface ChatMessage {
   id: string;
+  topicId?: string;
   sender: "user" | "mentor";
   text: string;
+  source?: string;
   timestamp: string;
 }
 
 export default function ContextualAiMentorDrawer({
   isOpen,
   onClose,
+  candidateId = "student-demo",
   topic,
   subject,
+  moduleTitle = "",
+  subtopicTitle = "",
+  learningPhase = "understand",
+  language = "english",
+  userCode = "",
+  executionStdout = "",
+  executionStderr = "",
+  weakConcepts = [],
+  assessmentScore = null,
   targetRole,
 }: ContextualAiMentorDrawerProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "welcome",
-      sender: "mentor",
-      text: `Hello! I'm your Cognalyze Socratic AI Mentor for **${topic.title}**.\n\nWhether you need an intuitive analogy, a progressive hint for code, or want to practice an interview question calibrated for your **${TARGET_ROLE_PROFILES[targetRole]?.title || "AI"}** career pathway, let me know!`,
-      timestamp: "Just now",
-    },
-  ]);
+  const roleTitle =
+    TARGET_ROLE_PROFILES[targetRole as keyof typeof TARGET_ROLE_PROFILES]?.title || targetRole;
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
-  const [hintLevel, setHintLevel] = useState(1);
+  const msgCounterRef = useRef(0);
 
   if (!isOpen) return null;
 
-  const handleSendMessage = (userPrompt?: string) => {
-    const textToSend = userPrompt || inputText;
-    if (!textToSend.trim()) return;
+  const welcomeMessage: ChatMessage = {
+    id: `welcome-${topic.id}`,
+    topicId: topic.id,
+    sender: "mentor",
+    text:
+      language === "hinglish"
+        ? `Namaste! Main aapka AI Mentor hoon **${topic.title}** ke liye (${roleTitle} track).\n\nAap mujhse simple explanation, extra examples, progressive hint, code review, ya viva question pooch sakte hain.`
+        : `Hello! I'm your Cognalyze AI Learning Mentor for **${topic.title}** (${roleTitle} track).\n\nAsk me to explain differently, show another example, give a progressive hint, review your code, or quiz you with a quick viva.`,
+    timestamp: "Now",
+  };
 
+  const visibleMessages: ChatMessage[] = [
+    welcomeMessage,
+    ...messages.filter((m) => m.topicId === topic.id),
+  ];
+
+  const handleSendMessage = async (userPrompt?: string) => {
+    const textToSend = (userPrompt || inputText).trim();
+    if (!textToSend || isTyping) return;
+
+    const userId = `u-${++msgCounterRef.current}`;
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: userId,
+      topicId: topic.id,
       sender: "user",
       text: textToSend,
-      timestamp: "Just now",
+      timestamp: "Now",
     };
 
     setMessages((prev) => [...prev, userMsg]);
     if (!userPrompt) setInputText("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      let mentorReply = "";
-      const lower = textToSend.toLowerCase();
-
-      if (lower.includes("hint")) {
-        if (hintLevel === 1) {
-          mentorReply = `**Progressive Hint 1 (Directional)**: Consider the core invariant of **${topic.title}**. Think about how data is structured in memory before and after the operation. What is the expected return type?`;
-          setHintLevel(2);
-        } else if (hintLevel === 2) {
-          mentorReply = `**Progressive Hint 2 (Algorithmic / Architectural)**: Notice that ${topic.conceptsCovered?.[0] || "the operation"} requires careful handling of edge conditions (such as empty inputs, boundary indices, or zero values). Try writing a guard clause first.`;
-          setHintLevel(3);
-        } else {
-          mentorReply = `**Progressive Hint 3 (Implementation Step)**: Break the solution into 3 steps: 1) Validate input schema; 2) Apply the transformation vectorially; 3) Return the finalized structure. Look at the worked example in the main workspace for the canonical pattern.`;
-          setHintLevel(1);
-        }
-      } else if (lower.includes("analogy") || lower.includes("explain")) {
-        mentorReply = `**Intuitive Analogy for ${topic.title}**:\n\n${topic.contextAndIntuition?.english || "Think of this like an assembly line where each station has a dedicated specialized tool, ensuring high throughput and zero memory wastage."}\n\n*Why this matters for ${TARGET_ROLE_PROFILES[targetRole]?.title}*: In production systems, choosing this approach reduces latency and prevents cascading failures.`;
-      } else if (lower.includes("interview") || lower.includes("question")) {
-        mentorReply = `**Technical Interview Probe (${TARGET_ROLE_PROFILES[targetRole]?.title || "Technical Round"})**:\n\n"Suppose you are deploying a service handling 10,000 requests/sec using **${topic.title}**. Under what condition will this implementation degrade in performance or raise an out-of-memory error? How would you defend your architecture to a Principal Engineer?"\n\n*Take 2 minutes to explain your reasoning.*`;
-      } else if (lower.includes("debug")) {
-        mentorReply = `**Debugging Assistant**:\n\nWhen troubleshooting **${topic.title}**, inspect these 2 common root causes:\n1. Check for type mismatches between runtime arguments and expectations.\n2. Ensure all external resources (or connections) are closed within a context manager. What specific error message are you encountering in stderr?`;
-      } else {
-        mentorReply = `Great question regarding **${topic.title}**! When working on this concept in production, always ask yourself: What is the computational complexity (Big-O time and memory), and how does it scale as your dataset grows from megabytes to gigabytes? Try testing your code in the live sandbox on the left!`;
-      }
-
-      const replyMsg: ChatMessage = {
-        id: `m-${Date.now()}`,
-        sender: "mentor",
-        text: mentorReply,
-        timestamp: "Just now",
-      };
-
-      setMessages((prev) => [...prev, replyMsg]);
+    try {
+      const res = await fetch("/api/skills/ai-data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "mentor_chat",
+          candidateId,
+          targetRole: roleTitle,
+          subjectTitle: subject.title,
+          moduleTitle: moduleTitle || subject.title,
+          topicId: topic.id,
+          topicTitle: topic.title,
+          subtopicTitle,
+          learningPhase,
+          language,
+          userMessage: textToSend,
+          userCode,
+          executionStdout,
+          executionStderr,
+          weakConcepts,
+          assessmentScore,
+        }),
+      });
+      const data = await res.json();
+      const replyText =
+        data?.mentorReply?.reply ||
+        data?.error ||
+        "Could not generate a response right now. Please try again.";
+      const replyId = `m-${++msgCounterRef.current}`;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: replyId,
+          topicId: topic.id,
+          sender: "mentor",
+          text: replyText,
+          source: data?.mentorReply?.source,
+          timestamp: "Now",
+        },
+      ]);
+    } catch {
+      const errId = `m-err-${++msgCounterRef.current}`;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: errId,
+          topicId: topic.id,
+          sender: "mentor",
+          text: "Network error communicating with AI Mentor service.",
+          timestamp: "Now",
+        },
+      ]);
+    } finally {
       setIsTyping(false);
-    }, 600);
+    }
   };
 
   return (
@@ -100,69 +155,99 @@ export default function ContextualAiMentorDrawer({
         right: 0,
         top: 56,
         bottom: 0,
-        width: 360,
+        width: 380,
+        maxWidth: "100vw",
         backgroundColor: "#FFFFFF",
         borderLeft: "1px solid #E4E1DA",
-        boxShadow: "-4px 0 20px rgba(0,0,0,0.06)",
+        boxShadow: "-4px 0 24px rgba(22, 42, 67, 0.08)",
         zIndex: 50,
         display: "flex",
         flexDirection: "column",
       }}
     >
       {/* Header */}
-      <div style={{ padding: "14px 18px", borderBottom: "1px solid #E4E1DA", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#F6F5F1" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 16 }}>🤖</span>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>Socratic AI Mentor</div>
-            <div style={{ fontSize: 10, color: "#667085" }}>Context: {topic.title.slice(0, 24)}...</div>
+      <div
+        style={{
+          padding: "14px 18px",
+          borderBottom: "1px solid #E4E1DA",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "#FAF9F6",
+        }}
+      >
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: "#162A43" }}>AI Learning Mentor</div>
+          <div style={{ fontSize: 10.5, color: "#6D28D9", fontWeight: 700 }}>
+            {topic.title.slice(0, 32)} · {language === "hinglish" ? "Hinglish" : "English"}
           </div>
         </div>
-
         <button
           onClick={onClose}
-          style={{ background: "transparent", border: "none", color: "#667085", fontSize: 16, cursor: "pointer", padding: "2px 6px" }}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#667085",
+            fontSize: 16,
+            cursor: "pointer",
+            padding: "2px 6px",
+          }}
         >
           ✕
         </button>
       </div>
 
       {/* Quick Action Pills */}
-      <div style={{ padding: "10px 14px", borderBottom: "1px solid #E4E1DA", background: "#FFFFFF", display: "flex", gap: 6, flexWrap: "wrap" }}>
-        <button
-          onClick={() => handleSendMessage("Explain this with a simple analogy")}
-          style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid #D2E0FB", background: "#EFF4FE", color: "#356AE6", fontSize: 10.5, fontWeight: 700, cursor: "pointer" }}
-        >
-          💡 Analogy
-        </button>
-        <button
-          onClick={() => handleSendMessage("Give me a progressive hint")}
-          style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid #E4E1DA", background: "#F6F5F1", color: "#162A43", fontSize: 10.5, fontWeight: 700, cursor: "pointer" }}
-        >
-          🔍 Hint
-        </button>
-        <button
-          onClick={() => handleSendMessage("Ask me a technical interview question on this")}
-          style={{ padding: "4px 8px", borderRadius: 4, border: "1px solid #E4E1DA", background: "#F6F5F1", color: "#162A43", fontSize: 10.5, fontWeight: 700, cursor: "pointer" }}
-        >
-          🎯 Interview Probe
-        </button>
+      <div
+        style={{
+          padding: "10px 14px",
+          borderBottom: "1px solid #E4E1DA",
+          background: "#FFFFFF",
+          display: "flex",
+          gap: 6,
+          flexWrap: "wrap",
+        }}
+      >
+        {[
+          { label: "Explain Differently", prompt: "Explain this concept differently with a simpler analogy" },
+          { label: "More Examples", prompt: "Show me another concrete small example for this subtopic" },
+          { label: "Progressive Hint", prompt: "Give me a progressive hint without spoiling the full solution" },
+          { label: "Review My Code", prompt: "Review my current code and explain any bugs or improvements" },
+          { label: "Viva Quiz Me", prompt: "Ask me a quick topic-specific viva question to test my understanding" },
+        ].map((btn) => (
+          <button
+            key={btn.label}
+            onClick={() => handleSendMessage(btn.prompt)}
+            style={{
+              padding: "4px 9px",
+              borderRadius: 6,
+              border: "1px solid #DDD6FE",
+              background: "#F5F3FF",
+              color: "#5B21B6",
+              fontSize: 10.5,
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            {btn.label}
+          </button>
+        ))}
       </div>
 
       {/* Chat Messages */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 12 }}>
-        {messages.map((m) => (
+        {visibleMessages.map((m) => (
           <div
             key={m.id}
             style={{
               alignSelf: m.sender === "user" ? "flex-end" : "flex-start",
               maxWidth: "88%",
-              background: m.sender === "user" ? "#162A43" : "#F6F5F1",
+              background: m.sender === "user" ? "#162A43" : "#FAF9F6",
               color: m.sender === "user" ? "#FFFFFF" : "#17191C",
               padding: "10px 14px",
-              borderRadius: 8,
+              borderRadius: 10,
               fontSize: 12,
-              lineHeight: 1.5,
+              lineHeight: 1.55,
               border: m.sender === "user" ? "none" : "1px solid #E4E1DA",
             }}
           >
@@ -170,8 +255,18 @@ export default function ContextualAiMentorDrawer({
           </div>
         ))}
         {isTyping && (
-          <div style={{ alignSelf: "flex-start", padding: "8px 12px", background: "#F6F5F1", borderRadius: 8, fontSize: 11, color: "#667085" }}>
-            AI Mentor is formulating a Socratic response...
+          <div
+            style={{
+              alignSelf: "flex-start",
+              padding: "8px 12px",
+              background: "#F5F3FF",
+              border: "1px solid #DDD6FE",
+              borderRadius: 8,
+              fontSize: 11,
+              color: "#5B21B6",
+            }}
+          >
+            Mentor is reviewing your topic &amp; context...
           </div>
         )}
       </div>
@@ -180,7 +275,7 @@ export default function ContextualAiMentorDrawer({
       <div style={{ padding: "12px 14px", borderTop: "1px solid #E4E1DA", background: "#FFFFFF", display: "flex", gap: 8 }}>
         <input
           type="text"
-          placeholder="Ask a question or request code help..."
+          placeholder={language === "hinglish" ? "Koi bhi doubt poochein..." : "Ask about this concept or your code..."}
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => {
@@ -189,7 +284,7 @@ export default function ContextualAiMentorDrawer({
           style={{
             flex: 1,
             padding: "8px 12px",
-            borderRadius: 6,
+            borderRadius: 8,
             border: "1px solid #E4E1DA",
             fontSize: 12,
             outline: "none",
@@ -197,11 +292,12 @@ export default function ContextualAiMentorDrawer({
         />
         <button
           onClick={() => handleSendMessage()}
+          disabled={isTyping}
           style={{
             padding: "8px 14px",
-            borderRadius: 6,
+            borderRadius: 8,
             border: "none",
-            background: "#356AE6",
+            background: "#6D28D9",
             color: "#FFFFFF",
             fontSize: 12,
             fontWeight: 700,
@@ -214,4 +310,3 @@ export default function ContextualAiMentorDrawer({
     </div>
   );
 }
-

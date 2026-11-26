@@ -224,6 +224,62 @@ export const TARGET_ROLE_PROFILES: Record<TargetRoleSlug, TargetRoleProfile> = {
     primaryTrack: "applied_projects",
     secondaryTracks: ["genai_llm", "ai_ml"],
     salaryTier: "₹18–45 LPA (India) / $160k–265k (US)"
+  },
+  nlp_engineer: {
+    slug: "nlp_engineer",
+    title: "NLP Engineer",
+    badge: "Text & Transformers",
+    icon: "💬",
+    summary: "Builds domain-tuned text understanding, tokenization, sequence modeling, semantic retrieval, and multilingual transformer pipelines.",
+    typicalCompanies: ["Google", "Microsoft", "Amazon", "Meta", "Grammarly", "Cohere"],
+    primaryInterviewFormats: [
+      "Tokenization, Attention & Sequence Modeling (45m)",
+      "Semantic Search & Information Retrieval (60m)",
+      "NLP Error Analysis & Evaluation (45m)"
+    ],
+    requiredSkills: [
+      "python",
+      "python_data_stack",
+      "classical_ml_modeling",
+      "deep_learning_foundations",
+      "rag_architecture_and_retrieval"
+    ],
+    preferredSkills: [
+      "prompt_engineering_structured_outputs",
+      "llm_evaluations_and_safety",
+      "ml_model_evaluation"
+    ],
+    primaryTrack: "genai_llm",
+    secondaryTracks: ["ai_ml", "applied_projects"],
+    salaryTier: "₹17–42 LPA (India) / $155k–255k (US)"
+  },
+  cv_engineer: {
+    slug: "cv_engineer",
+    title: "Computer Vision Engineer",
+    badge: "Vision & Spatial AI",
+    icon: "👁️",
+    summary: "Engineers spatial tensor pipelines, convolutional & Vision Transformer architectures, object detection, and real-time edge inference systems.",
+    typicalCompanies: ["NVIDIA", "Tesla", "Apple", "Qualcomm", "Adobe", "Ola Krutrim"],
+    primaryInterviewFormats: [
+      "Tensor Geometry, Convolutions & ViTs (60m)",
+      "Model Quantization & Edge Inference Optimization (45m)",
+      "Dataset Curation & False-Positive Analysis (45m)"
+    ],
+    requiredSkills: [
+      "python",
+      "python_data_stack",
+      "deep_learning_foundations",
+      "classical_ml_modeling",
+      "ml_model_evaluation"
+    ],
+    preferredSkills: [
+      "mlops_serving_and_monitoring",
+      "dsa",
+      "docker"
+    ],
+    primaryTrack: "ai_ml",
+    secondaryTracks: ["mlops", "applied_projects"],
+    salaryTier: "₹18–44 LPA (India) / $160k–265k (US)"
   }
 };
 
@@ -231,7 +287,7 @@ export function getAllTargetRoles(): TargetRoleProfile[] {
   return Object.values(TARGET_ROLE_PROFILES);
 }
 
-export function getTargetRoleBySlug(slug: TargetRoleSlug): TargetRoleProfile {
-  return TARGET_ROLE_PROFILES[slug] || TARGET_ROLE_PROFILES.ai_engineer;
+export function getTargetRoleBySlug(slug: TargetRoleSlug | string): TargetRoleProfile {
+  return (TARGET_ROLE_PROFILES as Record<string, TargetRoleProfile>)[slug] || TARGET_ROLE_PROFILES.ai_engineer;
 }
 

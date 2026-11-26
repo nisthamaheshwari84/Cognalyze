@@ -274,3 +274,162 @@ export function getLabMentorGuidance(req: MentorGuidanceRequest): MentorGuidance
   };
 }
 
+// ============================================================================
+// PHASE 8: CONTEXT-AWARE AI LEARNING COMPANION (LIVE LLM + GROUNDED FALLBACK)
+// ============================================================================
+
+export interface ContextAwareMentorInput {
+  candidateId: string;
+  targetRole: string;
+  subjectTitle: string;
+  moduleTitle: string;
+  topicId: string;
+  topicTitle: string;
+  subtopicTitle?: string;
+  learningPhase?: string;
+  language?: "english" | "hinglish";
+  userMessage: string;
+  userCode?: string;
+  executionStdout?: string;
+  executionStderr?: string;
+  weakConcepts?: string[];
+  assessmentScore?: number | null;
+  currentProjectTitle?: string;
+  contextIntuition?: string;
+  deepExplanation?: string;
+  commonMistakes?: string[];
+  conceptsCovered?: string[];
+}
+
+export interface ContextAwareMentorOutput {
+  reply: string;
+  source: "llm" | "structured_coach";
+  codeExecutionVerified: boolean;
+  recommendedNextStep: string;
+}
+
+export async function generateContextAwareMentorReply(
+  input: ContextAwareMentorInput
+): Promise<ContextAwareMentorOutput> {
+  const isHinglish = input.language === "hinglish";
+  const hasRealExecOutput = Boolean(
+    (input.executionStdout && input.executionStdout.trim().length > 0) ||
+      (input.executionStderr && input.executionStderr.trim().length > 0)
+  );
+
+  // Attempt live LLM response via Cognalyze shared provider
+  const hasAnyKey = Boolean(
+    process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY
+  );
+
+  if (hasAnyKey) {
+    try {
+      const { groqFetch } = await import("@/lib/groq");
+      const systemPrompt = [
+        "You are Cognalyze's AI Learning Professor & Mentor inside the AI & Data Arena.",
+        `Student Target Role: ${input.targetRole}`,
+        `Current Curriculum Location: ${input.subjectTitle} -> ${input.moduleTitle} -> ${input.topicTitle}${input.subtopicTitle ? ` -> ${input.subtopicTitle}` : ""}`,
+        `Current Learning Phase: ${input.learningPhase || "understand"}`,
+        `Language Mode: ${isHinglish ? "Natural Hinglish (simple conversational Hindi + English technical terms)" : "Simple, patient, beginner-friendly English"}`,
+        input.weakConcepts?.length ? `Known Weak Concepts: ${input.weakConcepts.join(", ")}` : "Known Weak Concepts: None logged yet",
+        input.assessmentScore !== null && input.assessmentScore !== undefined
+          ? `Latest Topic Assessment Score: ${input.assessmentScore}%`
+          : "Latest Topic Assessment: Not yet completed",
+        input.currentProjectTitle ? `Active Project: ${input.currentProjectTitle}` : "",
+        "STRICT RULES:",
+        "1. Teach ONLY at the student's current topic level; do NOT jump ahead to unrelated advanced topics without connecting prerequisites.",
+        "2. Explain simply first (intuition + analogy + concrete small example), avoiding jargon walls.",
+        "3. CRITICAL GROUNDING RULE: NEVER claim the student's code executed, compiled, or passed tests unless actual stdout/stderr output is explicitly provided below.",
+        "4. If the student asks for hints, provide a progressive nudge — do not spoil the entire solution immediately.",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const userParts = [`Student Question: ${input.userMessage}`];
+      if (input.userCode?.trim()) {
+        userParts.push(`Student's Current Editor Code (unexecuted unless stdout/stderr shown below):\n\`\`\`\n${input.userCode.slice(0, 1800)}\n\`\`\``);
+      }
+      if (input.executionStdout?.trim()) {
+        userParts.push(`Observed Sandbox Stdout:\n${input.executionStdout.slice(0, 800)}`);
+      }
+      if (input.executionStderr?.trim()) {
+        userParts.push(`Observed Sandbox Stderr:\n${input.executionStderr.slice(0, 800)}`);
+      }
+
+      const res = await groqFetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "openai/gpt-oss-120b",
+          temperature: 0.35,
+          max_tokens: 650,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userParts.join("\n\n") },
+          ],
+        }),
+        signal: AbortSignal.timeout(9000),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const content = data?.choices?.[0]?.message?.content?.trim();
+        if (content) {
+          return {
+            reply: content,
+            source: "llm",
+            codeExecutionVerified: hasRealExecOutput && !input.executionStderr,
+            recommendedNextStep:
+              input.assessmentScore !== null && input.assessmentScore !== undefined && input.assessmentScore < 70
+                ? "Review weak concepts and complete the Practical Lab or Remediation Assessment."
+                : "Test your code in the integrated editor and complete the subtopic micro-check.",
+          };
+        }
+      }
+    } catch {}
+  }
+
+  // Deterministic topic-grounded fallback coach (never pretends code executed!)
+  const q = (input.userMessage || "").toLowerCase();
+  const c0 = input.conceptsCovered?.[0] || input.topicTitle;
+  const mistake = input.commonMistakes?.[0] || `Skipping edge cases (empty or null inputs) in ${input.topicTitle}`;
+
+  let reply = "";
+  if (q.includes("error") || q.includes("stderr") || q.includes("debug") || q.includes("review")) {
+    if (input.executionStderr) {
+      reply = isHinglish
+        ? `Aapke sandbox run mein yeh error aaya:\n\`${input.executionStderr.slice(0, 240)}\`\n\nIse fix karne ke liye **${input.topicTitle}** mein check karein: ${mistake}. Pehle input types aur edge cases par print ya guard lagayein.`
+        : `Your latest sandbox run returned:\n\`${input.executionStderr.slice(0, 240)}\`\n\nFor **${input.topicTitle}**, check this frequent root cause: ${mistake}. Verify variable names, schema columns, and zero/null guards before re-running.`;
+    } else if (input.userCode?.trim()) {
+      reply = isHinglish
+        ? `Maine aapka code read kiya hai (note: jab tak aap **Run Code** nahi dabate, execution verify nahi hua maana jayega).\n\n**${input.topicTitle}** ke hisaab se check karein:\n1. Kya empty/null input handle ho raha hai?\n2. Common trap se bachein: *${mistake}*.`
+        : `I reviewed your current code (note: code execution has not been verified yet until you click **Run** in the sandbox).\n\nCheck these two invariants for **${input.topicTitle}**:\n1. Ensure boundary cases (empty arrays / None / NULL) return cleanly.\n2. Watch out for: *${mistake}*.`;
+    } else {
+      reply = `Paste or write your solution in the workspace and run it first so we can inspect actual stdout/stderr together for **${input.topicTitle}**.`;
+    }
+  } else if (q.includes("viva") || q.includes("quiz") || q.includes("interview")) {
+    reply = isHinglish
+      ? `**Quick Viva Question (${input.topicTitle}):**\n1. ${c0} kyu use kiya jata hai aur iska simple real-world example kya hai?\n2. Agar input data empty ya corrupt aaye toh aapka implementation kaise behave karega?\n\nApna jawab 2–3 lines mein likhein — main check karunga!`
+      : `**Topic Viva Check (${input.topicTitle}):**\nExplain in your own words: Why does **${c0}** matter for a ${input.targetRole}, and what happens if you ignore "${mistake}" in production? Reply in 2–3 sentences!`;
+  } else if (q.includes("hint")) {
+    reply = isHinglish
+      ? `**Progressive Hint (${input.topicTitle}):** Pehle input clean/validate karein, phir **${c0}** ka core step lagayein aur common mistake (*${mistake}*) ko guard karein. Zaroorat ho toh ek step aur puchhein.`
+      : `**Progressive Hint (${input.topicTitle}):** Start by guarding malformed or empty inputs, then apply **${c0}** step by step while avoiding: *${mistake}*. Run on a 2-item sample first!`;
+  } else {
+    const coreExpl = isHinglish
+      ? input.contextIntuition || `${input.topicTitle} mein ${c0} real systems ko predictable aur fast banata hai.`
+      : input.contextIntuition || input.deepExplanation || `${input.topicTitle} teaches how ${c0} solves real engineering problems cleanly.`;
+    reply = isHinglish
+      ? `**${input.topicTitle} (${input.subtopicTitle || "Concept"}):**\n${coreExpl}\n\n**Dhyan rakhne wali galti:** ${mistake}`
+      : `**${input.topicTitle} (${input.subtopicTitle || "Current Concept"}):**\n${coreExpl}\n\n**Key Mistake to Avoid:** ${mistake}`;
+  }
+
+  return {
+    reply,
+    source: "structured_coach",
+    codeExecutionVerified: hasRealExecOutput && !input.executionStderr,
+    recommendedNextStep: `Try the runnable example or complete the micro-check in ${input.subtopicTitle || input.topicTitle}.`,
+  };
+}
+
+

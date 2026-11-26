@@ -74,15 +74,6 @@ export default function StudentPracticeInterviewPage() {
   const checkServerHealth = useCallback(async () => {
     setChecking(true);
     try {
-      const origin = launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN;
-      const directRes = await fetch(`${origin}/api/health`, { method: "GET", cache: "no-store" }).catch(() => null);
-      if (directRes && directRes.ok) {
-        const directData = await directRes.json().catch(() => ({}));
-        setIsServerHealthy(Boolean(directData.status === "ok" || directData.reachable));
-        setEngineOriginLabel(origin);
-        return;
-      }
-
       const res = await fetch("/api/health", { method: "GET", cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
@@ -98,7 +89,7 @@ export default function StudentPracticeInterviewPage() {
     } finally {
       setChecking(false);
     }
-  }, [launchData?.launchOrigin, engineOriginLabel]);
+  }, []);
 
   const requestLaunchTicket = useCallback(async (): Promise<LaunchSessionData | null> => {
     try {
@@ -140,20 +131,28 @@ export default function StudentPracticeInterviewPage() {
       setLaunchState("ready");
       setLaunchError(null);
       return payload;
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : null;
       setLaunchState("error");
-      setLaunchError(err?.message || "Network error initializing Interview Intelligence session.");
+      setLaunchError(msg || "Network error initializing Interview Intelligence session.");
       return null;
     }
   }, [readContextHintsFromUrl]);
 
   useEffect(() => {
-    void requestLaunchTicket();
-    void checkServerHealth();
+    let active = true;
+    async function bootstrap() {
+      if (!active) return;
+      await Promise.all([requestLaunchTicket(), checkServerHealth()]);
+    }
+    void bootstrap();
     const interval = setInterval(() => {
       void checkServerHealth();
     }, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [requestLaunchTicket, checkServerHealth]);
 
   const dispatchTicketToIframe = useCallback(
@@ -202,12 +201,14 @@ export default function StudentPracticeInterviewPage() {
 
       if (msgType === "COGNALYZE_READY") {
         iframeReadyRef.current = true;
+        setIframeLoaded(true);
         setIsServerHealthy(true);
         if (launchData && launchState === "ready") {
           void dispatchTicketToIframe(launchData, false);
         }
       } else if (msgType === "COGNALYZE_TICKET_NEEDED") {
         iframeReadyRef.current = true;
+        setIframeLoaded(true);
         if (launchData) {
           void dispatchTicketToIframe(launchData, true);
         } else {
@@ -270,6 +271,15 @@ export default function StudentPracticeInterviewPage() {
   const activeOrigin = launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN;
   const shouldShowIframe =
     launchState === "initializing" || (launchState === "ready" && Boolean(launchData));
+
+  // Ensure loading overlay never gets stuck if iframe completes initial load before React attaches onLoad
+  useEffect(() => {
+    if (!shouldShowIframe || iframeLoaded) return;
+    const timer = window.setTimeout(() => {
+      setIframeLoaded(true);
+    }, 2200);
+    return () => window.clearTimeout(timer);
+  }, [shouldShowIframe, iframeLoaded]);
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F6F5F1", display: "flex", flexDirection: "column" }}>
@@ -540,30 +550,34 @@ export default function StudentPracticeInterviewPage() {
               <div
                 style={{
                   position: "absolute",
-                  inset: 0,
-                  display: "flex",
-                  flexDirection: "column",
+                  top: 14,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "inline-flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  backgroundColor: "#F6F5F1",
+                  gap: 8,
+                  padding: "7px 14px",
+                  borderRadius: 999,
+                  backgroundColor: "rgba(255, 255, 255, 0.95)",
+                  border: "1px solid #D2E0FB",
+                  boxShadow: "0 4px 12px rgba(16, 24, 40, 0.08)",
                   zIndex: 5,
                   pointerEvents: "none",
                 }}
               >
                 <div
                   style={{
-                    width: 28,
-                    height: 28,
+                    width: 14,
+                    height: 14,
                     borderRadius: "50%",
-                    border: "3px solid #D2E0FB",
+                    border: "2px solid #D2E0FB",
                     borderTopColor: "#356AE6",
                     animation: "spin 0.8s linear infinite",
                   }}
                 />
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#162A43", margin: 0 }}>
-                  Loading Personalized Interview Arena...
-                </p>
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#162A43" }}>
+                  Connecting Interview Studio...
+                </span>
               </div>
             )}
             <iframe

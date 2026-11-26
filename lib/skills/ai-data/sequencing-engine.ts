@@ -16,14 +16,22 @@
  * while tailoring module emphasis, progression order, and projects to each target role.
  */
 
-import { TargetRoleSlug } from "./types";
+import {
+  TargetRoleSlug,
+  TopicMasteryRecord,
+  TopicMasteryStatus,
+  LearningPosition,
+  CustomTargetRoleConfig,
+} from "./types";
 import {
   MASTER_CURRICULUM_SUBJECTS,
   TaxonomySubject,
   TaxonomyTopic,
   TaxonomyModule,
   getTaxonomyTopicById,
+  TOPIC_ID_ALIASES,
 } from "./master-curriculum-taxonomy";
+import { BaselineAssessmentResult } from "./baseline-assessment-engine";
 
 export interface RoleProgressionSubject {
   subjectId: string;
@@ -749,6 +757,202 @@ export const ROLE_SUBJECT_PROGRESSIONS: Record<TargetRoleSlug, RoleLearningProgr
       },
     ],
   },
+
+  nlp_engineer: {
+    role: "nlp_engineer",
+    roleTitle: "NLP Engineer",
+    summary: "Master Python text processing, statistical modeling, transformer attention, dense embeddings, and RAG evaluation for language applications.",
+    subjects: [
+      {
+        subjectId: "subj_python",
+        slug: "python",
+        title: "Python Foundations for Data & AI",
+        icon: "🐍",
+        badge: "Core Language",
+        estimatedHours: 20,
+        roleImportance: "FOUNDATION",
+        roleWhy: "Text tokenization scripts, async inference workers, and algorithmic structures.",
+        prerequisites: [],
+        recommendedOrder: 1,
+      },
+      {
+        subjectId: "subj_numpy",
+        slug: "numpy",
+        title: "NumPy Numerical Computing Architecture",
+        icon: "🔢",
+        badge: "Tensor Math",
+        estimatedHours: 16,
+        roleImportance: "FOUNDATION",
+        roleWhy: "Matrix dot products, cosine similarity vectors, and tensor shape mechanics.",
+        prerequisites: ["subj_python"],
+        recommendedOrder: 2,
+      },
+      {
+        subjectId: "subj_stats_ab",
+        slug: "statistics-ab",
+        title: "Statistics, Probability & A/B Testing",
+        icon: "📊",
+        badge: "Probabilistic Modeling",
+        estimatedHours: 18,
+        roleImportance: "CORE",
+        roleWhy: "Perplexity, conditional distributions, and statistical significance on eval benchmarks.",
+        prerequisites: ["subj_python", "subj_numpy"],
+        recommendedOrder: 3,
+      },
+      {
+        subjectId: "subj_ml",
+        slug: "machine-learning",
+        title: "Classical Machine Learning Foundations",
+        icon: "📈",
+        badge: "Classification & Baselines",
+        estimatedHours: 24,
+        roleImportance: "CORE",
+        roleWhy: "Text classification baselines, regularization, and PR/ROC error diagnostics.",
+        prerequisites: ["subj_numpy", "subj_stats_ab"],
+        recommendedOrder: 4,
+      },
+      {
+        subjectId: "subj_deep_learning",
+        slug: "deep-learning",
+        title: "Deep Learning & Transformers",
+        icon: "🤖",
+        badge: "Attention Architecture",
+        estimatedHours: 36,
+        roleImportance: "CORE",
+        roleWhy: "Self-attention, positional encoding, backpropagation, and encoder/decoder sequences.",
+        prerequisites: ["subj_numpy", "subj_ml"],
+        recommendedOrder: 5,
+      },
+      {
+        subjectId: "subj_genai_llm",
+        slug: "generative-ai-llms",
+        title: "Generative AI & LLM Engineering",
+        icon: "✨",
+        badge: "Foundation Models",
+        estimatedHours: 30,
+        roleImportance: "CORE",
+        roleWhy: "Subword BPE tokenizers, LoRA fine-tuning, and structured semantic outputs.",
+        prerequisites: ["subj_deep_learning"],
+        recommendedOrder: 6,
+      },
+      {
+        subjectId: "subj_rag",
+        slug: "rag",
+        title: "Retrieval-Augmented Generation (RAG)",
+        icon: "🔍",
+        badge: "Information Retrieval",
+        estimatedHours: 28,
+        roleImportance: "SPECIALIZED",
+        roleWhy: "Dense embeddings, cross-encoder reranking, and lexical/semantic hybrid search.",
+        prerequisites: ["subj_genai_llm"],
+        recommendedOrder: 7,
+      },
+      {
+        subjectId: "subj_ai_eval",
+        slug: "ai-evaluation-safety",
+        title: "AI Evaluation & Responsible AI",
+        icon: "🛡️",
+        badge: "Evals & Grounding",
+        estimatedHours: 22,
+        roleImportance: "SPECIALIZED",
+        roleWhy: "Hallucination audits, LLM-as-a-judge benchmarks, and guardrail validation.",
+        prerequisites: ["subj_genai_llm"],
+        recommendedOrder: 8,
+      },
+    ],
+  },
+
+  cv_engineer: {
+    role: "cv_engineer",
+    roleTitle: "Computer Vision Engineer",
+    summary: "Engineer high-speed numerical tensor pipelines, CNN and Vision Transformer architectures, calibration, and low-latency MLOps edge deployments.",
+    subjects: [
+      {
+        subjectId: "subj_python",
+        slug: "python",
+        title: "Python Foundations for Data & AI",
+        icon: "🐍",
+        badge: "Core Language",
+        estimatedHours: 20,
+        roleImportance: "FOUNDATION",
+        roleWhy: "Image batch generators, multiprocessing loaders, and typed model wrappers.",
+        prerequisites: [],
+        recommendedOrder: 1,
+      },
+      {
+        subjectId: "subj_numpy",
+        slug: "numpy",
+        title: "NumPy Numerical Computing Architecture",
+        icon: "🔢",
+        badge: "Spatial Tensor Core",
+        estimatedHours: 22,
+        roleImportance: "FOUNDATION",
+        roleWhy: "NCHW tensor strides, image convolutions, and broadcasting geometry.",
+        prerequisites: ["subj_python"],
+        recommendedOrder: 2,
+      },
+      {
+        subjectId: "subj_pandas",
+        slug: "pandas",
+        title: "Pandas Tabular Analytics & Data Cleaning",
+        icon: "🐼",
+        badge: "Annotation Metadata",
+        estimatedHours: 14,
+        roleImportance: "FOUNDATION",
+        roleWhy: "Bounding-box annotation validation, class distribution balance, and slice auditing.",
+        prerequisites: ["subj_python", "subj_numpy"],
+        recommendedOrder: 3,
+      },
+      {
+        subjectId: "subj_stats_ab",
+        slug: "statistics-ab",
+        title: "Statistics, Probability & A/B Testing",
+        icon: "📊",
+        badge: "Calibration & Splits",
+        estimatedHours: 16,
+        roleImportance: "CORE",
+        roleWhy: "Stratified splits, confidence calibration, and distribution shift testing.",
+        prerequisites: ["subj_numpy"],
+        recommendedOrder: 4,
+      },
+      {
+        subjectId: "subj_ml",
+        slug: "machine-learning",
+        title: "Classical Machine Learning Foundations",
+        icon: "📈",
+        badge: "Modeling Fundamentals",
+        estimatedHours: 26,
+        roleImportance: "CORE",
+        roleWhy: "Loss landscapes, regularization, and precision-recall calibration.",
+        prerequisites: ["subj_numpy", "subj_stats_ab"],
+        recommendedOrder: 5,
+      },
+      {
+        subjectId: "subj_deep_learning",
+        slug: "deep-learning",
+        title: "Deep Learning & Transformers",
+        icon: "🤖",
+        badge: "CNNs & ViTs",
+        estimatedHours: 40,
+        roleImportance: "CORE",
+        roleWhy: "Convolutional kernels, residual backprop, normalization, and Vision Transformers.",
+        prerequisites: ["subj_numpy", "subj_ml"],
+        recommendedOrder: 6,
+      },
+      {
+        subjectId: "subj_mlops",
+        slug: "mlops-llmops",
+        title: "MLOps & LLMOps Production Engineering",
+        icon: "🚀",
+        badge: "Edge Serving & ONNX",
+        estimatedHours: 26,
+        roleImportance: "SPECIALIZED",
+        roleWhy: "Model quantization, ONNX/TensorRT serving, and camera stream drift detection.",
+        prerequisites: ["subj_deep_learning"],
+        recommendedOrder: 7,
+      },
+    ],
+  },
 };
 
 /**
@@ -858,4 +1062,421 @@ export function resolveNextTopicRecommendation(
     module: firstMod,
     rationale: `Foundational starting point for ${progression.roleTitle}`,
   };
+}
+
+// ============================================================================
+// CANONICAL 154-TOPIC PREREQUISITE DAG & ADAPTIVE ROADMAP ENGINE (PHASE 2)
+// ============================================================================
+
+export type CanonicalNodeLockState =
+  | "LOCKED"
+  | "AVAILABLE"
+  | "IN_PROGRESS"
+  | "REMEDIATION_REQUIRED"
+  | "COMPLETED"
+  | "MASTERED";
+
+export interface CanonicalRoadmapNode {
+  topicId: string;
+  title: string;
+  subjectId: string;
+  subjectTitle: string;
+  moduleId: string;
+  moduleTitle: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  estimatedMinutes: number;
+  orderIndex: number;
+  lockState: CanonicalNodeLockState;
+  masteryStatus: TopicMasteryStatus;
+  prerequisites: string[];
+  missingPrerequisites: string[];
+  unlockedReason?: string;
+  lockReason?: string;
+  exemptedByEvidence: boolean;
+  assessmentScore: number | null;
+  remediationRequired: boolean;
+  weakConcepts: string[];
+  roleImportance: "CRITICAL" | "HIGH" | "SUPPORTING";
+  roleWhy: string;
+}
+
+export interface CanonicalRoadmapSubjectGroup {
+  subjectId: string;
+  slug: string;
+  title: string;
+  icon: string;
+  badge: string;
+  roleImportance: string;
+  roleWhy: string;
+  estimatedHours: number;
+  prerequisites: string[];
+  missingPrerequisiteSubjects: string[];
+  isUnlocked: boolean;
+  completedTopics: number;
+  masteredTopics: number;
+  totalTopics: number;
+  percentMastered: number;
+  topics: CanonicalRoadmapNode[];
+}
+
+export interface CanonicalArenaRoadmap {
+  candidateId: string;
+  targetRole: TargetRoleSlug | string;
+  roleTitle: string;
+  roleSummary: string;
+  requiredCompetencies: string[];
+  verifiedCompetencies: string[];
+  missingPrerequisites: string[];
+  exemptionsGranted: string[];
+  totalTopics: number;
+  completedCount: number;
+  masteredCount: number;
+  overallProgressPercent: number;
+  currentPosition: LearningPosition | null;
+  recommendedNextTopic: CanonicalRoadmapNode | null;
+  upcomingPracticals: Array<{ topicId: string; title: string; subjectTitle: string }>;
+  upcomingAssessments: Array<{ topicId: string; title: string; subjectTitle: string }>;
+  requiredProjects: string[];
+  subjects: CanonicalRoadmapSubjectGroup[];
+}
+
+function mapSubjectToSkillKey(subjectId: string): string[] {
+  switch (subjectId) {
+    case "subj_python": return ["python", "programming_fundamentals"];
+    case "subj_numpy": return ["python_data_stack", "numpy_linear_algebra"];
+    case "subj_pandas": return ["python_data_stack", "exploratory_data_analysis"];
+    case "subj_sql": return ["sql", "advanced_sql_analytics", "business_product_analytics"];
+    case "subj_stats_ab": return ["ab_testing_statistics", "statistics_probability"];
+    case "subj_ml": return ["classical_ml_modeling", "ml_model_evaluation"];
+    case "subj_deep_learning": return ["deep_learning_foundations"];
+    case "subj_genai_llm": return ["prompt_engineering_structured_outputs", "genai_llms"];
+    case "subj_rag": return ["rag_architecture_and_retrieval"];
+    case "subj_agents": return ["ai_agents_and_tool_calling"];
+    case "subj_data_engineering": return ["data_engineering_pipelines"];
+    case "subj_mlops": return ["mlops_serving_and_monitoring"];
+    case "subj_ai_eval": return ["llm_evaluations_and_safety"];
+    default: return ["machine_learning"];
+  }
+}
+
+export function isTopicCompletedOrExempted(
+  topicId: string,
+  masteryMap: Record<string, TopicMasteryRecord>,
+  exemptedSubjectIds: Set<string>,
+  topicToSubject: Map<string, string>
+): boolean {
+  const resolved = TOPIC_ID_ALIASES[topicId] || topicId;
+  const rec = masteryMap[resolved] || masteryMap[topicId];
+  if (rec) {
+    if (
+      rec.status === "assessment_passed" ||
+      rec.status === "demonstrated" ||
+      rec.status === "mastered_verified" ||
+      rec.exemptedByEvidence
+    ) {
+      return true;
+    }
+  }
+  const subjId = topicToSubject.get(resolved);
+  if (subjId && exemptedSubjectIds.has(subjId)) {
+    const topic = getTaxonomyTopicById(resolved);
+    if (topic && topic.difficulty === "beginner") return true;
+  }
+  return false;
+}
+
+export function buildCanonicalArenaRoadmap(params: {
+  candidateId: string;
+  targetRole: TargetRoleSlug | string;
+  customRoleConfig?: CustomTargetRoleConfig | null;
+  masteryMap?: Record<string, TopicMasteryRecord>;
+  baselineAssessment?: BaselineAssessmentResult | null;
+  dnaVerifiedSkills?: Array<{ skillId: string; verificationState: string; level?: number }>;
+  learningPosition?: LearningPosition | null;
+}): CanonicalArenaRoadmap {
+  const {
+    candidateId,
+    targetRole,
+    customRoleConfig = null,
+    masteryMap = {},
+    baselineAssessment = null,
+    dnaVerifiedSkills = [],
+    learningPosition = null,
+  } = params;
+
+  const progression = customRoleConfig
+    ? {
+        role: targetRole as TargetRoleSlug,
+        roleTitle: customRoleConfig.title,
+        summary: customRoleConfig.summary,
+        subjects: customRoleConfig.requiredSubjectIds
+          .map((id, idx): RoleProgressionSubject | null => {
+            const subj = MASTER_CURRICULUM_SUBJECTS.find((s) => s.id === id);
+            if (!subj) return null;
+            return {
+              subjectId: subj.id,
+              slug: subj.slug,
+              title: subj.title,
+              icon: subj.icon,
+              badge: subj.badge,
+              estimatedHours: subj.estimatedHours,
+              roleImportance: idx < 2 ? "FOUNDATION" : "CORE",
+              roleWhy: `Configured target requirement for ${customRoleConfig.title}`,
+              prerequisites: subj.prerequisites,
+              recommendedOrder: idx + 1,
+            };
+          })
+          .filter((s): s is RoleProgressionSubject => Boolean(s)),
+      }
+    : getRoleSubjectProgression(targetRole as TargetRoleSlug);
+
+  // Determine verified competencies from Baseline + Student DNA
+  const verifiedSkillSet = new Set<string>();
+  const exemptedSkills = new Set<string>(baselineAssessment?.exemptionsGranted || []);
+  for (const sk of dnaVerifiedSkills) {
+    if (
+      sk.verificationState === "VERIFIED" ||
+      sk.verificationState === "DEMONSTRATED" ||
+      (typeof sk.level === "number" && sk.level >= 3)
+    ) {
+      verifiedSkillSet.add(sk.skillId);
+      exemptedSkills.add(sk.skillId);
+    }
+  }
+  for (const ex of exemptedSkills) verifiedSkillSet.add(ex);
+
+  // Map which subjects have beginner exemptions from verified evidence
+  const exemptedSubjectIds = new Set<string>();
+  for (const subj of MASTER_CURRICULUM_SUBJECTS) {
+    const keys = mapSubjectToSkillKey(subj.id);
+    if (keys.some((k) => exemptedSkills.has(k))) {
+      exemptedSubjectIds.add(subj.id);
+    }
+  }
+
+  const topicToSubject = new Map<string, string>();
+  for (const subj of MASTER_CURRICULUM_SUBJECTS) {
+    for (const mod of subj.modules) {
+      for (const t of mod.topics) {
+        topicToSubject.set(t.id, subj.id);
+      }
+    }
+  }
+
+  const subjects: CanonicalRoadmapSubjectGroup[] = [];
+  const missingGlobalPrerequisites = new Set<string>();
+  const upcomingPracticals: Array<{ topicId: string; title: string; subjectTitle: string }> = [];
+  const upcomingAssessments: Array<{ topicId: string; title: string; subjectTitle: string }> = [];
+  let totalTopics = 0;
+  let completedCount = 0;
+  let masteredCount = 0;
+  let recommendedNextTopic: CanonicalRoadmapNode | null = null;
+  let globalOrder = 0;
+
+  // Include all role subjects + ensure Applied Projects capstone subject appears at end
+  const orderedRoleSubjects = [...progression.subjects];
+  if (!orderedRoleSubjects.some((s) => s.subjectId === "subj_ai_projects")) {
+    orderedRoleSubjects.push({
+      subjectId: "subj_ai_projects",
+      slug: "applied-ai-projects",
+      title: "Applied AI Projects & Capstones",
+      icon: "🏆",
+      badge: "Production Capstones",
+      estimatedHours: 40,
+      roleImportance: "SPECIALIZED",
+      roleWhy: "Synthesize learned competencies into verified portfolio projects.",
+      prerequisites: orderedRoleSubjects.slice(-1).map((s) => s.subjectId),
+      recommendedOrder: orderedRoleSubjects.length + 1,
+    });
+  }
+
+  for (const roleSubj of orderedRoleSubjects) {
+    const fullSubj = MASTER_CURRICULUM_SUBJECTS.find((s) => s.id === roleSubj.subjectId);
+    if (!fullSubj) continue;
+
+    // Evaluate subject-level prerequisites (satisfied when prerequisite subject has at least 1 passed/demonstrated/exempted topic)
+    const missingPrerequisiteSubjects: string[] = [];
+    for (const prereqSubjId of roleSubj.prerequisites) {
+      const prereqSubj = MASTER_CURRICULUM_SUBJECTS.find((s) => s.id === prereqSubjId);
+      if (!prereqSubj) continue;
+      const prereqTopicIds = prereqSubj.modules.flatMap((m) => m.topics.map((t) => t.id));
+      const satisfied =
+        exemptedSubjectIds.has(prereqSubjId) ||
+        prereqTopicIds.some((tid) => isTopicCompletedOrExempted(tid, masteryMap, exemptedSubjectIds, topicToSubject));
+      if (!satisfied) {
+        missingPrerequisiteSubjects.push(prereqSubj.title);
+        missingGlobalPrerequisites.add(prereqSubj.title);
+      }
+    }
+    const isSubjUnlocked = missingPrerequisiteSubjects.length === 0;
+
+    const nodes: CanonicalRoadmapNode[] = [];
+    let subjCompleted = 0;
+    let subjMastered = 0;
+
+    let prevTopicInSubjectId: string | null = null;
+    for (const mod of fullSubj.modules) {
+      for (const topic of mod.topics) {
+        totalTopics++;
+        const rec = masteryMap[topic.id];
+        const isExempt =
+          exemptedSubjectIds.has(fullSubj.id) && topic.difficulty === "beginner" && !rec?.remediationRequired;
+
+        // Effective prerequisites: explicit topic.prerequisites + sequential previous topic within same module/subject
+        const effectivePrereqs = Array.from(
+          new Set([
+            ...(topic.prerequisites || []).map((p) => TOPIC_ID_ALIASES[p] || p),
+            ...(prevTopicInSubjectId ? [prevTopicInSubjectId] : []),
+          ])
+        );
+
+        const missingTopicPrereqs: string[] = [];
+        for (const pId of effectivePrereqs) {
+          if (!isTopicCompletedOrExempted(pId, masteryMap, exemptedSubjectIds, topicToSubject)) {
+            const pt = getTaxonomyTopicById(pId);
+            missingTopicPrereqs.push(pt?.title || pId);
+          }
+        }
+
+        let masteryStatus: TopicMasteryStatus = rec?.status || (isExempt ? "demonstrated" : "not_started");
+        let lockState: CanonicalNodeLockState = "LOCKED";
+        let lockReason: string | undefined;
+        let unlockedReason: string | undefined;
+
+        if (rec?.remediationRequired) {
+          lockState = "REMEDIATION_REQUIRED";
+          unlockedReason = "Review identified weak concepts and retake remediation check.";
+        } else if (masteryStatus === "mastered_verified") {
+          lockState = "MASTERED";
+          unlockedReason = "All concept, coding, lab, and assessment gates verified.";
+        } else if (masteryStatus === "assessment_passed" || masteryStatus === "demonstrated" || isExempt) {
+          lockState = "COMPLETED";
+          unlockedReason = isExempt
+            ? "Prerequisite competence established via Diagnostic / Student DNA."
+            : "Assessment passed; complete final verification if pending.";
+        } else if (!isSubjUnlocked) {
+          lockState = "LOCKED";
+          lockReason = `Complete prerequisite module(s): ${missingPrerequisiteSubjects.join(", ")}`;
+        } else if (missingTopicPrereqs.length > 0 && !isExempt) {
+          lockState = "LOCKED";
+          lockReason = `Complete '${missingTopicPrereqs[0]}' first (coding + lab + assessment).`;
+        } else if (masteryStatus === "learning" || masteryStatus === "practiced") {
+          lockState = "IN_PROGRESS";
+          unlockedReason = "Currently in progress. Complete practical lab and assessment to unlock next.";
+        } else {
+          lockState = "AVAILABLE";
+          unlockedReason = "Prerequisites satisfied. Ready to learn.";
+        }
+
+        if (lockState === "MASTERED") {
+          subjMastered++;
+          masteredCount++;
+          subjCompleted++;
+          completedCount++;
+        } else if (lockState === "COMPLETED") {
+          subjCompleted++;
+          completedCount++;
+        }
+
+        const relevance = (topic.roleRelevance as Record<string, { importance: "CRITICAL" | "HIGH" | "SUPPORTING"; why: string }>)?.[targetRole] || {
+          importance: roleSubj.roleImportance === "CORE" || roleSubj.roleImportance === "FOUNDATION" ? "CRITICAL" : "HIGH",
+          why: roleSubj.roleWhy,
+        };
+
+        const node: CanonicalRoadmapNode = {
+          topicId: topic.id,
+          title: topic.title,
+          subjectId: fullSubj.id,
+          subjectTitle: fullSubj.title,
+          moduleId: mod.id,
+          moduleTitle: mod.title,
+          difficulty: topic.difficulty,
+          estimatedMinutes: topic.estimatedMinutes,
+          orderIndex: globalOrder++,
+          lockState,
+          masteryStatus,
+          prerequisites: effectivePrereqs,
+          missingPrerequisites: missingTopicPrereqs,
+          unlockedReason,
+          lockReason,
+          exemptedByEvidence: isExempt,
+          assessmentScore: rec?.assessmentScore ?? null,
+          remediationRequired: Boolean(rec?.remediationRequired),
+          weakConcepts: rec?.weakConcepts || [],
+          roleImportance: relevance.importance,
+          roleWhy: relevance.why,
+        };
+
+        if (!recommendedNextTopic && (lockState === "REMEDIATION_REQUIRED" || lockState === "IN_PROGRESS" || lockState === "AVAILABLE")) {
+          recommendedNextTopic = node;
+        }
+        if ((lockState === "AVAILABLE" || lockState === "IN_PROGRESS") && !rec?.labPassed && upcomingPracticals.length < 4) {
+          upcomingPracticals.push({ topicId: topic.id, title: topic.title, subjectTitle: fullSubj.title });
+        }
+        if ((lockState === "AVAILABLE" || lockState === "IN_PROGRESS") && !rec?.assessmentPassed && upcomingAssessments.length < 4) {
+          upcomingAssessments.push({ topicId: topic.id, title: topic.title, subjectTitle: fullSubj.title });
+        }
+
+        nodes.push(node);
+        prevTopicInSubjectId = topic.id;
+      }
+    }
+
+    subjects.push({
+      subjectId: fullSubj.id,
+      slug: fullSubj.slug,
+      title: fullSubj.title,
+      icon: fullSubj.icon,
+      badge: fullSubj.badge,
+      roleImportance: roleSubj.roleImportance,
+      roleWhy: roleSubj.roleWhy,
+      estimatedHours: roleSubj.estimatedHours,
+      prerequisites: roleSubj.prerequisites,
+      missingPrerequisiteSubjects,
+      isUnlocked: isSubjUnlocked,
+      completedTopics: subjCompleted,
+      masteredTopics: subjMastered,
+      totalTopics: nodes.length,
+      percentMastered: nodes.length > 0 ? Math.round((subjCompleted / nodes.length) * 100) : 0,
+      topics: nodes,
+    });
+  }
+
+  const requiredCompetencies = customRoleConfig
+    ? customRoleConfig.requiredSkills
+    : (TARGET_ROLE_PROFILES_SAFE(targetRole)?.requiredSkills || ["python", "machine_learning"]);
+
+  return {
+    candidateId,
+    targetRole,
+    roleTitle: progression.roleTitle,
+    roleSummary: progression.summary,
+    requiredCompetencies,
+    verifiedCompetencies: Array.from(verifiedSkillSet),
+    missingPrerequisites: Array.from(missingGlobalPrerequisites),
+    exemptionsGranted: Array.from(exemptedSkills),
+    totalTopics,
+    completedCount,
+    masteredCount,
+    overallProgressPercent: totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0,
+    currentPosition: learningPosition,
+    recommendedNextTopic,
+    upcomingPracticals,
+    upcomingAssessments,
+    requiredProjects: [
+      "Level 1: Topic Concept Automation / Data Script",
+      "Level 2: End-to-End Integration Pipeline",
+      `Level 3: ${progression.roleTitle} Production Capstone`,
+    ],
+    subjects,
+  };
+}
+
+function TARGET_ROLE_PROFILES_SAFE(slug: string) {
+  try {
+    const { getTargetRoleBySlug } = require("./roles");
+    return getTargetRoleBySlug(slug);
+  } catch {
+    return null;
+  }
 }

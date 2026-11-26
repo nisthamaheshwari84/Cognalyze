@@ -20,6 +20,7 @@ import {
   generatePersonalWeaknessNotes,
 } from "../lib/skills/ai-data/intelligent-notes-engine";
 import { buildStudentPersonalizedRoadmap } from "../lib/skills/ai-data/personalized-roadmap-engine";
+import { updateTopicMasteryRecord, getTopicMasteryMap } from "../lib/skills/ai-data/store";
 import { SKILL_DOMAINS } from "../lib/skill-hub-store";
 
 describe("Cognalyze AI & Data Arena Master UX Rebuild & Architecture Tests", () => {
@@ -95,9 +96,15 @@ describe("Cognalyze AI & Data Arena Master UX Rebuild & Architecture Tests", () 
     assert.ok(canonical.formalDefinition.length > 0, "Must have formalDefinition");
     assert.ok(canonical.interviewCheatSheet.length >= 2, "Must have interviewCheatSheet");
 
-    const weakness = generatePersonalWeaknessNotes("cand-test-dna");
+    updateTopicMasteryRecord("cand-test-dna", "numpy-vectorization-and-broadcasting", () => ({
+      status: "learning",
+      remediationRequired: true,
+      assessmentScore: 45,
+      weakConcepts: ["Shape Broadcasting & Strides"],
+    }));
+    const weakness = generatePersonalWeaknessNotes("cand-test-dna", getTopicMasteryMap("cand-test-dna"));
     assert.ok(weakness, "Weakness notes must be generated");
-    assert.ok(weakness.totalWeaknessesDetected >= 1, "Must detect weaknesses");
+    assert.ok(weakness.totalWeaknessesDetected >= 1, "Must detect weaknesses from recorded failure");
   });
 
   test("7. Personalized Roadmap Engine: Generates student-specific sequence based on target role", () => {

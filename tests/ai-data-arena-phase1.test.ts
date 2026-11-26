@@ -91,9 +91,9 @@ describe("Phase 1: Skill Practice Hub Domain Registration", () => {
 });
 
 describe("Phase 1: Sourced Role Profiles", () => {
-  test("All 8 industry target roles exist with complete provenance", () => {
+  test("All 10 industry target roles exist with complete provenance", () => {
     const roles = getAllTargetRoles();
-    assert.equal(roles.length, 8, "Must contain exactly 8 target role profiles");
+    assert.equal(roles.length, 10, "Must contain exactly 10 target role profiles");
 
     const expectedRoles = [
       "ai_engineer",
@@ -103,7 +103,9 @@ describe("Phase 1: Sourced Role Profiles", () => {
       "data_engineer",
       "genai_llm_engineer",
       "mlops_engineer",
-      "applied_ai_engineer"
+      "applied_ai_engineer",
+      "nlp_engineer",
+      "cv_engineer"
     ];
 
     for (const rSlug of expectedRoles) {

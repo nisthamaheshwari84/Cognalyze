@@ -246,7 +246,7 @@ import sys, json, time
 ${safeCode}
 
 challenge_slug = ${JSON.stringify(challengeSlug || "")}
-test_cases = ${JSON.stringify(challenge ? challenge.testCases : [])}
+test_cases = json.loads(${JSON.stringify(JSON.stringify(challenge ? challenge.testCases : []))})
 entry_func_name = ${JSON.stringify(entryFunc)}
 
 if test_cases:

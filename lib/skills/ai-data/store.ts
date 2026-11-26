@@ -15,7 +15,10 @@ import {
   TargetRoleSlug,
   StudentArenaAttempt,
   AiDataArenaSummary,
-  ExerciseType
+  ExerciseType,
+  TopicMasteryRecord,
+  LearningPosition,
+  CustomTargetRoleConfig,
 } from "./types";
 import { getAllLessons, getTrackBySlug } from "./curriculum";
 import { getTargetRoleBySlug } from "./roles";
@@ -24,6 +27,8 @@ import { syncArenaAttemptToDNA } from "./dna-adapter";
 import { isSupabaseAvailable, getAdminClient } from "@/lib/supabase";
 import { BaselineAssessmentResult } from "./baseline-assessment-engine";
 import { generatePersonalizedRoadmap, PersonalizedRoadmap } from "./roadmap-engine";
+import { TOPIC_ID_ALIASES, getTopicLocation } from "./master-curriculum-taxonomy";
+import { buildCanonicalArenaRoadmap, CanonicalArenaRoadmap } from "./sequencing-engine";
 
 export interface CandidateOnboardingProfile {
   candidateId: string;
@@ -42,6 +47,11 @@ interface StoreSchema {
   candidateActiveTracks: Record<string, AiDataTrackSlug>;
   candidateOnboarding?: Record<string, CandidateOnboardingProfile>;
   candidateBaselines?: Record<string, BaselineAssessmentResult>;
+  candidateLanguages?: Record<string, "english" | "hinglish">;
+  candidateTopicStages?: Record<string, Record<string, number>>;
+  candidateTopicMastery?: Record<string, Record<string, TopicMasteryRecord>>;
+  candidateLearningPosition?: Record<string, LearningPosition>;
+  customTargetRoles?: Record<string, CustomTargetRoleConfig>;
   attempts: StudentArenaAttempt[];
 }
 
@@ -52,7 +62,11 @@ const CANDIDATE_ONBOARDING = new Map<string, CandidateOnboardingProfile>();
 const CANDIDATE_BASELINES = new Map<string, BaselineAssessmentResult>();
 const CANDIDATE_LANGUAGES = new Map<string, "english" | "hinglish">();
 const CANDIDATE_TOPIC_STAGES = new Map<string, Map<string, number>>();
+const CANDIDATE_TOPIC_MASTERY = new Map<string, Map<string, TopicMasteryRecord>>();
+const CANDIDATE_LEARNING_POSITION = new Map<string, LearningPosition>();
+const CUSTOM_TARGET_ROLES = new Map<string, CustomTargetRoleConfig>();
 const ATTEMPTS_LIST: StudentArenaAttempt[] = [];
+const HYDRATED_FROM_SUPABASE = new Set<string>();
 let isLoaded = false;
 
 function ensureDataDir(): void {
@@ -89,6 +103,39 @@ function loadStore(): void {
           CANDIDATE_BASELINES.set(k, v);
         }
       }
+      if (data.candidateLanguages) {
+        for (const [k, v] of Object.entries(data.candidateLanguages)) {
+          CANDIDATE_LANGUAGES.set(k, v);
+        }
+      }
+      if (data.candidateTopicStages) {
+        for (const [cid, stagesObj] of Object.entries(data.candidateTopicStages)) {
+          const m = new Map<string, number>();
+          for (const [tid, st] of Object.entries(stagesObj || {})) {
+            m.set(tid, Number(st) || 1);
+          }
+          CANDIDATE_TOPIC_STAGES.set(cid, m);
+        }
+      }
+      if (data.candidateTopicMastery) {
+        for (const [cid, mapObj] of Object.entries(data.candidateTopicMastery)) {
+          const m = new Map<string, TopicMasteryRecord>();
+          for (const [tid, rec] of Object.entries(mapObj || {})) {
+            if (rec) m.set(tid, rec);
+          }
+          CANDIDATE_TOPIC_MASTERY.set(cid, m);
+        }
+      }
+      if (data.candidateLearningPosition) {
+        for (const [k, v] of Object.entries(data.candidateLearningPosition)) {
+          CANDIDATE_LEARNING_POSITION.set(k, v);
+        }
+      }
+      if (data.customTargetRoles) {
+        for (const [k, v] of Object.entries(data.customTargetRoles)) {
+          CUSTOM_TARGET_ROLES.set(k, v);
+        }
+      }
       if (Array.isArray(data.attempts)) {
         ATTEMPTS_LIST.length = 0;
         ATTEMPTS_LIST.push(...data.attempts);
@@ -104,11 +151,24 @@ function loadStore(): void {
 function persistStore(): void {
   try {
     ensureDataDir();
+    const candidateTopicStages: Record<string, Record<string, number>> = {};
+    for (const [cid, m] of CANDIDATE_TOPIC_STAGES.entries()) {
+      candidateTopicStages[cid] = Object.fromEntries(m.entries());
+    }
+    const candidateTopicMastery: Record<string, Record<string, TopicMasteryRecord>> = {};
+    for (const [cid, m] of CANDIDATE_TOPIC_MASTERY.entries()) {
+      candidateTopicMastery[cid] = Object.fromEntries(m.entries());
+    }
     const data: StoreSchema = {
       candidateRoles: Object.fromEntries(CANDIDATE_ROLES.entries()),
       candidateActiveTracks: Object.fromEntries(CANDIDATE_TRACKS.entries()),
       candidateOnboarding: Object.fromEntries(CANDIDATE_ONBOARDING.entries()),
       candidateBaselines: Object.fromEntries(CANDIDATE_BASELINES.entries()),
+      candidateLanguages: Object.fromEntries(CANDIDATE_LANGUAGES.entries()),
+      candidateTopicStages,
+      candidateTopicMastery,
+      candidateLearningPosition: Object.fromEntries(CANDIDATE_LEARNING_POSITION.entries()),
+      customTargetRoles: Object.fromEntries(CUSTOM_TARGET_ROLES.entries()),
       attempts: ATTEMPTS_LIST
     };
     fs.writeFileSync(STORAGE_PATH, JSON.stringify(data, null, 2), "utf-8");
@@ -393,4 +453,237 @@ export function getCandidateTopicProgress(candidateId: string, topicId: string):
   loadStore();
   const candidateMap = CANDIDATE_TOPIC_STAGES.get(candidateId);
   return candidateMap?.get(topicId) || 1;
+}
+
+// ── PHASE 2: GRANULAR MASTERY STATE, POSITION & SUPABASE HYDRATION ───────────
+
+export function getTopicMasteryMap(candidateId: string): Record<string, TopicMasteryRecord> {
+  loadStore();
+  const map = CANDIDATE_TOPIC_MASTERY.get(candidateId);
+  if (!map) return {};
+  return Object.fromEntries(map.entries());
+}
+
+export function getTopicMasteryRecord(candidateId: string, topicId: string): TopicMasteryRecord {
+  loadStore();
+  const resolved = TOPIC_ID_ALIASES[topicId] || topicId;
+  let map = CANDIDATE_TOPIC_MASTERY.get(candidateId);
+  if (!map) {
+    map = new Map<string, TopicMasteryRecord>();
+    CANDIDATE_TOPIC_MASTERY.set(candidateId, map);
+  }
+  return (
+    map.get(resolved) || {
+      topicId: resolved,
+      status: "not_started",
+      conceptStepsCompleted: [],
+      codingPassed: false,
+      comprehensionPassed: false,
+      labPassed: false,
+      assessmentScore: null,
+      assessmentPassed: false,
+      explanationPassed: false,
+      weakConcepts: [],
+      remediationRequired: false,
+      attemptsCount: 0,
+      exemptedByEvidence: false,
+      lastUpdatedAt: new Date().toISOString(),
+    }
+  );
+}
+
+export function updateTopicMasteryRecord(
+  candidateId: string,
+  topicId: string,
+  updater: (prev: TopicMasteryRecord) => Partial<TopicMasteryRecord>
+): TopicMasteryRecord {
+  loadStore();
+  const resolved = TOPIC_ID_ALIASES[topicId] || topicId;
+  let map = CANDIDATE_TOPIC_MASTERY.get(candidateId);
+  if (!map) {
+    map = new Map<string, TopicMasteryRecord>();
+    CANDIDATE_TOPIC_MASTERY.set(candidateId, map);
+  }
+  const current = getTopicMasteryRecord(candidateId, resolved);
+  const patch = updater(current);
+  const merged: TopicMasteryRecord = {
+    ...current,
+    ...patch,
+    topicId: resolved,
+    lastUpdatedAt: new Date().toISOString(),
+  };
+
+  // Compute rigorous evidence-based status progression (never from mere click!)
+  const hasAllGates =
+    merged.codingPassed &&
+    merged.comprehensionPassed &&
+    merged.labPassed &&
+    merged.assessmentPassed;
+
+  if (hasAllGates && merged.explanationPassed) {
+    merged.status = "mastered_verified";
+    merged.verifiedAt = merged.verifiedAt || new Date().toISOString();
+    merged.remediationRequired = false;
+  } else if (merged.codingPassed && merged.labPassed && merged.assessmentPassed) {
+    merged.status = "demonstrated";
+    merged.remediationRequired = false;
+  } else if (merged.assessmentPassed) {
+    merged.status = "assessment_passed";
+    merged.remediationRequired = false;
+  } else if (merged.codingPassed || merged.comprehensionPassed || merged.labPassed) {
+    merged.status = "practiced";
+  } else if (merged.conceptStepsCompleted.length > 0 || merged.status === "learning") {
+    merged.status = "learning";
+  }
+
+  map.set(resolved, merged);
+  persistStore();
+
+  // Persist topic mastery snapshot non-blockingly to Supabase when available
+  void (async () => {
+    try {
+      const available = await isSupabaseAvailable();
+      if (!available) return;
+      const adminClient = getAdminClient();
+      await adminClient.from("student_skill_progress").insert({
+        candidate_id: candidateId,
+        domain_slug: "ai_data_topic_mastery",
+        resource_id: resolved,
+        score: merged.assessmentScore ?? (merged.status === "mastered_verified" ? 100 : 50),
+        details: merged,
+        completed_at: merged.lastUpdatedAt,
+      });
+    } catch {}
+  })();
+
+  return merged;
+}
+
+export function saveLearningPosition(candidateId: string, pos: Partial<LearningPosition>): LearningPosition {
+  loadStore();
+  const existing = CANDIDATE_LEARNING_POSITION.get(candidateId);
+  const loc = pos.topicId ? getTopicLocation(pos.topicId) : null;
+  const next: LearningPosition = {
+    subjectId: pos.subjectId || loc?.subject.id || existing?.subjectId || "subj_python",
+    moduleId: pos.moduleId || loc?.module.id || existing?.moduleId || "mod_py_foundations",
+    topicId: loc?.topic.id || pos.topicId || existing?.topicId || "py-01-intro-interpreter",
+    subtopicId: pos.subtopicId || existing?.subtopicId || "py-01-sub-1",
+    phase: pos.phase || existing?.phase || "understand",
+    updatedAt: new Date().toISOString(),
+  };
+  CANDIDATE_LEARNING_POSITION.set(candidateId, next);
+  persistStore();
+  return next;
+}
+
+export function getLearningPosition(candidateId: string): LearningPosition | null {
+  loadStore();
+  return CANDIDATE_LEARNING_POSITION.get(candidateId) || null;
+}
+
+export function setCustomTargetRole(candidateId: string, config: CustomTargetRoleConfig): void {
+  loadStore();
+  CUSTOM_TARGET_ROLES.set(candidateId, config);
+  persistStore();
+}
+
+export function getCustomTargetRole(candidateId: string): CustomTargetRoleConfig | null {
+  loadStore();
+  return CUSTOM_TARGET_ROLES.get(candidateId) || null;
+}
+
+export async function hydrateCandidateFromSupabase(candidateId: string): Promise<void> {
+  loadStore();
+  if (HYDRATED_FROM_SUPABASE.has(candidateId)) return;
+  try {
+    const ready = await isSupabaseAvailable();
+    if (!ready) return;
+    const adminClient = getAdminClient();
+    const { data, error } = await adminClient
+      .from("student_skill_progress")
+      .select("domain_slug, resource_id, score, details, completed_at")
+      .eq("candidate_id", candidateId)
+      .in("domain_slug", ["ai_data_topic_mastery", "ai_data_intelligence"])
+      .order("completed_at", { ascending: false })
+      .limit(250);
+
+    if (error || !Array.isArray(data)) return;
+    HYDRATED_FROM_SUPABASE.add(candidateId);
+
+    let map = CANDIDATE_TOPIC_MASTERY.get(candidateId);
+    if (!map) {
+      map = new Map<string, TopicMasteryRecord>();
+      CANDIDATE_TOPIC_MASTERY.set(candidateId, map);
+    }
+
+    for (const row of data) {
+      if (row.domain_slug === "ai_data_topic_mastery" && row.details?.topicId) {
+        const tid = row.details.topicId;
+        if (!map.has(tid)) {
+          map.set(tid, row.details as TopicMasteryRecord);
+        }
+      }
+    }
+    persistStore();
+  } catch {}
+}
+
+export async function getFullCanonicalArenaContext(candidateId: string): Promise<{
+  summary: AiDataArenaSummary & {
+    onboarding: CandidateOnboardingProfile | null;
+    baseline: BaselineAssessmentResult | null;
+    roadmap: PersonalizedRoadmap;
+    completedLessons: string[];
+    topicMasteryMap: Record<string, TopicMasteryRecord>;
+    learningPosition: LearningPosition | null;
+    canonicalRoadmap: CanonicalArenaRoadmap;
+  };
+}> {
+  await hydrateCandidateFromSupabase(candidateId);
+  const summary = await getArenaSummary(candidateId);
+  const selectedRole = summary.selectedRole;
+  const masteryMap = getTopicMasteryMap(candidateId);
+  const learningPosition = getLearningPosition(candidateId);
+  const customRole = getCustomTargetRole(candidateId);
+
+  let dnaVerifiedSkills: Array<{ skillId: string; verificationState: string; level?: number }> = [];
+  try {
+    const fullDna = await getStudentDNAFull(candidateId);
+    if (fullDna?.skills) {
+      dnaVerifiedSkills = fullDna.skills.map((s) => ({
+        skillId: s.skillId,
+        verificationState: s.verificationState,
+        level: s.demonstratedLevel || s.estimatedLevel || 0,
+      }));
+    }
+  } catch {}
+
+  const canonicalRoadmap = buildCanonicalArenaRoadmap({
+    candidateId,
+    targetRole: selectedRole,
+    customRoleConfig: customRole,
+    masteryMap,
+    baselineAssessment: summary.baseline,
+    dnaVerifiedSkills,
+    learningPosition,
+  });
+
+  const completedLessons = Object.values(masteryMap)
+    .filter(
+      (r) =>
+        r.status === "assessment_passed" ||
+        r.status === "demonstrated" ||
+        r.status === "mastered_verified"
+    )
+    .map((r) => r.topicId);
+
+  return {
+    summary: {
+      ...summary,
+      completedLessons,
+      topicMasteryMap: masteryMap,
+      learningPosition,
+      canonicalRoadmap,
+    },
+  };
 }

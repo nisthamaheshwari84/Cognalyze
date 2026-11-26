@@ -72,9 +72,9 @@ describe("AI & Data Arena — Master Architecture & Integration Suite", () => {
     }
   });
 
-  it("verifies all 8 Target Career Roles are registered with verified provenance", () => {
+  it("verifies all 10 Target Career Roles are registered with verified provenance", () => {
     const roles = getAllTargetRoles();
-    assert.strictEqual(roles.length, 8);
+    assert.strictEqual(roles.length, 10);
 
     const expectedSlugs = [
       "ai_engineer",
@@ -85,6 +85,8 @@ describe("AI & Data Arena — Master Architecture & Integration Suite", () => {
       "genai_llm_engineer",
       "mlops_engineer",
       "applied_ai_engineer",
+      "nlp_engineer",
+      "cv_engineer",
     ];
 
     for (const slug of expectedSlugs) {

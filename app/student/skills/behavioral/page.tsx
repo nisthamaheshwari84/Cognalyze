@@ -924,7 +924,7 @@ function BehavioralHRContent() {
                     📈 YOUR INTERVIEW PROGRESS
                   </h2>
                   <span style={{ fontSize: 12, color: "#667085" }}>
-                    {homeProgress.totalAnswers} answers practiced so far
+                    {homeProgress.totalAnswers ?? 0} answers practiced so far
                   </span>
                 </div>
 
@@ -933,7 +933,7 @@ function BehavioralHRContent() {
                     <div style={{ fontSize: 11, fontWeight: 800, color: "#2E7D5B", marginBottom: 8 }}>
                       ✓ YOU&apos;RE GETTING BETTER AT:
                     </div>
-                    {homeProgress.gettingBetterAt.map((pt, idx) => (
+                    {(homeProgress.gettingBetterAt || []).map((pt, idx) => (
                       <div key={idx} style={{ fontSize: 12, color: "#14532D", marginBottom: 4 }}>• {pt}</div>
                     ))}
                   </div>
@@ -943,10 +943,14 @@ function BehavioralHRContent() {
                       🎯 WORK ON NEXT:
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: "#78350F", marginBottom: 4 }}>
-                      {homeProgress.workOnNext.title}
+                      {typeof homeProgress.workOnNext === "string"
+                        ? homeProgress.workOnNext
+                        : homeProgress.workOnNext?.title || "Personal Specificity"}
                     </div>
                     <div style={{ fontSize: 12, color: "#92400E", lineHeight: 1.4 }}>
-                      {homeProgress.workOnNext.reason}
+                      {typeof homeProgress.workOnNext === "string"
+                        ? "Focus on owning your concrete actions and measurable outcome."
+                        : homeProgress.workOnNext?.reason || ""}
                     </div>
                   </div>
                 </div>

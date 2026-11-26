@@ -103,6 +103,9 @@ function getRealClient() {
 
 let realAdminClient: any = null;
 export function getAdminClient() {
+  if (typeof window !== "undefined") {
+    throw new Error("getAdminClient() is strictly server-only and cannot be invoked in the browser.");
+  }
   if (!realAdminClient) {
     try {
       if (supabaseServiceKey && !supabaseServiceKey.includes("placeholder")) {

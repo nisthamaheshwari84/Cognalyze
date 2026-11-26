@@ -15,6 +15,20 @@ export default function GlobalRootError({ error, reset }: GlobalErrorProps) {
 
   const friendly = toFriendlyError(error);
 
+  const handleRetry = () => {
+    const msg = `${error?.name || ""} ${error?.message || ""}`.toLowerCase();
+    if (
+      msg.includes("chunkloaderror") ||
+      msg.includes("loading chunk") ||
+      msg.includes("dynamically imported module") ||
+      msg.includes("reading 'call'")
+    ) {
+      window.location.reload();
+      return;
+    }
+    reset();
+  };
+
   return (
     <html lang="en">
       <body
@@ -69,7 +83,7 @@ export default function GlobalRootError({ error, reset }: GlobalErrorProps) {
 
           <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
             <button
-              onClick={() => reset()}
+              onClick={handleRetry}
               style={{
                 padding: "10px 20px",
                 borderRadius: 8,
@@ -83,22 +97,21 @@ export default function GlobalRootError({ error, reset }: GlobalErrorProps) {
             >
               {friendly.actionText}
             </button>
-            <a href="/" style={{ textDecoration: "none" }}>
-              <button
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: 8,
-                  background: "#F6F5F1",
-                  border: "1px solid #E4E1DA",
-                  color: "#162A43",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  cursor: "pointer"
-                }}
-              >
-                Reload Home
-              </button>
-            </a>
+            <button
+              onClick={() => window.location.assign("/")}
+              style={{
+                padding: "10px 20px",
+                borderRadius: 8,
+                background: "#F6F5F1",
+                border: "1px solid #E4E1DA",
+                color: "#162A43",
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: "pointer"
+              }}
+            >
+              Reload Home
+            </button>
           </div>
         </div>
       </body>

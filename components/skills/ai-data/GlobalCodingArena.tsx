@@ -5,16 +5,12 @@ import {
   CuratedCodingChallenge,
   getAllCuratedChallenges,
   getChallengesForTopic,
-  getChallengeById,
   CodingDifficulty,
-  CodingCategory,
   CodingTestCase,
 } from "@/lib/skills/ai-data/curated-coding-library";
 import {
   TAXONOMY_SUBJECTS,
   TaxonomySubject,
-  TaxonomyTopic,
-  getAllCurriculumTopicsFlat,
   getTaxonomyTopicById,
   getTopicLocation,
 } from "@/lib/skills/ai-data/master-curriculum-taxonomy";
@@ -35,8 +31,15 @@ export default function GlobalCodingArena({
   onNavigateToTopic,
   onEvidenceRecorded,
 }: GlobalCodingArenaProps) {
+  const initialLocation = useMemo(
+    () => (initialTopicId && initialTopicId !== "ALL" ? getTopicLocation(initialTopicId) : null),
+    [initialTopicId]
+  );
+
   // Filters
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("ALL");
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(
+    initialLocation?.subject.id || "ALL"
+  );
   const [selectedTopicId, setSelectedTopicId] = useState<string>(initialTopicId || "ALL");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
@@ -54,24 +57,6 @@ export default function GlobalCodingArena({
     return subj ? subj.modules.flatMap((m) => m.topics) : [];
   }, [selectedSubjectId]);
 
-  // Sync initialTopicId if prop changes
-  useEffect(() => {
-    if (initialTopicId && initialTopicId !== "ALL") {
-      setSelectedTopicId(initialTopicId);
-      const loc = getTopicLocation(initialTopicId);
-      if (loc) {
-        setSelectedSubjectId(loc.subject.id);
-      }
-      const topicChallenges = getChallengesForTopic(initialTopicId);
-      if (topicChallenges.length > 0) {
-        setActiveChallengeId(topicChallenges[0].id);
-      }
-    } else {
-      setSelectedSubjectId("ALL");
-      setSelectedTopicId("ALL");
-    }
-  }, [initialTopicId]);
-
   // Filtered challenges list
   const filteredChallenges = useMemo(() => {
     return allChallenges.filter((c: CuratedCodingChallenge) => {
@@ -88,7 +73,13 @@ export default function GlobalCodingArena({
   }, [allChallenges, selectedSubjectId, selectedTopicId, selectedDifficulty, selectedCategory, searchQuery]);
 
   // Active Selected Challenge (Strictly from filteredChallenges if non-empty, else null)
-  const [activeChallengeId, setActiveChallengeId] = useState<string>(allChallenges[0]?.id || "");
+  const [activeChallengeId, setActiveChallengeId] = useState<string>(() => {
+    if (initialTopicId && initialTopicId !== "ALL") {
+      const topicChallenges = getChallengesForTopic(initialTopicId);
+      if (topicChallenges.length > 0) return topicChallenges[0].id;
+    }
+    return allChallenges[0]?.id || "";
+  });
 
   const activeChallenge = useMemo(() => {
     if (filteredChallenges.length === 0) return null;
@@ -96,8 +87,15 @@ export default function GlobalCodingArena({
     return found || filteredChallenges[0];
   }, [activeChallengeId, filteredChallenges]);
 
-  // Code editor state
-  const [userCode, setUserCode] = useState<string>("");
+  // Code editor state keyed per challengeId to avoid effect-based resets
+  const [codeByChallenge, setCodeByChallenge] = useState<Record<string, string>>({});
+  const userCode = activeChallenge
+    ? (codeByChallenge[activeChallenge.id] ?? activeChallenge.starterCode)
+    : "";
+  const setUserCode = (nextCode: string) => {
+    if (!activeChallenge) return;
+    setCodeByChallenge((prev) => ({ ...prev, [activeChallenge.id]: nextCode }));
+  };
   const [activeTab, setActiveTab] = useState<"problem" | "hints" | "solution" | "history">("problem");
 
   // Timer mode & state
@@ -107,7 +105,6 @@ export default function GlobalCodingArena({
 
   // Execution state
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
-  const [customInput, setCustomInput] = useState<string>("");
   const [executionResult, setExecutionResult] = useState<{
     passed: boolean;
     passedTests: number;
@@ -122,12 +119,13 @@ export default function GlobalCodingArena({
       isHidden?: boolean;
     }>;
     executionTimeMs: number;
-    telemetry?: Record<string, any>;
+    telemetry?: Record<string, unknown>;
   } | null>(null);
 
   // Submission history
   const [submissionHistory, setSubmissionHistory] = useState<
     Array<{
+      challengeId: string;
       timestamp: string;
       passed: boolean;
       passedTests: number;
@@ -137,25 +135,24 @@ export default function GlobalCodingArena({
     }>
   >([]);
 
-  // Update starter code when active challenge changes
-  useEffect(() => {
-    if (activeChallenge) {
-      setUserCode(activeChallenge.starterCode);
-      setExecutionResult(null);
-      setTimerSeconds(0);
-      setIsTimerRunning(timerMode !== "learning");
-    }
-  }, [activeChallenge, timerMode]);
+  const selectChallenge = (id: string) => {
+    setActiveChallengeId(id);
+    setExecutionResult(null);
+    setTimerSeconds(0);
+    setIsTimerRunning(timerMode !== "learning");
+  };
 
   // Timer tick
   useEffect(() => {
-    let interval: any = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (isTimerRunning) {
       interval = setInterval(() => {
         setTimerSeconds((prev) => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isTimerRunning]);
 
   const formatTimer = (totalSecs: number) => {
@@ -191,6 +188,7 @@ export default function GlobalCodingArena({
 
       if (isSubmission) {
         const histItem = {
+          challengeId: activeChallenge.id,
           timestamp: new Date().toLocaleTimeString(),
           passed: result.passed,
           passedTests: result.passedTests,
@@ -206,7 +204,8 @@ export default function GlobalCodingArena({
           onEvidenceRecorded(activeChallenge, score);
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Execution failed";
       const totalCount =
         (activeChallenge.sampleCases?.length || 0) +
         (activeChallenge.hiddenTestCases?.length || 0) || 1;
@@ -219,9 +218,9 @@ export default function GlobalCodingArena({
             testId: "err",
             input: "N/A",
             expectedOutput: "N/A",
-            actualOutput: err.message || "Execution failed",
+            actualOutput: msg,
             passed: false,
-            errorMessage: err.message,
+            errorMessage: msg,
           },
         ],
         executionTimeMs: 0,
@@ -427,12 +426,12 @@ export default function GlobalCodingArena({
               <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
                 {filteredChallenges.map((c: CuratedCodingChallenge) => {
                   const isSelected = activeChallenge?.id === c.id;
-                  const isSolved = submissionHistory.some((s) => s.passed && activeChallenge?.id === c.id);
+                  const isSolved = submissionHistory.some((s) => s.passed && s.challengeId === c.id);
                   const topicTitle = getTaxonomyTopicById(c.topicId)?.title || c.topicId;
                   return (
                     <button
                       key={c.id}
-                      onClick={() => setActiveChallengeId(c.id)}
+                      onClick={() => selectChallenge(c.id)}
                       className={`w-full p-2.5 rounded-xl border text-left transition flex flex-col gap-1 ${
                         isSelected
                           ? "border-[#356AE6] bg-[#356AE6]/5 ring-1 ring-[#356AE6]/30 shadow-sm"

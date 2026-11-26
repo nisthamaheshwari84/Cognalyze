@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase-browser";
 import type { GDFriendsRoom, GDTranscriptItem } from "@/lib/gd/types";
 
 interface UseFriendsRealtimeRoomOptions {

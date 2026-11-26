@@ -40,8 +40,41 @@ import {
   setCandidateLanguagePreference,
   getCandidateLanguagePreference,
   saveTopicStageProgress,
-  getCandidateTopicProgress
+  getCandidateTopicProgress,
+  getFullCanonicalArenaContext,
+  saveLearningPosition,
+  setCustomTargetRole,
+  updateTopicMasteryRecord,
+  getTopicMasteryRecord,
+  getTopicMasteryMap,
 } from "@/lib/skills/ai-data/store";
+import { getAuthenticatedContext } from "@/lib/auth/server";
+import { isTestRuntime } from "@/lib/env";
+import {
+  buildMicroLearningPackage,
+  evaluateSubtopicMicroCheck,
+  runMicroExampleInSandbox,
+} from "@/lib/skills/ai-data/micro-learning-engine";
+import {
+  getTopicComprehensionSuite,
+  evaluateComprehensionExercise,
+} from "@/lib/skills/ai-data/comprehension-engine";
+import {
+  getPracticalLabForTopic,
+  getAllPracticalLabsOverview,
+  evaluatePracticalLabSubmission,
+} from "@/lib/skills/ai-data/practical-lab-engine";
+import {
+  buildTopicAssessment,
+  evaluateTopicAssessmentSubmission,
+  getMasteryGateStatus,
+} from "@/lib/skills/ai-data/assessment-engine";
+import {
+  getProjectsForCandidate,
+  verifyProjectMilestoneSubmission,
+  verifyProjectGitHubRepository,
+} from "@/lib/skills/ai-data/projects-engine";
+import { generateContextAwareMentorReply } from "@/lib/skills/ai-data/mentor-service";
 import {
   MASTER_CURRICULUM_TRACKS,
   getTaxonomyTopicById
@@ -142,10 +175,42 @@ import {
   listAvailableDryRunTraces
 } from "@/lib/skills/ai-data/dry-run-visualizer";
 
+async function resolveArenaAccess(
+  req: NextRequest,
+  requestedCandidateId?: string | null
+): Promise<{ candidateId: string } | NextResponse> {
+  const auth = await getAuthenticatedContext(req);
+  const reqId = (requestedCandidateId || "").trim();
+
+  if (auth?.user?.id) {
+    if (reqId && reqId !== auth.user.id && reqId !== "student-demo") {
+      return NextResponse.json(
+        { success: false, error: "Forbidden. Cannot access another student's Arena records." },
+        { status: 403 }
+      );
+    }
+    return { candidateId: auth.user.id };
+  }
+
+  // Unauthenticated callers may only use sandboxed demo identity (or isolated test IDs under test runner)
+  if (!reqId || reqId === "student-demo") {
+    return { candidateId: "student-demo" };
+  }
+  if (isTestRuntime() && (reqId.startsWith("student-test") || reqId.startsWith("test-"))) {
+    return { candidateId: reqId };
+  }
+  return NextResponse.json(
+    { success: false, error: "Unauthorized. Please sign in to access personal learning records." },
+    { status: 401 }
+  );
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const candidateId = searchParams.get("candidateId") || "student-demo";
+    const access = await resolveArenaAccess(req, searchParams.get("candidateId"));
+    if (access instanceof NextResponse) return access;
+    const candidateId = access.candidateId;
     const requestedTrack = searchParams.get("track") as AiDataTrackSlug | null;
     const requestedRole = searchParams.get("role") as TargetRoleSlug | null;
     const challengeSlug = searchParams.get("challenge");
@@ -195,12 +260,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true, historicalQuestions: qRes });
     }
 
-    const selectedRole = getCandidateRole(candidateId);
+    const selectedRole = requestedRole || getCandidateRole(candidateId);
     const activeTrackSlug = requestedTrack || getCandidateActiveTrack(candidateId);
     const activeTrack = getTrackBySlug(activeTrackSlug);
     const allTracks = getAllTracks();
     const allRoles = getAllTargetRoles();
-    const summary = await getArenaSummary(candidateId);
+    const { summary } = await getFullCanonicalArenaContext(candidateId);
     const allChallenges = getAllPracticalChallenges();
 
     return NextResponse.json({
@@ -277,7 +342,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, candidateId = "student-demo" } = body;
+    const { action } = body;
+    const access = await resolveArenaAccess(req, body.candidateId);
+    if (access instanceof NextResponse) return access;
+    const candidateId = access.candidateId;
 
     // ── ROLE & TRACK MANAGEMENT ──────────────────────────────────────────────
     if (action === "set_role") {
@@ -369,7 +437,7 @@ export async function POST(req: NextRequest) {
     if (action === "get_intelligent_notes") {
       const { topicId = "numpy-broadcasting", targetRole = "AI Engineer" } = body;
       const canonicalNotes = generateCanonicalNotesForTopic(topicId, targetRole);
-      const personalWeaknesses = generatePersonalWeaknessNotes(candidateId);
+      const personalWeaknesses = generatePersonalWeaknessNotes(candidateId, getTopicMasteryMap(candidateId));
       return NextResponse.json({ success: true, canonicalNotes, personalWeaknesses });
     }
 
@@ -719,6 +787,246 @@ export async function POST(req: NextRequest) {
     if (action === "run_question_bank_audit") {
       const report = runQuestionBankCompletenessAudit();
       return NextResponse.json({ success: true, report });
+    }
+
+    // ── UPGRADED SEQUENTIAL MASTERY & MICRO-LEARNING ENGINE ENDPOINTS ────────
+    if (action === "get_canonical_context") {
+      const ctx = await getFullCanonicalArenaContext(candidateId);
+      return NextResponse.json({
+        success: true,
+        ...ctx,
+        languagePreference: getCandidateLanguagePreference(candidateId),
+        roles: getAllTargetRoles(),
+      });
+    }
+
+    if (action === "save_learning_position") {
+      const pos = saveLearningPosition(candidateId, {
+        subjectId: body.subjectId,
+        moduleId: body.moduleId,
+        topicId: body.topicId,
+        subtopicId: body.subtopicId,
+        phase: body.phase,
+      });
+      if (body.topicId) {
+        updateTopicMasteryRecord(candidateId, body.topicId, (prev) => ({
+          status: prev.status === "not_started" ? "learning" : prev.status,
+        }));
+      }
+      return NextResponse.json({ success: true, learningPosition: pos });
+    }
+
+    if (action === "set_custom_target_role") {
+      if (!body.title || !Array.isArray(body.requiredSubjectIds)) {
+        return NextResponse.json({ success: false, error: "Invalid custom target payload" }, { status: 400 });
+      }
+      setCustomTargetRole(candidateId, {
+        slug: body.slug || "custom_target",
+        title: String(body.title).slice(0, 80),
+        summary: String(body.summary || "Custom configured AI & Data target pathway").slice(0, 300),
+        requiredSubjectIds: body.requiredSubjectIds,
+        requiredSkills: Array.isArray(body.requiredSkills) ? body.requiredSkills : ["python", "machine_learning"],
+      });
+      const ctx = await getFullCanonicalArenaContext(candidateId);
+      return NextResponse.json({ success: true, ...ctx });
+    }
+
+    if (action === "get_micro_learning") {
+      const topicId = body.topicId || "py-01-intro-interpreter";
+      const lang = body.language || getCandidateLanguagePreference(candidateId);
+      const role = body.targetRole || getCandidateRole(candidateId);
+      const pkg = buildMicroLearningPackage(topicId, role, lang);
+      if (!pkg) return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
+      const comprehensionSuite = getTopicComprehensionSuite(topicId);
+      const practicalLab = getPracticalLabForTopic(topicId);
+      const masteryGate = getMasteryGateStatus(candidateId, topicId);
+      return NextResponse.json({
+        success: true,
+        microPackage: pkg,
+        comprehensionSuite,
+        practicalLab,
+        masteryGate,
+      });
+    }
+
+    if (action === "submit_micro_check") {
+      const { topicId, subtopicId, selectedOptionId, explanationText, language } = body;
+      if (!topicId || !subtopicId) {
+        return NextResponse.json({ success: false, error: "Missing topicId or subtopicId" }, { status: 400 });
+      }
+      const evaluation = evaluateSubtopicMicroCheck({
+        topicId,
+        subtopicId,
+        selectedOptionId,
+        explanationText,
+        language: language || getCandidateLanguagePreference(candidateId),
+      });
+      let masteryRecord = getTopicMasteryRecord(candidateId, topicId);
+      if (evaluation.passed) {
+        masteryRecord = updateTopicMasteryRecord(candidateId, topicId, (prev) => ({
+          conceptStepsCompleted: Array.from(new Set([...(prev.conceptStepsCompleted || []), subtopicId])),
+          explanationPassed: explanationText ? true : prev.explanationPassed,
+        }));
+      }
+      return NextResponse.json({ success: true, evaluation, masteryRecord });
+    }
+
+    if (action === "run_micro_example") {
+      const { language = "python", code } = body;
+      if (!code) return NextResponse.json({ success: false, error: "Missing code" }, { status: 400 });
+      const result = await runMicroExampleInSandbox({ language, code });
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "submit_comprehension") {
+      const { topicId, challengeId, selectedOptionId, userFixCode } = body;
+      if (!topicId || !challengeId) {
+        return NextResponse.json({ success: false, error: "Missing topicId or challengeId" }, { status: 400 });
+      }
+      const evaluation = await evaluateComprehensionExercise({
+        topicId,
+        challengeId,
+        selectedOptionId,
+        userFixCode,
+      });
+      let masteryRecord = getTopicMasteryRecord(candidateId, topicId);
+      if (evaluation.passed) {
+        masteryRecord = updateTopicMasteryRecord(candidateId, topicId, (prev) => ({
+          comprehensionPassed: challengeId.includes("debug") ? true : prev.comprehensionPassed,
+          codingPassed: challengeId.includes("debug") ? true : prev.codingPassed,
+        }));
+      }
+      return NextResponse.json({ success: true, evaluation, masteryRecord });
+    }
+
+    if (action === "get_practical_lab") {
+      const topicId = body.topicId;
+      if (topicId) {
+        const lab = getPracticalLabForTopic(topicId);
+        return NextResponse.json({ success: true, lab });
+      }
+      return NextResponse.json({ success: true, labs: getAllPracticalLabsOverview() });
+    }
+
+    if (action === "submit_practical_lab") {
+      const { topicId, submissionText } = body;
+      if (!topicId || typeof submissionText !== "string") {
+        return NextResponse.json({ success: false, error: "Missing topicId or submissionText" }, { status: 400 });
+      }
+      const evaluation = await evaluatePracticalLabSubmission({ topicId, submissionText });
+      const masteryRecord = updateTopicMasteryRecord(candidateId, topicId, (prev) => ({
+        labPassed: prev.labPassed || evaluation.passed,
+        codingPassed: prev.codingPassed || evaluation.passed,
+        attemptsCount: (prev.attemptsCount || 0) + 1,
+      }));
+      if (evaluation.passed) {
+        await recordStudentAttempt({
+          candidateId,
+          trackSlug: "ai_ml",
+          lessonSlug: topicId,
+          exerciseType: "code_lab",
+          score: evaluation.score,
+          passed: true,
+          assisted: false,
+        });
+      }
+      return NextResponse.json({ success: true, evaluation, masteryRecord });
+    }
+
+    if (action === "get_topic_assessment") {
+      const { topicId, difficulty } = body;
+      if (!topicId) return NextResponse.json({ success: false, error: "Missing topicId" }, { status: 400 });
+      const assessment = buildTopicAssessment(topicId, difficulty);
+      if (!assessment) return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
+      return NextResponse.json({ success: true, assessment });
+    }
+
+    if (action === "submit_topic_assessment") {
+      const { topicId, answers, difficulty } = body;
+      if (!topicId || !answers) {
+        return NextResponse.json({ success: false, error: "Missing topicId or answers" }, { status: 400 });
+      }
+      const report = await evaluateTopicAssessmentSubmission({
+        candidateId,
+        topicId,
+        answers,
+        difficulty,
+      });
+      if (!report) return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
+      const ctx = await getFullCanonicalArenaContext(candidateId);
+      return NextResponse.json({ success: true, report, summary: ctx.summary });
+    }
+
+    if (action === "get_integrated_projects") {
+      const ctx = await getFullCanonicalArenaContext(candidateId);
+      const projects = getProjectsForCandidate({
+        targetRole: ctx.summary.selectedRole,
+        masteryMap: ctx.summary.topicMasteryMap,
+      });
+      return NextResponse.json({ success: true, projects });
+    }
+
+    if (action === "verify_project_milestone") {
+      const { projectId, milestoneId, userCode } = body;
+      if (!projectId || !milestoneId || typeof userCode !== "string") {
+        return NextResponse.json({ success: false, error: "Missing projectId, milestoneId, or userCode" }, { status: 400 });
+      }
+      const result = await verifyProjectMilestoneSubmission({ projectId, milestoneId, userCode });
+      if (result.passed) {
+        await recordStudentAttempt({
+          candidateId,
+          trackSlug: "applied_projects",
+          lessonSlug: projectId,
+          exerciseType: "project_milestone",
+          score: result.score,
+          passed: true,
+          assisted: false,
+        });
+      }
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "verify_project_github") {
+      const { projectId, repoUrl } = body;
+      if (!projectId || !repoUrl) {
+        return NextResponse.json({ success: false, error: "Missing projectId or repoUrl" }, { status: 400 });
+      }
+      const result = await verifyProjectGitHubRepository({ candidateId, projectId, repoUrl });
+      return NextResponse.json({ success: true, result });
+    }
+
+    if (action === "mentor_chat") {
+      const topic = body.topicId ? getTaxonomyTopicById(body.topicId) : null;
+      const mastery = body.topicId ? getTopicMasteryRecord(candidateId, body.topicId) : null;
+      const mentorReply = await generateContextAwareMentorReply({
+        candidateId,
+        targetRole: body.targetRole || getCandidateRole(candidateId),
+        subjectTitle: body.subjectTitle || "AI & Data Curriculum",
+        moduleTitle: body.moduleTitle || "",
+        topicId: body.topicId || "py-01-intro-interpreter",
+        topicTitle: body.topicTitle || topic?.title || "Current Topic",
+        subtopicTitle: body.subtopicTitle,
+        learningPhase: body.learningPhase,
+        language: body.language || getCandidateLanguagePreference(candidateId),
+        userMessage: String(body.userMessage || ""),
+        userCode: body.userCode,
+        executionStdout: body.executionStdout,
+        executionStderr: body.executionStderr,
+        weakConcepts: body.weakConcepts || mastery?.weakConcepts,
+        assessmentScore: body.assessmentScore ?? mastery?.assessmentScore,
+        currentProjectTitle: body.currentProjectTitle,
+        contextIntuition:
+          (body.language || getCandidateLanguagePreference(candidateId)) === "hinglish"
+            ? topic?.contextAndIntuition?.hinglish
+            : topic?.contextAndIntuition?.english,
+        deepExplanation:
+          (body.language || getCandidateLanguagePreference(candidateId)) === "hinglish"
+            ? topic?.deepExplanation?.hinglish
+            : topic?.deepExplanation?.english,
+        commonMistakes: topic?.deepExplanation?.commonMistakes,
+        conceptsCovered: topic?.conceptsCovered,
+      });
+      return NextResponse.json({ success: true, mentorReply });
     }
 
     return NextResponse.json({ success: false, error: "Unknown action" }, { status: 400 });

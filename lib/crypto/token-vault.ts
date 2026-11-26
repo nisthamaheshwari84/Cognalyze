@@ -15,18 +15,47 @@
  */
 
 import crypto from "crypto";
+import { isTestRuntime } from "@/lib/env";
 
-const MASTER_VAULT_SECRET =
-  process.env.TOKEN_VAULT_SECRET ||
-  process.env.AUTH_SECRET ||
-  process.env.NEXTAUTH_SECRET ||
-  "cognalyze_default_token_vault_master_key_2026_secured";
+let ephemeralDevVaultSecret: string | null = null;
+let warnedMissingVaultSecret = false;
+
+function resolveVaultMasterSecret(): string {
+  const configured = (
+    process.env.TOKEN_VAULT_SECRET ||
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    ""
+  ).trim();
+  if (configured.length >= 16) {
+    return configured;
+  }
+
+  if (isTestRuntime()) {
+    return "cognalyze_test_only_token_vault_key_not_for_production";
+  }
+
+  const isProd = process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+  if (isProd) {
+    throw new Error("TOKEN_VAULT_SECRET (or AUTH_SECRET) must be configured in production.");
+  }
+
+  if (!ephemeralDevVaultSecret) {
+    ephemeralDevVaultSecret = crypto.randomBytes(32).toString("hex");
+    if (!warnedMissingVaultSecret) {
+      warnedMissingVaultSecret = true;
+      console.warn("[token-vault] TOKEN_VAULT_SECRET not set in local dev; using ephemeral process key.");
+    }
+  }
+  return ephemeralDevVaultSecret;
+}
 
 /**
  * Derives a 32-byte key for AES-256 from the master secret and optional userId.
  */
 function deriveEncryptionKey(userId?: string): Buffer {
-  const seed = userId ? `${MASTER_VAULT_SECRET}::${userId.trim().toLowerCase()}` : MASTER_VAULT_SECRET;
+  const master = resolveVaultMasterSecret();
+  const seed = userId ? `${master}::${userId.trim().toLowerCase()}` : master;
   return crypto.createHash("sha256").update(seed).digest();
 }
 

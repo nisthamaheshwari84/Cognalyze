@@ -7,6 +7,14 @@
  * 3. Rotates to the next key if a rate limit (HTTP 429) occurs.
  * 4. Bounces dynamically between providers (Gemini -> OpenAI -> Groq) to ensure a strong, indestructible free backup.
  */
+function redactUpstreamError(raw: string): string {
+  return raw
+    .replace(/Bearer\s+[A-Za-z0-9._\-]+/gi, "Bearer [REDACTED]")
+    .replace(/\b(gsk_[A-Za-z0-9]+|AIza[0-9A-Za-z\-_]+|sk-[A-Za-z0-9\-_]+|ghp_[A-Za-z0-9]+|github_pat_[A-Za-z0-9_]+)\b/g, "[REDACTED_KEY]")
+    .replace(/([?&](?:key|api_key|token|secret)=)[^&\s]+/gi, "$1[REDACTED]")
+    .slice(0, 240);
+}
+
 export async function groqFetch(url: string, options: RequestInit): Promise<Response> {
   // If it's not a Groq completions request, fallback to standard fetch
   if (!url.includes("api.groq.com")) {
@@ -43,8 +51,8 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
   };
 
   const primaryProvider = (process.env.PRIMARY_PROVIDER || "groq").toLowerCase();
-  const geminiKeys = getEnvKeys(["GEMINI_API_KEY", "NEXT_PUBLIC_GEMINI_API_KEY"]);
-  const openaiKeys = getEnvKeys(["OPENAI_API_KEY", "NEXT_PUBLIC_OPENAI_API_KEY"]);
+  const geminiKeys = getEnvKeys(["GEMINI_API_KEY"]);
+  const openaiKeys = getEnvKeys(["OPENAI_API_KEY"]);
   const groqKeys = getEnvKeys(["GROQ_API_KEY"]);
 
   let lastResponse: Response | null = null;
@@ -66,7 +74,8 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
         const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           ...options,
           headers: geminiHeaders,
-          body: JSON.stringify(tempBody)
+          body: JSON.stringify(tempBody),
+          signal: options.signal || AbortSignal.timeout(15000)
         });
         lastResponse = res;
 
@@ -76,15 +85,15 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
         }
 
         const errText = await res.clone().text();
-        console.warn(`[groqFetch] Gemini key index ${idx} failed (status: ${res.status}): ${errText}`);
+        console.warn(`[groqFetch] Gemini key index ${idx} failed (status: ${res.status}): ${redactUpstreamError(errText)}`);
 
         if (res.status === 429) {
           console.warn(`[groqFetch] Gemini key index ${idx} rate-limited. Trying next Gemini key...`);
           continue;
         }
         continue;
-      } catch (err) {
-        console.error(`[groqFetch] Gemini key index ${idx} error:`, err);
+      } catch (err: any) {
+        console.error(`[groqFetch] Gemini key index ${idx} error:`, redactUpstreamError(err?.message || "request_failed"));
         lastError = err;
       }
     }
@@ -107,7 +116,8 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
         const res = await fetch("https://api.openai.com/v1/chat/completions", {
           ...options,
           headers: openaiHeaders,
-          body: JSON.stringify(tempBody)
+          body: JSON.stringify(tempBody),
+          signal: options.signal || AbortSignal.timeout(15000)
         });
         lastResponse = res;
 
@@ -117,15 +127,15 @@ export async function groqFetch(url: string, options: RequestInit): Promise<Resp
         }
 
         const errText = await res.clone().text();
-        console.warn(`[groqFetch] OpenAI key index ${idx} failed (status: ${res.status}): ${errText}`);
+        console.warn(`[groqFetch] OpenAI key index ${idx} failed (status: ${res.status}): ${redactUpstreamError(errText)}`);
 
         if (res.status === 429) {
           console.warn(`[groqFetch] OpenAI key index ${idx} rate-limited. Trying next OpenAI key...`);
           continue;
         }
         continue;
-      } catch (err) {
-        console.error(`[groqFetch] OpenAI key index ${idx} error:`, err);
+      } catch (err: any) {
+        console.error(`[groqFetch] OpenAI key index ${idx} error:`, redactUpstreamError(err?.message || "request_failed"));
         lastError = err;
       }
     }

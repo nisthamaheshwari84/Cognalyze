@@ -1,22 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { TargetRoleSlug } from "@/lib/skills/ai-data/types";
+import { TargetRoleSlug, TopicMasteryRecord } from "@/lib/skills/ai-data/types";
 import { TARGET_ROLE_PROFILES } from "@/lib/skills/ai-data/roles";
-import {
-  TAXONOMY_SUBJECTS,
-  TaxonomySubject,
-  TaxonomyModule,
-  TaxonomyTopic,
-  getAllCurriculumTopicsFlat,
-} from "@/lib/skills/ai-data/master-curriculum-taxonomy";
+import { TAXONOMY_SUBJECTS, TaxonomySubject } from "@/lib/skills/ai-data/master-curriculum-taxonomy";
 import { CandidatePracticeAnalytics } from "@/lib/skills/ai-data/company-question-bank-types";
 
 interface ArenaDnaProgressViewProps {
   candidateId: string;
   activeRole: TargetRoleSlug;
   completedTopicIds: string[];
+  topicMasteryMap?: Record<string, TopicMasteryRecord>;
   onOpenTopic: (topicId: string) => void;
   onOpenCodingArena: (topicId?: string) => void;
 }
@@ -25,158 +20,124 @@ export default function ArenaDnaProgressView({
   candidateId,
   activeRole,
   completedTopicIds,
-  onOpenTopic,
+  topicMasteryMap = {},
   onOpenCodingArena,
 }: ArenaDnaProgressViewProps) {
   const [analytics, setAnalytics] = useState<CandidatePracticeAnalytics | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
   const roleProfile = TARGET_ROLE_PROFILES[activeRole] || TARGET_ROLE_PROFILES.ai_engineer;
-  const allTopics = useMemo(() => getAllCurriculumTopicsFlat(), []);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch("/api/skills/ai-data", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "get_practice_analytics",
-            candidateId,
-          }),
-        });
-        const data = await res.json();
-        if (data.success && data.analytics) {
-          setAnalytics(data.analytics);
-        }
-      } catch (e) {
-        // Fallback
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
+    fetch("/api/skills/ai-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get_practice_analytics", candidateId }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.analytics) setAnalytics(data.analytics);
+      })
+      .catch(() => {});
   }, [candidateId]);
 
-  const learningPercentage = Math.round((completedTopicIds.length / (allTopics.length || 1)) * 100);
-  const questionsSolved = analytics?.totalAttempted || 0;
-  const questionsCorrect = analytics?.totalSolved || 0;
-  const accuracy = analytics?.overallAccuracyPercent || (questionsSolved > 0 ? Math.round((questionsCorrect / questionsSolved) * 100) : 0);
+  const records = Object.values(topicMasteryMap);
+  const countByStatus = {
+    learning: records.filter((r) => r.status === "learning").length,
+    practiced: records.filter((r) => r.status === "practiced").length,
+    assessment_passed: records.filter((r) => r.status === "assessment_passed").length,
+    demonstrated: records.filter((r) => r.status === "demonstrated").length,
+    mastered_verified: records.filter((r) => r.status === "mastered_verified").length,
+  };
+  const totalTrackedTopics = 154;
+  const notStartedCount = Math.max(
+    0,
+    totalTrackedTopics -
+      (countByStatus.learning +
+        countByStatus.practiced +
+        countByStatus.assessment_passed +
+        countByStatus.demonstrated +
+        countByStatus.mastered_verified)
+  );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8 font-sans">
-      {/* Header */}
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-7 font-sans">
       <div className="bg-white border border-[#E4E1DA] rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-base">🧬</span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#356AE6] bg-[#356AE6]/10 px-2.5 py-0.5 rounded-md">
-              Student DNA Dossier
-            </span>
-            <span className="text-xs font-semibold text-stone-500">
-              Anti-Simulation Invariant Verified
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold text-[#162A43]">
-            Demonstrated Evidence &amp; Proficiency Intelligence
+          <span className="text-xs font-bold uppercase tracking-wider text-[#6D28D9] bg-[#F5F3FF] border border-[#DDD6FE] px-2.5 py-0.5 rounded-md">
+            Verified Student DNA Ledger
+          </span>
+          <h1 className="text-2xl font-bold text-[#162A43] mt-2">
+            Evidence-Driven Mastery &amp; Skill Integrity
           </h1>
           <p className="text-xs text-stone-600 mt-1 max-w-xl">
-            Cognalyze strictly separates passive learning progress (reading lessons) from verified demonstrated competence (passing hidden test suites).
+            Opening a lesson only marks Learning. Verified competencies require passing code assertions, practical labs, assessments, and own-words defense.
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-center">
-            <div className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">Candidate Role</div>
-            <div className="text-sm font-bold text-[#162A43] mt-0.5">{roleProfile.title}</div>
-          </div>
+        <div className="p-4 bg-[#FAF9F6] border border-[#E4E1DA] rounded-xl text-center shrink-0">
+          <div className="text-[10px] font-bold text-stone-500 uppercase">Target Role</div>
+          <div className="text-sm font-bold text-[#162A43] mt-0.5">{roleProfile.title}</div>
         </div>
       </div>
 
-      {/* 2 Big Pillars: Learning Progress vs Demonstrated Proficiency */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Pillar 1: Learning Progress */}
-        <div className="bg-white border border-[#E4E1DA] rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Metric 1</span>
-              <h3 className="text-base font-bold text-[#162A43]">Learning &amp; Curriculum Coverage</h3>
-            </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
-              {learningPercentage}%
-            </span>
+      {/* 6-Stage Proficiency Breakdown */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {[
+          { label: "Not Started", val: notStartedCount, cls: "bg-white border-[#E4E1DA] text-stone-700" },
+          { label: "Learning", val: countByStatus.learning, cls: "bg-blue-50 border-blue-200 text-blue-900" },
+          { label: "Practiced", val: countByStatus.practiced, cls: "bg-[#F5F3FF] border-[#DDD6FE] text-[#5B21B6]" },
+          { label: "Assessment Passed", val: countByStatus.assessment_passed, cls: "bg-amber-50 border-amber-200 text-amber-900" },
+          { label: "Demonstrated", val: countByStatus.demonstrated, cls: "bg-teal-50 border-teal-200 text-teal-900" },
+          { label: "Mastered & Verified", val: countByStatus.mastered_verified, cls: "bg-emerald-50 border-emerald-200 text-emerald-900" },
+        ].map((card) => (
+          <div key={card.label} className={`p-4 rounded-xl border text-center ${card.cls}`}>
+            <div className="text-2xl font-black">{card.val}</div>
+            <div className="text-[11px] font-bold mt-1">{card.label}</div>
           </div>
-          <p className="text-xs text-stone-600">
-            Measures topics opened, conceptual explanations reviewed, mental models explored, and subtopics completed.
-          </p>
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-stone-600">Topics Completed</span>
-              <span className="font-bold text-[#162A43]">{completedTopicIds.length} / {allTopics.length}</span>
-            </div>
-            <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-[#356AE6] h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, learningPercentage)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Pillar 2: Demonstrated Proficiency */}
-        <div className="bg-white border border-[#E4E1DA] rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Metric 2</span>
-              <h3 className="text-base font-bold text-[#162A43]">Demonstrated Proficiency</h3>
-            </div>
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-              {accuracy}% Accuracy
-            </span>
-          </div>
-          <p className="text-xs text-stone-600">
-            Measures independent code execution, sandboxed unit tests passed, and verified assessment scores.
-          </p>
-          <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-stone-600">Practice Challenges Solved</span>
-              <span className="font-bold text-emerald-700">{questionsCorrect} passed</span>
-            </div>
-            <div className="w-full bg-stone-100 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-emerald-600 h-full rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(100, accuracy)}%` }}
-              />
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Subject-Wise Competency Mastery Breakdown */}
+      {/* Practice Accuracy Metrics */}
+      {analytics && (
+        <div className="bg-white border border-[#E4E1DA] rounded-2xl p-5 shadow-sm flex flex-wrap gap-6 text-xs">
+          <div>
+            <span className="text-stone-500">Questions Attempted:</span>{" "}
+            <strong className="text-[#162A43]">{analytics.totalAttempted}</strong>
+          </div>
+          <div>
+            <span className="text-stone-500">Verified Correct:</span>{" "}
+            <strong className="text-emerald-700">{analytics.totalSolved}</strong>
+          </div>
+          <div>
+            <span className="text-stone-500">Verified Accuracy:</span>{" "}
+            <strong className="text-[#6D28D9]">{analytics.overallAccuracyPercent}%</strong>
+          </div>
+        </div>
+      )}
+
+      {/* Subject Mastery Grid */}
       <div className="bg-white border border-[#E4E1DA] rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-[#162A43] uppercase tracking-wider">
-          Subject-Wise Evidence &amp; Mastery Matrix
-        </h3>
+        <h3 className="text-sm font-bold text-[#162A43] uppercase tracking-wider">Subject-Wise Verified Mastery</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {TAXONOMY_SUBJECTS.map((s: TaxonomySubject) => {
-            const subjTopics = s.modules.flatMap((m: TaxonomyModule) => m.topics);
-            const count = subjTopics.filter((t: TaxonomyTopic) => completedTopicIds.includes(t.id)).length;
-            const pct = Math.round((count / (subjTopics.length || 1)) * 100);
-
+            const subjTopics = s.modules.flatMap((m) => m.topics);
+            const verifiedCount = subjTopics.filter((t) => {
+              const rec = topicMasteryMap[t.id];
+              return (
+                completedTopicIds.includes(t.id) ||
+                rec?.status === "assessment_passed" ||
+                rec?.status === "demonstrated" ||
+                rec?.status === "mastered_verified"
+              );
+            }).length;
+            const pct = Math.round((verifiedCount / (subjTopics.length || 1)) * 100);
             return (
-              <div key={s.id} className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs space-y-2">
+              <div key={s.id} className="p-3.5 bg-[#FAF9F6] border border-[#E4E1DA] rounded-xl text-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#162A43] flex items-center gap-1.5 truncate">
-                    <span>{s.icon}</span>
-                    <span className="truncate">{s.title}</span>
-                  </span>
-                  <span className="font-bold text-stone-600 shrink-0">{pct}%</span>
+                  <span className="font-bold text-[#162A43] truncate">{s.icon} {s.title}</span>
+                  <span className="font-bold text-[#6D28D9]">{pct}%</span>
                 </div>
                 <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-[#356AE6] h-full rounded-full"
-                    style={{ width: `${Math.min(100, pct)}%` }}
-                  />
+                  <div className="bg-[#6D28D9] h-full rounded-full" style={{ width: `${Math.min(100, pct)}%` }} />
                 </div>
               </div>
             );
@@ -184,16 +145,15 @@ export default function ArenaDnaProgressView({
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="flex items-center justify-between pt-4">
+      <div className="flex items-center justify-between">
         <Link href="/student/skills" className="text-xs font-semibold text-stone-600 hover:text-stone-900">
           ← Return to Skill Practice Hub
         </Link>
         <button
           onClick={() => onOpenCodingArena()}
-          className="px-6 py-2.5 bg-[#356AE6] hover:bg-[#2855C7] text-white text-xs font-bold rounded-xl shadow-sm transition"
+          className="px-5 py-2.5 bg-[#6D28D9] hover:bg-[#5B21B6] text-white text-xs font-bold rounded-xl shadow-sm"
         >
-          Open Coding Arena to Build More Evidence →
+          Open Coding Studio →
         </button>
       </div>
     </div>

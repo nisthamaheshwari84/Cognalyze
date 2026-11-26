@@ -20,7 +20,7 @@ interface Opportunity {
 
 export default function AdminOpportunitiesPage() {
   const { isDark } = useTheme();
-  const [adminKey, setAdminKey] = useState("cognalyze-admin-secret");
+  const [adminKey, setAdminKey] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);

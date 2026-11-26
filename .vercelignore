@@ -1,7 +1,10 @@
 .git
 .github
+.clerk
+.vercel
 .env*.local
 .env
+interview-intelligence/.env
 .npm
 /tmp
 tests

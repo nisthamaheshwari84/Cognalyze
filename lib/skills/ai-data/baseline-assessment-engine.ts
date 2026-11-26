@@ -32,9 +32,11 @@ export type ProficiencyClassification =
 export interface BaselineDiagnosticQuestion {
   id: string;
   discipline: 
+    | "programming_fundamentals"
     | "python"
     | "numpy_linear_algebra"
     | "pandas_data_wrangling"
+    | "dsa"
     | "sql_analytics"
     | "statistics_probability"
     | "machine_learning"
@@ -81,6 +83,77 @@ export interface BaselineAssessmentResult {
 }
 
 export const BASELINE_DIAGNOSTIC_BANK: BaselineDiagnosticQuestion[] = [
+  {
+    id: "diag-prog-1",
+    discipline: "programming_fundamentals",
+    skillId: "programming_fundamentals",
+    skillName: "Programming Fundamentals & Control Flow",
+    difficulty: "beginner",
+    prompt: "What happens when a function uses `return` inside a loop on the very first iteration without accumulating results?",
+    codeSnippet: "def collect_positives(nums):\n    for x in nums:\n        if x > 0:\n            return x\n    return None",
+    options: [
+      {
+        id: "a",
+        text: "It returns all positive numbers in a list after finishing the loop.",
+        isCorrect: false,
+        diagnosticInsight: "Confused `return` (exits function immediately) with `yield` or appending to a list."
+      },
+      {
+        id: "b",
+        text: "It exits the function immediately on the first positive number found, ignoring all remaining elements.",
+        isCorrect: true,
+        diagnosticInsight: "Accurately understands control flow and early function termination."
+      },
+      {
+        id: "c",
+        text: "It skips only the current iteration and continues the loop.",
+        isCorrect: false,
+        diagnosticInsight: "Confused `return` with `continue`."
+      },
+      {
+        id: "d",
+        text: "Python raises a SyntaxError when `return` appears inside a `for` loop.",
+        isCorrect: false,
+        diagnosticInsight: "Misunderstands valid control flow syntax."
+      }
+    ],
+    explanation: "`return` immediately terminates execution of the current function and sends back the value. To collect all matches, initialize an accumulator list before the loop and return it after the loop finishes."
+  },
+  {
+    id: "diag-dsa-1",
+    discipline: "dsa",
+    skillId: "dsa",
+    skillName: "Data Structures & Algorithms",
+    difficulty: "intermediate",
+    prompt: "You need to check whether any two numbers in an unsorted array of 100,000 items sum to a target T. Which approach provides O(N) average time complexity?",
+    options: [
+      {
+        id: "a",
+        text: "Nested loops checking every pair (i, j).",
+        isCorrect: false,
+        diagnosticInsight: "Nested loops run in O(N^2) time — 10 billion ops for 100k items."
+      },
+      {
+        id: "b",
+        text: "Store seen elements in a hash set / dictionary and check if (T - x) exists during a single pass.",
+        isCorrect: true,
+        diagnosticInsight: "Understands O(1) average hash lookup trade-off reducing O(N^2) to O(N)."
+      },
+      {
+        id: "c",
+        text: "Check `if (T - x) in list_so_far` using a Python list during a single pass.",
+        isCorrect: false,
+        diagnosticInsight: "Unaware that `in` on a list is O(N), making the overall loop still O(N^2)."
+      },
+      {
+        id: "d",
+        text: "Bubble sort the array first, then iterate linearly.",
+        isCorrect: false,
+        diagnosticInsight: "Bubble sort is O(N^2)."
+      }
+    ],
+    explanation: "Membership lookup (`in`) on a Python `set` or `dict` is O(1) average time via hash tables, whereas `in` on a `list` scans sequentially in O(N). Using a hash set gives O(N) total time."
+  },
   {
     id: "diag-py-1",
     discipline: "python",
