@@ -29,6 +29,7 @@ import {
 } from "./types";
 import { validateUsername } from "./security";
 import { encryptToken, decryptToken } from "@/lib/crypto/token-vault";
+import { resolveDomainSecret } from "@/lib/crypto/server-secret";
 
 function resolveAuthFilePath(): string {
   if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
@@ -1615,37 +1616,11 @@ export function findUserByConnectedAccount(
 
 // ─── SESSIONS (Stateless Cryptographic Signature + In-Memory/Disk Store) ───
 
-let ephemeralDevSessionSecret: string | null = null;
-let warnedMissingSessionSecret = false;
-
 function getSessionSigningSecret(): string {
-  const configured = (
-    process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    ""
-  ).trim();
-  if (configured.length >= 16) {
-    return configured;
-  }
-
-  if (isTestRuntime()) {
-    return "cognalyze_test_only_session_hmac_secret_not_for_production";
-  }
-
-  const isProd = process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
-  if (isProd) {
-    throw new Error("SESSION_SECRET must be configured in production.");
-  }
-
-  if (!ephemeralDevSessionSecret) {
-    ephemeralDevSessionSecret = crypto.randomBytes(32).toString("hex");
-    if (!warnedMissingSessionSecret) {
-      warnedMissingSessionSecret = true;
-      console.warn("[auth/store] SESSION_SECRET not set in local dev; using ephemeral process signing key.");
-    }
-  }
-  return ephemeralDevSessionSecret;
+  return resolveDomainSecret({
+    domain: "session-signing",
+    envKeys: ["SESSION_SECRET", "AUTH_SECRET", "NEXTAUTH_SECRET"],
+  });
 }
 
 const REVOKED_SESSION_IDS = new Set<string>();
