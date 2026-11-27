@@ -146,13 +146,13 @@ const INITIAL_COMMUNITY_POSTS: UnifiedPost[] = [
   {
     id: "collab-dsa-study-circle",
     type: "collaboration",
-    title: "Striver SDE 455 & NeetCode 150 Daily Mock Debate Circle (Tier-1 Product Focused)",
+    title: "SDE 455 & NeetCode 150 Daily Mock Debate Circle (Tier-1 Product Focused)",
     content: "We run a structured 6-week cohort targeting Google, Uber, and Flipkart SDE-1 drives. Daily schedule: 2 LeetCode Medium/Hard problems + 30-min peer mock interview with live coding and edge case grilling at 9:00 PM IST. Max 8 members to keep discussion quality high.",
     author_name: "Meera Nair",
     author_role: "Incoming SDE Intern @ Microsoft",
     author_avatar: "📚",
     company_or_org: "AlgoPrep Circle",
-    tags: ["DSA", "Striver Sheet", "Mock Interviews", "LeetCode", "Peer Learning"],
+    tags: ["DSA", "SDE 455 Sheet", "Mock Interviews", "LeetCode", "Peer Learning"],
     domain_tags: ["Placement Preparation"],
     created_at: new Date(Date.now() - 86400000 * 3).toISOString(), // 3d ago
     metadata: {

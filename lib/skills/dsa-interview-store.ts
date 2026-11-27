@@ -30,7 +30,7 @@ import {
   CanonicalProblem,
   getCanonicalProblem
 } from "./dsa-canonical-problems";
-import { STRIVER_A2Z_PROBLEMS } from "../dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS } from "../dsa-a2z-sheet";
 import { SuiteExecutionSummary } from "./dsa-code-runner";
 import {
   AssessmentArea,
@@ -263,7 +263,7 @@ export function createInterviewSession(params: {
       });
 
       if (candidatePool.length < stepQuestionCount) {
-        const sheetMatches = STRIVER_A2Z_PROBLEMS.filter(p => {
+        const sheetMatches = DSA_A2Z_PROBLEMS.filter(p => {
           const st = p.step_title.toLowerCase();
           return st.includes(`step ${stepNum}:`) || st.startsWith(`step ${stepNum}`);
         });

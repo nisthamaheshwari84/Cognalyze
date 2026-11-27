@@ -39,7 +39,7 @@ export function clearUserSessionStorage(newUserId?: string): void {
       for (const k of allKeys) {
         if (
           k.startsWith("cognalyze_attempts_") ||
-          k.startsWith("cognalyze_striver_") ||
+          k.startsWith("cognalyze_dsa_progress_") ||
           k.startsWith("cognalyze_behavioral_") ||
           k.startsWith("cognalyze_learner_memory_")
         ) {

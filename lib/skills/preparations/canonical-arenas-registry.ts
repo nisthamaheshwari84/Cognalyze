@@ -457,7 +457,7 @@ export const CANONICAL_PREPARATION_ARENAS: PreparationArena[] = [
               id: "grid-ab-1",
               phase: 1,
               phaseName: "DSA Speed",
-              title: "Master Striver Step 3 Arrays & Kadane's Algorithm",
+              title: "Master Step 3 Arrays & Kadane's Algorithm",
               description: "Solve linear array transformations, maximum subarray sum, and Dutch National Flag in the DSA Arena.",
               estimatedMinutes: 90,
               linkedDomain: "dsa",

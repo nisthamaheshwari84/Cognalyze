@@ -407,7 +407,7 @@ export function getDomainStatus(candidateId: string, domainSlug: string, trackSl
       whyRecommended: dsaFocus.reason,
       lastPracticed: "Not yet started",
       estimatedMinutes: 25,
-      targetRound: "Striver A2Z DSA Sheet"
+      targetRound: "A2Z DSA Sheet"
     };
   }
 
@@ -1228,7 +1228,7 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
     const dsaFocus = getStudentDsaFocus(candidateId);
     const dsaSummary = getStudentDsaSummary(candidateId);
 
-    // Dynamic readiness based on actual Striver sheet progression
+    // Dynamic readiness based on actual DSA sheet progression
     if (dsaSummary.totalAttempts > 0 || (!isA && !isB)) {
       const isReady = dsaSummary.totalSolved >= 5 || (dsaSummary.totalAttempts >= 3 && dsaSummary.avgScore >= 75);
       const mode = dsaFocus.recommendedMode === "revision" ? "practice" : dsaFocus.recommendedMode;
@@ -1239,7 +1239,7 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
         domainName: "DSA Coding",
         status: isReady ? "READY" : "NEEDS_PRACTICE",
         statusColor: isReady ? "#34d399" : "#fbbf24",
-        reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} Striver problems solved. ${dsaFocus.reason}`,
+        reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} DSA sheet problems solved. ${dsaFocus.reason}`,
         recommendedMode: mode as any,
         recommendedModeLabel: modeLabel,
         recommendedDrill: `${dsaFocus.topic} - ${dsaFocus.subtopic}`,
@@ -1265,11 +1265,11 @@ export function getDomainReadiness(candidateId: string, domainSlug: string): Dom
       domainName: "DSA Coding",
       status: "NEEDS_PRACTICE",
       statusColor: "#fbbf24",
-      reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} Striver problems solved. Focus on ${dsaFocus.topic} fundamentals.`,
+      reason: `${dsaSummary.totalSolved}/${dsaSummary.totalProblems} DSA sheet problems solved. Focus on ${dsaFocus.topic} fundamentals.`,
       recommendedMode: dsaFocus.recommendedMode as any,
       recommendedModeLabel: dsaFocus.recommendedMode === "learn" ? "💡 Learn First" : "🛠️ Practice Mode",
       recommendedDrill: `${dsaFocus.topic} Pattern Recognition Drill`,
-      evidenceSummary: `Developing: ${dsaSummary.totalSolved} of ${dsaSummary.totalProblems} Striver sheet problems completed`
+      evidenceSummary: `Developing: ${dsaSummary.totalSolved} of ${dsaSummary.totalProblems} DSA sheet problems completed`
     };
   }
 

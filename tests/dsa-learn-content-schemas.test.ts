@@ -612,8 +612,8 @@ function createValidTestModule(): LearningModule {
     layer10BridgeToPractice: {
       canonicalPracticeProblems: [
         {
-          problemId: "striver-step3-max-subarray",
-          title: "Maximum Subarray (LeetCode 53 / Striver Step 3.2)",
+          problemId: "dsa-step3-max-subarray",
+          title: "Maximum Subarray (LeetCode 53 / Step 3.2)",
           difficulty: "medium",
           conceptApplicationNotes: {
             en: "Direct textbook application of Kadane's algorithm.",
@@ -632,7 +632,7 @@ function createValidTestModule(): LearningModule {
             en: "Master scalar Kadane's algorithm.",
             hinglish: "Pehle normal Kadane solve karo."
           },
-          problemIds: ["striver-step3-max-subarray"]
+          problemIds: ["dsa-step3-max-subarray"]
         }
       ],
       recommendedImmediateAction: {

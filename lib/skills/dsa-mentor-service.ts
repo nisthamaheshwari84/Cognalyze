@@ -13,7 +13,7 @@
  */
 
 import { groqFetch } from "@/lib/groq";
-import { getStriverProblemById } from "./striver-curriculum";
+import { getDsaSheetProblemById } from "./dsa-curriculum";
 import { getCanonicalProblem } from "./dsa-canonical-problems";
 
 export interface DsaMentorTurnInput {
@@ -68,7 +68,7 @@ export async function executeDsaMentorTurn(input: DsaMentorTurnInput): Promise<D
   let targetSpace = "O(1)";
 
   if (problemId) {
-    const prob = getStriverProblemById(problemId);
+    const prob = getDsaSheetProblemById(problemId);
     if (prob) {
       activeProblemTitle = prob.title;
       targetTime = prob.time_complexity || "optimal";

@@ -321,9 +321,9 @@ export interface EducationalLayer9VerificationRubric {
 // ============================================================================
 
 export interface PracticeProblemBridge {
-  problemId: string; // Links to Striver 455 or Canonical Problem ID
+  problemId: string; // Links to DSA 455 or Canonical Problem ID
   title: string;
-  striverSheetUrl?: string;
+  referenceArticleUrl?: string;
   difficulty: ConceptDifficulty;
   conceptApplicationNotes: BilingualText;
   subtleVariationFromCore: BilingualText;

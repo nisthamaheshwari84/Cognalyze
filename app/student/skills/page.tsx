@@ -198,7 +198,7 @@ export default function SkillPracticeHubPage() {
   // Primary Practice Domains
   const domainCardConfig = [
     { slug: "ai_data_arena", name: "AI & Data Arena", icon: "🧠", href: "/student/skills/ai-data" },
-    { slug: "dsa_coding", name: "DSA Coding & Striver 455", icon: "⚡", href: "/student/skills/dsa" },
+    { slug: "dsa_coding", name: "DSA Coding & 455 Sheet", icon: "⚡", href: "/student/skills/dsa" },
     { slug: "cs_fundamentals", name: "CS Fundamentals", icon: "💻", href: "/student/skills/cs-interview" },
     { slug: "code_comprehension", name: "Code Comprehension", icon: "🔬", href: "/student/skills/code-comprehension" },
     { slug: "system_design", name: "System Design", icon: "🏗️", href: "/student/skills/system-design" },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedContext } from "@/lib/auth/server";
 import {
   getInterviewIntelligenceOrigin,
+  hasExplicitHandoffSecret,
   issueLaunchTicket,
 } from "@/lib/interview-intelligence/handoff";
 
@@ -12,6 +13,42 @@ const NO_STORE_HEADERS = {
   Pragma: "no-cache",
   Vary: "Cookie, Authorization",
 };
+
+let cachedSsoCapability: { origin: string; supported: boolean; checkedAt: number } | null = null;
+
+async function supportsSsoHandoff(origin: string): Promise<boolean> {
+  if (!hasExplicitHandoffSecret()) {
+    return false;
+  }
+  const now = Date.now();
+  if (
+    cachedSsoCapability &&
+    cachedSsoCapability.origin === origin &&
+    now - cachedSsoCapability.checkedAt < 30_000
+  ) {
+    return cachedSsoCapability.supported;
+  }
+
+  let supported = false;
+  try {
+    const probe = await fetch(`${origin}/api/auth/session`, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(1500),
+    }).catch(() => null);
+    if (probe) {
+      const payload = (await probe.json().catch(() => null)) as Record<string, unknown> | null;
+      if (payload && typeof payload.authenticated === "boolean") {
+        supported = true;
+      }
+    }
+  } catch {
+    supported = false;
+  }
+
+  cachedSsoCapability = { origin, supported, checkedAt: now };
+  return supported;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,10 +89,13 @@ export async function POST(req: NextRequest) {
     });
 
     const launchOrigin = getInterviewIntelligenceOrigin();
+    const ssoSupported = await supportsSsoHandoff(launchOrigin);
+    const launchMode = ssoSupported ? "sso_ticket" : "direct_student_bridge";
 
     return NextResponse.json(
       {
         success: true,
+        launchMode,
         ticket,
         expiresAt: new Date(payload.exp * 1000).toISOString(),
         launchOrigin,

@@ -22,6 +22,7 @@ const DEFAULT_ENGINE_ORIGIN =
     : "https://interview-intelligence-sigma.vercel.app";
 
 interface LaunchSessionData {
+  launchMode?: "sso_ticket" | "direct_student_bridge";
   ticket: string;
   expiresAt: string;
   launchOrigin: string;
@@ -119,6 +120,7 @@ export default function StudentPracticeInterviewPage() {
       }
 
       const payload: LaunchSessionData = {
+        launchMode: data.launchMode === "sso_ticket" ? "sso_ticket" : "direct_student_bridge",
         ticket: data.ticket,
         expiresAt: data.expiresAt,
         launchOrigin: data.launchOrigin || DEFAULT_ENGINE_ORIGIN,
@@ -168,14 +170,26 @@ export default function StudentPracticeInterviewPage() {
       }
 
       ticketDispatchedRef.current = activePayload.ticket;
-      targetWindow.postMessage(
-        {
-          type: "COGNALYZE_LAUNCH_TICKET",
-          ticket: activePayload.ticket,
-          contextHints: activePayload.contextHints || {},
-        },
-        activePayload.launchOrigin
-      );
+      if (activePayload.launchMode === "sso_ticket") {
+        targetWindow.postMessage(
+          {
+            type: "COGNALYZE_LAUNCH_TICKET",
+            ticket: activePayload.ticket,
+            contextHints: activePayload.contextHints || {},
+          },
+          activePayload.launchOrigin
+        );
+      } else {
+        targetWindow.postMessage(
+          {
+            type: "COGNINEST_STUDENT_CONTEXT",
+            studentId: activePayload.identity.userId,
+            studentName: activePayload.identity.fullName,
+            targetRole: activePayload.contextHints?.targetRole || "",
+          },
+          activePayload.launchOrigin
+        );
+      }
     },
     [requestLaunchTicket]
   );
@@ -225,13 +239,35 @@ export default function StudentPracticeInterviewPage() {
     return () => window.removeEventListener("message", handleMessage);
   }, [launchData, launchState, engineOriginLabel, dispatchTicketToIframe, requestLaunchTicket, checkServerHealth]);
 
-  // Dedicated window launch strictly via POST form (single-use ticket in POST body, zero tokens in URL)
+  const buildBridgeUrl = (payload: LaunchSessionData, embedded: boolean): string => {
+    const params = new URLSearchParams();
+    if (embedded) params.set("embed", "1");
+    if (payload.launchMode !== "sso_ticket") {
+      params.set("studentId", payload.identity.userId);
+      params.set("studentName", payload.identity.fullName);
+      if (payload.contextHints?.targetRole) {
+        params.set("targetRole", payload.contextHints.targetRole);
+      }
+      if (payload.contextHints?.companyContext) {
+        params.set("companyContext", payload.contextHints.companyContext);
+      }
+    }
+    const qs = params.toString();
+    return `${payload.launchOrigin.replace(/\/+$/, "")}/${qs ? `?${qs}` : ""}`;
+  };
+
+  // Dedicated window launch (uses single-use POST ticket when SSO engine is active, or direct student bridge otherwise)
   const handleOpenDedicatedWindow = async () => {
     if (openingDedicated) return;
     setOpeningDedicated(true);
     try {
       const fresh = await requestLaunchTicket();
       if (!fresh) return;
+
+      if (fresh.launchMode !== "sso_ticket") {
+        window.open(buildBridgeUrl(fresh, false), "_blank", "noopener,noreferrer");
+        return;
+      }
 
       const form = document.createElement("form");
       form.method = "POST";
@@ -269,8 +305,8 @@ export default function StudentPracticeInterviewPage() {
   };
 
   const activeOrigin = launchData?.launchOrigin || engineOriginLabel || DEFAULT_ENGINE_ORIGIN;
-  const shouldShowIframe =
-    launchState === "initializing" || (launchState === "ready" && Boolean(launchData));
+  const shouldShowIframe = launchState === "ready" && Boolean(launchData);
+  const iframeSrc = launchData ? buildBridgeUrl(launchData, true) : `${activeOrigin}/?embed=1`;
 
   // Ensure loading overlay never gets stuck if iframe completes initial load before React attaches onLoad
   useEffect(() => {
@@ -544,6 +580,43 @@ export default function StudentPracticeInterviewPage() {
               </button>
             </div>
           </div>
+        ) : launchState === "initializing" ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 20px",
+                borderRadius: 999,
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #D2E0FB",
+                boxShadow: "0 4px 12px rgba(16, 24, 40, 0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: 15,
+                  height: 15,
+                  borderRadius: "50%",
+                  border: "2px solid #D2E0FB",
+                  borderTopColor: "#356AE6",
+                  animation: "spin 0.8s linear infinite",
+                }}
+              />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "#162A43" }}>
+                Initializing Cognalyze Interview Studio...
+              </span>
+            </div>
+          </div>
         ) : shouldShowIframe ? (
           <div style={{ flex: 1, position: "relative", minHeight: "calc(100vh - 120px)" }}>
             {!iframeLoaded && (
@@ -582,7 +655,7 @@ export default function StudentPracticeInterviewPage() {
             )}
             <iframe
               ref={iframeRef}
-              src={`${activeOrigin}/?embed=1`}
+              src={iframeSrc}
               onLoad={() => {
                 setIframeLoaded(true);
                 setIsServerHealthy(true);

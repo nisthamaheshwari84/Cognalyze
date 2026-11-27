@@ -53,7 +53,7 @@ For EACH problem, return a JSON object with:
 - title: exact official problem title (e.g. "Longest Increasing Subsequence", "Cheapest Flights Within K Stops", "Burst Balloons")
 - difficulty: exactly one of "easy" | "medium" | "hard"
 - problem_url: realistic LeetCode search or direct URL (e.g. "https://leetcode.com/problems/longest-increasing-subsequence/")
-- article_url: "https://takeuforward.org/data-structure/striver-dsa-sheet-problems"
+- article_url: optional editorial or reference URL (e.g. "https://leetcode.com/problems/longest-increasing-subsequence/editorial/") or ""
 - companies: array of 2 to 4 companies that actively ask this (e.g. ["Amazon", "Flipkart", "Google"])
 - description: concise 1-2 sentence core requirement
 - markdown_details: rich Markdown containing:
@@ -75,7 +75,7 @@ Respond ONLY with a JSON object in this exact schema:
       "title": "...",
       "difficulty": "medium",
       "problem_url": "...",
-      "article_url": "https://takeuforward.org/data-structure/striver-dsa-sheet-problems",
+      "article_url": "",
       "companies": ["..."],
       "description": "...",
       "markdown_details": "...",
@@ -109,7 +109,7 @@ Respond ONLY with a JSON object in this exact schema:
       title: p.title || "Target Interview Problem",
       difficulty: (["easy", "medium", "hard"].includes(p.difficulty) ? p.difficulty : "medium") as any,
       problem_url: p.problem_url || `https://leetcode.com/problemset/?search=${encodeURIComponent(p.title || "")}`,
-      article_url: p.article_url || "https://takeuforward.org/data-structure/striver-dsa-sheet-problems",
+      article_url: p.article_url?.trim() || undefined,
       companies: Array.isArray(p.companies) && p.companies.length > 0 ? p.companies : ["Amazon", "Google"],
       description: p.description || `Master this core ${topicId} pattern.`,
       markdown_details: p.markdown_details || `### Problem Statement\n\n${p.description || p.title}\n\n### Target Complexity\nTime: ${p.time_complexity || "O(N)"}, Space: ${p.space_complexity || "O(1)"}`,

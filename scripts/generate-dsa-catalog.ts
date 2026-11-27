@@ -1,12 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { STRIVER_A2Z_PROBLEMS } from "../lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS } from "../lib/dsa-a2z-sheet";
 import { synthesizeCanonicalProblem } from "../lib/skills/dsa-canonical-problems";
 
-console.log("Generating DSA Catalog from Striver canonical problems...");
+console.log("Generating DSA Catalog from A2Z DSA canonical problems...");
 
 // Take the first 120 problems to ensure >= 100 distinct questions
-const selected = STRIVER_A2Z_PROBLEMS.slice(0, 120);
+const selected = DSA_A2Z_PROBLEMS.slice(0, 120);
 
 const dsaCatalogItems = selected.map((p, idx) => {
   const canonical = synthesizeCanonicalProblem(p);
@@ -26,7 +26,7 @@ const dsaCatalogItems = selected.map((p, idx) => {
     subtopic: p.subtopic_title,
     difficulty: diffCapitalized,
     sourceType: "Verified Company Question",
-    source: p.article_url || "Striver A2Z DSA Sheet",
+    source: p.article_url || "A2Z DSA DSA Sheet",
     sourceUrl: p.problem_url,
     verified: true,
     codeSnippet: canonical.starterCode.python,

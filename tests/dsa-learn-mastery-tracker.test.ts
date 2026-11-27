@@ -56,7 +56,7 @@ test("Phase 9 — Mastery Tracker Integration & Concept Knowledge Graph", async 
     assert.equal(status2Unlocked.missingPrerequisites.length, 0);
   });
 
-  await t.test("4. Striver 455 Solved count invariance: Total Solved is strictly independent", () => {
+  await t.test("4. DSA 455 Solved count invariance: Total Solved is strictly independent", () => {
     // Invariant check: problem count (455 problems) and concept count (59 concepts) are separate domains
     const summary = getStudentConceptMastery("test-invariance");
     assert.equal(summary.totalAvailableConcepts, 59);

@@ -1,7 +1,7 @@
 /**
  * COGNALYZE DSA LEARN — CONCEPT MASTERY STORE (PHASE 9)
  * 
- * Manages persistent conceptual mastery metrics independently from the 455 Striver problem
+ * Manages persistent conceptual mastery metrics independently from the 455 DSA problem
  * solved count. Guarantees zero pollution or merging of problem practice metrics.
  */
 

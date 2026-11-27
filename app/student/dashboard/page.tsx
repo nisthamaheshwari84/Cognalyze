@@ -1560,7 +1560,7 @@ export default function StudentDashboardOverview() {
                 >
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: isDark ? "#EAF0F8" : "#17191C" }}>
-                      DSA Tracker (Striver Sheet)
+                      DSA Tracker (SDE 455 Sheet)
                     </div>
                     <div style={{ fontSize: 11, color: isDark ? "#9FB0C5" : "#667085", marginTop: 2 }}>
                       Focus: Binary Trees · 12 problems this week

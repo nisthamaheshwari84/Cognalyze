@@ -15,6 +15,7 @@ import { getCandidateAttempts } from "@/lib/skills/candidate-history";
 import { getSessionHistory, saveSession } from "@/lib/interview-session-store";
 import { isSupabaseAvailable, supabaseAdmin } from "@/lib/supabase";
 import { isTestRuntime } from "@/lib/env";
+import { resolveDomainSecret } from "@/lib/crypto/server-secret";
 
 export const HANDOFF_ISSUER = "cognalyze";
 export const HANDOFF_AUDIENCE = "interview-intelligence";
@@ -165,22 +166,15 @@ export interface SharedStudentDNAContext {
 
 // ─── SECRET & ORIGIN RESOLUTION ──────────────────────────────────────────────
 
+export function hasExplicitHandoffSecret(): boolean {
+  return (process.env.COGNALYZE_INTERVIEW_HANDOFF_SECRET || "").trim().length >= 16;
+}
+
 export function getHandoffSecret(): string {
-  const configured = (process.env.COGNALYZE_INTERVIEW_HANDOFF_SECRET || "").trim();
-  if (configured.length >= 16) {
-    return configured;
-  }
-
-  const isProd = process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
-  if (isProd && !isTestRuntime()) {
-    throw new Error(
-      "COGNALYZE_INTERVIEW_HANDOFF_SECRET is not configured in production environment."
-    );
-  }
-
-  // Deterministic development-only secret derived from local environment when explicit secret is unset
-  const seed = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "cognalyze-local-dev-handoff-secret-2026";
-  return crypto.createHash("sha256").update(`cognalyze-ii-dev:${seed}`).digest("hex");
+  return resolveDomainSecret({
+    domain: "interview-handoff",
+    envKeys: ["COGNALYZE_INTERVIEW_HANDOFF_SECRET", "SESSION_SECRET", "AUTH_SECRET"],
+  });
 }
 
 export function getInterviewIntelligenceOrigin(): string {

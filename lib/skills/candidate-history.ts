@@ -300,10 +300,10 @@ export function getAdaptiveRecommendation(
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// STRIVER PROGRESS TRACKER PER CANDIDATE (Sections 7, 15, 33)
+// DSA PROGRESS TRACKER PER CANDIDATE (Sections 7, 15, 33)
 // ══════════════════════════════════════════════════════════════════════
 
-export type StriverProblemStatus =
+export type DsaProblemStatus =
   | "not_started"
   | "in_progress"
   | "learned"
@@ -312,27 +312,27 @@ export type StriverProblemStatus =
   | "needs_revision"
   | "mastered";
 
-export interface StriverProblemProgressRecord {
+export interface DsaProblemProgressRecord {
   problemId: string;
-  status: StriverProblemStatus;
+  status: DsaProblemStatus;
   score?: number;
   attemptsCount: number;
   lastAttemptAt: string;
   notes?: string;
 }
 
-const STRIVER_PROGRESS_STORE: Record<string, Record<string, StriverProblemProgressRecord>> = {};
+const DSA_PROGRESS_STORE: Record<string, Record<string, DsaProblemProgressRecord>> = {};
 
 /**
- * Get a candidate's Striver problem progress map.
+ * Get a candidate's DSA PROBLEM progress map.
  */
-export function getStudentStriverProgress(candidateId: string): Record<string, StriverProblemProgressRecord> {
-  let record = STRIVER_PROGRESS_STORE[candidateId];
+export function getStudentDsaProgress(candidateId: string): Record<string, DsaProblemProgressRecord> {
+  let record = DSA_PROGRESS_STORE[candidateId];
   if (!record && typeof window !== "undefined") {
     try {
-      const storageKey = `cognalyze_striver_${candidateId}`;
+      const storageKey = `cognalyze_dsa_progress_${candidateId}`;
       record = JSON.parse(localStorage.getItem(storageKey) || "{}");
-      STRIVER_PROGRESS_STORE[candidateId] = record;
+      DSA_PROGRESS_STORE[candidateId] = record;
     } catch {
       record = {};
     }
@@ -341,26 +341,26 @@ export function getStudentStriverProgress(candidateId: string): Record<string, S
 }
 
 /**
- * Update a candidate's progress on a specific Striver problem.
+ * Update a candidate's progress on a specific DSA PROBLEM.
  */
-export function updateStudentStriverStatus(
+export function updateStudentDsaStatus(
   candidateId: string,
   problemId: string,
-  status: StriverProblemStatus,
+  status: DsaProblemStatus,
   score?: number
-): StriverProblemProgressRecord {
-  if (!STRIVER_PROGRESS_STORE[candidateId]) {
-    STRIVER_PROGRESS_STORE[candidateId] = getStudentStriverProgress(candidateId);
+): DsaProblemProgressRecord {
+  if (!DSA_PROGRESS_STORE[candidateId]) {
+    DSA_PROGRESS_STORE[candidateId] = getStudentDsaProgress(candidateId);
   }
 
-  const existing = STRIVER_PROGRESS_STORE[candidateId][problemId] || {
+  const existing = DSA_PROGRESS_STORE[candidateId][problemId] || {
     problemId,
     status: "not_started",
     attemptsCount: 0,
     lastAttemptAt: new Date().toISOString()
   };
 
-  const updated: StriverProblemProgressRecord = {
+  const updated: DsaProblemProgressRecord = {
     ...existing,
     status,
     score: score !== undefined ? score : existing.score,
@@ -368,14 +368,14 @@ export function updateStudentStriverStatus(
     lastAttemptAt: new Date().toISOString()
   };
 
-  STRIVER_PROGRESS_STORE[candidateId][problemId] = updated;
+  DSA_PROGRESS_STORE[candidateId][problemId] = updated;
 
   if (typeof window !== "undefined") {
     try {
-      const storageKey = `cognalyze_striver_${candidateId}`;
-      localStorage.setItem(storageKey, JSON.stringify(STRIVER_PROGRESS_STORE[candidateId]));
+      const storageKey = `cognalyze_dsa_progress_${candidateId}`;
+      localStorage.setItem(storageKey, JSON.stringify(DSA_PROGRESS_STORE[candidateId]));
     } catch (e) {
-      console.warn("Could not save striver progress to localStorage", e);
+      console.warn("Could not save DSA progress to localStorage", e);
     }
   }
 
@@ -383,7 +383,7 @@ export function updateStudentStriverStatus(
 }
 
 /**
- * Aggregates candidate Striver statistics.
+ * Aggregates candidate A2Z DSA statistics.
  */
 export function getStudentDsaSummary(candidateId: string): {
   totalSolved: number;
@@ -396,7 +396,7 @@ export function getStudentDsaSummary(candidateId: string): {
   avgScore: number;
   lastScore: number;
 } {
-  const progress = getStudentStriverProgress(candidateId);
+  const progress = getStudentDsaProgress(candidateId);
   const domainSummary = getCandidateDomainSummary(candidateId);
   const dsaMeta = domainSummary.dsa_coding || { totalAttempts: 0, avgScore: 0, lastScore: 0 };
   let totalSolved = 0;
@@ -437,7 +437,7 @@ export function getStudentDsaFocus(candidateId: string): {
   suggestedProblemId?: string;
 } {
   const attempts = getCandidateAttempts(candidateId, "dsa_coding");
-  const progress = getStudentStriverProgress(candidateId);
+  const progress = getStudentDsaProgress(candidateId);
 
   // 1. If candidate recently failed or has a needs_revision topic
   const failedAttempt = attempts.find(a => a.score < 70);

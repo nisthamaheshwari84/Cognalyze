@@ -893,7 +893,7 @@ export default function OpportunityDetailPage({
                 </div>
               </div>
 
-              {/* Quick Jump Bar to Striver SDE 455 Mastery Tracker & DSA Coding */}
+              {/* Quick Jump Bar to SDE 455 Mastery Tracker & DSA Coding */}
               <div style={{ padding: "12px 16px", background: "#FAF9F6", border: "1px solid #E4E1DA", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 16 }}>⚡</span>
@@ -912,7 +912,7 @@ export default function OpportunityDetailPage({
                     href="/student/skills/dsa?mode=tracker"
                     style={{ padding: "6px 12px", borderRadius: 6, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", textDecoration: "none", fontSize: 11, fontWeight: 700 }}
                   >
-                    📊 Striver SDE 455 Mastery Tracker
+                    📊 SDE 455 Mastery Tracker
                   </Link>
                 </div>
               </div>

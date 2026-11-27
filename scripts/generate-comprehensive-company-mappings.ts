@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { STRIVER_A2Z_PROBLEMS } from "../lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS } from "../lib/dsa-a2z-sheet";
 import { COMPANY_DIRECTORY } from "../lib/skills/company-directory";
 
 console.log("Generating comprehensive company mappings for all 56 companies...");

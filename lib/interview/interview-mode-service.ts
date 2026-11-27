@@ -186,7 +186,7 @@ export function generatePracticeLearningPlan(params: {
         category: "DSA",
         priority: "HIGH",
         observedGap: `Struggled with optimal complexity or edge cases in ${weak}.`,
-        suggestedAction: "Practice Striver A2Z DSA Sheet: Step 3 (Arrays & Two Pointers) and Step 7 (Recursion).",
+        suggestedAction: "Practice A2Z DSA Sheet: Step 3 (Arrays & Two Pointers) and Step 7 (Recursion).",
         practiceProblemOrModule: "Longest Substring Without Repeating Characters, 3Sum, Kadane's Algorithm",
       });
     } else if (wLower.includes("database") || wLower.includes("dbms") || wLower.includes("sql") || wLower.includes("postgres")) {

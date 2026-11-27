@@ -302,7 +302,7 @@ export default function Home() {
                 {[
                   "Verified Opportunities & Hackathons",
                   "100% Gated 6-Stage Recruitment Sim",
-                  "Striver SDE 455 DSA Mastery Tracker",
+                  "SDE 455 DSA Mastery Tracker",
                   "6-Template Resume Builder & ATS Diagnostics",
                 ].map((feat, idx) => (
                   <div key={idx} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#475467" }}>

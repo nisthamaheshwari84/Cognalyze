@@ -11,7 +11,7 @@
  * 5. Distinct test fixtures that cannot be conflated between problems.
  */
 
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "../dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS, DsaSheetProblem } from "../dsa-a2z-sheet";
 
 export interface CanonicalExample {
   input: string;
@@ -1878,10 +1878,10 @@ function toCamelCase(str: string): string {
 }
 
 /**
- * Synthesize a fully compliant, runnable CanonicalProblem contract from a StriverProblem entry.
- * Guarantees every problem across all 17 Striver steps has runnable signatures, test fixtures, and follow-ups.
+ * Synthesize a fully compliant, runnable CanonicalProblem contract from a DsaSheetProblem entry.
+ * Guarantees every problem across all 17 DSA roadmap steps has runnable signatures, test fixtures, and follow-ups.
  */
-export function synthesizeCanonicalProblem(prob: StriverProblem): CanonicalProblem {
+export function synthesizeCanonicalProblem(prob: DsaSheetProblem): CanonicalProblem {
   const fnName = toCamelCase(prob.title);
   const timeComp = prob.time_complexity || "O(N)";
   const spaceComp = prob.space_complexity || "O(1)";
@@ -1988,7 +1988,7 @@ export function synthesizeCanonicalProblem(prob: StriverProblem): CanonicalProbl
  * Pre-hydrate at least 100 canonical problems to ensure instant static lookup
  * and guaranteed >= 100 inventory baseline.
  */
-for (const p of STRIVER_A2Z_PROBLEMS.slice(0, 105)) {
+for (const p of DSA_A2Z_PROBLEMS.slice(0, 105)) {
   if (!CANONICAL_DSA_PROBLEMS[p.id]) {
     CANONICAL_DSA_PROBLEMS[p.id] = synthesizeCanonicalProblem(p);
   }
@@ -1996,7 +1996,7 @@ for (const p of STRIVER_A2Z_PROBLEMS.slice(0, 105)) {
 
 /**
  * Helper to retrieve a canonical problem by ID, with automatic alias resolution
- * and fallback synthesis from authoritative STRIVER_A2Z_PROBLEMS.
+ * and fallback synthesis from authoritative DSA_A2Z_PROBLEMS.
  */
 export function getCanonicalProblem(id: string): CanonicalProblem | undefined {
   if (!id) return undefined;
@@ -2008,8 +2008,8 @@ export function getCanonicalProblem(id: string): CanonicalProblem | undefined {
   const lower = id.toLowerCase().trim();
   if (CANONICAL_DSA_PROBLEMS[lower]) return CANONICAL_DSA_PROBLEMS[lower];
 
-  // Synthesize on-demand from authoritative STRIVER_A2Z_PROBLEMS
-  const found = STRIVER_A2Z_PROBLEMS.find(p => p.id === targetId || p.id.toLowerCase() === lowerTarget || p.id === id || p.id.toLowerCase() === lower);
+  // Synthesize on-demand from authoritative DSA_A2Z_PROBLEMS
+  const found = DSA_A2Z_PROBLEMS.find(p => p.id === targetId || p.id.toLowerCase() === lowerTarget || p.id === id || p.id.toLowerCase() === lower);
   if (found) {
     const synthesized = synthesizeCanonicalProblem(found);
     CANONICAL_DSA_PROBLEMS[targetId] = synthesized;
@@ -2021,11 +2021,11 @@ export function getCanonicalProblem(id: string): CanonicalProblem | undefined {
 }
 
 /**
- * Returns all canonical problem IDs, combining curated canonical problems with all Striver roadmap problems.
+ * Returns all canonical problem IDs, combining curated canonical problems with all A2Z DSA roadmap problems.
  */
 export function getAllCanonicalProblemIds(): string[] {
   const ids = new Set<string>(Object.keys(CANONICAL_DSA_PROBLEMS));
-  for (const p of STRIVER_A2Z_PROBLEMS) {
+  for (const p of DSA_A2Z_PROBLEMS) {
     ids.add(p.id);
   }
   return Array.from(ids);

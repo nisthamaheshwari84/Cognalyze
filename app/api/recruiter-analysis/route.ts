@@ -62,7 +62,7 @@ function clamp(n: number, lo: number, hi: number): number {
 
 // ── Semantic keyword matching ──
 const SEMANTIC_MAP: Record<string, string[]> = {
-  "data structures and algorithms": ["dsa","leetcode","competitive programming","solved.*problems","algorithms","data structures","codeforces","codechef","hackerrank","binary search","dynamic programming","trees","graphs","sorting","hashing","striver","neetcode"],
+  "data structures and algorithms": ["dsa","leetcode","competitive programming","solved.*problems","algorithms","data structures","codeforces","codechef","hackerrank","binary search","dynamic programming","trees","graphs","sorting","hashing","neetcode"],
   "rest apis": ["rest","api","restful","endpoint","axios","fetch","postman","express","fastapi","flask","integrated api","api integration","full.?stack","http","backend","server"],
   "databases": ["mysql","mongodb","postgresql","sqlite","supabase","firebase","redis","sql","nosql","orm","prisma","mongoose","database"],
   "system design": ["microservice","distributed","scalab","architect","load balanc","cache","kafka","queue","sharding","replication"],

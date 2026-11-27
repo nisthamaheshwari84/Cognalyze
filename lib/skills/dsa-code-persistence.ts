@@ -2,7 +2,7 @@
  * DSA Arena Code Editor Persistence & Draft Synchronization Architecture
  * 
  * Provides an authoritative, isolated single-source-of-truth for code drafts
- * across Striver problems, programming languages, and study modes.
+ * across DSA PROBLEMs, programming languages, and study modes.
  * 
  * Guarantees:
  * 1. Single authoritative source of truth for user code.
@@ -13,13 +13,13 @@
  * 6. Explicit starter code reset policy only when requested by user.
  */
 
-import { StriverProblemFull } from "./striver-curriculum";
+import { DsaProblemFull } from "./dsa-curriculum";
 import { getCanonicalProblem } from "./dsa-canonical-problems";
 
 export type SupportedLanguage = "cpp" | "python" | "javascript" | "java";
 
 export interface ResolveCodeParams {
-  problem: StriverProblemFull;
+  problem: DsaProblemFull;
   language: SupportedLanguage;
   candidateId?: string;
   inMemoryDrafts: Record<string, string>;
@@ -53,7 +53,7 @@ export function getStorageKey(candidateId?: string): string {
  * Retrieve canonical starter code for a problem in the specified language.
  */
 export function getProblemStarterCode(
-  problem: StriverProblemFull,
+  problem: DsaProblemFull,
   language: SupportedLanguage
 ): string {
   if (!problem) return "";

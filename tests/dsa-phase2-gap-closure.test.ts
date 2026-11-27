@@ -12,8 +12,8 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 
-import { STRIVER_STEPS, getAllStriverProblems } from "../lib/skills/striver-curriculum";
-import { STRIVER_A2Z_PROBLEMS } from "../lib/dsa-striver-sheet";
+import { DSA_ROADMAP_STEPS, getAllDsaSheetProblems } from "../lib/skills/dsa-curriculum";
+import { DSA_A2Z_PROBLEMS } from "../lib/dsa-a2z-sheet";
 import {
   getCanonicalProblem,
   getAllCanonicalProblemIds,
@@ -33,8 +33,8 @@ import fs from "fs";
 
 describe("Phase 2: Curriculum & Problem Inventory Integrity", () => {
   test("Strictly preserves 17 steps and 455 problems", () => {
-    assert.strictEqual(STRIVER_STEPS.length, 17, "Exactly 17 steps required");
-    assert.strictEqual(STRIVER_A2Z_PROBLEMS.length, 455, "Exactly 455 problems required");
+    assert.strictEqual(DSA_ROADMAP_STEPS.length, 17, "Exactly 17 steps required");
+    assert.strictEqual(DSA_A2Z_PROBLEMS.length, 455, "Exactly 455 problems required");
   });
 
   test("Canonical aliases resolve seamlessly to canonical contracts", () => {

@@ -84,16 +84,16 @@ describe("Phase 2 — DSA Learn Master Curriculum & Micro-Concept Registry", () 
     assert.ok(totalMicroConcepts >= 30, "Must contain at least 30 granular micro-concepts");
   });
 
-  it("3. Verifies syllabus union mappings (Striver A2Z + Love Babbar)", () => {
+  it("3. Verifies syllabus union mappings (A2Z Syllabus + Love Babbar)", () => {
     const sub1 = getCurriculumSubtopicById("sub-1-1-1");
     assert.ok(sub1);
-    assert.ok(sub1.striverSheetMapping, "Must map to Striver A2Z sheet");
+    assert.ok(sub1.a2zSheetMapping, "Must map to A2Z DSA sheet");
     assert.ok(sub1.loveBabbarSheetMapping, "Must map to Love Babbar sheet");
 
     const subKadane = getCurriculumSubtopicById("sub-3-2-1");
     assert.ok(subKadane);
     assert.strictEqual(subKadane.title, "Kadane's Algorithm for Maximum Subarray Sum");
-    assert.ok(subKadane.striverSheetMapping?.includes("Kadane"));
+    assert.ok(subKadane.a2zSheetMapping?.includes("Kadane"));
     assert.ok(subKadane.loveBabbarSheetMapping?.includes("Kadane"));
   });
 

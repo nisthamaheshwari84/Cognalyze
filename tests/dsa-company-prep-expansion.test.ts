@@ -52,10 +52,10 @@ test("Company Mappings: Traceable mappings exceed 1,000 relations without canoni
   const microsoftStat = stats.find(s => s.companySlug === "microsoft");
   const metaStat = stats.find(s => s.companySlug === "meta");
 
-  assert.ok(amazonStat && amazonStat.problemCount >= 300, `Amazon must have >= 300 Striver problems mapped, got ${amazonStat?.problemCount}`);
-  assert.ok(googleStat && googleStat.problemCount >= 150, `Google must have >= 150 Striver problems mapped, got ${googleStat?.problemCount}`);
-  assert.ok(microsoftStat && microsoftStat.problemCount >= 80, `Microsoft must have >= 80 Striver problems mapped, got ${microsoftStat?.problemCount}`);
-  assert.ok(metaStat && metaStat.problemCount >= 50, `Meta must have >= 50 Striver problems mapped, got ${metaStat?.problemCount}`);
+  assert.ok(amazonStat && amazonStat.problemCount >= 300, `Amazon must have >= 300 DSA PROBLEMs mapped, got ${amazonStat?.problemCount}`);
+  assert.ok(googleStat && googleStat.problemCount >= 150, `Google must have >= 150 DSA PROBLEMs mapped, got ${googleStat?.problemCount}`);
+  assert.ok(microsoftStat && microsoftStat.problemCount >= 80, `Microsoft must have >= 80 DSA PROBLEMs mapped, got ${microsoftStat?.problemCount}`);
+  assert.ok(metaStat && metaStat.problemCount >= 50, `Meta must have >= 50 DSA PROBLEMs mapped, got ${metaStat?.problemCount}`);
 
   // Test retrieval
   const amazonProblems = getCompanyQuestions("amazon");

@@ -34,7 +34,7 @@ import {
   getCanonicalProblem,
   synthesizeCanonicalProblem
 } from "./dsa-canonical-problems";
-import { STRIVER_A2Z_PROBLEMS } from "../dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS } from "../dsa-a2z-sheet";
 import { isQuestionSeen, getSeenQuestionIds } from "./dsa-interview-history-store";
 
 // ── 1. TECHNICAL REASONING QUESTION BANK ───────────────────────────────────────
@@ -743,7 +743,7 @@ export function generateInterviewBlueprint(params: GenerateBlueprintParams): Any
   // 1. Technical Reasoning Question
   const qReasoning = pickUnseen(TECHNICAL_REASONING_BANK, params.topic);
 
-  // 2. Live Coding Question (drawn from canonical/Striver)
+  // 2. Live Coding Question (drawn from canonical/A2Z DSA)
   const canonicalList = Object.values(CANONICAL_DSA_PROBLEMS);
   let eligibleCoding = canonicalList.filter(p => !seenIds.has(p.id));
   if (params.stepId) {

@@ -18,7 +18,7 @@
  * TEST K: Evaluation failure handling: Session and answers preserved on evaluation error with retry capability.
  * TEST L: Code/test mapping: Test suites strictly isolated per problem.
  * TEST M: Cross-user isolation: Sessions isolated by candidateId.
- * TEST N: Existing functionality: Striver roadmap, 6 Skill Hub tracks, and test fixtures remain functional.
+ * TEST N: Existing functionality: A2Z DSA roadmap, 6 Skill Hub tracks, and test fixtures remain functional.
  */
 
 import { test } from "node:test";
@@ -29,11 +29,11 @@ import {
   getAllCanonicalProblemIds
 } from "../lib/skills/dsa-canonical-problems";
 import {
-  STRIVER_STEPS,
-  getAllStriverProblems,
-  getStriverProblemById,
+  DSA_ROADMAP_STEPS,
+  getAllDsaSheetProblems,
+  getDsaSheetProblemById,
   generateDsaInterviewSession
-} from "../lib/skills/striver-curriculum";
+} from "../lib/skills/dsa-curriculum";
 import {
   createInterviewSession,
   getInterviewSession,
@@ -48,7 +48,7 @@ test("DSA Arena State Synchronization, Question Selection & Evaluation Pipeline"
 
   // ── TEST A: Step preservation across Learn, Practice, and Coach ──
   await t.test("TEST A — Step preservation across modes", () => {
-    const step1Problems = getAllStriverProblems({ stepId: "step-1" });
+    const step1Problems = getAllDsaSheetProblems({ stepId: "step-1" });
     assert.ok(step1Problems.length > 0, "Step 1 must have problems");
     
     // Pick first problem of Step 1
@@ -75,16 +75,16 @@ test("DSA Arena State Synchronization, Question Selection & Evaluation Pipeline"
     assert.strictEqual(coachSelection.activeProblemId, p1.id, "Problem must remain p1 in coach mode");
 
     // Ensure problemsList for step-1 contains the active problem
-    const list = getAllStriverProblems({ stepId: coachSelection.selectedStepId });
+    const list = getAllDsaSheetProblems({ stepId: coachSelection.selectedStepId });
     assert.ok(list.some(p => p.id === coachSelection.activeProblemId), "Step 1 list must contain the selected problem");
   });
 
   // ── TEST B: Non-default step (Step 5, Step 1) never defaults to Step 3 ──
   await t.test("TEST B — Non-default step selection never silently returns to Step 3", () => {
-    const step5 = STRIVER_STEPS.find(s => s.id === "step-5");
+    const step5 = DSA_ROADMAP_STEPS.find(s => s.id === "step-5");
     assert.ok(step5, "Step 5: Strings must exist");
 
-    const step5Problems = getAllStriverProblems({ stepId: "step-5" });
+    const step5Problems = getAllDsaSheetProblems({ stepId: "step-5" });
     assert.ok(step5Problems.length > 0, "Step 5 problems must not be empty");
 
     const selectedStep = "step-5";
@@ -347,8 +347,8 @@ test("DSA Arena State Synchronization, Question Selection & Evaluation Pipeline"
   });
 
   // ── TEST N: Existing functionality preserved ──
-  await t.test("TEST N — Existing Striver roadmap steps and canonical registry intact", () => {
-    assert.strictEqual(STRIVER_STEPS.length, 17, "All 17 Striver steps must be intact");
+  await t.test("TEST N — Existing A2Z DSA roadmap steps and canonical registry intact", () => {
+    assert.strictEqual(DSA_ROADMAP_STEPS.length, 17, "All 17 DSA roadmap steps must be intact");
     const canonicalIds = getAllCanonicalProblemIds();
     assert.ok(canonicalIds.length >= 10, "Canonical problem registry must contain all flagship problems");
     assert.ok(canonicalIds.includes("painter-s-partition-problem"));

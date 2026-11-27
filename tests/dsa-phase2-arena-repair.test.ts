@@ -10,13 +10,13 @@
  * 3. Question Bank Quality & Duplicate Detection: Jaccard token clustering, complexity targets, and curriculum integrity.
  * 4. Canonical Aliases: Seamless resolution of legacy/alternate IDs to canonical test fixtures.
  * 5. Interview Mode Lifecycle: Locked sessions, follow-up answers, and proctoring isolation.
- * 6. Striver A2Z Preservation: Complete 17 steps and 455 problems intact.
+ * 6. A2Z DSA Preservation: Complete 17 steps and 455 problems intact.
  */
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import { STRIVER_STEPS, getAllStriverProblems, getStriverProblemById } from "../lib/skills/striver-curriculum";
+import { DSA_ROADMAP_STEPS, getAllDsaSheetProblems, getDsaSheetProblemById } from "../lib/skills/dsa-curriculum";
 import { CANONICAL_DSA_PROBLEMS, getCanonicalProblem, CANONICAL_ALIASES } from "../lib/skills/dsa-canonical-problems";
 import { executeDsaCoachTurn } from "../lib/skills/dsa-coach-engine";
 import { recordCandidateAttempt, getCandidateAttempts } from "../lib/skills/candidate-history";
@@ -26,19 +26,19 @@ import { createInterviewSession, getInterviewSession, recordFollowUpAnswer, fina
 
 describe("Cognalyze DSA Arena — Phase 2 Repair & Question Quality Suite", () => {
 
-  // ── 1. STRIVER A2Z ROADMAP INTEGRITY ──────────────────────────────────────
-  it("TEST 1: Preserves the entire 17-step Striver A2Z roadmap and 455 problem inventory", () => {
-    assert.equal(STRIVER_STEPS.length, 17, "Must contain exactly 17 Striver steps");
+  // ── 1. A2Z DSA ROADMAP INTEGRITY ──────────────────────────────────────────
+  it("TEST 1: Preserves the entire 17-step A2Z DSA roadmap and 455 problem inventory", () => {
+    assert.equal(DSA_ROADMAP_STEPS.length, 17, "Must contain exactly 17 DSA roadmap steps");
     
     // Verify first 3 and last 3 steps
-    assert.equal(STRIVER_STEPS[0].id, "step-1");
-    assert.equal(STRIVER_STEPS[1].id, "step-2");
-    assert.equal(STRIVER_STEPS[2].id, "step-3");
-    assert.equal(STRIVER_STEPS[14].id, "step-15");
-    assert.equal(STRIVER_STEPS[15].id, "step-16");
-    assert.equal(STRIVER_STEPS[16].id, "step-17");
+    assert.equal(DSA_ROADMAP_STEPS[0].id, "step-1");
+    assert.equal(DSA_ROADMAP_STEPS[1].id, "step-2");
+    assert.equal(DSA_ROADMAP_STEPS[2].id, "step-3");
+    assert.equal(DSA_ROADMAP_STEPS[14].id, "step-15");
+    assert.equal(DSA_ROADMAP_STEPS[15].id, "step-16");
+    assert.equal(DSA_ROADMAP_STEPS[16].id, "step-17");
 
-    const allProblems = getAllStriverProblems({});
+    const allProblems = getAllDsaSheetProblems({});
     assert.ok(allProblems.length >= 450, `Should contain at least 450 problems, got: ${allProblems.length}`);
   });
 
@@ -82,7 +82,7 @@ describe("Cognalyze DSA Arena — Phase 2 Repair & Question Quality Suite", () =
 
   // ── 4. SOCRATIC COACH ENGINE (ENGLISH & HINGLISH) ─────────────────────────
   it("TEST 4: Socratic Coach Mode provides pedagogical invariant guidance without leaking raw answers", async () => {
-    const problem = getStriverProblemById("painter-s-partition-problem");
+    const problem = getDsaSheetProblemById("painter-s-partition-problem");
     assert.ok(problem);
 
     // Candidate query asking about nested loops
@@ -101,7 +101,7 @@ describe("Cognalyze DSA Arena — Phase 2 Repair & Question Quality Suite", () =
   });
 
   it("TEST 5: Socratic Coach Mode naturally handles conversational Hinglish queries", async () => {
-    const problem = getStriverProblemById("painter-s-partition-problem");
+    const problem = getDsaSheetProblemById("painter-s-partition-problem");
     assert.ok(problem);
 
     const coachResult = await executeDsaCoachTurn({
@@ -120,7 +120,7 @@ describe("Cognalyze DSA Arena — Phase 2 Repair & Question Quality Suite", () =
   });
 
   it("TEST 6: Asking for explicit hint triggers Tier 3+ assistance and flags assistanceUsed", async () => {
-    const problem = getStriverProblemById("painter-s-partition-problem");
+    const problem = getDsaSheetProblemById("painter-s-partition-problem");
     assert.ok(problem);
 
     const coachResult = await executeDsaCoachTurn({

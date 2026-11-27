@@ -159,7 +159,7 @@ interface MilestoneBadge {
   earned_at: string | null;
 }
 
-const STRIVER_STEPS_OPTIONS = [
+const DSA_STEPS_OPTIONS = [
   { id: "arrays", step: "Step 3: Solve Problems on Arrays", topic: "arrays" },
   { id: "binary_search", step: "Step 4: Binary Search", topic: "binary_search" },
   { id: "strings", step: "Step 5: Strings (Basic and Medium)", topic: "strings" },
@@ -447,7 +447,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
       (prob.step_title ? `📚 Step: ${prob.step_title}\n` : "") +
       (prob.time_complexity ? `⏱️ Target Time: ${prob.time_complexity}\n` : "") +
       (prob.problem_url ? `🔗 LeetCode: ${prob.problem_url}\n` : "") +
-      (prob.article_url ? `📖 Striver Article: ${prob.article_url}\n` : "") +
+      (prob.article_url ? `📖 Reference Article: ${prob.article_url}\n` : "") +
       `\nTrack progress on Cognalyze: ${typeof window !== "undefined" ? window.location.origin : "https://cognalyze-gules.vercel.app"}/student/dsa-tracker`
     );
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=LeetCode`;
@@ -475,7 +475,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
             title: `DSA Review: ${prob.title}`,
             event_date: targetDate,
             event_type: "reminder",
-            notes: `Spaced review reminder for Striver A2Z problem (${prob.difficulty}). LeetCode: ${prob.problem_url}`
+            notes: `Spaced review reminder for A2Z DSA Problem (${prob.difficulty}). LeetCode: ${prob.problem_url}`
           })
         });
       }
@@ -690,7 +690,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
     });
   }, [problems, selectedTopic, selectedDifficulty, selectedStatus, selectedCompany, searchQuery]);
 
-  // Group problems by Striver Step
+  // Group problems by A2Z DSA Step
   const groupedProblems = useMemo(() => {
     const map = new Map<string, DsaProblem[]>();
     const order: string[] = [];
@@ -868,7 +868,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                   gap: 4
                 }}
               >
-                Striver Article ↗
+                Reference Article ↗
               </a>
             )}
           </div>
@@ -1127,7 +1127,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                 <div style={{ width: 34, height: 34, borderRadius: 8, background: "#162A43", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 16 }}>⚡</div>
                 <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.5px", color: "#162A43" }}>Cognalyze</span>
               </Link>
-              <span style={{ fontSize: 11, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 5, color: "#356AE6", fontWeight: 700 }}>STRIVER SDE 455 DSA MASTERY TRACKER</span>
+              <span style={{ fontSize: 11, padding: "2px 8px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 5, color: "#356AE6", fontWeight: 700 }}>SDE 455 DSA MASTERY TRACKER</span>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
@@ -1185,7 +1185,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontSize: 18 }}>📊</span>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43" }}>Striver SDE 455 DSA Mastery Tracker</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: "#162A43" }}>SDE 455 DSA Mastery Tracker</div>
               <div style={{ fontSize: 11, color: "#667085" }}>Track problem status, spaced repetition review intervals, and mastery heatmap across all 455 problems.</div>
             </div>
           </div>
@@ -1457,7 +1457,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                   cursor: "pointer"
                 }}
               >
-                {groupByStep ? "📑 Striver Steps View" : "📜 Flat List"}
+                {groupByStep ? "📑 Roadmap Steps View" : "📜 Flat List"}
               </button>
 
               <button
@@ -1580,7 +1580,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
               )}
             </div>
 
-            {/* Problem Cards List (Grouped by Striver Step or Flat List) */}
+            {/* Problem Cards List (Grouped by Step or Flat List) */}
             {groupByStep ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
                 {groupedProblems.map((grp: { step: string; items: DsaProblem[] }) => {
@@ -1593,7 +1593,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 10 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <span style={{ padding: "4px 10px", borderRadius: 5, background: "#EFF4FE", border: "1px solid #D2E0FB", color: "#356AE6", fontSize: 12, fontWeight: 700 }}>
-                            Striver A2Z
+                            A2Z DSA
                           </span>
                           <h3 style={{ fontSize: 16, fontWeight: 800, color: "#162A43", margin: 0 }}>{grp.step}</h3>
                         </div>
@@ -1651,7 +1651,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
           </div>
         )}
 
-        {/* ─── MODAL: FULL PROBLEM STATEMENT & STRIVER INTUITION ─── */}
+        {/* ─── MODAL: FULL PROBLEM STATEMENT & A2Z DSA INTUITION ─── */}
         {modalProblem && (
           <div
             style={{
@@ -1895,7 +1895,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                         gap: 6
                       }}
                     >
-                      TakeUforward Article ↗
+                      Reference Article ↗
                     </a>
                   )}
                 </div>
@@ -2013,7 +2013,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                   {reminderModalProblem.title}
                 </div>
                 <div style={{ fontSize: 12, color: "#667085", marginTop: 2 }}>
-                  {reminderModalProblem.step_title || "Striver A2Z Sheet"} • {reminderModalProblem.difficulty.toUpperCase()}
+                  {reminderModalProblem.step_title || "A2Z DSA Sheet"} • {reminderModalProblem.difficulty.toUpperCase()}
                 </div>
               </div>
 
@@ -2236,12 +2236,12 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 12 }}>
                   <div>
                     <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#17191C", marginBottom: 6 }}>
-                      Striver Step Category *
+                      DSA Step Category *
                     </label>
                     <select
                       value={customProblemData.step_title}
                       onChange={e => {
-                        const sel = STRIVER_STEPS_OPTIONS.find(s => s.step === e.target.value);
+                        const sel = DSA_STEPS_OPTIONS.find(s => s.step === e.target.value);
                         setCustomProblemData({
                           ...customProblemData,
                           step_title: e.target.value,
@@ -2259,7 +2259,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                         boxSizing: "border-box"
                       }}
                     >
-                      {STRIVER_STEPS_OPTIONS.map(s => (
+                      {DSA_STEPS_OPTIONS.map(s => (
                         <option key={s.step} value={s.step}>
                           {s.step}
                         </option>
@@ -2413,7 +2413,7 @@ function DsaTrackerContent({ isEmbedded = false, onSelectProblem }: { isEmbedded
                       cursor: "pointer"
                     }}
                   >
-                    Add to Striver Tracker
+                    Add to DSA Tracker
                   </button>
                 </div>
               </form>
@@ -2705,7 +2705,7 @@ export default function DsaMasteryTrackerView({
   onSelectProblem?: (probId: string) => void;
 } = {}) {
   return (
-    <Suspense fallback={<div style={{ minHeight: isEmbedded ? "200px" : "100vh", background: "#F6F5F1", color: "#17191C", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading Striver SDE 455 DSA Mastery Tracker...</div>}>
+    <Suspense fallback={<div style={{ minHeight: isEmbedded ? "200px" : "100vh", background: "#F6F5F1", color: "#17191C", display: "flex", alignItems: "center", justifyContent: "center" }}>Loading SDE 455 DSA Mastery Tracker...</div>}>
       <DsaTrackerContent isEmbedded={isEmbedded} onSelectProblem={onSelectProblem} />
     </Suspense>
   );

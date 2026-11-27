@@ -9,7 +9,7 @@ import {
   UpgradedFinalScorecard
 } from "@/lib/skills/dsa-interview-types";
 import { DsaInterviewSession, InterviewQuestionState } from "@/lib/skills/dsa-interview-store";
-import { STRIVER_STEPS } from "@/lib/skills/striver-curriculum";
+import { DSA_ROADMAP_STEPS } from "@/lib/skills/dsa-curriculum";
 import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
 
 interface DsaUpgradedInterviewViewProps {
@@ -467,7 +467,7 @@ export function DsaUpgradedInterviewView({
             </div>
           </div>
 
-          {/* Striver Step / Curriculum Focus */}
+          {/* Step / Curriculum Focus */}
           <div>
             <label style={{ fontSize: 11, fontWeight: 800, color: "#162A43", textTransform: "uppercase", display: "block", marginBottom: 6 }}>
               Curriculum / Roadmap Step
@@ -477,7 +477,7 @@ export function DsaUpgradedInterviewView({
               onChange={e => onSelectStep(e.target.value)}
               style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #E4E1DA", background: "#F6F5F1", fontSize: 12.5, fontWeight: 600, outline: "none" }}
             >
-              {STRIVER_STEPS.map(s => (
+              {DSA_ROADMAP_STEPS.map(s => (
                 <option key={s.id} value={s.id}>
                   {s.icon} {s.title} ({s.problemCount} Qs)
                 </option>

@@ -12823,7 +12823,7 @@ const GLOBAL_COMPANY_PROBLEM_MAP: Record<string, CompanyProblemEntry[]> = {
       "assessmentStage": "online_assessment",
       "provenance": "historical_reported",
       "provenanceNote": "Reported by multiple interview candidates for Amazon. Attribution: liquidslr/leetcode-company-wise-problems dataset.",
-      "problemUrl": "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/",
+      "problemUrl": "https://leetcode.com/problemset/",
       "timeComplexity": "O(N^2)",
       "spaceComplexity": "O(1)",
       "roles": [
@@ -29084,7 +29084,7 @@ const GLOBAL_COMPANY_PROBLEM_MAP: Record<string, CompanyProblemEntry[]> = {
       "assessmentStage": "online_assessment",
       "provenance": "historical_reported",
       "provenanceNote": "Reported by multiple interview candidates for TCS. Attribution: liquidslr/leetcode-company-wise-problems dataset.",
-      "problemUrl": "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/",
+      "problemUrl": "https://leetcode.com/problemset/",
       "timeComplexity": "O(N^2)",
       "spaceComplexity": "O(1)",
       "roles": [

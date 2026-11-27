@@ -11,7 +11,7 @@
 
 import fs from "fs";
 import path from "path";
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "../lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS, DsaSheetProblem } from "../lib/dsa-a2z-sheet";
 import { COMPANY_DIRECTORY, CompanyDirectoryEntry } from "../lib/skills/company-directory";
 
 console.log("Building comprehensive company mappings engine for all 56 companies...");
@@ -258,8 +258,8 @@ for (const company of COMPANY_DIRECTORY) {
   companyMappingsMap[company.slug] = [];
 }
 
-// A. Ingest Striver Sheet Problems that have matching company tags
-for (const prob of STRIVER_A2Z_PROBLEMS) {
+// A. Ingest A2Z DSA Sheet Problems that have matching company tags
+for (const prob of DSA_A2Z_PROBLEMS) {
   if (!prob.companies || prob.companies.length === 0) continue;
 
   for (const rawName of prob.companies) {
@@ -333,15 +333,15 @@ for (const [slug, curatedList] of Object.entries(SOURCED_ARCHIVES)) {
   }
 }
 
-// C. For ANY company with fewer than 15 questions, enrich from Striver sheet matching their assessment core topics
+// C. For ANY company with fewer than 15 questions, enrich from A2Z DSA Sheet matching their assessment core topics
 for (const company of COMPANY_DIRECTORY) {
   const list = companyMappingsMap[company.slug] || [];
   if (list.length < 15) {
     const topics = company.assessmentFormat.coreTopics || [];
     const needed = 15 - list.length;
 
-    // Filter canonical Striver problems matching keywords in topics
-    const candidates = STRIVER_A2Z_PROBLEMS.filter(sp => {
+    // Filter canonical DSA PROBLEMs matching keywords in topics
+    const candidates = DSA_A2Z_PROBLEMS.filter(sp => {
       const isAlreadyIncluded = list.some((item: any) => item.problemId === sp.id);
       if (isAlreadyIncluded) return false;
 
@@ -377,7 +377,7 @@ for (const company of COMPANY_DIRECTORY) {
     // If still under 15, add foundation problems
     if (list.length < 15) {
       const remainingNeeded = 15 - list.length;
-      const foundation = STRIVER_A2Z_PROBLEMS.filter(sp => !list.some((item: any) => item.problemId === sp.id)).slice(0, remainingNeeded);
+      const foundation = DSA_A2Z_PROBLEMS.filter(sp => !list.some((item: any) => item.problemId === sp.id)).slice(0, remainingNeeded);
       for (const sp of foundation) {
         list.push({
           problemId: sp.id,

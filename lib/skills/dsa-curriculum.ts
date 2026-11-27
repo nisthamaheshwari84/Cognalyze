@@ -1,8 +1,8 @@
 /**
- * lib/skills/striver-curriculum.ts
- * Core Striver A2Z DSA Curriculum Engine.
+ * lib/skills/dsa-curriculum.ts
+ * Core A2Z DSA Curriculum Engine.
  * 
- * Maps all 455 problems from STRIVER_A2Z_PROBLEMS across the 17 Steps.
+ * Maps all 455 problems from DSA_A2Z_PROBLEMS across the 17 Steps.
  * Provides:
  * 1. 17-Step Roadmap & Subtopic hierarchy.
  * 2. 10-Step progressive learning curriculum for each problem:
@@ -21,14 +21,14 @@
  * 5. Targeted Re-Test problem selector (different problem in same concept).
  */
 
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS, DsaSheetProblem } from "@/lib/dsa-a2z-sheet";
 import { getCandidateSeenQuestionIds, getCandidateAttempts } from "@/lib/skills/candidate-history";
 import { pickSecureRandom } from "@/lib/crypto-utils";
 import { CANONICAL_DSA_PROBLEMS, getCanonicalProblem } from "./dsa-canonical-problems";
 
-// ── 1. STRIVER 17 STEPS ROADMAP ──────────────────────────────────────────────
+// ── 1. DSA 17 STEPS ROADMAP ──────────────────────────────────────────────
 
-export interface StriverStep {
+export interface DsaRoadmapStep {
   id: string;
   stepNumber: number;
   title: string;
@@ -39,7 +39,7 @@ export interface StriverStep {
   problemCount: number;
 }
 
-export const STRIVER_STEPS: StriverStep[] = [
+export const DSA_ROADMAP_STEPS: DsaRoadmapStep[] = [
   {
     id: "step-1",
     stepNumber: 1,
@@ -212,16 +212,16 @@ export const STRIVER_STEPS: StriverStep[] = [
   }
 ];
 
-// ── 2. RICH STRIVER PROBLEM MODEL ───────────────────────────────────────────
+// ── 2. RICH DSA PROBLEM MODEL ───────────────────────────────────────────
 
-export interface StriverTestCase {
+export interface DsaTestCase {
   input: string;
   expected: string;
   argsJson: string; // JSON array of args for VM execution: e.g. "[[2,7,11,15], 9]"
   isHidden?: boolean;
 }
 
-export interface StriverProblemFull extends StriverProblem {
+export interface DsaProblemFull extends DsaSheetProblem {
   step_id: string;
   functionName: string;
   concept: {
@@ -248,14 +248,14 @@ export interface StriverProblemFull extends StriverProblem {
     cpp: string;
     java: string;
   };
-  publicTestCases: StriverTestCase[];
-  hiddenTestCases: StriverTestCase[];
+  publicTestCases: DsaTestCase[];
+  hiddenTestCases: DsaTestCase[];
   hints: string[];
 }
 
 // ── 3. CURATED FLAGSHIP PROBLEMS WITH COMPLETE CODE & TEST SUITES ────────────
 
-const FLAGSHIP_PROBLEMS: Record<string, Partial<StriverProblemFull>> = {
+const FLAGSHIP_PROBLEMS: Record<string, Partial<DsaProblemFull>> = {
   // ── STEP 3: ARRAYS ──
   "maximum-subarray-sum-kadane-s-algorithm": {
     functionName: "maxSubArray",
@@ -957,7 +957,7 @@ private void dfs(char[][] grid, int r, int c) {
   }
 };
 
-// ── 4. DYNAMIC ENRICHMENT FOR ALL 455 STRIVER PROBLEMS ───────────────────────
+// ── 4. DYNAMIC ENRICHMENT FOR ALL 455 DSA PROBLEMS ───────────────────────
 
 /**
  * Derives clean step ID from step title string.
@@ -968,10 +968,10 @@ function getStepIdFromTitle(stepTitle: string): string {
 }
 
 /**
- * Returns a fully structured Striver problem, dynamically generating
+ * Returns a fully structured DSA PROBLEM, dynamically generating
  * blank starter code, concept tutorial, and test cases if not manually overridden.
  */
-export function getStriverProblemFull(baseProb: StriverProblem): StriverProblemFull {
+export function getDsaProblemFull(baseProb: DsaSheetProblem): DsaProblemFull {
   const stepId = getStepIdFromTitle(baseProb.step_title);
 
   // Check canonical problem registry first
@@ -1045,12 +1045,12 @@ export function getStriverProblemFull(baseProb: StriverProblem): StriverProblemF
     codeExplanation: `Structure the solution by initializing boundary guards, iterating over inputs, maintaining the invariant state, and returning the result.`
   };
 
-  const defaultPublicTestCases: StriverTestCase[] = [
+  const defaultPublicTestCases: DsaTestCase[] = [
     { input: "Sample Test 1", expected: "Verified Output", argsJson: "[]" },
     { input: "Sample Test 2", expected: "Edge Case Guard", argsJson: "[]" }
   ];
 
-  const defaultHiddenTestCases: StriverTestCase[] = [
+  const defaultHiddenTestCases: DsaTestCase[] = [
     { input: "Hidden Boundary Constraint", expected: "Verified", argsJson: "[]", isHidden: true },
     { input: "Hidden Large Scale Input", expected: "Verified", argsJson: "[]", isHidden: true }
   ];
@@ -1080,15 +1080,15 @@ export function getStriverProblemFull(baseProb: StriverProblem): StriverProblemF
 }
 
 /**
- * Get all 455 Striver problems with optional filtering.
+ * Get all 455 DSA PROBLEMs with optional filtering.
  */
-export function getAllStriverProblems(filters?: {
+export function getAllDsaSheetProblems(filters?: {
   stepId?: string;
   subtopic?: string;
   difficulty?: string;
   search?: string;
-}): StriverProblemFull[] {
-  let list = STRIVER_A2Z_PROBLEMS.map(getStriverProblemFull);
+}): DsaProblemFull[] {
+  let list = DSA_A2Z_PROBLEMS.map(getDsaProblemFull);
 
   if (filters?.stepId && filters.stepId !== "all") {
     list = list.filter(p => p.step_id === filters.stepId);
@@ -1115,15 +1115,15 @@ export function getAllStriverProblems(filters?: {
 }
 
 /**
- * Get a specific Striver problem by ID.
+ * Get a specific DSA PROBLEM by ID.
  */
-export function getStriverProblemById(problemId: string): StriverProblemFull {
-  const base = STRIVER_A2Z_PROBLEMS.find(p => p.id === problemId);
+export function getDsaSheetProblemById(problemId: string): DsaProblemFull {
+  const base = DSA_A2Z_PROBLEMS.find(p => p.id === problemId);
   if (!base) {
     // Fallback to flagship problem or first problem
-    return getStriverProblemFull(STRIVER_A2Z_PROBLEMS[0]);
+    return getDsaProblemFull(DSA_A2Z_PROBLEMS[0]);
   }
-  return getStriverProblemFull(base);
+  return getDsaProblemFull(base);
 }
 
 // ── 5. MULTI-QUESTION INTERVIEW GENERATOR ───────────────────────────────────
@@ -1134,7 +1134,7 @@ export interface DsaInterviewQuestionItem {
   role: "foundational" | "core_algorithm" | "optimization_challenge";
   roleLabel: string;
   targetMinutes: number;
-  problem: StriverProblemFull;
+  problem: DsaProblemFull;
 }
 
 /**
@@ -1152,7 +1152,7 @@ export function generateDsaInterviewSession(
 
   // Pick strictly from canonical verified problems with genuine test suites
   let canonicalList = Object.values(CANONICAL_DSA_PROBLEMS).map(cp => {
-    const base = STRIVER_A2Z_PROBLEMS.find(p => p.id === cp.id) || {
+    const base = DSA_A2Z_PROBLEMS.find(p => p.id === cp.id) || {
       id: cp.id,
       title: cp.title,
       topic_id: "binary-search",
@@ -1166,7 +1166,7 @@ export function generateDsaInterviewSession(
       space_complexity: cp.space_complexity,
       order_index: 100
     };
-    return getStriverProblemFull(base as any);
+    return getDsaProblemFull(base as any);
   });
 
   // Filter by stepId or topicId when specified
@@ -1198,7 +1198,7 @@ export function generateDsaInterviewSession(
   const mediumPool = pool.filter(p => p.difficulty === "medium");
   const hardPool = pool.filter(p => p.difficulty === "hard");
 
-  const pickUnique = (candidates: StriverProblemFull[], usedIds: Set<string>): StriverProblemFull => {
+  const pickUnique = (candidates: DsaProblemFull[], usedIds: Set<string>): DsaProblemFull => {
     const available = candidates.filter(p => !usedIds.has(p.id));
     if (available.length > 0) {
       return pickSecureRandom(available) || available[0];
@@ -1278,12 +1278,12 @@ export function getTargetedReTestProblem(
   candidateId: string,
   failedTopicId: string,
   currentProblemId: string
-): StriverProblemFull {
+): DsaProblemFull {
   let topicToMatch = failedTopicId || "arrays-hashing";
   let stepTitleToMatch = "";
 
   if (currentProblemId) {
-    const curr = STRIVER_A2Z_PROBLEMS.find(p => p.id === currentProblemId);
+    const curr = DSA_A2Z_PROBLEMS.find(p => p.id === currentProblemId);
     if (curr) {
       topicToMatch = curr.topic_id || failedTopicId;
       stepTitleToMatch = curr.step_title || "";
@@ -1292,12 +1292,12 @@ export function getTargetedReTestProblem(
 
   // 1. Prioritize problems in the exact same Step (e.g. Step 3 Arrays)
   const sameStep = stepTitleToMatch
-    ? STRIVER_A2Z_PROBLEMS.filter(p => p.id !== currentProblemId && p.step_title === stepTitleToMatch)
+    ? DSA_A2Z_PROBLEMS.filter(p => p.id !== currentProblemId && p.step_title === stepTitleToMatch)
     : [];
 
   const allInTopic = sameStep.length > 0
     ? sameStep
-    : STRIVER_A2Z_PROBLEMS.filter(
+    : DSA_A2Z_PROBLEMS.filter(
         p => p.id !== currentProblemId && (
           (topicToMatch && p.topic_id === topicToMatch) ||
           (p.subtopic_title && topicToMatch && p.subtopic_title.toLowerCase().includes(topicToMatch.toLowerCase())) ||
@@ -1311,8 +1311,8 @@ export function getTargetedReTestProblem(
   // If no unseen in this topic, pick any other problem in topic that isn't currentProblemId
   const candidatePool = unseenInTopic.length > 0
     ? unseenInTopic
-    : (allInTopic.length > 0 ? allInTopic : STRIVER_A2Z_PROBLEMS.filter(p => p.id !== currentProblemId));
+    : (allInTopic.length > 0 ? allInTopic : DSA_A2Z_PROBLEMS.filter(p => p.id !== currentProblemId));
 
   const selected = pickSecureRandom(candidatePool) || candidatePool[0];
-  return getStriverProblemFull(selected);
+  return getDsaProblemFull(selected);
 }

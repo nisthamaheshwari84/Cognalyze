@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import AppNav from "@/components/AppNav";
 import { AptitudeQuestion } from "@/lib/skill-hub-store";
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS, DsaSheetProblem } from "@/lib/dsa-a2z-sheet";
 
 // Sample fallback aptitude questions
 const SAMPLE_APTITUDE_POOL: AptitudeQuestion[] = [
@@ -171,10 +171,10 @@ export default function AssessmentArenaPage() {
 
   // Data
   const [aptitudeQuestions, setAptitudeQuestions] = useState<AptitudeQuestion[]>(SAMPLE_APTITUDE_POOL);
-  const codingProblem: StriverProblem = useMemo(() => {
+  const codingProblem: DsaSheetProblem = useMemo(() => {
     // Select an interview-authentic array or DP problem
-    const found = STRIVER_A2Z_PROBLEMS.find((p) => p.title.toLowerCase().includes("two sum"))
-      || STRIVER_A2Z_PROBLEMS[0];
+    const found = DSA_A2Z_PROBLEMS.find((p) => p.title.toLowerCase().includes("two sum"))
+      || DSA_A2Z_PROBLEMS[0];
     return found;
   }, []);
 

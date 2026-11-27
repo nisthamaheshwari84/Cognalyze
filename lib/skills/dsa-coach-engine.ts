@@ -23,7 +23,7 @@
  */
 
 import { groqFetch } from "@/lib/groq";
-import { StriverProblemFull } from "./striver-curriculum";
+import { DsaProblemFull } from "./dsa-curriculum";
 import { CanonicalProblem } from "./dsa-canonical-problems";
 
 export interface CoachMessage {
@@ -33,7 +33,7 @@ export interface CoachMessage {
 
 export interface CoachTurnInput {
   candidateId: string;
-  problem: StriverProblemFull | CanonicalProblem;
+  problem: DsaProblemFull | CanonicalProblem;
   code: string;
   language: "cpp" | "python" | "javascript" | "java";
   query: string;
@@ -180,7 +180,7 @@ Respond to the candidate following the Socratic coaching rules.`;
 }
 
 function generateDeterministicSocraticGuidance(
-  problem: StriverProblemFull | CanonicalProblem,
+  problem: DsaProblemFull | CanonicalProblem,
   query: string,
   code: string,
   testOutput: CoachTurnInput["testOutput"],

@@ -41,11 +41,11 @@ test("DSA Canonical Registry: At least 100 hydrated canonical problems available
   }
 });
 
-test("DSA Canonical Registry: Total problem ID pool spans all 455+ Striver curriculum problems", () => {
+test("DSA Canonical Registry: Total problem ID pool spans all 455+ DSA curriculum problems", () => {
   const allIds = getAllCanonicalProblemIds();
   assert.ok(allIds.length >= 455, `Expected >= 455 canonical IDs, got ${allIds.length}`);
 
-  // Lookup of random Striver problem synthesizes seamlessly
+  // Lookup of random DSA PROBLEM synthesizes seamlessly
   const sample = getCanonicalProblem("search-in-rotated-sorted-array");
   assert.ok(sample, "Should find canonical problem");
   assert.equal(sample.id, "search-in-rotated-sorted-array");

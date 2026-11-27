@@ -1,10 +1,10 @@
 /**
  * app/api/skills/dsa/route.ts
  * 
- * Genuine DSA Evaluation Engine & Striver A2Z Curriculum API.
+ * Genuine DSA Evaluation Engine & A2Z DSA Curriculum API.
  * 
  * Features:
- * 1. GET: Fetch Striver Roadmap, Steps, Problems, Dynamic Focus, Canonical Problem Statements, and Active Interview Sessions.
+ * 1. GET: Fetch A2Z DSA Roadmap, Steps, Problems, Dynamic Focus, Canonical Problem Statements, and Active Interview Sessions.
  * 2. POST: Real code execution via genuine C++ compiler (clang++/g++), Python 3 process, and sandboxed Node.js VM.
  * 3. Strict Contract Validation: Catches mismatched function signatures, wrong arguments, or solutions submitted to wrong problems.
  * 4. Multi-Question Interview Session Lifecycle:
@@ -20,17 +20,17 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import {
-  STRIVER_STEPS,
-  getAllStriverProblems,
-  getStriverProblemById,
+  DSA_ROADMAP_STEPS,
+  getAllDsaSheetProblems,
+  getDsaSheetProblemById,
   generateDsaInterviewSession,
   getTargetedReTestProblem,
-  StriverProblemFull
-} from "@/lib/skills/striver-curriculum";
+  DsaProblemFull
+} from "@/lib/skills/dsa-curriculum";
 import {
   recordCandidateAttempt,
-  updateStudentStriverStatus,
-  getStudentStriverProgress,
+  updateStudentDsaStatus,
+  getStudentDsaProgress,
   getStudentDsaSummary,
   getStudentDsaFocus
 } from "@/lib/skills/candidate-history";
@@ -78,9 +78,9 @@ export async function GET(req: NextRequest) {
 
     // 1. Single problem lookup
     if (problemId && (!mode || mode === "single")) {
-      const problem = getStriverProblemById(problemId);
+      const problem = getDsaSheetProblemById(problemId);
       const canonical = getCanonicalProblem(problemId);
-      const progress = getStudentStriverProgress(candidateId)[problemId] || null;
+      const progress = getStudentDsaProgress(candidateId)[problemId] || null;
       return NextResponse.json({
         success: true,
         problem,
@@ -139,22 +139,22 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // 5. Striver Roadmap & Filtered Problem List
-    const problems = getAllStriverProblems({
+    // 5. A2Z DSA Roadmap & Filtered Problem List
+    const problems = getAllDsaSheetProblems({
       stepId: stepId || undefined,
       subtopic: subtopic || undefined,
       difficulty: difficulty || undefined,
       search: search || undefined
     });
 
-    const userProgress = getStudentStriverProgress(candidateId);
+    const userProgress = getStudentDsaProgress(candidateId);
     const summary = getStudentDsaSummary(candidateId);
     const focus = getStudentDsaFocus(candidateId);
 
     return NextResponse.json({
       success: true,
       candidateId,
-      steps: STRIVER_STEPS,
+      steps: DSA_ROADMAP_STEPS,
       totalCount: problems.length,
       totalProblems: 455,
       problems,
@@ -270,7 +270,7 @@ export async function POST(req: NextRequest) {
         preferredLanguage = "en"
       } = body;
 
-      const problem = getStriverProblemById(problemId);
+      const problem = getDsaSheetProblemById(problemId);
       const coachResult = await executeDsaCoachTurn({
         candidateId,
         problem,
@@ -300,14 +300,14 @@ export async function POST(req: NextRequest) {
     } = body;
     const isSubmit = effectiveAction === "submit";
 
-    // 1. Look up canonical problem, falling back to full striver model
+    // 1. Look up canonical problem, falling back to full A2Z DSA model
     let canonical = getCanonicalProblem(problemId);
-    let problem: StriverProblemFull;
+    let problem: DsaProblemFull;
 
     if (canonical) {
-      problem = getStriverProblemById(canonical.id);
+      problem = getDsaSheetProblemById(canonical.id);
     } else {
-      problem = getStriverProblemById(problemId);
+      problem = getDsaSheetProblemById(problemId);
       // Synthesize a canonical wrapper for uncatalogued problems
       canonical = {
         id: problem.id,
@@ -415,9 +415,9 @@ export async function POST(req: NextRequest) {
       }
     ], candidateId);
 
-    // Update Striver problem progress
+    // Update DSA PROBLEM progress
     const problemStatus = allPassed ? "solved" : score >= 40 ? "attempted" : "needs_revision";
-    updateStudentStriverStatus(candidateId, problem.id, problemStatus, score);
+    updateStudentDsaStatus(candidateId, problem.id, problemStatus, score);
 
     // Persist attempt in candidate history
     const isAssisted = Boolean(body.isAssisted);

@@ -10,7 +10,7 @@
  * 4. Company Tag Registry: Cleans and clusters company mappings.
  */
 
-import { STRIVER_A2Z_PROBLEMS, StriverProblem } from "@/lib/dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS, DsaSheetProblem } from "@/lib/dsa-a2z-sheet";
 import { CANONICAL_DSA_PROBLEMS, getCanonicalProblem } from "./dsa-canonical-problems";
 
 export interface DuplicateCluster {
@@ -68,7 +68,7 @@ export function findDuplicateOrNearDuplicateProblems(threshold = 0.88): Duplicat
   const clusters: DuplicateCluster[] = [];
   const tokenCache: Array<{ id: string; title: string; tokens: Set<string> }> = [];
 
-  for (const prob of STRIVER_A2Z_PROBLEMS) {
+  for (const prob of DSA_A2Z_PROBLEMS) {
     const tokens = tokenize(`${prob.title} ${prob.description}`);
     tokenCache.push({ id: prob.id, title: prob.title, tokens });
   }
@@ -116,13 +116,13 @@ export function findDuplicateOrNearDuplicateProblems(threshold = 0.88): Duplicat
  * Conducts a full curriculum quality and metadata audit.
  */
 export function auditCurriculumQuality(): CurriculumQualityReport {
-  const total = STRIVER_A2Z_PROBLEMS.length;
+  const total = DSA_A2Z_PROBLEMS.length;
   let validCount = 0;
   const difficultyDist = { easy: 0, medium: 0, hard: 0 };
   const stepCounts: Record<string, number> = {};
   const companyCounts: Record<string, number> = {};
 
-  for (const prob of STRIVER_A2Z_PROBLEMS) {
+  for (const prob of DSA_A2Z_PROBLEMS) {
     // Basic validity criteria
     const hasValidTitle = Boolean(prob.title && prob.title.trim().length > 3);
     const hasValidStep = Boolean(prob.step_title && prob.step_title.trim().length > 0);

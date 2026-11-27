@@ -178,7 +178,7 @@ const SALARY_RANGES: Record<Seniority, string> = {
 // ═══════════════════════════════════════════════════════════════════
 
 const SEMANTIC_MAP: Record<string, RegExp[]> = {
-  "data structures and algorithms": [/dsa/i, /leetcode/i, /competitive.?programming/i, /solved.{0,10}\d+.{0,10}(problem|question)/i, /codeforces/i, /codechef/i, /hackerrank/i, /striver/i, /neetcode/i, /binary.?search/i, /dynamic.?programming/i],
+  "data structures and algorithms": [/dsa/i, /leetcode/i, /competitive.?programming/i, /solved.{0,10}\d+.{0,10}(problem|question)/i, /codeforces/i, /codechef/i, /hackerrank/i, /neetcode/i, /binary.?search/i, /dynamic.?programming/i],
   "rest apis":     [/rest.?api/i, /restful/i, /api.?integration/i, /axios/i, /fetch.?api/i, /express/i, /fastapi/i, /flask/i, /http.?endpoint/i, /backend.?api/i],
   "databases":     [/mysql/i, /mongodb/i, /postgresql/i, /sqlite/i, /supabase/i, /firebase/i, /redis/i, /nosql/i, /prisma/i, /mongoose/i],
   "cloud":         [/aws/i, /azure/i, /gcp/i, /ec2/i, /s3\b/i, /lambda/i, /vercel/i, /netlify/i, /heroku/i, /docker/i, /kubernetes/i],

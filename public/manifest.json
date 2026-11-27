@@ -53,7 +53,7 @@
     {
       "name": "DSA 455 Tracker",
       "short_name": "DSA Tracker",
-      "description": "Striver SDE Sheet & Daily Revision Streak",
+      "description": "SDE 455 Sheet & Daily Revision Streak",
       "url": "/student/dsa-tracker",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     },

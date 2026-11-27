@@ -235,7 +235,7 @@ Explain query execution order: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> 
   },
   dsa: {
     subjectSlug: "dsa",
-    mentorName: "Striver & Knuth",
+    mentorName: "Knuth & Cormen",
     title: "Algorithms & Competitive Programming Master",
     avatar: "⚡",
     tagline: "Optimal time/space proofs & the 16 core interview patterns",

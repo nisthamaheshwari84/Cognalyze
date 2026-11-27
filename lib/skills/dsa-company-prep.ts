@@ -5,7 +5,7 @@
  * 
  * Permanently resolves the "limited to 16 questions" bug by integrating:
  * 1. Comprehensive 65+ Company Directory across Tier 1, Indian Tech, IT Services, and Quant Finance.
- * 2. Deep cross-mappings from the 455 Striver A2Z canonical problem catalog (1,002 company mappings).
+ * 2. Deep cross-mappings from the 455 A2Z canonical problem catalog (1,002 company mappings).
  * 3. Transparent provenance attribution (verified_historical, community_reported, role_pattern).
  * 4. Honest reporting of companies awaiting data vs companies with verified sourced mappings.
  * 5. Full search, sector, difficulty, and stage filtering with pagination support.

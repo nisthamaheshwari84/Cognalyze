@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { STRIVER_A2Z_PROBLEMS } from "./dsa-striver-sheet";
+import { DSA_A2Z_PROBLEMS } from "./dsa-a2z-sheet";
 import { createNotification } from "@/lib/notifications";
 
 export interface DsaTopic {
@@ -87,7 +87,7 @@ export interface DsaDailyGoal {
   updated_at: string;
 }
 
-// ─── SEED TOPICS (16 Core Striver A2Z Computer Science DSA Domains) ───
+// ─── SEED TOPICS (16 Core A2Z DSA Computer Science DSA Domains) ───
 export const SEED_DSA_TOPICS: DsaTopic[] = [
   { id: "arrays-hashing", name: "Arrays & Hashing", slug: "arrays-hashing", description: "Frequency maps, prefix sums, hash sets, sliding window basics", order_index: 1 },
   { id: "two-pointers", name: "Two Pointers", slug: "two-pointers", description: "Opposite ends, fast/slow pointers, palindrome checks, sorted array traps", order_index: 2 },
@@ -106,8 +106,8 @@ export const SEED_DSA_TOPICS: DsaTopic[] = [
   { id: "system-design-dsa", name: "Advanced & Distributed DSA", slug: "system-design-dsa", description: "Bloom filters, LRU Cache, Consistent Hashing, Segment Trees", order_index: 15 }
 ];
 
-// ─── MASTER PROBLEMS (Complete Striver A2Z DSA Sheet Curated Master Dataset) ───
-export const SEED_DSA_PROBLEMS: DsaProblem[] = STRIVER_A2Z_PROBLEMS;
+// ─── MASTER PROBLEMS (Complete A2Z DSA Sheet Curated Master Dataset) ───
+export const SEED_DSA_PROBLEMS: DsaProblem[] = DSA_A2Z_PROBLEMS;
 
 // ─── IN-MEMORY STATE (Persistent fallback when Supabase tables are migrating) ───
 const inMemoryProgress: Map<string, Map<string, DsaProgress>> = new Map();
@@ -270,7 +270,7 @@ export async function updateDsaProblemProgress(
   if (nextStatus === "solved") {
     try {
       const { recordStudentEvent } = await import("@/lib/intelligence/student-intelligence");
-      const prob = STRIVER_A2Z_PROBLEMS.find(p => p.id === problemId);
+      const prob = DSA_A2Z_PROBLEMS.find(p => p.id === problemId);
       await recordStudentEvent({
         studentId,
         eventType: "dsa_solved",

@@ -1,10 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 
-// Read existing 53 problems from lib/dsa-striver-sheet.ts
-const existingContent = fs.readFileSync(path.join(__dirname, "../lib/dsa-striver-sheet.ts"), "utf-8");
+// Read existing 53 problems from lib/dsa-a2z-sheet.ts
+const existingContent = fs.readFileSync(path.join(__dirname, "../lib/dsa-a2z-sheet.ts"), "utf-8");
 
-// Additional 52 classic Striver A2Z problems with full details
+// Additional 52 classic A2Z DSA Problems with full details
 const additionalProblems = [
   // ─── STEP 1: LEARN THE BASICS ───
   {
@@ -28,7 +28,7 @@ Output: 5
 Explanation: The number 12345 has 5 digits.
 \`\`\`
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Repeatedly divide \`N\` by 10 until \`N == 0\`, incrementing a counter on each step, or compute \`Math.floor(Math.log10(N)) + 1\`.
 
 ### Optimal Complexity
@@ -102,7 +102,7 @@ Given an integer **x**, return \`true\` if **x** is a palindrome, and \`false\` 
     markdown_details: `## Problem Statement
 Given two positive integers \`a\` and \`b\`, find their Greatest Common Divisor (GCD).
 
-### Striver's Approach & Intuition (Euclidean Algorithm)
+### A2Z DSA's Approach & Intuition (Euclidean Algorithm)
 \`\`\`ts
 function gcd(a: number, b: number): number {
   while (a > 0 && b > 0) {
@@ -272,7 +272,7 @@ Implement the \`myAtoi(string s)\` function, which converts a string to a 32-bit
     markdown_details: `## Problem Statement
 Given a string **s**, return the longest palindromic substring in **s**.
 
-### Striver's Approach & Intuition (Expand Around Center)
+### A2Z DSA's Approach & Intuition (Expand Around Center)
 A palindrome mirrors around its center. There are \`2N - 1\` possible centers (N odd single-char centers, N-1 even double-char centers). Expanding around each center takes O(N), yielding O(N^2) time and O(1) space!
 
 ### Optimal Complexity
@@ -298,7 +298,7 @@ A palindrome mirrors around its center. There are \`2N - 1\` possible centers (N
     markdown_details: `## Problem Statement
 Given an integer **n**, return \`true\` if it is a power of two. Otherwise, return \`false\`.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 A power of two in binary has exactly one bit set (e.g., \`4 = 100\`, \`8 = 1000\`).
 Subtracting 1 flips all bits up to the lowest set bit (\`4 - 1 = 3 = 011\`).
 Therefore: \`n > 0 && (n & (n - 1)) === 0\` returns true if and only if n is a power of two!
@@ -324,7 +324,7 @@ Therefore: \`n > 0 && (n & (n - 1)) === 0\` returns true if and only if n is a p
     markdown_details: `## Problem Statement
 Given a positive integer **n**, write a function that returns the number of set bits it has (also known as the Hamming weight).
 
-### Striver's Approach & Intuition (Brian Kernighan's Algorithm)
+### A2Z DSA's Approach & Intuition (Brian Kernighan's Algorithm)
 In each iteration, perform \`n = n & (n - 1)\`, which clears the lowest set bit. Count how many times loop runs until \`n === 0\`.
 
 ### Optimal Complexity
@@ -371,7 +371,7 @@ Given an integer array **nums** and an integer **k**, return the \`k-th\` larges
     markdown_details: `## Problem Statement
 Given an integer array **nums** and an integer **k**, return the \`k\` most frequent elements. You may return the answer in any order.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Count frequencies in a Hash Map. Then use **Bucket Sort**: create an array of buckets where index = frequency. Iterate from highest frequency bucket downwards to collect k elements in linear O(N) time!
 
 ### Optimal Complexity
@@ -395,7 +395,7 @@ Count frequencies in a Hash Map. Then use **Bucket Sort**: create an array of bu
     markdown_details: `## Problem Statement
 The median is the middle value in an ordered integer list. Design a data structure that supports adding numbers from a data stream and finding the median of all elements.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Maintain two heaps:
 - \`maxHeap\` (stores smaller half of numbers)
 - \`minHeap\` (stores larger half of numbers)
@@ -425,7 +425,7 @@ Keep sizes balanced such that \`maxHeap.size == minHeap.size\` or \`maxHeap.size
     markdown_details: `## Problem Statement
 You are given an integer array **nums**. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position. Return \`true\` if you can reach the last index.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Maintain \`maxReach = 0\`. Iterate through array:
 - If \`i > maxReach\`, you are stuck! Return false.
 - Update \`maxReach = max(maxReach, i + nums[i])\`.
@@ -452,7 +452,7 @@ Maintain \`maxReach = 0\`. Iterate through array:
     markdown_details: `## Problem Statement
 Given arrival and departure times of all trains that reach a railway station, find the minimum number of platforms required for the railway station so that no train is kept waiting.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Sort arrival array and departure array independently! Use two pointers \`i = 0\` (arrival), \`j = 0\` (departure).
 - If \`arr[i] <= dep[j]\`: a train arrived before another left, so platform needed: \`platforms++\`, \`i++\`.
 - Else: train departed, platform freed: \`platforms--\`, \`j++\`.
@@ -481,7 +481,7 @@ Track maximum platforms needed at any point in time.
     markdown_details: `## Problem Statement
 Given the \`root\` of a binary tree, return its maximum depth. A binary tree's maximum depth is the number of nodes along the longest path from the root node down to the farthest leaf node.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 \`\`\`ts
 function maxDepth(root: TreeNode | null): number {
   if (!root) return 0;
@@ -552,7 +552,7 @@ Given the \`root\` of a binary tree, return the zigzag level order traversal of 
     markdown_details: `## Problem Statement
 Given below is a binary tree. The task is to print the top view of binary tree. Top view of a binary tree is the set of nodes visible when the tree is viewed from the top.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Perform BFS level order traversal tracking vertical line index \`line\`. Root starts at line 0, left child at \`line - 1\`, right child at \`line + 1\`. Store the FIRST node encountered at each vertical line in a Map.
 
 ### Optimal Complexity
@@ -582,7 +582,7 @@ You are given an \`m x n\` grid where each cell can have one of three values:
 - 2: rotten orange
 Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten. Return the minimum number of minutes that must elapse until no cell has a fresh orange. If impossible, return \`-1\`.
 
-### Striver's Approach & Intuition (Multi-Source BFS)
+### A2Z DSA's Approach & Intuition (Multi-Source BFS)
 Push all initially rotten oranges \`(r, c, time = 0)\` into a queue. Count total fresh oranges.
 Pop from queue, infect 4-directionally adjacent fresh oranges, decrement fresh count, and push with \`time + 1\`.
 If fresh count is 0 at the end, return max time; otherwise return -1.
@@ -631,7 +631,7 @@ There is an undirected graph with \`n\` nodes. Return \`true\` if and only if it
     markdown_details: `## Problem Statement
 You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. Adjacent houses have security systems connected, so two adjacent houses cannot be robbed on the same night. Return the maximum amount of money you can rob tonight without alerting the police.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 At house \`i\`:
 - \`rob = nums[i] + prev2\`
 - \`skip = prev1\`
@@ -659,7 +659,7 @@ Keep rolling \`prev2 = prev1\`, \`prev1 = curr\` for O(1) space!
     markdown_details: `## Problem Statement
 There is a robot on an \`m x n\` grid. The robot is initially located at the top-left corner and tries to reach the bottom-right corner. The robot can only move either down or right at any point in time. Return the number of possible unique paths.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 Total steps needed to reach the end: \`m - 1\` down and \`n - 1\` right.
 Total moves = \`m + n - 2\`.
 This is a direct combinatorics combination problem: \`nCr(m + n - 2, m - 1)\`!
@@ -685,7 +685,7 @@ This is a direct combinatorics combination problem: \`nCr(m + n - 2, m - 1)\`!
     markdown_details: `## Problem Statement
 Given two strings **text1** and **text2**, return the length of their longest common subsequence. If there is no common subsequence, return 0.
 
-### Striver's Approach & Intuition
+### A2Z DSA's Approach & Intuition
 If \`text1[i - 1] === text2[j - 1]\`: \`dp[i][j] = 1 + dp[i - 1][j - 1]\`.
 Else: \`dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\`.
 Can be space-optimized using two rolling 1D arrays of size \`text2.length + 1\`.
@@ -699,10 +699,10 @@ Can be space-optimized using two rolling 1D arrays of size \`text2.length + 1\`.
   }
 ];
 
-// Append additional problems into STRIVER_A2Z_PROBLEMS array
+// Append additional problems into DSA_A2Z_PROBLEMS array
 const insertIndex = existingContent.lastIndexOf("];");
 const formattedAdditional = additionalProblems.map(p => JSON.stringify(p, null, 2)).join(",\n  ");
 const updatedContent = existingContent.slice(0, insertIndex) + ",\n  " + formattedAdditional + "\n];\n";
 
-fs.writeFileSync(path.join(__dirname, "../lib/dsa-striver-sheet.ts"), updatedContent, "utf-8");
-console.log(`Successfully merged ${additionalProblems.length} additional problems into lib/dsa-striver-sheet.ts!`);
+fs.writeFileSync(path.join(__dirname, "../lib/dsa-a2z-sheet.ts"), updatedContent, "utf-8");
+console.log(`Successfully merged ${additionalProblems.length} additional problems into lib/dsa-a2z-sheet.ts!`);

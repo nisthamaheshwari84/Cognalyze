@@ -208,7 +208,7 @@ print(multiply_elements([1, 2, 3]))
       "disjoint set union",
       "trie",
       "leetcode 75",
-      "striver 455",
+      "A2Z DSA 455",
       "kmp string matching",
     ];
 

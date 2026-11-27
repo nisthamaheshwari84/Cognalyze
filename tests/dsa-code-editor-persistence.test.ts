@@ -10,7 +10,7 @@ import {
   resolveProblemCode,
   SupportedLanguage
 } from "../lib/skills/dsa-code-persistence";
-import { getStriverProblemById } from "../lib/skills/striver-curriculum";
+import { getDsaSheetProblemById } from "../lib/skills/dsa-curriculum";
 
 describe("DSA Arena Code Editor Persistence & State Management", () => {
   // Mock localStorage for node test environment
@@ -50,7 +50,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("2. Resolves fresh starter code when no draft exists", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const result = resolveProblemCode({
       problem: prob,
       language: "cpp",
@@ -64,7 +64,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("3. CRUCIAL: Deleting starter code to empty string ('') is preserved and NEVER overwritten", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const inMemoryDrafts: Record<string, string> = {
       [getDraftKey(prob.id, "cpp")]: "" // User deleted all code!
     };
@@ -82,7 +82,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("4. Student code implementation is preserved against starter code resets", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const userImplementation = `int countDigits(int n) {\n    if (n == 0) return 1;\n    int cnt = 0;\n    while (n > 0) { cnt++; n /= 10; }\n    return cnt;\n}`;
     const inMemoryDrafts: Record<string, string> = {
       [getDraftKey(prob.id, "cpp")]: userImplementation
@@ -101,8 +101,8 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("5. Isolates code drafts across different problems", () => {
-    const probA = getStriverProblemById("count-digits-in-a-number");
-    const probB = getStriverProblemById("painter-s-partition-problem");
+    const probA = getDsaSheetProblemById("count-digits-in-a-number");
+    const probB = getDsaSheetProblemById("painter-s-partition-problem");
 
     const codeA = "// Solution for Count Digits";
     const codeB = "// Solution for Painter Partition";
@@ -131,7 +131,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("6. Isolates code drafts across different programming languages for the same problem", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const cppCode = "int countDigits(int n) { return 5; }";
     const pyCode = "def countDigits(n: int) -> int:\n    return 5";
 
@@ -159,7 +159,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("7. Persists draft to localStorage and recovers it across page reloads", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const savedCode = "// Recovered from localStorage session";
 
     saveDraftToStorage("user-456", prob.id, "cpp", savedCode);
@@ -182,7 +182,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("8. Explicit 'Reset Starter' clears the draft and restores fresh starter code", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const userCode = "int myBrokenCode() {}";
 
     // Save custom draft
@@ -209,7 +209,7 @@ describe("DSA Arena Code Editor Persistence & State Management", () => {
   });
 
   it("9. Interview mode submitted code precedence when no local edits exist", () => {
-    const prob = getStriverProblemById("count-digits-in-a-number");
+    const prob = getDsaSheetProblemById("count-digits-in-a-number");
     const interviewSubmitted = "// Code submitted during round 1";
 
     const result = resolveProblemCode({

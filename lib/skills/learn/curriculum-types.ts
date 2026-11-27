@@ -65,8 +65,8 @@ export interface CurriculumSubtopic {
   status: NodeStatus;
   microConcepts: MicroConcept[];
   fearPoints: FearPoint[];
-  practiceProblemRefs: string[]; // Striver 455 or Canonical Problem IDs
-  striverSheetMapping?: string;
+  practiceProblemRefs: string[]; // DSA 455 or Canonical Problem IDs
+  a2zSheetMapping?: string;
   loveBabbarSheetMapping?: string;
 }
 

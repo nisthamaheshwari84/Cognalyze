@@ -26,7 +26,7 @@ const SEARCH_REGISTRY: SearchItem[] = [
   { id: "tool-mentor", title: "Cognalyze AI Mentor", category: "Tool", href: "/student/ai-mentor", icon: "🤖", description: "Personalized learning, DSA practice, interview preparation & career guidance" },
   { id: "tool-interview", title: "FAANG Mock Interview", category: "Tool", href: "/interview", icon: "🎙️", description: "Real-time AI voice & technical interview simulation" },
   { id: "tool-practice-interview", title: "Practice Interview", category: "Tool", href: "/student/practice-interview", icon: "🎤", description: "Targeted opportunity mock interview session" },
-  { id: "tool-dsa", title: "DSA Tracker (Striver Sheet)", category: "Tool", href: "/student/dsa-tracker", icon: "⚡", description: "Algorithmic problem sets and SDE sheet progress" },
+  { id: "tool-dsa", title: "DSA Tracker (SDE 455 Sheet)", category: "Tool", href: "/student/dsa-tracker", icon: "⚡", description: "Algorithmic problem sets and SDE sheet progress" },
   { id: "tool-resume", title: "Resume Workspace & ATS", category: "Tool", href: "/student/resume", icon: "📄", description: "Resume parsing, keyword diagnostics, and ATS score" },
   { id: "tool-resume-builder", title: "Resume Builder", category: "Tool", href: "/resume", icon: "✍️", description: "Interactive resume creator and PDF exporter" },
   { id: "tool-sim", title: "Recruitment Simulation", category: "Tool", href: "/student/simulation", icon: "🏆", description: "5-stage campus recruitment process simulation" },

@@ -1355,7 +1355,7 @@ function getInitialDemoEvidence(studentId: string): EvidenceItem[] {
       sourceType: "dsa",
       sourceId: "dsa-sde-sheet",
       capability: "DSA & Problem Solving",
-      claim: "Solved Striver SDE Sheet Arrays & Dynamic Programming",
+      claim: "Solved SDE 455 Sheet Arrays & Dynamic Programming",
       extractedEvidence: "Verified solutions for 24 medium & hard problems across Arrays, Hashing, and Dynamic Programming.",
       evidenceLevel: 3, // ASSESSED
       confidence: "HIGH",

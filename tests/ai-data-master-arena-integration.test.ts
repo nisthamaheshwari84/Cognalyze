@@ -64,7 +64,7 @@ describe("AI & Data Arena — Master Architecture & Integration Suite", () => {
 
   it("strictly enforces DSA Exclusion: AI & Data Arena contains zero competitive programming / LeetCode DSA topics", () => {
     const flatTopics = getAllCurriculumTopicsFlat();
-    const dsaKeywords = ["striver 455", "binary search on answers", "two pointers vs dynamic programming", "k-sum leetcode", "topological sort dsa"];
+    const dsaKeywords = ["A2Z DSA 455", "binary search on answers", "two pointers vs dynamic programming", "k-sum leetcode", "topological sort dsa"];
     for (const item of flatTopics) {
       for (const kw of dsaKeywords) {
         assert.ok(!item.topic.title.toLowerCase().includes(kw), `Found forbidden DSA topic: ${item.topic.title}`);

@@ -141,11 +141,11 @@ test("Phase 4 — Pilot Teaching Module (Kadane's Algorithm)", async (t) => {
     assert.ok(l9.misconceptionDetectors.length >= 2);
   });
 
-  await t.test("13. Layer 10 (Bridge to Practice): Links to LeetCode 53, 918, and Striver 455", () => {
+  await t.test("13. Layer 10 (Bridge to Practice): Links to LeetCode 53, 918, and DSA 455", () => {
     const l10 = KADANE_ALGORITHM_MODULE.layer10BridgeToPractice;
     assert.equal(l10.canonicalPracticeProblems.length, 3);
-    assert.ok(l10.canonicalPracticeProblems.some(p => p.problemId === "striver-step3-max-subarray"));
-    assert.ok(l10.canonicalPracticeProblems.some(p => p.problemId === "striver-step3-max-circular-subarray"));
+    assert.ok(l10.canonicalPracticeProblems.some(p => p.problemId === "dsa-step3-max-subarray"));
+    assert.ok(l10.canonicalPracticeProblems.some(p => p.problemId === "dsa-step3-max-circular-subarray"));
   });
 
   await t.test("14. C++20 Annotated Code Snippet: Validated with 4 line annotations", () => {

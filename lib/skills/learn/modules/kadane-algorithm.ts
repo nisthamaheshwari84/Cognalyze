@@ -1126,9 +1126,9 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
   layer10BridgeToPractice: {
     canonicalPracticeProblems: [
       {
-        problemId: "striver-step3-max-subarray",
-        title: "Maximum Subarray Sum (LeetCode 53 / Striver Step 3.2)",
-        striverSheetUrl: "https://takeuforward.org/data-structure/kadanes-algorithm-maximum-subarray-sum-in-an-array/",
+        problemId: "dsa-step3-max-subarray",
+        title: "Maximum Subarray Sum (LeetCode 53 / Step 3.2)",
+        referenceArticleUrl: "https://takeuforward.org/data-structure/kadanes-algorithm-maximum-subarray-sum-in-an-array/",
         difficulty: "medium",
         conceptApplicationNotes: {
           en: "Direct textbook application of Kadane's algorithm. Write it in C++20 and verify all test cases.",
@@ -1140,7 +1140,7 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
         }
       },
       {
-        problemId: "striver-step3-print-max-subarray",
+        problemId: "dsa-step3-print-max-subarray",
         title: "Print the Subarray with Maximum Sum (Indices [L, R])",
         difficulty: "medium",
         conceptApplicationNotes: {
@@ -1153,7 +1153,7 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
         }
       },
       {
-        problemId: "striver-step3-max-circular-subarray",
+        problemId: "dsa-step3-max-circular-subarray",
         title: "Maximum Sum Circular Subarray (LeetCode 918)",
         difficulty: "hard",
         conceptApplicationNotes: {
@@ -1173,7 +1173,7 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
           en: "Solve LeetCode 53 in Practice Tab in C++20.",
           hinglish: "Practice Tab me jakar LeetCode 53 ko C++20 me solve karo."
         },
-        problemIds: ["striver-step3-max-subarray"]
+        problemIds: ["dsa-step3-max-subarray"]
       },
       {
         level: "variation",
@@ -1181,7 +1181,7 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
           en: "Solve Print Subarray with indices tracking.",
           hinglish: "Index tracking ke sath subarray print karne wala variation solve karo."
         },
-        problemIds: ["striver-step3-print-max-subarray"]
+        problemIds: ["dsa-step3-print-max-subarray"]
       },
       {
         level: "advanced_application",
@@ -1189,7 +1189,7 @@ export const KADANE_ALGORITHM_MODULE: LearningModule = {
           en: "Conquer Circular Subarrays and Maximum Product Subarray.",
           hinglish: "Circular Subarray aur Maximum Product Subarray ko master karo."
         },
-        problemIds: ["striver-step3-max-circular-subarray"]
+        problemIds: ["dsa-step3-max-circular-subarray"]
       }
     ],
     recommendedImmediateAction: {

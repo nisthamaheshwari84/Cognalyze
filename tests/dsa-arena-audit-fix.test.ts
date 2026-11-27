@@ -23,7 +23,7 @@
  * 17. Proctoring events are not fabricated.
  * 18. Sessions and results remain isolated across users.
  * 19. Existing authentication, routing, and features remain intact.
- * 20. Striver sheet canonical problem definitions are valid and immutable.
+ * 20. A2Z DSA Sheet canonical problem definitions are valid and immutable.
  */
 
 import { test } from "node:test";
@@ -41,7 +41,7 @@ import {
   finalizeInterviewSession,
   recordProctoringTelemetry
 } from "../lib/skills/dsa-interview-store";
-import { getStriverProblemById } from "../lib/skills/striver-curriculum";
+import { getDsaSheetProblemById } from "../lib/skills/dsa-curriculum";
 
 test("DSA Arena 20-Point Regression & Verification Suite", async (t) => {
 
@@ -209,7 +209,7 @@ def maxSubArray(nums: list[int]) -> int:
     const activeQProblemId = session.questions[session.currentQuestionIndex].problemId;
 
     // Simulate user viewing a totally different problem in Practice mode
-    const practiceProb = getStriverProblemById("coin-change-dp-20");
+    const practiceProb = getDsaSheetProblemById("coin-change-dp-20");
     assert.ok(practiceProb);
 
     // Verify session remains unaffected
@@ -342,14 +342,14 @@ def maxSubArray(nums: list[int]) -> int:
     assert.strictEqual(accessedByBob, null, "User Bob must not be authorized to view User Alice's session");
   });
 
-  // ── TEST 19: Striver sheet problem retrieval integrates canonical contracts ──
-  await t.test("19. Striver curriculum integrates canonical problem contracts", () => {
-    const painters = getStriverProblemById("painter-s-partition-problem");
+  // ── TEST 19: A2Z DSA Sheet problem retrieval integrates canonical contracts ──
+  await t.test("19. DSA curriculum integrates canonical problem contracts", () => {
+    const painters = getDsaSheetProblemById("painter-s-partition-problem");
     assert.strictEqual(painters.functionName, "paintersPartition");
     assert.ok(painters.publicTestCases.length >= 3);
     assert.notStrictEqual(painters.publicTestCases[0].expected, "Verified Output", "Must not use placeholder 'Verified Output'");
 
-    const matrixMedian = getStriverProblemById("matrix-median-in-row-wise-sorted-matrix");
+    const matrixMedian = getDsaSheetProblemById("matrix-median-in-row-wise-sorted-matrix");
     assert.strictEqual(matrixMedian.functionName, "matrixMedian");
     assert.ok(matrixMedian.publicTestCases.length >= 3);
     assert.notStrictEqual(matrixMedian.publicTestCases[0].expected, "Verified Output");

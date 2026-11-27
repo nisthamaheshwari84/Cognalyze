@@ -75,7 +75,7 @@ export default function ConceptMasteryHub({
         <div>
           <div className="flex items-center space-x-2 text-[11px] font-bold uppercase tracking-wider text-blue-300 mb-1">
             <Layers className="w-3.5 h-3.5 text-blue-300" />
-            <span>DSA Concept Mastery Platform (Striver + Love Babbar Union)</span>
+            <span>DSA Concept Mastery Platform (Unified A2Z Syllabus)</span>
           </div>
           <h2 className="text-lg sm:text-xl font-extrabold text-white tracking-tight">
             Comprehensive Concept Intelligence &amp; Algorithmic Verification

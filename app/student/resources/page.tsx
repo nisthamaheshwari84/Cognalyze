@@ -90,7 +90,7 @@ export default function StudentResourcesPage() {
           actionText: "Launch AI Mentor"
         },
         {
-          title: "DSA Tracker (Striver SDE Sheet)",
+          title: "DSA Tracker (SDE 455 Sheet)",
           description: "Interactive algorithmic problem tracker mapping test case executions directly to Student DNA.",
           href: "/student/dsa-tracker",
           icon: "⚡",

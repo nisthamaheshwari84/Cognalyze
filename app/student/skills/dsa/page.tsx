@@ -10,18 +10,18 @@ import {
 } from "@/lib/skills/adaptive-engine";
 import SessionBriefModal from "@/components/skills/SessionBriefModal";
 import {
-  STRIVER_STEPS,
-  getAllStriverProblems,
-  getStriverProblemById,
+  DSA_ROADMAP_STEPS,
+  getAllDsaSheetProblems,
+  getDsaSheetProblemById,
   getTargetedReTestProblem,
-  StriverProblemFull,
+  DsaProblemFull,
   DsaInterviewQuestionItem
-} from "@/lib/skills/striver-curriculum";
+} from "@/lib/skills/dsa-curriculum";
 import {
   getStudentDsaFocus,
   getStudentDsaSummary,
-  getStudentStriverProgress,
-  updateStudentStriverStatus
+  getStudentDsaProgress,
+  updateStudentDsaStatus
 } from "@/lib/skills/candidate-history";
 import {
   CANONICAL_DSA_PROBLEMS,
@@ -59,21 +59,21 @@ function DSACodingArenaContent() {
   const [mode, setMode] = useState<DSAMode>("practice");
   const [selectedLanguage, setSelectedLanguage] = useState<"cpp" | "python" | "javascript" | "java">("cpp");
 
-  // Striver Roadmap Navigation State
+  // A2Z DSA Roadmap Navigation State
   const [selectedStepId, setSelectedStepId] = useState<string>("step-4");
   const [selectedSubtopic, setSelectedSubtopic] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [problemsList, setProblemsList] = useState<StriverProblemFull[]>([]);
-  const [activeProblem, setActiveProblem] = useState<StriverProblemFull>(() => getStriverProblemById("painter-s-partition-problem"));
+  const [problemsList, setProblemsList] = useState<DsaProblemFull[]>([]);
+  const [activeProblem, setActiveProblem] = useState<DsaProblemFull>(() => getDsaSheetProblemById("painter-s-partition-problem"));
 
-  // Dynamic Candidate State & Striver Progress
+  // Dynamic Candidate State & DSA progress
   const [dsaSummary, setDsaSummary] = useState(() => getStudentDsaSummary(""));
   const [currentFocus, setCurrentFocus] = useState(() => getStudentDsaFocus(""));
   const [candidateProgressMap, setCandidateProgressMap] = useState<Record<string, any>>({});
 
   // DSA Mentor, Company Tracks & Advanced Labs State
   const [isMentorOpen, setIsMentorOpen] = useState(false);
-  const [roadmapMode, setRoadmapMode] = useState<"striver" | "company">("striver");
+  const [roadmapMode, setRoadmapMode] = useState<"a2z" | "company">("a2z");
   const [selectedCompanySlug, setSelectedCompanySlug] = useState<string>("google");
   const [companyProvenanceFilter, setCompanyProvenanceFilter] = useState<string>("all");
   const [activeLabTab, setActiveLabTab] = useState<"tutorial" | "dryrun" | "approaches" | "debug">("tutorial");
@@ -209,13 +209,13 @@ function DSACodingArenaContent() {
     }
 
     const queryStepId = searchParams.get("step") || searchParams.get("stepId");
-    if (queryStepId && STRIVER_STEPS.some(s => s.id === queryStepId)) {
+    if (queryStepId && DSA_ROADMAP_STEPS.some(s => s.id === queryStepId)) {
       setSelectedStepId(queryStepId);
     }
 
     const queryProblemId = searchParams.get("problemId") || searchParams.get("id");
     if (queryProblemId && queryProblemId !== activeProblemIdRef.current) {
-      const p = getStriverProblemById(queryProblemId);
+      const p = getDsaSheetProblemById(queryProblemId);
       setActiveProblem(p);
       setSelectedStepId(p.step_id);
     }
@@ -255,11 +255,11 @@ function DSACodingArenaContent() {
           const saved = localStorage.getItem(`cognalyze_dsa_sel_${finalId}`);
           if (saved) {
             const parsed = JSON.parse(saved);
-            if (parsed.stepId && STRIVER_STEPS.some(s => s.id === parsed.stepId)) {
+            if (parsed.stepId && DSA_ROADMAP_STEPS.some(s => s.id === parsed.stepId)) {
               setSelectedStepId(parsed.stepId);
             }
             if (parsed.problemId && parsed.problemId !== activeProblemIdRef.current) {
-              const p = getStriverProblemById(parsed.problemId);
+              const p = getDsaSheetProblemById(parsed.problemId);
               setActiveProblem(p);
               setSelectedStepId(p.step_id);
             }
@@ -284,7 +284,7 @@ function DSACodingArenaContent() {
             setInterviewTimeLeft(remainingSec);
             const activeQ = s.questions[s.currentQuestionIndex];
             if (activeQ) {
-              const qProb = getStriverProblemById(activeQ.problemId);
+              const qProb = getDsaSheetProblemById(activeQ.problemId);
               if (qProb.id !== activeProblemIdRef.current) {
                 setActiveProblem(qProb);
               }
@@ -317,7 +317,7 @@ function DSACodingArenaContent() {
     setDsaSummary(summary);
     const focus = getStudentDsaFocus(cid);
     setCurrentFocus(focus);
-    const progress = getStudentStriverProgress(cid);
+    const progress = getStudentDsaProgress(cid);
     setCandidateProgressMap(progress);
   };
 
@@ -325,7 +325,7 @@ function DSACodingArenaContent() {
   const handleSelectStep = (stepId: string) => {
     setSelectedStepId(stepId);
     setSelectedSubtopic("all");
-    const list = getAllStriverProblems({ stepId, subtopic: "all" });
+    const list = getAllDsaSheetProblems({ stepId, subtopic: "all" });
     setProblemsList(list);
     // If activeProblem doesn't belong to this step, switch to first problem of the step
     if (activeProblem.step_id !== stepId && list.length > 0) {
@@ -338,7 +338,7 @@ function DSACodingArenaContent() {
 
   const handleSelectProblem = (problemId: string) => {
     if (problemId === activeProblem.id) return;
-    const prob = getStriverProblemById(problemId);
+    const prob = getDsaSheetProblemById(problemId);
     setActiveProblem(prob);
     if (prob.step_id && prob.step_id !== selectedStepId) {
       setSelectedStepId(prob.step_id);
@@ -362,7 +362,7 @@ function DSACodingArenaContent() {
 
   // Sync problems list when step, subtopic, or search changes
   useEffect(() => {
-    let list = getAllStriverProblems({
+    let list = getAllDsaSheetProblems({
       stepId: selectedStepId,
       subtopic: selectedSubtopic,
       search: searchQuery
@@ -559,7 +559,7 @@ function DSACodingArenaContent() {
 
         const firstQ = s.questions[0];
         if (firstQ) {
-          const prob = getStriverProblemById(firstQ.problemId);
+          const prob = getDsaSheetProblemById(firstQ.problemId);
           setActiveProblem(prob);
           const starter = getProblemStarterCode(prob, selectedLanguage as SupportedLanguage);
           handleCodeChange(starter);
@@ -770,7 +770,7 @@ function DSACodingArenaContent() {
         setActiveSession(data.session);
         const nextQ = data.session.questions[data.session.currentQuestionIndex];
         if (nextQ) {
-          const nextProb = getStriverProblemById(nextQ.problemId);
+          const nextProb = getDsaSheetProblemById(nextQ.problemId);
           setActiveProblem(nextProb);
           const nextCode = nextQ.submittedCode || getProblemStarterCode(nextProb, selectedLanguage as SupportedLanguage);
           handleCodeChange(nextCode);
@@ -852,7 +852,7 @@ function DSACodingArenaContent() {
   };
 
   const handleMarkAsLearned = () => {
-    updateStudentStriverStatus(candidateId, activeProblem.id, "learned");
+    updateStudentDsaStatus(candidateId, activeProblem.id, "learned");
     refreshCandidateData(candidateId);
   };
 
@@ -901,7 +901,7 @@ function DSACodingArenaContent() {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  const currentStep = STRIVER_STEPS.find(s => s.id === selectedStepId) || STRIVER_STEPS[3];
+  const currentStep = DSA_ROADMAP_STEPS.find(s => s.id === selectedStepId) || DSA_ROADMAP_STEPS[3];
   const canonicalActive = getCanonicalProblem(activeProblem.id);
 
   // Interview Question Progress Tracking
@@ -929,11 +929,11 @@ function DSACodingArenaContent() {
                   ← Skill Practice Hub
                 </Link>
                 <span style={{ color: "#98A2B3" }}>/</span>
-                <span style={{ color: "#356AE6", fontSize: 12, fontWeight: 700 }}>DSA Arena (Striver A2Z)</span>
+                <span style={{ color: "#356AE6", fontSize: 12, fontWeight: 700 }}>DSA Arena (A2Z Roadmap)</span>
               </div>
               <h1 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "#162A43", display: "flex", alignItems: "center", gap: 8, letterSpacing: "-0.02em" }}>
                 <span>⚡</span>
-                <span>DSA Algorithmic Problem Solving &amp; Striver Curriculum Arena</span>
+                <span>DSA Algorithmic Problem Solving &amp; DSA Curriculum Arena</span>
               </h1>
             </div>
 
@@ -1059,7 +1059,7 @@ function DSACodingArenaContent() {
             <span style={{ color: "#D1CDC4" }}>•</span>
             <span style={{ color: "#2E7D5B", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4 }}>
               <span>📊</span>
-              <span>Striver SDE 455: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved</span>
+              <span>SDE 455 Sheet: {dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved</span>
             </span>
             <button
               onClick={() => handleSwitchMode("tracker")}
@@ -1166,25 +1166,25 @@ function DSACodingArenaContent() {
             ) : (
               <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 18 }}>
             
-            {/* Left: Striver Roadmap Steps & Company Tracks Browser */}
+            {/* Left: A2Z DSA Roadmap Steps & Company Tracks Browser */}
             <div style={{ background: "#FFFFFF", border: "1px solid #E4E1DA", borderRadius: 10, padding: 16, height: "calc(100vh - 180px)", overflowY: "auto", position: "sticky", top: 80, boxShadow: "0 1px 3px rgba(16,24,40,0.04)" }}>
-              {/* Navigation Mode: Striver vs Company Tracks */}
+              {/* Navigation Mode: A2Z DSA vs Company Tracks */}
               <div style={{ display: "flex", background: "#F6F5F1", padding: 2, borderRadius: 6, border: "1px solid #E4E1DA", marginBottom: 12 }}>
                 <button
-                  onClick={() => setRoadmapMode("striver")}
+                  onClick={() => setRoadmapMode("a2z")}
                   style={{
                     flex: 1,
                     padding: "5px 6px",
                     borderRadius: 4,
                     border: "none",
-                    background: roadmapMode === "striver" ? "#162A43" : "transparent",
-                    color: roadmapMode === "striver" ? "#FFFFFF" : "#667085",
+                    background: roadmapMode === "a2z" ? "#162A43" : "transparent",
+                    color: roadmapMode === "a2z" ? "#FFFFFF" : "#667085",
                     fontSize: 10,
                     fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
-                  📜 Striver A2Z
+                  📜 A2Z DSA
                 </button>
                 <button
                   onClick={() => setRoadmapMode("company")}
@@ -1401,10 +1401,10 @@ function DSACodingArenaContent() {
                 </div>
               ) : (
                 <div>
-                  {/* Striver SDE 455 Master Questions & Tracker Switcher */}
+                  {/* SDE 455 Sheet Master Questions & Tracker Switcher */}
                   <div style={{ marginBottom: 12, padding: "9px 12px", background: "#EFF4FE", border: "1px solid #D2E0FB", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43" }}>Striver SDE 455 Master Qs</div>
+                      <div style={{ fontSize: 11, fontWeight: 800, color: "#162A43" }}>SDE 455 Master Qs</div>
                       <div style={{ fontSize: 10, color: "#667085" }}>{dsaSummary.totalSolved} / {dsaSummary.totalAvailable} Solved</div>
                     </div>
                     <button
@@ -1425,7 +1425,7 @@ function DSACodingArenaContent() {
                   </div>
 
                   <div style={{ fontSize: 12, fontWeight: 800, color: "#162A43", textTransform: "uppercase", marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span>Striver A2Z Roadmap</span>
+                    <span>A2Z DSA Roadmap</span>
                     <span style={{ fontSize: 11, color: "#667085" }}>17 Steps</span>
                   </div>
 
@@ -1447,7 +1447,7 @@ function DSACodingArenaContent() {
                       cursor: "pointer"
                     }}
                   >
-                    {STRIVER_STEPS.map(s => (
+                    {DSA_ROADMAP_STEPS.map(s => (
                       <option key={s.id} value={s.id}>
                         {s.icon} {s.title} ({s.problemCount} Qs)
                       </option>
@@ -1725,7 +1725,7 @@ function DSACodingArenaContent() {
                           maxWidth: 240
                         }}
                       >
-                        {STRIVER_STEPS.map(s => (
+                        {DSA_ROADMAP_STEPS.map(s => (
                           <option key={s.id} value={s.id}>
                             {s.icon} {s.title}
                           </option>
@@ -2142,14 +2142,14 @@ function DSACodingArenaContent() {
         )}
 
         {/* ══════════════════════════════════════════════════════════════
-            MODE 5: STRIVER SDE 455 DSA MASTERY TRACKER
+            MODE 5: SDE 455 DSA MASTERY TRACKER
             ══════════════════════════════════════════════════════════════ */}
         {mode === "tracker" && (
           <div style={{ marginBottom: 24 }}>
             <DsaMasteryTrackerView
               isEmbedded={true}
               onSelectProblem={(probId) => {
-                const prob = getStriverProblemById(probId);
+                const prob = getDsaSheetProblemById(probId);
                 if (prob) {
                   setActiveProblem(prob);
                   setSelectedStepId(prob.step_id);

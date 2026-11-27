@@ -2,7 +2,7 @@
 import json
 import re
 
-# Comprehensive canonical dataset of all 455 Striver A2Z Sheet problems
+# Comprehensive canonical dataset of all 455 A2Z DSA Sheet problems
 raw_problems = [
     # ─── STEP 1: LEARN THE BASICS (31 problems) ───
     ("Step 1: Learn the basics", "Basic Maths", "Count Digits in a Number", "easy", "https://www.geeksforgeeks.org/problems/count-digits5716/1", ["TCS", "Infosys", "Wipro"], "Count how many digits are present in an integer N using repeated division.", "O(log10(N))", "O(1)"),
@@ -482,8 +482,8 @@ raw_problems = [
     ("Step 17: Tries", "Theory & Implementation", "Maximum XOR of Two Numbers in an Array", "medium", "https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/", ["Google", "Amazon"], "Find maximum XOR pair using 32-bit binary Trie greedy descent.", "O(32 * N)", "O(32 * N)"),
     ("Step 17: Tries", "Theory & Implementation", "Maximum XOR With an Element From Array (Offline Queries)", "hard", "https://leetcode.com/problems/maximum-xor-with-an-element-from-array/", ["Google", "Amazon"], "Answer offline queries (xi, mi) sorting by threshold mi and binary Trie.", "O(Q log Q + N log N)", "O(32 * N)"),
 
-    # ─── EXTRA CANONICAL EXPANSIONS (TO REACH EXACTLY 455 STRIVER A2Z PROBLEMS) ───
-    ("Step 1: Learn the basics", "Pattern Printing", "Concentric Square Matrix Pattern", "easy", "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/", ["Amazon", "TCS"], "Print 2N-1 concentric square rings descending down from N to 1.", "O(N^2)", "O(1)"),
+    # ─── EXTRA CANONICAL EXPANSIONS (TO REACH EXACTLY 455 A2Z DSA ProblemS) ───
+    ("Step 1: Learn the basics", "Pattern Printing", "Concentric Square Matrix Pattern", "easy", "https://leetcode.com/problemset/", ["Amazon", "TCS"], "Print 2N-1 concentric square rings descending down from N to 1.", "O(N^2)", "O(1)"),
     ("Step 3: Solve Problems on Arrays", "Hard Array Problems", "Next Greater Element III (Integer Permutation)", "medium", "https://leetcode.com/problems/next-greater-element-iii/", ["Amazon", "Bloomberg"], "Find smallest 32-bit integer with same digits greater than n.", "O(digits)", "O(digits)"),
     ("Step 5: Strings (Basic and Medium)", "Medium Strings", "Group Anagrams", "medium", "https://leetcode.com/problems/group-anagrams/", ["Amazon", "Google", "Meta", "Apple"], "Group strings that are anagrams of each other using sorted key or frequency tuple.", "O(N * K log K)", "O(N * K)"),
     ("Step 5: Strings (Basic and Medium)", "Medium Strings", "Repeated String Match (Rabin-Karp)", "medium", "https://leetcode.com/problems/repeated-string-match/", ["Google", "Amazon"], "Find minimum times a must be repeated such that b is a substring.", "O(N + M)", "O(N)"),
@@ -534,10 +534,10 @@ def map_topic(step_str):
     return "arrays-hashing"
 
 # Write TypeScript file
-output_path = "/Users/nisthamaheshwari/cognalyze/lib/dsa-striver-sheet.ts"
+output_path = "/Users/nisthamaheshwari/cognalyze/lib/dsa-a2z-sheet.ts"
 
 with open(output_path, "w", encoding="utf-8") as f:
-    f.write("""export interface StriverProblem {
+    f.write("""export interface DsaSheetProblem {
   id: string;
   topic_id: string;
   step_title: string;
@@ -555,7 +555,7 @@ with open(output_path, "w", encoding="utf-8") as f:
   order_index: number;
 }
 
-export const STRIVER_A2Z_PROBLEMS: StriverProblem[] = [
+export const DSA_A2Z_PROBLEMS: DsaSheetProblem[] = [
 """)
 
     count = 0
@@ -573,7 +573,7 @@ export const STRIVER_A2Z_PROBLEMS: StriverProblem[] = [
         seen_ids.add(slug)
         
         topic_id = map_topic(step)
-        article_url = "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2/"
+        article_url = "https://leetcode.com/problemset/"
         md = generate_markdown(title, desc, time_comp, space_comp, url, companies)
         
         json_companies = json.dumps(companies)
@@ -600,4 +600,4 @@ export const STRIVER_A2Z_PROBLEMS: StriverProblem[] = [
 
     f.write("];\n")
 
-print(f"Successfully generated {count} canonical Striver A2Z questions in {output_path}!")
+print(f"Successfully generated {count} canonical A2Z DSA questions in {output_path}!")

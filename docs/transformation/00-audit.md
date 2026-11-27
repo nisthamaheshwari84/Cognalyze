@@ -41,7 +41,7 @@
 | `/student/skills/cs-interview`| CS technical interview practice | Preserved: Technical validation practice |
 | `/student/skills/system-design`| System design practice | Preserved: Technical validation practice |
 | `/student/skills/patterns` | DSA patterns | Preserved: Skill Practice Hub |
-| `/student/dsa-tracker` | Striver sheet / DSA problem progress | Preserved: Skill Practice Hub / DSA Tracker |
+| `/student/dsa-tracker` | A2Z DSA Sheet / DSA problem progress | Preserved: Skill Practice Hub / DSA Tracker |
 | `/student/journey` | Career roadmap and milestones | Preserved: Career Gap Engine |
 | `/student/calendar` | Event scheduling, reminders, snooze, dismiss | Preserved: Personal calendar & validation event scheduling |
 | `/student/calendar/history` | Historical event log | Preserved |

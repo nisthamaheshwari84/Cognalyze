@@ -54,7 +54,7 @@ const STAGE_DEFAULTS: Record<string, StageContextData> = {
     stageName: "Develop",
     subtitle: "Technical Practice & Problem Solving",
     status: "Active / Current",
-    whatHappened: "Actively progressing through Striver SDE Sheet and core CS algorithms.",
+    whatHappened: "Actively progressing through SDE 455 Sheet and core CS algorithms.",
     whatEvidenceExists: "Verified algorithmic challenge submissions with unit test executions.",
     whatChanged: "Problem Solving capability upgraded to Assessed (Level 3).",
     recommendedAction: {
